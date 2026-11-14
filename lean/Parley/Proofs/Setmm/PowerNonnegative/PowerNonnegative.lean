@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -45,7 +45,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
       -- 1.1. algebra
       have s1_1 : a ^ 0 = 1 := by ring1
       -- 1.2. arithmetic
-      have s1_2 : (0 : ℤ) ≤ 1 := by parley_arith
+      have s1_2 : (0 : ℤ) ≤ 1 := by norm_num
       -- 1.3. transitivity, from 1.2, 1.1
       have s1_3 : 0 ≤ a ^ 0 := by exact LE.le.trans_eq (show (0 : ℝ) ≤ 1 by exact_mod_cast s1_2) s1_1.symm
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_3

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -33,7 +32,7 @@ namespace Parley.Tests.Notations.Numbers.SqrtFour
 theorem sqrt_four :
     Real.sqrt (4 : ℝ) = 2 := by
   -- 1. def:sqrt x := 4
-  have r88_1 : (4 : ℤ) ≥ 0 := by parley_arith
+  have r88_1 : (4 : ℤ) ≥ 0 := by norm_num
   have s1a : Real.sqrt (4 : ℝ) ^ 2 = 4 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (4 : ℝ)) (by norm_num))
   have s1b : Real.sqrt (4 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (4 : ℝ)) (by norm_num))
   -- 2. calculation
@@ -42,7 +41,7 @@ theorem sqrt_four :
       _ = 2 ^ 2 := by norm_num
   -- 3. mun:square-equal x := √4, y := 2, from 2
   have r97_1 : Real.sqrt (4 : ℝ) ≥ 0 := by exact s1b
-  have r97_2 : (2 : ℤ) ≥ 0 := by parley_arith
+  have r97_2 : (2 : ℤ) ≥ 0 := by norm_num
   exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (4 : ℝ)) (y := (2 : ℝ)) r97_1 (by norm_num))).mp s2
 
 end Parley.Tests.Notations.Numbers.SqrtFour

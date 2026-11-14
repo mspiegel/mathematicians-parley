@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -29,7 +28,7 @@ namespace Parley.Tests.Notations.Sets.APartOfASet
 theorem a_part_of_a_set :
     ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
   -- 1. arithmetic
-  have s1 : (1 : ℤ) = 1 := by parley_arith
+  have s1 : (1 : ℤ) = 1 := by norm_num
   -- 2. mun:or-left, from 1
   have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) (by norm_num))
   -- 3. def:pair x := 1, u := 1, w := 2, from 2

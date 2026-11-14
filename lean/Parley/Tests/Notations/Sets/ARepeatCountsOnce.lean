@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
@@ -30,7 +30,7 @@ theorem a_repeat_counts_once :
   -- 1. mun:listed-repeat a := 1, b := 2
   have s1 : ({(1 : ℤ), (2 : ℤ), (2 : ℤ)} : Set ℤ) = ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ)))
   -- 2. arithmetic
-  have s2 : (1 : ℤ) ≠ 2 := by parley_arith
+  have s2 : (1 : ℤ) ≠ 2 := by norm_num
   -- 3. mun:card-pair-distinct u := 1, w := 2, from 2
   have s3 : (({(1 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := (1 : ℤ)) (w := (2 : ℤ)))).mp s2
   -- 4. substitute {1, 2} = {1, 2, 2} (line 1) into line 3

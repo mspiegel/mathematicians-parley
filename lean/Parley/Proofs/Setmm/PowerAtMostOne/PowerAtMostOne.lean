@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -65,7 +65,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
         -- 1.6.2. algebra, from C2
         have s1_6_2 : a * a ^ m.toNat = 0 := by linear_combination (a ^ m.toNat) * hC2
         -- 1.6.3. arithmetic
-        have s1_6_3 : (0 : ℤ) ≤ 1 := by parley_arith
+        have s1_6_3 : (0 : ℤ) ≤ 1 := by norm_num
         -- 1.6.4. transitivity, from 1.3, 1.4, 1.6.2, 1.6.3
         exact Eq.trans_le (Eq.trans (Eq.trans s1_3 s1_4) s1_6_2) (show (0 : ℝ) ≤ 1 by exact_mod_cast s1_6_3)
       · skip

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -29,7 +28,7 @@ namespace Parley.Tests.Elaborator.APhraseDefined.SixIsTriangular
 theorem six_is_triangular :
     ((0 : ℤ) < 6 ∧ (∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2)) := by
   -- 1. arithmetic
-  have s1 : (6 : ℚ) = 3 * (3 + 1) / 2 := by parley_arith
+  have s1 : (6 : ℚ) = 3 * (3 + 1) / 2 := by norm_num
   -- 2. exhibit, from 1
   have s2 : ∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(3 : ℤ), by norm_num, by norm_num⟩
   -- 3. D1 n := 6, from 2

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Data.Int.ModEq
@@ -36,7 +35,7 @@ theorem factorial_of_four :
   -- 3. substitute 2! = 2 (line 1) into line 2
   have s3 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = 2 * (2 + 1) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = t * (2 + 1))) s1 s2
   -- 4. arithmetic
-  have s4 : (2 + 1 : ℤ) = 3 := by parley_arith
+  have s4 : (2 + 1 : ℤ) = 3 := by norm_num
   -- 5. substitute 2 + 1 = 3 (line 4) into line 3
   have s5 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 2 * t)) s4 s3; revert h; norm_num)
   -- 6. calculation
@@ -48,7 +47,7 @@ theorem factorial_of_four :
   -- 8. substitute 3! = 6 (line 6) into line 7
   have s8 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = t * (3 + 1))) s6 s7
   -- 9. arithmetic
-  have s9 : (3 + 1 : ℤ) = 4 := by parley_arith
+  have s9 : (3 + 1 : ℤ) = 4 := by norm_num
   -- 10. substitute 3 + 1 = 4 (line 9) into line 8
   have s10 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) s9 s8; revert h; norm_num)
   -- 11. calculation

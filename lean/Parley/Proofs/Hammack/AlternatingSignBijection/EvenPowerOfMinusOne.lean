@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem even_power_of_minus_one (k : ℤ) (hH1 : 0 ≤ k) :
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      parley_arith
+      norm_num
     | succ j hK1 hIH =>
       -- 1.2. algebra
       have s1_2 : 2 * (j + 1) = 2 * j + 2 := by ring1

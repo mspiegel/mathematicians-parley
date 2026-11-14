@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -25,11 +24,11 @@ namespace Parley.Tests.Elaborator.AnObtainFromASecondSentence.FourPositiveAndEve
 theorem four_positive_and_even :
     (4 : ℤ) > 0 ∧ (∃ k : ℤ, 4 = 2 * k) := by
   -- 1. arithmetic
-  have s1 : (4 : ℤ) = 2 * 2 := by parley_arith
+  have s1 : (4 : ℤ) = 2 * 2 := by norm_num
   -- 2. exhibit, from 1
   have s2 : ∃ k : ℤ, 4 = 2 * k := ⟨(2 : ℤ), by norm_num⟩
   -- 3. arithmetic
-  have s3 : (4 : ℤ) > 0 := by parley_arith
+  have s3 : (4 : ℤ) > 0 := by norm_num
   -- 4. join 3, 2
   have s4a : (4 : ℤ) > 0 := s3
   have s4b : ∃ k : ℤ, 4 = 2 * k := s2

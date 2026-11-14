@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -63,7 +62,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
+      have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 2, m := k
@@ -89,7 +88,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.1. inequalities, from K2
       have s2_2_1 : n > 0 := by linarith only [hK2]
       -- 2.2.2. mun:power-positive a := 2, m := n
-      have r63_1 : (2 : ℤ) > 0 := by parley_arith
+      have r63_1 : (2 : ℤ) > 0 := by norm_num
       have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by norm_num)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s2_2_1))] at h ⊢; exact_mod_cast h)
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
       have r67_1 : n > 0 := by exact s2_2_1

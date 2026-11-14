@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -9,6 +8,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
@@ -28,7 +28,7 @@ theorem zero_does_not_divide_five :
   -- 1. mun:zero-divides n := 5
   have s1 : (0 : ℤ) ∣ (5 : ℤ) ↔ (5 : ℤ) = 0 := by exact (Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := (5 : ℤ)))
   -- 2. arithmetic
-  have s2 : (5 : ℤ) ≠ 0 := by parley_arith
+  have s2 : (5 : ℤ) ≠ 0 := by norm_num
   -- 3. mun:iff-not-from-right, from 1, 2
   exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := (0 : ℤ) ∣ (5 : ℤ)) (Q := (5 : ℤ) = 0) s1 s2)
 

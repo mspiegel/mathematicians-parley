@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
@@ -35,8 +34,8 @@ namespace Parley.Tests.Notations.Primes.FloorOfSevenHalves
 theorem floor_of_seven_halves :
     ⌊(7 / 2 : ℝ)⌋ = 3 := by
   -- 1. mun:floor-between x := 7/2, k := 3
-  have r133_1 : (3 : ℚ) ≤ 7 / 2 := by parley_arith
-  have r133_2 : (7 / 2 : ℚ) < 3 + 1 := by parley_arith
+  have r133_1 : (3 : ℚ) ≤ 7 / 2 := by norm_num
+  have r133_2 : (7 / 2 : ℚ) < 3 + 1 := by norm_num
   exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (7 / 2 : ℝ)) (k := (3 : ℤ)))).mpr ⟨by norm_num, by norm_num⟩
 
 end Parley.Tests.Notations.Primes.FloorOfSevenHalves

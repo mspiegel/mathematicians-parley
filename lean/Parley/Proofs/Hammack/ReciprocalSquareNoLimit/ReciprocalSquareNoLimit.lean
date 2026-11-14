@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -65,7 +64,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have r33_1 : (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ)} : Set ℝ)))
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) r33_1 (c := (1 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
-  have r37_1 : (0 : ℤ) < 1 := by parley_arith
+  have r37_1 : (0 : ℤ) < 1 := by norm_num
   have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -47,7 +46,7 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) < 2 := by parley_arith
+      have s1_1 : (1 : ℤ) < 2 := by norm_num
       -- 1.2. def:C n := 1, k := 2, from 1.1
       have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
       -- 1.3. thm:choose-one n := 1
@@ -59,7 +58,7 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       have s1_5 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (k := (2 : ℤ)))
       -- 1.6. substitute 2 − 1 = 1 (arithmetic) into line 1.5
       have s1_6 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by
-        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        have e_arith : (2 - 1 : ℤ) = 1 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m t : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ))) e_arith s1_5; push_cast at h ⊢; exact_mod_cast h)
       -- 1.7. thm:choose-one n := m
       have s1_7 : (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = m := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m) (lt_of_lt_of_le zero_lt_one hK))

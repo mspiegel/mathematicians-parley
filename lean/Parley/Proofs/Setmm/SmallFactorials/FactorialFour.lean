@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Data.Int.ModEq
@@ -38,7 +37,7 @@ theorem factorial_four :
     exact row1
   -- 3. substitute
   have s3 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by
-    have c1 : (3 + 1 : ℤ) = 4 := by parley_arith
+    have c1 : (3 + 1 : ℤ) = 4 := by norm_num
     have row1 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) c1 s2; revert h; norm_num)
     exact row1
   -- 4. calculation

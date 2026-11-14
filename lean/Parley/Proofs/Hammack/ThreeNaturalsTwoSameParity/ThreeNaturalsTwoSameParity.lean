@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -13,6 +12,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -72,7 +72,7 @@ theorem three_naturals_two_same_parity (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 
         -- 2.4.4.7. mun:not-both n := 1, from 2.4.4.6
         have s2_4_4_7 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6)
         -- 2.4.4.8. arithmetic
-        have s2_4_4_8 : Odd (1 : ℤ) := by parley_arith
+        have s2_4_4_8 : Odd (1 : ℤ) := by norm_num
         exact absurd s2_4_4_8 s2_4_4_7
 
 end Parley.Proofs.Hammack.ThreeNaturalsTwoSameParity.ThreeNaturalsTwoSameParity

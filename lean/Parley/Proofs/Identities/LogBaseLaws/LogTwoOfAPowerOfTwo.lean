@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import PowerTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -39,7 +38,7 @@ namespace Parley.Proofs.Identities.LogBaseLaws.LogTwoOfAPowerOfTwo
 theorem log_two_of_a_power_of_two (n : ℤ) (hH1 : 0 < n) :
     Real.log (2 ^ n.toNat : ℝ) / Real.log (2 : ℝ) = (n : ℝ) := by
   -- 1. mun:ln-power x := 2
-  have r13_1 : (2 : ℤ) > 0 := by parley_arith
+  have r13_1 : (2 : ℤ) > 0 := by norm_num
   have s1 : Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := n) (by norm_num)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt hH1)] at h ⊢; exact_mod_cast h)
   -- 2. calculation
   have r17_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real

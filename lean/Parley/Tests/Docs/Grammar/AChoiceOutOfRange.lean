@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Data.Int.ModEq
@@ -29,7 +28,7 @@ namespace Parley.Tests.Docs.Grammar.AChoiceOutOfRange
 theorem a_choice_out_of_range :
     (LeanBridges.Counting.choose (3 : ℤ) (5 : ℤ) : ℤ) = 0 := by
   -- 1. def:C n := 3, k := 5
-  have r64_1 : (3 : ℤ) < 5 := by parley_arith
+  have r64_1 : (3 : ℤ) < 5 := by norm_num
   exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (3 : ℤ)) (by norm_num) (k := (5 : ℤ))) (by norm_num)
 
 end Parley.Tests.Docs.Grammar.AChoiceOutOfRange

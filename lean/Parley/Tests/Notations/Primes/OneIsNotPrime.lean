@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -26,7 +25,7 @@ namespace Parley.Tests.Notations.Primes.OneIsNotPrime
 theorem one_is_not_prime :
     ¬ Nat.Prime (1 : ℤ).toNat := by
   -- 1. arithmetic
-  have s1 : ¬ (1 : ℤ) > 1 := by parley_arith
+  have s1 : ¬ (1 : ℤ) > 1 := by norm_num
   -- 2. contradiction
   intro hS
   -- 2.1. def:prime p := 1, from S

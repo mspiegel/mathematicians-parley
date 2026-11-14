@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Interval
@@ -46,7 +45,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   -- 1. def:tends-to, from H3
   have s1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH3
   -- 2. instantiate ε := 1 in line 1
-  have r583_1 : (0 : ℤ) < 1 := by parley_arith
+  have r583_1 : (0 : ℤ) < 1 := by norm_num
   have s2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < 1) := by exact (s1 (1 : ℝ) (by norm_num))
   -- 3. obtain N from line 2
   obtain ⟨N, s3a, s3b⟩ := s2

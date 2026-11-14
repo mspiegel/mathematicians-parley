@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -30,11 +29,11 @@ namespace Parley.Tests.Notations.Primes.NinetyOneIsNotPrime
 theorem ninety_one_is_not_prime :
     ¬ Nat.Prime (91 : ℤ).toNat := by
   -- 1. arithmetic
-  have s1 : (7 : ℤ) ∣ (91 : ℤ) := by parley_arith
+  have s1 : (7 : ℤ) ∣ (91 : ℤ) := by norm_num
   -- 2. arithmetic
-  have s2 : (7 : ℤ) ≠ 1 := by parley_arith
+  have s2 : (7 : ℤ) ≠ 1 := by norm_num
   -- 3. arithmetic
-  have s3 : (7 : ℤ) ≠ 91 := by parley_arith
+  have s3 : (7 : ℤ) ≠ 91 := by norm_num
   -- 4. contradiction
   intro hS
   -- 4.1. def:prime p := 91, from S

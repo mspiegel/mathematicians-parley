@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -38,7 +37,7 @@ theorem remainder_by_two (N : ℤ) :
   · skip
     intro hD1
     -- 1. obtain q: mun:mod-remainder a := N, m := 2, r := 1, from D1
-    have r18_1 : (1 : ℤ) < 2 := by parley_arith
+    have r18_1 : (1 : ℤ) < 2 := by norm_num
     obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by norm_num) (r := (1 : ℤ)) (by norm_num) (by norm_num))).mp hD1
     -- 2. algebra, from 1
     have s2 : N = 2 * q + 1 := by linear_combination (-1) * s1
@@ -74,7 +73,7 @@ theorem remainder_by_two (N : ℤ) :
     -- 10. exhibit, from 9
     have s10 : ∃ q : ℤ, q * 2 + 1 = N := ⟨k, s9⟩
     -- 11. mun:mod-remainder a := N, m := 2, r := 1, from 10
-    have r69_1 : (1 : ℤ) < 2 := by parley_arith
+    have r69_1 : (1 : ℤ) < 2 := by norm_num
     exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by norm_num) (r := (1 : ℤ)) (by norm_num) (by norm_num))).mpr s10
 
 end Parley.Proofs.Setmm.RemainderByTwo.RemainderByTwo

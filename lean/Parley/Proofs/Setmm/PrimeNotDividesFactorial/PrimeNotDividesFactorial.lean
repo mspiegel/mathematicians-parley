@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -8,6 +7,7 @@ public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Factorial.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
@@ -21,6 +21,7 @@ public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.NatFactorial
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -94,7 +95,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
   rcases s3 with hC3 | hC4
   · skip
     -- 4.1. arithmetic
-    have s4_1 : (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by parley_arith
+    have s4_1 : (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by norm_num [Nat.factorial]
     -- 4.2. substitute N = 0 (C3) into line 4.1
     have s4_2 : (LeanBridges.Counting.factorial N : ℤ) = 1 := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1)) hC3.symm s4_1
     -- 4.3. contradiction

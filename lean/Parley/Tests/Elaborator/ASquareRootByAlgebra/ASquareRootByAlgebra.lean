@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -34,7 +33,7 @@ namespace Parley.Tests.Elaborator.ASquareRootByAlgebra.ASquareRootByAlgebra
 theorem a_square_root_by_algebra (a : ℝ) :
     Real.sqrt (2 : ℝ) * Real.sqrt (2 : ℝ) * a = 2 * a := by
   -- 1. def:sqrt x := 2
-  have r11_1 : (2 : ℤ) ≥ 0 := by parley_arith
+  have r11_1 : (2 : ℤ) ≥ 0 := by norm_num
   have s1a : Real.sqrt (2 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by norm_num))
   have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by norm_num))
   -- 2. algebra, from 1

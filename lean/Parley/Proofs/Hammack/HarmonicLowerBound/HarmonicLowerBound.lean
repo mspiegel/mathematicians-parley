@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -61,7 +60,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
         have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) = 1 / 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ))))
         exact hI
       -- 2.2. calculation
-      have r135_1 : (1 : ℤ) ≥ 1 := by parley_arith
+      have r135_1 : (1 : ℤ) ≥ 1 := by norm_num
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + 1 / 2 := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (j : ℚ) : ℚ)) := by norm_num
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / (1 + 1) := by

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -58,7 +57,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
         _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero
         _ < ε := hA1
     -- 1.1.2. exhibit, from 1.1.1
-    have r45_1 : (1 : ℤ) > 0 := by parley_arith
+    have r45_1 : (1 : ℤ) > 0 := by norm_num
     exact ⟨(1 : ℝ), ⟨by norm_num, s1_1_1⟩⟩
   -- 2. def:continuous-on, from H1, 1
   exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1

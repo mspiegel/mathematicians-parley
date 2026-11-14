@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -28,8 +27,8 @@ namespace Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval
 theorem one_is_in_the_unit_interval :
     (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   -- 1. def:interval a := 0, b := 1, x := 1
-  have r164_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have r164_2 : (1 : ℤ) ≤ 1 := by parley_arith
+  have r164_1 : (0 : ℤ) ≤ 1 := by norm_num
+  have r164_2 : (1 : ℤ) ≤ 1 := by norm_num
   exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
 
 end Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval

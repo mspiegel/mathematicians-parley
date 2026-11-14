@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Real.Basic
@@ -34,7 +33,7 @@ theorem multiple_has_no_remainder (A : ℤ) (M : ℝ) (hH3 : M > 0) :
   -- 1. algebra
   have s1 : (A : ℝ) * M = M * (A : ℝ) := by ring1
   -- 2. calculation
-  have r16_1 : (0 : ℤ) ≤ 0 := by parley_arith
+  have r16_1 : (0 : ℤ) ≤ 0 := by norm_num
   calc LeanBridges.Divisibility.mod ((A : ℝ) * M) M = LeanBridges.Divisibility.mod (M * (A : ℝ)) M := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s1
     _ = LeanBridges.Divisibility.mod (0 : ℝ) M := by simpa only [zero_add] using (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (0 : ℝ)) (M := M) hH3 (K := A))
     _ = 0 := by exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (0 : ℝ)) (B := M) hH3 (by norm_num) hH3)

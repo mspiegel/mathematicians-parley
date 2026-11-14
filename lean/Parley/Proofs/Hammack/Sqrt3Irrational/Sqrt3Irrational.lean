@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -49,7 +48,7 @@ namespace Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational
 theorem sqrt3_irrational :
     Irrational (Real.sqrt (3 : ℝ)) := by
   -- 1. def:sqrt x := 3
-  have r139_1 : (3 : ℤ) ≥ 0 := by parley_arith
+  have r139_1 : (3 : ℤ) ≥ 0 := by norm_num
   have s1 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by norm_num))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (3 : ℝ)) := by
@@ -77,7 +76,7 @@ theorem sqrt3_irrational :
     -- 2.10. thm:three-divides-square n := q, from 2.9
     have s2_10 : (3 : ℤ) ∣ q := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9)
     -- 2.11. exhibit, from 2.5, 2.10
-    have r179_1 : (3 : ℤ) > 1 := by parley_arith
+    have r179_1 : (3 : ℤ) > 1 := by norm_num
     have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨by norm_num, s2_5⟩, s2_10⟩⟩
     exact s2_1c s2_11
   -- 3. def:irrational x := √3, from 2

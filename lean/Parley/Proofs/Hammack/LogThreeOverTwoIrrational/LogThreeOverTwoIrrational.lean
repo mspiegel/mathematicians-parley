@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import PowerTactics
 public import RealTactics
 public import Batteries.Classes.RatCast
@@ -78,18 +77,18 @@ theorem log_three_over_two_irrational :
     -- 2.4. mun:pos-int-nat m := p, from 2.3
     have s2_4 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2_3)
     -- 2.5. calculation
-    have r115_1 : (3 : ℤ) > 0 := by parley_arith
-    have r115_2 : (2 : ℤ) > 0 := by parley_arith
+    have r115_1 : (3 : ℤ) > 0 := by norm_num
+    have r115_2 : (2 : ℤ) > 0 := by norm_num
     have r115_3 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_5 : Real.log (3 ^ q.toNat : ℝ) = Real.log (2 ^ p : ℝ) := by
       calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
         _ = (p : ℝ) * Real.log (2 : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r115_3; have hz2 : (q : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
         _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by norm_num)).symm
     -- 2.6. mun:power-positive a := 3, m := q
-    have r124_1 : (3 : ℤ) > 0 := by parley_arith
+    have r124_1 : (3 : ℤ) > 0 := by norm_num
     have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
     -- 2.7. mun:power-positive a := 2, m := p
-    have r128_1 : (2 : ℤ) > 0 := by parley_arith
+    have r128_1 : (2 : ℤ) > 0 := by norm_num
     have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by norm_num))
     -- 2.8. calculation
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by

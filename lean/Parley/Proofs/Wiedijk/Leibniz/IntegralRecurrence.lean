@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -112,7 +111,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 12. thm:integrand-continuous, from 3, 9
   have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (Set.mapsTo_univ _ _) s3)
   -- 13. arithmetic
-  have s13 : (0 : ℤ) < 1 := by parley_arith
+  have s13 : (0 : ℤ) < 1 := by norm_num
   -- 14. D1
   have s14 : (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := by simp (disch := omega) only [hD1]
   -- 15. calculation

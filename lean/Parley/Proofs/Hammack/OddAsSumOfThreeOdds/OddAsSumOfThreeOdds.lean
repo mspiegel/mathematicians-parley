@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.ModEq
@@ -30,11 +29,11 @@ namespace Parley.Proofs.Hammack.OddAsSumOfThreeOdds.OddAsSumOfThreeOdds
 theorem odd_as_sum_of_three_odds (n : ℤ) (hH2 : Odd n) :
     (∃ a : ℤ, ∃ b : ℤ, ∃ c : ℤ, ((Odd a ∧ Odd b) ∧ Odd c) ∧ n = a + b + c) := by
   -- 1. arithmetic
-  have s1 : (1 : ℤ) = 2 * 0 + 1 := by parley_arith
+  have s1 : (1 : ℤ) = 2 * 0 + 1 := by norm_num
   -- 2. def:odd n := 1, from 1
   have s2 : Odd (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (1 : ℤ)))).mpr ⟨(0 : ℤ), by norm_num⟩
   -- 3. arithmetic
-  have s3 : (-1 : ℤ) = 2 * -1 + 1 := by parley_arith
+  have s3 : (-1 : ℤ) = 2 * -1 + 1 := by norm_num
   -- 4. def:odd n := −1, from 3
   have s4 : Odd (-1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (-1 : ℤ)))).mpr ⟨(-1 : ℤ), by norm_num⟩
   -- 5. algebra

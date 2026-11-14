@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -10,6 +9,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
@@ -26,9 +26,9 @@ namespace Parley.Tests.Notations.Sets.NotInAnIntersection
 theorem not_in_an_intersection :
     ¬ (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) ∩ ({(3 : ℤ)} : Set ℤ) := by
   -- 1. arithmetic
-  have s1 : (3 : ℤ) ≠ 1 := by parley_arith
+  have s1 : (3 : ℤ) ≠ 1 := by norm_num
   -- 2. arithmetic
-  have s2 : (3 : ℤ) ≠ 2 := by parley_arith
+  have s2 : (3 : ℤ) ≠ 2 := by norm_num
   -- 3. contradiction
   have s3 : ¬ (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
     intro hS

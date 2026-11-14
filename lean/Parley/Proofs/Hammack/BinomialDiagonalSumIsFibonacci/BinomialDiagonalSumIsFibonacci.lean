@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -84,9 +83,9 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.7. mun:binomial-zero-index n := 1
       have s2_7 : (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (1 : ℤ)) (by norm_num))
       -- 2.8. arithmetic
-      have s2_8 : (1 - 1 : ℤ) = 0 := by parley_arith
+      have s2_8 : (1 - 1 : ℤ) = 0 := by norm_num
       -- 2.9. arithmetic
-      have s2_9 : (0 : ℤ) < 1 := by parley_arith
+      have s2_9 : (0 : ℤ) < 1 := by norm_num
       -- 2.10. calculation
       have s2_10 : (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = 0 := by
         calc (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 : ℤ) : ℤ)) s2_8; revert h; norm_num)

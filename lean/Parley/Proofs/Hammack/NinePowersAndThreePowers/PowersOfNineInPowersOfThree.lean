@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -68,7 +67,7 @@ theorem powers_of_nine_in_powers_of_three :
         _ = 9 ^ m := s3_1
         _ = 3 ^ (2 * m) := by exact (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower.nine_power_is_three_power (m := m))
     -- 3.3. mun:power-cancel a := 3, m := 1, n := 2m, from 3.2
-    have r238_1 : (3 : ℤ) > 1 := by parley_arith
+    have r238_1 : (3 : ℤ) > 1 := by norm_num
     have s3_3 : 1 = 2 * m := by exact ((Parley.Items.Stdlib.Numbers.mun_power_cancel (a := (3 : ℚ)) (m := (1 : ℤ)) (n := 2 * m) (by norm_num))).mp s3_2
     -- 3.4. algebra, from 3.3
     have s3_4 : (m : ℚ) = 1 / 2 := by
@@ -91,7 +90,7 @@ theorem powers_of_nine_in_powers_of_three :
   have s4 : ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by
     intro hS2
     -- 4.1. arithmetic
-    have s4_1 : (3 : ℤ) = 3 ^ 1 := by parley_arith
+    have s4_1 : (3 : ℤ) = 3 ^ 1 := by norm_num
     -- 4.2. exhibit, from 4.1
     have s4_2 : ∃ n : ℤ, (3 : ℚ) = 3 ^ n := ⟨(1 : ℤ), by norm_num⟩
     -- 4.3. def:set-image u := 3, from 4.2

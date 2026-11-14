@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -72,7 +71,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_6 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by norm_num))
       -- 2.3.7. substitute 1 + 1 = 2 (arithmetic) into line 2.3.6
       have s2_3_7 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * 2 := by
-        have e_arith : (1 + 1 : ℤ) = 2 := by parley_arith
+        have e_arith : (1 + 1 : ℤ) = 2 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * t)) e_arith s2_3_6; revert h; norm_num)
       -- 2.3.8. substitute
       have s2_3_8 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by
@@ -106,7 +105,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
         _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by have hz1 : (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) ≠ 0 := (by exact_mod_cast s2_3_12.ne'); field
     · skip
       -- 2.3.14. arithmetic
-      have s2_3_14 : (1 : ℤ) < 2 := by parley_arith
+      have s2_3_14 : (1 : ℤ) < 2 := by norm_num
       -- 2.3.15. substitute
       have s2_3_15 : N < 2 := by
         have c1 : 1 = N := by linear_combination (-1) * hC4
@@ -121,7 +120,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
             linear_combination ((-(N : ℚ)) / (((2 : ℚ)))) * hC4_w
   · skip
     -- 2.4. arithmetic
-    have s2_4 : (0 : ℤ) < 2 := by parley_arith
+    have s2_4 : (0 : ℤ) < 2 := by norm_num
     -- 2.5. substitute N = 0 (C2) into line 2.4
     have s2_5 : N < 2 := Eq.subst (motive := (fun t : ℤ => t < 2)) hC2.symm s2_4
     -- 2.6. calculation

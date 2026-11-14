@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -103,7 +102,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
         _ ≤ 25 := s4_4
         _ = 5 ^ 2 := by norm_num
     -- 4.6. mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
-    have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith
+    have r121_1 : (0 : ℤ) ≤ 5 := by norm_num
     have s4_6 : Real.sqrt (y - 3) ≤ 5 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) s4_3a (by norm_num))).mpr s4_5
     -- 4.7. inequalities, from 4.3
     have s4_7 : -3 ≤ Real.sqrt (y - 3) := by linarith only [s4_3a]

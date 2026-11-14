@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
@@ -32,6 +31,6 @@ namespace Parley.Tests.Elaborator.LargeArithmetic.ProductOverARange
 theorem product_over_a_range :
     (∏ k ∈ Finset.Icc (0 : ℤ) (3 : ℤ), (7 - k : ℤ)) ≤ 840 := by
   -- 1. arithmetic
-  parley_arith
+  decide
 
 end Parley.Tests.Elaborator.LargeArithmetic.ProductOverARange

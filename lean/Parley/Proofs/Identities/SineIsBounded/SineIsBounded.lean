@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -59,7 +58,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 6.2. inequalities, from 6.1
     have s6_2 : Real.sin x > 0 := by linarith only [s6_1]
     -- 6.3. mun:square-less x := 1, y := sin(x), from 6.1
-    have r40_1 : (1 : ℤ) ≥ 0 := by parley_arith
+    have r40_1 : (1 : ℤ) ≥ 0 := by norm_num
     have r40_2 : Real.sin x ≥ 0 := by linarith only [s6_2]
     have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by norm_num) r40_2)).mp s6_1
     -- 6.4. inequalities, from 6.3
@@ -75,7 +74,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 7.3. inequalities, from 7.2
     have s7_3 : -Real.sin x > 0 := by linarith only [s7_2]
     -- 7.4. mun:square-less x := 1, y := −sin(x), from 7.2
-    have r63_1 : (1 : ℤ) ≥ 0 := by parley_arith
+    have r63_1 : (1 : ℤ) ≥ 0 := by norm_num
     have r63_2 : -Real.sin x ≥ 0 := by linarith only [s7_3]
     have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by norm_num) r63_2)).mp s7_2
     -- 7.5. algebra

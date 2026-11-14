@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity
@@ -39,7 +39,7 @@ theorem there_is_no_half_integer :
   -- 1.4. mun:not-both n := 1, from 1.3
   have s1_4 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_3)
   -- 1.5. arithmetic
-  have s1_5 : Odd (1 : ℤ) := by parley_arith
+  have s1_5 : Odd (1 : ℤ) := by norm_num
   exact s1_4 s1_5
 
 end Parley.Tests.Notations.ThereIsNo.ThereIsNoHalfInteger

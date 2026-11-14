@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -67,13 +66,13 @@ theorem harmonic_unbounded (M : ℝ) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 2.1. arithmetic
-      have s2_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
+      have s2_1 : (2 ^ 0 : ℤ) = 1 := by norm_num
       -- 2.2. calculation
       have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) = 1 := by
         calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) := by (have h := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / (k : ℚ) : ℚ)) s2_1; push_cast at h ⊢; exact_mod_cast h)
           _ = 1 := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 1 / (k : ℚ))) (a := (1 : ℤ))); simp only [Int.cast_one, div_one] at h ⊢; exact_mod_cast h)
       -- 2.3. arithmetic
-      have s2_3 : (1 : ℚ) ≥ 0 / 2 := by parley_arith
+      have s2_3 : (1 : ℚ) ≥ 0 / 2 := by norm_num
       -- 2.4. transitivity, from 2.2, 2.3
       have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by exact LE.le.trans_eq s2_3 s2_2.symm
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4

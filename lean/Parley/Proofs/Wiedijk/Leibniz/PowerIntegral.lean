@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import PowerTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
@@ -134,14 +133,14 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
       _ = x ^ m.toNat := by have hz1 : (m : ℝ) + 1 ≠ 0 := (by exact_mod_cast r142_1); field
       _ = p x := s19_2.symm
   -- 20. arithmetic
-  have s20 : (0 : ℤ) < 1 := by parley_arith
+  have s20 : (0 : ℤ) < 1 := by norm_num
   -- 21. def:interval a := 0, b := 1, x := 0
-  have r153_1 : (0 : ℤ) ≤ 0 := by parley_arith
-  have r153_2 : (0 : ℤ) ≤ 1 := by parley_arith
+  have r153_1 : (0 : ℤ) ≤ 0 := by norm_num
+  have r153_2 : (0 : ℤ) ≤ 1 := by norm_num
   have s21 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 22. def:interval a := 0, b := 1, x := 1
-  have r158_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have r158_2 : (1 : ℤ) ≤ 1 := by parley_arith
+  have r158_1 : (0 : ℤ) ≤ 1 := by norm_num
+  have r158_2 : (1 : ℤ) ≤ 1 := by norm_num
   have s22 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 23. D2, from 22
   have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]

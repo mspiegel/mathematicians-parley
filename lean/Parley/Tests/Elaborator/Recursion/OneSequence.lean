@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -36,7 +35,7 @@ theorem one_sequence (c : ℤ → ℤ) (hD1 : c 0 = (1 : ℤ) ∧ (∀ k : ℤ, 
   -- 4. substitute c(0) = 1 (line 1)
   have s4 : 2 * c 0 = 2 * 1 := congrArg (fun t : ℤ => 2 * t) s1
   -- 5. arithmetic
-  have s5 : (2 * 1 : ℤ) = 2 := by parley_arith
+  have s5 : (2 * 1 : ℤ) = 2 := by norm_num
   -- 6. calculation
   calc c (0 + 1) = 2 * c 0 := s3
     _ = 2 * 1 := s4

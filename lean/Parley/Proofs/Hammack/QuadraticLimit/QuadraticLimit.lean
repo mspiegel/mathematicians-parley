@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -56,7 +55,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 12 := by linarith only [hA1]
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
-    have r36_1 : (0 : ℤ) < 1 := by parley_arith
+    have r36_1 : (0 : ℤ) < 1 := by norm_num
     have r36_2 : 0 < ε / 12 := by exact s1_1
     have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr ⟨by norm_num, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2

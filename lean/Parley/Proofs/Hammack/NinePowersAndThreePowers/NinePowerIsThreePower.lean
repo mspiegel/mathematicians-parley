@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -42,7 +41,7 @@ theorem nine_power_is_three_power (m : ℤ) :
   -- 1. mun:nonneg-or-neg x := m
   have s1 : m ≥ 0 ∨ m < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))
   -- 2. mun:exponent-sum-integer a := 3, n := m
-  have r109_1 : (3 : ℤ) ≠ 0 := by parley_arith
+  have r109_1 : (3 : ℤ) ≠ 0 := by norm_num
   have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by norm_num) (m := m) (n := m))
   -- 3. substitute
   have s3 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by
@@ -71,23 +70,23 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.5. thm:nine-power-from-zero n := −m, from 4.4
       have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) s4_4); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)
       -- 4.6. thm:positive-power-is-real a := 9
-      have r146_1 : (9 : ℤ) > 0 := by parley_arith
+      have r146_1 : (9 : ℤ) > 0 := by norm_num
       -- 4.7. thm:positive-power-is-real a := 3
-      have r150_1 : (3 : ℤ) > 0 := by parley_arith
+      have r150_1 : (3 : ℤ) > 0 := by norm_num
       -- 4.8. mun:power-positive a := 9
-      have r154_1 : (0 : ℤ) < 9 := by parley_arith
+      have r154_1 : (0 : ℤ) < 9 := by norm_num
       have s4_8 : (9 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (9 : ℚ)) (m := m) (by norm_num))
       -- 4.9. mun:power-positive a := 3
-      have r158_1 : (0 : ℤ) < 3 := by parley_arith
+      have r158_1 : (0 : ℤ) < 3 := by norm_num
       have s4_9 : (3 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := m) (by norm_num))
       -- 4.10. substitute
-      have r162_1 : (9 : ℤ) ≠ 0 := by parley_arith
+      have r162_1 : (9 : ℤ) ≠ 0 := by norm_num
       have s4_10 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by
         have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by norm_num) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := Eq.subst (motive := (fun t : ℚ => t = 3 ^ (-m) * 3 ^ (-m))) c1 s4_5; push_cast at h ⊢; exact_mod_cast h)
         exact row1
       -- 4.11. substitute
-      have r168_1 : (3 : ℤ) ≠ 0 := by parley_arith
+      have r168_1 : (3 : ℤ) ≠ 0 := by norm_num
       have s4_11 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by
         have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by norm_num) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by (have h := Eq.subst (motive := (fun t : ℚ => 1 / 9 ^ m = t * t)) c1 s4_10; push_cast at h ⊢; exact_mod_cast h)
@@ -101,7 +100,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       have r186_2 : (3 ^ m : ℚ) ≠ 0 := by exact s4_13
       have hz1 : (9 ^ m : ℚ) ≠ 0 := r186_1; have hz2 : (3 ^ m : ℚ) ≠ 0 := r186_2; linear_combination (norm := (field)) (-((3 ^ m) ^ 2 * 9 ^ m)) * s4_11
   -- 5. thm:positive-power-is-real a := 3
-  have r191_1 : (3 : ℤ) > 0 := by parley_arith
+  have r191_1 : (3 : ℤ) > 0 := by norm_num
   -- 6. algebra, from 3, 4, 5
   linear_combination (-1) * s3 + s4
 

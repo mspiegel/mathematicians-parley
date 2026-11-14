@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -44,12 +43,12 @@ theorem choose_four_two :
   -- 2. thm:factorial-of-two
   have s2 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by exact Parley.Tests.Notations.Counting.FactorialOfTwo.factorial_of_two
   -- 3. def:C n := 4, k := 2
-  have r89_1 : (0 : ℤ) ≤ 2 := by parley_arith
-  have r89_2 : (2 : ℤ) ≤ 4 := by parley_arith
+  have r89_1 : (0 : ℤ) ≤ 2 := by norm_num
+  have r89_2 : (2 : ℤ) ≤ 4 := by norm_num
   have r89_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr ⟨by norm_num, by norm_num⟩
   have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by norm_num) (k := (2 : ℤ))) r89_3
   -- 4. arithmetic
-  have s4 : (4 - 2 : ℤ) = 2 := by parley_arith
+  have s4 : (4 - 2 : ℤ) = 2 := by norm_num
   -- 5. substitute 4 − 2 = 2 (line 4) into line 3
   have s5 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)))) s4 s3; revert h; norm_num)
   -- 6. substitute 4! = 24 (line 1) into line 5

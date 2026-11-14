@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -41,7 +41,7 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      parley_arith
+      norm_num
     | succ k hK hIH =>
       -- 1.2. mun:divides-self n := 3
       have s1_2 : (3 : ℤ) ∣ (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (3 : ℤ)))

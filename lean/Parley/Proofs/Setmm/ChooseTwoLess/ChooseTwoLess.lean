@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -73,7 +72,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_5 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by norm_num))
       -- 2.3.6. substitute 1 + 1 = 2 (arithmetic) into line 2.3.5
       have s2_3_6 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * 2 := by
-        have e_arith : (1 + 1 : ℤ) = 2 := by parley_arith
+        have e_arith : (1 + 1 : ℤ) = 2 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * t)) e_arith s2_3_5; revert h; norm_num)
       -- 2.3.7. substitute
       have s2_3_7 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by

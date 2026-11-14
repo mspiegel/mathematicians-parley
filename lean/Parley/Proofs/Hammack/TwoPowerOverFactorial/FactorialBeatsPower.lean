@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
+public import Mathlib.Data.Nat.Factorial.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
@@ -23,8 +23,10 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.NatFactorial
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -48,9 +50,9 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_arith
+      have s1_1 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by norm_num [Nat.factorial]
       -- 1.2. arithmetic
-      have s1_2 : 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_arith
+      have s1_2 : 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by norm_num [Nat.factorial]
       -- 1.3. join 1.1, 1.2
       have s1_3 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) ∧ 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := ⟨s1_1, s1_2⟩
       exact ⟨by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).1, by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).2⟩

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -86,7 +85,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.4. mun:nat-plus-nat0 a := n + j, b := 1, from 3.3
       have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) s3_3 (b := (1 : ℤ)) (by norm_num))
       -- 3.5. mun:power-positive a := 2, m := (n + j + 1)!
-      have r142_1 : (2 : ℤ) > 0 := by parley_arith
+      have r142_1 : (2 : ℤ) > 0 := by norm_num
       have s3_5 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by norm_num)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
       -- 3.6. algebra
       have s3_6 : n + j + 1 = n + (j + 1) := by ring1
@@ -106,10 +105,10 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         have row1 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => A + j ≤ (LeanBridges.Counting.factorial t : ℤ))) c1 s3_11
         exact row1
       -- 3.13. mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
-      have r170_1 : (1 : ℤ) ≤ 2 := by parley_arith
+      have r170_1 : (1 : ℤ) ≤ 2 := by norm_num
       have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (add_nonneg (le_of_lt hD1_pos) (hK)) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (Nat.cast_nonneg _) (by norm_num) s3_12)
       -- 3.14. mun:power-positive a := 2, m := A + j
-      have r174_1 : (2 : ℤ) > 0 := by parley_arith
+      have r174_1 : (2 : ℤ) > 0 := by norm_num
       have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by norm_num)); simp only [parley_zpow_toNat (n := A + j) (h := add_nonneg (le_of_lt hD1_pos) (hK))] at h ⊢; exact_mod_cast h)
       -- 3.15. mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.5, 3.13, 3.14
       have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s3_14) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by exact_mod_cast gt_iff_lt.mp s3_5))).mp (by exact_mod_cast s3_13)

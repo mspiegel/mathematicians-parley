@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
@@ -27,7 +27,7 @@ namespace Parley.Tests.Notations.Counting.ZeroNotInOneToThree
 theorem zero_not_in_one_to_three :
     ¬ (0 : ℤ) ∈ Finset.Icc (1 : ℤ) (3 : ℤ) := by
   -- 1. arithmetic
-  have s1 : ¬ (0 : ℤ) < 0 := by parley_arith
+  have s1 : ¬ (0 : ℤ) < 0 := by norm_num
   -- 2. contradiction
   intro hS
   -- 2.1. def:range n := 3, k := 0, from S

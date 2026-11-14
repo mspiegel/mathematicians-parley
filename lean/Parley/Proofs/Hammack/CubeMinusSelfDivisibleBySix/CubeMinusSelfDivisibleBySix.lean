@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -43,7 +43,7 @@ theorem cube_minus_self_divisible_by_six (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (6 : ℤ) ∣ (0 ^ 3 : ℤ) := by parley_arith
+      have s1_1 : (6 : ℤ) ∣ (0 ^ 3 : ℤ) := by norm_num
       simpa only [sub_zero] using s1_1
     | succ k hK hIH =>
       -- 1.2. thm:six-divides-three-consecutive

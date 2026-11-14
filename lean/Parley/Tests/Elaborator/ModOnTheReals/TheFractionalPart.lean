@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Monoid
@@ -35,7 +34,7 @@ namespace Parley.Tests.Elaborator.ModOnTheReals.TheFractionalPart
 theorem the_fractional_part (A : ℝ) :
     LeanBridges.Divisibility.mod A (1 : ℝ) = A - (⌊A⌋ : ℝ) := by
   -- 1. mun:mod-value a := A, b := 1
-  have r20_1 : (1 : ℤ) > 0 := by parley_arith
+  have r20_1 : (1 : ℤ) > 0 := by norm_num
   (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := (1 : ℝ)) (by norm_num)); simp only [div_one, one_mul] at h ⊢; exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ModOnTheReals.TheFractionalPart

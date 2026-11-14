@@ -6677,7 +6677,14 @@ impl<'a> Proof<'a> {
                 return Route::Built(haves_then(lines, proof));
             }
             Method::Arithmetic => {
-                Proof::By(super::tactics::bridge(BridgeTactic::Arith, vec![]))
+                let says = match writer.formula(node) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                match worked_out(&says) {
+                    Route::Built(tactic) => Proof::By(tactic),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
             }
             // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
             // tactic, which tries `parley_arith` first (`RealTactics`).
@@ -7612,12 +7619,16 @@ impl<'a> Proof<'a> {
         }
         // Worked out by arithmetic, or by real arithmetic, a `have` its
         // tactic proves.
-        let worked = |name: &str, by: BridgeTactic| {
+        let worked = |name: &str, real: bool| {
             let says = self.writer.formula(&rec.equation).built()?;
+            let by = match real {
+                true => t::bridge(BridgeTactic::Real, vec![]),
+                false => worked_out(&says).built()?,
+            };
             let have = Tactic::Have {
                 name: name.to_string(),
                 says: says.clone(),
-                proof: Box::new(super::doc::Proof::By(t::bridge(by, vec![]))),
+                proof: Box::new(super::doc::Proof::By(by)),
             };
             Some((
                 Some(have),
@@ -7632,8 +7643,8 @@ impl<'a> Proof<'a> {
             ))
         };
         match just.source.as_ref()? {
-            Source::Arithmetic => worked("e_arith", BridgeTactic::Arith),
-            Source::RealArithmetic => worked("e_real", BridgeTactic::Real),
+            Source::Arithmetic => worked("e_arith", false),
+            Source::RealArithmetic => worked("e_real", true),
             Source::At(place) => {
                 let label = place.named();
                 let d = self.thm.defines.iter().find(|d| d.label == label)?;
@@ -19091,6 +19102,112 @@ fn widening_have(
             t::linear_combination(t::hyp("h")),
         ]))),
     }
+}
+
+/// The tactic that works out a claim of numerals alone (`arithmetic`), by
+/// what its Lean statement holds: a sum or product over a range of
+/// numerals, `decide`, which works it out term by term, or, where it
+/// divides, `field_simp; norm_cast`, which clears the division and works
+/// out the integers; a factorial, `norm_num [Nat.factorial]`, which
+/// unfolds it; a fraction denied to be a whole number, `1/76 ∉ ℕ`, the
+/// whole number taken and its equation cleared to integers, which `omega`
+/// refutes; anything else `norm_num`. A binomial coefficient declines:
+/// `norm_num` does not work one out.
+fn worked_out(says: &Printed) -> Route<Tactic> {
+    use super::doc::{BoundForm, Brackets, Op, TermKind};
+    use super::tactics as t;
+    let parts = says.walk();
+    let applied = |name: &str| {
+        parts.iter().any(
+            |p| matches!(&p.kind, TermKind::App { head, .. } if head.text() == name),
+        )
+    };
+    if applied("LeanBridges.Counting.choose") {
+        return Route::no(
+            "a binomial coefficient of numerals, which norm_num does not work out",
+        );
+    }
+    if let Some(taken) = whole_number_denied(says) {
+        let name = |n: &str| Printed::letter(n, super::doc::LeanType::Prop);
+        let mut pattern = vec![name(&taken.letter)];
+        if taken.bounded {
+            pattern.push(name("_"));
+        }
+        pattern.push(name("h"));
+        let listed = Printed {
+            kind: TermKind::Listed {
+                brackets: Brackets::Angle,
+                items: pattern,
+            },
+            ty: None,
+        };
+        let at_h = || TacticArg::At(vec![super::doc::Location::Hypothesis("h".into())]);
+        return Route::Built(Tactic::Seq(vec![
+            t::call("rintro", vec![TacticArg::Term(listed)]),
+            t::call("field_simp", vec![at_h()]),
+            t::call("norm_cast", vec![at_h()]),
+            t::call("omega", vec![]),
+        ]));
+    }
+    let ranged = parts.iter().any(|p| {
+        matches!(
+            &p.kind,
+            TermKind::Bound {
+                form: BoundForm::BigOp { .. },
+                ..
+            }
+        )
+    });
+    let divides = parts
+        .iter()
+        .any(|p| matches!(&p.kind, TermKind::Infix { op, .. } if *op == Op::DIVIDE));
+    Route::Built(match (ranged, divides) {
+        (true, true) => Tactic::Seq(vec![
+            t::call("field_simp", vec![]),
+            t::call("norm_cast", vec![]),
+        ]),
+        (true, false) => t::call("decide", vec![]),
+        (false, _) if applied("LeanBridges.Counting.factorial") => {
+            t::call("norm_num", vec![t::rules(vec![t::lemma("Nat.factorial")])])
+        }
+        (false, _) => t::call("norm_num", vec![]),
+    })
+}
+
+/// The whole number a claim `¬ (∃ m : ℤ, 0 < m ∧ (m : ℚ) = x)` denies `x`
+/// is, as Lean writes `x ∉ ℕ`.
+struct WholeNumberDenied {
+    letter: String,
+    /// Whether the whole number has a bound beside its equation, `0 < m ∧`,
+    /// as of ℕ and ℕ₀, and not of ℤ.
+    bounded: bool,
+}
+
+fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
+    use super::doc::{Op, Quant, TermKind};
+    let bare = |t: &Printed| -> Printed {
+        let mut t = t.clone();
+        while let TermKind::Paren(inner) = t.kind {
+            t = *inner;
+        }
+        t
+    };
+    let TermKind::Not(inner) = &bare(says).kind else {
+        return None;
+    };
+    let TermKind::Quantified {
+        quant: Quant::Exists,
+        letter,
+        guard,
+        body,
+        ..
+    } = bare(inner).kind
+    else {
+        return None;
+    };
+    let bounded = guard.is_some()
+        || matches!(&bare(&body).kind, TermKind::Infix { op, .. } if *op == Op::AND);
+    Some(WholeNumberDenied { letter, bounded })
 }
 
 /// A proof with these tactics before it, inside its `by`: a block of them

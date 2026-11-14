@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -10,6 +9,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
@@ -32,7 +32,7 @@ theorem an_induction_whose_letter_a_hypothesis_binds (hH1 : ∀ m : ℤ, 0 ≤ m
   induction m, h_m using LeanBridges.Functions.le_induction with
   | base =>
     -- 1.1. arithmetic
-    parley_arith
+    norm_num
   | succ m hK hIH =>
     -- 1.2. algebra
     ring_nf

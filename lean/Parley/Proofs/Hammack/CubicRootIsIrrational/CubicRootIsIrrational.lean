@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -80,7 +79,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.3.3. def:divides d := 2, n := q, from 1.5.3.1
           have s1_5_3_3 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s1_5_3_1⟩
           -- 1.5.3.4. exhibit, from 1.5.3.2, 1.5.3.3
-          have r63_1 : (2 : ℤ) > 1 := by parley_arith
+          have r63_1 : (2 : ℤ) > 1 := by norm_num
           have s1_5_3_4 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s1_5_3_2⟩, s1_5_3_3⟩⟩
           exact absurd s1_5_3_4 s1_1c
         · skip
@@ -127,7 +126,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     -- 1.6. mun:not-both n := 1, from 1.5
     have s1_6 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5)
     -- 1.7. arithmetic
-    have s1_7 : Odd (1 : ℤ) := by parley_arith
+    have s1_7 : Odd (1 : ℤ) := by norm_num
     exact s1_6 s1_7
   -- 2. def:irrational, from 1
   exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr ⟨by trivial, s1⟩

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -45,7 +45,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       intro c
       intro hA
       -- 1.1. arithmetic
-      have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
+      have s1_1 : (2 ^ 0 : ℤ) = 1 := by norm_num
       -- 1.2. substitute 2^0 = 1 (line 1.1) into A
       have s1_2 : (5 : ℤ) ∣ 1 * c := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t * c)) s1_1 hA
       -- 1.3. restate 1.2

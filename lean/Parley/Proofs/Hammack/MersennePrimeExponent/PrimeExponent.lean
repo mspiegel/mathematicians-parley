@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import PowerTactics
 public import Batteries.Tactic.Init
@@ -65,7 +64,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     -- 3.4. substitute n = 1 (line 3.3) into line 2
     have s3_4 : (2 ^ 1 - 1 : ℤ) > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 ^ t.toNat - 1 : ℤ) > 1)) s3_3 s2a; revert h; norm_num)
     -- 3.5. arithmetic
-    have s3_5 : ¬ (2 ^ 1 - 1 : ℤ) > 1 := by parley_arith
+    have s3_5 : ¬ (2 ^ 1 - 1 : ℤ) > 1 := by norm_num
     exact s3_5 s3_4
   -- 4. proof
   have s4 : ∀ d : ℤ, 0 < d → d ∣ n → d = 1 ∨ d = n := by

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -73,7 +72,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
       _ = (N : ℚ) := by have hz1 : (LeanBridges.Counting.factorial (N - 1) : ℚ) ≠ 0 := (by exact_mod_cast s2_6.ne'); field
   · skip
     -- 2.8. arithmetic
-    have s2_8 : (0 : ℤ) < 1 := by parley_arith
+    have s2_8 : (0 : ℤ) < 1 := by norm_num
     -- 2.9. substitute N = 0 (C2) into line 2.8
     have s2_9 : N < 1 := Eq.subst (motive := (fun t : ℤ => t < 1)) hC2.symm s2_8
     -- 2.10. calculation

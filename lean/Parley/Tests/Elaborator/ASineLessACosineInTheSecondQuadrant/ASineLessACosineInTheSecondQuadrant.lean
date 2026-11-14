@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -104,7 +103,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 25. transitivity, from 23, 24
   have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by exact LE.le.trans_eq s24 s23.symm.symm
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
-  have r104_1 : (0 : ℤ) ≤ 1 := by parley_arith
+  have r104_1 : (0 : ℤ) ≤ 1 := by norm_num
   have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by norm_num) s20)).mpr s25
   exact s26
 

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -47,7 +46,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (5 ^ (2 * 0) - 1 : ℤ) = 24 * 0 := by parley_arith
+      have s1_1 : (5 ^ (2 * 0) - 1 : ℤ) = 24 * 0 := by norm_num
       -- 1.2. def:divides d := 24, n := 5^(2·0) − 1, from 1.1
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (24 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), by norm_num⟩
     | succ m hK hIH =>

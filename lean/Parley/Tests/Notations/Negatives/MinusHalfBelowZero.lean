@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Rat.Init
@@ -10,6 +9,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
@@ -24,6 +24,6 @@ namespace Parley.Tests.Notations.Negatives.MinusHalfBelowZero
 theorem minus_half_below_zero :
     (-(1 / 2) : ℚ) < 0 := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Notations.Negatives.MinusHalfBelowZero

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -42,7 +42,7 @@ theorem nine_power_from_zero (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (9 ^ 0 : ℤ) = 3 ^ 0 * 3 ^ 0 := by parley_arith
+      have s1_1 : (9 ^ 0 : ℤ) = 3 ^ 0 * 3 ^ 0 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 9, m := k

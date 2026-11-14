@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.ModEq
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
@@ -28,6 +28,6 @@ namespace Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerOfANe
 theorem a_negative_power_of_a_negative :
     ((-2) ^ (-3 : ℤ) : ℚ) = -(1 / 8) := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerOfANegative

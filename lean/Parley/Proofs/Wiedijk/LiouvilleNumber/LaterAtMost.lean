@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import PowerTactics
@@ -67,7 +66,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   have s2_1 : 0 ≤ i - n := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (le_of_lt hH1) (n := i) (le_of_lt hK) hA)
   -- 2.2. mun:power-real a := 2, m := (n + 1)! + (i − n), from 2.1
   -- 2.3. mun:power-positive a := 2, m := (n + 1)! + (i − n)
-  have r318_1 : (2 : ℤ) > 0 := by parley_arith
+  have r318_1 : (2 : ℤ) > 0 := by norm_num
   have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by norm_num))
   set g : ℝ := (2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) with hD1
   -- 2.4. instantiate j := i − n in line 1, from 2.1
@@ -82,7 +81,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
       exact Eq.subst (motive := (fun t : ℝ => (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - t)) c2 row1_w
     exact row2
   -- 2.6. mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from D1, 2.3
-  have r335_1 : (2 : ℤ) > 0 := by parley_arith
+  have r335_1 : (2 : ℤ) > 0 := by norm_num
   have s2_6 : g > 0 := by
     simp only [hD1] at ⊢
     push_cast at ⊢

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -47,7 +46,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (4 ^ (3 * 0) + 8 : ℤ) = 9 * 1 := by parley_arith
+      have s1_1 : (4 ^ (3 * 0) + 8 : ℤ) = 9 * 1 := by norm_num
       -- 1.2. def:divides d := 9, n := 4^(3·0) + 8, from 1.1
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (4 ^ (3 * 0) + 8 : ℤ)))).mpr ⟨(1 : ℤ), by norm_num⟩
     | succ m hK hIH =>
@@ -60,7 +59,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.5. mun:divides-multiple e := 9, a := 4^(3m) + 8, x := 64, from IH
       have s1_5 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (9 : ℤ)) (a := (4 ^ (3 * m).toNat + 8 : ℤ)) (x := (64 : ℤ)) hIH)
       -- 1.6. def:divides d := 9, n := 504
-      have r37_1 : (504 : ℤ) = 9 * 56 := by parley_arith
+      have r37_1 : (504 : ℤ) = 9 * 56 := by norm_num
       have s1_6 : (9 : ℤ) ∣ (504 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (504 : ℤ)))).mpr ⟨(56 : ℤ), by norm_num⟩
       -- 1.7. mun:divides-difference d := 9, a := (4^(3m) + 8)·64, b := 504, from 1.5, 1.6
       have s1_7 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 - 504 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (9 : ℤ)) (a := ((4 ^ (3 * m).toNat + 8) * 64 : ℤ)) (b := (504 : ℤ)) s1_5 s1_6)

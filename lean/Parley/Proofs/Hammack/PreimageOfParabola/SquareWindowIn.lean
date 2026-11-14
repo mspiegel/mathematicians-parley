@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -33,10 +32,10 @@ theorem square_window_in (t : ℝ) (hH2 : 3 ≤ t) (hH3 : t ≤ 4) :
   -- 1. inequalities, from H2
   have s1 : t ≥ 0 := by linarith only [hH2]
   -- 2. mun:square-le x := 3, y := t, from H2, 1
-  have r22_1 : (3 : ℤ) ≥ 0 := by parley_arith
+  have r22_1 : (3 : ℤ) ≥ 0 := by norm_num
   have s2 : 3 ^ 2 ≤ t ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (3 : ℝ)) (y := t) (by norm_num) s1)).mp hH2
   -- 3. mun:square-le x := t, y := 4, from H3, 1
-  have r26_1 : (4 : ℤ) ≥ 0 := by parley_arith
+  have r26_1 : (4 : ℤ) ≥ 0 := by norm_num
   have s3 : t ^ 2 ≤ 4 ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) s1 (by norm_num))).mp hH3
   -- 4. inequalities
   have s4 : 12 ≤ t ^ 2 + 3 := by linarith only [s2]

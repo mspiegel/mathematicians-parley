@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -49,7 +48,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) ≥ 1 := by parley_arith
+      have s1_1 : (1 : ℤ) ≥ 1 := by norm_num
       -- 1.2. exhibit, from 1.1
       exact ⟨(1 : ℤ), by norm_num, ⟨by simp only [mul_one], by norm_num⟩⟩
     | succ j hK hIH =>

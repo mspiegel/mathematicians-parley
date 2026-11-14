@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -84,7 +83,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.2. substitute j = 2i (line 1.7.1) into line 1.4
           have s1_7_2 : 1 ≤ 2 * i := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1_7_1 s1_4
           -- 1.7.3. mun:factor-positive a := 2, b := i
-          have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
+          have r197_1 : (2 : ℤ) ≥ 0 := by norm_num
           have r197_2 : 2 * i > 0 := by linarith only [s1_7_2]
           have s1_7_3 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by norm_num) r197_2)
           -- 1.7.4. mun:pos-int-nat m := i, from 1.7.3

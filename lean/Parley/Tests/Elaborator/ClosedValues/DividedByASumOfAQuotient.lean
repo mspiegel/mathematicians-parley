@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Rat.Init
@@ -10,6 +9,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -25,6 +25,6 @@ namespace Parley.Tests.Elaborator.ClosedValues.DividedByASumOfAQuotient
 theorem divided_by_a_sum_of_a_quotient :
     (1 / (9 - 0 / 7) : ℚ) = 1 / 9 := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Elaborator.ClosedValues.DividedByASumOfAQuotient

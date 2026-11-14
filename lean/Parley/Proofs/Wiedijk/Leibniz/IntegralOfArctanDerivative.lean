@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -120,14 +119,14 @@ theorem integral_of_arctan_derivative :
       _ = x ^ (2 * 0) / (1 + x ^ 2) := congrArg (fun t : ℝ => t / (1 + x ^ 2)) s12_2.symm
       _ = g x := s12_3.symm
   -- 13. arithmetic
-  have s13 : (0 : ℤ) < 1 := by parley_arith
+  have s13 : (0 : ℤ) < 1 := by norm_num
   -- 14. def:interval a := 0, b := 1, x := 0
-  have r388_1 : (0 : ℤ) ≤ 0 := by parley_arith
-  have r388_2 : (0 : ℤ) ≤ 1 := by parley_arith
+  have r388_1 : (0 : ℤ) ≤ 0 := by norm_num
+  have r388_2 : (0 : ℤ) ≤ 1 := by norm_num
   have s14 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 15. def:interval a := 0, b := 1, x := 1
-  have r393_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have r393_2 : (1 : ℤ) ≤ 1 := by parley_arith
+  have r393_1 : (0 : ℤ) ≤ 1 := by norm_num
+  have r393_2 : (1 : ℤ) ≤ 1 := by norm_num
   have s15 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 16. mun:arctan-values
   have s16a : Real.arctan (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_1

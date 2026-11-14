@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -11,6 +10,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
@@ -33,14 +33,14 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
     -- 1.1. D1
     have s1_1 : y = x := by simp (disch := omega) only [hD1]
     -- 1.2. arithmetic
-    have s1_2 : (1 : ℤ) > 0 := by parley_arith
+    have s1_2 : (1 : ℤ) > 0 := by norm_num
     -- 1.3. transitivity, from 1.1, C1, 1.2
     have s1_3 : y > 0 := by exact LT.lt.trans_eq (LT.lt.trans_eq (show (1 : ℝ) > 0 by exact_mod_cast s1_2) hC1.symm) s1_1.symm
     -- 1.4. transitivity, from 1.1, 1.3
     exact LT.lt.trans_eq s1_3 s1_1.symm.symm
   · skip
     -- 1.5. arithmetic
-    have s1_5 : (2 : ℤ) > 0 := by parley_arith
+    have s1_5 : (2 : ℤ) > 0 := by norm_num
     -- 1.6. transitivity, from C2, 1.5
     exact LT.lt.trans_eq (show (2 : ℝ) > 0 by exact_mod_cast s1_5) hC2.symm
 

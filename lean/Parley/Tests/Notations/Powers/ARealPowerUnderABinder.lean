@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -30,7 +29,7 @@ theorem a_real_power_under_a_binder :
   -- 1. proof
   intro y
   -- 1.1. mun:real-power-positive x := 2
-  have r65_1 : (2 : ℤ) > 0 := by parley_arith
+  have r65_1 : (2 : ℤ) > 0 := by norm_num
   exact (Parley.Items.Stdlib.Numbers.mun_real_power_positive (x := (2 : ℝ)) (by norm_num) (y := y))
 
 end Parley.Tests.Notations.Powers.ARealPowerUnderABinder

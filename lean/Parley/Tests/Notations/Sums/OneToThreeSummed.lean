@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Data.Finset.Defs
@@ -36,13 +35,13 @@ theorem one_to_three_summed :
   -- 1. mun:sum-single a := 1
   have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ)))
   -- 2. mun:sum-extended a := 1, n := 1
-  have r26_1 : (1 : ℤ) ≥ 1 := by parley_arith
+  have r26_1 : (1 : ℤ) ≥ 1 := by norm_num
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + (1 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num))
   -- 3. mun:sum-extended a := 1, n := 2
-  have r30_1 : (2 : ℤ) ≥ 1 := by parley_arith
+  have r30_1 : (2 : ℤ) ≥ 1 := by norm_num
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + (2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by norm_num))
   -- 4. arithmetic
-  have s4 : (1 + 1 : ℤ) = 2 := by parley_arith
+  have s4 : (1 + 1 : ℤ) = 2 := by norm_num
   -- 5. substitute 1 + 1 = 2 (line 4) into line 2
   have s5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + t)) s4 s2; push_cast at h ⊢; exact_mod_cast h)
   -- 6. substitute Σ(k = 1 to 1) k = 1 (line 1) into line 5
@@ -52,7 +51,7 @@ theorem one_to_three_summed :
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = 1 + 2 := s6
       _ = 3 := by norm_num
   -- 8. arithmetic
-  have s8 : (2 + 1 : ℤ) = 3 := by parley_arith
+  have s8 : (2 + 1 : ℤ) = 3 := by norm_num
   -- 9. substitute 2 + 1 = 3 (line 8) into line 3
   have s9 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + 3 := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + t)) s8 s3; push_cast at h ⊢; exact_mod_cast h)
   -- 10. substitute Σ(k = 1 to 2) k = 3 (line 7) into line 9

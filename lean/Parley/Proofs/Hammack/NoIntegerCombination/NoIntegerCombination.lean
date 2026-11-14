@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -31,10 +30,10 @@ theorem no_integer_combination :
   -- 1. obtain a, b from S
   obtain ⟨a, b, s1⟩ := hS
   -- 2. def:divides d := 3, n := 21
-  have r16_1 : (21 : ℤ) = 3 * 7 := by parley_arith
+  have r16_1 : (21 : ℤ) = 3 * 7 := by norm_num
   have s2 : (3 : ℤ) ∣ (21 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (21 : ℤ)))).mpr ⟨(7 : ℤ), by norm_num⟩
   -- 3. def:divides d := 3, n := 30
-  have r20_1 : (30 : ℤ) = 3 * 10 := by parley_arith
+  have r20_1 : (30 : ℤ) = 3 * 10 := by norm_num
   have s3 : (3 : ℤ) ∣ (30 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (30 : ℤ)))).mpr ⟨(10 : ℤ), by norm_num⟩
   -- 4. mun:divides-combination e := 3, a := 21, b := 30, x := a, y := b, from 2, 3
   have s4 : (3 : ℤ) ∣ 21 * a + 30 * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (3 : ℤ)) (a := (21 : ℤ)) (b := (30 : ℤ)) (x := a) (y := b) s2 s3)

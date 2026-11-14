@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -56,8 +55,8 @@ theorem square_minus_three (n : ℤ) :
       -- 3.3. algebra, from 3.2
       have s3_3 : 4 * (m - k ^ 2 + 1) = 1 := by linear_combination (-1) * s3_2
       -- 3.4. thm:four-times-between j := m − k² + 1, r := 1
-      have r96_1 : (1 : ℤ) > 0 := by parley_arith
-      have r96_2 : (1 : ℤ) < 4 := by parley_arith
+      have r96_1 : (1 : ℤ) > 0 := by norm_num
+      have r96_2 : (1 : ℤ) < 4 := by norm_num
       have s3_4 : 4 * (m - k ^ 2 + 1) ≠ 1 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s3_3 s3_4
     · skip
@@ -68,8 +67,8 @@ theorem square_minus_three (n : ℤ) :
       -- 3.7. algebra, from 3.6
       have s3_7 : 4 * (k ^ 2 + k - m) = 2 := by linear_combination s3_6
       -- 3.8. thm:four-times-between j := k² + k − m, r := 2
-      have r113_1 : (2 : ℤ) > 0 := by parley_arith
-      have r113_2 : (2 : ℤ) < 4 := by parley_arith
+      have r113_1 : (2 : ℤ) > 0 := by norm_num
+      have r113_2 : (2 : ℤ) < 4 := by norm_num
       have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s3_7 s3_8
   -- 4. restate 3

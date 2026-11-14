@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -47,11 +46,11 @@ namespace Parley.Tests.Notations.Continuity.AStepIsNotContinuous
 theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) → f x = (@ite _ (x < 1 / 2) (Classical.propDecidable (x < 1 / 2)) 0 1 : ℝ)) :
     ¬ ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   -- 1. def:interval a := 0, b := 1, x := 1/2
-  have r22_1 : (0 : ℚ) ≤ 1 / 2 := by parley_arith
-  have r22_2 : (1 / 2 : ℚ) ≤ 1 := by parley_arith
+  have r22_1 : (0 : ℚ) ≤ 1 / 2 := by norm_num
+  have r22_2 : (1 / 2 : ℚ) ≤ 1 := by norm_num
   have s1 : (1 / 2 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 2. arithmetic
-  have s2 : ¬ (1 / 2 : ℚ) < 1 / 2 := by parley_arith
+  have s2 : ¬ (1 / 2 : ℚ) < 1 / 2 := by norm_num
   -- 3. D1, from 1, 2
   have s3 : f (1 / 2) = 1 := by simp (disch := omega) only [hD1 _ s1, if_neg (by norm_num : ¬ (1 / 2 : ℝ) < 1 / 2)]
   -- 4. contradiction
@@ -61,14 +60,14 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have r37_4 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
   -- 4.2. instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
-  have r45_1 : (0 : ℚ) < 1 / 2 := by parley_arith
+  have r45_1 : (0 : ℚ) < 1 / 2 := by norm_num
   have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by exact (s4_1 (1 / 2 : ℝ) s1 (1 / 2 : ℝ) (by norm_num))
   -- 4.3. obtain δ from line 4.2
   obtain ⟨δ, ⟨s4_3a, s4_3b⟩⟩ := s4_2
   set m : ℝ := min δ (1 / 2) with hD2
   set x₁ : ℝ := 1 / 2 - m / 2 with hD3
   -- 4.4. mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
-  have r62_1 : (0 : ℚ) < 1 / 2 := by parley_arith
+  have r62_1 : (0 : ℚ) < 1 / 2 := by norm_num
   have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr ⟨s4_3a, by norm_num⟩
   -- 4.5. mun:min-le x := δ, y := 1/2
   have s4_5a : min δ (1 / 2) ≤ δ := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := δ) (y := (1 / 2 : ℝ)))
@@ -102,7 +101,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.17. substitute f(1/2) = 1 (line 3) into line 4.16
   have s4_17 : (abs (0 - 1) : ℝ) < 1 / 2 := by (have h := Eq.subst (motive := (fun t : ℝ => abs (0 - t) < 1 / 2)) s3 s4_16; revert h; norm_num)
   -- 4.18. arithmetic
-  have s4_18 : (0 - 1 : ℤ) < 0 := by parley_arith
+  have s4_18 : (0 - 1 : ℤ) < 0 := by norm_num
   -- 4.19. def:abs x := 0 − 1, from 4.18
   have s4_19 : (abs (0 - 1) : ℤ) = -(0 - 1) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (0 - 1 : ℤ))) (by norm_num)
   -- 4.20. calculation

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -29,6 +29,6 @@ namespace Parley.Tests.Notations.Primes.PastFourBillionNotOneMore
 theorem past_four_billion_not_one_more :
     (2 ^ 32 + 1 : ℤ) ≠ 641 * 6700417 + 1 := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Notations.Primes.PastFourBillionNotOneMore

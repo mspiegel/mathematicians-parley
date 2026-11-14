@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -37,7 +36,7 @@ namespace Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
 theorem three_prime :
     Nat.Prime (3 : ℤ).toNat := by
   -- 1. arithmetic
-  have s1 : (3 : ℤ) > 1 := by parley_arith
+  have s1 : (3 : ℤ) > 1 := by norm_num
   -- 2. proof
   have s2 : ∀ d : ℤ, 0 < d → d ∣ (3 : ℤ) → d = 1 ∨ d = 3 := by
     intro d hK
@@ -76,7 +75,7 @@ theorem three_prime :
         -- 2.4.4.7. def:even n := 3, from 2.4.4.6
         have s2_4_4_7 : Even (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (3 : ℤ)))).mpr ⟨k, s2_4_4_6⟩
         -- 2.4.4.8. arithmetic
-        have s2_4_4_8 : (3 : ℤ) = 2 * 1 + 1 := by parley_arith
+        have s2_4_4_8 : (3 : ℤ) = 2 * 1 + 1 := by norm_num
         -- 2.4.4.9. def:odd n := 3, from 2.4.4.8
         have s2_4_4_9 : Odd (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by norm_num⟩
         -- 2.4.4.10. mun:not-both n := 3, from 2.4.4.7

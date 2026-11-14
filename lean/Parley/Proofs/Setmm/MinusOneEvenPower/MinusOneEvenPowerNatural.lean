@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -45,7 +44,7 @@ theorem minus_one_even_power_natural (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      parley_arith
+      norm_num
     | succ k hK hIH =>
       -- 1.2. algebra
       have s1_2 : 2 * (k + 1) = 2 * k + 1 + 1 := by ring1

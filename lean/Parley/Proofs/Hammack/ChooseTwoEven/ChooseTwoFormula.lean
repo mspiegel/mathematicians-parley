@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -42,7 +41,7 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (0 : ℤ) < 2 := by parley_arith
+      have s1_1 : (0 : ℤ) < 2 := by norm_num
       -- 1.2. calculation
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 * (0 - 1) / 2 := by
         calc (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 := by exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)

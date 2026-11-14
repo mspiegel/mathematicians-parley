@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -74,7 +73,7 @@ theorem rational_cube_root_of_two :
   -- 14. def:divides d := 2, n := q, from 12
   have s14 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s12⟩
   -- 15. exhibit, from 13, 14
-  have r109_1 : (2 : ℤ) > 1 := by parley_arith
+  have r109_1 : (2 : ℤ) > 1 := by norm_num
   have s15 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s13⟩, s14⟩⟩
   exact s2c s15
 

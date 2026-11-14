@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -26,6 +25,6 @@ namespace Parley.Tests.Elaborator.ClosedValues.AFractionNotNatural
 theorem a_fraction_not_natural :
     ¬ (∃ m : ℤ, 0 < m ∧ (m : ℚ) = 1 / 76) := by
   -- 1. arithmetic
-  parley_arith
+  rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega
 
 end Parley.Tests.Elaborator.ClosedValues.AFractionNotNatural

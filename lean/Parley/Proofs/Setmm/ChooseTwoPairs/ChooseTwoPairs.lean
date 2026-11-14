@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Data.Int.ModEq
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
@@ -34,7 +34,7 @@ theorem choose_two_pairs (n : ℤ) (hH1 : 0 ≤ n) :
   have s1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := n) hH1 (k := (2 : ℤ)))
   -- 2. substitute 2 − 1 = 1 (arithmetic) into line 1
   have s2 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
-    have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+    have e_arith : (2 - 1 : ℤ) = 1 := by norm_num
     (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n t : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) e_arith s1; push_cast at h ⊢; exact_mod_cast h)
   -- 3. substitute
   have s3 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by

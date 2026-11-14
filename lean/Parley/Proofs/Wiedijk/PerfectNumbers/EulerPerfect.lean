@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import PowerTactics
 public import Batteries.Tactic.Init
@@ -96,7 +95,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 4. inequalities, from D2, 3
   have s4 : 1 < p := by linarith only [s3, hD2]
   -- 5. mun:power-order a := 2, m := 1, n := p, from 4
-  have r352_1 : (2 : ℤ) > 1 := by parley_arith
+  have r352_1 : (2 : ℤ) > 1 := by norm_num
   have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by (have h := ((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by norm_num))).mp s4; simp only [parley_zpow_toNat (n := (1 : ℤ)) (h := by norm_num), parley_zpow_toNat (n := p) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s4))] at h ⊢; exact_mod_cast h)
   -- 6. inequalities, from 5
   have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by linarith only [s5]
@@ -143,7 +142,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s13 : (Int.gcd (2 ^ k.toNat : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := m) (k := k) s1a s12)
   -- 14. calculation
   have r407_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
-  have r407_2 : (2 : ℤ) ≠ 1 := by parley_arith
+  have r407_2 : (2 : ℤ) ≠ 1 := by norm_num
   have s14 : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) = 2 ^ p.toNat - 1 := by
     qify
     calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by

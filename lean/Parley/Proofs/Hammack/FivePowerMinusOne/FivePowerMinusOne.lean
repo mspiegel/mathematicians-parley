@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -47,7 +46,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (5 ^ (2 * 0) - 1 : ℤ) = 3 * 0 := by parley_arith
+      have s1_1 : (5 ^ (2 * 0) - 1 : ℤ) = 3 * 0 := by norm_num
       -- 1.2. def:divides d := 3, n := 5^(2·0) − 1, from 1.1
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), by norm_num⟩
     | succ m hK hIH =>
@@ -60,7 +59,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.5. mun:divides-multiple e := 3, a := 5^(2m) − 1, x := 25, from IH
       have s1_5 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (5 ^ (2 * m).toNat - 1 : ℤ)) (x := (25 : ℤ)) hIH)
       -- 1.6. def:divides d := 3, n := 24
-      have r37_1 : (24 : ℤ) = 3 * 8 := by parley_arith
+      have r37_1 : (24 : ℤ) = 3 * 8 := by norm_num
       have s1_6 : (3 : ℤ) ∣ (24 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (24 : ℤ)))).mpr ⟨(8 : ℤ), by norm_num⟩
       -- 1.7. mun:divides-sum d := 3, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
       have s1_7 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := ((5 ^ (2 * m).toNat - 1) * 25 : ℤ)) (b := (24 : ℤ)) s1_5 s1_6)

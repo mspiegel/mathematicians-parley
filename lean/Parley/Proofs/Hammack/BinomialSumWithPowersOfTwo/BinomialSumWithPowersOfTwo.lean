@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -29,6 +28,7 @@ public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -62,7 +62,7 @@ theorem binomial_sum_with_powers_of_two (n : ℤ) (hH1 : 0 ≤ n) :
     -- 3.2. algebra, from 3.1
     linear_combination (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ)) * s3_1
   -- 4. arithmetic
-  have s4 : (1 + 2 : ℤ) = 3 := by parley_arith
+  have s4 : (1 + 2 : ℤ) = 3 := by norm_num
   -- 5. calculation
   qify
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat)) (a := (0 : ℤ)) (b := n) (fun k h_k => (s3 k h_k).symm))

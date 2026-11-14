@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -67,14 +66,14 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have r28_1 : (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ)))
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
-  have r32_1 : (0 : ℤ) < 1 := by parley_arith
+  have r32_1 : (0 : ℤ) < 1 := by norm_num
   have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
   have s5 : p ≠ 0 := ne_of_gt (by linarith only [s4a])
   -- 6. mun:quotient-positive x := 2, y := p, from 4
-  have r44_1 : (2 : ℤ) > 0 := by parley_arith
+  have r44_1 : (2 : ℤ) > 0 := by norm_num
   have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by norm_num) s4a)
   -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
   obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))

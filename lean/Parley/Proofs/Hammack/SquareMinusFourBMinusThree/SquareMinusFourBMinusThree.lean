@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
@@ -75,7 +75,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
   -- 4. mun:not-both n := 1, from 3
   have s4 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s3)
   -- 5. arithmetic
-  have s5 : Odd (1 : ℤ) := by parley_arith
+  have s5 : Odd (1 : ℤ) := by norm_num
   exact s4 s5
 
 end Parley.Proofs.Hammack.SquareMinusFourBMinusThree.SquareMinusFourBMinusThree

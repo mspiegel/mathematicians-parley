@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -42,7 +42,7 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
+      have s1_1 : (2 ^ 0 : ℤ) = 1 := by norm_num
       -- 1.2. substitute 2^0 = 1 (line 1.1)
       have s1_2 : (2 ^ a.toNat : ℤ) = 2 ^ a.toNat * 2 ^ 0 := by (have h := (congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_1).symm; push_cast [mul_one] at h ⊢; exact_mod_cast h)
       simpa only [add_zero, Int.reduceToNat] using s1_2

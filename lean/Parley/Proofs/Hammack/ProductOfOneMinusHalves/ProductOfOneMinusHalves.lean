@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -83,7 +82,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       -- 2.5. mun:reciprocal-positive x := 2^(m + 1), from 2.4
       have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ (m + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_4))
       -- 2.6. mun:reciprocal-order x := 4, y := 2^(m + 1), from 2.2, 2.4
-      have r84_1 : (4 : ℤ) > 0 := by parley_arith
+      have r84_1 : (4 : ℤ) > 0 := by norm_num
       have s2_6 : (1 / 2 ^ (m + 1).toNat : ℚ) ≤ 1 / 4 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (4 : ℚ)) (by norm_num) (y := (2 ^ (m + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_4))).mp (by exact_mod_cast ge_iff_le.mp s2_2)
       -- 2.7. mun:product-real a := 1, b := m, from 1
       -- 2.8. mun:exponent-step a := 2, m := m + 1

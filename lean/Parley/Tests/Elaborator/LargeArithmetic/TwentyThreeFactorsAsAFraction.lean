@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
@@ -36,6 +35,6 @@ namespace Parley.Tests.Elaborator.LargeArithmetic.TwentyThreeFactorsAsAFraction
 theorem twenty_three_factors_as_a_fraction :
     (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (365 - (k : ℚ) : ℚ)) / 365 ^ 23 < 1 / 2 := by
   -- 1. arithmetic
-  parley_arith
+  field_simp; norm_cast
 
 end Parley.Tests.Elaborator.LargeArithmetic.TwentyThreeFactorsAsAFraction

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
+      have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -52,14 +51,14 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) < 2 := by parley_arith
+      have s1_1 : (1 : ℤ) < 2 := by norm_num
       -- 1.2. def:C n := 1, k := 2, from 1.1
       have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
       -- 1.3. thm:pascal n := 1, k := 2
       have s1_3 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ)))
       -- 1.4. substitute 2 − 1 = 1 (arithmetic) into line 1.3
       have s1_4 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by
-        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        have e_arith : (2 - 1 : ℤ) = 1 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) t : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ))) e_arith s1_3; revert h; norm_num)
       -- 1.5. thm:binomial-of-one m := 1
       have s1_5 : (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = 1 := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := (1 : ℤ)) (by norm_num))
@@ -83,7 +82,7 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       have s1_9 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)) (k := (2 : ℤ)))
       -- 1.10. substitute 2 − 1 = 1 (arithmetic) into line 1.9
       have s1_10 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by
-        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        have e_arith : (2 - 1 : ℤ) = 1 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) t : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; exact_mod_cast h)
       -- 1.11. calculation
       calc S (k + 1) = S k + (k + 1) := s1_7

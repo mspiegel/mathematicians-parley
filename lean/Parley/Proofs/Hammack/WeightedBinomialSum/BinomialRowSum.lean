@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -65,7 +64,7 @@ theorem binomial_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.choose m k : ℚ) * t * 1 ^ k.toNat) s2_1; push_cast [mul_one] at h ⊢; exact_mod_cast h)
       _ = (LeanBridges.Counting.choose m k : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose m k : ℤ) * t) s2_2; push_cast [mul_one] at h ⊢; exact_mod_cast h)
   -- 3. arithmetic
-  have s3 : (1 + 1 : ℤ) = 2 := by parley_arith
+  have s3 : (1 + 1 : ℤ) = 2 := by norm_num
   -- 4. calculation
   qify
   calc (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℚ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat)) (a := (0 : ℤ)) (b := m) (fun k h_k => (s2 k h_k).symm))

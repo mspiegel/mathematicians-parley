@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -53,7 +52,7 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
       rcases s2_5 with hC3 | hC4
       · skip
         -- 2.6.1. arithmetic
-        have s2_6_1 : (2 : ℤ) ≠ 1 := by parley_arith
+        have s2_6_1 : (2 : ℤ) ≠ 1 := by norm_num
         exact absurd hC3 s2_6_1
       · skip
         exact hC4

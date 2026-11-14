@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -70,7 +69,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
         rcases s6_4 with hC2 | hC3
         · skip
           -- 6.5.1. arithmetic
-          have s6_5_1 : (2 : ℤ) ≠ 1 := by parley_arith
+          have s6_5_1 : (2 : ℤ) ≠ 1 := by norm_num
           exact absurd hC2 s6_5_1
         · skip
           exact hC3

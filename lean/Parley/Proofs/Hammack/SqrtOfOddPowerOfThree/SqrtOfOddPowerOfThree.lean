@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -84,7 +83,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
       _ = 3 ^ (m + m) * 3 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) r50_1); simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num)), parley_zpow_toNat (n := m + m) (h := r50_1)] at h ⊢; exact_mod_cast h)
       _ = 3 ^ m * 3 ^ m * 3 := congrArg (fun t : ℚ => t * 3) s9
   -- 11. def:sqrt x := 3
-  have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith
+  have r57_1 : (3 : ℤ) ≥ 0 := by norm_num
   have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by norm_num))
   have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by norm_num))
   -- 12. def:sqrt x := 3^k

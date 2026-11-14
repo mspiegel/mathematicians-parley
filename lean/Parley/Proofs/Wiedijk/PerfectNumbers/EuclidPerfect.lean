@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -117,7 +116,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
   -- 7. calculation
   have r117_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
   have r117_2 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
-  have r117_3 : (2 : ℤ) ≠ 1 := by parley_arith
+  have r117_3 : (2 : ℤ) ≠ 1 := by norm_num
   have s7 : ∃ m : ℕ, (m : ℚ) = (2 ^ (p - 1) : ℚ) ∧ (ArithmeticFunction.sigma 1 m : ℤ) = 2 ^ p.toNat - 1 := by
     have whole1 : ((2 : ℚ) : ℚ) ^ (p - 1).toNat = (2 ^ (p - 1) : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg r117_1]
     refine ⟨(2 ^ (p - 1).toNat), by (push_cast; simp only [whole1]), ?_⟩

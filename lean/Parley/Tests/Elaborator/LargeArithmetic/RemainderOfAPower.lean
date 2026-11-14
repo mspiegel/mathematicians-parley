@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
@@ -31,6 +31,6 @@ namespace Parley.Tests.Elaborator.LargeArithmetic.RemainderOfAPower
 theorem remainder_of_a_power :
     (10 ^ 3 : ℤ) % (7 : ℤ) = 6 := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Elaborator.LargeArithmetic.RemainderOfAPower

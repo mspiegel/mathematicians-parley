@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -116,7 +115,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     have s11_5 : 1 + x ^ 2 > 0 := by linarith only [s11_3]
     -- 11.6. mun:quotients-compared x := x^(2n), y := 1 + x², z := x^(2n), w := 1, from 11.2, 11.4
     have r620_1 : x ^ (2 * n).toNat ≤ x ^ (2 * n).toNat := by linarith
-    have r620_2 : (0 : ℤ) < 1 := by parley_arith
+    have r620_2 : (0 : ℤ) < 1 := by norm_num
     have s11_6 : x ^ (2 * n).toNat / (1 + x ^ 2) ≤ x ^ (2 * n).toNat / 1 := by exact (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x ^ (2 * n).toNat) (y := 1 + x ^ 2) (z := x ^ (2 * n).toNat) (w := (1 : ℝ)) s11_2 r620_1 (by norm_num) s11_4)
     -- 11.7. D2, from K2
     have s11_7 : g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD2]
@@ -128,7 +127,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     have r631_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s11_5])
     exact LE.le.trans_eq (Eq.trans_le s11_7 s11_6) s11_8
   -- 12. arithmetic
-  have s12 : (0 : ℤ) < 1 := by parley_arith
+  have s12 : (0 : ℤ) < 1 := by norm_num
   -- 13. thm:integral-nonneg a := 0, b := 1, f := g, from 7, 9, 10, 12
   have s13 : (∫ t in 0..1, (g t : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Calculus.thm_integral_nonneg (f := g) (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) s10 s9)
   -- 14. thm:integral-order a := 0, b := 1, f := g, g := f, from 6, 7, 8, 9, 11, 12
@@ -142,8 +141,8 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 17. D0, from D2
   have s17 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD2]
   -- 18. def:interval a := 0, b := 1, x := 1
-  have r653_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have r653_2 : (1 : ℤ) ≤ 1 := by parley_arith
+  have r653_1 : (0 : ℤ) ≤ 1 := by norm_num
+  have r653_2 : (1 : ℤ) ≤ 1 := by norm_num
   have s18 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 19. mun:integral-real a := 0, b := 1, f := g, x := 1, from 7, 9, 12, 18
   -- 20. substitute J(n) = ∫(0 to 1) g(t) dt (line 17) into line 19

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -26,9 +25,9 @@ namespace Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquatio
 theorem two_witnesses_beside_an_equation :
     (∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ x + 1 = y + 1 - 2) := by
   -- 1. arithmetic
-  have s1 : (0 + 1 : ℤ) = 2 + 1 - 2 := by parley_arith
+  have s1 : (0 + 1 : ℤ) = 2 + 1 - 2 := by norm_num
   -- 2. arithmetic
-  have s2 : (0 : ℤ) ≠ 2 := by parley_arith
+  have s2 : (0 : ℤ) ≠ 2 := by norm_num
   -- 3. exhibit, from 1, 2
   exact ⟨(0 : ℝ), (2 : ℝ), ⟨by norm_num, by norm_num⟩⟩
 

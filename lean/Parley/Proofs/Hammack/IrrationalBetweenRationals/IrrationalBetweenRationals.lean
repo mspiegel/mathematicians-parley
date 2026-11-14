@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -52,7 +51,7 @@ namespace Parley.Proofs.Hammack.IrrationalBetweenRationals.IrrationalBetweenRati
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. def:sqrt x := 2
-  have r20_1 : (2 : ℤ) ≥ 0 := by parley_arith
+  have r20_1 : (2 : ℤ) ≥ 0 := by norm_num
   have s1a : Real.sqrt (2 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by norm_num))
   have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by norm_num))
   -- 2. thm:sqrt2-irrational
@@ -63,20 +62,20 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       _ < 2 := by norm_num
       _ = Real.sqrt (2 : ℝ) ^ 2 := s1b.symm
   -- 4. mun:square-less x := 0, y := √2, from 1, 3
-  have r33_1 : (0 : ℤ) ≥ 0 := by parley_arith
+  have r33_1 : (0 : ℤ) ≥ 0 := by norm_num
   have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by norm_num) s1a)).mpr s3
   -- 5. calculation
   have s5 : Real.sqrt (2 : ℝ) ^ 2 < 2 ^ 2 := by
     calc Real.sqrt (2 : ℝ) ^ 2 = 2 := s1b
       _ < 2 ^ 2 := by norm_num
   -- 6. mun:square-less x := √2, y := 2, from 1, 5
-  have r42_1 : (2 : ℤ) ≥ 0 := by parley_arith
+  have r42_1 : (2 : ℤ) ≥ 0 := by norm_num
   have s6 : Real.sqrt (2 : ℝ) < 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) s1a (by norm_num))).mpr s5
   -- 7. mun:product-positive x := 1/2, y := √2, from 4
-  have r46_1 : (1 / 2 : ℚ) > 0 := by parley_arith
+  have r46_1 : (1 / 2 : ℚ) > 0 := by norm_num
   have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by norm_num) s4)
   -- 8. calculation
-  have r50_1 : (1 / 2 : ℚ) > 0 := by parley_arith
+  have r50_1 : (1 / 2 : ℚ) > 0 := by norm_num
   have s8 : 1 / 2 * Real.sqrt (2 : ℝ) < 1 := by
     calc 1 / 2 * Real.sqrt (2 : ℝ) < 1 / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := (1 / 2 : ℝ)) (by norm_num))).mp s6
       _ = 1 := by norm_num

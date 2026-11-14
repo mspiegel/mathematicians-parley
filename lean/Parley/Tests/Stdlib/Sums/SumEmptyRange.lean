@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Data.Finset.Defs
@@ -35,7 +34,7 @@ namespace Parley.Tests.Stdlib.Sums.SumEmptyRange
 theorem sum_empty_range :
     (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by
   -- 1. mun:sums-sum-empty-range a := 1, b := 0
-  have r16_1 : (0 : ℤ) < 1 := by parley_arith
+  have r16_1 : (0 : ℤ) < 1 := by norm_num
   exact (Parley.Items.Stdlib.Sums.mun_sum_empty_range (t := (fun k : ℤ => 2 * k - 1)) (a := (1 : ℤ)) (b := (0 : ℤ)) (by norm_num))
 
 end Parley.Tests.Stdlib.Sums.SumEmptyRange

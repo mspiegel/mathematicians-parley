@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -28,9 +27,9 @@ theorem prime_between_ninety_and_a_hundred :
   -- 1. inspection
   have s1 : Nat.Prime (97 : ℤ).toNat := by norm_num
   -- 2. arithmetic
-  have s2 : (90 : ℤ) < 97 := by parley_arith
+  have s2 : (90 : ℤ) < 97 := by norm_num
   -- 3. arithmetic
-  have s3 : (97 : ℤ) < 100 := by parley_arith
+  have s3 : (97 : ℤ) < 100 := by norm_num
   -- 4. exhibit, from 1, 2, 3
   exact ⟨(97 : ℤ), by norm_num, ⟨⟨s1, by norm_num⟩, by norm_num⟩⟩
 

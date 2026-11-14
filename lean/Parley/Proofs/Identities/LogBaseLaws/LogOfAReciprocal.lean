@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -32,7 +31,7 @@ namespace Parley.Proofs.Identities.LogBaseLaws.LogOfAReciprocal
 theorem log_of_a_reciprocal (x : ℝ) (b : ℝ) (hH3 : x > 0) (hH4 : b > 0) (hH5 : b ≠ 1) :
     Real.log (1 / x) / Real.log b = -(Real.log x / Real.log b) := by
   -- 1. mun:ln-quotient x := 1, y := x, from H3
-  have r61_1 : (1 : ℤ) > 0 := by parley_arith
+  have r61_1 : (1 : ℤ) > 0 := by norm_num
   have s1 : Real.log (1 / x) = Real.log (1 : ℝ) - Real.log x := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_quotient (x := (1 : ℝ)) (y := x) (by norm_num) hH3)
   -- 2. substitute ln(1) = 0 (real arithmetic) into line 1
   have s2 : Real.log (1 / x) = 0 - Real.log x := by

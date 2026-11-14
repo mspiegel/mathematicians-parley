@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -89,7 +88,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
-    have r148_1 : (0 : ℤ) < 1 := by parley_arith
+    have r148_1 : (0 : ℤ) < 1 := by norm_num
     have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by norm_num, s9_6⟩
     -- 9.9. inequalities, from D3, 9.8
     have s9_9 : m > 0 := by linarith only [s9_8, hD3]

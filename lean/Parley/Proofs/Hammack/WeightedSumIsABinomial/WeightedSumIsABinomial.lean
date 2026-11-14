@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -80,7 +79,7 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       have s1_9 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (3 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j + 2) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)) (k := (3 : ℤ)))
       -- 1.10. substitute 3 − 1 = 2 (arithmetic) into line 1.9
       have s1_10 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by
-        have e_arith : (3 - 1 : ℤ) = 2 := by parley_arith
+        have e_arith : (3 - 1 : ℤ) = 2 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) t : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; exact_mod_cast h)
       -- 1.11. substitute
       have s1_11 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by

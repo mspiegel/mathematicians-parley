@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
@@ -31,6 +30,6 @@ namespace Parley.Tests.Notations.Sums.AProductOverARangeWorkedOut
 theorem a_product_over_a_range_worked_out :
     (∏ k ∈ Finset.Icc (1 : ℤ) (4 : ℤ), (k : ℤ)) = 24 := by
   -- 1. arithmetic
-  parley_arith
+  decide
 
 end Parley.Tests.Notations.Sums.AProductOverARangeWorkedOut

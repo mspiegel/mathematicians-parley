@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -44,22 +43,22 @@ theorem prime_powers_unique (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) 
   -- 3. inspection
   have s3 : Nat.Prime (5 : ℤ).toNat := by norm_num
   -- 4. mun:prime-coprime p := 3, a := 2, from 2
-  have r518_1 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by parley_arith
+  have r518_1 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by norm_num
   have s4 : (Int.gcd (3 : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by norm_num) s2 (a := (2 : ℤ)) r518_1)
   -- 5. mun:prime-coprime p := 5, a := 2, from 3
-  have r522_1 : ¬ (5 : ℤ) ∣ (2 : ℤ) := by parley_arith
+  have r522_1 : ¬ (5 : ℤ) ∣ (2 : ℤ) := by norm_num
   have s5 : (Int.gcd (5 : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (5 : ℤ)) (by norm_num) s3 (a := (2 : ℤ)) r522_1)
   -- 6. mun:prime-coprime p := 2, a := 3, from 1
-  have r526_1 : ¬ (2 : ℤ) ∣ (3 : ℤ) := by parley_arith
+  have r526_1 : ¬ (2 : ℤ) ∣ (3 : ℤ) := by norm_num
   have s6 : (Int.gcd (2 : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by norm_num) s1 (a := (3 : ℤ)) r526_1)
   -- 7. mun:prime-coprime p := 5, a := 3, from 3
-  have r530_1 : ¬ (5 : ℤ) ∣ (3 : ℤ) := by parley_arith
+  have r530_1 : ¬ (5 : ℤ) ∣ (3 : ℤ) := by norm_num
   have s7 : (Int.gcd (5 : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (5 : ℤ)) (by norm_num) s3 (a := (3 : ℤ)) r530_1)
   -- 8. mun:prime-coprime p := 2, a := 5, from 1
-  have r534_1 : ¬ (2 : ℤ) ∣ (5 : ℤ) := by parley_arith
+  have r534_1 : ¬ (2 : ℤ) ∣ (5 : ℤ) := by norm_num
   have s8 : (Int.gcd (2 : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by norm_num) s1 (a := (5 : ℤ)) r534_1)
   -- 9. mun:prime-coprime p := 3, a := 5, from 2
-  have r538_1 : ¬ (3 : ℤ) ∣ (5 : ℤ) := by parley_arith
+  have r538_1 : ¬ (3 : ℤ) ∣ (5 : ℤ) := by norm_num
   have s9 : (Int.gcd (3 : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by norm_num) s2 (a := (5 : ℤ)) r538_1)
   -- 10. mun:coprime-product x := 3^b, y := 5^c, n := 2
   have r542_1 : (Int.gcd (3 ^ b.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (2 : ℤ)) (k := b) hH2 s4)

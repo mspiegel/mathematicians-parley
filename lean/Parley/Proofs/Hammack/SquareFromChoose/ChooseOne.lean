@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -45,11 +44,11 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by simpa only [Int.cast_one, Int.cast_zero, zero_add] using (Parley.Items.Stdlib.Counting.thm_pascal (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ)))
       -- 1.2. substitute
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by
-        have c1 : (1 - 1 : ℤ) = 0 := by parley_arith
+        have c1 : (1 - 1 : ℤ) = 0 := by norm_num
         have row1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) t : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ))) c1 s1_1; revert h; norm_num)
         exact row1
       -- 1.3. arithmetic
-      have s1_3 : (0 : ℤ) < 1 := by parley_arith
+      have s1_3 : (0 : ℤ) < 1 := by norm_num
       -- 1.4. def:C n := 0, k := 1, from 1.3
       have s1_4 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ))) (by norm_num)
       -- 1.5. mun:binomial-zero-index n := 0
@@ -61,7 +60,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       have s1_7 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (k := (1 : ℤ)))
       -- 1.8. substitute 1 − 1 = 0 (arithmetic) into line 1.7
       have s1_8 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
-        have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
+        have e_arith : (1 - 1 : ℤ) = 0 := by norm_num
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_7; push_cast at h ⊢; exact_mod_cast h)
       -- 1.9. mun:binomial-zero-index n := k
       have s1_9 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))

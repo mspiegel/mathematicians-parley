@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -83,15 +82,15 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
     calc (deriv F) x = 2 * x := s5_3
       _ = f x := s5_2.symm
   -- 6. thm:fundamental-calculus a := 0, b := 1, from 1, 2, 4, 5
-  have r54_1 : (0 : ℤ) < 1 := by parley_arith
+  have r54_1 : (0 : ℤ) < 1 := by norm_num
   have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := f) (Set.mapsTo_univ _ _) s1 (F := F) (Set.mapsTo_univ _ _) s2 s4a s5)
   -- 7. def:interval a := 0, b := 1, x := 1
-  have r58_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have r58_2 : (1 : ℤ) ≤ 1 := by parley_arith
+  have r58_1 : (0 : ℤ) ≤ 1 := by norm_num
+  have r58_2 : (1 : ℤ) ≤ 1 := by norm_num
   have s7 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 8. def:interval a := 0, b := 1, x := 0
-  have r63_1 : (0 : ℤ) ≤ 0 := by parley_arith
-  have r63_2 : (0 : ℤ) ≤ 1 := by parley_arith
+  have r63_1 : (0 : ℤ) ≤ 0 := by norm_num
+  have r63_2 : (0 : ℤ) ≤ 1 := by norm_num
   have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 9. instantiate x := 1 in H4, from 7
   have s9 : F 1 = 1 ^ 2 := by exact (hH4 (1 : ℝ) s7)

@@ -51,6 +51,7 @@
 {"key":"Nat.cast_ofNat","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"Nat.cast_one","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"Nat.cast_zero","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
+{"key":"Nat.factorial","kind":"const","modules":["Mathlib.Tactic.NormNum.NatFactorial","Mathlib.Tactic.Positivity.Basic","Mathlib.Data.Nat.Factorial.Basic"]}
 {"key":"Nat.reduceAdd","kind":"const","modules":[]}
 {"key":"Nat.reduceMul","kind":"const","modules":[]}
 {"key":"Nat.totient","kind":"const","modules":["Mathlib.Data.Nat.Totient"]}
@@ -1194,6 +1195,8 @@
 {"key":"exact_mod_cast a","kind":"tactic","modules":[]}
 {"key":"ext a","kind":"tactic","modules":[]}
 {"key":"field","kind":"tactic","modules":["Mathlib.Tactic.Field"]}
+{"key":"field_simp","kind":"tactic","modules":["Mathlib.Tactic.FieldSimp"]}
+{"key":"field_simp at h","kind":"tactic","modules":["Mathlib.Tactic.FieldSimp"]}
 {"key":"intro a","kind":"tactic","modules":[]}
 {"key":"intros","kind":"tactic","modules":[]}
 {"key":"linarith","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
@@ -1220,6 +1223,7 @@
 {"key":"ring1","kind":"tactic","modules":["Mathlib.Tactic.Ring.Basic"]}
 {"key":"ring_nf","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"ring_nf at h","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
+{"key":"rintro a","kind":"tactic","modules":[]}
 {"key":"rw [a]","kind":"tactic","modules":[]}
 {"key":"rw [a] at h","kind":"tactic","modules":[]}
 {"key":"rw [← a]","kind":"tactic","modules":[]}

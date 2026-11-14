@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -66,7 +65,7 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
           have s1_2_w : (1 ^ k.toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_2; push_cast at h ⊢; linear_combination h
           linear_combination ((LeanBridges.Counting.choose N k : ℚ)) * s1_2_w
   -- 2. arithmetic
-  have s2 : (1 + 1 : ℤ) = 2 := by parley_arith
+  have s2 : (1 + 1 : ℤ) = 2 := by norm_num
   -- 3. calculation
   qify
   calc (2 ^ N.toNat : ℚ) = (1 + 1) ^ N.toNat := by (have h := congrArg (fun t : ℤ => t ^ N.toNat) s2.symm; push_cast at h ⊢; exact_mod_cast h)

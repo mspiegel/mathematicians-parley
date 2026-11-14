@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -65,7 +64,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
     -- 2.2. mun:nat-plus-nat0 a := n, b := j
     have s2_2 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) hH1 (b := j) hK)
     -- 2.3. mun:power-positive a := 2, m := (n + j + 1)!
-    have r247_1 : (2 : ℤ) > 0 := by parley_arith
+    have r247_1 : (2 : ℤ) > 0 := by norm_num
     have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by norm_num)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
     -- 2.4. mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.3
     have s2_4 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_3))

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -41,25 +40,25 @@ namespace Parley.Proofs.Hammack.PositiveNumberWithSquareBelowRoot.PositiveNumber
 theorem positive_number_with_square_below_root :
     (∃ x : ℝ, x > 0 ∧ x ^ 2 < Real.sqrt x) := by
   -- 1. def:sqrt x := 1/4
-  have r10_1 : (1 / 4 : ℚ) ≥ 0 := by parley_arith
+  have r10_1 : (1 / 4 : ℚ) ≥ 0 := by norm_num
   have s1a : Real.sqrt (1 / 4 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (1 / 4 : ℝ)) (by norm_num))
   have s1b : Real.sqrt (1 / 4 : ℝ) ^ 2 = 1 / 4 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (1 / 4 : ℝ)) (by norm_num))
   -- 2. arithmetic
-  have s2 : ((1 / 16) ^ 2 : ℚ) < 1 / 4 := by parley_arith
+  have s2 : ((1 / 16) ^ 2 : ℚ) < 1 / 4 := by norm_num
   -- 3. substitute (√(1/4))² = 1/4 (line 1) into line 2
   have s3 : (1 / 16) ^ 2 < Real.sqrt (1 / 4 : ℝ) ^ 2 := by
     have s2_w : ((1 / 16) ^ 2 : ℝ) < 1 / 4 := (show ((1 / 16) ^ 2 : ℝ) < 1 / 4 by have h := (Rat.cast_lt (K := ℝ)).mpr s2; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h)
     exact Eq.subst (motive := (fun t : ℝ => (1 / 16) ^ 2 < t)) s1b.symm s2_w
   -- 4. mun:square-less x := 1/16, y := √(1/4), from 1, 3
-  have r20_1 : (1 / 16 : ℚ) ≥ 0 := by parley_arith
+  have r20_1 : (1 / 16 : ℚ) ≥ 0 := by norm_num
   have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by norm_num) s1a)).mpr s3
   -- 5. substitute 1/16 = (1/4)² (arithmetic) into line 4
   have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by
-    have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by parley_arith
+    have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by norm_num
     have e_w : (1 / 16 : ℝ) = (1 / 4) ^ 2 := by have h := congrArg (fun x : ℚ => (x : ℝ)) e_arith; push_cast at h ⊢; linear_combination h
     exact Eq.subst (motive := (fun t : ℝ => t < Real.sqrt (1 / 4 : ℝ))) e_w s4
   -- 6. arithmetic
-  have s6 : (1 / 4 : ℚ) > 0 := by parley_arith
+  have s6 : (1 / 4 : ℚ) > 0 := by norm_num
   -- 7. exhibit, from 5, 6
   exact ⟨(1 / 4 : ℝ), ⟨by norm_num, s5⟩⟩
 

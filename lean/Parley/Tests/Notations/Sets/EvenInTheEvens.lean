@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.ModEq
@@ -31,7 +30,7 @@ theorem even_in_the_evens :
     (4 : ℤ) ∈ {x : ℤ | 0 < x ∧ Even x} := by
   set E : Set ℤ := {x : ℤ | 0 < x ∧ Even x} with hD1
   -- 1. arithmetic
-  have s1 : Even (4 : ℤ) := by parley_arith
+  have s1 : Even (4 : ℤ) := by norm_num
   -- 2. def:set-builder u := 4, from D1, 1
   exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (4 : ℤ)))).mpr ⟨by norm_num, s1⟩
 

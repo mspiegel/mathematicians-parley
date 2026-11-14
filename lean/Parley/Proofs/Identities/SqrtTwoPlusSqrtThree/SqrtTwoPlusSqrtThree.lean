@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import RealTactics
 public import Batteries.Classes.RatCast
@@ -44,7 +43,7 @@ theorem sqrt_two_plus_sqrt_three :
   -- 1. thm:sqrt6-irrational
   have s1 : Irrational (Real.sqrt (6 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational.sqrt6_irrational
   -- 2. thm:irrational-product A := √6, B := 2, from 1
-  have r16_1 : (2 : ℤ) ≠ 0 := by parley_arith
+  have r16_1 : (2 : ℤ) ≠ 0 := by norm_num
   have s2 : Irrational (Real.sqrt (6 : ℝ) * 2) := by
     have hI : Irrational (Real.sqrt (6 : ℝ) * 2) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (6 : ℝ)) (B := (2 : ℚ)) (by norm_num) s1))
     exact hI

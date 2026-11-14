@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -119,7 +118,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 17. algebra, from 13, 16
   have s17 : c * 2 = (s + t) * 2 := by linear_combination s13 + s16
   -- 18. mun:multiply-cancel a := c, b := s + t, c := 2, from 17
-  have r269_1 : (2 : ℤ) ≠ 0 := by parley_arith
+  have r269_1 : (2 : ℤ) ≠ 0 := by norm_num
   have s18 : c = s + t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := c) (b := s + t) (c := (2 : ℤ)) s17 (by norm_num))
   -- 19. algebra
   have s19 : (s - t) * 2 = 2 * s - 2 * t := by ring1
@@ -135,7 +134,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     calc b * 2 = c + b - (c - b) := by ring1
       _ = (s - t) * 2 := s20.symm
   -- 22. mun:multiply-cancel a := b, b := s − t, c := 2, from 21
-  have r287_1 : (2 : ℤ) ≠ 0 := by parley_arith
+  have r287_1 : (2 : ℤ) ≠ 0 := by norm_num
   have s22 : b = s - t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := b) (b := s - t) (c := (2 : ℤ)) s21 (by norm_num))
   -- 23. mun:square-positive x := a, from H1
   have s23 : a ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) hH1.ne')
@@ -178,7 +177,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
       _ = 2 * s * (2 * t) := s34.symm
       _ = s * t * 4 := by ring1
   -- 36. mun:multiply-cancel a := w², b := s·t, c := 4, from 35
-  have r347_1 : (4 : ℤ) ≠ 0 := by parley_arith
+  have r347_1 : (4 : ℤ) ≠ 0 := by norm_num
   have s36 : w ^ 2 = s * t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := w ^ 2) (b := s * t) (c := (4 : ℤ)) s35 (by norm_num))
   -- 37. def:gcd a := s, b := t, from 29, 32
   have s37a : 0 < (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) s32 (b := t) s29)

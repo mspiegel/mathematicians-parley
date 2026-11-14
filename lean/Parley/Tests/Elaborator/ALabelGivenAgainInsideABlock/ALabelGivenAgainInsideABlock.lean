@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -11,6 +10,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
@@ -34,7 +34,7 @@ theorem a_label_given_again_inside_a_block :
     -- 1.1.1. inequalities
     have s1_1_1 : y + 1 > 1 := by linarith only [hJ]
     -- 1.1.2. arithmetic
-    have s1_1_2 : (1 : ℤ) > 0 := by parley_arith
+    have s1_1_2 : (1 : ℤ) > 0 := by norm_num
     -- 1.1.3. transitivity, from 1.1.1, 1.1.2
     exact lt_trans (show (1 : ℝ) > 0 by exact_mod_cast s1_1_2) s1_1_1
   -- 1.2. instantiate y := x in line 1.1, from J

@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
@@ -13,6 +12,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity
@@ -31,7 +31,7 @@ theorem odd_not_in_the_evens :
     ¬ (3 : ℤ) ∈ {x : ℤ | 0 < x ∧ Even x} := by
   set E : Set ℤ := {x : ℤ | 0 < x ∧ Even x} with hD1
   -- 1. arithmetic
-  have s1 : ¬ Even (3 : ℤ) := by parley_arith
+  have s1 : ¬ Even (3 : ℤ) := by norm_num
   -- 2. contradiction
   intro hS
   -- 2.1. def:set-builder u := 3, from D1, S

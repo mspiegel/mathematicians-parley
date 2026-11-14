@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -29,7 +28,7 @@ namespace Parley.Tests.Elaborator.APhraseImported.TenIsTriangular
 theorem ten_is_triangular :
     ((0 : ℤ) < 10 ∧ (∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2)) := by
   -- 1. arithmetic
-  have s1 : (10 : ℚ) = 4 * (4 + 1) / 2 := by parley_arith
+  have s1 : (10 : ℚ) = 4 * (4 + 1) / 2 := by norm_num
   -- 2. exhibit, from 1
   have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by norm_num, by norm_num⟩
   -- 3. def:triangular-number n := 10, from 2

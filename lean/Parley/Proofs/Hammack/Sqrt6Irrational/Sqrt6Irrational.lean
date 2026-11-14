@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -51,7 +50,7 @@ namespace Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational
 theorem sqrt6_irrational :
     Irrational (Real.sqrt (6 : ℝ)) := by
   -- 1. def:sqrt x := 6
-  have r14_1 : (6 : ℤ) ≥ 0 := by parley_arith
+  have r14_1 : (6 : ℤ) ≥ 0 := by norm_num
   have s1 : Real.sqrt (6 : ℝ) ^ 2 = 6 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (6 : ℝ)) (by norm_num))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ)) := by
@@ -89,7 +88,7 @@ theorem sqrt6_irrational :
     -- 2.15. def:divides d := 2, n := q, from 2.13
     have s2_15 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s2_13⟩
     -- 2.16. exhibit, from 2.14, 2.15
-    have r69_1 : (2 : ℤ) > 1 := by parley_arith
+    have r69_1 : (2 : ℤ) > 1 := by norm_num
     have s2_16 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s2_14⟩, s2_15⟩⟩
     exact s2_1c s2_16
   -- 3. def:irrational x := √6, from 2

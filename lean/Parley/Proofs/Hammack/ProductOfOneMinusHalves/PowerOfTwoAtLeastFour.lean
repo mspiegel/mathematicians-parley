@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -43,7 +42,7 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      parley_arith
+      norm_num
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k + 1
       have s1_2 : (0 : ℤ) < 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))

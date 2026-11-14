@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
@@ -30,6 +30,6 @@ namespace Parley.Tests.Notations.Primes.PastFourBillion
 theorem past_four_billion :
     (641 : ℤ) ∣ (2 ^ 32 + 1 : ℤ) := by
   -- 1. arithmetic
-  parley_arith
+  norm_num
 
 end Parley.Tests.Notations.Primes.PastFourBillion

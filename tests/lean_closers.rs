@@ -821,6 +821,34 @@ const SITES: &[Site] = &[
         list: false,
         why: "a divisor whose factors the goal names in the page's order keeps it, 3 met before n (`FieldOrder`)",
     },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/FactorialsByArithmetic/AFactorialOfSeveralDigits.lean",
+        step: "1",
+        holds: "norm_num [Nat.factorial]",
+        list: false,
+        why: "arithmetic of a factorial: `norm_num` with the factorial unfolded (`worked_out`)",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/LargeArithmetic/ProductOverARange.lean",
+        step: "1",
+        holds: "decide",
+        list: false,
+        why: "arithmetic of a product over a range of numerals, no division: `decide` (`worked_out`)",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/LargeArithmetic/TwentyThreeFactorsAsAFraction.lean",
+        step: "1",
+        holds: "field_simp; norm_cast",
+        list: false,
+        why: "arithmetic of a product over a range that divides: the division cleared, the integers worked out (`worked_out`)",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/ClosedValues/AFractionNotNatural.lean",
+        step: "1",
+        holds: "rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega",
+        list: false,
+        why: "a fraction denied to be a natural number: the number taken, its equation cleared to integers, refuted (`worked_out`)",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next
