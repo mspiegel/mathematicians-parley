@@ -82,11 +82,45 @@
 {"key":"Rat.num","kind":"const","modules":[]}
 {"key":"Real.arctan","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan"]}
 {"key":"Real.cos","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.cos_add_int_mul_two_pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_add_pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_add_pi_div_two","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_pi_div_four","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_pi_div_six","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_pi_div_three","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_zero","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
 {"key":"Real.exp","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Real.exp_add","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Real.exp_log","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.exp_nat_mul","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Real.exp_one_gt_two","kind":"const","modules":["Mathlib.Analysis.Complex.ExponentialBounds"]}
+{"key":"Real.exp_one_lt_three","kind":"const","modules":["Mathlib.Analysis.Complex.ExponentialBounds"]}
+{"key":"Real.exp_zero","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
 {"key":"Real.log","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_div","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_exp","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_mul","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_ne_zero_of_pos_of_ne_one","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_one","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_pos","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_pow","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.lt_sqrt","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
 {"key":"Real.pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.pi_gt_three","kind":"const","modules":["Mathlib.Analysis.Real.Pi.Bounds"]}
+{"key":"Real.pi_lt_four","kind":"const","modules":["Mathlib.Analysis.Real.Pi.Bounds"]}
 {"key":"Real.sin","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.sin_add_int_mul_two_pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_add_pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_add_pi_div_two","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_pi_div_four","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_pi_div_six","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_pi_div_three","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_zero","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.sq_sqrt","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
 {"key":"Real.sqrt","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Tactic.NormNum.RealSqrt"]}
+{"key":"Real.sqrt_lt'","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
+{"key":"Real.sqrt_mul","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
+{"key":"Real.sqrt_sq","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
 {"key":"Set.BijOn","kind":"const","modules":["Mathlib.Data.Set.Operations"]}
 {"key":"Set.Finite","kind":"const","modules":["Mathlib.Basic.Finite.Defs"]}
 {"key":"Set.Finite.cast_ncard_eq","kind":"const","modules":["Mathlib.Data.Set.Card"]}
@@ -127,6 +161,7 @@
 {"key":"add_zero","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"congrArg","kind":"const","modules":[]}
 {"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"div_eq_iff","kind":"const","modules":["Mathlib.Algebra.GroupWithZero.Units.Basic"]}
 {"key":"div_eq_mul_one_div","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"div_one","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"forall_const","kind":"const","modules":[]}
@@ -136,6 +171,7 @@
 {"key":"if_neg","kind":"const","modules":[]}
 {"key":"if_pos","kind":"const","modules":[]}
 {"key":"implies_true","kind":"const","modules":[]}
+{"key":"inv_eq_of_mul_eq_one_left","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
 {"key":"ite","kind":"const","modules":["Mathlib.Tactic.Positivity.Basic"]}
 {"key":"ite_eq_left","kind":"const","modules":[]}
 {"key":"ite_eq_right","kind":"const","modules":[]}
@@ -149,6 +185,7 @@
 {"key":"lt_trans","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"max","kind":"const","modules":[]}
 {"key":"min","kind":"const","modules":[]}
+{"key":"mul_lt_mul''","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"mul_nonneg","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"mul_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"mul_pos","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
@@ -157,7 +194,9 @@
 {"key":"neg_ne_zero.mp","kind":"const","modules":[]}
 {"key":"nhds","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"nhdsWithin","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"not_lt.mpr","kind":"const","modules":[]}
 {"key":"one_mul","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
+{"key":"pow_lt_pow_left₀","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"pow_ne_zero_iff","kind":"const","modules":["Mathlib.Algebra.GroupWithZero.Basic"]}
 {"key":"pow_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"pow_pos","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
@@ -170,6 +209,9 @@
 {"key":"zero_add","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"zero_lt_one","kind":"const","modules":["Mathlib.Algebra.Order.ZeroLEOne"]}
 {"key":"zpow_natCast","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
+{"key":"zpow_neg","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"zpow_ofNat","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
+{"key":"zpow_one","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
 {"key":"ℝ","kind":"const","modules":[]}
 {"key":"ℤ","kind":"const","modules":[]}
 {"key":"↓reduceDIte","kind":"const","modules":[]}
@@ -258,6 +300,7 @@
 {"key":"(sorry : ℕ) + (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"(sorry : ℕ) = (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"(sorry : ℕ) ^ (sorry : ℕ)","kind":"term","modules":["Mathlib.Algebra.Group.Monoid","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Pow","Mathlib.Tactic.Positivity.Basic","Mathlib.Algebra.Group.Nat.Defs"]}
+{"key":"(sorry : ℕ) ≠ (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"(sorry : ℕ∞) < (sorry : ℕ∞)","kind":"term","modules":["Mathlib.Data.ENat.Basic","Mathlib.Data.ENat.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"(sorry : ℕ∞) = (sorry : ℕ∞)","kind":"term","modules":["Mathlib.Data.ENat.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"(sorry : ℕ∞) ≤ (sorry : ℕ∞)","kind":"term","modules":["Mathlib.Data.ENat.Basic","Mathlib.Data.ENat.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
@@ -394,9 +437,23 @@
 {"key":"Real.cos (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Real.exp (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Real.exp a","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Real.exp_log a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.exp_nat_mul (sorry : ℝ) (sorry : ℕ)","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential","Mathlib.Basic.Real.Basic","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Real.log (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_div a a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_exp (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_mul a a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_ne_zero_of_pos_of_ne_one a a a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_pos a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_pow (sorry : ℝ) (sorry : ℕ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.lt_sqrt a","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"Real.pi","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
 {"key":"Real.sin (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Real.sq_sqrt a","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"Real.sqrt (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.RealSqrt"]}
+{"key":"Real.sqrt_lt' a","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"Real.sqrt_mul a (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"Real.sqrt_sq a","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"Set.BijOn (sorry : Set ℤ → Set ℤ) (sorry : Set (Set ℤ)) (sorry : Set (Set ℤ))","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.BijOn (sorry : ℤ → ℝ) (sorry : Set ℤ) (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.BijOn (sorry : ℤ → ℤ) (sorry : Set ℤ) (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
@@ -485,6 +542,7 @@
 {"key":"congrArg (sorry : ℤ → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"deriv (sorry : ℝ → ℝ)","kind":"term","modules":["Mathlib.Algebra.Field.Defs","Mathlib.Algebra.Module.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.Normed.Field.Basic","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
+{"key":"div_eq_iff a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.GroupWithZero.Units.Basic"]}
 {"key":"div_eq_mul_one_div (sorry : ℚ) (sorry : ℚ)","kind":"term","modules":["Mathlib.Algebra.Field.Defs","Mathlib.Algebra.Field.Rat","Mathlib.Algebra.Group.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"div_eq_mul_one_div (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Algebra.Group.Basic","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun S : Set α => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -588,6 +646,7 @@
 {"key":"if_neg (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_neg a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_pos a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"inv_eq_of_mul_eq_one_left a","kind":"term","modules":["Mathlib.Algebra.Group.DivInvMonoid","Mathlib.Algebra.Group.Monoid","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_right a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"le_antisymm a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
@@ -614,6 +673,8 @@
 {"key":"lt_trans a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"max (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"min (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
+{"key":"mul_lt_mul'' a a (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"mul_lt_mul'' a a a a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"mul_nonneg (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"mul_nonneg a (sorry : Prop)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"mul_nonneg a a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
@@ -626,6 +687,9 @@
 {"key":"neg_ne_zero.mp a","kind":"term","modules":["Mathlib.Algebra.Group.Basic","Mathlib.Algebra.Group.DivInvMonoid","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"nhds (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Filter","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"nhdsWithin (sorry : ℝ) (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Filter","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
+{"key":"not_lt.mpr a","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"pow_lt_pow_left₀ a (sorry : Prop) a","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"pow_lt_pow_left₀ a a a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"pow_ne_zero_iff a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"pow_pos a (sorry : Prop)","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"right_ne_zero_of_mul a","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Basic","Mathlib.Algebra.GroupWithZero.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
@@ -1209,6 +1273,7 @@
 {"key":"norm_num","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
 {"key":"norm_num [a]","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
 {"key":"norm_num [a] at h","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
+{"key":"norm_num at h","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
 {"key":"omega","kind":"tactic","modules":[]}
 {"key":"positivity","kind":"tactic","modules":["Mathlib.Tactic.Positivity.Core"]}
 {"key":"push_cast","kind":"tactic","modules":[]}
@@ -1224,6 +1289,7 @@
 {"key":"ring_nf","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"ring_nf at h","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"rintro a","kind":"tactic","modules":[]}
+{"key":"rw []","kind":"tactic","modules":[]}
 {"key":"rw [a]","kind":"tactic","modules":[]}
 {"key":"rw [a] at h","kind":"tactic","modules":[]}
 {"key":"rw [← a]","kind":"tactic","modules":[]}

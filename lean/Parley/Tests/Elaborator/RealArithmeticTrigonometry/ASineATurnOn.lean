@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -8,10 +7,12 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -20,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-trigonometry.proof by parley build lean. -/
 
@@ -30,6 +32,7 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineATurnOn
 theorem a_sine_a_turn_on :
     Real.sin (9 * Real.pi / 4) = Real.sqrt (2 : ℝ) / 2 := by
   -- 1. real arithmetic
-  parley_real
+  have hv1 : Real.sin (9 * Real.pi / 4) = Real.sqrt (2 : ℝ) / 2 := by rw [congrArg Real.sin (show 9 * Real.pi / 4 = Real.pi / 4 + ((1 : ℤ) : ℝ) * (2 * Real.pi) by ring1), Real.sin_add_int_mul_two_pi, Real.sin_pi_div_four]
+  linear_combination hv1
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineATurnOn

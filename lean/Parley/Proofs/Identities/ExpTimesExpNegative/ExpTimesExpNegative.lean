@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
@@ -11,6 +10,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,6 +36,8 @@ theorem exp_times_exp_negative (x : ℝ) :
         have hI : Real.exp (x + -x) = Real.exp x * Real.exp (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (x : ℂ)) (b := -(x : ℂ))))
         exact hI.symm
     _ = Real.exp (0 : ℝ) := by (have h := congrArg (fun t : ℝ => Real.exp t) s1; push_cast at h ⊢; exact_mod_cast h)
-    _ = 1 := by parley_real
+    _ = 1 := by
+        have hv1 : Real.exp (0 : ℝ) = 1 := by rw [Real.exp_zero]
+        linear_combination hv1
 
 end Parley.Proofs.Identities.ExpTimesExpNegative.ExpTimesExpNegative

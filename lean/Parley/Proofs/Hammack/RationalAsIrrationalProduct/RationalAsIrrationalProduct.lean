@@ -1,13 +1,15 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Interval.Finset.Defs
@@ -17,7 +19,10 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -44,7 +49,9 @@ theorem rational_as_irrational_product (r : ℚ) (hH2 : r ≠ 0) :
     have hI : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := r / 2) r17_1 s1))
     exact hI
   -- 4. real arithmetic
-  have s4 : Real.sqrt (2 : ℝ) * Real.sqrt (2 : ℝ) = 2 := by parley_real
+  have s4 : Real.sqrt (2 : ℝ) * Real.sqrt (2 : ℝ) = 2 := by
+    have hr2 : Real.sqrt (2 : ℝ) ^ 2 = 2 := Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num)
+    linear_combination hr2
   -- 5. algebra, from 4
   have s5 : (r : ℝ) = Real.sqrt (2 : ℝ) * (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by linear_combination ((-(r : ℝ)) / (((2 : ℝ)))) * s4
   -- 6. exhibit, from 1, 3, 5

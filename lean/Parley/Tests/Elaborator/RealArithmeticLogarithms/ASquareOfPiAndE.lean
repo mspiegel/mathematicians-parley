@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-logarithms.proof by parley build lean. -/
 
@@ -30,6 +30,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.ASquareOfPiAndE
 theorem a_square_of_pi_and_e :
     (Real.pi + Real.exp 1) ^ 2 = Real.pi ^ 2 + 2 * Real.pi * Real.exp 1 + Real.exp 1 ^ 2 := by
   -- 1. real arithmetic
-  parley_real
+  ring1
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.ASquareOfPiAndE

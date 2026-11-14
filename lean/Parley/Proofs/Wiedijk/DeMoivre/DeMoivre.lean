@@ -2,7 +2,6 @@ module
 
 public import Functions
 public import InstanceTactics
-public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order
@@ -52,12 +51,16 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
       have s2_1 : 0 * x = 0 := by ring1
       -- 2.2. substitute cos(0) = 1 (real arithmetic)
       have s2_2 : (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by
-        have e_real : Real.cos (0 : ℝ) = 1 := by parley_real
+        have e_real : Real.cos (0 : ℝ) = 1 := by
+          have hv1 : Real.cos (0 : ℝ) = 1 := by rw [Real.cos_zero]
+          linear_combination hv1
         have e_w : (Real.cos (0 : ℝ) : ℂ) = 1 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℂ => t + Complex.I * (Real.sin (0 : ℝ) : ℂ)) e_w
       -- 2.3. substitute sin(0) = 0 (real arithmetic)
       have s2_3 : 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * 0 := by
-        have e_real : Real.sin (0 : ℝ) = 0 := by parley_real
+        have e_real : Real.sin (0 : ℝ) = 0 := by
+          have hv1 : Real.sin (0 : ℝ) = 0 := by rw [Real.sin_zero]
+          linear_combination hv1
         have e_w : (Real.sin (0 : ℝ) : ℂ) = 0 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℂ => 1 + Complex.I * t) e_w
       -- 2.4. calculation

@@ -1,20 +1,30 @@
 module
 
-public import RealTactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-order.proof by parley build lean. -/
 
@@ -25,6 +35,8 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.LogarithmsByTheirRatio
 theorem logarithms_by_their_ratio :
     Real.log (3 : ℝ) < 2 * Real.log (2 : ℝ) := by
   -- 1. real arithmetic
-  parley_real
+  have hf1 : Real.log (4 / 3 : ℝ) = 2 * Real.log (2 : ℝ) - Real.log (3 : ℝ) := by rw [congrArg Real.log (show (4 / 3 : ℝ) = 2 ^ 2 / 3 by ring1), Real.log_div (show (2 ^ 2 : ℝ) ≠ 0 by norm_num) (show (3 : ℝ) ≠ 0 by norm_num), Real.log_pow 2 2]; ring1
+  have hf2 : (0 : ℝ) < Real.log (4 / 3 : ℝ) := Real.log_pos (show (1 : ℝ) < (4 / 3 : ℝ) by norm_num)
+  linarith only [hf1, hf2]
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.LogarithmsByTheirRatio

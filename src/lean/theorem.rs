@@ -4708,12 +4708,42 @@ impl<'a> Proof<'a> {
                 })
             });
             use super::tactics as t;
-            let refute = match real {
-                true => t::bridge(BridgeTactic::Real, vec![]),
-                false => t::call("norm_num", vec![]),
-            };
-            if let Some(last) = names.last() {
-                let refuted = super::tactics::by_term(super::doc::Proof::By(refute));
+            if let (Some(last), Some((node, prop))) = (names.last(), claim.last()) {
+                // Real arithmetic shows the line false as a fact of its own,
+                // `hn : ¬ line`; `norm_num` any other line.
+                let refuted = match real {
+                    true => {
+                        let proof = match super::reals::real_refuted(
+                            &self.writer,
+                            self.sources.targets,
+                            node,
+                        ) {
+                            Route::Built(p) => p,
+                            Route::Declined(d) => return Route::Declined(d),
+                        };
+                        let not = Printed {
+                            kind: super::doc::TermKind::Not(Box::new(t::bracket(
+                                prop.clone(),
+                            ))),
+                            ty: Some(super::doc::LeanType::Prop),
+                        };
+                        self.push_at(
+                            depth,
+                            Tactic::Have {
+                                name: "hn".to_string(),
+                                says: not,
+                                proof: Box::new(proof),
+                            },
+                            step.line,
+                            spot.clone(),
+                        );
+                        t::hyp("hn")
+                    }
+                    false => super::tactics::by_term(super::doc::Proof::By(t::call(
+                        "norm_num",
+                        vec![],
+                    ))),
+                };
                 let absurd = Printed::applied(
                     "absurd",
                     super::doc::Source::Core,
@@ -6688,8 +6718,14 @@ impl<'a> Proof<'a> {
             }
             // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
             // tactic, which tries `parley_arith` first (`RealTactics`).
+            // Each special value put as its value by its law, and the
+            // sides compared, as Metamath proves it (`reals`).
             Method::RealArithmetic => {
-                Proof::By(super::tactics::bridge(BridgeTactic::Real, vec![]))
+                match super::reals::real_arithmetic(writer, self.sources.targets, node)
+                {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                }
             }
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
@@ -7621,14 +7657,19 @@ impl<'a> Proof<'a> {
         // tactic proves.
         let worked = |name: &str, real: bool| {
             let says = self.writer.formula(&rec.equation).built()?;
-            let by = match real {
-                true => t::bridge(BridgeTactic::Real, vec![]),
-                false => worked_out(&says).built()?,
+            let proof = match real {
+                true => super::reals::real_arithmetic(
+                    &self.writer,
+                    self.sources.targets,
+                    &rec.equation,
+                )
+                .built()?,
+                false => super::doc::Proof::By(worked_out(&says).built()?),
             };
             let have = Tactic::Have {
                 name: name.to_string(),
                 says: says.clone(),
-                proof: Box::new(super::doc::Proof::By(by)),
+                proof: Box::new(proof),
             };
             Some((
                 Some(have),
@@ -14080,11 +14121,21 @@ impl<'a> Proof<'a> {
                     true => self.writer.closed_formula(&node, at),
                     false => self.writer.formula(&node),
                 };
+                // Real arithmetic is written in ℝ; an equation it works out
+                // in ℂ is left.
+                if at > super::templates::Num::Real {
+                    return Route::no("real arithmetic of an equation in ℂ");
+                }
+                let proof = match super::reals::real_arithmetic(
+                    &self.writer,
+                    self.sources.targets,
+                    &node,
+                ) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 match said {
-                    Route::Built(p) => t::bracket(shown(
-                        p,
-                        Proof::By(t::bridge(BridgeTactic::Real, vec![])),
-                    )),
+                    Route::Built(p) => t::bracket(shown(p, proof)),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -15493,10 +15544,16 @@ impl<'a> Proof<'a> {
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
                 None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
-                    super::doc::Proof::By(super::tactics::bridge(
-                        BridgeTactic::Real,
-                        vec![],
-                    ))
+                    match super::reals::real_link(
+                        &self.writer,
+                        self.sources.targets,
+                        &terms[k],
+                        &terms[k + 1],
+                        at,
+                    ) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
                 }
                 None => super::doc::Proof::By(super::tactics::call("norm_num", vec![])),
             };

@@ -1,9 +1,9 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -31,7 +31,10 @@ namespace Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse
 theorem linear_function_inverse (x : ℝ) :
     ((Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x ∧ Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x) := by
   -- 1. real arithmetic
-  have s1 : 0 < Real.pi := by parley_real
+  have s1 : 0 < Real.pi := by
+    have hf1 : 3 < Real.pi := Real.pi_gt_three
+    have hf2 : Real.pi < 4 := Real.pi_lt_four
+    linarith only [hf1, hf2]
   -- 2. algebra
   have r10_1 : 0 ≠ Real.pi := ne_of_lt (by linarith only [s1])
   have s2 : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by have hz1 : Real.pi ≠ 0 := r10_1.symm; field

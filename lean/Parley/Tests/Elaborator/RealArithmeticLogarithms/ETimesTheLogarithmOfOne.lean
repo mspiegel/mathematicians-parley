@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -26,6 +26,7 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.ETimesTheLogarithmOfO
 theorem e_times_the_logarithm_of_one :
     Real.exp 1 * Real.log (1 : ℝ) = 0 := by
   -- 1. real arithmetic
-  parley_real
+  have hv1 : Real.log (1 : ℝ) = 0 := by rw [Real.log_one]
+  linear_combination (Real.exp 1) * hv1
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.ETimesTheLogarithmOfOne

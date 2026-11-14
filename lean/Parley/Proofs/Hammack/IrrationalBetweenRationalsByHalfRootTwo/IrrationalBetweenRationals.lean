@@ -1,13 +1,16 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Order
@@ -20,7 +23,10 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
@@ -51,9 +57,15 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 4. thm:irrational-sum A := √2·((s − r)/2), B := r, from 3
   have s4 : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ)) := by exact (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) (B := r) s3)
   -- 5. real arithmetic
-  have s5 : 0 < Real.sqrt (2 : ℝ) := by parley_real
+  have s5 : 0 < Real.sqrt (2 : ℝ) := by
+    have hf1 : (11 / 8 : ℝ) < Real.sqrt (2 : ℝ) := (Real.lt_sqrt (show (0 : ℝ) ≤ (11 / 8 : ℝ) by norm_num)).mpr (show (11 / 8 : ℝ) ^ 2 < 2 by norm_num)
+    have hf2 : Real.sqrt (2 : ℝ) < (23 / 16 : ℝ) := (Real.sqrt_lt' (show (0 : ℝ) < (23 / 16 : ℝ) by norm_num)).mpr (show 2 < (23 / 16 : ℝ) ^ 2 by norm_num)
+    linarith only [hf1, hf2]
   -- 6. real arithmetic
-  have s6 : Real.sqrt (2 : ℝ) < 2 := by parley_real
+  have s6 : Real.sqrt (2 : ℝ) < 2 := by
+    have hf1 : (11 / 8 : ℝ) < Real.sqrt (2 : ℝ) := (Real.lt_sqrt (show (0 : ℝ) ≤ (11 / 8 : ℝ) by norm_num)).mpr (show (11 / 8 : ℝ) ^ 2 < 2 by norm_num)
+    have hf2 : Real.sqrt (2 : ℝ) < (23 / 16 : ℝ) := (Real.sqrt_lt' (show (0 : ℝ) < (23 / 16 : ℝ) by norm_num)).mpr (show 2 < (23 / 16 : ℝ) ^ 2 by norm_num)
+    linarith only [hf1, hf2]
   -- 7. mun:product-positive x := √2, y := (s − r)/2, from 1, 5
   have s7 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.sqrt (2 : ℝ)) (y := ((s : ℝ) - (r : ℝ)) / 2) s5 (show 0 < ((s : ℝ) - (r : ℝ)) / 2 by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s1); simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
   -- 8. mun:less-scaled x := √2, y := 2, c := (s − r)/2, from 1, 6

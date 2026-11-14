@@ -1,7 +1,6 @@
 module
 
 public import PowerTactics
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -41,7 +41,10 @@ theorem log_two_of_a_power_of_two (n : ℤ) (hH1 : 0 < n) :
   have r13_1 : (2 : ℤ) > 0 := by norm_num
   have s1 : Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := n) (by norm_num)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt hH1)] at h ⊢; exact_mod_cast h)
   -- 2. calculation
-  have r17_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
+  have r17_1 : Real.log (2 : ℝ) ≠ 0 := by
+    have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+    intro h
+    exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
   calc Real.log (2 ^ n.toNat : ℝ) / Real.log (2 : ℝ) = (n : ℝ) * Real.log (2 : ℝ) / Real.log (2 : ℝ) := congrArg (fun t : ℝ => t / Real.log (2 : ℝ)) s1
     _ = (n : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r17_1; field
 

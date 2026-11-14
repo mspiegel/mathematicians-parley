@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order
@@ -13,6 +12,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -44,6 +44,9 @@ theorem sine_squared_plus_cosine_squared (A : ℂ) :
     _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-A)) s1.symm
     _ = Complex.cos (A + -A) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)).symm
     _ = (Real.cos (0 : ℝ) : ℂ) := by (have h := congrArg (fun t : ℂ => Complex.cos t) s3; push_cast at h ⊢; exact_mod_cast h)
-    _ = 1 := by parley_real
+    _ = 1 := by
+        have hv1 : Real.cos (0 : ℝ) = 1 := by rw [Real.cos_zero]
+        have hf1 : Real.cos (0 : ℝ) = 1 := by linear_combination hv1
+        exact_mod_cast hf1
 
 end Parley.Proofs.Setmm.DoubleAngleCosine.SineSquaredPlusCosineSquared

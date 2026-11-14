@@ -985,7 +985,7 @@ fn at_least(term: Printed, need: u32) -> Printed {
 
 /// A positive rational coefficient as Lean writes it, `(1 / 2 : ℚ)` of a
 /// fraction; None for 1.
-fn coefficient_term(q: &Q, at: Num) -> Option<Printed> {
+pub(super) fn coefficient_term(q: &Q, at: Num) -> Option<Printed> {
     if q.is_one() {
         return None;
     }

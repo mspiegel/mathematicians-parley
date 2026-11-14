@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Basic
@@ -28,6 +27,7 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
@@ -51,7 +51,9 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
   -- 2. def:i
   have s2 : Complex.I * Complex.I = -1 := by exact Parley.Items.Stdlib.Numbers.def_i
   -- 3. real arithmetic
-  have s3 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by parley_real
+  have s3 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by
+    have hr3 : Real.sqrt (3 : ℝ) ^ 2 = 3 := Real.sq_sqrt (show (0 : ℝ) ≤ 3 by norm_num)
+    linear_combination hr3
   -- 4. algebra, from 1, 2, 3
   have s4 : (Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) ^ 2 = -3 := by
     have s3_w : (Real.sqrt (3 : ℝ) : ℂ) ^ 2 = 3 := by have h := congrArg (fun x : ℝ => (x : ℂ)) s3; push_cast at h ⊢; linear_combination h

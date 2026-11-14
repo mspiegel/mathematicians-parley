@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Order
@@ -14,6 +13,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -48,8 +48,13 @@ theorem sine_of_half_pi_minus (x : ℝ) :
     _ = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
         have hI : Real.sin (Real.pi / 2 + -x) = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))))
         exact hI
-    _ = 1 * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_real
-    _ = 1 * Real.cos (-x) + 0 * Real.sin (-x) := by parley_real
+    _ = 1 * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
+        have hv1 : Real.cos (Real.pi / 2) = -(0) := by rw [congrArg Real.cos (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.cos_add_pi_div_two, Real.sin_zero]
+        have hv2 : Real.sin (Real.pi / 2) = 1 := by rw [congrArg Real.sin (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.sin_add_pi_div_two, Real.cos_zero]
+        linear_combination (Real.cos (-x)) * hv2
+    _ = 1 * Real.cos (-x) + 0 * Real.sin (-x) := by
+        have hv1 : Real.cos (Real.pi / 2) = -(0) := by rw [congrArg Real.cos (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.cos_add_pi_div_two, Real.sin_zero]
+        linear_combination (Real.sin (-x)) * hv1
     _ = 1 * Real.cos x + 0 * Real.sin (-x) := congrArg (fun t : ℝ => 1 * t + 0 * Real.sin (-x)) s2
     _ = 1 * Real.cos x + 0 * -Real.sin x := congrArg (fun t : ℝ => 1 * Real.cos x + 0 * t) s3
     _ = Real.cos x := by ring_nf

@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
@@ -16,16 +15,19 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct
@@ -58,12 +60,17 @@ theorem sqrt_two_plus_sqrt_three :
     have s4_1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by (exact ⟨(Classical.choose hS : ℚ) * (Classical.choose hS : ℚ), by (push_cast; simp only [Classical.choose_spec hS])⟩)
     -- 4.2. substitute
     have s4_2 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by
-      have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_real
+      have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by
+        ring1
       have row1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s4_1
       exact row1
     -- 4.3. substitute
     have s4_3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by
-      have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_real
+      have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 = Real.sqrt (6 : ℝ) * 2 + 5 := by
+        have hv1 : Real.sqrt (6 : ℝ) = Real.sqrt (2 : ℝ) * Real.sqrt (3 : ℝ) := by rw [congrArg Real.sqrt (show (6 : ℝ) = 2 * 3 by ring1), Real.sqrt_mul (show (0 : ℝ) ≤ 2 by norm_num) 3]
+        have hr2 : Real.sqrt (2 : ℝ) ^ 2 = 2 := Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num)
+        have hr3 : Real.sqrt (3 : ℝ) ^ 2 = 3 := Real.sq_sqrt (show (0 : ℝ) ≤ 3 by norm_num)
+        linear_combination (-2) * hv1 + hr2 + hr3
       have row1 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s4_2
       exact row1
     -- 4.4. def:irrational x := √6·2 + 5, from 3

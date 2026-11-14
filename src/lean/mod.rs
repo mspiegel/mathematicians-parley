@@ -16,6 +16,7 @@ pub mod items;
 pub mod modules;
 pub mod names;
 pub mod readback;
+pub mod reals;
 pub mod sets;
 pub mod statement;
 pub mod tactics;

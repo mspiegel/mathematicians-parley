@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -47,8 +46,13 @@ theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = R
       _ = Real.sin Real.pi * Real.cos (-(a + b + c)) + Real.cos Real.pi * Real.sin (-(a + b + c)) := by
           have hI : Real.sin (Real.pi + -(a + b + c)) = Real.sin Real.pi * Real.cos (-(a + b + c)) + Real.cos Real.pi * Real.sin (-(a + b + c)) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ)) (b := -((a : ℂ) + (b : ℂ) + (c : ℂ)))))
           exact hI
-      _ = 0 * Real.cos (-(a + b + c)) + Real.cos Real.pi * Real.sin (-(a + b + c)) := by parley_real
-      _ = 0 * Real.cos (-(a + b + c)) + -1 * Real.sin (-(a + b + c)) := by parley_real
+      _ = 0 * Real.cos (-(a + b + c)) + Real.cos Real.pi * Real.sin (-(a + b + c)) := by
+          have hv1 : Real.cos Real.pi = -(1) := by rw [congrArg Real.cos (show Real.pi = 0 + Real.pi by ring1), Real.cos_add_pi, Real.cos_zero]
+          have hv2 : Real.sin Real.pi = -(0) := by rw [congrArg Real.sin (show Real.pi = 0 + Real.pi by ring1), Real.sin_add_pi, Real.sin_zero]
+          linear_combination (Real.cos (-(a + b + c))) * hv2
+      _ = 0 * Real.cos (-(a + b + c)) + -1 * Real.sin (-(a + b + c)) := by
+          have hv1 : Real.cos Real.pi = -(1) := by rw [congrArg Real.cos (show Real.pi = 0 + Real.pi by ring1), Real.cos_add_pi, Real.cos_zero]
+          linear_combination (Real.sin (-(a + b + c))) * hv1
       _ = 0 * Real.cos (-(a + b + c)) + -1 * -Real.sin (a + b + c) := congrArg (fun t : ℝ => 0 * Real.cos (-(a + b + c)) + -1 * t) s2
       _ = Real.sin (a + b + c) := by ring1
   -- 4. thm:sin-add a := a + b, b := c

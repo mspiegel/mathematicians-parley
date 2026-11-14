@@ -1,7 +1,6 @@
 module
 
 public import PowerTactics
-public import RealTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -57,8 +56,14 @@ namespace Parley.Proofs.Hammack.LogThreeOverTwoIrrational.LogThreeOverTwoIrratio
 theorem log_three_over_two_irrational :
     Irrational (Real.log (3 : ℝ) / Real.log (2 : ℝ)) := by
   -- 1. mun:quotient-positive x := ln(3), y := ln(2)
-  have r90_1 : Real.log (3 : ℝ) > 0 := by parley_real
-  have r90_2 : Real.log (2 : ℝ) > 0 := by parley_real
+  have r90_1 : Real.log (3 : ℝ) > 0 := by
+    have hf1 : Real.log (3 : ℝ) = Real.log (3 : ℝ) := by rw []
+    have hf2 : (0 : ℝ) < Real.log (3 : ℝ) := Real.log_pos (show (1 : ℝ) < 3 by norm_num)
+    linarith only [hf1, hf2]
+  have r90_2 : Real.log (2 : ℝ) > 0 := by
+    have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+    have hf2 : (0 : ℝ) < Real.log (2 : ℝ) := Real.log_pos (show (1 : ℝ) < 2 by norm_num)
+    linarith only [hf1, hf2]
   have s1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := Real.log (3 : ℝ)) (y := Real.log (2 : ℝ)) r90_1 r90_2)
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ)) := by
@@ -66,10 +71,16 @@ theorem log_three_over_two_irrational :
     -- 2.1. obtain p, q: def:rational x := ln(3)/ln(2), from S
     obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mp hS
     -- 2.2. mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
-    have r102_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
+    have r102_1 : Real.log (2 : ℝ) ≠ 0 := by
+      have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+      intro h
+      exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
     have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) s1 (by exact_mod_cast gt_iff_lt.mp s2_1a))
     -- 2.3. substitute
-    have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
+    have r106_1 : Real.log (2 : ℝ) ≠ 0 := by
+      have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+      intro h
+      exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
     have s2_3 : p > 0 := by
       have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := (field)) ((q : ℝ)) * s2_1b
       have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; exact_mod_cast h)
@@ -79,7 +90,10 @@ theorem log_three_over_two_irrational :
     -- 2.5. calculation
     have r115_1 : (3 : ℤ) > 0 := by norm_num
     have r115_2 : (2 : ℤ) > 0 := by norm_num
-    have r115_3 : Real.log (2 : ℝ) ≠ 0 := by parley_real
+    have r115_3 : Real.log (2 : ℝ) ≠ 0 := by
+      have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+      intro h
+      exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
     have s2_5 : Real.log (3 ^ q.toNat : ℝ) = Real.log (2 ^ p : ℝ) := by
       calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
         _ = (p : ℝ) * Real.log (2 : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r115_3; have hz2 : (q : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
@@ -109,7 +123,10 @@ theorem log_three_over_two_irrational :
     have s2_12 : ¬ Even (3 ^ q.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_even (n := (3 ^ q.toNat : ℤ)) s2_9)
     exact s2_12 s2_11
   -- 3. mun:quotient-real x := ln(3), y := ln(2)
-  have r150_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
+  have r150_1 : Real.log (2 : ℝ) ≠ 0 := by
+    have hf1 : Real.log (2 : ℝ) = Real.log (2 : ℝ) := by rw []
+    intro h
+    exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
   -- 4. def:irrational x := ln(3)/ln(2), from 2, 3
   exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr ⟨by trivial, s2⟩
 

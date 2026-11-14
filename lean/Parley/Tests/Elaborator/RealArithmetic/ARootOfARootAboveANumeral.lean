@@ -1,19 +1,28 @@
 module
 
-public import RealTactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/real-arithmetic.proof by parley build lean. -/
 
@@ -24,6 +33,9 @@ namespace Parley.Tests.Elaborator.RealArithmetic.ARootOfARootAboveANumeral
 theorem a_root_of_a_root_above_a_numeral :
     Real.sqrt (Real.sqrt (16 : ℝ)) > 1 := by
   -- 1. real arithmetic
-  parley_real
+  have hv1 : Real.sqrt (16 : ℝ) = 4 := by rw [congrArg Real.sqrt (show (16 : ℝ) = 4 ^ 2 by ring1), Real.sqrt_sq (show (0 : ℝ) ≤ 4 by norm_num)]
+  have hv2 : Real.sqrt (Real.sqrt (16 : ℝ)) = 2 := by rw [congrArg Real.sqrt (show (Real.sqrt (16 : ℝ) : ℝ) = 2 ^ 2 by linear_combination hv1), Real.sqrt_sq (show (0 : ℝ) ≤ 2 by norm_num)]
+  have hf1 : Real.sqrt (Real.sqrt (16 : ℝ)) - 1 = 1 := by linear_combination hv2
+  linarith only [hf1]
 
 end Parley.Tests.Elaborator.RealArithmetic.ARootOfARootAboveANumeral

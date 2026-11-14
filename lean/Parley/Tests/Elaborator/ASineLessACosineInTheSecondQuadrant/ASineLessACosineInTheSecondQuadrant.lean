@@ -1,12 +1,12 @@
 module
 
 public import InstanceTactics
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Complex.Basic
@@ -48,7 +48,10 @@ namespace Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessA
 theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2 ≤ x) (hH3 : x ≤ Real.pi) :
     Real.sin x - Real.cos x ≥ 1 := by
   -- 1. real arithmetic
-  have s1 : 0 < Real.pi / 2 := by parley_real
+  have s1 : 0 < Real.pi / 2 := by
+    have hf1 : 3 < Real.pi := Real.pi_gt_three
+    have hf2 : Real.pi < 4 := Real.pi_lt_four
+    linarith only [hf1, hf2]
   -- 2. transitivity, from H2, 1
   have s2 : 0 < x := by exact lt_of_lt_of_le s1 hH2
   -- 3. inequalities
@@ -60,7 +63,10 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 6. inequalities
   have s6 : 0 ≤ x - Real.pi / 2 := by linarith only [hH2]
   -- 7. real arithmetic
-  have s7 : -(Real.pi / 2) ≤ 0 := by parley_real
+  have s7 : -(Real.pi / 2) ≤ 0 := by
+    have hf1 : 3 < Real.pi := Real.pi_gt_three
+    have hf2 : Real.pi < 4 := Real.pi_lt_four
+    linarith only [hf1, hf2]
   -- 8. inequalities, from H3, 7
   have s8 : x - Real.pi / 2 ≤ Real.pi := by linarith only [hH3, s7]
   -- 9. def:interval, from 6, 8
@@ -76,8 +82,12 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 13. substitute (x − π/2) + π/2 = x (line 12)
   have s13 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos x := congrArg (fun t : ℝ => Real.cos t) s12
   -- 14. real arithmetic
-  have s14a : Real.cos (Real.pi / 2) = 0 := by parley_real
-  have s14b : Real.sin (Real.pi / 2) = 1 := by parley_real
+  have s14a : Real.cos (Real.pi / 2) = 0 := by
+    have hv1 : Real.cos (Real.pi / 2) = -(0) := by rw [congrArg Real.cos (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.cos_add_pi_div_two, Real.sin_zero]
+    linear_combination hv1
+  have s14b : Real.sin (Real.pi / 2) = 1 := by
+    have hv1 : Real.sin (Real.pi / 2) = 1 := by rw [congrArg Real.sin (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.sin_add_pi_div_two, Real.cos_zero]
+    linear_combination hv1
   -- 15. substitute cos(π/2) = 0 (line 14)
   have s15 : Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := congrArg (fun t : ℝ => Real.cos (x - Real.pi / 2) * t - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2)) s14a
   -- 16. substitute sin(π/2) = 1 (line 14)

@@ -1,10 +1,12 @@
 module
 
 public import Functions
-public import RealTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Basic
+public import Mathlib.Algebra.GroupWithZero.Defs
+public import Mathlib.Algebra.GroupWithZero.Units.Basic
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -23,6 +25,8 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -31,6 +35,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Proofs.Hammack.BinetFormula.PowerRecurrence
@@ -44,18 +49,26 @@ namespace Parley.Proofs.Hammack.BinetFormula.BinetFormula
 theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (F n : ℝ) = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_real
+  have s1 : Real.sqrt (5 : ℝ) ≠ 0 := by
+    have hr5 : Real.sqrt (5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (show (0 : ℝ) ≤ 5 by norm_num)
+    intro h
+    have h0 : (-5 : ℝ) = 0 := (show (-5 : ℝ) = 0 by linear_combination (-Real.sqrt (5 : ℝ)) * h + hr5)
+    norm_num at h0
   set φ : ℝ := (1 + Real.sqrt (5 : ℝ)) / 2 with hD2
   set ψ : ℝ := (1 - Real.sqrt (5 : ℝ)) / 2 with hD3
   -- 2. calculation
   have s2 : φ ^ 2 = φ + 1 := by
     calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by simp (disch := omega) only [hD2]
-      _ = (1 + Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
+      _ = (1 + Real.sqrt (5 : ℝ)) / 2 + 1 := by
+          have hr5 : Real.sqrt (5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (show (0 : ℝ) ≤ 5 by norm_num)
+          linear_combination ((1 / 4 : ℝ)) * hr5
       _ = φ + 1 := by simp (disch := omega) only [hD2]
   -- 3. calculation
   have s3 : ψ ^ 2 = ψ + 1 := by
     calc ψ ^ 2 = ((1 - Real.sqrt (5 : ℝ)) / 2) ^ 2 := by simp (disch := omega) only [hD3]
-      _ = (1 - Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
+      _ = (1 - Real.sqrt (5 : ℝ)) / 2 + 1 := by
+          have hr5 : Real.sqrt (5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (show (0 : ℝ) ≤ 5 by norm_num)
+          linear_combination ((1 / 4 : ℝ)) * hr5
       _ = ψ + 1 := by simp (disch := omega) only [hD3]
   -- 4. induction on j starting at 0
   have s4 : ∀ j : ℤ, 0 ≤ j → (F j : ℝ) = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) ∧ (G j : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by
@@ -74,7 +87,11 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.4. calculation
       have s4_4 : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
         calc (G 0 : ℝ) = 1 := by exact_mod_cast s4_2
-          _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_real
+          _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
+              have hr5 : Real.sqrt (5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (show (0 : ℝ) ≤ 5 by norm_num)
+              have hy1 : Real.sqrt (5 : ℝ) ≠ 0 := left_ne_zero_of_mul (show Real.sqrt (5 : ℝ) * -Real.sqrt (5 : ℝ) ≠ 0 by rw [(show Real.sqrt (5 : ℝ) * -Real.sqrt (5 : ℝ) = -5 by linear_combination (-1) * hr5)]; norm_num)
+              have hv1 : (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) = 1 := by rw [div_eq_iff hy1]; ring1
+              linear_combination (-1) * hv1
           _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
           _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
       -- 4.5. join 4.3, 4.4

@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -35,7 +35,9 @@ theorem log_of_a_reciprocal (x : ℝ) (b : ℝ) (hH3 : x > 0) (hH4 : b > 0) (hH5
   have s1 : Real.log (1 / x) = Real.log (1 : ℝ) - Real.log x := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_quotient (x := (1 : ℝ)) (y := x) (by norm_num) hH3)
   -- 2. substitute ln(1) = 0 (real arithmetic) into line 1
   have s2 : Real.log (1 / x) = 0 - Real.log x := by
-    have e_real : Real.log (1 : ℝ) = 0 := by parley_real
+    have e_real : Real.log (1 : ℝ) = 0 := by
+      have hv1 : Real.log (1 : ℝ) = 0 := by rw [Real.log_one]
+      linear_combination hv1
     exact Eq.subst (motive := (fun t : ℝ => Real.log (1 / x) = t - Real.log x)) e_real s1
   -- 3. mun:ln-nonzero x := b, from H4, H5
   have s3 : Real.log b ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) hH4 hH5)

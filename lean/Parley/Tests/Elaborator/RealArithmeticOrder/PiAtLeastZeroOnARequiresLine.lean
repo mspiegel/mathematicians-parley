@@ -1,7 +1,7 @@
 module
 
 public import Divisibility
-public import RealTactics
+public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -27,7 +27,10 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.PiAtLeastZeroOnARequiresLi
 theorem pi_at_least_zero_on_a_requires_line (N : ℝ) (hH2 : Real.pi < N) :
     LeanBridges.Divisibility.mod Real.pi N = Real.pi := by
   -- 1. mun:mod-below a := π, b := N, from H2
-  have r115_1 : 0 ≤ Real.pi := by parley_real
+  have r115_1 : 0 ≤ Real.pi := by
+    have hf1 : 3 < Real.pi := Real.pi_gt_three
+    have hf2 : Real.pi < 4 := Real.pi_lt_four
+    linarith only [hf1, hf2]
   exact (Parley.Items.Stdlib.Divisibility.mun_mod_below (a := Real.pi) (b := N) r115_1 hH2)
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.PiAtLeastZeroOnARequiresLine
