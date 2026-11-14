@@ -79,7 +79,7 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    left to discharge. It matches modulo declared rules, each a set.mm
    theorem, as decision 5 of `GOALS.md` asks, and each application a step of
    the proof. Two things written differently are the same claim when they
-   reach one standard form (`same` in `src/elab/matcher.rs`):
+   reach one standard form (`same` in `src/elab/matcher/`):
    - a one-way rule (`rules::STANDARD`) rewrites toward the side whose
      variables all appear on the other, which is what makes rewriting end
      and have one answer: `df-3or`, `df-ne`, the ℝ⁺ spellings, `rextru`;
@@ -178,11 +178,11 @@ which holds the state they share:
 | the checker | `src/checker/` | 13,086 |
 | the methods' procedures, which the checker runs | `src/methods/`, deciding in `field.rs`, `linear.rs` | 3,953 |
 | reading | `src/elab/reading.rs` | 1,009 |
-| scopes | `src/elab/scopes.rs` | 2,942 |
-| the matcher | `src/elab/matcher.rs` | 6,722 |
+| scopes | `src/elab/scopes/` | 4,075 |
+| the matcher | `src/elab/matcher/` | 9,289 |
 | rule tables, as data | `src/rules.rs` | 1,230 |
-| rule tables, read | `src/elab/tables.rs` | 2,482 |
-| the calculators | `src/elab/calculators.rs`, `normal.rs` | 8,999 |
+| rule tables, read | `src/elab/tables/` | 3,239 |
+| the calculators | `src/elab/calculators/`, `normal/` | 9,760 |
 | the proof rules | `src/elab/provenance.rs` | 889 |
 | what a cited item asks and gives, shared with the checker | `src/citing/` | 3,126 |
 
@@ -191,7 +191,7 @@ read a citation from the page and hand it the nodes, and it answers which
 group of the item the citation takes, under what binding, and what the item
 then asks (`asked`) or says there is (`obtained`).
 
-What `src/elab/elaborate.rs` keeps (6,040 lines) is the step loop, the handler
+What `src/elab/elaborate/` keeps (7,784 lines) is the step loop, the handler
 for each kind of step, citing an item or a corpus theorem, the definition
 readings, and writing the file. Each part changes the shared state only
 through its own methods: the frames through the scopes (`frames_kept`,
@@ -504,7 +504,7 @@ last three, which `proofs/wiedijk/schroeder-bernstein.proof` is the proof of.
 This is the only rule anywhere in the expansion that is about *where* a step
 may be emitted rather than about which lemma it emits.
 
-**What a scope owns, in the code.** `src/elab/scopes.rs` keeps the frames, and
+**What a scope owns, in the code.** `src/elab/scopes/` keeps the frames, and
 nothing outside it pushes or drops one: a route that widens the scope for a
 moment — a binder's membership while `settle` proves a universal, each side of
 an `inequalities` split — opens it inside `frames_kept`, which gives the frames
@@ -1270,7 +1270,7 @@ It is one list tried by matching, because putting a sum of integers in ℤ and
 putting a summation index in ℂ are one question asked twice.
 
 The list is read through an index the matcher builds from each lemma's own
-statement (`declared` in `src/elab/matcher.rs`): what each reading of it can
+statement (`declared` in `src/elab/matcher/`): what each reading of it can
 conclude, and a membership's class where it fixes one. `settle` tries, in the
 declared order, only the lemmas that could conclude what is wanted, which is
 every lemma that would have matched. The same reading gives each lemma its
@@ -1356,7 +1356,7 @@ one rule both tools read, `citing::reason`, over a view each gives of a
 term (`OnceAsk`): the checker of the page's sentences, the build of its
 kernel terms, including terms the page never writes, as a lemma's own side
 conditions. The build proves the reason the rule gives and decides nothing
-of its own (`introduced_membership` in `src/elab/tables.rs`), and searches
+of its own (`introduced_membership` in `src/elab/tables/`), and searches
 nothing:
 
 - a term a line the step names puts in a number system is a number there,
@@ -1951,7 +1951,7 @@ an elaborator can be held to.
 
 What checks the tool and what checks the corpus are kept apart. `cargo test`
 is whether the tool is right: the planted defects the checker must catch
-(`tests/planted_check.rs`), with every message the checker writes said by
+(`tests/planted_check/`), with every message the checker writes said by
 one of them or listed there as one no edit can plant, the planted defects
 the elaborator must report
 (`tests/planted_elaborate.rs`), the planted defects each of the gate's other
@@ -2230,7 +2230,7 @@ as requires lines at each use. The corpus keeps only the kind `READERS.md`
 names as the exception, a fact said of every member whose reason needs facts
 at the member.
 
-`tests/planted_elaborate.rs` and `tests/planted_check.rs` plant one case of each rule, and each
+`tests/planted_elaborate.rs` and `tests/planted_check/` plant one case of each rule, and each
 is confirmed to have elaborated or checked cleanly before its rule existed.
 
 R1 and R2 are enforced twice, and the planted cases above reach only the
