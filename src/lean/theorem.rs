@@ -12974,7 +12974,7 @@ impl<'a> Proof<'a> {
         };
         // What every way out states before its proof: `e_nat`, and `e_w`
         // where the equation is widened (`haves_then`).
-        let mut haves: Vec<Tactic> = in_nat.into_iter().collect();
+        let haves: Vec<Tactic> = in_nat.into_iter().collect();
         let Some(letter) = self.motive_letter(&rec.start) else {
             return Route::no("no fresh letter for a substitution's motive");
         };
@@ -13039,574 +13039,594 @@ impl<'a> Proof<'a> {
             .iter()
             .filter_map(|n| self.writer.whole_back(n))
             .collect();
-        let wanted = self.claim_as_stated(line, claim);
-        let close = |term: Printed| {
-            if cast_to_nat && dropped.is_empty() {
-                return match backs.is_empty() {
-                    true => Proof::Term(term),
-                    false => Proof::By(Tactic::Seq(vec![
-                        t::call(
-                            "rw",
-                            vec![TacticArg::Rules(
-                                backs.iter().cloned().map(t::forwards).collect(),
-                            )],
-                        ),
-                        Tactic::Exact(term),
-                    ])),
-                };
-            }
-            let pushed = match dropped.is_empty() {
-                true => t::push_cast(Some(t::at_h(true))),
-                false => t::call(
-                    "push_cast",
-                    vec![
-                        t::rules(dropped.iter().map(|l| t::lemma(l)).collect()),
-                        t::at_h(true),
-                    ],
-                ),
-            };
-            // A claim of numerals alone, `3 ∣ 1` in a contradiction, which
-            // pushing the casts would work out by itself: the line put in the
-            // goal and the whole worked out, true or false.
-            if wanted.as_ref().is_some_and(no_letter) {
-                return Proof::By(t::on_h(
-                    &term,
-                    vec![
-                        t::call("revert", vec![TacticArg::Term(t::hyp("h"))]),
-                        t::call("norm_num", vec![]),
-                    ],
-                ));
-            }
-            Proof::By(t::on_h(&term, vec![pushed, t::exact_mod_cast(t::hyp("h"))]))
+        let closing = PutClosing {
+            cast_to_nat,
+            dropped,
+            backs,
+            wanted: self.claim_as_stated(line, claim),
         };
-        // What the motive makes, `says`, written as Lean writes the claim:
-        // the claim itself, the term with nothing to push.
-        let close_as = |term: Printed, says: Option<Printed>| {
-            let as_written = dropped.is_empty()
-                && !cast_to_nat
-                && says.zip(wanted.as_ref()).is_some_and(|(s, w)| {
-                    s.text() == w.text()
-                        && super::doc::forms::relation_type(&s)
-                            == super::doc::forms::relation_type(w)
-                });
-            match as_written {
-                true => Proof::Term(term),
-                false => close(term),
-            }
+        let putting = Putting {
+            rec,
+            row,
+            line,
+            claim,
+            was,
+            now,
+            ty,
+            equation,
+            haves,
+            letter,
+            marked,
+            inner,
+            slot,
+            int_exponent,
+            whole_was,
         };
-        let in_arithmetic =
-            |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
         match &rec.into {
             SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
-                let into = match (&rec.into, row) {
-                    (SubstitutedInto::Line(at), _) => match self.put_into_line(at) {
-                        Route::Built(p) => p,
-                        Route::Declined(d) => return Route::Declined(d),
-                    },
-                    (
-                        _,
-                        Some(GivenEquation {
-                            above: Some(above), ..
-                        }),
-                    ) => above.clone(),
-                    _ => return Route::no("a row's substitution with no row above"),
-                };
-                // The type the line writes the term put for in. A term of
-                // the line's arithmetic, a side or a part of a sum, product or
-                // power's base, is written in the line's type, `2^k · 2` in a
-                // line of ℚ; any other, a function's argument, in its own,
-                // `factorial (4 − 2)` in ℤ, which is the equation's.
-                let line_type = match self
-                    .line_statement(&into)
-                    .built()
-                    .as_ref()
-                    .and_then(super::doc::forms::relation_type)
-                {
-                    Some(LeanType::Num(n)) => Some(n),
-                    _ => None,
-                };
-                // Each place's type: the line's for one in its arithmetic,
-                // its own for any other; places of one type take one motive.
-                let types: std::collections::BTreeSet<super::templates::Num> = rec
+                self.putting_into_line(putting, &closing)
+            }
+            SubstitutedInto::ClaimSide(side) if int_exponent => {
+                self.putting_into_claim_by_int_exponent(putting, &closing, side)
+            }
+            SubstitutedInto::ClaimSide(side) => {
+                self.putting_into_claim_side(putting, &closing, side)
+            }
+        }
+    }
+
+    /// The putting made into a line, or into the row above: the equation put
+    /// into that line by a motive over the places it is put at.
+    fn putting_into_line(
+        &self,
+        p: Putting<'_, 'a>,
+        k: &PutClosing,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::{LeanType, Proof};
+        use super::tactics as t;
+        use crate::checker::record::SubstitutedInto;
+        let Putting {
+            rec,
+            row,
+            line,
+            claim,
+            was,
+            now,
+            ty,
+            equation,
+            mut haves,
+            letter,
+            marked,
+            slot,
+            int_exponent,
+            whole_was,
+            ..
+        } = p;
+        let close = |term: Printed| k.close(term);
+        let close_as = |term: Printed, says: Option<Printed>| k.close_as(term, says);
+        let in_arithmetic =
+            |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
+        let whole_letter = |w: &mut Writer, letter: &str| {
+            if whole_was {
+                w.wholes
+                    .insert(letter.to_string(), super::expr::System::NonNegative);
+            }
+        };
+        let into = match (&rec.into, row) {
+            (SubstitutedInto::Line(at), _) => match self.put_into_line(at) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            },
+            (
+                _,
+                Some(GivenEquation {
+                    above: Some(above), ..
+                }),
+            ) => above.clone(),
+            _ => return Route::no("a row's substitution with no row above"),
+        };
+        // The type the line writes the term put for in. A term of
+        // the line's arithmetic, a side or a part of a sum, product or
+        // power's base, is written in the line's type, `2^k · 2` in a
+        // line of ℚ; any other, a function's argument, in its own,
+        // `factorial (4 − 2)` in ℤ, which is the equation's.
+        let line_type = match self
+            .line_statement(&into)
+            .built()
+            .as_ref()
+            .and_then(super::doc::forms::relation_type)
+        {
+            Some(LeanType::Num(n)) => Some(n),
+            _ => None,
+        };
+        // Each place's type: the line's for one in its arithmetic,
+        // its own for any other; places of one type take one motive.
+        let types: std::collections::BTreeSet<super::templates::Num> = rec
+            .put
+            .places
+            .iter()
+            .map(|p| match in_arithmetic(p) {
+                true => line_type.unwrap_or(ty),
+                false => ty,
+            })
+            .collect();
+        let place_type = match types.into_iter().collect::<Vec<_>>().as_slice() {
+            [one] => *one,
+            // Places of two types, a function's argument in the
+            // equation's own and a term of the line's arithmetic in its
+            // wider one: the equation put in twice, at the argument as
+            // it is, then widened (`e_w`) at the arithmetic of what
+            // that makes.
+            [own_type, wide] if *own_type == ty && Some(*wide) == line_type => {
+                if int_exponent || slot.is_some() {
+                    return Route::no(
+                        "a substitution at places written in different types",
+                    );
+                }
+                let wide = *wide;
+                let (own, arith): (Vec<Vec<usize>>, Vec<Vec<usize>>) = rec
                     .put
                     .places
                     .iter()
-                    .map(|p| match in_arithmetic(p) {
-                        true => line_type.unwrap_or(ty),
-                        false => ty,
-                    })
-                    .collect();
-                let place_type = match types.into_iter().collect::<Vec<_>>().as_slice()
-                {
-                    [one] => *one,
-                    // Places of two types, a function's argument in the
-                    // equation's own and a term of the line's arithmetic in its
-                    // wider one: the equation put in twice, at the argument as
-                    // it is, then widened (`e_w`) at the arithmetic of what
-                    // that makes.
-                    [own_type, wide] if *own_type == ty && Some(*wide) == line_type => {
-                        if int_exponent || slot.is_some() {
-                            return Route::no(
-                                "a substitution at places written in different types",
-                            );
-                        }
-                        let wide = *wide;
-                        let (own, arith): (Vec<Vec<usize>>, Vec<Vec<usize>>) = rec
-                            .put
-                            .places
-                            .iter()
-                            .cloned()
-                            .partition(|p| !in_arithmetic(p));
-                        let named = Node::name(was.sort.clone(), letter);
-                        let stage =
-                            |start: &Node,
-                             places: &[Vec<usize>],
-                             at: super::templates::Num| {
-                                let mut letters = self.writer.letters.clone();
-                                letters
-                                    .insert(letter.to_string(), LetterType::Number(at));
-                                self.writer
-                                    .with_letters(letters)
-                                    .formula(&mark_places(start, places, &named))
-                                    .map(|body| lambda(letter, LeanType::Num(at), body))
-                            };
-                        let first_motive = match stage(&rec.start, &own, ty) {
-                            Route::Built(m) => m,
-                            Route::Declined(d) => return Route::Declined(d),
-                        };
-                        let between =
-                            crate::matching::put_at_places(&rec.start, &own, now);
-                        let second_motive = match stage(&between, &arith, wide) {
-                            Route::Built(m) => m,
-                            Route::Declined(d) => return Route::Declined(d),
-                        };
-                        match self.equation_widened(rec, was, now, ty, wide, &equation)
-                        {
-                            Route::Built(have) => haves.push(have),
-                            Route::Declined(d) => return Route::Declined(d),
-                        }
-                        let subst = |motive: Printed, eq: Printed, line: Printed| {
-                            applied(
-                                "Eq.subst",
-                                vec![
-                                    super::doc::Arg::Named {
-                                        name: "motive".to_string(),
-                                        value: motive,
-                                    },
-                                    super::doc::Arg::Explicit(eq),
-                                    super::doc::Arg::Explicit(line),
-                                ],
-                            )
-                        };
-                        let first = subst(first_motive, equation, into.proof);
-                        let second = subst(second_motive, t::hyp("e_w"), first);
-                        return Route::Built(haves_then(haves, close(second)));
-                    }
-                    _ => {
-                        return Route::no(
-                            "a substitution at places written in different types",
-                        )
-                    }
-                };
-                // A line in a narrower type than the equation, `F (j + 1) =
-                // G j` of ℤ for an equation of ℝ, is stated in the equation's
-                // type first (`widened_to`); in a wider, the equation is
-                // stated in the line's type, as `widened` states it.
-                let (into, place_type) = match place_type < ty {
-                    false => (into, place_type),
-                    true => {
-                        match self.widened_to(
-                            &into.node,
-                            &into.proof,
-                            place_type,
-                            ty,
-                            &self.writer,
-                        ) {
-                            Route::Built(w) => {
-                                haves.extend(w.have);
-                                let widened = super::algebra::Cited {
-                                    proof: w.name,
-                                    says: None,
-                                    ..into
-                                };
-                                (widened, ty)
-                            }
-                            Route::Declined(d) => return Route::Declined(d),
-                        }
-                    }
-                };
-                let equation = match place_type > ty {
-                    false => equation,
-                    true => {
-                        match self
-                            .equation_widened(rec, was, now, ty, place_type, &equation)
-                        {
-                            Route::Built(have) => haves.push(have),
-                            Route::Declined(d) => return Route::Declined(d),
-                        }
-                        t::hyp("e_w")
-                    }
-                };
-                let mut letters = self.writer.letters.clone();
-                letters.insert(letter.to_string(), LetterType::Number(place_type));
-                let mut inner = self.writer.with_letters(letters);
-                whole_letter(&mut inner, letter);
-                self.motive_knows(&mut inner, letter, was, now);
-                let body = match inner.formula(&marked) {
-                    Route::Built(b) => b,
+                    .cloned()
+                    .partition(|p| !in_arithmetic(p));
+                let named = Node::name(was.sort.clone(), letter);
+                let stage =
+                    |start: &Node, places: &[Vec<usize>], at: super::templates::Num| {
+                        let mut letters = self.writer.letters.clone();
+                        letters.insert(letter.to_string(), LetterType::Number(at));
+                        self.writer
+                            .with_letters(letters)
+                            .formula(&mark_places(start, places, &named))
+                            .map(|body| lambda(letter, LeanType::Num(at), body))
+                    };
+                let first_motive = match stage(&rec.start, &own, ty) {
+                    Route::Built(m) => m,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                // The claim is the motive at the new value only where the two
-                // are written in one form: a line of a real term written as
-                // the whole number it is, `∃ m : ℤ, (m : ℝ) = t ∧ …`, is not
-                // the claim of an integer, `f k ∈ …`.
-                // Nor the line it is put into: the motive at the old value
-                // is that line.
-                // A range member Lean computes wider, said as the integer that
-                // is it (`wide_range_member`), made from a line that the
-                // integer the equation puts for is in the range, at that
-                // member alone: that integer, the equation and the line.
-                if wide_range_member(&self.writer, claim) && rec.put.places == [vec![0]]
-                {
-                    return Route::Built(haves_then(
-                        haves,
-                        Proof::By(Tactic::Exact(range_member_made(
-                            equation, into.proof,
-                        ))),
-                    ));
+                let between = crate::matching::put_at_places(&rec.start, &own, now);
+                let second_motive = match stage(&between, &arith, wide) {
+                    Route::Built(m) => m,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                match self.equation_widened(rec, was, now, ty, wide, &equation) {
+                    Route::Built(have) => haves.push(have),
+                    Route::Declined(d) => return Route::Declined(d),
                 }
-                let claimed = self.claim_as_stated(line, claim);
-                let line_said = self.line_statement(&into).built();
-                let in_form = |said: &Option<Printed>| {
-                    said.as_ref().is_some_and(|c| {
-                        std::mem::discriminant(&c.kind)
-                            == std::mem::discriminant(&body.kind)
-                    })
+                let subst = |motive: Printed, eq: Printed, line: Printed| {
+                    applied(
+                        "Eq.subst",
+                        vec![
+                            super::doc::Arg::Named {
+                                name: "motive".to_string(),
+                                value: motive,
+                            },
+                            super::doc::Arg::Explicit(eq),
+                            super::doc::Arg::Explicit(line),
+                        ],
+                    )
                 };
-                // A line of the whole number a term is, `∃ m : ℤ, (m : ℚ) =
-                // 2 ^ p ∧ Even m`, put into, where the claim says it of the
-                // whole number the new term is, `Even (3 ^ q.toNat)`: what
-                // the motive gives is said of that number,
-                // `parley_witness_at`.
-                let witnessed = match (slot, in_form(&line_said), in_form(&claimed)) {
-                    (_, true, true) => None,
-                    (Some(whole), true, false) => Some(whole),
-                    // A line of the whole number a term is, `∃ m : ℤ, (m : ℝ)
-                    // = M ∧ m ∈ X`, put into where the equation puts an
-                    // integer for M, `M = (f a : ℝ)`, and the claim says it of
-                    // that integer, `f a ∈ X`: the line's m, which is f a by
-                    // the cast being one to one.
-                    (None, true, false) => {
-                        let same = Printed::applied(
-                            "Int.cast_injective",
-                            super::doc::Source::Mathlib,
-                            vec![applied_to(
-                                fields(t::hyp("hm"), &["trans"]),
-                                equation.clone(),
-                            )],
-                            LeanType::Prop,
-                        );
-                        return Route::Built(haves_then(
-                            haves,
-                            Proof::By(Tactic::Seq(vec![
-                                Tactic::Obtain {
-                                    names: vec![
-                                        "m".to_string(),
-                                        "hm".to_string(),
-                                        "hk".to_string(),
-                                    ],
-                                    says: None,
-                                    from: into.proof.clone(),
-                                },
-                                t::call(
-                                    "rw",
-                                    vec![TacticArg::Rules(vec![t::backwards(same)])],
-                                ),
-                                Tactic::Exact(t::hyp("hk")),
-                            ])),
-                        ));
-                    }
-                    _ => return Route::no(
-                        "a motive written in another form than the claim or the line",
-                    ),
-                };
-                let motive = lambda(letter, LeanType::Num(place_type), body.clone());
-                let put_in = applied(
-                    "Eq.subst",
-                    vec![
-                        super::doc::Arg::Named {
-                            name: "motive".to_string(),
-                            value: motive,
-                        },
-                        super::doc::Arg::Explicit(equation),
-                        super::doc::Arg::Explicit(into.proof),
-                    ],
-                );
-                if let Some(whole) = witnessed {
-                    if int_exponent {
-                        return Route::no(
-                            "a substitution into an exponent of a whole number's line",
-                        );
-                    }
-                    let w = match inner.number_fixed(now, whole) {
-                        Route::Built(w) => w,
-                        Route::Declined(d) => return Route::Declined(d),
-                    };
-                    let lemma = match whole {
-                        super::templates::Num::Nat => "parley_witness_at_nat",
-                        _ => "parley_witness_at",
-                    };
-                    // That the witness is the new term: by its casts, or, a
-                    // whole number the step names (`named_specs`), by the
-                    // equation that names it.
-                    let shows = match w.names("Classical.choose")
-                        && !self.named_specs.is_empty()
-                    {
-                        false => t::call("norm_cast", vec![]),
-                        true => Tactic::Seq(vec![
-                            t::push_cast(None),
-                            t::simp_only(
-                                false,
-                                None,
-                                self.named_specs
-                                    .iter()
-                                    .cloned()
-                                    .map(t::forwards)
-                                    .collect(),
-                                None,
-                            ),
-                        ]),
-                    };
-                    let said = Printed {
-                        kind: super::doc::TermKind::App {
-                            head: Box::new(t::bridge_lemma(
-                                lemma,
-                                BridgeModule::PowerTactics,
-                            )),
-                            args: vec![
-                                super::doc::Arg::Explicit(put_in),
-                                super::doc::Arg::Explicit(w),
-                                super::doc::Arg::Explicit(t::by_term(Proof::By(shows))),
-                            ],
-                            explicit: false,
-                        },
-                        ty: Some(LeanType::Prop),
-                    };
-                    return Route::Built(haves_then(
-                        haves,
-                        Proof::By(Tactic::Exact(said)),
-                    ));
-                }
-                let closed = match int_exponent {
-                    false => {
-                        let says = inner
-                            .number(now, place_type)
-                            .built()
-                            .map(|n| super::doc::forms::substituted(&body, letter, &n));
-                        close_as(put_in, says)
-                    }
-                    // The motive at the new term, its power an integer one,
-                    // converted to the claim's natural power, the exponent's
-                    // fact from the record.
-                    true => {
-                        let now_written = match inner.number_fixed(now, place_type) {
-                            Route::Built(p) => p,
-                            Route::Declined(d) => return Route::Declined(d),
-                        };
-                        let given = std::collections::BTreeMap::from([(
-                            super::names::letter(letter),
-                            now_written,
-                        )]);
-                        let result = body.substituted(&given);
-                        let met = claimed.as_ref().map(|c| {
-                            self.powers_met(
-                                &[claim, &rec.start, was, now],
-                                &result,
-                                c,
-                                &put_in,
-                                false,
-                            )
-                        });
-                        match met {
-                            Some(PowersMet::Converted(proof)) => *proof,
-                            // Nothing left to convert: closed as any other.
-                            Some(PowersMet::Alike) => close(put_in),
-                            _ => return Route::no(
-                                "a substitution into an exponent of no term said whole",
-                            ),
-                        }
-                    }
-                };
-                Route::Built(haves_then(haves, closed))
+                let first = subst(first_motive, equation, into.proof);
+                let second = subst(second_motive, t::hyp("e_w"), first);
+                return Route::Built(haves_then(haves, close(second)));
             }
-            // Into an exponent of a side whose term put for is not said whole:
-            // the motive's letter an integer, its power an integer one, in
-            // the calculation's field, and what `congrArg` gives converted
-            // to the claim's natural powers, each exponent's fact from the
-            // record (`powers_converted_at`).
-            SubstitutedInto::ClaimSide(side) if int_exponent => {
-                use super::doc::Op;
-                use super::templates::Num;
-                let at = match self.writer.carrier(&rec.start) {
-                    Route::Built(n) => {
-                        n.max(ty).max(self.worked_in.get().unwrap_or(Num::Int))
+            _ => {
+                return Route::no("a substitution at places written in different types")
+            }
+        };
+        // A line in a narrower type than the equation, `F (j + 1) =
+        // G j` of ℤ for an equation of ℝ, is stated in the equation's
+        // type first (`widened_to`); in a wider, the equation is
+        // stated in the line's type, as `widened` states it.
+        let (into, place_type) = match place_type < ty {
+            false => (into, place_type),
+            true => {
+                match self.widened_to(
+                    &into.node,
+                    &into.proof,
+                    place_type,
+                    ty,
+                    &self.writer,
+                ) {
+                    Route::Built(w) => {
+                        haves.extend(w.have);
+                        let widened = super::algebra::Cited {
+                            proof: w.name,
+                            says: None,
+                            ..into
+                        };
+                        (widened, ty)
                     }
                     Route::Declined(d) => return Route::Declined(d),
-                };
-                // An integer power is a field's.
-                if !whole_was && at < Num::Rat {
-                    return Route::no(
-                        "a substitution into an exponent of no term said whole",
-                    );
                 }
-                let body = match inner.number(&marked, at) {
-                    Route::Built(b) => b,
+            }
+        };
+        let equation = match place_type > ty {
+            false => equation,
+            true => {
+                match self.equation_widened(rec, was, now, ty, place_type, &equation) {
+                    Route::Built(have) => haves.push(have),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                t::hyp("e_w")
+            }
+        };
+        let mut letters = self.writer.letters.clone();
+        letters.insert(letter.to_string(), LetterType::Number(place_type));
+        let mut inner = self.writer.with_letters(letters);
+        whole_letter(&mut inner, letter);
+        self.motive_knows(&mut inner, letter, was, now);
+        let body = match inner.formula(&marked) {
+            Route::Built(b) => b,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // The claim is the motive at the new value only where the two
+        // are written in one form: a line of a real term written as
+        // the whole number it is, `∃ m : ℤ, (m : ℝ) = t ∧ …`, is not
+        // the claim of an integer, `f k ∈ …`.
+        // Nor the line it is put into: the motive at the old value
+        // is that line.
+        // A range member Lean computes wider, said as the integer that
+        // is it (`wide_range_member`), made from a line that the
+        // integer the equation puts for is in the range, at that
+        // member alone: that integer, the equation and the line.
+        if wide_range_member(&self.writer, claim) && rec.put.places == [vec![0]] {
+            return Route::Built(haves_then(
+                haves,
+                Proof::By(Tactic::Exact(range_member_made(equation, into.proof))),
+            ));
+        }
+        let claimed = self.claim_as_stated(line, claim);
+        let line_said = self.line_statement(&into).built();
+        let in_form = |said: &Option<Printed>| {
+            said.as_ref().is_some_and(|c| {
+                std::mem::discriminant(&c.kind) == std::mem::discriminant(&body.kind)
+            })
+        };
+        // A line of the whole number a term is, `∃ m : ℤ, (m : ℚ) =
+        // 2 ^ p ∧ Even m`, put into, where the claim says it of the
+        // whole number the new term is, `Even (3 ^ q.toNat)`: what
+        // the motive gives is said of that number,
+        // `parley_witness_at`.
+        let witnessed = match (slot, in_form(&line_said), in_form(&claimed)) {
+            (_, true, true) => None,
+            (Some(whole), true, false) => Some(whole),
+            // A line of the whole number a term is, `∃ m : ℤ, (m : ℝ)
+            // = M ∧ m ∈ X`, put into where the equation puts an
+            // integer for M, `M = (f a : ℝ)`, and the claim says it of
+            // that integer, `f a ∈ X`: the line's m, which is f a by
+            // the cast being one to one.
+            (None, true, false) => {
+                let same = Printed::applied(
+                    "Int.cast_injective",
+                    super::doc::Source::Mathlib,
+                    vec![applied_to(
+                        fields(t::hyp("hm"), &["trans"]),
+                        equation.clone(),
+                    )],
+                    LeanType::Prop,
+                );
+                return Route::Built(haves_then(
+                    haves,
+                    Proof::By(Tactic::Seq(vec![
+                        Tactic::Obtain {
+                            names: vec![
+                                "m".to_string(),
+                                "hm".to_string(),
+                                "hk".to_string(),
+                            ],
+                            says: None,
+                            from: into.proof.clone(),
+                        },
+                        t::call("rw", vec![TacticArg::Rules(vec![t::backwards(same)])]),
+                        Tactic::Exact(t::hyp("hk")),
+                    ])),
+                ));
+            }
+            _ => {
+                return Route::no(
+                    "a motive written in another form than the claim or the line",
+                )
+            }
+        };
+        let motive = lambda(letter, LeanType::Num(place_type), body.clone());
+        let put_in = applied(
+            "Eq.subst",
+            vec![
+                super::doc::Arg::Named {
+                    name: "motive".to_string(),
+                    value: motive,
+                },
+                super::doc::Arg::Explicit(equation),
+                super::doc::Arg::Explicit(into.proof),
+            ],
+        );
+        if let Some(whole) = witnessed {
+            if int_exponent {
+                return Route::no(
+                    "a substitution into an exponent of a whole number's line",
+                );
+            }
+            let w = match inner.number_fixed(now, whole) {
+                Route::Built(w) => w,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let lemma = match whole {
+                super::templates::Num::Nat => "parley_witness_at_nat",
+                _ => "parley_witness_at",
+            };
+            // That the witness is the new term: by its casts, or, a
+            // whole number the step names (`named_specs`), by the
+            // equation that names it.
+            let shows =
+                match w.names("Classical.choose") && !self.named_specs.is_empty() {
+                    false => t::call("norm_cast", vec![]),
+                    true => Tactic::Seq(vec![
+                        t::push_cast(None),
+                        t::simp_only(
+                            false,
+                            None,
+                            self.named_specs.iter().cloned().map(t::forwards).collect(),
+                            None,
+                        ),
+                    ]),
+                };
+            let said = Printed {
+                kind: super::doc::TermKind::App {
+                    head: Box::new(t::bridge_lemma(lemma, BridgeModule::PowerTactics)),
+                    args: vec![
+                        super::doc::Arg::Explicit(put_in),
+                        super::doc::Arg::Explicit(w),
+                        super::doc::Arg::Explicit(t::by_term(Proof::By(shows))),
+                    ],
+                    explicit: false,
+                },
+                ty: Some(LeanType::Prop),
+            };
+            return Route::Built(haves_then(haves, Proof::By(Tactic::Exact(said))));
+        }
+        let closed = match int_exponent {
+            false => {
+                let says = inner
+                    .number(now, place_type)
+                    .built()
+                    .map(|n| super::doc::forms::substituted(&body, letter, &n));
+                close_as(put_in, says)
+            }
+            // The motive at the new term, its power an integer one,
+            // converted to the claim's natural power, the exponent's
+            // fact from the record.
+            true => {
+                let now_written = match inner.number_fixed(now, place_type) {
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                // Told its type where nothing in it fixes one, numerals and
-                // the motive's letter alone, as a calculation's first term is.
-                let body = match inner.pinned(&marked) {
-                    true => body,
-                    false => Printed::cast(t::bracket(body), inner.num_type(at)),
-                };
-                let (Route::Built(was_written), Route::Built(now_written)) =
-                    (inner.number_fixed(was, ty), inner.number_fixed(now, ty))
-                else {
-                    return Route::no(
-                        "a substitution into an exponent of no term said whole",
-                    );
-                };
-                let at_value = |v: Printed| {
-                    body.substituted(&std::collections::BTreeMap::from([(
-                        super::names::letter(letter),
-                        v,
-                    )]))
-                };
-                let (before, after) = (at_value(was_written), at_value(now_written));
-                let motive = lambda(letter, LeanType::Num(ty), body.clone());
-                let made = applied(
-                    "congrArg",
-                    vec![
-                        super::doc::Arg::Explicit(motive),
-                        super::doc::Arg::Explicit(equation),
-                    ],
-                );
-                let (made, result) = match side {
-                    0 => (
-                        made,
-                        Printed::infix(Op::EQUALS, before, after, LeanType::Prop),
-                    ),
-                    _ => (
-                        t::symm(t::bracket(made)),
-                        Printed::infix(Op::EQUALS, after, before, LeanType::Prop),
-                    ),
-                };
-                let met = self.claim_as_stated(line, claim).map(|c| {
+                let given = std::collections::BTreeMap::from([(
+                    super::names::letter(letter),
+                    now_written,
+                )]);
+                let result = body.substituted(&given);
+                let met = claimed.as_ref().map(|c| {
                     self.powers_met(
                         &[claim, &rec.start, was, now],
                         &result,
-                        &c,
-                        &made,
+                        c,
+                        &put_in,
                         false,
                     )
                 });
                 match met {
-                    Some(PowersMet::Converted(proof)) => {
-                        Route::Built(haves_then(haves, *proof))
-                    }
+                    Some(PowersMet::Converted(proof)) => *proof,
                     // Nothing left to convert: closed as any other.
-                    Some(PowersMet::Alike) => {
-                        Route::Built(haves_then(haves, close(made)))
+                    Some(PowersMet::Alike) => close(put_in),
+                    _ => {
+                        return Route::no(
+                            "a substitution into an exponent of no term said whole",
+                        )
                     }
-                    _ => Route::no(
-                        "a substitution into an exponent of no term said whole",
-                    ),
                 }
             }
-            SubstitutedInto::ClaimSide(side) => {
-                // Written in the wider of the claim side's type and the
-                // equation's. An equation in a narrower type put only at
-                // places of the side's arithmetic is stated in the wider
-                // first, as `widened` states it, and the motive's letter is of
-                // the wider: cast inside the motive, it would be pushed onto
-                // each division, which `push_cast` spells as `Rat.divInt` on
-                // one side and not the other. At a place written in its own
-                // type, an index or an exponent, the letter keeps the
-                // equation's, and an equation of rationals is not put into a
-                // wider field so.
-                let at = match self.writer.carrier(&rec.start) {
-                    Route::Built(n) => n.max(ty),
-                    Route::Declined(d) => return Route::Declined(d),
-                };
-                let arithmetic = rec.put.places.iter().all(in_arithmetic);
-                if !arithmetic && ty == super::templates::Num::Rat && at > ty {
-                    return Route::no(
-                        "an equation of rationals put into a wider field",
-                    );
-                }
-                let letter_ty = match arithmetic {
-                    true => at,
-                    false => ty,
-                };
-                let equation = match at > ty && arithmetic {
-                    false => equation,
-                    true => {
-                        match self.equation_widened(rec, was, now, ty, at, &equation) {
-                            Route::Built(have) => haves.push(have),
-                            Route::Declined(d) => return Route::Declined(d),
-                        }
-                        t::hyp("e_w")
-                    }
-                };
-                let mut letters = self.writer.letters.clone();
-                letters.insert(letter.to_string(), LetterType::Number(letter_ty));
-                let mut wide = self.writer.with_letters(letters);
-                whole_letter(&mut wide, letter);
-                self.motive_knows(&mut wide, letter, was, now);
-                let body = match wide.number(&marked, at) {
-                    Route::Built(b) => b,
-                    Route::Declined(d) => return Route::Declined(d),
-                };
-                // What `congrArg` makes: the body at each term, the side the
-                // equation is put into first.
-                let at = |n: &Node| {
-                    wide.number(n, letter_ty)
-                        .built()
-                        .map(|v| super::doc::forms::substituted(&body, letter, &v))
-                };
-                let says = match (at(was), at(now)) {
-                    (Some(a), Some(b)) => {
-                        let (l, r) = match side {
-                            0 => (a, b),
-                            _ => (b, a),
-                        };
-                        Some(Printed::infix(
-                            super::doc::Op::EQUALS,
-                            l,
-                            r,
-                            LeanType::Prop,
-                        ))
-                    }
-                    _ => None,
-                };
-                let motive = lambda(letter, LeanType::Num(letter_ty), body);
-                let made = applied(
-                    "congrArg",
-                    vec![
-                        super::doc::Arg::Explicit(motive),
-                        super::doc::Arg::Explicit(equation),
-                    ],
-                );
-                let closed = close_as(
-                    match side {
-                        0 => made,
-                        _ => t::symm(t::bracket(made)),
-                    },
-                    says,
-                );
-                Route::Built(haves_then(haves, closed))
-            }
+        };
+        Route::Built(haves_then(haves, closed))
+    }
+
+    /// The putting made into a side of the claim, in an exponent whose term
+    /// put for is not said whole: the motive's letter an integer, its power
+    /// an integer one, in the calculation's field, and what `congrArg` gives
+    /// converted to the claim's natural powers, each exponent's fact from the
+    /// record (`powers_converted_at`).
+    fn putting_into_claim_by_int_exponent(
+        &self,
+        p: Putting<'_, 'a>,
+        k: &PutClosing,
+        side: &usize,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::LeanType;
+        use super::tactics as t;
+        let Putting {
+            rec,
+            line,
+            claim,
+            was,
+            now,
+            ty,
+            equation,
+            haves,
+            letter,
+            marked,
+            inner,
+            whole_was,
+            ..
+        } = p;
+        let close = |term: Printed| k.close(term);
+        use super::doc::Op;
+        use super::templates::Num;
+        let at = match self.writer.carrier(&rec.start) {
+            Route::Built(n) => n.max(ty).max(self.worked_in.get().unwrap_or(Num::Int)),
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // An integer power is a field's.
+        if !whole_was && at < Num::Rat {
+            return Route::no("a substitution into an exponent of no term said whole");
         }
+        let body = match inner.number(&marked, at) {
+            Route::Built(b) => b,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // Told its type where nothing in it fixes one, numerals and
+        // the motive's letter alone, as a calculation's first term is.
+        let body = match inner.pinned(&marked) {
+            true => body,
+            false => Printed::cast(t::bracket(body), inner.num_type(at)),
+        };
+        let (Route::Built(was_written), Route::Built(now_written)) =
+            (inner.number_fixed(was, ty), inner.number_fixed(now, ty))
+        else {
+            return Route::no("a substitution into an exponent of no term said whole");
+        };
+        let at_value = |v: Printed| {
+            body.substituted(&std::collections::BTreeMap::from([(
+                super::names::letter(letter),
+                v,
+            )]))
+        };
+        let (before, after) = (at_value(was_written), at_value(now_written));
+        let motive = lambda(letter, LeanType::Num(ty), body.clone());
+        let made = applied(
+            "congrArg",
+            vec![
+                super::doc::Arg::Explicit(motive),
+                super::doc::Arg::Explicit(equation),
+            ],
+        );
+        let (made, result) = match side {
+            0 => (
+                made,
+                Printed::infix(Op::EQUALS, before, after, LeanType::Prop),
+            ),
+            _ => (
+                t::symm(t::bracket(made)),
+                Printed::infix(Op::EQUALS, after, before, LeanType::Prop),
+            ),
+        };
+        let met = self.claim_as_stated(line, claim).map(|c| {
+            self.powers_met(&[claim, &rec.start, was, now], &result, &c, &made, false)
+        });
+        match met {
+            Some(PowersMet::Converted(proof)) => {
+                Route::Built(haves_then(haves, *proof))
+            }
+            // Nothing left to convert: closed as any other.
+            Some(PowersMet::Alike) => Route::Built(haves_then(haves, close(made))),
+            _ => Route::no("a substitution into an exponent of no term said whole"),
+        }
+    }
+
+    /// The putting made into a side of the claim, the equation put there by
+    /// `congrArg` over the places it is put at.
+    fn putting_into_claim_side(
+        &self,
+        p: Putting<'_, 'a>,
+        k: &PutClosing,
+        side: &usize,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::LeanType;
+        use super::tactics as t;
+        let Putting {
+            rec,
+            was,
+            now,
+            ty,
+            equation,
+            mut haves,
+            letter,
+            marked,
+            whole_was,
+            ..
+        } = p;
+        let close_as = |term: Printed, says: Option<Printed>| k.close_as(term, says);
+        let in_arithmetic =
+            |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
+        let whole_letter = |w: &mut Writer, letter: &str| {
+            if whole_was {
+                w.wholes
+                    .insert(letter.to_string(), super::expr::System::NonNegative);
+            }
+        };
+        // Written in the wider of the claim side's type and the
+        // equation's. An equation in a narrower type put only at
+        // places of the side's arithmetic is stated in the wider
+        // first, as `widened` states it, and the motive's letter is of
+        // the wider: cast inside the motive, it would be pushed onto
+        // each division, which `push_cast` spells as `Rat.divInt` on
+        // one side and not the other. At a place written in its own
+        // type, an index or an exponent, the letter keeps the
+        // equation's, and an equation of rationals is not put into a
+        // wider field so.
+        let at = match self.writer.carrier(&rec.start) {
+            Route::Built(n) => n.max(ty),
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let arithmetic = rec.put.places.iter().all(in_arithmetic);
+        if !arithmetic && ty == super::templates::Num::Rat && at > ty {
+            return Route::no("an equation of rationals put into a wider field");
+        }
+        let letter_ty = match arithmetic {
+            true => at,
+            false => ty,
+        };
+        let equation = match at > ty && arithmetic {
+            false => equation,
+            true => {
+                match self.equation_widened(rec, was, now, ty, at, &equation) {
+                    Route::Built(have) => haves.push(have),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                t::hyp("e_w")
+            }
+        };
+        let mut letters = self.writer.letters.clone();
+        letters.insert(letter.to_string(), LetterType::Number(letter_ty));
+        let mut wide = self.writer.with_letters(letters);
+        whole_letter(&mut wide, letter);
+        self.motive_knows(&mut wide, letter, was, now);
+        let body = match wide.number(&marked, at) {
+            Route::Built(b) => b,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // What `congrArg` makes: the body at each term, the side the
+        // equation is put into first.
+        let at = |n: &Node| {
+            wide.number(n, letter_ty)
+                .built()
+                .map(|v| super::doc::forms::substituted(&body, letter, &v))
+        };
+        let says = match (at(was), at(now)) {
+            (Some(a), Some(b)) => {
+                let (l, r) = match side {
+                    0 => (a, b),
+                    _ => (b, a),
+                };
+                Some(Printed::infix(super::doc::Op::EQUALS, l, r, LeanType::Prop))
+            }
+            _ => None,
+        };
+        let motive = lambda(letter, LeanType::Num(letter_ty), body);
+        let made = applied(
+            "congrArg",
+            vec![
+                super::doc::Arg::Explicit(motive),
+                super::doc::Arg::Explicit(equation),
+            ],
+        );
+        let closed = close_as(
+            match side {
+                0 => made,
+                _ => t::symm(t::bracket(made)),
+            },
+            says,
+        );
+        Route::Built(haves_then(haves, closed))
     }
 
     /// The motive's writer `w` told what the lines say of both terms its
@@ -19141,6 +19161,122 @@ fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     let bounded = guard.is_some()
         || matches!(&bare(&body).kind, TermKind::Infix { op, .. } if *op == Op::AND);
     Some(WholeNumberDenied { letter, bounded })
+}
+
+/// A recorded substitution read for writing: the equation put at the places
+/// of a line or of a claim side, with the motive's letter and the types the
+/// places are written in (`Proof::substituted_as_written`).
+struct Putting<'r, 'w> {
+    /// The checker's record of the substitution.
+    rec: &'r crate::checker::record::Substituted,
+    /// The row whose change is the equation, where the step is a row.
+    row: Option<&'r GivenEquation>,
+    /// The page line of the step.
+    line: usize,
+    /// The step's claim.
+    claim: &'r Node,
+    /// The term the equation puts for.
+    was: &'r Node,
+    /// The term the equation puts.
+    now: &'r Node,
+    /// The type the equation is written in.
+    ty: super::templates::Num,
+    /// The equation's proof, in `ty` or, where `haves` states it so, in ℕ.
+    equation: Printed,
+    /// What every way out states before its proof.
+    haves: Vec<Tactic>,
+    /// The motive's letter, fresh to what is put into.
+    letter: &'static str,
+    /// What is put into, with the places marked by the motive's letter.
+    marked: Node,
+    /// The writer that knows the motive's letter, in the type the equation
+    /// states it in.
+    inner: Writer<'w>,
+    /// The whole number a place in a slot of whole numbers is written as.
+    slot: Option<super::templates::Num>,
+    /// Whether a place is an exponent the page says nothing whole of.
+    int_exponent: bool,
+    /// Whether the motive's letter is said whole, as the exponents are.
+    whole_was: bool,
+}
+
+/// What closes a putting once the motive has made the line the claim is
+/// taken from (`Proof::substituted_as_written`).
+struct PutClosing {
+    /// Whether a side holds a cast of a `toNat`, which `push_cast` moves
+    /// only knowing the term is not negative.
+    cast_to_nat: bool,
+    /// The lemmas for the identity elements the putting leaves and the
+    /// claim drops.
+    dropped: Vec<&'static str>,
+    /// The casts back of the whole numbers the step names, which take a cast
+    /// of a `toNat` in the goal to the integer the line says.
+    backs: Vec<Printed>,
+    /// The claim as Lean states it.
+    wanted: Option<Printed>,
+}
+
+impl PutClosing {
+    /// The line the motive makes closed against the claim: by the casts
+    /// pushed down to the letters, `exact_mod_cast` meeting the two.
+    fn close(&self, term: Printed) -> super::doc::Proof {
+        use super::doc::Proof;
+        use super::tactics as t;
+        if self.cast_to_nat && self.dropped.is_empty() {
+            return match self.backs.is_empty() {
+                true => Proof::Term(term),
+                false => Proof::By(Tactic::Seq(vec![
+                    t::call(
+                        "rw",
+                        vec![TacticArg::Rules(
+                            self.backs.iter().cloned().map(t::forwards).collect(),
+                        )],
+                    ),
+                    Tactic::Exact(term),
+                ])),
+            };
+        }
+        let pushed = match self.dropped.is_empty() {
+            true => t::push_cast(Some(t::at_h(true))),
+            false => t::call(
+                "push_cast",
+                vec![
+                    t::rules(self.dropped.iter().map(|l| t::lemma(l)).collect()),
+                    t::at_h(true),
+                ],
+            ),
+        };
+        // A claim of numerals alone, `3 ∣ 1` in a contradiction, which
+        // pushing the casts would work out by itself: the line put in the
+        // goal and the whole worked out, true or false.
+        if self.wanted.as_ref().is_some_and(no_letter) {
+            return Proof::By(t::on_h(
+                &term,
+                vec![
+                    t::call("revert", vec![TacticArg::Term(t::hyp("h"))]),
+                    t::call("norm_num", vec![]),
+                ],
+            ));
+        }
+        Proof::By(t::on_h(&term, vec![pushed, t::exact_mod_cast(t::hyp("h"))]))
+    }
+
+    /// What the motive makes, `says`, written as Lean writes the claim: the
+    /// claim itself, the term with nothing to push.
+    fn close_as(&self, term: Printed, says: Option<Printed>) -> super::doc::Proof {
+        use super::doc::Proof;
+        let as_written = self.dropped.is_empty()
+            && !self.cast_to_nat
+            && says.zip(self.wanted.as_ref()).is_some_and(|(s, w)| {
+                s.text() == w.text()
+                    && super::doc::forms::relation_type(&s)
+                        == super::doc::forms::relation_type(w)
+            });
+        match as_written {
+            true => Proof::Term(term),
+            false => self.close(term),
+        }
+    }
 }
 
 /// A proof with these tactics before it, inside its `by`: a block of them
