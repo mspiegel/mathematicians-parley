@@ -468,6 +468,48 @@ impl<'a> Elaborator<'a> {
         })
     }
 
+    /// A claim reached from a lemma that does not conclude it as it stands,
+    /// by whichever way fits first: through an existential, as the seed
+    /// says, as one conjunct, generalised, in other words, or tidied.
+    #[allow(clippy::too_many_arguments)]
+    fn reached_across(
+        &mut self,
+        label: &str,
+        whole: &Term,
+        reads: &Term,
+        goal: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+        seed: Option<&Binding>,
+    ) -> Checked<Route<Proof>> {
+        let through =
+            self.through_existential(label, reads, goal, scope, facts, step, seed)?;
+        if !through.is_declined() {
+            return Ok(through);
+        }
+        let seeded = self.as_seeded(label, reads, goal, scope, facts, step, seed)?;
+        if !seeded.is_declined() {
+            return Ok(seeded);
+        }
+        let part =
+            self.as_conjunct(label, whole, reads, goal, scope, facts, step, seed)?;
+        if !part.is_declined() {
+            return Ok(part);
+        }
+        let every = self.as_generalised(label, goal, scope, facts, step, seed)?;
+        if !every.is_declined() {
+            return Ok(every);
+        }
+        let other =
+            self.in_other_words(label, whole, reads, goal, scope, facts, step, seed)?;
+        if !other.is_declined() {
+            return Ok(other);
+        }
+        let tidy = self.as_tidied(label, reads, goal, scope, facts, step, seed)?;
+        Ok(if tidy.is_declined() { other } else { tidy })
+    }
+
     /// Apply one set.mm lemma to reach a claim, side conditions and all.
     ///
     /// What a lemma states before the claim it reaches may be an implication
@@ -505,37 +547,9 @@ impl<'a> Elaborator<'a> {
             }
             if !matches!(reads.label(), Some("wi") | Some("wb")) {
                 if crossing {
-                    let through = self.through_existential(
-                        label, &reads, goal, scope, facts, step, seed,
-                    )?;
-                    if !through.is_declined() {
-                        return Ok(through);
-                    }
-                    let seeded =
-                        self.as_seeded(label, &reads, goal, scope, facts, step, seed)?;
-                    if !seeded.is_declined() {
-                        return Ok(seeded);
-                    }
-                    let part = self.as_conjunct(
+                    return self.reached_across(
                         label, &whole, &reads, goal, scope, facts, step, seed,
-                    )?;
-                    if !part.is_declined() {
-                        return Ok(part);
-                    }
-                    let every =
-                        self.as_generalised(label, goal, scope, facts, step, seed)?;
-                    if !every.is_declined() {
-                        return Ok(every);
-                    }
-                    let other = self.in_other_words(
-                        label, &whole, &reads, goal, scope, facts, step, seed,
-                    )?;
-                    if !other.is_declined() {
-                        return Ok(other);
-                    }
-                    let tidy =
-                        self.as_tidied(label, &reads, goal, scope, facts, step, seed)?;
-                    return Ok(if tidy.is_declined() { other } else { tidy });
+                    );
                 }
                 return Ok(Route::no(format!("{label} does not conclude the claim")));
             }

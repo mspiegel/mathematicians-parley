@@ -253,6 +253,65 @@ pub(super) fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     Some(WholeNumberDenied { letter, bounded })
 }
 
+/// What a cited item and its claim are compared as (`Proof::agreement`).
+pub(super) struct AgreementAsked<'a> {
+    /// What differs between the two once counts and powers are read alike.
+    pub(super) found: Vec<super::super::doc::forms::FormDifference>,
+    /// What the reading gives, as Lean states it at the citation's values.
+    pub(super) compared: &'a Printed,
+    /// The claim as Lean states it.
+    pub(super) claim: &'a Printed,
+    /// The claim with the identity elements dropped.
+    pub(super) claim_read: &'a Printed,
+    /// Whether the item's equation faces the claim the other way.
+    pub(super) turned: bool,
+    /// The sets whose counts differ only in form.
+    pub(super) counted: &'a [Printed],
+    /// The exponents whose powers differ only in form.
+    pub(super) powered: &'a [NonNegative],
+    /// Whether an integer power of a natural number cast up is converted.
+    pub(super) cast_powers: bool,
+    /// The powers under a sum whose exponent names its letter.
+    pub(super) bound: &'a [super::super::doc::forms::BoundPower],
+    /// The identity elements the checker dropped meeting the two.
+    pub(super) identities: Vec<&'static str>,
+    /// The page line of the step.
+    pub(super) line: usize,
+    /// The item cited.
+    pub(super) item: &'a str,
+}
+
+/// How a cited item agrees with its claim (`Proof::agreement`).
+pub(super) struct Agreement {
+    /// Whether `exact` alone closes the line.
+    pub(super) agrees: bool,
+    /// Whether the identity elements dropped are all that stands apart.
+    pub(super) by_identities: bool,
+    /// The identity rewrites, with the casts of the units added where they
+    /// are all that stands apart.
+    pub(super) identities: Vec<&'static str>,
+}
+
+/// What a citation's closing is asked for (`Proof::close_citation`).
+pub(super) struct CitationClosing<'c> {
+    /// The claim.
+    pub(super) node: &'c Node,
+    /// The claim's sentence the citation proves.
+    pub(super) k: usize,
+    /// What the checker met the citation with.
+    pub(super) cited: &'c crate::checker::record::Cited,
+    /// The item's sentence.
+    pub(super) sentence: &'c Sentence,
+    /// Which way the sentence is read.
+    pub(super) way: Way,
+    /// The path to the part of the "and" the claim is, where it is one.
+    pub(super) path: Option<Vec<&'static str>>,
+    /// The claim as Lean states it.
+    pub(super) claim_lean: Option<Printed>,
+    /// Whether a line states the claim as Lean does (`stated_form`).
+    pub(super) stated: bool,
+}
+
 /// Which part of a cited item's sentence a claim is
 /// (`Proof::projected_reading`).
 pub(super) struct Projection<'p> {

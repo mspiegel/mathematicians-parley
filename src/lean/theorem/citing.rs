@@ -702,56 +702,9 @@ impl<'a> Proof<'a> {
         let mut given: std::collections::BTreeMap<String, super::super::expr::Printed> =
             std::collections::BTreeMap::new();
         let things = self.things_given(&sentence.binders, binding);
-        // The type an item's general letters take: the least that holds the
-        // claim and every value given them, a field's at least where the
-        // item divides.
-        let general = match sentence.general {
-            Some(g) => {
-                let least = if g.field {
-                    super::super::templates::Num::Rat
-                } else {
-                    super::super::templates::Num::Int
-                };
-                let mut at = self.worked_in.get().map_or(least, |w| w.max(least));
-                let numbers: Vec<&Node> = claim
-                    .into_iter()
-                    .flat_map(|c| c.children.iter())
-                    .filter(|c| self.writer.is_number(c))
-                    .collect();
-                for n in numbers {
-                    match self.writer.carrier(n) {
-                        Route::Built(c) => at = at.max(c),
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                // A term the claim puts in a hole of a fixed type, ⌊A/B⌋ in
-                // ℝ's, is of that type.
-                if let Some(c) = claim {
-                    at = at.max(self.held_in(c));
-                }
-                for b in &sentence.binders {
-                    let Binder::Letter {
-                        page,
-                        ty,
-                        general: true,
-                        ..
-                    } = b
-                    else {
-                        continue;
-                    };
-                    let Some(value) =
-                        binding.get(&crate::formula::symbol::Symbol::of(page))
-                    else {
-                        continue;
-                    };
-                    match self.given_type(value, ty, &things) {
-                        Route::Built(c) => at = at.max(c),
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                Some(at)
-            }
-            None => None,
+        let general = match self.general_type(sentence, binding, claim, &things) {
+            Route::Built(general) => general,
+            Route::Declined(d) => return Route::Declined(d),
         };
         let asked = InstanceAsked {
             sentence,
@@ -1057,6 +1010,63 @@ impl<'a> Proof<'a> {
                 self.given_to_things(ty, general.filter(|_| in_general), value, things)
             }
         }
+    }
+
+    /// The type an item's general letters take: the least that holds the
+    /// claim and every value given them, a field's at least where the item
+    /// divides; None where the item has no general letters.
+    fn general_type(
+        &self,
+        sentence: &Sentence,
+        binding: &crate::matching::Binding,
+        claim: Option<&Node>,
+        things: &ThingsGiven,
+    ) -> Route<Option<super::super::templates::Num>> {
+        let Some(g) = sentence.general else {
+            return Route::Built(None);
+        };
+        let least = if g.field {
+            super::super::templates::Num::Rat
+        } else {
+            super::super::templates::Num::Int
+        };
+        let mut at = self.worked_in.get().map_or(least, |w| w.max(least));
+        let numbers: Vec<&Node> = claim
+            .into_iter()
+            .flat_map(|c| c.children.iter())
+            .filter(|c| self.writer.is_number(c))
+            .collect();
+        for n in numbers {
+            match self.writer.carrier(n) {
+                Route::Built(c) => at = at.max(c),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        // A term the claim puts in a hole of a fixed type, ⌊A/B⌋ in
+        // ℝ's, is of that type.
+        if let Some(c) = claim {
+            at = at.max(self.held_in(c));
+        }
+        for b in &sentence.binders {
+            let Binder::Letter {
+                page,
+                ty,
+                general: true,
+                ..
+            } = b
+            else {
+                continue;
+            };
+            let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page))
+            else {
+                continue;
+            };
+            match self.given_type(value, ty, things) {
+                Route::Built(c) => at = at.max(c),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        Route::Built(Some(at))
     }
 
     /// What a cited item's letter is given where the citation gives it no
@@ -1396,6 +1406,75 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// Whether the item is the claim as written, or once the identity
+    /// elements the checker dropped are dropped from both, with nothing else
+    /// apart; and the differences noted for the build to report. `exact`
+    /// takes the two as written: not stated in two known types, which the
+    /// comparison, reading a count's relation in ℕ, does not ask. An item's
+    /// type variable is Lean's to fill.
+    fn agreement(&self, asked: AgreementAsked<'_>) -> Agreement {
+        use super::super::doc::forms;
+        let AgreementAsked {
+            found,
+            compared,
+            claim,
+            claim_read,
+            turned,
+            counted,
+            powered,
+            cast_powers,
+            bound,
+            mut identities,
+            line,
+            item,
+        } = asked;
+        let known = |t: &Printed| {
+            forms::relation_type(t).filter(|ty| things_of_type(ty).is_empty())
+        };
+        let two_types = matches!(
+            (known(compared), known(claim)),
+            (Some(a), Some(b)) if a != b
+        );
+        let agrees = found.is_empty()
+            && !two_types
+            && !turned
+            && counted.is_empty()
+            && powered.is_empty()
+            && !cast_powers
+            && bound.is_empty()
+            && identities.is_empty()
+            && !claim.is_truth()
+            && forms::one_term_once_set(compared, claim, &self.set_values());
+        let by_identities = found.is_empty()
+            && !two_types
+            && counted.is_empty()
+            && powered.is_empty()
+            && !cast_powers
+            && bound.is_empty()
+            && !identities.is_empty()
+            && !claim.is_truth();
+        // An identity element Lean writes cast up, `((1 : ℤ) : ℚ)`,
+        // taken to the numeral first, so its rewrite meets it.
+        if by_identities {
+            identities.extend(forms::cast_unit_lemmas(compared));
+            identities.extend(forms::cast_unit_lemmas(claim_read));
+            identities.sort_unstable();
+            identities.dedup();
+        }
+        for d in found {
+            self.forms.borrow_mut().push(FormNote {
+                page_line: line,
+                item: item.to_string(),
+                difference: d,
+            });
+        }
+        Agreement {
+            agrees,
+            by_identities,
+            identities,
+        }
+    }
+
     /// The term a citation gives, taken to the part of the item's sentence
     /// the claim is, with what it says. A claim that is itself the "and",
     /// read as its parts, is the whole; a sentence of the claim that one part
@@ -1682,49 +1761,24 @@ impl<'a> Proof<'a> {
                     &counted,
                     (cited, sentence, node),
                 );
-                // `exact` takes the two as written: not stated in two known
-                // types, which the comparison, reading a count's relation in
-                // ℕ, does not ask. An item's type variable is Lean's to fill.
-                let known = |t: &Printed| {
-                    forms::relation_type(t).filter(|ty| things_of_type(ty).is_empty())
-                };
-                let two_types = matches!(
-                    (known(&compared), known(&claim)),
-                    (Some(a), Some(b)) if a != b
-                );
-                agrees = found.is_empty()
-                    && !two_types
-                    && !turned
-                    && counted.is_empty()
-                    && powered.is_empty()
-                    && !cast_powers
-                    && bound.is_empty()
-                    && identities.is_empty()
-                    && !claim.is_truth()
-                    && forms::one_term_once_set(&compared, &claim, &self.set_values());
-                by_identities = found.is_empty()
-                    && !two_types
-                    && counted.is_empty()
-                    && powered.is_empty()
-                    && !cast_powers
-                    && bound.is_empty()
-                    && !identities.is_empty()
-                    && !claim.is_truth();
-                // An identity element Lean writes cast up, `((1 : ℤ) : ℚ)`,
-                // taken to the numeral first, so its rewrite meets it.
-                if by_identities {
-                    identities.extend(forms::cast_unit_lemmas(&compared));
-                    identities.extend(forms::cast_unit_lemmas(&claim_read));
-                    identities.sort_unstable();
-                    identities.dedup();
-                }
-                for d in found {
-                    self.forms.borrow_mut().push(FormNote {
-                        page_line: reason.just.line,
-                        item: cited.item.clone(),
-                        difference: d,
-                    });
-                }
+                Agreement {
+                    agrees,
+                    by_identities,
+                    identities,
+                } = self.agreement(AgreementAsked {
+                    found,
+                    compared: &compared,
+                    claim: &claim,
+                    claim_read: &claim_read,
+                    turned,
+                    counted: &counted,
+                    powered: &powered,
+                    cast_powers,
+                    bound: &bound,
+                    identities,
+                    line: reason.just.line,
+                    item: &cited.item,
+                });
             }
         }
         FormComparison {
@@ -1780,18 +1834,7 @@ impl<'a> Proof<'a> {
                 Route::Built(i) => i,
                 Route::Declined(d) => return Route::Declined(d),
             };
-        let FormComparison {
-            counted,
-            finite,
-            powered,
-            cast_powers,
-            bound,
-            identities,
-            numeral_to_nat,
-            turned,
-            agrees,
-            by_identities,
-        } = self.compare_forms(
+        let comparison = self.compare_forms(
             reason,
             (k, node),
             cited,
@@ -1865,6 +1908,71 @@ impl<'a> Proof<'a> {
         // claim nothing to read where the claim's exponent is an integer
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
+        let closed = match self.close_citation(
+            CitationClosing {
+                node,
+                k,
+                cited,
+                sentence,
+                way: concluded.way,
+                path,
+                claim_lean,
+                stated: stated.is_some(),
+            },
+            comparison,
+            term,
+            says,
+        ) {
+            Route::Built(closed) => closed,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // The goal alone: each line the item is given puts the defines in
+        // itself, where it is passed (`supplied_proof`).
+        let goal = RewriteAt {
+            at: super::super::doc::Location::Goal,
+            said: vec![node.clone()],
+            stated: self.writer.formula(node).built().into_iter().collect(),
+        };
+        Route::Built(haves_then(
+            written_out(&defines, &[goal], &self.writer),
+            closed,
+        ))
+    }
+
+    /// The proof a citation gives of its claim, once its term is projected to
+    /// the part of the item's sentence the claim is and the item compared
+    /// with the claim: the conversions the comparison found, the item read in
+    /// the step's spelling, or the closer's rules.
+    fn close_citation(
+        &self,
+        asked: CitationClosing<'_>,
+        comparison: FormComparison,
+        term: Printed,
+        says: Option<Printed>,
+    ) -> Route<super::super::doc::Proof> {
+        use super::super::doc::Proof;
+        let CitationClosing {
+            node,
+            k,
+            cited,
+            sentence,
+            way,
+            path,
+            claim_lean,
+            stated,
+        } = asked;
+        let FormComparison {
+            counted,
+            finite,
+            powered,
+            cast_powers,
+            bound,
+            identities,
+            numeral_to_nat,
+            turned,
+            agrees,
+            by_identities,
+        } = comparison;
         // The part of the item's sentence the reading gives, the sentence as
         // written or the side a forward reading reaches, and of it the part
         // of an "and" the step takes, at the citation's values, written as
@@ -1872,7 +1980,7 @@ impl<'a> Proof<'a> {
         // spelt otherwise than Lean's statement of that part, which
         // the reading of the item then reads as it
         // (`spelling::read_as_written`).
-        let given = match concluded.way {
+        let given = match way {
             Way::AsWritten => Some(&sentence.says),
             Way::Forward => node_consequent(&sentence.says),
             Way::Backward => None,
@@ -1905,7 +2013,7 @@ impl<'a> Proof<'a> {
             {
                 let claim = StepClaim {
                     printed: claim,
-                    stated: stated.is_some(),
+                    stated,
                 };
                 self.read_in_spelling(Some(cited), &term, said, written, claim)
             }
@@ -1936,10 +2044,9 @@ impl<'a> Proof<'a> {
             None if by_identities => forms_converted(&term, &conversion, turned),
             None => match self.closer(
                 node,
-                claim_lean.as_ref().map(|printed| StepClaim {
-                    printed,
-                    stated: stated.is_some(),
-                }),
+                claim_lean
+                    .as_ref()
+                    .map(|printed| StepClaim { printed, stated }),
                 term,
                 says.as_ref(),
                 HowMet {
@@ -1961,17 +2068,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             },
         };
-        // The goal alone: each line the item is given puts the defines in
-        // itself, where it is passed (`supplied_proof`).
-        let goal = RewriteAt {
-            at: super::super::doc::Location::Goal,
-            said: vec![node.clone()],
-            stated: self.writer.formula(node).built().into_iter().collect(),
-        };
-        Route::Built(haves_then(
-            written_out(&defines, &[goal], &self.writer),
-            closed,
-        ))
+        Route::Built(closed)
     }
 
     /// The claim a definition's sentence is read backwards for: the

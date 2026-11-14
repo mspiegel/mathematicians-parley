@@ -184,6 +184,35 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// A putting at no place: the line it is put into is the claim once the
+    /// theorem's outside defines are written out, as Lean has both
+    /// (`Substituted::put`).
+    fn put_at_no_place(
+        &self,
+        rec: &crate::checker::record::Substituted,
+        line: usize,
+        claim: &Node,
+    ) -> Route<super::super::doc::Proof> {
+        use super::super::doc::Proof;
+        use crate::checker::record::SubstitutedInto;
+        let SubstitutedInto::Line(at) = &rec.into else {
+            return Route::no("a putting at no place into no line");
+        };
+        let (proof, says) = match self.line_says(at) {
+            Route::Built(both) => both,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let Some(wanted) = self.claim_as_stated(line, claim) else {
+            return Route::no("a claim Lean states no form of");
+        };
+        match self.proof_meeting(proof, &says, &wanted) {
+            Some(proved) => Route::Built(Proof::By(Tactic::Exact(proved.term()))),
+            None => Route::no(
+                "a line put at no place that Lean states otherwise than the claim",
+            ),
+        }
+    }
+
     /// The equation a recorded putting uses, facing as the record puts it:
     /// the line's part the record names, turned where the line says it the
     /// other way round; a row's change, which its reason proves as the record
@@ -233,7 +262,7 @@ impl<'a> Proof<'a> {
         row: Option<&GivenEquation>,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::{LeanType, Proof};
+        use super::super::doc::LeanType;
         use super::super::tactics as t;
         use crate::checker::record::SubstitutedInto;
         let found = self.substitution_record(
@@ -247,22 +276,7 @@ impl<'a> Proof<'a> {
         // Put at no place: the line is the claim once the theorem's outside
         // defines are written out, as Lean has both (`Substituted::put`).
         if rec.put.places.is_empty() {
-            let SubstitutedInto::Line(at) = &rec.into else {
-                return Route::no("a putting at no place into no line");
-            };
-            let (proof, says) = match self.line_says(at) {
-                Route::Built(both) => both,
-                Route::Declined(d) => return Route::Declined(d),
-            };
-            let Some(wanted) = self.claim_as_stated(line, claim) else {
-                return Route::no("a claim Lean states no form of");
-            };
-            return match self.proof_meeting(proof, &says, &wanted) {
-                Some(proved) => Route::Built(Proof::By(Tactic::Exact(proved.term()))),
-                None => Route::no(
-                    "a line put at no place that Lean states otherwise than the claim",
-                ),
-            };
+            return self.put_at_no_place(rec, line, claim);
         }
         let [left, right] = rec.equation.children.as_slice() else {
             return Route::no("a recorded equation of no two sides");
