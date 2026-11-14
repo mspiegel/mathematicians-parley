@@ -705,9 +705,21 @@ fn quoted_lines(
     old: &[&str],
 ) -> Vec<(String, String)> {
     let mut places: Vec<(String, Vec<String>)> = Vec::new();
-    let planted = "tests/planted_check.rs";
-    if let Ok(text) = std::fs::read_to_string(root.join(planted)) {
-        places.push((planted.to_string(), planted_quotes(&text, file)));
+    // The planted cases are cut into part files, each case whole in one.
+    if let Ok(dir) = std::fs::read_dir(root.join("tests/planted_check")) {
+        let mut parts: Vec<_> = dir.flatten().map(|e| e.path()).collect();
+        parts.sort();
+        for path in parts
+            .iter()
+            .filter(|p| p.extension().is_some_and(|e| e == "rs"))
+        {
+            if let (Ok(text), Some(name)) =
+                (std::fs::read_to_string(path), path.file_name())
+            {
+                let shown = format!("tests/planted_check/{}", name.to_string_lossy());
+                places.push((shown, planted_quotes(&text, file)));
+            }
+        }
     }
     let written: BTreeSet<&str> = theorem.iter().map(|l| l.trim()).collect();
     if let Ok(dir) = std::fs::read_dir(root.join("docs")) {

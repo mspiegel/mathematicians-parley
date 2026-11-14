@@ -15,7 +15,7 @@
 //!
 //! A defect the checker reports never reaches the elaborator: the build
 //! refuses what the checker refuses, with the checker's own problem, and
-//! those cases are in `planted_check.rs`. What is here is what only the
+//! those cases are in `planted_check/`. What is here is what only the
 //! build can see.
 
 use std::path::Path;

@@ -14,7 +14,7 @@
 //!
 //! Some changes rewrite a theorem as a whole: its letters renamed, its
 //! claims' sentences joined or split, a part of a claim named by a define
-//! (`invariance/rewrites.rs`). Where such a
+//! (`invariance/rewrites/`). Where such a
 //! change cannot tell that it keeps a theorem's meaning, a letter written
 //! where no formula is read, it leaves the theorem alone and says so, and
 //! the test prints how many theorems each change reached. The letters a
