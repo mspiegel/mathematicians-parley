@@ -15736,9 +15736,12 @@ impl<'a> Proof<'a> {
             }
             None => None,
         };
-        let things_at = |var: &usize| {
-            let least = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
-            things.at.get(var).map_or(least, |n| least.max(*n))
+        let asked = InstanceAsked {
+            sentence,
+            binding,
+            claim,
+            things: &things,
+            general,
         };
         let mut args = Vec::new();
         for b in &sentence.binders {
@@ -15749,375 +15752,16 @@ impl<'a> Proof<'a> {
                     ty,
                     general: in_general,
                 } => {
-                    let Some(value) =
-                        binding.get(&crate::formula::symbol::Symbol::of(page))
-                    else {
-                        // A set the citation gives no value: a map's domain,
-                        // the X of `f : X → W`, is the domain of what f is
-                        // given, within which its images are taken; the Z a
-                        // map goes into is all of its type, which every map
-                        // goes into; anything else is left to Lean.
-                        let fill =
-                            match (ty, self.given_domain(sentence, name, binding)) {
-                                (LetterType::Set(_), Some(Route::Built(d))) => d,
-                                (LetterType::Set(_), Some(Route::Declined(d))) => {
-                                    return Route::Declined(d)
-                                }
-                                (LetterType::Set(_), None) => {
-                                    super::expr::Printed::head(
-                                        "Set.univ",
-                                        super::doc::Source::Mathlib,
-                                    )
-                                }
-                                // A function of a recursion the file lets, F of
-                                // D1, is the citing theorem's F, which the same
-                                // define lets.
-                                (LetterType::Function { .. }, _)
-                                    if self.writer.letters.get(page.as_str())
-                                        == Some(ty) =>
-                                {
-                                    super::expr::Printed::letter(
-                                        super::names::letter(page),
-                                        ty.lean_type(),
-                                    )
-                                }
-                                _ => super::expr::Printed::of(
-                                    super::doc::TermKind::Elided,
-                                    ty.lean_type(),
-                                ),
-                            };
-                        given.insert(name.clone(), fill.clone());
-                        args.push(super::doc::Arg::Named {
-                            name: name.clone(),
-                            value: fill,
-                        });
-                        continue;
-                    };
-                    // The value of a define that names its number, m/p of
-                    // `let r = m/p, a positive integer`, is that number, r.
-                    let value = self
-                        .witness_letters
-                        .iter()
-                        .find(|w| {
-                            crate::matching::alike_top(
-                                &w.value,
-                                value,
-                                self.sources.ctx,
-                            )
-                        })
-                        .map_or(value, |w| &w.letter);
-                    let printed = match (ty, general.filter(|_| *in_general)) {
-                        (LetterType::Number(_), Some(at)) => {
-                            self.writer.number_fixed(value, at)
-                        }
-                        // A value of a wider type that a line says is in the
-                        // letter's, A + B ∈ ℚ of reals: the number that line
-                        // gives.
-                        (LetterType::Number(n), None) => {
-                            match self.writer.number_fixed(value, *n) {
-                                Route::Declined(d) => {
-                                    match self.integer_line(value, *n) {
-                                        Some(line) => {
-                                            let printed = super::tactics::bracket(
-                                                line.chosen(*n),
-                                            );
-                                            self.said_used.borrow_mut().push(
-                                                SaidUsed {
-                                                    line,
-                                                    term: self
-                                                        .writer
-                                                        .grammar
-                                                        .print(value),
-                                                },
-                                            );
-                                            Route::Built(printed)
-                                        }
-                                        None => Route::Declined(d),
-                                    }
-                                }
-                                built => built,
-                            }
-                        }
-                        // A property given by what it says of t, `fun t : α
-                        // => …`, t a member of what the property is of.
-                        (LetterType::Property(members), _) => {
-                            // Of things the citation gives numbers, the
-                            // numbers at the type the things are taken at.
-                            // Of things given sets, a set of them; of sets of
-                            // things, sets of what is given for those.
-                            let put = things.put(members, &things_at);
-                            let (of, of_type) = (put.letter(), put.member_type());
-                            match (&*value.notation_name(), value.children.as_slice()) {
-                                ("property-of", [body]) => {
-                                    let mut letters = self.writer.letters.clone();
-                                    letters.insert(value.text.to_string(), of);
-                                    let inner = self.writer.with_letters(letters);
-                                    inner.formula(body).map(|b| {
-                                        lambda(
-                                            &super::names::letter(&value.text),
-                                            of_type,
-                                            b,
-                                        )
-                                    })
-                                }
-                                _ if value.is_name() => {
-                                    Route::Built(super::tactics::hyp(
-                                        &super::names::letter(&value.text),
-                                    ))
-                                }
-                                _ => Route::no(
-                                    "a property given by other than what it says",
-                                ),
-                            }
-                        }
-                        // A function given for a function letter, of the
-                        // same types.
-                        // A function given by its values, k ↦ t, a sum's
-                        // term: `fun k : ℤ => t`, t in what it gives.
-                        (LetterType::Function { from, to }, given)
-                            if &*value.notation_name() == "property-of" =>
-                        {
-                            // A function into the general type gives the
-                            // type chosen for it.
-                            let gives = given.unwrap_or(*to);
-                            match value.children.as_slice() {
-                                [body] => {
-                                    let mut letters = self.writer.letters.clone();
-                                    letters.insert(
-                                        value.text.to_string(),
-                                        LetterType::Number(*from),
-                                    );
-                                    let mut inner = self.writer.with_letters(letters);
-                                    inner.wholes.shift_remove(&*value.text);
-                                    // k ↦ 2^k given for a sum's term stands for
-                                    // the sum's index the claim runs it over,
-                                    // in ℕ₀ from 0, so 2^k is written as the
-                                    // claim's sum writes it.
-                                    let index = claim.and_then(|c| {
-                                        super::expr::index_letter_system(c, &value.text)
-                                    });
-                                    if let (super::templates::Num::Int, Some(system)) =
-                                        (*from, index)
-                                    {
-                                        inner.introduce(&value.text, system);
-                                    }
-                                    inner.number_fixed(body, gives).map(|b| {
-                                        lambda(
-                                            &super::names::letter(&value.text),
-                                            super::doc::LeanType::Num(*from),
-                                            b,
-                                        )
-                                    })
-                                }
-                                _ => Route::no(
-                                    "a function by its values of other than one body",
-                                ),
-                            }
-                        }
-                        (LetterType::Function { from, to }, given) => {
-                            match self.writer.function_type(value) {
-                                Route::Built(t)
-                                    if t == (*from, given.unwrap_or(*to)) =>
-                                {
-                                    Route::Built(self.writer.function_printed(value))
-                                }
-                                // A function that takes the letter's numbers
-                                // and gives numbers within its type, t of ℤ
-                                // into ℤ for f of ℕ into ℝ: t between casts.
-                                Route::Built((takes, gives))
-                                    if *from <= takes
-                                        && gives <= given.unwrap_or(*to) =>
-                                {
-                                    let wanted = given.unwrap_or(*to);
-                                    Route::Built(mapped_through(
-                                        self.writer.function_printed(value),
-                                        super::doc::LeanType::Num(*from),
-                                        takes,
-                                        gives,
-                                        wanted,
-                                    ))
-                                }
-                                Route::Built(_) => Route::no(
-                                    "a function given for a letter of other types",
-                                ),
-                                Route::Declined(d) => Route::Declined(d),
-                            }
-                        }
-                        (LetterType::Statement, _) => self.writer.formula(value),
-                        // A thing given a number: the number, at the type
-                        // the things are taken at here.
-                        (LetterType::Member(super::expr::Members::Things(var)), _)
-                            if self.writer.is_number(value) =>
-                        {
-                            self.writer.number_fixed(value, things_at(var))
-                        }
-                        // A set of things given a set of numbers: the set at
-                        // the type the things are taken at here.
-                        (LetterType::Set(super::expr::Members::Things(var)), _)
-                            if matches!(
-                                self.writer.set_members(value),
-                                Some(super::expr::Members::Numbers(_))
-                            ) =>
-                        {
-                            self.writer.numbers_at(value, things_at(var))
-                        }
-                        // A map of things given by its values on numbers,
-                        // n ↦ 9ⁿ: `fun n : ℤ => 9 ^ n`, taking and giving
-                        // numbers at the types its two sides' things are
-                        // taken at here.
-                        (
-                            LetterType::Map {
-                                from: super::expr::Members::Things(from),
-                                to: super::expr::Members::Things(to),
-                            },
-                            _,
-                        ) if &*value.notation_name() == "property-of" => {
-                            match value.children.as_slice() {
-                                [body] => {
-                                    let mut letters = self.writer.letters.clone();
-                                    letters.insert(
-                                        value.text.to_string(),
-                                        LetterType::Number(things_at(from)),
-                                    );
-                                    let inner = self.writer.with_letters(letters);
-                                    inner.number_fixed(body, things_at(to)).map(|b| {
-                                        lambda(
-                                            &super::names::letter(&value.text),
-                                            super::doc::LeanType::Num(things_at(from)),
-                                            b,
-                                        )
-                                    })
-                                }
-                                _ => Route::no(
-                                    "a map by its values of other than one body",
-                                ),
-                            }
-                        }
-                        // A map from things into numbers given by its
-                        // values, x ↦ x·c for t : X → ℤ: `fun x : ℤ => x *
-                        // c`, x a member of what the things are taken at
-                        // here, its value a number of t's type.
-                        (
-                            LetterType::Map {
-                                from: from @ super::expr::Members::Things(_),
-                                to: super::expr::Members::Numbers(to),
-                            },
-                            given,
-                        ) if &*value.notation_name() == "property-of" => {
-                            let put = things.put(from, &things_at);
-                            let gives = given.unwrap_or(*to);
-                            match value.children.as_slice() {
-                                [body] => {
-                                    let mut letters = self.writer.letters.clone();
-                                    letters
-                                        .insert(value.text.to_string(), put.letter());
-                                    let inner = self.writer.with_letters(letters);
-                                    inner.number_fixed(body, gives).map(|b| {
-                                        lambda(
-                                            &super::names::letter(&value.text),
-                                            put.member_type(),
-                                            b,
-                                        )
-                                    })
-                                }
-                                _ => Route::no(
-                                    "a map by its values of other than one body",
-                                ),
-                            }
-                        }
-                        // A function of numbers given for a map of things
-                        // into numbers, f for u : X → K: f itself where it
-                        // gives the numbers asked, else f's value cast up.
-                        (
-                            LetterType::Map {
-                                from: from @ super::expr::Members::Things(_),
-                                to: super::expr::Members::Numbers(to),
-                            },
-                            given,
-                        ) if self.writer.function_type(value).built().is_some() => {
-                            let wanted = given.unwrap_or(*to);
-                            let put = things.put(from, &things_at);
-                            match self.writer.function_type(value) {
-                                Route::Built((_, gives)) if gives == wanted => {
-                                    Route::Built(self.writer.function_printed(value))
-                                }
-                                Route::Built((takes, gives)) if gives < wanted => {
-                                    Route::Built(mapped_through(
-                                        self.writer.function_printed(value),
-                                        put.member_type(),
-                                        takes,
-                                        gives,
-                                        wanted,
-                                    ))
-                                }
-                                Route::Built(_) => Route::no(
-                                    "a function given for a map into a narrower type",
-                                ),
-                                Route::Declined(d) => Route::Declined(d),
-                            }
-                        }
-                        // A listed set whose members give no type, {∅},
-                        // given for a set of things that another letter
-                        // gives sets: a set of those.
-                        (LetterType::Set(super::expr::Members::Things(var)), _)
-                            if things.others.contains_key(var)
-                                && self.writer.members_of(value).is_none() =>
-                        {
-                            self.writer.listed_as(value, &things.others[var])
-                        }
-                        // ∅ given for a member, the x := ∅ of |{x}| = 1 for
-                        // |{∅}|: with the type the writer gives ∅ inside
-                        // {∅} (`Writer::sets_of_nothing`), which ∅ alone
-                        // does not give Lean.
-                        (LetterType::Member(super::expr::Members::Things(_)), _)
-                            if &*value.notation_name() == "empty-set" =>
-                        {
-                            match self
-                                .writer
-                                .sets_of_nothing(std::slice::from_ref(value))
-                            {
-                                Some(set) => Route::Built(Printed::cast(
-                                    Printed::constant(
-                                        "∅",
-                                        super::doc::Source::Core,
-                                        set.member_type(),
-                                    ),
-                                    set.member_type(),
-                                )),
-                                None => self.writer.set_term(value),
-                            }
-                        }
-                        // A set, a member or a map given for one: the term
-                        // as the writer writes a set's.
-                        (
-                            LetterType::Set(_)
-                            | LetterType::Member(_)
-                            | LetterType::Map { .. },
-                            _,
-                        ) => self.writer.set_term(value),
-                        // A group given for a group, or a subgroup for a
-                        // subgroup: its Lean name, the type or the
-                        // `Subgroup G` itself, not the set it stands for.
-                        (LetterType::Group | LetterType::Subgroup(_), _) => {
-                            Route::Built(super::tactics::hyp(&super::names::letter(
-                                &value.text,
-                            )))
-                        }
-                        // The identity is no binder: `1` of the group.
-                        (LetterType::Identity(_), _) => {
-                            Route::no("an identity given as a letter of an item")
-                        }
-                    };
-                    match printed {
-                        Route::Built(p) => {
-                            given.insert(name.clone(), p.clone());
-                            args.push(super::doc::Arg::Named {
-                                name: name.clone(),
-                                value: p,
-                            });
-                        }
+                    let p = match self.letter_given(&asked, name, page, ty, *in_general)
+                    {
+                        Route::Built(p) => p,
                         Route::Declined(d) => return Route::Declined(d),
-                    }
+                    };
+                    given.insert(name.clone(), p.clone());
+                    args.push(super::doc::Arg::Named {
+                        name: name.clone(),
+                        value: p,
+                    });
                 }
                 // A hypothesis the checker found a line or a requires line
                 // supplies (`Cited::supplied`), found by where the item
@@ -16216,6 +15860,334 @@ impl<'a> Proof<'a> {
             None => statement,
         };
         Route::Built(Instance { term, statement })
+    }
+
+    /// What a cited item's letter `name` is given: the value the citation
+    /// gives it, written as Lean writes a letter of its kind, or, where the
+    /// citation gives it none, what Lean is left to fill.
+    fn letter_given(
+        &self,
+        asked: &InstanceAsked<'_>,
+        name: &str,
+        page: &str,
+        ty: &LetterType,
+        in_general: bool,
+    ) -> Route<Printed> {
+        let InstanceAsked {
+            sentence,
+            binding,
+            claim,
+            things,
+            general,
+        } = *asked;
+        let things_at = |var: &usize| {
+            let least = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
+            things.at.get(var).map_or(least, |n| least.max(*n))
+        };
+        let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page)) else {
+            // A set the citation gives no value: a map's domain,
+            // the X of `f : X → W`, is the domain of what f is
+            // given, within which its images are taken; the Z a
+            // map goes into is all of its type, which every map
+            // goes into; anything else is left to Lean.
+            let fill = match (ty, self.given_domain(sentence, name, binding)) {
+                (LetterType::Set(_), Some(Route::Built(d))) => d,
+                (LetterType::Set(_), Some(Route::Declined(d))) => {
+                    return Route::Declined(d)
+                }
+                (LetterType::Set(_), None) => {
+                    super::expr::Printed::head("Set.univ", super::doc::Source::Mathlib)
+                }
+                // A function of a recursion the file lets, F of
+                // D1, is the citing theorem's F, which the same
+                // define lets.
+                (LetterType::Function { .. }, _)
+                    if self.writer.letters.get(page) == Some(ty) =>
+                {
+                    super::expr::Printed::letter(
+                        super::names::letter(page),
+                        ty.lean_type(),
+                    )
+                }
+                _ => super::expr::Printed::of(
+                    super::doc::TermKind::Elided,
+                    ty.lean_type(),
+                ),
+            };
+            return Route::Built(fill);
+        };
+        // The value of a define that names its number, m/p of
+        // `let r = m/p, a positive integer`, is that number, r.
+        let value = self
+            .witness_letters
+            .iter()
+            .find(|w| crate::matching::alike_top(&w.value, value, self.sources.ctx))
+            .map_or(value, |w| &w.letter);
+        let printed = match (ty, general.filter(|_| in_general)) {
+            (LetterType::Number(_), Some(at)) => self.writer.number_fixed(value, at),
+            // A value of a wider type that a line says is in the
+            // letter's, A + B ∈ ℚ of reals: the number that line
+            // gives.
+            (LetterType::Number(n), None) => {
+                match self.writer.number_fixed(value, *n) {
+                    Route::Declined(d) => match self.integer_line(value, *n) {
+                        Some(line) => {
+                            let printed = super::tactics::bracket(line.chosen(*n));
+                            self.said_used.borrow_mut().push(SaidUsed {
+                                line,
+                                term: self.writer.grammar.print(value),
+                            });
+                            Route::Built(printed)
+                        }
+                        None => Route::Declined(d),
+                    },
+                    built => built,
+                }
+            }
+            // A property given by what it says of t, `fun t : α
+            // => …`, t a member of what the property is of.
+            (LetterType::Property(members), _) => {
+                // Of things the citation gives numbers, the
+                // numbers at the type the things are taken at.
+                // Of things given sets, a set of them; of sets of
+                // things, sets of what is given for those.
+                let put = things.put(members, &things_at);
+                let (of, of_type) = (put.letter(), put.member_type());
+                match (&*value.notation_name(), value.children.as_slice()) {
+                    ("property-of", [body]) => {
+                        let mut letters = self.writer.letters.clone();
+                        letters.insert(value.text.to_string(), of);
+                        let inner = self.writer.with_letters(letters);
+                        inner.formula(body).map(|b| {
+                            lambda(&super::names::letter(&value.text), of_type, b)
+                        })
+                    }
+                    _ if value.is_name() => Route::Built(super::tactics::hyp(
+                        &super::names::letter(&value.text),
+                    )),
+                    _ => Route::no("a property given by other than what it says"),
+                }
+            }
+            // A function given for a function letter, of the
+            // same types.
+            // A function given by its values, k ↦ t, a sum's
+            // term: `fun k : ℤ => t`, t in what it gives.
+            (LetterType::Function { from, to }, given)
+                if &*value.notation_name() == "property-of" =>
+            {
+                // A function into the general type gives the
+                // type chosen for it.
+                let gives = given.unwrap_or(*to);
+                match value.children.as_slice() {
+                    [body] => {
+                        let mut letters = self.writer.letters.clone();
+                        letters
+                            .insert(value.text.to_string(), LetterType::Number(*from));
+                        let mut inner = self.writer.with_letters(letters);
+                        inner.wholes.shift_remove(&*value.text);
+                        // k ↦ 2^k given for a sum's term stands for
+                        // the sum's index the claim runs it over,
+                        // in ℕ₀ from 0, so 2^k is written as the
+                        // claim's sum writes it.
+                        let index = claim.and_then(|c| {
+                            super::expr::index_letter_system(c, &value.text)
+                        });
+                        if let (super::templates::Num::Int, Some(system)) =
+                            (*from, index)
+                        {
+                            inner.introduce(&value.text, system);
+                        }
+                        inner.number_fixed(body, gives).map(|b| {
+                            lambda(
+                                &super::names::letter(&value.text),
+                                super::doc::LeanType::Num(*from),
+                                b,
+                            )
+                        })
+                    }
+                    _ => Route::no("a function by its values of other than one body"),
+                }
+            }
+            (LetterType::Function { from, to }, given) => {
+                match self.writer.function_type(value) {
+                    Route::Built(t) if t == (*from, given.unwrap_or(*to)) => {
+                        Route::Built(self.writer.function_printed(value))
+                    }
+                    // A function that takes the letter's numbers
+                    // and gives numbers within its type, t of ℤ
+                    // into ℤ for f of ℕ into ℝ: t between casts.
+                    Route::Built((takes, gives))
+                        if *from <= takes && gives <= given.unwrap_or(*to) =>
+                    {
+                        let wanted = given.unwrap_or(*to);
+                        Route::Built(mapped_through(
+                            self.writer.function_printed(value),
+                            super::doc::LeanType::Num(*from),
+                            takes,
+                            gives,
+                            wanted,
+                        ))
+                    }
+                    Route::Built(_) => {
+                        Route::no("a function given for a letter of other types")
+                    }
+                    Route::Declined(d) => Route::Declined(d),
+                }
+            }
+            (LetterType::Statement, _) => self.writer.formula(value),
+            // A thing given a number: the number, at the type
+            // the things are taken at here.
+            (LetterType::Member(super::expr::Members::Things(var)), _)
+                if self.writer.is_number(value) =>
+            {
+                self.writer.number_fixed(value, things_at(var))
+            }
+            // A set of things given a set of numbers: the set at
+            // the type the things are taken at here.
+            (LetterType::Set(super::expr::Members::Things(var)), _)
+                if matches!(
+                    self.writer.set_members(value),
+                    Some(super::expr::Members::Numbers(_))
+                ) =>
+            {
+                self.writer.numbers_at(value, things_at(var))
+            }
+            // A map of things given by its values on numbers,
+            // n ↦ 9ⁿ: `fun n : ℤ => 9 ^ n`, taking and giving
+            // numbers at the types its two sides' things are
+            // taken at here.
+            (
+                LetterType::Map {
+                    from: super::expr::Members::Things(from),
+                    to: super::expr::Members::Things(to),
+                },
+                _,
+            ) if &*value.notation_name() == "property-of" => {
+                match value.children.as_slice() {
+                    [body] => {
+                        let mut letters = self.writer.letters.clone();
+                        letters.insert(
+                            value.text.to_string(),
+                            LetterType::Number(things_at(from)),
+                        );
+                        let inner = self.writer.with_letters(letters);
+                        inner.number_fixed(body, things_at(to)).map(|b| {
+                            lambda(
+                                &super::names::letter(&value.text),
+                                super::doc::LeanType::Num(things_at(from)),
+                                b,
+                            )
+                        })
+                    }
+                    _ => Route::no("a map by its values of other than one body"),
+                }
+            }
+            // A map from things into numbers given by its
+            // values, x ↦ x·c for t : X → ℤ: `fun x : ℤ => x *
+            // c`, x a member of what the things are taken at
+            // here, its value a number of t's type.
+            (
+                LetterType::Map {
+                    from: from @ super::expr::Members::Things(_),
+                    to: super::expr::Members::Numbers(to),
+                },
+                given,
+            ) if &*value.notation_name() == "property-of" => {
+                let put = things.put(from, &things_at);
+                let gives = given.unwrap_or(*to);
+                match value.children.as_slice() {
+                    [body] => {
+                        let mut letters = self.writer.letters.clone();
+                        letters.insert(value.text.to_string(), put.letter());
+                        let inner = self.writer.with_letters(letters);
+                        inner.number_fixed(body, gives).map(|b| {
+                            lambda(
+                                &super::names::letter(&value.text),
+                                put.member_type(),
+                                b,
+                            )
+                        })
+                    }
+                    _ => Route::no("a map by its values of other than one body"),
+                }
+            }
+            // A function of numbers given for a map of things
+            // into numbers, f for u : X → K: f itself where it
+            // gives the numbers asked, else f's value cast up.
+            (
+                LetterType::Map {
+                    from: from @ super::expr::Members::Things(_),
+                    to: super::expr::Members::Numbers(to),
+                },
+                given,
+            ) if self.writer.function_type(value).built().is_some() => {
+                let wanted = given.unwrap_or(*to);
+                let put = things.put(from, &things_at);
+                match self.writer.function_type(value) {
+                    Route::Built((_, gives)) if gives == wanted => {
+                        Route::Built(self.writer.function_printed(value))
+                    }
+                    Route::Built((takes, gives)) if gives < wanted => {
+                        Route::Built(mapped_through(
+                            self.writer.function_printed(value),
+                            put.member_type(),
+                            takes,
+                            gives,
+                            wanted,
+                        ))
+                    }
+                    Route::Built(_) => {
+                        Route::no("a function given for a map into a narrower type")
+                    }
+                    Route::Declined(d) => Route::Declined(d),
+                }
+            }
+            // A listed set whose members give no type, {∅},
+            // given for a set of things that another letter
+            // gives sets: a set of those.
+            (LetterType::Set(super::expr::Members::Things(var)), _)
+                if things.others.contains_key(var)
+                    && self.writer.members_of(value).is_none() =>
+            {
+                self.writer.listed_as(value, &things.others[var])
+            }
+            // ∅ given for a member, the x := ∅ of |{x}| = 1 for
+            // |{∅}|: with the type the writer gives ∅ inside
+            // {∅} (`Writer::sets_of_nothing`), which ∅ alone
+            // does not give Lean.
+            (LetterType::Member(super::expr::Members::Things(_)), _)
+                if &*value.notation_name() == "empty-set" =>
+            {
+                match self.writer.sets_of_nothing(std::slice::from_ref(value)) {
+                    Some(set) => Route::Built(Printed::cast(
+                        Printed::constant(
+                            "∅",
+                            super::doc::Source::Core,
+                            set.member_type(),
+                        ),
+                        set.member_type(),
+                    )),
+                    None => self.writer.set_term(value),
+                }
+            }
+            // A set, a member or a map given for one: the term
+            // as the writer writes a set's.
+            (
+                LetterType::Set(_) | LetterType::Member(_) | LetterType::Map { .. },
+                _,
+            ) => self.writer.set_term(value),
+            // A group given for a group, or a subgroup for a
+            // subgroup: its Lean name, the type or the
+            // `Subgroup G` itself, not the set it stands for.
+            (LetterType::Group | LetterType::Subgroup(_), _) => {
+                Route::Built(super::tactics::hyp(&super::names::letter(&value.text)))
+            }
+            // The identity is no binder: `1` of the group.
+            (LetterType::Identity(_), _) => {
+                Route::no("an identity given as a letter of an item")
+            }
+        };
+        printed
     }
 
     /// The type a value given a general letter is in: a number's own, a
@@ -19190,6 +19162,21 @@ fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     let bounded = guard.is_some()
         || matches!(&bare(&body).kind, TermKind::Infix { op, .. } if *op == Op::AND);
     Some(WholeNumberDenied { letter, bounded })
+}
+
+/// What a citation gives a cited item (`Proof::instance_of`).
+#[derive(Clone, Copy)]
+struct InstanceAsked<'c> {
+    /// The item's sentence.
+    sentence: &'c Sentence,
+    /// What the citation gives each of the item's letters.
+    binding: &'c crate::matching::Binding,
+    /// The step's claim, where it has one.
+    claim: Option<&'c Node>,
+    /// The types the item's things are taken at.
+    things: &'c ThingsGiven,
+    /// The type the item's general letters take.
+    general: Option<super::templates::Num>,
 }
 
 /// A calculation's terms as Lean writes them (`chain_printed`).
