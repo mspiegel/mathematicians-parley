@@ -1365,6 +1365,7 @@ public import Parley.Tests.Notations.Sets.FourNotInAWrittenSet
 public import Parley.Tests.Notations.Sets.InAUnion
 public import Parley.Tests.Notations.Sets.NotInAnIntersection
 public import Parley.Tests.Notations.Sets.APartOfASet
+public import Parley.Tests.Notations.Sets.PowerSetOfEmptyHasOneMember
 public import Parley.Tests.Notations.Sets.EvenInTheEvens
 public import Parley.Tests.Notations.Sets.OddNotInTheEvens
 public import Parley.Tests.Notations.Sums.AConstantSummed

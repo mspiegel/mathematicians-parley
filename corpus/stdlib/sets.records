@@ -205,7 +205,7 @@ definition powerset
 mundane theorem powerset-empty
   then        𝒫∅ = {∅}
   metamath-proof pw0
-  lean-proof  not yet implemented
+  lean-proof  Set.powerset_empty
 
 definition pair
   let x be an element                                                 (H1)

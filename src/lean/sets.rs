@@ -596,11 +596,19 @@ impl Writer<'_> {
             }
             "powerset" => match parts(1) {
                 Route::Built(p) => {
-                    let ty = p[0].ty.clone().map(|t| LeanType::Set(Box::new(t)));
+                    // 𝒫∅ says nothing of what ∅ holds, which Lean must be
+                    // told: `𝒫 (∅ : Set α)` (`empty_told`).
+                    let inner = match node.children.first() {
+                        Some(c) if &*c.notation_name() == "empty-set" => {
+                            self.empty_told()
+                        }
+                        _ => p[0].clone(),
+                    };
+                    let ty = inner.ty.clone().map(|t| LeanType::Set(Box::new(t)));
                     Route::Built(Printed {
                         kind: TermKind::Prefix {
                             mark: super::doc::PrefixMark::Powerset,
-                            inner: Box::new(p[0].clone()),
+                            inner: Box::new(inner),
                         },
                         ty,
                     })
@@ -1450,11 +1458,13 @@ impl Writer<'_> {
 
     /// What a listed set of ∅ alone holds, {∅}, which its members do not
     /// say: in a theorem whose sets hold things, of one type α, sets of
-    /// those. None where a member is anything but ∅, or no letter holds
-    /// things.
+    /// those; and so in one with no letters, 𝒫∅ = {∅}, whose ∅ holds the
+    /// things of α as ∅ counted alone does (`empty_told`). None where a
+    /// member is anything but ∅, or the letters hold only numbers.
     pub fn sets_of_nothing(&self, members: &[Node]) -> Option<Members> {
         let empties = members.iter().all(|m| &*m.notation_name() == "empty-set");
-        let things = self.letters.values().any(|t| t.things_vars().contains(&0));
+        let things = self.letters.is_empty()
+            || self.letters.values().any(|t| t.things_vars().contains(&0));
         (empties && things).then(|| Members::Sets(Box::new(Members::Things(0))))
     }
 

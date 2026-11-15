@@ -83,6 +83,10 @@ theorem def_powerset {α : Type*} (A : Set α) (S : Set α) :
     S ∈ 𝒫 A ↔ S ⊆ A :=
   Iff.rfl
 
+theorem mun_powerset_empty {α : Type*} :
+    𝒫 (∅ : Set α) = ({∅} : Set (Set α)) :=
+  Set.powerset_empty
+
 theorem def_pair {α : Type*} (u : α) (w : α) (x : α) :
     x ∈ ({u, w} : Set α) ↔ x = u ∨ x = w :=
   Iff.rfl
