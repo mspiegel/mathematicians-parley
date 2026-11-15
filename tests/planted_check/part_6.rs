@@ -1068,5 +1068,19 @@ pub(super) fn cases() -> Vec<Case> {
             )],
             "the theorem is a contradiction, whose block owes no claim for `by` to prove",
         ),
+        // Two functions compared whole are refused. The Lean build relies on
+        // it: a Lean function has values off the set the page gives it, so
+        // f(x) = x and g(x) = x² on X = {0} are equal on the page and not in
+        // Lean. A language that lets `=` compare functions needs the Lean
+        // writer to refuse or bridge such a comparison first.
+        case(
+            "compare two maps with = (the Lean writer must refuse it before the language allows it)",
+            vec![edit(
+                "proofs/wiedijk/planted.proof",
+                None,
+                "theorem planted\n  let X be a set    (H1)\n  let Y be a set    (H2)\n  let f : X → Y    (H3)\n  let g : X → Y    (H4)\n  assume f = g    (H5)\n  then f = g\n\n1.  f = g\n    restate H5\n".to_string(),
+            )],
+            "and `_ = _` wants a term",
+        ),
     ]
 }

@@ -169,38 +169,31 @@ fn every_lean_failure_is_found_in_one_run_and_the_rest_is_built() {
         text.replacen("algebra, from H3", "algebra, from H9", 1)
             .into_bytes(),
     );
-    // Two library modules Lean is said not to read: their entries in the
-    // module table carry an error in place of their modules.
-    let table_path = parley::lean::modules::TABLE;
-    let table = clean.read_text(table_path).unwrap();
-    let mut rejected = Vec::new();
-    let lines: Vec<String> = table
-        .lines()
-        .map(|line| {
-            let mut entry: serde_json::Value = serde_json::from_str(line).unwrap();
-            let key = entry["key"].as_str().unwrap_or_default().to_string();
-            let module = key
-                .strip_prefix("namespace ")
-                .and_then(|rest| rest.lines().next())
-                .filter(|m| m.starts_with("Parley.Items.Stdlib."));
-            match module {
-                Some(module) if rejected.len() < 2 => {
-                    rejected.push(module.to_string());
-                    let map = entry.as_object_mut().unwrap();
-                    map.remove("modules");
-                    map.insert("error".into(), "planted".into());
-                    entry.to_string()
-                }
-                _ => line.to_string(),
-            }
-        })
-        .collect();
-    assert_eq!(rejected.len(), 2, "the table has two library modules");
-    tree.write(table_path, (lines.join("\n") + "\n").into_bytes());
-
     let checked = parley::checker::checked(&tree)
         .unwrap_or_else(|out| panic!("{}{}", out.printed, out.complained));
-    let table = parley::lean::modules::ModuleTable::read(&tree).unwrap();
+    // Two library modules Lean is said not to read: the table, as the build
+    // has it once Lean has answered, holds an error for each in place of
+    // its modules. The file keeps no such answer (`ModuleTable::text`).
+    use parley::lean::doc::file::Lookup;
+    use parley::lean::modules::Answer;
+    let mut table = parley::lean::modules::ModuleTable::read(&tree).unwrap();
+    let mut rejected = Vec::new();
+    for (lookup, answer) in table.answers.iter_mut() {
+        let Lookup::Command(key) = lookup else {
+            continue;
+        };
+        let module = key
+            .strip_prefix("namespace ")
+            .and_then(|rest| rest.lines().next())
+            .filter(|m| m.starts_with("Parley.Items.Stdlib."));
+        if let Some(module) = module {
+            if rejected.len() < 2 {
+                rejected.push(module.to_string());
+                *answer = Answer::Unread("planted".to_string());
+            }
+        }
+    }
+    assert_eq!(rejected.len(), 2, "the table has two library modules");
     let made = parley::tools::build::lean::make(&checked, &table).unwrap();
 
     assert_eq!(
