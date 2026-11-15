@@ -180,4 +180,21 @@ theorem prime_nat (p : ℤ) (h2 : Nat.Prime p.toNat) :
     0 < p :=
   by have := h2.pos; omega
 
+/-- `mun:stdlib/divisibility/gcd-quotients-coprime`: a and b divided by
+their gcd are whole numbers, `a / gcd a b` of Lean's integers, whose gcd is
+1 (`Int.gcd_div_gcd_div_gcd`). -/
+theorem gcd_quotients_coprime (a : ℤ) (b : ℤ) (h3 : b ≠ 0) :
+    ∃ m : ℤ, (m : ℚ) = (a : ℚ) / (Int.gcd a b : ℚ) ∧
+      (∃ m₀ : ℤ, (m₀ : ℚ) = (b : ℚ) / (Int.gcd a b : ℚ) ∧ (Int.gcd m m₀ : ℤ) = 1) := by
+  have hpos : 0 < Int.gcd a b := Int.gcd_pos_of_ne_zero_right a h3
+  have hq : ((Int.gcd a b : ℤ) : ℚ) ≠ 0 := by exact_mod_cast hpos.ne'
+  refine ⟨a / (Int.gcd a b : ℤ), ?_, b / (Int.gcd a b : ℤ), ?_, ?_⟩
+  · rw [Int.cast_div (Int.gcd_dvd_left a b) hq]
+    push_cast
+    rfl
+  · rw [Int.cast_div (Int.gcd_dvd_right a b) hq]
+    push_cast
+    rfl
+  · exact_mod_cast Int.gcd_div_gcd_div_gcd hpos
+
 end LeanBridges.Divisibility

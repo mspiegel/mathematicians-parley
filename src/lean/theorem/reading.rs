@@ -701,7 +701,20 @@ impl<'a> Proof<'a> {
             haves.push(tactic_of(&proof));
             return Route::Built(Proof::Block(haves));
         }
-        let claimed = self.writer.wide_in_slot(node);
+        let claimed = self.leaf_wides(node);
+        // A term the cited item itself puts in a whole-number slot,
+        // gcd(a/k, b/k) of gcd(a/gcd(a, b), b/gcd(a, b)) = 1, is one its
+        // statement names as a whole number: the item's witness is the
+        // claim's, and no line need name it.
+        if !claimed.is_empty() && self.item_states_whole(reason, k) {
+            return self.proof_of(reason, k, node);
+        }
+        // A claim joined by "or" or "and" names each part's such terms as a
+        // claim of that part alone would.
+        let parted = match claimed.is_empty() {
+            false => Vec::new(),
+            true => self.wide_in_parts(node),
+        };
         // The lines the step cites that say something of a whole number a
         // term is, `∃ m : ℤ, (m : ℚ) = 2 ^ (p − 1) ∧ …`, or that none is,
         // `¬ ∃ m : ℤ, …`, by the name they stand under, which a
@@ -716,36 +729,36 @@ impl<'a> Proof<'a> {
                         (crate::notations::LOGICAL_NOT, [inner]) => (inner, true),
                         _ => (&c.node, false),
                     };
-                let (term, whole) = self.writer.wide_in_slot(said)?;
-                Some(CitedWitness {
+                let terms = self.leaf_wides(said);
+                (!terms.is_empty()).then(|| CitedWitness {
                     name: c.proof.text(),
-                    term,
-                    whole,
+                    terms,
                     negated,
                 })
             })
             .collect();
-        if claimed.is_none() && cited.is_empty() {
+        if claimed.is_empty() && cited.is_empty() && parted.is_empty() {
             return self.proof_of(reason, k, node);
         }
         let mut atoms = Vec::new();
-        if let Some((term, whole)) = &claimed {
+        for w in claimed.iter().chain(&parted) {
             if let Route::Declined(d) =
-                self.name_wholes(term, &letters, *whole, facts, &mut atoms)
+                self.name_wholes(&w.term, &letters, w.whole, facts, &mut atoms)
             {
                 return Route::Declined(d);
             }
         }
-        // A cited line whose term no line the step names makes whole is left
-        // as it is: the step may not need it so.
+        // A cited line with a term no line the step names makes whole is
+        // left as it is: the step may not need it so.
         let cited: Vec<_> = cited
             .into_iter()
             .filter(|c| {
                 let before = atoms.len();
-                let named = self
-                    .name_wholes(&c.term, &letters, c.whole, facts, &mut atoms)
-                    .built()
-                    .is_some();
+                let named = c.terms.iter().all(|w| {
+                    self.name_wholes(&w.term, &letters, w.whole, facts, &mut atoms)
+                        .built()
+                        .is_some()
+                });
                 if !named {
                     atoms.truncate(before);
                 }
@@ -754,53 +767,77 @@ impl<'a> Proof<'a> {
             .collect();
         let mut inner = self.writer.with_letters(self.writer.letters.clone());
         inner.integers.extend(atoms.iter().map(|a| a.said.clone()));
+        // The step proves its claim of the numbers it names only where the
+        // claim as stated is reached from that: a term the claim gives a
+        // witness, each part's of an "or" or an "and". A claim that holds
+        // such a term inside a "there is" or another connective of its own,
+        // "there is k ∈ ℕ with gcd(a/k, b/k) = 1", states it otherwise than
+        // the numbers would write it, and is proved as stated, of its lines
+        // as they are.
+        if claimed.is_empty() && parted.is_empty() {
+            let stated = self.writer.formula(node).built().map(|p| p.untyped());
+            let named = inner.formula(node).built().map(|p| p.untyped());
+            if stated != named {
+                return self.proof_of(reason, k, node);
+            }
+        }
         // Each named number's equation with its term: the one a step proves
         // of a power written out, the line's witness's for one it gives.
         let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
         let equal = specs_equal(&specs);
         let mut haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
-        // Each such cited line, said of the number the step names.
+        // Each such cited line, said of the number the step names, so within
+        // the step's proof alone: its restatement is a `have` there.
+        let mut restated: Vec<RestatedInStep> = Vec::new();
         for c in &cited {
-            let int = match inner.number_fixed(&c.term, c.whole) {
-                Route::Built(p) => p,
-                Route::Declined(d) => return Route::Declined(d),
-            };
-            let lemma = match (c.whole, c.negated) {
-                (super::super::templates::Num::Nat, false) => "parley_witness_at_nat",
-                (super::super::templates::Num::Nat, true) => {
-                    "parley_witness_not_at_nat"
-                }
-                (_, false) => "parley_witness_at",
-                (_, true) => "parley_witness_not_at",
-            };
-            let at = Printed {
-                kind: super::super::doc::TermKind::App {
-                    head: Box::new(super::super::tactics::bridge_lemma(
-                        lemma,
-                        BridgeModule::PowerTactics,
-                    )),
-                    args: [super::super::tactics::hyp(&c.name), int, equal.clone()]
-                        .into_iter()
-                        .map(super::super::doc::Arg::Explicit)
-                        .collect(),
-                    explicit: false,
-                },
-                ty: Some(super::super::doc::LeanType::Prop),
-            };
+            // The line at each term's number in turn, the outermost first:
+            // what is left of the line at one is the witness form of the
+            // next.
+            let mut at = super::super::tactics::hyp(&c.name);
+            for w in &c.terms {
+                let int = match inner.number_fixed(&w.term, w.whole) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let lemma = match (w.whole, c.negated) {
+                    (super::super::templates::Num::Nat, false) => {
+                        "parley_witness_at_nat"
+                    }
+                    (super::super::templates::Num::Nat, true) => {
+                        "parley_witness_not_at_nat"
+                    }
+                    (_, false) => "parley_witness_at",
+                    (_, true) => "parley_witness_not_at",
+                };
+                at = Printed {
+                    kind: super::super::doc::TermKind::App {
+                        head: Box::new(super::super::tactics::bridge_lemma(
+                            lemma,
+                            BridgeModule::PowerTactics,
+                        )),
+                        args: [whole_term(at), int, equal.clone()]
+                            .into_iter()
+                            .map(super::super::doc::Arg::Explicit)
+                            .collect(),
+                        explicit: false,
+                    },
+                    ty: Some(super::super::doc::LeanType::Prop),
+                };
+            }
             haves.push(Tactic::Name {
                 name: c.name.clone(),
                 term: at,
             });
             // The line, restated under its own name, says from here on what
-            // it says of the number it was restated through, written of the
-            // numbers the step names in that term, 2^(p − 1) and 2^p − 1 of
+            // it says of the numbers it was restated through, written of the
+            // numbers the step names in those terms, 2^(p − 1) and 2^p − 1 of
             // their product, and of no other the step names:
-            // `parley_witness_at` puts that one alone (`store`).
+            // `parley_witness_at` puts those alone (`store`).
             let parts: Vec<String> = c
-                .term
-                .walk()
+                .terms
                 .iter()
-                .map(|n| self.writer.grammar.print(n))
+                .flat_map(|w| w.term.walk())
+                .map(|n| self.writer.grammar.print(&n))
                 .collect();
             let mut through = self.writer.with_letters(self.writer.letters.clone());
             through.integers.extend(
@@ -809,9 +846,16 @@ impl<'a> Proof<'a> {
                     .filter(|a| parts.contains(&a.said.term))
                     .map(|a| a.said.clone()),
             );
-            for s in self.trees.values_mut().flatten() {
-                if s.name.as_deref() == Some(c.name.as_str()) {
-                    s.says = through.formula(&s.node).built();
+            for (line, sentences) in self.trees.iter_mut() {
+                for (place, s) in sentences.iter_mut().enumerate() {
+                    if s.name.as_deref() == Some(c.name.as_str()) {
+                        let says = through.formula(&s.node).built();
+                        restated.push(RestatedInStep {
+                            line: line.clone(),
+                            place,
+                            before: std::mem::replace(&mut s.says, says),
+                        });
+                    }
                 }
             }
         }
@@ -820,12 +864,12 @@ impl<'a> Proof<'a> {
         // (a^(p − 2)) mod p, of reals, as f a = c % p of integers, which a
         // substitution then puts into the restated 5.7.6.
         let mut terms: Vec<Node> = Vec::new();
-        for t in claimed
+        for w in claimed
             .iter()
-            .map(|(t, _)| t)
-            .chain(cited.iter().map(|c| &c.term))
+            .chain(&parted)
+            .chain(cited.iter().flat_map(|c| &c.terms))
         {
-            terms.extend(t.walk());
+            terms.extend(w.term.walk());
         }
         let mut rules = Vec::new();
         for a in atoms.iter().filter(|a| a.said.value.is_none()) {
@@ -853,36 +897,79 @@ impl<'a> Proof<'a> {
         let witnesses: Vec<String> = cited.iter().map(|c| c.name.clone()).collect();
         let refs: Vec<&String> = self.thm.steps[i].just.refs.iter().collect();
         haves.extend(self.put_numbers_in_lines(&refs, &witnesses, &rules));
-        let int = match &claimed {
-            Some((term, whole)) => match inner.number_fixed(term, *whole) {
-                Route::Built(p) => Some(whole_term(p)),
+        // Each term's named number, the witness the claim gives it.
+        let mut ints = Vec::new();
+        for w in &claimed {
+            match inner.number_fixed(&w.term, w.whole) {
+                Route::Built(p) => ints.push(whole_term(p)),
                 Route::Declined(d) => return Route::Declined(d),
-            },
-            None => None,
+            }
+        }
+        // Of a claim joined by "or" or "and": the claim of the named numbers,
+        // and the claim as stated given from it.
+        let given = match parted.is_empty() {
+            true => None,
+            false => {
+                let says = match inner.formula(node) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let name = "named_claim";
+                let stated = match self.witnessed_parts(
+                    &inner,
+                    node,
+                    super::super::tactics::hyp(name),
+                    &specs,
+                ) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                Some((name, says, stated))
+            }
         };
         let outer = std::mem::replace(&mut self.writer, inner);
         self.named_specs = specs.clone();
-        self.in_witness.set(int.is_some());
+        self.in_witness.set(!ints.is_empty());
         let proof = self.proof_of(reason, k, node);
         self.in_witness.set(false);
         self.named_specs.clear();
         self.writer = outer;
+        for r in restated {
+            if let Some(s) =
+                self.trees.get_mut(&r.line).and_then(|l| l.get_mut(r.place))
+            {
+                s.says = r.before;
+            }
+        }
         let proof = match proof {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        match int {
-            Some(int) => {
-                let open = Printed::of(
-                    super::super::doc::TermKind::Open,
-                    super::super::doc::LeanType::Prop,
-                );
-                haves.push(refine(vec![int, equal, open]));
-                haves.push(tactic_of(&proof));
-                Route::Built(Proof::Block(haves))
-            }
-            None => Route::Built(haves_then(haves, proof)),
+        if let Some((name, says, stated)) = given {
+            haves.push(Tactic::Have {
+                name: name.to_string(),
+                says,
+                proof: Box::new(proof),
+            });
+            haves.push(Tactic::Exact(stated));
+            return Route::Built(Proof::Block(haves));
         }
+        if ints.is_empty() {
+            return Route::Built(haves_then(haves, proof));
+        }
+        // `⟨m, equation, m₀, equation, ?_⟩`, each witness as the claim nests
+        // them.
+        let mut parts: Vec<Printed> = Vec::new();
+        for int in ints {
+            parts.extend([int, equal.clone()]);
+        }
+        parts.push(Printed::of(
+            super::super::doc::TermKind::Open,
+            super::super::doc::LeanType::Prop,
+        ));
+        haves.push(refine(parts));
+        haves.push(tactic_of(&proof));
+        Route::Built(Proof::Block(haves))
     }
 
     /// Of a claim that a term Lean computes in ℚ or wider is a whole number,
@@ -1058,6 +1145,169 @@ impl<'a> Proof<'a> {
             });
         }
         out
+    }
+
+    /// Whether the item `reason` cites for the claim's sentence `k` is
+    /// stated in Lean of the whole number it puts in a slot, as
+    /// `Writer::slot_witness` writes it: gcd(a/gcd(a, b), …) = 1 as
+    /// `∃ m : ℤ, (m : ℚ) = a / gcd(a, b) ∧ …`. A citation of it then gives
+    /// the claim's witness. An item whose own lines make the term whole,
+    /// `Even (2 ^ n.toNat)`, is stated of the term, and its citing step
+    /// names the whole number as any does.
+    fn item_states_whole(&self, reason: Reason, k: usize) -> bool {
+        use super::super::doc::{LeanType, Op, Quant, TermKind};
+        let Route::Built((item, cited)) = self.cited_item(reason) else {
+            return false;
+        };
+        let Some(sentence) = cited
+            .concluded
+            .get(k)
+            .and_then(|c| item.sentences.get(c.sentence))
+        else {
+            return false;
+        };
+        let TermKind::Quantified {
+            quant: Quant::Exists,
+            letter_ty: LeanType::Num(_),
+            guard: Some(guard),
+            ..
+        } = &sentence.prop.kind
+        else {
+            return false;
+        };
+        matches!(&guard.kind, TermKind::Infix { op, .. } if *op == Op::EQUALS)
+    }
+
+    /// Of a claim joined by "or" or "and", the term each part puts in a
+    /// whole-number slot that Lean does not compute as one, as a claim of
+    /// one part alone takes it (`Writer::wide_in_slot`): "a/k is even or
+    /// b/k is even" gives a/k and b/k. Empty of any other claim.
+    fn wide_in_parts(&self, node: &Node) -> Vec<WideTerm> {
+        let w = &self.writer;
+        if let Some((l, r)) = w.and_sides(node) {
+            return [l, r].iter().flat_map(|p| self.part_wides(p)).collect();
+        }
+        match (node.notation(), node.children.as_slice()) {
+            (crate::notations::DISJUNCTION, [l, r]) => {
+                [l, r].iter().flat_map(|p| self.part_wides(p)).collect()
+            }
+            _ => Vec::new(),
+        }
+    }
+
+    /// `wide_in_parts` of one part: its parts where it is itself joined,
+    /// else its own terms.
+    fn part_wides(&self, part: &Node) -> Vec<WideTerm> {
+        let joined = self.writer.is_and(part)
+            || part.notation() == crate::notations::DISJUNCTION;
+        match joined {
+            true => self.wide_in_parts(part),
+            false => self.leaf_wides(part),
+        }
+    }
+
+    /// Each term a claim joined by no connective puts in a whole-number
+    /// slot that Lean does not compute as one, in the order
+    /// `Writer::slot_witness` gives them their witnesses, the first
+    /// outermost: gcd(b/k, a/k) = gcd(a/k, b/k) gives b/k, then a/k.
+    fn leaf_wides(&self, node: &Node) -> Vec<WideTerm> {
+        let mut out = Vec::new();
+        let mut w = self.writer.with_letters(self.writer.letters.clone());
+        let mut at = node.clone();
+        while let Some((term, whole)) = w.wide_in_slot(&at) {
+            let m = super::super::expr::witness_letter(&at);
+            w.letters.insert(m.clone(), LetterType::Number(whole));
+            let named = Node::name(crate::formula::Sort::of("number"), &m);
+            at = super::super::expr::put_for(&at, &term, &named);
+            out.push(WideTerm { term, whole });
+        }
+        out
+    }
+
+    /// The claim as the step states it, each part's term given as some
+    /// whole number (`Writer::slot_witness`), from `h`, a proof of the claim
+    /// as `inner` writes it of the numbers the step names: each part with
+    /// such a term is `⟨m, equation, h⟩` of the number m named for it, an
+    /// "or" each side so by `Or.imp`, an "and" each from its projection.
+    /// Declined of a part that holds such a term inside a connective of its
+    /// own, a "not" or a quantifier, which the two write apart.
+    fn witnessed_parts(
+        &self,
+        inner: &super::super::expr::Writer,
+        node: &Node,
+        h: Printed,
+        specs: &[Printed],
+    ) -> Route<Printed> {
+        let w = &self.writer;
+        if let Some((l, r)) = w.and_sides(node) {
+            let left = match self.witnessed_parts(
+                inner,
+                l,
+                projected(h.clone(), &["1"]),
+                specs,
+            ) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let right =
+                match self.witnessed_parts(inner, r, projected(h, &["2"]), specs) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+            return Route::Built(super::super::expr::anonymous(vec![left, right]));
+        }
+        if let (crate::notations::DISJUNCTION, [l, r]) =
+            (node.notation(), node.children.as_slice())
+        {
+            let mut sides = Vec::new();
+            for side in [l, r] {
+                let body = match self.witnessed_parts(
+                    inner,
+                    side,
+                    super::super::tactics::hyp("h"),
+                    specs,
+                ) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                sides.push(Printed {
+                    kind: super::super::doc::TermKind::Lambda {
+                        letters: vec!["h".to_string()],
+                        body: Box::new(body),
+                    },
+                    ty: None,
+                });
+            }
+            sides.push(h);
+            return Route::Built(Printed::applied(
+                "Or.imp",
+                super::super::doc::Source::Core,
+                sides,
+                super::super::doc::LeanType::Prop,
+            ));
+        }
+        let wides = self.leaf_wides(node);
+        if wides.is_empty() {
+            return match node.walk().iter().any(|n| w.wide_arg(n).is_some()) {
+                true => Route::no(
+                    "a part of a claim holding a term in a whole-number slot inside a \
+                     connective of its own",
+                ),
+                false => Route::Built(h),
+            };
+        }
+        // `⟨m, equation, m₀, equation, h⟩`, each witness as the part nests
+        // them.
+        let mut parts = Vec::new();
+        for w in &wides {
+            match inner.number_fixed(&w.term, w.whole) {
+                Route::Built(p) => parts.push(whole_term(p)),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+            parts.push(specs_equal_of(&w.term, specs));
+        }
+        parts.push(h);
+        Route::Built(super::super::expr::anonymous(parts))
     }
 
     /// The whole numbers a term is made of that Lean does not compute as

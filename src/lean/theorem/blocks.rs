@@ -295,7 +295,9 @@ impl<'a> Proof<'a> {
         // An item given a line's number, x := the rational of `√2 ∈ ℚ`,
         // gives its facts of that number; a sentence the page says of the
         // line's term, √2 = p/q, is that fact with the goal put in terms of
-        // the number.
+        // the number. It replaces the fact of the number, which a tactic
+        // over every hypothesis, `qify at *`, would otherwise rewrite and so
+        // bring back over it under the same name.
         for ((node, prop), name) in claim.iter().zip(&names) {
             let specs = self.specs_in(node, &used);
             if specs.is_empty() {
@@ -304,7 +306,7 @@ impl<'a> Proof<'a> {
             as_stated.retain(|(n, _)| n != name);
             self.push_at(
                 depth,
-                Tactic::Have {
+                Tactic::Replace {
                     name: name.clone(),
                     says: prop.clone(),
                     proof: Box::new(super::super::doc::Proof::By(Tactic::Seq(vec![

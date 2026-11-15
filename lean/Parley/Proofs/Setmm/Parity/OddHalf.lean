@@ -17,7 +17,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Ring.Basic
@@ -48,6 +47,6 @@ theorem odd_half (N : ℤ) :
     -- 4. algebra
     have s4 : (N : ℚ) = 2 * (((N : ℚ) - 1) / 2) + 1 := by ring1
     -- 5. def:odd n := N, from D2, 4
-    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; qify; rw [this]; linarith only [s4]⟩
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; exact by (have h := s4; rw [← Classical.choose_spec hD2] at h; exact_mod_cast h)⟩
 
 end Parley.Proofs.Setmm.Parity.OddHalf

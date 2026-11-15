@@ -1024,6 +1024,9 @@ pub(super) fn said_once_at(
             .filter_map(|o| o.number.number().map(|n| n.to_string()))
             .filter(|n| scope.contains_key(n)),
     );
+    // A line in another case of the same "cases" is in no reach of the
+    // step, 3.1's m ∈ ℕ of the first case for a step of the second.
+    lines.retain(|n| known.in_reach(n, step));
     fact_at(step, &lines, item, fact, known, library)
 }
 

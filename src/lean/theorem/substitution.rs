@@ -910,10 +910,16 @@ impl<'a> Proof<'a> {
         // one side and not the other. At a place written in its own
         // type, an index or an exponent, the letter keeps the
         // equation's, and an equation of rationals is not put into a
-        // wider field so.
-        let at = match self.writer.carrier(&rec.start) {
-            Route::Built(n) => n.max(ty),
-            Route::Declined(d) => return Route::Declined(d),
+        // wider field so. A side that is a set, {a, b} of "{a, b} =
+        // {2kmn, b}", holds its members in their own type, the
+        // equation's, and the motive is the set.
+        let set_side = !self.writer.is_number(&rec.start);
+        let at = match set_side {
+            true => ty,
+            false => match self.writer.carrier(&rec.start) {
+                Route::Built(n) => n.max(ty),
+                Route::Declined(d) => return Route::Declined(d),
+            },
         };
         let arithmetic = rec.put.places.iter().all(in_arithmetic);
         if !arithmetic && ty == super::super::templates::Num::Rat && at > ty {
@@ -938,7 +944,11 @@ impl<'a> Proof<'a> {
         let mut wide = self.writer.with_letters(letters);
         whole_letter(&mut wide, letter);
         self.motive_knows(&mut wide, letter, was, now);
-        let body = match wide.number(&marked, at) {
+        let body = match set_side {
+            true => wide.set_term(&marked),
+            false => wide.number(&marked, at),
+        };
+        let body = match body {
             Route::Built(b) => b,
             Route::Declined(d) => return Route::Declined(d),
         };

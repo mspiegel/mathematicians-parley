@@ -53,7 +53,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     intro hS
     -- 1.1. obtain p, q: thm:lowest-terms, from S
     obtain ⟨p, q, ⟨⟨s1_1a, s1_1b⟩, s1_1c⟩⟩ := (Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms.lowest_terms (x := (Classical.choose hS)))
-    have s1_1b : x = (p : ℝ) / (q : ℝ) := by rw [← Classical.choose_spec hS]; exact_mod_cast s1_1b
+    replace s1_1b : x = (p : ℝ) / (q : ℝ) := by rw [← Classical.choose_spec hS]; exact_mod_cast s1_1b
     -- 1.2. substitute x = p/q (line 1.1) into H2
     have s1_2 : ((p : ℚ) / (q : ℚ)) ^ 3 + (p : ℚ) / (q : ℚ) + 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 3 + t + 3 = 0)) s1_1b hH2; push_cast at h ⊢; exact_mod_cast h)
     -- 1.3. algebra, from 1.2

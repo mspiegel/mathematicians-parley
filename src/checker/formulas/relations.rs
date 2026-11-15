@@ -1487,6 +1487,26 @@ pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Know
     }
 }
 
+/// How each calculation's ends meet the step's claim, by the line of its
+/// justification: `{a, b} = {k(m² − n²), 2kmn}` of a chain from {a, b} to
+/// {2kmn, k(m² − n²)} is met with its listed members permuted.
+pub fn calculation_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Meeting> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let links = chain_links(&step.just, &thm.path);
+        let Some(ChainClaim::Ends(chained)) = chain_claim(&links, known) else {
+            continue;
+        };
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        if let Some(met) = known.alike_how(&claim, &chained) {
+            out.insert(step.just.line, met);
+        }
+    }
+    out
+}
+
 /// A `substitute` step's rows start from what the line the first row cites
 /// says, written out, and end on the claim (`GRAMMAR.md`, substitute rows),
 /// or on the claim in its other form (`rules::OTHER_FORMS`);

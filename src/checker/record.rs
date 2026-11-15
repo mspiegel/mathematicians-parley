@@ -406,6 +406,10 @@ pub struct CheckedTheorem {
     /// what it owes, by the line of its justification: one meeting for each
     /// part of its "and" in order (`formulas::ended_meetings`).
     pub ends_met: IndexMap<usize, Vec<crate::matching::Meeting>>,
+    /// How each calculation's first and last terms meet the step's claim,
+    /// by the line of its justification: permuted where a listed set's
+    /// members stand in another order (`formulas::calculation_meetings`).
+    pub calculation_ends: IndexMap<usize, crate::matching::Meeting>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
     /// (`formulas::check_place_systems`), by the step's index: so that a

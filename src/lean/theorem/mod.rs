@@ -346,6 +346,10 @@ struct Proof<'a> {
     /// by which the step's proof puts its cited lines in terms of the
     /// numbers lines name (`specs_in`).
     claim_now: std::cell::RefCell<Option<Node>>,
+    /// While a citation's closing is written, the equations of the defines
+    /// the citation has already put into the goal (`written_out`), `hD1`:
+    /// the closing does not put them in again.
+    defines_in_goal: std::cell::RefCell<Vec<String>>,
     /// While a block's part is opened, the goal it opens, as Lean states it
     /// (`OpeningGoal`): an `assume` takes its statement from it, as `intro`
     /// does, `V.encard = 2` of a direction of `V.encard = 2 ↔ …`.
@@ -378,6 +382,51 @@ struct KindShown {
 struct NamedAtom {
     have: Tactic,
     said: super::expr::SaidInteger,
+}
+
+/// A whole number a line or the step names for a term (`number_named`).
+struct NumberNamed {
+    /// The term, as a line writes it.
+    term: Printed,
+    /// The number's equation with it, `↑(Classical.choose h) = t`.
+    equation: Printed,
+}
+
+/// A line taken to the numbers lines name for the terms it gives as whole
+/// numbers (`at_named_numbers`).
+struct LineAtNumbers {
+    /// Its proof at those numbers.
+    proof: Printed,
+    /// What it then says.
+    says: Printed,
+}
+
+/// The `t` of `↑m = t`, the equation a "there is" of the letter `m` gives
+/// its number; None of any other formula.
+fn witness_equation(p: &Printed, letter: &str) -> Option<Printed> {
+    use super::doc::{Op, TermKind};
+    fn bare_letter(p: &Printed) -> Option<&str> {
+        match &p.kind {
+            TermKind::Letter(l) => Some(l),
+            TermKind::Paren(inner) | TermKind::Cast { inner, .. } => bare_letter(inner),
+            _ => None,
+        }
+    }
+    let TermKind::Infix { op, lhs, rhs } = &p.kind else {
+        return None;
+    };
+    (*op == Op::EQUALS && bare_letter(lhs) == Some(letter)).then(|| (**rhs).clone())
+}
+
+/// A cited line's sentence a step restates of the numbers it names, within
+/// that step's proof: where it is kept, and what it said before.
+struct RestatedInStep {
+    /// The label the line is kept under.
+    line: String,
+    /// The sentence's place among the line's.
+    place: usize,
+    /// What the sentence said before the step restated it.
+    before: Option<Printed>,
 }
 
 /// A line a step names that puts a term in a number system, `p − 1 ∈ ℕ₀`:
@@ -415,15 +464,23 @@ fn named_line(
     })
 }
 
+/// A term a formula puts in a whole-number slot that Lean does not compute
+/// as one, which Lean states of the whole number it is
+/// (`Writer::slot_witness`).
+struct WideTerm {
+    /// The term, a/k of gcd(a/k, b/k) = 1.
+    term: Node,
+    /// The type of its witness, ℤ or ℕ.
+    whole: super::templates::Num,
+}
+
 /// A line a step cites in the witness form, `∃ m : ℤ, ↑m = t ∧ P m`, or its
-/// negation, which the step restates of the number it names for t.
+/// negation, which the step restates of the numbers it names for its terms.
 struct CitedWitness {
     /// The line's Lean name.
     name: String,
-    /// The term t the witness stands for.
-    term: Node,
-    /// The type the witness is in, ℤ or ℕ.
-    whole: super::templates::Num,
+    /// The terms the witnesses stand for, the outermost first.
+    terms: Vec<WideTerm>,
     /// Whether the line says no whole number is t with P.
     negated: bool,
 }
@@ -574,6 +631,7 @@ pub fn theorem(
         step_now: std::cell::Cell::new(None),
         intros_now: std::cell::RefCell::new(Vec::new()),
         claim_now: std::cell::RefCell::new(None),
+        defines_in_goal: std::cell::RefCell::new(Vec::new()),
         opening_goal: None,
     };
     proof.writer.reals = held_real(rec, &proof.writer);

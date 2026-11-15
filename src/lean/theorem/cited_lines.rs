@@ -458,13 +458,27 @@ impl<'a> Proof<'a> {
                     ],
                 ))))
             }
-            Meets::Casts { .. } => {
-                match forms::casts_differ(says, wanted, &self.set_values()) {
-                    Some(apart) => cast_proved(apart, proof, says, wanted)?,
-                    None => Proved::Term(proof),
-                }
-            }
+            Meets::Casts { .. } => match self.casts_apart(says, wanted) {
+                Some(apart) => cast_proved(apart, proof, says, wanted)?,
+                None => Proved::Term(proof),
+            },
         })
+    }
+
+    /// How `says` and `wanted` are apart in casts (`forms::casts_differ`),
+    /// each side's `set` letters to be rewritten by their equations, but
+    /// for those a citation has already put into the goal
+    /// (`defines_in_goal`).
+    pub(super) fn casts_apart(
+        &self,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<super::super::doc::forms::CastsApart> {
+        let mut apart =
+            super::super::doc::forms::casts_differ(says, wanted, &self.set_values())?;
+        let in_goal = self.defines_in_goal.borrow();
+        apart.at_line.retain(|e| !in_goal.contains(e));
+        Some(apart)
     }
 
     /// The proof that closes the claim `node`, which Lean writes as `claim`,
@@ -1052,6 +1066,176 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// The term the number a line in scope names is, the `t` of its
+    /// `∃ m, 0 < m ∧ ↑m = t` whose proof is `h`; None where no line in scope
+    /// has that proof or it says no such equation.
+    fn term_named_by(&self, h: &Printed) -> Option<Printed> {
+        use super::super::doc::{Quant, TermKind};
+        let says = self
+            .trees
+            .values()
+            .flatten()
+            .find(|s| s.proof.untyped() == h.untyped())?
+            .says
+            .clone()?;
+        let TermKind::Quantified {
+            quant: Quant::Exists,
+            letter,
+            guard,
+            body,
+            ..
+        } = &bare_term(&says).kind
+        else {
+            return None;
+        };
+        let mut parts: Vec<Printed> = guard.iter().map(|g| (**g).clone()).collect();
+        match and_sides(body) {
+            Some((first, second)) => parts.extend([first, second]),
+            None => parts.push((**body).clone()),
+        }
+        parts.iter().find_map(|p| witness_equation(p, letter))
+    }
+
+    /// The term the number `h` names stands for, as the line `line` writes
+    /// it, and the number's equation with it: of a line naming it, `a/k ∈
+    /// ℕ`, what that line says (`term_named_by`, `SaidLine::equation`); of a
+    /// number the step names (`name_wholes`), `Classical.choose_spec h`, and
+    /// its term found in `line`'s tree and written as the writer writes it
+    /// with no number named. None where `h` is neither, or the line writes
+    /// no such term.
+    fn number_named(&self, h: &Printed, line: &Printed) -> Option<NumberNamed> {
+        if let (Some(said), Some(term)) = (self.said_line_of(h), self.term_named_by(h))
+        {
+            return Some(NumberNamed {
+                term,
+                equation: said.equation(),
+            });
+        }
+        let named = self
+            .writer
+            .integers
+            .iter()
+            .find(|i| i.value.is_none() && i.proof.untyped() == h.untyped())?;
+        let node = self
+            .trees
+            .values()
+            .flatten()
+            .find(|s| s.proof.untyped() == line.untyped())?
+            .node
+            .walk()
+            .into_iter()
+            .find(|n| self.writer.grammar.print(n) == named.term)?;
+        let mut plain = self.writer.with_letters(self.writer.letters.clone());
+        plain.integers.retain(|i| i.proof.untyped() != h.untyped());
+        let at = plain.carrier(&node).built()?;
+        Some(NumberNamed {
+            term: plain.number(&node, at).built()?,
+            equation: spec_of(named),
+        })
+    }
+
+    /// `wanted`, said of numbers lines name for terms, `Classical.choose
+    /// s1b ^ 2 + … = Classical.choose s1d ^ 2`, from a line `says` of those
+    /// terms, `(a/k)² + (b/k)² = (c/k)²`: the line with each number put for
+    /// its term by the equation of the line naming it, then cast down,
+    /// `rw [← (Classical.choose_spec s1b).2, …] at h; exact_mod_cast h`.
+    /// None where `wanted` names no such number, the line is one that names
+    /// one, or a number's term is not in the line as Lean writes it.
+    fn line_at_named(
+        &self,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<Printed> {
+        use super::super::tactics as t;
+        let chosen = chosen_witnesses(wanted);
+        if chosen.is_empty() || chosen.iter().any(|h| h.untyped() == proof.untyped()) {
+            return None;
+        }
+        let parts: Vec<Printed> = says.walk().iter().map(|n| n.untyped()).collect();
+        let mut rules = Vec::new();
+        for h in &chosen {
+            let named = self.number_named(h, proof)?;
+            if !parts.contains(&named.term.untyped()) {
+                return None;
+            }
+            rules.push(t::backwards(named.equation));
+        }
+        let at = TacticArg::At(vec![super::super::doc::Location::Hypothesis(
+            "h".to_string(),
+        )]);
+        Some(t::by_term(super::super::doc::Proof::By(t::on_h(
+            proof,
+            vec![
+                t::call("rw", vec![TacticArg::Rules(rules), at]),
+                t::exact_mod_cast(t::hyp("h")),
+            ],
+        ))))
+    }
+
+    /// A line Lean states of the whole number a term is
+    /// (`Writer::slot_witness`), `∃ m : ℤ, (m : ℚ) = a/k ∧ …`, where what is
+    /// asked of it is said of a number a line names for that term,
+    /// `Classical.choose s1b` of `a/k ∈ ℕ`: the line at that number
+    /// (`parley_witness_at`), once for each such term it opens with, and what
+    /// it then says. None where it opens with no such term, or with one no
+    /// number `wanted` holds is named for.
+    fn at_named_numbers(
+        &self,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<LineAtNumbers> {
+        use super::super::doc::{LeanType, Quant, TermKind};
+        use super::super::templates::Num;
+        let chosen = chosen_witnesses(wanted);
+        let mut proof = proof.clone();
+        let mut says = bare_term(says).clone();
+        let mut opened = false;
+        while let TermKind::Quantified {
+            quant: Quant::Exists,
+            letter,
+            letter_ty: LeanType::Num(ty @ (Num::Int | Num::Nat)),
+            guard: Some(guard),
+            body,
+            ..
+        } = &says.kind
+        {
+            let Some(term) = witness_equation(guard, letter) else {
+                break;
+            };
+            let h = chosen.iter().find(|h| {
+                self.term_named_by(h)
+                    .is_some_and(|t| t.untyped() == term.untyped())
+            })?;
+            let line = self.said_line_of(h)?;
+            let lemma = match ty {
+                Num::Nat => "parley_witness_at_nat",
+                _ => "parley_witness_at",
+            };
+            let number = line.chosen(*ty);
+            proof = Printed {
+                kind: TermKind::App {
+                    head: Box::new(super::super::tactics::bridge_lemma(
+                        lemma,
+                        BridgeModule::PowerTactics,
+                    )),
+                    args: [proof, number.clone(), line.equation()]
+                        .into_iter()
+                        .map(super::super::doc::Arg::Explicit)
+                        .collect(),
+                    explicit: false,
+                },
+                ty: Some(LeanType::Prop),
+            };
+            let values = std::collections::BTreeMap::from([(letter.clone(), number)]);
+            let next = super::super::doc::forms::substituted_all(body, &values);
+            says = bare_term(&next).clone();
+            opened = true;
+        }
+        opened.then_some(LineAtNumbers { proof, says })
+    }
+
     /// The proof of the line `by` names and what it says in Lean: a line or
     /// sentence the step names, a `let` line that says it once, or the
     /// step's requires line as written. Declined for anything else.
@@ -1389,6 +1573,22 @@ impl<'a> Proof<'a> {
                     witness.witness,
                     p.term(),
                 ]));
+            }
+        }
+        // A line of the whole numbers terms are, asked of the numbers lines
+        // name for them: the line at those numbers, met as any line is.
+        if let Some(at) = self.at_named_numbers(&proof, &says, wanted) {
+            return self.said_proof(at.proof, at.says, wanted, meeting);
+        }
+        // A named number's order, from a line putting its term in ℕ or ℕ₀.
+        if let Some(order) = self.named_number_order(&proof, &says, wanted) {
+            return Route::Built(order);
+        }
+        // A line of the terms lines name numbers for, asked of those
+        // numbers where no claim's proof has put it in terms of them.
+        if !self.line_put_in_numbers(&proof, wanted) {
+            if let Some(p) = self.line_at_named(&proof, &says, wanted) {
+                return Route::Built(p);
             }
         }
         // A number a line names, `Classical.choose r29_1` of `∃ m : ℤ, 0 ≤ m

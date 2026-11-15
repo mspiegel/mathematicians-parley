@@ -642,7 +642,10 @@ public import Parley.Proofs.Wiedijk.Ptolemy.Ptolemy
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.EvenLeg
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.PrimitiveTriple
+public import Parley.Proofs.Wiedijk.PythagoreanTriples.TripleScaled
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.TripleFromParameters
+public import Parley.Proofs.Wiedijk.PythagoreanTriples.TripleParameters
+public import Parley.Proofs.Wiedijk.PythagoreanTriples.PythagoreanTriples
 public import Parley.Proofs.Wiedijk.Quartic.Quartic
 public import Parley.Proofs.Wiedijk.Ramsey.OnePointPart
 public import Parley.Proofs.Wiedijk.Ramsey.TwoPointParts

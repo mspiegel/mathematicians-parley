@@ -67,7 +67,8 @@ impl<'a> Proof<'a> {
         // the line it is reached from, has nowhere to move.
         let claim_now = self.claim_now.borrow().clone();
         let stated_at = claim_now
-            .and_then(|c| self.claim_as_stated(just.line, &c))
+            .as_ref()
+            .and_then(|c| self.claim_as_stated(just.line, c))
             .as_ref()
             .and_then(super::super::doc::forms::relation_type);
         let moved = of_numbers
@@ -141,6 +142,26 @@ impl<'a> Proof<'a> {
                 t::name_h(&t::by_term(super::super::doc::Proof::Block(block))),
                 t::exact_mod_cast(t::hyp("h")),
             ]));
+        }
+        // A chain whose ends the checker met with the claim with a listed
+        // set's members in another order (`calculation_ends`, `permuted`),
+        // {2kmn, k(m² − n²)} beside the claim's {k(m² − n²), 2kmn}, is taken
+        // in the claim's order (`reordered`).
+        if self
+            .rec
+            .calculation_ends
+            .get(&just.line)
+            .is_some_and(|m| m.permuted)
+        {
+            let equation = claim_now
+                .as_ref()
+                .is_some_and(|c| c.notation() == crate::notations::EQUALITY);
+            let made = super::super::tactics::bracket(super::super::tactics::by_term(
+                super::super::doc::Proof::Block(block),
+            ));
+            return Route::Built(super::super::doc::Proof::Block(vec![reordered(
+                &made, equation,
+            )]));
         }
         Route::Built(super::super::doc::Proof::Block(block))
     }
@@ -755,8 +776,11 @@ impl<'a> Proof<'a> {
                             .supplied
                             .iter()
                             .find(|s| s.at.as_ref() == Some(at))
-                            .and_then(|s| {
-                                self.supplied_hypothesis(s, &wanted, binding).built()
+                            .and_then(|s| match self.naming_line(s, &wanted) {
+                                Some(line) => Self::from_naming_line(&line),
+                                None => self
+                                    .supplied_hypothesis(s, &wanted, binding)
+                                    .built(),
                             }),
                         // The citing proof's define of the same recursion,
                         // whose hypothesis states the rules alike.
@@ -1067,6 +1091,128 @@ impl<'a> Proof<'a> {
             }
         }
         Route::Built(Some(at))
+    }
+
+    /// The line that named a number the citation gave one of the item's
+    /// letters (`integer_line`), where that line is what the checker found
+    /// supplying the hypothesis `wanted` and `wanted` is of that number:
+    /// `a/k ∈ ℕ` supplying `0 < a` at `a := a/k`. A line that names a number
+    /// is left as it is (`proof_of`), so the hypothesis is not met with it
+    /// as written but read from what it says of its number.
+    fn naming_line(&self, s: &Supplied, wanted: &Printed) -> Option<SaidLine> {
+        let SuppliedBy::Line(at) = &s.by else {
+            return None;
+        };
+        let part = self.line_part(at).built()?;
+        let chosen = chosen_witnesses(wanted);
+        self.said_used
+            .borrow()
+            .iter()
+            .find(|u| {
+                u.line.proof.untyped() == part.proof.untyped()
+                    && chosen.iter().any(|h| h.untyped() == u.line.proof.untyped())
+            })
+            .map(|u| u.line.clone())
+    }
+
+    /// That a whole number the step named for a term (`name_wholes`) is above
+    /// 0 or at least 0, `0 < Classical.choose whole1` for a cited item's
+    /// `0 < a` at `a := a/k` or an exhibit's a/k ∈ ℕ, from `line`, the proof
+    /// of a line putting the term in ℕ or ℕ₀, `∃ m : ℤ, 0 < m ∧ (m : ℚ) =
+    /// a/k`, which the checker found supplies it. The named number says only
+    /// its equation with the term, so its order is the line's: the line's
+    /// witness is the number by the two equations across the cast, and
+    /// `omega` carries the order over. None where `wanted` is no such order
+    /// or `says`, what the line says, is no such line.
+    pub(super) fn named_number_order(
+        &self,
+        line: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<Printed> {
+        use super::super::doc::{Op, Proof, Source, TermKind};
+        use super::super::tactics as t;
+        let TermKind::Infix { op, lhs, rhs } = &bare_term(wanted).kind else {
+            return None;
+        };
+        if !matches!(op.symbol, "<" | "≤") || bare_term(lhs).text() != "0" {
+            return None;
+        }
+        let [named] = chosen_witnesses(rhs).try_into().ok()?;
+        self.writer
+            .integers
+            .iter()
+            .find(|i| i.value.is_none() && i.proof.untyped() == named.untyped())?;
+        // The line's `∃ m : ℤ, 0 < m ∧ ↑m = t`: its order first, of 0, then
+        // the equation of its letter.
+        let TermKind::Quantified {
+            quant: super::super::doc::Quant::Exists,
+            letter,
+            guard: Some(order),
+            body,
+            ..
+        } = &bare_term(says).kind
+        else {
+            return None;
+        };
+        let ordered = matches!(&bare_term(order).kind,
+            TermKind::Infix { op, lhs, .. }
+                if matches!(op.symbol, "<" | "≤") && bare_term(lhs).text() == "0");
+        if !ordered || witness_equation(body, letter).is_none() {
+            return None;
+        }
+        let line = line.clone();
+        let number = Printed::applied(
+            "Classical.choose",
+            Source::Core,
+            vec![named.clone()],
+            super::super::doc::LeanType::Num(super::super::templates::Num::Int),
+        );
+        let spec = Printed::applied(
+            "Classical.choose_spec",
+            Source::Core,
+            vec![named],
+            super::super::doc::LeanType::Prop,
+        );
+        let same = Printed::infix(
+            Op::EQUALS,
+            number,
+            t::hyp("w"),
+            super::super::doc::LeanType::Prop,
+        );
+        // The two casts equal, so the two integers: `Int.cast_injective`, a
+        // term, which no tactic after it in the line can be read into.
+        let joined =
+            applied_to(fields(t::bracket(spec), &["trans"]), t::symm(t::hyp("hw")));
+        let injective = applied_to(t::lemma("Int.cast_injective"), joined);
+        Some(t::by_term(Proof::By(Tactic::Seq(vec![
+            Tactic::Obtain {
+                names: vec!["w".to_string(), "hw0".to_string(), "hw".to_string()],
+                says: None,
+                from: line,
+            },
+            Tactic::Have {
+                name: "e".to_string(),
+                says: same,
+                proof: Box::new(Proof::Term(injective)),
+            },
+            t::call("omega", vec![]),
+        ]))))
+    }
+
+    /// A cited item's hypothesis supplied by a line that named one of the
+    /// citation's numbers (`naming_line`): the order that line says of the
+    /// number (`SaidLine::besides`), `(Classical.choose_spec h).1`, met with
+    /// the hypothesis by `linarith only`. None where the line says nothing of
+    /// the number besides its equation.
+    fn from_naming_line(line: &SaidLine) -> Option<Printed> {
+        use super::super::doc::Proof;
+        use super::super::tactics as t;
+        let order = line.besides()?;
+        Some(t::by_term(Proof::By(t::call(
+            "linarith",
+            vec![TacticArg::Only, t::rules(vec![order])],
+        ))))
     }
 
     /// What a cited item's letter is given where the citation gives it no
@@ -1904,11 +2050,17 @@ impl<'a> Proof<'a> {
         };
         // A define the step cites is written out first, as for algebra.
         let defines = self.cited_defines(&reason.just.refs);
+        let in_goal: Vec<String> = defines
+            .iter()
+            .filter(|d| d.param.is_none())
+            .map(|d| d.proof.clone())
+            .collect();
+        let outer_in_goal = self.defines_in_goal.replace(in_goal);
         // An item that says a natural power of an integer is one gives the
         // claim nothing to read where the claim's exponent is an integer
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
-        let closed = match self.close_citation(
+        let closed = self.close_citation(
             CitationClosing {
                 node,
                 k,
@@ -1922,7 +2074,9 @@ impl<'a> Proof<'a> {
             comparison,
             term,
             says,
-        ) {
+        );
+        self.defines_in_goal.replace(outer_in_goal);
+        let closed = match closed {
             Route::Built(closed) => closed,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -2353,41 +2507,38 @@ impl<'a> Proof<'a> {
     }
 
     /// The proof of `wanted`, a relation of a number a line names, after
-    /// the tactics `known` that put its spec in scope as `this`, `(c : ℚ) =
-    /// (N − 1)/2`, from the line `by` names stating the number's term in a
-    /// wider type, `(N : ℚ) = 2·((N − 1)/2) + 1`: the goal moved into the
-    /// line's type (`qify`, `rify`), the number put back as its term by the
-    /// spec (`rw [this]`), and met with the line by `linarith only`. None
-    /// where no tactic is known first, the relation is no equation or order,
-    /// or the line is in no wider type.
+    /// the tactics `known` that put its spec in scope as `this`, `(c : ℝ) =
+    /// m^2`, from the line `by` names stating the number's term in a wider
+    /// type, `p² + q² = 3·m²`: the line at the number, its term put back as
+    /// the number by the spec, then cast down, as a cited line is met at
+    /// the numbers lines name (`line_at_named`). None where no tactic is
+    /// known first or the relation is no equation or order.
     pub(super) fn with_known(
         &self,
         by: &SuppliedBy,
         wanted: &Printed,
         known: &[Tactic],
     ) -> Option<Printed> {
-        use super::super::doc::{forms, LeanType};
         use super::super::tactics as t;
-        use super::super::templates::Num;
         if known.is_empty()
             || !matches!(relation_symbol(wanted)?, "=" | "<" | "≤" | ">" | "≥")
         {
             return None;
         }
-        let (proof, says) = self.line_proof(by).built()?;
-        let into = match (forms::relation_type(&says)?, forms::relation_type(wanted)?) {
-            (LeanType::Num(Num::Rat), LeanType::Num(Num::Int)) => "qify",
-            (LeanType::Num(Num::Real), LeanType::Num(Num::Int | Num::Rat)) => "rify",
-            _ => return None,
-        };
-        // The number put back as its term, from the number to the term,
-        // which leaves the line's own statement.
+        let (proof, _) = self.line_proof(by).built()?;
+        let at = TacticArg::At(vec![super::super::doc::Location::Hypothesis(
+            "h".to_string(),
+        )]);
         let mut tactics = known.to_vec();
-        tactics.push(t::call(into, vec![]));
-        tactics.push(t::call("rw", vec![t::rules(vec![t::hyp("this")])]));
-        tactics.push(t::call(
-            "linarith",
-            vec![TacticArg::Only, t::rules(vec![proof])],
+        tactics.push(t::on_h(
+            &proof,
+            vec![
+                t::call(
+                    "rw",
+                    vec![TacticArg::Rules(vec![t::backwards(t::hyp("this"))]), at],
+                ),
+                t::exact_mod_cast(t::hyp("h")),
+            ],
         ));
         Some(t::by_term(super::super::doc::Proof::By(Tactic::Seq(
             tactics,

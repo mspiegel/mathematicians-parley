@@ -464,6 +464,10 @@ theorem mun_divides_quotient (n : ℤ) (h1 : 0 < n) (d : ℤ) (h2 : 0 < d) :
     d ∣ n ↔ (∃ m : ℤ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
   LeanBridges.Divisibility.divides_quotient n h1 d h2
 
+theorem mun_gcd_quotients_coprime (a : ℤ) (b : ℤ) (h3 : b ≠ 0) :
+    ∃ m : ℤ, (m : ℚ) = (a : ℚ) / (Int.gcd a b : ℚ) ∧ (∃ m₀ : ℤ, (m₀ : ℚ) = (b : ℚ) / (Int.gcd a b : ℚ) ∧ (Int.gcd m m₀ : ℤ) = 1) :=
+  LeanBridges.Divisibility.gcd_quotients_coprime a b h3
+
 theorem mun_divides_transitive (d : ℤ) (e : ℤ) (n : ℤ) (h4 : d ∣ e) (h5 : e ∣ n) :
     d ∣ n :=
   Int.dvd_trans h4 h5

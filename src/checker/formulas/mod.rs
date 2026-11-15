@@ -95,7 +95,7 @@ pub use self::letters::{
 pub(super) use self::relations::define_equation;
 use self::relations::*;
 pub use self::relations::{
-    antisymmetries, check_calculation_claims, check_define_names,
+    antisymmetries, calculation_meetings, check_calculation_claims, check_define_names,
     check_substitute_rows, check_transitivity, divided_by, order_steps,
     transitivity_links,
 };

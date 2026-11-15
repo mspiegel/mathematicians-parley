@@ -897,26 +897,33 @@ impl<'a> Known<'a> {
         }
     }
 
-    /// What the lines in scope above a step say, sentence by sentence, as
-    /// read: those it may cite (`scope`) that stand above it, a step only
-    /// where it is in reach (`structure::out_of_reach`), and not the lines
-    /// of the blocks the step owns, which it cites as their ends.
-    pub fn scope_lines(&self, step: &Step) -> Vec<Node> {
+    /// Whether the line in scope under `key` is one `step` may reach: a step
+    /// only where it is in reach (`structure::out_of_reach`), not one in
+    /// another case of the same "cases"; a line that is no step, a `let`,
+    /// always.
+    pub fn in_reach(&self, key: &str, step: &Step) -> bool {
         let thm = self.thm;
-        let shape = self.shape();
-        let reached = |key: &String| match thm
+        match thm
             .steps
             .iter()
-            .find(|s| s.number.number().is_some_and(|n| n.to_string() == *key))
+            .find(|s| s.number.number().is_some_and(|n| n.to_string() == key))
         {
             Some(s) => {
-                super::structure::out_of_reach(thm, shape, &s.number, step).is_none()
+                super::structure::out_of_reach(thm, self.shape(), &s.number, step)
+                    .is_none()
             }
             None => true,
-        };
+        }
+    }
+
+    /// What the lines in scope above a step say, sentence by sentence, as
+    /// read: those it may cite (`scope`) that stand above it, a step only
+    /// where it is in reach (`in_reach`), and not the lines of the blocks
+    /// the step owns, which it cites as their ends.
+    pub fn scope_lines(&self, step: &Step) -> Vec<Node> {
         self.scope(step)
             .iter()
-            .filter(|(key, _)| reached(key))
+            .filter(|(key, _)| self.in_reach(key, step))
             .map(|(_, stated)| stated)
             .filter(|stated| stated.line().is_none_or(|l| l < step.line))
             .flat_map(|stated| self.said_parts(stated, None))

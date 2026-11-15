@@ -1458,7 +1458,7 @@ impl<'a> Proof<'a> {
             }
             return Some(Proved::Simplified { rules, line: proof });
         }
-        match forms::casts_differ(&says, wanted, &self.set_values()) {
+        match self.casts_apart(&says, wanted) {
             Some(apart) => cast_proved(apart, proof, &says, wanted),
             None => Some(Proved::Term(proof)),
         }

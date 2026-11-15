@@ -404,16 +404,16 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean",
         step: "6",
-        holds: "qify; rw [this]; linarith only [s4]",
+        holds: "have h := s4; rw [← Classical.choose_spec s5] at h; exact_mod_cast h",
         list: false,
-        why: "a fact of a number a line names, its spec put in scope, from a line stating the number's term in ℚ: the goal moved to ℚ, the number put back as its term, met by the line (`with_known`)",
+        why: "a fact of a number a line names, from a line stating the number's term in ℚ: the line at the number, its term put back as the number by the naming line's equation, then cast down (`line_at_named`)",
     },
     Site {
         file: "lean/Parley/Tests/Elaborator/ADividesFoldWithItsWitness/ADividesFoldWithItsWitness.lean",
         step: "2",
-        holds: "rify; rw [this]; linarith only [s1]",
+        holds: "have h := s1; rw [← this] at h; exact_mod_cast h",
         list: false,
-        why: "the same from a line in ℝ: `rify` (`with_known`)",
+        why: "the same in ℝ of a witness whose spec is put in scope as `this` (`with_known`)",
     },
     Site {
         file: "lean/Parley/Tests/Elaborator/ReadingDefines/ADefineReadInAnUnfoldedDefinition.lean",

@@ -328,7 +328,7 @@ impl Writer<'_> {
     /// `wide_in_slot` of one node's own arguments. A power's exponent is no
     /// such slot: one that is no natural number makes the power Lean's
     /// integer power (`Writer::integer_power`).
-    pub(super) fn wide_arg(&self, n: &Node) -> Option<(Node, Num)> {
+    pub(in crate::lean) fn wide_arg(&self, n: &Node) -> Option<(Node, Num)> {
         if n.notation() == crate::notations::POWER {
             return None;
         }
@@ -339,10 +339,12 @@ impl Writer<'_> {
                 Slot::Fixed(w @ (Num::Nat | Num::Int)) => *w,
                 _ => return None,
             };
-            let free = arg
-                .names()
-                .iter()
-                .all(|name| self.letters.contains_key(name.as_str()));
+            // A library function the term applies, the gcd of a/gcd(a, b),
+            // is no letter the witness could capture.
+            let free = arg.names().iter().all(|name| {
+                self.letters.contains_key(name.as_str())
+                    || self.templates.function(name).is_some()
+            });
             // A term said once in ℕ₀ is written `t.toNat` there (`number`).
             let wide = match whole {
                 Num::Nat => !self.natural(arg) && !self.said_whole(arg),

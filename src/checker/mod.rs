@@ -701,6 +701,7 @@ fn theorem_record(
     record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
     record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
     record.ends_met = formulas::ended_meetings(thm, &c.known[i]);
+    record.calculation_ends = formulas::calculation_meetings(thm, &c.known[i]);
     record.places_shown = thm
         .steps
         .iter()

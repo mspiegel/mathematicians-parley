@@ -701,7 +701,7 @@ mundane theorem gcd-quotients-coprime
   metamath-proof divgcdcoprm0
   note        Dividing two numbers by their greatest common divisor leaves
               two with no factor in common.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/gcd-quotients-coprime
 
 mundane theorem divides-transitive
   let d ∈ ℤ                                                           (H1)
