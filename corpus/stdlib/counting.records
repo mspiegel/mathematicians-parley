@@ -306,7 +306,7 @@ mundane theorem partition-count
   note        A finite set split into parts that each have m elements has
               (number of parts) · m of them. The parts make up A, and two
               that share a point are the same part.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/partition-count
 
 mundane theorem count-nat0
   let P be a property of the elements of ℕ                            (H1)

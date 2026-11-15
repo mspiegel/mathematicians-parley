@@ -47,6 +47,13 @@ pub struct Want {
     pub at: HypothesisAt,
 }
 
+/// An item's hypotheses, each with its kind, and the sorts they are read
+/// with (`Library::hypotheses_of`).
+struct ItemHypotheses<'s> {
+    said: Vec<(Intro, Written)>,
+    sorts: &'s Sorts,
+}
+
 /// One `then` group of an item.
 pub struct Group {
     /// What it asks for, in the order the item writes it.
@@ -434,35 +441,89 @@ impl<'a> Library<'a> {
 
     /// `function_types`, each with where the item writes it.
     pub fn function_type_lines(&self, name: &str) -> Vec<Want> {
-        if let Some(&i) = self.items.get(name) {
-            return self.record_function_types(i);
-        }
-        match self.proved.get(name) {
-            Some(k) => self.proved_function_types(k),
+        match self.hypotheses_of(name) {
+            Some(h) => self.function_lines(h.said, h.sorts),
             None => Vec::new(),
         }
     }
 
-    /// `function_type_lines` of the record at `i` in `records`.
-    fn record_function_types(&self, i: usize) -> Vec<Want> {
+    /// What the `let` lines of the item of that full name say of a group
+    /// beyond naming it, `G is finite` of `G be a finite group with …`,
+    /// each with where the item writes it. The groups leave these out, as
+    /// they do a function's type; a citation supplies them all the same.
+    pub fn group_assertion_lines(&self, name: &str) -> Vec<Want> {
+        match self.hypotheses_of(name) {
+            Some(h) => self.finite_group_lines(h.said, h.sorts),
+            None => Vec::new(),
+        }
+    }
+
+    /// The hypotheses of the item of that full name, a record or a theorem
+    /// this corpus proves, with the sorts they are read with; None for any
+    /// other name.
+    fn hypotheses_of(&self, name: &str) -> Option<ItemHypotheses<'_>> {
+        if let Some(&i) = self.items.get(name) {
+            return Some(ItemHypotheses {
+                said: self.record_hypotheses(i),
+                sorts: &self.record_sorts[&i],
+            });
+        }
+        let k = self.proved.get(name)?;
+        Some(ItemHypotheses {
+            said: self.proved_hypotheses(k),
+            sorts: &k.sorts,
+        })
+    }
+
+    /// The hypotheses of the record at `i` in `records`, each with its kind.
+    fn record_hypotheses(&self, i: usize) -> Vec<(Intro, Written)> {
         let record = &self.records[i];
-        let said = record
+        record
             .hypotheses
             .iter()
             .map(|h| (h.kind, h.body(&record.path)))
-            .collect();
-        self.function_lines(said, &self.record_sorts[&i])
+            .collect()
     }
 
-    /// `function_type_lines` of a theorem this corpus proves.
-    fn proved_function_types(&self, k: &Proved<'a>) -> Vec<Want> {
-        let said = k
-            .thm
+    /// The hypotheses of a theorem this corpus proves, each with its kind.
+    fn proved_hypotheses(&self, k: &Proved<'a>) -> Vec<(Intro, Written)> {
+        k.thm
             .hypotheses
             .iter()
             .map(|h| (h.kind, h.body(&k.thm.path)))
-            .collect();
-        self.function_lines(said, &k.sorts)
+            .collect()
+    }
+
+    /// The finite groups' `let` lines among `said`, each as the fact that
+    /// its set is finite (`Introduction::asserted`), at the line's first
+    /// sentence.
+    fn finite_group_lines(
+        &self,
+        said: Vec<(Intro, Written)>,
+        sorts: &Sorts,
+    ) -> Vec<Want> {
+        let mut out = Vec::new();
+        for (line, (kind, body)) in said.into_iter().enumerate() {
+            let introduced = Introduction::read(body.clone());
+            if kind != Intro::Let
+                || !matches!(introduced.form, Form::Group { finite: true, .. })
+            {
+                continue;
+            }
+            // A line that does not read is the item's own check's to report
+            // (`check_introductions`), as for `function_lines`.
+            let Ok(asserted) = introduced.asserted(self.env.g, sorts) else {
+                continue;
+            };
+            for tree in asserted {
+                out.push(Want {
+                    text: body.text().to_string(),
+                    tree: standard(&tree, &self.ctx),
+                    at: HypothesisAt { line, sentence: 0 },
+                });
+            }
+        }
+        out
     }
 
     /// The function-type `let` lines among `said`, the item's hypotheses
@@ -647,8 +708,12 @@ impl<'a> Library<'a> {
         let trees = |typed: Vec<Want>| -> Vec<Node> {
             typed.into_iter().map(|w| w.tree).collect()
         };
-        let maps = trees(self.record_function_types(i));
-        if !written_alike(&maps, &trees(self.proved_function_types(k))) {
+        let maps = trees(
+            self.function_lines(self.record_hypotheses(i), &self.record_sorts[&i]),
+        );
+        let proved_maps =
+            trees(self.function_lines(self.proved_hypotheses(k), &k.sorts));
+        if !written_alike(&maps, &proved_maps) {
             return Some(
                 "its functions map between other sets than the proof's".to_string(),
             );

@@ -155,16 +155,25 @@ impl ModuleTable {
         for (i, line) in lines {
             let (lookup, answer) =
                 read_line(line).map_err(|why| Problem::new(TABLE, i + 1, why))?;
+            if matches!(answer, Answer::Unread(_)) {
+                continue; // asked again, as `text` says
+            }
             table.answers.insert(lookup, answer);
         }
         Ok(table)
     }
 
-    /// The table as the file keeps it: the revision, then each answer.
+    /// The table as the file keeps it: the revision, then each answer that
+    /// names modules. A sample Lean did not read is a fault the build
+    /// reports, and what Lean says of it hangs on more than its key, a
+    /// bridge lemma it names that is written after: it is asked again.
     pub fn text(&self) -> String {
         let mut out = self.made_for.line();
         out.push('\n');
         for (lookup, answer) in &self.answers {
+            if matches!(answer, Answer::Unread(_)) {
+                continue;
+            }
             out.push_str(&line_of(lookup, Some(answer)));
             out.push('\n');
         }

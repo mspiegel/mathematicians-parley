@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.CharP.Defs
@@ -60,6 +61,7 @@ public import Mathlib.Order.Disjoint
 public import Mathlib.Order.Interval.Finset.Basic
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Order.SetNotation
 public import Mathlib.Tactic.Lift
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -220,6 +222,10 @@ theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Fi
 theorem mun_card_equal {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : ∃ g : α → β, Set.BijOn g X Y) :
     ((X.ncard : ℕ) : ℕ∞) = Y.encard :=
   by obtain ⟨g, hg⟩ := h2; rw [h1.cast_ncard_eq, ← hg.image_eq, hg.injOn.encard_image]
+
+theorem mun_partition_count {α : Type*} (A : Set α) (K : Set (Set α)) (m : ℤ) (h1 : 0 ≤ m) (h2 : A.Finite) (h3 : (⋃ Y ∈ K, Y) = A) (h4 : ∀ Y ∈ K, ∀ Z ∈ K, ∀ x ∈ Y ∩ Z, Y = Z) (h5 : ∀ Y ∈ K, Y.encard = ((m.toNat : ℕ) : ℕ∞)) :
+    ((A.ncard : ℕ) : ℕ∞) = K.encard * ((m.toNat : ℕ) : ℕ∞) :=
+  LeanBridges.Counting.partition_count A K m h1 h2 h3 h4 h5
 
 theorem mun_card_pair {α : Type*} (u : α) (w : α) :
     (({u, w} : Set α).ncard : ℤ) ≤ 2 :=

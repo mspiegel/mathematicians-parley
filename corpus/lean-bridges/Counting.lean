@@ -10,6 +10,7 @@ public import Mathlib.Data.ENat.Lattice
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Nat.Choose.Cast
 public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Card.Arithmetic
 public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith.Frontend
@@ -229,5 +230,23 @@ theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : (Y.ncard : �
 theorem card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :
     ¬ X = ∅ :=
   by intro h; subst h; simp at h1
+
+/-- `mun:stdlib/counting/partition-count`. The parts lie in A, so there are
+finitely many, and parts that meet are equal, so they are disjoint. -/
+theorem partition_count {α : Type*} (A : Set α) (K : Set (Set α)) (m : ℤ) (_h1 : 0 ≤ m)
+    (h2 : A.Finite) (h3 : (⋃ Y ∈ K, Y) = A) (h4 : ∀ Y ∈ K, ∀ Z ∈ K, ∀ x ∈ Y ∩ Z, Y = Z)
+    (h5 : ∀ Y ∈ K, Y.encard = ((m.toNat : ℕ) : ℕ∞)) :
+    ((A.ncard : ℕ) : ℕ∞) = K.encard * ((m.toNat : ℕ) : ℕ∞) := by
+  have hsub : K ⊆ 𝒫 A := fun Y hY => h3 ▸ Set.subset_biUnion_of_mem (u := id) hY
+  have hK : K.Finite := h2.powerset.subset hsub
+  have hdis : K.PairwiseDisjoint id := by
+    intro Y hY Z hZ hne
+    rw [Function.onFun, Set.disjoint_iff]
+    rintro x hx
+    exact hne (h4 Y hY Z hZ x hx)
+  have hU : (⋃ Y ∈ K, Y).encard = ∑ᶠ Y ∈ K, Y.encard := hK.encard_biUnion (s := id) hdis
+  rw [h2.cast_ncard_eq, ← h3, hU, finsum_mem_congr rfl h5,
+    finsum_mem_eq_finite_toFinset_sum _ hK, Finset.sum_const, nsmul_eq_mul,
+    ← hK.cast_ncard_eq, Set.ncard_eq_toFinset_card K hK]
 
 end LeanBridges.Counting

@@ -71,8 +71,9 @@ pub struct Made {
     /// lines was written for.
     pub origins: IndexMap<String, Origins>,
     /// Each citation whose item, read as written, writes a term in another
-    /// form than the line it proves (`doc::forms`), said in words.
-    pub forms: Vec<String>,
+    /// form than the line it proves (`doc::forms`), said in words, by the
+    /// theorem whose file writes it: a theorem not built has none.
+    pub forms: IndexMap<String, Vec<String>>,
 }
 
 impl Made {
@@ -432,7 +433,7 @@ pub fn make(
             }
         };
         for note in &file.forms {
-            made.forms.push(format!(
+            made.forms.entry(name.clone()).or_default().push(format!(
                 "{name}: line {}: {}: {}",
                 note.page_line,
                 note.item,
@@ -526,14 +527,25 @@ pub fn make(
             made.files.shift_remove(&path);
             made.imports.shift_remove(&path);
             made.origins.shift_remove(&path);
+            made.forms.shift_remove(&name);
             if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
                 made.statements.shift_remove(&s.decl);
             }
             // Not built as what it imports was not: the theorem that module
-            // writes, or the module itself where it is the library's.
+            // writes, a theorem the writer declined by the module it would
+            // have been, or the module itself where it is the library's.
+            let declined = made
+                .left_out
+                .keys()
+                .chain(made.failed.keys())
+                .chain(made.gaps.keys())
+                .find(|t| module_of(t) == import)
+                .cloned();
             let cited = imported
                 .get(&import)
-                .map_or(import.clone(), |(cited, _)| cited.clone());
+                .map(|(cited, _)| cited.clone())
+                .or(declined)
+                .unwrap_or_else(|| import.clone());
             made.not_built_after(name, &cited);
         }
     }
@@ -688,7 +700,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     if !made.forms.is_empty() {
         said.complained +=
             "\ncitations whose item writes a term in another form than the line:\n";
-        for note in &made.forms {
+        for note in made.forms.values().flatten() {
             said.complained += &format!("  {note}\n");
         }
         failed = true;

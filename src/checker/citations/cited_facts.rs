@@ -1122,15 +1122,17 @@ pub(super) fn line_states(
     states(&whole).then(|| at(None, None, written))
 }
 
-/// Each function-type `let` line of the item, `f : X → Y`, as a fact the
-/// citation supplies, after the group's hypotheses: the group leaves it
-/// out (`Library::function_types`), and a backend that states the map's
-/// type as a hypothesis, Lean's `Set.MapsTo f X Y`, finds where it stands
-/// by its place.
+/// Each function-type `let` line of the item, `f : X → Y`, and what a
+/// finite group's `let` line says, `G is finite`, as a fact the citation
+/// supplies, after the group's hypotheses: the group leaves them out
+/// (`Library::function_types`, `Library::group_assertion_lines`), and a
+/// backend that states them as hypotheses, Lean's `Set.MapsTo f X Y` and
+/// `(Set.univ : Set G).Finite`, finds where each stands by its place.
 pub(super) fn typed_supplying(item: &str, library: &Library) -> Vec<Supplying> {
     library
         .function_type_lines(item)
         .into_iter()
+        .chain(library.group_assertion_lines(item))
         .map(|w| Supplying {
             want: w.tree,
             fact: None,

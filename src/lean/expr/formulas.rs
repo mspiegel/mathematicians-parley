@@ -262,15 +262,27 @@ impl Writer<'_> {
     /// holds such a term, or none whose letters are all the formula's own.
     pub(super) fn slot_witness(&self, node: &Node) -> Option<Route<Printed>> {
         let (term, whole) = self.wide_in_slot(node)?;
-        let at = match self.carrier(&term) {
-            Route::Built(n) => n,
-            Route::Declined(d) => return Some(Route::Declined(d)),
-        };
-        let value = match self.number_fixed(&term, at) {
-            Route::Built(v) => v,
-            Route::Declined(d) => return Some(Route::Declined(d)),
-        };
         let m = witness_letter(node);
+        // A count of a set not known finite is m where the count in ℕ∞ is
+        // m, `∃ m : ℕ, H.encard = m ∧ (m : ℤ) ∣ G.ncard`, as set.mm's ♯H is
+        // +∞ of an infinite H, which divides nothing (`count_equals_number`).
+        let counted = self.counts(&term);
+        let (value, at) = match counted {
+            true => match self.count_term(&term) {
+                Route::Built(v) => (v, Num::Nat),
+                Route::Declined(d) => return Some(Route::Declined(d)),
+            },
+            false => {
+                let at = match self.carrier(&term) {
+                    Route::Built(n) => n,
+                    Route::Declined(d) => return Some(Route::Declined(d)),
+                };
+                match self.number_fixed(&term, at) {
+                    Route::Built(v) => (v, at),
+                    Route::Declined(d) => return Some(Route::Declined(d)),
+                }
+            }
+        };
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(m.clone(), LetterType::Number(whole));
         let named = Node::name(crate::formula::Sort::of("number"), &m);
@@ -278,11 +290,12 @@ impl Writer<'_> {
             Route::Built(b) => b,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
-        let named = Printed::cast(
-            Printed::letter(m.clone(), LeanType::Num(whole)),
-            self.num_type(at),
-        );
-        let said = match relation_of("=", named, value) {
+        let letter = Printed::letter(m.clone(), LeanType::Num(whole));
+        let said = match counted {
+            true => relation_of("=", value, Printed::cast(letter, LeanType::ENat)),
+            false => relation_of("=", Printed::cast(letter, self.num_type(at)), value),
+        };
+        let said = match said {
             Route::Built(r) => r,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
@@ -345,6 +358,11 @@ impl Writer<'_> {
                 self.letters.contains_key(name.as_str())
                     || self.templates.function(name).is_some()
             });
+            // A count of a set no line says is finite, |H| of "|H| divides
+            // |G|", is a natural number only where the set is finite.
+            if &*arg.notation_name() == "cardinality" && self.counts(arg) {
+                return free.then(|| (arg.clone(), Num::Nat));
+            }
             // A term said once in ℕ₀ is written `t.toNat` there (`number`).
             let wide = match whole {
                 Num::Nat => !self.natural(arg) && !self.said_whole(arg),
