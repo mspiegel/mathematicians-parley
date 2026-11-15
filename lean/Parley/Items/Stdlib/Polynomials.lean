@@ -1,5 +1,6 @@
 module
 
+public import Counting
 public import Polynomials
 public import Batteries.Logic
 public import Mathlib.Algebra.Algebra.Basic
@@ -7,6 +8,7 @@ public import Mathlib.Algebra.Algebra.Defs
 public import Mathlib.Algebra.Algebra.Hom
 public import Mathlib.Algebra.Algebra.NonUnitalHom
 public import Mathlib.Algebra.Algebra.Rat
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Defs
@@ -39,8 +41,10 @@ public import Mathlib.Analysis.Normed.Ring.Basic
 public import Mathlib.Analysis.RCLike.Basic
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.FunLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Cast.Defs
+public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Basic
@@ -49,14 +53,18 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.BernoulliPolynomials
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.RingTheory.Algebraic.Defs
 public import Mathlib.Tactic.Lift
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Result
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.Common
 
@@ -73,6 +81,10 @@ theorem thm_remainder (p : ℂ → ℂ) (h1 : p ∈ LeanBridges.Polynomials.poly
 theorem mun_polynomial_value (p : ℂ → ℂ) (h1 : p ∈ LeanBridges.Polynomials.polynomials) (x : ℂ) :
     True :=
   trivial
+
+theorem def_B (n : ℤ) (h1 : 0 ≤ n) (x : ℂ) :
+    Polynomial.aeval x (Polynomial.bernoulli n.toNat) = x ^ n.toNat - (∑ k ∈ Finset.Icc (0 : ℤ) (n - 1), ((LeanBridges.Counting.choose n k : ℂ) * (Polynomial.aeval x (Polynomial.bernoulli k.toNat) / ((n : ℂ) - (k : ℂ) + 1)) : ℂ)) :=
+  LeanBridges.Polynomials.B n h1 x
 
 theorem mun_bernoulli_complex (n : ℤ) (h1 : 0 ≤ n) (x : ℂ) :
     True :=

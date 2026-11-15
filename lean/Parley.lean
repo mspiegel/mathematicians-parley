@@ -1533,6 +1533,7 @@ public import Parley.Tests.Stdlib.Numbers.PowerExponentLe
 public import Parley.Tests.Stdlib.Numbers.NatPlusNat0
 public import Parley.Tests.Stdlib.Polynomials.ATranscendentalNumberIsNotAlgebraic
 public import Parley.Tests.Stdlib.Polynomials.ANumberNotAlgebraicIsTranscendental
+public import Parley.Tests.Stdlib.Polynomials.BernoulliValue
 public import Parley.Tests.Stdlib.Reasoning.DisjunctiveSyllogismLeft
 public import Parley.Tests.Stdlib.Reasoning.ModusPonens
 public import Parley.Tests.Stdlib.Reasoning.ModusPonensForAll

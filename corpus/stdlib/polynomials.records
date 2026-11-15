@@ -50,7 +50,7 @@ definition B
   note        B(n, x) is the n-th Bernoulli polynomial at x, defined by
               recursion on n: each is x^n less a weighted sum of the ones
               before it.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/polynomials/B
 
 mundane theorem bernoulli-complex
   let n ∈ ℕ₀                                                          (H1)
