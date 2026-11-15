@@ -173,12 +173,12 @@ fn covered(
                 .then(|| format!("notation {name}, which has no lean-builds field"))
         })
         .collect();
+    // Every reason it is left out, not only the first: what stands between
+    // it and the build is all of them.
     notations.sort();
-    if let Some(first) = notations.first() {
-        return Covered::Out {
-            reason: format!("it writes {first}"),
-        };
-    }
+    notations.dedup();
+    let mut reasons: Vec<String> =
+        notations.iter().map(|n| format!("it writes {n}")).collect();
     for (full, _) in cited_items(thm) {
         if let Some(record) = super::items::record_of(checked, &full) {
             // An item the Lean build cannot use yet keeps out what cites
@@ -188,25 +188,20 @@ fn covered(
             use crate::corpus::records::Provided;
             match record.lean_provided() {
                 Some(Provided::NotYet) | None => {
-                    return Covered::Out {
-                        reason: format!("{full}'s lean-proof is not yet implemented"),
-                    };
+                    reasons.push(format!("{full}'s lean-proof is not yet implemented"));
                 }
                 Some(Provided::Proof(proof)) => {
                     if !matches!(so_far.get(proof), Some(Covered::In)) {
-                        return Covered::Out {
-                            reason: format!(
-                                "{full} is proved by {proof}, which is not in the Lean build"
-                            ),
-                        };
+                        reasons.push(format!(
+                            "{full} is proved by {proof}, which is not in the Lean build"
+                        ));
                     }
                 }
                 // A proof whose item's statement the build could not write,
                 // a phrase whose meaning it cannot state, is no proof yet.
                 Some(Provided::By(_)) if !stated.contains(&full) => {
-                    return Covered::Out {
-                        reason: format!("{full}'s statement is not in the Lean build"),
-                    };
+                    reasons
+                        .push(format!("{full}'s statement is not in the Lean build"));
                 }
                 Some(Provided::By(_) | Provided::Nothing) => {}
             }
@@ -214,17 +209,21 @@ fn covered(
         }
         match so_far.get(&full) {
             Some(Covered::In) => {}
+            // A theorem citing one that failed is not built whatever else
+            // stands in its way.
             Some(Covered::Failed { .. }) => {
                 return Covered::Failed {
                     reason: format!("it cites {full}, which was not built"),
                 }
             }
-            _ => {
-                return Covered::Out {
-                    reason: format!("{full} is not in the Lean build"),
-                }
-            }
+            _ => reasons.push(format!("{full} is not in the Lean build")),
         }
     }
-    Covered::In
+    reasons.dedup();
+    match reasons.is_empty() {
+        true => Covered::In,
+        false => Covered::Out {
+            reason: reasons.join("; "),
+        },
+    }
 }
