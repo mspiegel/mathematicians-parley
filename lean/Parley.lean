@@ -1435,6 +1435,8 @@ public import Parley.Tests.Stdlib.Counting.FactorialStep
 public import Parley.Tests.Stdlib.Counting.BinomialCoefficient
 public import Parley.Tests.Stdlib.Counting.CardEmpty
 public import Parley.Tests.Stdlib.Counting.SizeOfARange
+public import Parley.Tests.Stdlib.Counting.FunctionsCounted
+public import Parley.Tests.Stdlib.Counting.OneToOneCounted
 public import Parley.Tests.Stdlib.Divisibility.OddNotEven
 public import Parley.Tests.Stdlib.Divisibility.EvenProductFactor
 public import Parley.Tests.Stdlib.Divisibility.PrimeDividesProduct

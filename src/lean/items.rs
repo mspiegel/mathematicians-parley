@@ -641,9 +641,10 @@ impl ThingTypes {
         let name = node.notation_name();
         let kids = node.children.as_slice();
         match (&*name, kids) {
-            // There is f : X → Y with …: f a map from X's things to Y's,
-            // what the body says of it read as of a map letter.
-            ("there-is" | "for-all", [f, set, body])
+            // There is f : X → Y with …, or {f ∈ the functions from X to Y :
+            // …}: f a map from X's things to Y's, what the body says of it
+            // read as of a map letter.
+            ("there-is" | "for-all" | "set-builder", [f, set, body])
                 if f.is_name() && &*set.notation_name() == "functions-from" =>
             {
                 self.bound_maps.insert(f.text.to_string());

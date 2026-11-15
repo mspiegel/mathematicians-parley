@@ -478,7 +478,7 @@ theorem count-functions
   metamath-proof metamath-bridges/counts/gmapcnt
   note        Each of the |X| elements of X goes to one of the |Y| elements
               of Y.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-functions
 
 theorem count-one-to-one
   let X be a set                                                      (H1)
@@ -491,4 +491,4 @@ theorem count-one-to-one
   note        The one-to-one functions from X to Y number
               |Y|·(|Y| − 1)·…·(|Y| − |X| + 1): each element of X in turn
               goes to one of the elements of Y not yet used.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-one-to-one

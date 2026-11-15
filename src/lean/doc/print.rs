@@ -27,6 +27,7 @@ impl LeanType {
             LeanType::Subgroup(g) => {
                 format!("Subgroup {}", crate::lean::names::letter(g))
             }
+            LeanType::Within(set) => format!("↥{}", bracketed(&set.text())),
         }
     }
 }

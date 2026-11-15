@@ -23,6 +23,9 @@ use crate::outcome::Route;
 /// nonempty type, which a statement over sets does not carry.
 pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 
+/// The functions from X to Y, in the bridges: functions on X itself.
+const FUNCTIONS_FROM: &str = "LeanBridges.Functions.functions_from";
+
 /// The polynomial functions with complex coefficients, set.mm's `Poly ℂ`,
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
 const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
@@ -135,6 +138,17 @@ impl Writer<'_> {
             "powerset" => self
                 .set_members(node.children.first()?)
                 .map(|m| Members::Sets(Box::new(m))),
+            // The functions from X to Y hold functions on X itself.
+            "functions-from" => {
+                let [from, to] = node.children.as_slice() else {
+                    return None;
+                };
+                Some(Members::Maps {
+                    on: Box::new(self.set_term(from).built()?),
+                    from: Box::new(self.set_members(from)?),
+                    to: Box::new(self.set_members(to)?),
+                })
+            }
             "singleton" | "listed-two" | "listed-three" | "listed-four" => node
                 .children
                 .iter()
@@ -686,7 +700,31 @@ impl Writer<'_> {
             }
             "set-image" => self.set_image(node),
             "application" => self.map_applied(node),
+            "functions-from" => self.functions_set(node),
             other => Route::no(format!("{other} as a set")),
+        }
+    }
+
+    /// The functions from X to Y as a set: functions on X itself into Y's
+    /// type whose values are in Y, the bridges' `functions_from X Y`. A
+    /// page's function has values on X alone, so one Lean function on X is
+    /// one function of the page's, and the set has as many members as the
+    /// page's, X empty among them.
+    fn functions_set(&self, node: &Node) -> Route<Printed> {
+        let [from, to] = node.children.as_slice() else {
+            return Route::no("the functions from other than two sets");
+        };
+        let Some(members) = self.members_of(node) else {
+            return Route::no("the functions between sets with no Lean type");
+        };
+        match (self.set_term(from), self.set_term(to)) {
+            (Route::Built(x), Route::Built(y)) => Route::Built(Printed::applied(
+                FUNCTIONS_FROM,
+                Source::Bridge(BridgeModule::Functions),
+                vec![x, y],
+                LeanType::Set(Box::new(members.member_type())),
+            )),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
 
@@ -1082,7 +1120,16 @@ impl Writer<'_> {
             true => None,
             false => Some(self.map_term(f)?),
         };
+        // A member of the functions from X to Y is a function on X itself
+        // (`Members::Maps`), whose domain is all it takes.
+        let on = match self.letters.get(f.text.as_str()) {
+            Some(LetterType::Member(Members::Maps { on, .. })) if f.is_name() => {
+                Some(on.clone())
+            }
+            _ => None,
+        };
         if composed.is_none()
+            && on.is_none()
             && !matches!(
                 self.letters.get(f.text.as_str()),
                 Some(LetterType::Map { .. } | LetterType::Function { .. })
@@ -1103,6 +1150,23 @@ impl Writer<'_> {
             (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                 return Some(Route::Declined(d))
             }
+        };
+        // Of a function on X itself, the domain the page says is X, all of
+        // what it takes: `Set.univ`.
+        let a = match on {
+            Some(on) if *on == a => Printed::of(
+                TermKind::Const(super::doc::ConstRef {
+                    name: "Set.univ".to_string(),
+                    source: Source::Mathlib,
+                }),
+                LeanType::Set(Box::new(LeanType::Within(on))),
+            ),
+            Some(_) => {
+                return Some(Route::no(
+                    "a function on one set said to map another into a set",
+                ))
+            }
+            None => a,
         };
         let map = composed.unwrap_or_else(|| Printed {
             kind: TermKind::Letter(super::names::letter(&f.text)),

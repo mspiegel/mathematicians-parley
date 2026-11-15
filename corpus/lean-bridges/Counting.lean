@@ -17,6 +17,11 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.Ring.RingNF
 public import Lean.Parser.Command
 public import Factorials
+public import Functions
+public import Mathlib.Data.Fintype.CardEmbedding
+public import Mathlib.Data.Nat.Factorial.BigOperators
+public import Mathlib.SetTheory.Cardinal.Finite
+public import Mathlib.SetTheory.Cardinal.NatCard
 
 /-!
 # What the page says of counting
@@ -248,5 +253,74 @@ theorem partition_count {α : Type*} (A : Set α) (K : Set (Set α)) (m : ℤ) (
   rw [h2.cast_ncard_eq, ← h3, hU, finsum_mem_congr rfl h5,
     finsum_mem_eq_finite_toFinset_sum _ hK, Finset.sum_const, nsmul_eq_mul,
     ← hK.cast_ncard_eq, Set.ncard_eq_toFinset_card K hK]
+
+open LeanBridges.Functions in
+/-- The functions from X to Y are the functions from ↥X to ↥Y, each followed
+by Y's inclusion in its type. -/
+theorem functions_from_eq_range {α β : Type*} (X : Set α) (Y : Set β) :
+    functions_from X Y = Set.range (fun g : ↥X → ↥Y => Subtype.val ∘ g) := by
+  ext g
+  constructor
+  · intro hg
+    exact ⟨fun x => ⟨g x, hg x⟩, rfl⟩
+  · rintro ⟨h, rfl⟩ x
+    exact (h x).2
+
+open LeanBridges.Functions in
+/-- `thm:stdlib/counting/count-functions`: as many as the functions from ↥X
+to ↥Y, |Y|^|X| (`Nat.card_fun`). -/
+theorem count_functions {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) :
+    ∃ m : ℕ, (functions_from X Y).encard = (m : ℕ∞) ∧ (m : ℤ) = (Y.ncard : ℤ) ^ X.ncard := by
+  have := h1.to_subtype
+  have := h2.to_subtype
+  have hinj : Function.Injective (fun g : ↥X → ↥Y => Subtype.val ∘ g) :=
+    fun g h e => funext fun x => Subtype.ext (congrFun e x)
+  refine ⟨Y.ncard ^ X.ncard, ?_, by push_cast; rfl⟩
+  rw [functions_from_eq_range, hinj.encard_range, ENat.card_eq_coe_natCard, Nat.card_fun,
+    Nat.card_coe_set_eq, Nat.card_coe_set_eq]
+
+open LeanBridges.Functions in
+/-- The one-to-one functions from X to Y are the embeddings of ↥X in ↥Y,
+each followed by Y's inclusion in its type. -/
+theorem one_to_one_eq_range {α β : Type*} (X : Set α) (Y : Set β) :
+    {f ∈ functions_from X Y | Set.MapsTo f Set.univ Y ∧ Set.InjOn f Set.univ}
+      = Set.range (fun e : ↥X ↪ ↥Y => Subtype.val ∘ e) := by
+  ext g
+  constructor
+  · rintro ⟨hg, -, hinj⟩
+    exact ⟨⟨fun x => ⟨g x, hg x⟩, fun a b e =>
+      hinj (Set.mem_univ _) (Set.mem_univ _) (congrArg Subtype.val e)⟩, rfl⟩
+  · rintro ⟨e, rfl⟩
+    exact ⟨fun x => (e x).2, fun x _ => (e x).2,
+      fun a _ b _ h => e.injective (Subtype.ext h)⟩
+
+open LeanBridges.Functions in
+/-- `thm:stdlib/counting/count-one-to-one`: as many as the embeddings of ↥X
+in ↥Y, |Y|·(|Y| − 1)·…·(|Y| − |X| + 1) (`Fintype.card_embedding_eq`), each
+factor whole as |X| ≤ |Y|. -/
+theorem count_one_to_one {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite)
+    (h3 : (X.ncard : ℤ) ≤ (Y.ncard : ℤ)) :
+    ∃ m : ℕ, {f ∈ functions_from X Y | Set.MapsTo f Set.univ Y ∧ Set.InjOn f Set.univ}.encard
+      = (m : ℕ∞) ∧ (m : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) ((X.ncard : ℤ) - 1), ((Y.ncard : ℤ) - k : ℤ)) := by
+  classical
+  have := h1.fintype
+  have := h2.fintype
+  refine ⟨Y.ncard.descFactorial X.ncard, ?_, ?_⟩
+  · have hinj : Function.Injective (fun e : ↥X ↪ ↥Y => Subtype.val ∘ e) :=
+      fun e e' h => Function.Embedding.ext fun x => Subtype.ext (congrFun h x)
+    rw [one_to_one_eq_range, hinj.encard_range, ENat.card_eq_coe_fintype_card,
+      Fintype.card_embedding_eq, ← Nat.card_eq_fintype_card,
+      ← Nat.card_eq_fintype_card, Nat.card_coe_set_eq, Nat.card_coe_set_eq]
+  · have hle : X.ncard ≤ Y.ncard := by exact_mod_cast h3
+    rw [Nat.descFactorial_eq_prod_range, Nat.cast_prod]
+    refine Finset.prod_nbij' (fun i : ℕ => (i : ℤ)) (fun k : ℤ => k.toNat) ?_ ?_ ?_ ?_ ?_
+    · intro i hi; simp only [Finset.mem_range] at hi; simp only [Finset.mem_Icc]; omega
+    · intro k hk; simp only [Finset.mem_Icc] at hk; simp only [Finset.mem_range]; omega
+    · intro i _; simp
+    · intro k hk; simp only [Finset.mem_Icc] at hk; simp only [Int.toNat_of_nonneg hk.1]
+    · intro i hi
+      simp only [Finset.mem_range] at hi
+      push_cast [Nat.cast_sub (by omega : i ≤ Y.ncard)]
+      rfl
 
 end LeanBridges.Counting

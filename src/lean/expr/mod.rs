@@ -65,6 +65,15 @@ pub enum Members {
     Numbers(Num),
     /// The elements of the group of this page name, of Lean type G.
     Elements(String),
+    /// Functions on the set `on` itself, `↥X → β`, the members of the
+    /// functions from X to Y: a page's function has values on X alone, and
+    /// a Lean function on X's whole type has others besides. `from` is
+    /// what X holds, `to` what Y does.
+    Maps {
+        on: Box<super::doc::Term>,
+        from: Box<Members>,
+        to: Box<Members>,
+    },
 }
 
 /// The type variable a theorem's sets of things are sets of.
@@ -107,6 +116,10 @@ impl Members {
             Members::Sets(m) => LeanType::Set(Box::new(m.member_type())),
             Members::Numbers(n) => LeanType::Num(*n),
             Members::Elements(g) => LeanType::Elements(g.clone()),
+            Members::Maps { on, to, .. } => LeanType::Fun {
+                from: Box::new(LeanType::Within(on.clone())),
+                to: Box::new(to.member_type()),
+            },
         }
     }
 
@@ -130,6 +143,9 @@ impl Members {
         match self {
             Members::Things(var) => Some(*var),
             Members::Sets(m) => m.things_var(),
+            Members::Maps { from, to, .. } => {
+                from.things_var().or_else(|| to.things_var())
+            }
             Members::Numbers(_) | Members::Elements(_) => None,
         }
     }

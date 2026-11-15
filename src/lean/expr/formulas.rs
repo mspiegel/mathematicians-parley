@@ -749,14 +749,17 @@ impl Writer<'_> {
             return Route::no("a quantifier over a term that is no letter");
         }
         let exists = node.notation() == THERE_IS;
+        // A function letter the quantifier binds is a map on the whole type
+        // with `Set.MapsTo`, as a `let` line's is: only the set as an object
+        // is of functions on X itself (`Members::Maps`).
+        if &*set.notation_name() == "functions-from" {
+            return self.quantified_over_functions(letter, set, body, exists);
+        }
         if let Some(q) = self.quantified_over_set(letter, set, body, exists) {
             return q;
         }
         if let Some(q) = self.quantified_over_polynomials(letter, set, body, exists) {
             return q;
-        }
-        if &*set.notation_name() == "functions-from" {
-            return self.quantified_over_functions(letter, set, body, exists);
         }
         let name = super::super::names::letter(&letter.text);
         let int = super::super::doc::LeanType::Num(Num::Int);

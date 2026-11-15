@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import Functions
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -46,6 +47,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.CoeSort
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Disjoint
 public import Mathlib.Data.Set.Finite.Basic
@@ -258,5 +260,13 @@ theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 
 theorem thm_pigeonhole {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
     X.encard ≤ Y.encard :=
   by rw [← h1.2.encard_image]; exact Set.encard_le_encard (h1.1.image_subset)
+
+theorem thm_count_functions {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) :
+    ∃ m : ℕ, (LeanBridges.Functions.functions_from X Y).encard = (m : ℕ∞) ∧ (m : ℤ) = (Y.ncard : ℤ) ^ X.ncard :=
+  LeanBridges.Counting.count_functions X Y h1 h2
+
+theorem thm_count_one_to_one {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) (h3 : (X.ncard : ℤ) ≤ (Y.ncard : ℤ)) :
+    ∃ m : ℕ, {f ∈ LeanBridges.Functions.functions_from X Y | Set.MapsTo f Set.univ Y ∧ Set.InjOn f Set.univ}.encard = (m : ℕ∞) ∧ (m : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) ((X.ncard : ℤ) - 1), ((Y.ncard : ℤ) - k : ℤ)) :=
+  LeanBridges.Counting.count_one_to_one X Y h1 h2 h3
 
 end Parley.Items.Stdlib.Counting

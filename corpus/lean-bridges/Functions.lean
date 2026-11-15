@@ -26,6 +26,13 @@ noncomputable def inverse {α : Type*} (g : α → α) (A : Set α) (y : α) : �
   classical
   exact if h : ∃ x ∈ A, g x = y then h.choose else y
 
+/-- The functions from X to Y: functions on X itself whose values are in Y.
+A page's function has values on X alone, so these are the page's functions
+one for one, and as many, X empty among them; a function on X's whole type
+would have values off X besides. -/
+@[expose] def functions_from {α β : Type*} (X : Set α) (Y : Set β) : Set (↥X → β) :=
+  {g | ∀ x, g x ∈ Y}
+
 /-- g⁻¹ undoes a one-to-one g on its domain. -/
 theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
     (hg : Set.InjOn g A) (hx : x ∈ A) : inverse g A (g x) = x := by

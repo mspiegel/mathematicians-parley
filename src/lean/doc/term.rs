@@ -28,6 +28,9 @@ pub enum LeanType {
     Universe,
     /// The subgroups of the group of that page name.
     Subgroup(String),
+    /// The members of a set as a type, `↥X`: what a function on X itself
+    /// takes, a member of the functions from X to Y.
+    Within(Box<Term>),
 }
 
 impl LeanType {
@@ -39,6 +42,7 @@ impl LeanType {
             LeanType::Things(_) | LeanType::General => true,
             LeanType::Set(inner) => inner.open(),
             LeanType::Fun { from, to } => from.open() || to.open(),
+            LeanType::Within(set) => set.ty.as_ref().is_some_and(LeanType::open),
             _ => false,
         }
     }
@@ -65,7 +69,8 @@ impl LeanType {
             | LeanType::Things(_)
             | LeanType::Elements(_)
             | LeanType::Universe
-            | LeanType::Subgroup(_) => false,
+            | LeanType::Subgroup(_)
+            | LeanType::Within(_) => false,
         }
     }
 }
