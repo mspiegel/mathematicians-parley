@@ -663,15 +663,27 @@ impl ThingTypes {
                 self.meet(&key);
                 Some(key)
             }
-            // f : Y → Z, with or without a property: f takes Y's things
-            // to Z's.
+            // f : Y → Z, with or without a property, of a map letter, g ∘ f
+            // or g⁻¹: the map takes Y's things to Z's (`sides`), so g ∘ f :
+            // X → W puts X with f's side and W with g's, three types apart.
             (
                 "function-type" | "one-to-one" | "onto" | "one-to-one-onto",
                 [f, from, to],
-            ) if is_map(f) => {
-                let (a, b) = (self.class(from, sorts), self.class(to, sorts));
-                self.join(Some(ThingKey::From(f.text.to_string())), a);
-                self.join(Some(ThingKey::To(f.text.to_string())), b);
+            ) if is_map(f)
+                || matches!(&*f.notation_name(), "composition" | "inverse") =>
+            {
+                // g⁻¹ is the bridges' inverse, which gives y itself where g
+                // sends nothing to it, so g's two sides are one type.
+                if let ("inverse", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+                    if let Some((takes, gives)) = self.sides(g, sorts) {
+                        self.join(Some(takes), Some(gives));
+                    }
+                }
+                if let Some((takes, gives)) = self.sides(f, sorts) {
+                    let (a, b) = (self.class(from, sorts), self.class(to, sorts));
+                    self.join(Some(takes), a);
+                    self.join(Some(gives), b);
+                }
                 None
             }
             // f(x), and f[X] the image: x and X are of what f takes, the

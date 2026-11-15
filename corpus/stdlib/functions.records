@@ -188,7 +188,7 @@ mundane theorem inverse-function
   metamath-proof metamath-bridges/functions/gf1cnvf
   note        A one-to-one function that reaches all of Y has an inverse
               that takes Y back to X.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/functions/inverse-function
 
 mundane theorem composition-function
   let f : X → Y                                                       (H1)
@@ -196,7 +196,7 @@ mundane theorem composition-function
   then        g ∘ f : X → W
   metamath-proof fco
   note        f takes X into Y, where g takes over.
-  lean-proof  not yet implemented
+  lean-proof  hg.comp hf
 
 mundane theorem composition-value
   let f : X → Y                                                       (H1)
@@ -213,7 +213,7 @@ mundane theorem composition-one-to-one
   metamath-proof f1co
   note        Two different points stay apart under f, and their images
               stay apart under g.
-  lean-proof  not yet implemented
+  lean-proof  ⟨h2.1.comp h1.1, h2.2.comp h1.2 h1.1⟩
 
 definition bijection
   let X be a set                                                      (H1)

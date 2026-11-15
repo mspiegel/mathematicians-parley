@@ -35,6 +35,17 @@ theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
   simp only [h, ↓reduceDIte]
   exact hg h.choose_spec.1 hx h.choose_spec.2
 
+/-- `mun:stdlib/functions/inverse-function`: each y of Y is f(x) for some x
+of X, which f⁻¹ gives back. -/
+theorem inverse_function {α : Type*} (X : Set α) (Y : Set α) (f : α → α)
+    (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) (h2 : f '' (X ∩ X) = Y) :
+    Set.MapsTo (inverse f X) Y X := by
+  intro y hy
+  rw [← h2, Set.inter_self] at hy
+  obtain ⟨x, hx, rfl⟩ := hy
+  rw [inverse_of_value f X x h1.2 hx]
+  exact hx
+
 /-- `def:stdlib/functions/image`. -/
 theorem image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (u : β) (W : Set β) (h1 : Y ⊆ X) (_hf : Set.MapsTo f X W) :
     u ∈ f '' (X ∩ Y) ↔ (∃ s ∈ Y, u = f s) :=

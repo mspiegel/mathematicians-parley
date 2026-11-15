@@ -1010,9 +1010,32 @@ impl Writer<'_> {
         })
     }
 
-    /// A map as Lean writes it applied: a map letter, or g ∘ f of maps,
-    /// `(g ∘ f)`; None for anything else.
+    /// A map as Lean writes it applied: a map letter, g ∘ f of maps,
+    /// `(g ∘ f)`, or g⁻¹ of a map letter whose domain a line gives, the
+    /// bridges' `inverse g D`; None for anything else.
     fn map_term(&self, f: &Node) -> Option<Printed> {
+        if let Some(g) = self.inverted(f) {
+            let domain = self.domains.get(g.text.as_str())?.clone();
+            let ty = self.letters.get(g.text.as_str()).map(LetterType::lean_type);
+            let letter = Printed {
+                kind: TermKind::Letter(super::names::letter(&g.text)),
+                ty: ty.clone(),
+            };
+            return Some(Printed {
+                kind: TermKind::App {
+                    head: Box::new(Printed::head(
+                        INVERSE,
+                        Source::Bridge(BridgeModule::Functions),
+                    )),
+                    args: [letter, domain]
+                        .into_iter()
+                        .map(super::doc::Arg::Explicit)
+                        .collect(),
+                    explicit: false,
+                },
+                ty,
+            });
+        }
         if f.is_name() {
             return match self.letters.get(f.text.as_str()) {
                 Some(ty @ LetterType::Map { .. }) => Some(Printed::letter(
@@ -1053,11 +1076,18 @@ impl Writer<'_> {
             return None;
         };
         // A map between sets, or a function between number systems, whose
-        // sets are all of its types.
-        if !matches!(
-            self.letters.get(f.text.as_str()),
-            Some(LetterType::Map { .. } | LetterType::Function { .. })
-        ) {
+        // sets are all of its types; or maps between sets composed, g ∘ f,
+        // as `map_term` writes them.
+        let composed = match f.is_name() {
+            true => None,
+            false => Some(self.map_term(f)?),
+        };
+        if composed.is_none()
+            && !matches!(
+                self.letters.get(f.text.as_str()),
+                Some(LetterType::Map { .. } | LetterType::Function { .. })
+            )
+        {
             return None;
         }
         // f : ℤ → ℤ alone is said by f's Lean type, as `formula` writes it.
@@ -1074,10 +1104,10 @@ impl Writer<'_> {
                 return Some(Route::Declined(d))
             }
         };
-        let map = Printed {
+        let map = composed.unwrap_or_else(|| Printed {
             kind: TermKind::Letter(super::names::letter(&f.text)),
             ty: self.letters.get(f.text.as_str()).map(LetterType::lean_type),
-        };
+        });
         let mut claims: Vec<Printed> = Vec::new();
         for part in parts {
             let mut words = part.split_whitespace();

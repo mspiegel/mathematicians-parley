@@ -1459,8 +1459,11 @@ public import Parley.Tests.Stdlib.Divisibility.ModValue
 public import Parley.Tests.Stdlib.Divisibility.ModBelow
 public import Parley.Tests.Stdlib.Divisibility.ZeroDivides
 public import Parley.Tests.Stdlib.Divisibility.PrimeDividesPower
+public import Parley.Tests.Stdlib.Functions.CompositionFunction
 public import Parley.Tests.Stdlib.Functions.CompositionValue
+public import Parley.Tests.Stdlib.Functions.CompositionOneToOne
 public import Parley.Tests.Stdlib.Functions.Preimage
+public import Parley.Tests.Stdlib.Functions.InverseFunction
 public import Parley.Tests.Stdlib.Functions.SetImage
 public import Parley.Tests.Stdlib.Logarithms.LnProduct
 public import Parley.Tests.Stdlib.Logarithms.LnQuotient

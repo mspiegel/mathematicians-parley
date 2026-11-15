@@ -91,9 +91,21 @@ theorem mun_preimage_within {α β : Type*} (X : Set α) (Z : Set β) (f : α �
     X ∩ f ⁻¹' Z ⊆ X :=
   Set.inter_subset_left
 
+theorem mun_inverse_function {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) (h2 : f '' (X ∩ X) = Y) :
+    Set.MapsTo (LeanBridges.Functions.inverse f X) Y X :=
+  LeanBridges.Functions.inverse_function X Y f h1 h2
+
+theorem mun_composition_function {α β γ : Type*} (Y : Set β) (W : Set γ) (X : Set α) (f : α → β) (g : β → γ) (hf : Set.MapsTo f X Y) (hg : Set.MapsTo g Y W) :
+    Set.MapsTo (g ∘ f) X W :=
+  hg.comp hf
+
 theorem mun_composition_value {α β γ : Type*} (Y : Set β) (X : Set α) (f : α → β) (g : β → γ) (x : α) (W : Set γ) (h1 : x ∈ X) (hf : Set.MapsTo f X Y) (hg : Set.MapsTo g Y W) :
     (g ∘ f) x = g (f x) :=
   rfl
+
+theorem mun_composition_one_to_one {α β γ : Type*} (W : Set γ) (X : Set α) (Y : Set β) (f : α → β) (g : β → γ) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) (h2 : Set.MapsTo g Y W ∧ Set.InjOn g Y) :
+    Set.MapsTo (g ∘ f) X W ∧ Set.InjOn (g ∘ f) X :=
+  ⟨h2.1.comp h1.1, h2.2.comp h1.2 h1.1⟩
 
 theorem def_bijection {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y) :
     ∃ g : α → β, Set.BijOn g X Y :=
