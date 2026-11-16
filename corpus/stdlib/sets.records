@@ -37,14 +37,14 @@ axiom empty-set
   then        ∅ exists
   metamath-proof 0ex
   note        A collection with no members exists; ∅ names it.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.empty_set
 
 axiom pairing
   let a be an element                                                 (H1)
   let b be an element                                                 (H2)
   then        {a, b} exists
   metamath-proof prex
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.pairing a b ha_set hb_set
 
 axiom unions
   let C be a set                                                      (H1)
@@ -53,7 +53,7 @@ axiom unions
   metamath-proof metamath-bridges/zfc/giunex
   note        What is in some member of a collection that exists makes a
               collection that exists.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.unions C h1
 
 axiom power-sets
   let X be a set                                                      (H1)
@@ -61,7 +61,7 @@ axiom power-sets
   then        𝒫X exists
   metamath-proof pwexg
   note        The parts of a collection that exists make one that exists.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.power_sets X h1
 
 axiom separation
   let X be a set                                                      (H1)
@@ -72,7 +72,7 @@ axiom separation
   note        The members of a collection that exists with a property make
               one that exists. A property is not a thing, so this is one
               axiom for every property.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.separation X h1 P
 
 axiom replacement
   let Y be a set                                                      (H1)
@@ -83,7 +83,7 @@ axiom replacement
   metamath-proof metamath-bridges/zfc/grnmptex
   note        The values a function takes on a collection that exists make
               one that exists.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.replacement Y h1 Z hZ_set E hE
 
 axiom infinity
   then        ℕ exists
@@ -91,7 +91,7 @@ axiom infinity
   note        An infinite collection exists. Textbooks build it as the
               least one holding ∅ and x ∪ {x} with each x; the page says it
               of ℕ, which set.mm builds from it.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.infinity
 
 axiom choice
   let C be a set                                                      (H1)
@@ -103,7 +103,7 @@ axiom choice
               choosing a member of each. The union's letter Y is not the
               letter X the "for all" binds, as set.mm keeps a map's
               codomain apart from its argument.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.choice C h2
 
 definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
@@ -235,7 +235,7 @@ mundane theorem pair-parts-equal
   note        Two pairs are one pair when their first parts are equal and
               their second parts are, the order counting, as it does not
               for {a, b} (`pair-equal`).
-  lean-proof  not yet implemented
+  lean-proof  Prod.mk_inj
 
 mundane theorem pair-in-product
   let X be a set                                                      (H1)
@@ -285,7 +285,7 @@ mundane theorem difference-set
   let a be an element                                                 (H2)
   then        X ∖ {a} exists
   metamath-proof difexg
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.ZF.difference_set X a hX_set
 
 mundane theorem subset-of-difference
   let a be an element                                                 (H1)
@@ -645,7 +645,7 @@ mundane theorem intersection-within
   metamath-proof ssiin
   note        A set within every set of D is within their intersection. It
               holds for an empty D too, the intersection then being everything.
-  lean-proof  not yet implemented
+  lean-proof  Set.subset_iInter₂ h1
 
 mundane theorem subset-antisymmetric
   let X be a set                                                      (H1)

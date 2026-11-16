@@ -2,7 +2,6 @@ module
 
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -36,7 +35,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
     obtain ⟨x, s2_1a, s2_1b⟩ := (hH4 y hK1)
     -- 2.2. mun:value-in-image Y := A, s := x, from 2.1
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
-    have s2_2 : F x ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) r25_1 s2_1a (Set.mapsTo_univ _ _))
+    have s2_2 : F x ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := B) r25_1 s2_1a hH3)
     -- 2.3. substitute y = F(x) (line 2.1) into line 2.2
     exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s2_1b.symm s2_2
   -- 3. def:subset, from 2

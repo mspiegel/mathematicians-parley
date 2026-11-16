@@ -14,7 +14,7 @@ use crate::citing::{
     Introduced, Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepPlace, Theorem, Values};
-use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
+use crate::formula::page::{chain_pairs_placed, conjoined, filled, Sentence, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
@@ -99,8 +99,13 @@ pub enum SaidFrom {
     Whole,
     /// A part of a sentence joined by "and".
     Part { sentence: usize, part: usize },
-    /// An equation of a chain the sentence writes.
-    Pair(usize),
+    /// An equation between two terms of a chain the sentence writes, by
+    /// the places of the two among the chain's terms (`ChainPair`).
+    Pair {
+        sentence: usize,
+        from: usize,
+        to: usize,
+    },
     /// The sentence, a "for all", read at a block's letter, or with `part`
     /// a part of that reading joined by "and".
     AtLetter {
@@ -703,12 +708,21 @@ impl<'a> Known<'a> {
                 here.push(Saying::of(part, tag));
             }
         }
-        let pairs: Vec<Node> = here
+        let pairs: Vec<crate::formula::page::ChainPair> = here
             .iter()
-            .filter_map(|s| chain_pairs(self.env.g, &s.node))
+            .filter_map(|s| chain_pairs_placed(self.env.g, &s.node))
             .flatten()
             .collect();
-        here.extend(pairs.into_iter().map(|p| Saying::of(p, SaidFrom::Pair(i))));
+        here.extend(pairs.into_iter().map(|p| {
+            Saying::of(
+                p.equation,
+                SaidFrom::Pair {
+                    sentence: i,
+                    from: p.from,
+                    to: p.to,
+                },
+            )
+        }));
         let members: Vec<Node> = here
             .iter()
             .filter_map(|s| subset_members(&s.node, self.env, &self.sorts))
@@ -756,7 +770,7 @@ impl<'a> Known<'a> {
             .filter(|s| {
                 !matches!(
                     s.from,
-                    SaidFrom::Pair(_) | SaidFrom::Implied(_) | SaidFrom::Members(_)
+                    SaidFrom::Pair { .. } | SaidFrom::Implied(_) | SaidFrom::Members(_)
                 )
             })
             .map(|s| s.written)
@@ -774,7 +788,7 @@ impl<'a> Known<'a> {
     ) -> Vec<Node> {
         self.says(stated, defined)
             .into_iter()
-            .filter(|s| !matches!(s.from, SaidFrom::Pair(_) | SaidFrom::Implied(_)))
+            .filter(|s| !matches!(s.from, SaidFrom::Pair { .. } | SaidFrom::Implied(_)))
             .map(|s| s.written)
             .collect()
     }
@@ -855,6 +869,7 @@ impl<'a> Known<'a> {
                             part: None,
                             written: m.clone(),
                             implied: None,
+                            pair: None,
                         },
                         member: m,
                         header: l.header,

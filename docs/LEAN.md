@@ -433,6 +433,37 @@ as written and met with the claim by `exact_mod_cast`, since `qify` and
 is `{G : Type*} [Group G]`, its operation `*`, its identity `1`; a polynomial
 is a function from ℂ to ℂ among the bridges' polynomials.
 
+`for all sets X, P` is `∀ X : Set α, P`, X a set of the theorem's things. A
+chain of equations, a = b = c, is the conjunction of its neighbouring
+equations, `a = b ∧ b = c`. Where a step cites two terms of a chain that are
+not neighbours, the checker records which links join them, and the build
+proves the equation by `Eq.trans` of those links. A map given by its values,
+`the map sending y ∈ A to E`, is `fun y : T => E`, T the type of A's members:
+a function on all of T, as a map letter is. Applied, it is its rule at the
+argument. A pair `(a, b)` is a member of Lean's product type,
+`((1, 1) : ℤ × ℤ)`. Two pairs are equal by `Prod.ext` of their coordinates,
+and unequal at the coordinate the checker records them apart at. The page's
+nth root is the bridges' `root n x`, set.mm's real root read as written:
+x^(1/n) for x ≥ 0, and −(−x)^(1/n) below 0. `⋂(x ∈ D) E` is `⋂ x ∈ D, E`,
+which over an empty D is all of the type, as set.mm's is. `sup S` is
+`sSup S`. Every statement that uses it says S is non-empty and bounded above,
+so Mathlib's value elsewhere is never read.
+
+`X exists` is `LeanBridges.ZF.IsSet X`: X is one of ZF's sets
+(`corpus/lean-bridges/ZF.lean`). The bridge's class `Sets α` says which
+things of a type are sets, and which of Mathlib's `ZFSet`s each one is. Every
+`ZFSet` is one. Every integer is one, coded by a set of its own, as set.mm
+builds the numbers from sets. A set of things is one where all its members
+are and their codes make a `ZFSet`. A statement that says a collection exists
+takes `{α : Type*} [LeanBridges.ZF.Sets α]`. Each letter its `let` lines
+introduce gets the hypothesis that it is a set, `hX_set`, as set.mm's reading
+of a `let` gives `X ∈ V`. A citation meets that hypothesis with the citing
+statement's own fact for the letter it gives. The axioms that say a
+collection exists are proved once each in the bridge from Mathlib's ZF sets,
+and `ℕ exists` is said of the page's ℕ, the positive integers. Sets of reals
+and complex numbers are not yet among ZF's sets, so a page that says one
+exists is left out.
+
 ## Defines and recursions
 
 A define in a proof is Lean's `set`: `let m = (a + b)/2` is

@@ -460,6 +460,7 @@ pub fn sentence_substitutions(
                         part: None,
                         written: start.clone(),
                         implied: None,
+                        pair: None,
                     }),
                     start,
                     put,

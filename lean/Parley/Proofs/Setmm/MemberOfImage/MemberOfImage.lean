@@ -39,7 +39,7 @@ theorem member_of_image {α : Type*} (A : Set α) (B : Set α) (y : α) (F : α 
     -- 3. obtain x from D2
     obtain ⟨x, s3a, s3b⟩ := hD2
     -- 4. mun:value-in-image Y := X, s := x, from H4, 3
-    have s4 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := Set.univ) hH4 s3a (Set.mapsTo_univ _ _))
+    have s4 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := B) hH4 s3a hH3)
     -- 5. substitute F(x) = y (line 3) into line 4
     exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3b s4
 

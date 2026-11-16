@@ -50,7 +50,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
   -- 2. mun:image-within, from H1
   have s2 : x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_image_within (X := {n : ℤ | 0 < n}) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (Set.mapsTo_univ _ _))
   -- 3. mun:value-in-image s := 1, from H1, 1
-  have s3 : x 1 ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) s1 (by norm_num) (Set.mapsTo_univ _ _))
+  have s3 : x 1 ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := (Set.univ : Set ℝ)) s1 (by norm_num) (Set.mapsTo_univ _ _))
   -- 4. proof
   have s4 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ B := by
     intro s hK1
@@ -114,7 +114,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.2. instantiate m := N in line 9, from 10.7.1
       have s10_7_2 : x N ≤ x n := by exact ((s9 n hK2) N s10_4a s10_7_1)
       -- 10.7.3. mun:value-in-image s := n, from H1, 1
-      have s10_7_3 : x n ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) s1 hK2 (Set.mapsTo_univ _ _))
+      have s10_7_3 : x n ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := (Set.univ : Set ℝ)) s1 hK2 (Set.mapsTo_univ _ _))
       -- 10.7.4. instantiate s := x(n) in line 8, from 10.7.3
       have s10_7_4 : x n ≤ c := by exact (s8 (x n) s10_7_3)
       -- 10.7.5. transitivity, from 10.5, 10.7.2

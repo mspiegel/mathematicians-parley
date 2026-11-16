@@ -554,6 +554,36 @@ impl<'a> Proof<'a> {
         out
     }
 
+    /// `cited_parts`, and the equation between each two terms of a chain a
+    /// cited line writes, x = r of x = y = r, by the links between them
+    /// (`chain_pair`): every equation the checker reads the lines as giving.
+    pub(super) fn cited_equations(
+        &self,
+        refs: &[String],
+    ) -> Vec<super::super::algebra::Cited> {
+        let mut out = self.cited_parts(refs);
+        for r in refs {
+            for s in self.trees.get(r).into_iter().flatten() {
+                let pairs = crate::formula::page::chain_pairs_placed(
+                    self.writer.grammar,
+                    &s.node,
+                );
+                for p in pairs.into_iter().flatten() {
+                    let terms = crate::checker::record::ChainTerms {
+                        from: p.from,
+                        to: p.to,
+                    };
+                    if let Route::Built(c) =
+                        self.chain_pair(&s.cited(), terms, &p.equation)
+                    {
+                        out.push(c);
+                    }
+                }
+            }
+        }
+        out
+    }
+
     /// Where the item's set letter `name` is the domain of one of its maps,
     /// the domain of the map the citation gives for it, as Lean writes it;
     /// None where the letter is no map's domain.
@@ -788,6 +818,16 @@ impl<'a> Proof<'a> {
                             .recursions
                             .get(theirs)
                             .map(|ours| super::super::tactics::hyp(&line_name(ours))),
+                        // That what the citation gives a letter of a `let`
+                        // is one of ZF's sets: the citing statement's own
+                        // fact of it, as set.mm's reading has it in scope.
+                        Some(StatedAt::Sethood(_)) => {
+                            let wanted = wanted.text();
+                            self.sethoods
+                                .iter()
+                                .find(|s| s.says == wanted)
+                                .map(|s| super::super::tactics::hyp(&s.name))
+                        }
                         None => None,
                     });
                     match proof {
@@ -989,7 +1029,7 @@ impl<'a> Proof<'a> {
             (LetterType::Function { from, to }, given) => {
                 match self.writer.function_type(value) {
                     Route::Built(t) if t == (*from, given.unwrap_or(*to)) => {
-                        Route::Built(self.writer.function_printed(value))
+                        self.writer.function_printed(value)
                     }
                     // A function that takes the letter's numbers
                     // and gives numbers within its type, t of ℤ
@@ -998,13 +1038,15 @@ impl<'a> Proof<'a> {
                         if *from <= takes && gives <= given.unwrap_or(*to) =>
                     {
                         let wanted = given.unwrap_or(*to);
-                        Route::Built(mapped_through(
-                            self.writer.function_printed(value),
-                            super::super::doc::LeanType::Num(*from),
-                            takes,
-                            gives,
-                            wanted,
-                        ))
+                        self.writer.function_printed(value).map(|f| {
+                            mapped_through(
+                                f,
+                                super::super::doc::LeanType::Num(*from),
+                                takes,
+                                gives,
+                                wanted,
+                            )
+                        })
                     }
                     Route::Built(_) => {
                         Route::no("a function given for a letter of other types")
@@ -1357,16 +1399,12 @@ impl<'a> Proof<'a> {
                 let put = things.put(from, &things_at);
                 match self.writer.function_type(value) {
                     Route::Built((_, gives)) if gives == wanted => {
-                        Route::Built(self.writer.function_printed(value))
+                        self.writer.function_printed(value)
                     }
                     Route::Built((takes, gives)) if gives < wanted => {
-                        Route::Built(mapped_through(
-                            self.writer.function_printed(value),
-                            put.member_type(),
-                            takes,
-                            gives,
-                            wanted,
-                        ))
+                        self.writer.function_printed(value).map(|f| {
+                            mapped_through(f, put.member_type(), takes, gives, wanted)
+                        })
                     }
                     Route::Built(_) => {
                         Route::no("a function given for a map into a narrower type")
@@ -1401,6 +1439,18 @@ impl<'a> Proof<'a> {
                     )),
                     None => self.writer.set_term(value),
                 }
+            }
+            // A function of numbers given for a map of things, a
+            // map `(t ∈ [a, b] ↦ f(t))` or a function letter for
+            // E : α → β: the function as the writer writes one.
+            (
+                LetterType::Map {
+                    from: super::super::expr::Members::Things(_),
+                    to: super::super::expr::Members::Things(_),
+                },
+                _,
+            ) if self.writer.function_type(value).built().is_some() => {
+                self.writer.function_printed(value)
             }
             // A set, a member or a map given for one: the term
             // as the writer writes a set's.
@@ -1868,6 +1918,17 @@ impl<'a> Proof<'a> {
                 numeral_to_nat = leaves_numeral_to_nat(&compared)
                     || leaves_numeral_to_nat(&claim_read);
                 let mut found = forms::differences(&compared, &claim_read, &widen);
+                // An item that counts the set in ℕ∞ at a value in ℕ₀, for a
+                // claim that counts it in ℤ: its count and the value's
+                // `toNat` are what `count_value_met` converts, of any set.
+                if let (false, [_, value]) = (turned, node.children.as_slice()) {
+                    if self
+                        .count_value_nonneg(value, &compared, &claim_read)
+                        .is_some()
+                    {
+                        found.clear();
+                    }
+                }
                 for d in &found {
                     if let forms::FormDifference::Count {
                         item_set, line_set, ..
@@ -1975,11 +2036,11 @@ impl<'a> Proof<'a> {
         let Some(sentence) = item.sentences.get(concluded.sentence) else {
             return Route::no("a conclusion the item does not have in Lean");
         };
-        let instance =
-            match self.instance_of(sentence, &cited.binding, Some(node), cited) {
-                Route::Built(i) => i,
-                Route::Declined(d) => return Route::Declined(d),
-            };
+        let binding = cited.binding_with_written();
+        let instance = match self.instance_of(sentence, &binding, Some(node), cited) {
+            Route::Built(i) => i,
+            Route::Declined(d) => return Route::Declined(d),
+        };
         let comparison = self.compare_forms(
             reason,
             (k, node),
@@ -2795,10 +2856,7 @@ impl<'a> Proof<'a> {
         let Some(sentence) = item.sentences.get(before + at) else {
             return Route::no("an obtain of a sentence the item does not have in Lean");
         };
-        let mut binding = cited.binding.clone();
-        for (k, v) in &cited.written {
-            binding.entry(*k).or_insert_with(|| v.clone());
-        }
+        let binding = cited.binding_with_written();
         let (inst, statement) = match self.instance_of(sentence, &binding, None, cited)
         {
             Route::Built(i) => (i.term, i.statement),

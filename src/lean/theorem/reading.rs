@@ -143,12 +143,10 @@ impl<'a> Proof<'a> {
             let positive = |n: &Node| {
                 crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
             };
-            let grammar = &self.sources.checked.grammar;
             let mut writer = self.writer.with_letters(self.writer.letters.clone());
-            let by_others =
-                crate::citing::finite::finite_sets(grammar, others, &positive);
+            let by_others = crate::citing::finite::finite_sets(others, &positive);
             let by_itself =
-                crate::citing::finite::finite_sets_vouched(grammar, [node], &positive);
+                crate::citing::finite::finite_sets_vouched([node], &positive);
             for (set, why) in by_others.into_iter().chain(by_itself) {
                 writer.finite.entry(set).or_insert(why);
             }
@@ -1099,7 +1097,9 @@ impl<'a> Proof<'a> {
                 // The other side is said once, an integer Lean computes as
                 // one, p² + q² of integers: that integer, and the equation
                 // cast down.
-                None if shown.system == crate::rules::System::Z => {
+                None if shown.system == crate::rules::System::Z
+                    && beside.other_beside.is_none() =>
+                {
                     let int = super::super::templates::Num::Int;
                     let lean_whole =
                         self.writer.carrier(other).built().is_some_and(|c| c <= int);

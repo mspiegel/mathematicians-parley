@@ -623,6 +623,92 @@ impl<'a> Proof<'a> {
         (intros, body, writer)
     }
 
+    /// A claim that two pairs are equal or differ, by a method that decides
+    /// pairs coordinate by coordinate (`METHODS.md`, Pairs): equal by both
+    /// coordinates' equations, `Prod.ext (show a = c by …) (show b = d by
+    /// …)`; apart at the coordinate the checker found them apart at
+    /// (`CheckedTheorem::pairs_apart`), `fun h => (show a ≠ c by …)
+    /// (congrArg Prod.fst h)`. Each coordinate's claim is proved as the
+    /// method proves a claim of numbers. None where the claim is no
+    /// relation between two pairs.
+    fn pairs_compared(
+        &self,
+        reason: Reason,
+        m: Method,
+        k: usize,
+        node: &Node,
+        writer: &Writer,
+    ) -> Option<Route<super::super::doc::Proof>> {
+        use super::super::doc::{LeanType, Proof, Source, TermKind};
+        use super::super::tactics as t;
+        let (equation, negated) = match (node.notation(), node.children.as_slice()) {
+            (crate::notations::LOGICAL_NOT, [inner])
+                if inner.notation() == EQUALITY =>
+            {
+                (inner, true)
+            }
+            (EQUALITY, _) => (node, false),
+            _ => return None,
+        };
+        let [left, right] = equation.children.as_slice() else {
+            return None;
+        };
+        let l = super::super::expr::pair_coordinates(left)?;
+        let r = super::super::expr::pair_coordinates(right)?;
+        // The claim of one coordinate, a = c or a ≠ c, shown by the method.
+        let coordinate = |i: usize| -> Route<Printed> {
+            let equal = equation.with_children(vec![l[i].clone(), r[i].clone()]);
+            let claim = match negated {
+                true => node.with_children(vec![equal]),
+                false => equal,
+            };
+            let says = match writer.formula(&claim) {
+                Route::Built(s) => s,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            self.method_proof(reason, m, k, &claim, writer)
+                .map(|proof| super::conversions::shown(says, proof))
+        };
+        if !negated {
+            return Some(match (coordinate(0), coordinate(1)) {
+                (Route::Built(a), Route::Built(b)) => {
+                    Route::Built(Proof::Term(Printed::applied(
+                        "Prod.ext",
+                        Source::Core,
+                        vec![a, b],
+                        LeanType::Prop,
+                    )))
+                }
+                (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+            });
+        }
+        let Some(at) = self.rec.pairs_apart.get(&reason.just.line) else {
+            return Some(Route::no("pairs apart at no coordinate the checker found"));
+        };
+        let (i, projection) = match at {
+            crate::methods::pairs::Coordinate::First => (0, "Prod.fst"),
+            crate::methods::pairs::Coordinate::Second => (1, "Prod.snd"),
+        };
+        Some(coordinate(i).map(|apart| {
+            let equal_there = Printed::applied(
+                "congrArg",
+                Source::Core,
+                vec![
+                    Printed::constant(projection, Source::Core, LeanType::Prop),
+                    t::hyp("h"),
+                ],
+                LeanType::Prop,
+            );
+            Proof::Term(Printed::of(
+                TermKind::Lambda {
+                    letters: vec!["h".to_string()],
+                    body: Box::new(applied_to(apart, equal_there)),
+                },
+                LeanType::Prop,
+            ))
+        }))
+    }
+
     /// The proof of a claim by a method that closes it, with the letters
     /// `writer` holds.
     pub(super) fn method_proof(
@@ -635,6 +721,14 @@ impl<'a> Proof<'a> {
     ) -> Route<super::super::doc::Proof> {
         use super::super::doc::Proof;
         let just = reason.just;
+        if matches!(
+            m,
+            Method::Algebra | Method::Arithmetic | Method::RealArithmetic
+        ) {
+            if let Some(compared) = self.pairs_compared(reason, m, k, node, writer) {
+                return compared;
+            }
+        }
         Route::Built(match m {
             Method::Algebra => {
                 // A cited equation of a narrower type is combined as the
@@ -1165,6 +1259,37 @@ impl<'a> Proof<'a> {
             self.name_value(d, &def.name, ty, value, body, depth);
             return Route::Built(());
         }
+        // A name for a map, `let p = (t ∈ [a, b] ↦ f(t))`: a function of the
+        // types it takes and gives, as a define of a function on its set is
+        // (`define_function`), with that set its domain where it is no
+        // whole type of reals or wider.
+        if let (crate::notations::MAP, [_, set, _]) =
+            (body.notation(), body.children.as_slice())
+        {
+            if def.kind.is_some() {
+                return Route::no("a define of a map said of a kind");
+            }
+            let (from, to) = match self.writer.function_type(&body) {
+                Route::Built(t) => t,
+                Route::Declined(why) => return Route::Declined(why),
+            };
+            let value = match self.writer.function_printed(&body) {
+                Route::Built(v) => v,
+                Route::Declined(why) => return Route::Declined(why),
+            };
+            let whole = super::super::expr::system_of(set).is_some();
+            if !whole && from >= super::super::templates::Num::Real {
+                match self.writer.numbers_at(set, from) {
+                    Route::Built(p) => {
+                        self.writer.domains.insert(def.name.clone(), p);
+                    }
+                    Route::Declined(why) => return Route::Declined(why),
+                }
+            }
+            let ty = LetterType::Function { from, to };
+            self.name_value(d, &def.name, ty, value, body, depth);
+            return Route::Built(());
+        }
         use super::super::templates::Num;
         // A positive or nonnegative whole number is a natural number named
         // from its kind's fact, whatever its value's type, as `let m ∈ ℕ`
@@ -1343,20 +1468,55 @@ impl<'a> Proof<'a> {
             meetings.as_slice(),
             names.as_slice(),
         ) {
+            // A statement that is no "there is" is no proof of one as it
+            // stands: a count Lean asks as some natural number is made
+            // below (`count_witness_made`).
+            let exists = |p: &Printed| {
+                matches!(
+                    &p.kind,
+                    super::super::doc::TermKind::Quantified {
+                        quant: super::super::doc::Quant::Exists,
+                        ..
+                    }
+                )
+            };
             if met.as_written()
                 && super::super::doc::forms::casts_differ(says, owe, &values).is_none()
+                && exists(says) == exists(owe)
             {
                 return Route::Built(Closing::Last(name.clone()));
             }
         }
         let mut proofs = Vec::new();
-        for (((says, proof), (owe, _)), met) in
-            parts.iter().zip(&owed_parts).zip(meetings)
+        // The page's sentence each part is of, where the step's claim has one
+        // for each: a count of a set the closing shows finite is of it.
+        let page_parts: Vec<&Node> = match all.len() == parts.len() {
+            true => all.iter().map(|(_, node, _)| node).collect(),
+            false => Vec::new(),
+        };
+        for (i, (((says, proof), (owe, _)), met)) in
+            parts.iter().zip(&owed_parts).zip(meetings).enumerate()
         {
-            let proved = match (owe.is_truth(), proof) {
-                (true, _) => Some(Proved::Term(trivial())),
-                (false, Some(proof)) => self.met_proof(proof.clone(), says, owe, met),
-                (false, None) => None,
+            // A part that counts a finite set in ℤ, ending a block that owes
+            // its count as some natural number (`count_witness_made`).
+            let counted_set = page_parts
+                .get(i)
+                .and_then(|n| n.children.first())
+                .filter(|c| &*c.notation_name() == "cardinality")
+                .and_then(|c| c.children.first());
+            let witness = match (proof, counted_set) {
+                (Some(proof), Some(set)) if met.as_written() => {
+                    self.count_witness_made(set, proof, says, owe)
+                }
+                _ => None,
+            };
+            let proved = match (owe.is_truth(), proof, witness) {
+                (true, _, _) => Some(Proved::Term(trivial())),
+                (false, _, Some(made)) => Some(Proved::Term(made)),
+                (false, Some(proof), None) => {
+                    self.met_proof(proof.clone(), says, owe, met)
+                }
+                (false, None, None) => None,
             };
             match proved {
                 Some(p) => proofs.push(p),

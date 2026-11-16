@@ -40,14 +40,14 @@ theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (h
     rcases s2_2 with hC1 | hC2
     · skip
       -- 2.3.1. mun:value-in-image Y := W, from C1, H4
-      have s2_3_1 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := Set.univ) hH4 hC1 (Set.mapsTo_univ _ _))
+      have s2_3_1 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := B) hH4 hC1 hH3)
       -- 2.3.2. substitute y = f(s) (line 2.1) into line 2.3.1
       have s2_3_2 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ W))) s2_1b.symm s2_3_1
       -- 2.3.3. mun:in-union-left Y := f[W], Z := f[X], from 2.3.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y) s2_3_2)
     · skip
       -- 2.3.4. mun:value-in-image Y := X, from C2, H5
-      have s2_3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := Set.univ) hH5 hC2 (Set.mapsTo_univ _ _))
+      have s2_3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := B) hH5 hC2 hH3)
       -- 2.3.5. substitute y = f(s) (line 2.1) into line 2.3.4
       have s2_3_5 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ X))) s2_1b.symm s2_3_4
       -- 2.3.6. mun:in-union-right Y := f[W], Z := f[X], from 2.3.5
@@ -62,7 +62,7 @@ theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (h
   -- 5. def:subset, from 4
   have s5 : W ⊆ W ∪ X := ((Parley.Items.Stdlib.Sets.def_subset (X := W) (Y := W ∪ X))).mpr s4
   -- 6. mun:image-monotone Y := W, Z := W ∪ X, from 5
-  have s6 : f '' (A ∩ W) ⊆ f '' (A ∩ (W ∪ X)) := by exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := A) (Y := W) (Z := W ∪ X) (f := f) (W := Set.univ) s5 (Set.mapsTo_univ _ _))
+  have s6 : f '' (A ∩ W) ⊆ f '' (A ∩ (W ∪ X)) := by exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := A) (Y := W) (Z := W ∪ X) (f := f) (W := B) s5 hH3)
   -- 7. proof
   have s7 : ∀ t ∈ X, t ∈ W ∪ X := by
     intro t hK3
@@ -71,7 +71,7 @@ theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (h
   -- 8. def:subset, from 7
   have s8 : X ⊆ W ∪ X := ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := W ∪ X))).mpr s7
   -- 9. mun:image-monotone Y := X, Z := W ∪ X, from 8
-  have s9 : f '' (A ∩ X) ⊆ f '' (A ∩ (W ∪ X)) := by exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := A) (Y := X) (Z := W ∪ X) (f := f) (W := Set.univ) s8 (Set.mapsTo_univ _ _))
+  have s9 : f '' (A ∩ X) ⊆ f '' (A ∩ (W ∪ X)) := by exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := A) (Y := X) (Z := W ∪ X) (f := f) (W := B) s8 hH3)
   -- 10. mun:union-subset X := f[W], Y := f[X], Z := f[W ∪ X], from 6, 9
   have s10 : f '' (A ∩ W) ∪ f '' (A ∩ X) ⊆ f '' (A ∩ (W ∪ X)) := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := f '' (A ∩ W)) (Y := f '' (A ∩ X)) (Z := f '' (A ∩ (W ∪ X))) s6 s9)
   -- 11. mun:subset-antisymmetric, from 3, 10

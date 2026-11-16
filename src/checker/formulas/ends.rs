@@ -1514,6 +1514,7 @@ pub(super) fn algebra_holds(
         read,
         facts,
         verdict,
+        ..
     }) = algebra_decided(at, known, targets)
     else {
         return false;

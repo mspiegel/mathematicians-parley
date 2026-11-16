@@ -715,14 +715,36 @@ pub fn chain_links(g: &Grammar, node: &Node) -> Option<Vec<Node>> {
 /// any two of its terms, `a = c` of `a = b = c` as well as its links
 /// (`SYNTAX.md`). None for any other node.
 pub fn chain_pairs(g: &Grammar, node: &Node) -> Option<Vec<Node>> {
+    chain_pairs_placed(g, node)
+        .map(|pairs| pairs.into_iter().map(|p| p.equation).collect())
+}
+
+/// The equation between two terms of a chain, with where they stand.
+#[derive(Clone, Debug)]
+pub struct ChainPair {
+    /// The place of the first term among the chain's terms, from 0.
+    pub from: usize,
+    /// The place of the second, after the first.
+    pub to: usize,
+    /// The equation, the first term = the second.
+    pub equation: Node,
+}
+
+/// `chain_pairs`, each equation with the places of its two terms: x = w of
+/// x = y = z = w joins the terms at 0 and 3. None for any other node.
+pub fn chain_pairs_placed(g: &Grammar, node: &Node) -> Option<Vec<ChainPair>> {
     if node.notation() != EQUAL_CHAIN {
         return None;
     }
     let terms = &node.children;
     let mut pairs = Vec::new();
-    for (i, first) in terms.iter().enumerate() {
-        for second in &terms[i + 1..] {
-            pairs.push(made(g, EQUALS, vec![first.clone(), second.clone()]));
+    for (from, first) in terms.iter().enumerate() {
+        for (to, second) in terms.iter().enumerate().skip(from + 1) {
+            pairs.push(ChainPair {
+                from,
+                to,
+                equation: made(g, EQUALS, vec![first.clone(), second.clone()]),
+            });
         }
     }
     Some(pairs)

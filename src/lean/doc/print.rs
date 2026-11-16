@@ -28,6 +28,7 @@ impl LeanType {
                 format!("Subgroup {}", crate::lean::names::letter(g))
             }
             LeanType::Within(set) => format!("↥{}", bracketed(&set.text())),
+            LeanType::Prod(a, b) => format!("{} × {}", a.text(), b.text()),
         }
     }
 }
@@ -54,7 +55,8 @@ impl Term {
             TermKind::Bound { form, .. } => match form {
                 BoundForm::BigOp { .. }
                 | BoundForm::Integral { .. }
-                | BoundForm::Union { .. } => 10,
+                | BoundForm::Union { .. }
+                | BoundForm::Inter { .. } => 10,
                 BoundForm::SetOf | BoundForm::SetOfMember { .. } => MAX,
             },
             TermKind::Letter(_)
@@ -214,6 +216,9 @@ impl Term {
                 BoundForm::Union { set } => {
                     format!("⋃ {letter} ∈ {}, {}", set.at(MAX), body.at(67))
                 }
+                BoundForm::Inter { set } => {
+                    format!("⋂ {letter} ∈ {}, {}", set.at(MAX), body.at(67))
+                }
             },
             TermKind::Lambda { letters, body } => {
                 format!("fun {} => {}", letters.join(" "), body.text())
@@ -222,6 +227,7 @@ impl Term {
                 let (open, close) = match brackets {
                     Brackets::Angle => ("⟨", "⟩"),
                     Brackets::Brace => ("{", "}"),
+                    Brackets::Round => ("(", ")"),
                 };
                 let items: Vec<String> = items.iter().map(|i| i.at(0)).collect();
                 format!("{open}{}{close}", items.join(", "))

@@ -75,6 +75,26 @@ pub(super) fn conjuncts(
         conjuncts(right, fields(proof, &["2"]), said_right, out, w);
         return;
     }
+    // a = b = c: its links, as the writer joins them, `a = b ∧ b = c`, the
+    // first by `.1` and the rest from `.2` on.
+    if let Some(links) = crate::formula::page::chain_links(w.grammar, node) {
+        let (mut proof, mut says) = (proof, says);
+        let last = links.len().saturating_sub(1);
+        for (k, link) in links.iter().enumerate() {
+            if k == last {
+                conjuncts(link, proof, says, out, w);
+                break;
+            }
+            let (said_link, said_rest) = match says.as_ref().and_then(and_sides) {
+                Some((l, r)) => (Some(l), Some(r)),
+                None => (None, None),
+            };
+            conjuncts(link, fields(proof.clone(), &["1"]), said_link, out, w);
+            proof = fields(proof, &["2"]);
+            says = said_rest;
+        }
+        return;
+    }
     out.push(super::super::algebra::Cited {
         node: node.clone(),
         proof,

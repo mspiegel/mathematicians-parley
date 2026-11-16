@@ -103,6 +103,7 @@ public import Mathlib.Order.Filter.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Filter.Tendsto
 public import Mathlib.Order.Heyting.Basic
+public import Mathlib.Order.Int.ConditionallyCompleteOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Basic
 public import Mathlib.Order.Interval.Set.Defs
@@ -223,6 +224,14 @@ theorem axi_completeness (S : Set ℝ) (h1 : S ⊆ (Set.univ : Set ℝ)) (h2 : �
     ∃ c : ℝ, (∀ s ∈ S, s ≤ c) ∧ (∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u) :=
   by obtain ⟨s, hs, -⟩ := h2; obtain ⟨u, hu⟩ := h3; exact ⟨sSup S, fun x hx => le_csSup ⟨u, fun y hy => hu y hy⟩ hx, fun v hv => csSup_le ⟨s, hs⟩ (fun y hy => hv y hy)⟩
 
+theorem mun_integer_sup_member (S : Set ℤ) (h1 : S ⊆ (Set.univ : Set ℤ)) (h2 : ∃ s ∈ S, True) (h3 : ∃ u : ℤ, ∀ s ∈ S, s ≤ u) :
+    sSup S ∈ S :=
+  Int.csSup_mem (h2.imp fun _ h => h.1) h3
+
+theorem mun_integer_sup_above (S : Set ℤ) (x : ℤ) (h1 : S ⊆ (Set.univ : Set ℤ)) (h2 : ∃ u : ℤ, ∀ s ∈ S, s ≤ u) (h3 : x ∈ S) :
+    x ≤ sSup S :=
+  le_csSup h2 h3
+
 theorem thm_rolle (f : ℝ → ℝ) (a : ℝ) (b : ℝ) (h3 : a < b) (h4 : ContinuousOn f (Set.Icc a b : Set ℝ)) (h5 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ f x) (h6 : f a = f b) :
     ∃ c ∈ (Set.Ioo a b : Set ℝ), (deriv f) c = 0 :=
   exists_deriv_eq_zero h3 h4 h6
@@ -274,6 +283,10 @@ theorem thm_continuous_quotient (F : ℝ → ℝ) (f : ℝ → ℝ) (g : ℝ →
 theorem mun_continuous_on_part (f : ℝ → ℝ) (D : Set ℝ) (S : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : S ⊆ D) (h3 : ContinuousOn f D) :
     ContinuousOn f S :=
   ContinuousOn.congr_mono h3 (fun ⦃x⦄ => congrFun rfl) h2
+
+theorem mun_map_continuous_on_part (f : ℝ → ℝ) (D : Set ℝ) (S : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : S ⊆ D) (h3 : ContinuousOn f S) :
+    ContinuousOn (fun x : ℝ => f x) S :=
+  h3
 
 theorem thm_continuous_bounded (f : ℝ → ℝ) (a : ℝ) (b : ℝ) (h3 : ContinuousOn f (Set.Icc a b : Set ℝ)) :
     ∃ M : ℝ, ∀ x ∈ (Set.Icc a b : Set ℝ), abs (f x) ≤ M :=

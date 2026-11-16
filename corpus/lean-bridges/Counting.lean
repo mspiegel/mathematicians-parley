@@ -323,4 +323,20 @@ theorem count_one_to_one {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finit
       push_cast [Nat.cast_sub (by omega : i ≤ Y.ncard)]
       rfl
 
+/-- The parts of a finite Y with j elements, in the two forms the build
+writes them: a part of a set not known finite counted as some natural
+number, `∃ m : ℕ, S.encard = m ∧ m = j`, and one of a finite set counted in
+ℕ, `S.ncard = j`. Every part of a finite Y is finite, so the two are one
+set. -/
+theorem builder_count_spelt {α : Type*} (Y : Set α) (hY : Y.Finite) (j : ℤ) :
+    {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j} = {S ∈ 𝒫 Y | (S.ncard : ℤ) = j} := by
+  ext S
+  simp only [Set.mem_ofPred_eq]
+  constructor
+  · rintro ⟨hS, m, hm, he⟩
+    refine ⟨hS, ?_⟩
+    rw [← he, Set.ncard_def, hm, ENat.toNat_natCast]
+  · rintro ⟨hS, h⟩
+    exact ⟨hS, S.ncard, ((hY.subset hS).cast_ncard_eq).symm, h⟩
+
 end LeanBridges.Counting

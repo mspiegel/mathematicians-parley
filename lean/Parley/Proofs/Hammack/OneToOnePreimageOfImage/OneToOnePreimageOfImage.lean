@@ -40,8 +40,8 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
     have s2_1 : ∀ u ∈ A ∩ f ⁻¹' (f '' (A ∩ X)), u ∈ X := by
       intro u hK2
       -- 2.1.1. def:preimage Z := f[X], from K2
-      have s2_1_1a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mp hK2).1
-      have s2_1_1b : f u ∈ f '' (A ∩ X) := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mp hK2).2
+      have s2_1_1a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := B) hH3)).mp hK2).1
+      have s2_1_1b : f u ∈ f '' (A ∩ X) := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := B) hH3)).mp hK2).2
       -- 2.1.2. obtain s: def:image u := f(u), Y := X, from K1, 2.1.1
       obtain ⟨s, s2_1_2a, s2_1_2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := f) (u := f u) (W := Set.univ) hK1 (Set.mapsTo_univ _ _))).mp s2_1_1b
       -- 2.1.3. mun:in-subset Y := A, u := s, from K1, 2.1.2
@@ -53,7 +53,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
     -- 2.2. def:subset, from 2.1
     have s2_2 : A ∩ f ⁻¹' (f '' (A ∩ X)) ⊆ X := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X))).mpr s2_1
     -- 2.3. thm:subset-of-preimage-of-image, from K1
-    have s2_3 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (Set.mapsTo_univ _ _) (X := X) hK1)
+    have s2_3 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := B) (f := f) hH3 (X := X) hK1)
     -- 2.4. mun:subset-antisymmetric, from 2.2, 2.3
     exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X) s2_2 s2_3)
   · skip
@@ -68,11 +68,11 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 3.2. def:singleton x := t, a := t
       have s3_2 : t ∈ ({t} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := t))).mpr rfl
       -- 3.3. mun:value-in-image Y := {t}, s := t, from 3.1, 3.2
-      have s3_3 : f t ∈ f '' (A ∩ ({t} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({t} : Set α)) (f := f) (s := t) (W := Set.univ) s3_1 s3_2 (Set.mapsTo_univ _ _))
+      have s3_3 : f t ∈ f '' (A ∩ ({t} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({t} : Set α)) (f := f) (s := t) (W := B) s3_1 s3_2 hH3)
       -- 3.4. substitute f(s) = f(t) (A1) into line 3.3
       have s3_4 : f s ∈ f '' (A ∩ ({t} : Set α)) := Eq.subst (motive := (fun u : α => u ∈ f '' (A ∩ ({t} : Set α)))) hA1.symm s3_3
       -- 3.5. def:preimage Z := f[{t}], from K3, 3.4
-      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨hK3, s3_4⟩
+      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := B) hH3)).mpr ⟨hK3, s3_4⟩
       -- 3.6. substitute
       have s3_6 : s ∈ ({t} : Set α) := by
         have c1 : A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) = ({t} : Set α) := by exact (hD2 ({t} : Set α) s3_1)

@@ -416,19 +416,14 @@ pub fn hypothesis_lines(thm: &Theorem, record: &CheckedTheorem) -> Vec<Node> {
     out
 }
 
-/// What a theorem's hypotheses, defines and lines make finite, read from
-/// its record's page (`citing::finite::said_finite`). Every define the
-/// theorem sees counts, a function's by its body: its own, read from its
-/// page, and those its file writes above it or imports, as the record
-/// holds them written out (`CheckedTheorem::outside`). A backend that
-/// writes the page otherwise, a define of its file written out where
-/// applied, reads it again of the page it writes.
-pub fn finite_of(
-    g: &Grammar,
-    ctx: &crate::matching::Context,
+/// Every define the theorem sees, each with its value, as
+/// `citing::finite::finite_names` reads them: those its file writes above
+/// it or imports first, as the record holds them written out, since the
+/// theorem's own may be made from them, then its own, read from its page.
+fn finite_defines<'r>(
     thm: &Theorem,
-    record: &CheckedTheorem,
-) -> crate::citing::finite::SaidFinite {
+    record: &'r CheckedTheorem,
+) -> Vec<crate::citing::finite::Named<'r>> {
     use crate::matching::Defined;
     let outside = record
         .outside
@@ -440,17 +435,30 @@ pub fn finite_of(
                 Defined::Rule(rule) => &rule.body,
             },
         });
-    // Those from outside first: the theorem's own may be made from them.
-    let defines: Vec<crate::citing::finite::Named> = outside
+    outside
         .chain(thm.defines.iter().filter_map(|d| define_named(d, record)))
-        .collect();
+        .collect()
+}
+
+/// What a theorem's hypotheses, defines and lines make finite, read from
+/// its record's page (`citing::finite::said_finite`). Every define the
+/// theorem sees counts, a function's by its body: its own, read from its
+/// page, and those its file writes above it or imports, as the record
+/// holds them written out (`CheckedTheorem::outside`). A backend that
+/// writes the page otherwise, a define of its file written out where
+/// applied, reads it again of the page it writes.
+pub fn finite_of(
+    ctx: &crate::matching::Context,
+    thm: &Theorem,
+    record: &CheckedTheorem,
+) -> crate::citing::finite::SaidFinite {
+    let defines = finite_defines(thm, record);
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
     // A count is at least 1 by the letters the statement's header introduces
     // and what its hypotheses bound.
     let header = record.introduced.first().cloned().unwrap_or_default();
     let positive = bounds::positive_by(&header, &record.statement_bounds, ctx);
     crate::citing::finite::said_finite(
-        g,
         &hypothesis_lines(thm, record),
         &defines,
         &lines,
@@ -711,6 +719,7 @@ fn theorem_record(
     record.members_shown =
         formulas::members_shown(thm, &c.known[i], &c.library.targets);
     record.inspected = formulas::inspected(thm, &c.known[i], &c.library.targets);
+    record.pairs_apart = formulas::pairs_apart(thm, &c.known[i], &c.library.targets);
     record.held_by_lines =
         formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
     record.divided_by = formulas::divided_by(thm, &c.known[i], &c.library.targets);
@@ -731,7 +740,7 @@ fn theorem_record(
         .zip(&record.bounds)
         .map(|((lines, letters), said)| {
             let positive = bounds::positive_by(letters, said, ctx);
-            crate::citing::finite::finite_sets(c.env.g, lines, &positive)
+            crate::citing::finite::finite_sets(lines, &positive)
         })
         .collect();
     record.read_at = thm
@@ -779,7 +788,20 @@ fn theorem_record(
     record.statement_bounds =
         bounds::said_by(&hypothesis_lines(thm, &record), &header, &c.library.ctx);
     record.outside = c.known[i].outside_definitions().clone();
-    record.said_finite = finite_of(c.env.g, &c.library.ctx, thm, &record);
+    record.said_finite = finite_of(&c.library.ctx, thm, &record);
+    record.finite_under = formulas::finite_under(&record.page);
+    // A define's name is a finite set at a step where the lines in scope
+    // make its value one: U = {S ⊆ X ∖ {a} : |S| = j} after `assume |X| =
+    // m + 1`, as the hypotheses make the theorem's own defines finite.
+    let finite_at = {
+        let defines = finite_defines(thm, &record);
+        let mut at = record.finite_at.clone();
+        for sets in &mut at {
+            crate::citing::finite::finite_defines(sets, &defines);
+        }
+        at
+    };
+    record.finite_at = finite_at;
     record.set_systems = set_systems_of(&record);
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);

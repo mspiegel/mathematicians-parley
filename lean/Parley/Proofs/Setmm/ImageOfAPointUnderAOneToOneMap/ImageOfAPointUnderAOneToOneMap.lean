@@ -45,6 +45,6 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
   · skip
     intro hD2
     -- 2.5. mun:value-in-image s := X, from D2, H5
-    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) hH5 hD2 (Set.mapsTo_univ _ _))
+    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := B) hH5 hD2 hH3.1)
 
 end Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap

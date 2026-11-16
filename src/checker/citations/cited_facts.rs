@@ -917,14 +917,23 @@ pub(super) fn line_at(
             .map(|(k, s)| (own + k, s));
         let said: Vec<(usize, &super::super::library::Said)> =
             sentences.chain(at).collect();
-        line_states(states, r, &said, library).or_else(|| {
-            // What the line implies, where it writes nothing that states
-            // the fact.
-            says.iter()
-                .filter(|s| s.implied.is_some())
-                .find(|s| states(&s.cited))
-                .and_then(|s| placed(r, s, &says, own))
-        })
+        line_states(states, r, &said, library)
+            .or_else(|| {
+                // The equation between two terms of a chain the line writes,
+                // x² = 0 of x² = y = 0 (`FirstAt::pair`).
+                says.iter()
+                    .filter(|s| matches!(s.from, SaidFrom::Pair { .. }))
+                    .find(|s| states(&s.cited))
+                    .and_then(|s| placed(r, s, &says, own))
+            })
+            .or_else(|| {
+                // What the line implies, where it writes nothing that states
+                // the fact.
+                says.iter()
+                    .filter(|s| s.implied.is_some())
+                    .find(|s| states(&s.cited))
+                    .and_then(|s| placed(r, s, &says, own))
+            })
     })
 }
 
@@ -1039,10 +1048,10 @@ pub(super) fn states(said: &Node, fact: &Node, library: &Library) -> bool {
 
 /// Where `s`, one of the things the line `line` says (`says`, of a line
 /// writing `own` sentences), stands as `FirstAt` counts it: a sentence, a
-/// part of one, the sentences together, or a "for all" read at a block's
-/// letter past the line's own; or what one of those implies. None for a
-/// chain's equation between two terms, a subset's members, or a part of a
-/// "for all" read at a letter.
+/// part of one, the sentences together, a chain's equation between two of
+/// its terms (`FirstAt::pair`), or a "for all" read at a block's letter
+/// past the line's own; or what one of those implies. None for a subset's
+/// members, or a part of a "for all" read at a letter.
 pub(in crate::checker) fn placed(
     line: &str,
     s: &super::super::library::Said,
@@ -1054,10 +1063,16 @@ pub(in crate::checker) fn placed(
         (SaidFrom::Implied(_), None) => return None,
         (from, _) => (from, None),
     };
+    let mut pair = None;
     let (sentence, part) = match from {
         SaidFrom::Whole => (None, None),
         SaidFrom::Sentence(k) => (Some(k), None),
         SaidFrom::Part { sentence, part } => (Some(sentence), Some(part)),
+        // The equation between two terms of the chain the sentence is.
+        SaidFrom::Pair { sentence, from, to } => {
+            pair = Some(crate::checker::record::ChainTerms { from, to });
+            (Some(sentence), None)
+        }
         // A "for all" read at a block's letter, numbered past the line's own
         // sentences in the order read; a part of one, that reading's part.
         SaidFrom::AtLetter { sentence, part } => {
@@ -1071,7 +1086,7 @@ pub(in crate::checker) fn placed(
                 .position(|o| o.from == whole)?;
             (Some(own + reading), part)
         }
-        SaidFrom::Pair(_) | SaidFrom::Implied(_) | SaidFrom::Members(_) => return None,
+        SaidFrom::Implied(_) | SaidFrom::Members(_) => return None,
     };
     Some(FirstAt {
         line: line.to_string(),
@@ -1079,6 +1094,7 @@ pub(in crate::checker) fn placed(
         part,
         written: s.written.clone(),
         implied,
+        pair,
     })
 }
 
@@ -1097,6 +1113,7 @@ pub(super) fn line_states(
         part,
         written,
         implied: None,
+        pair: None,
     };
     for &(i, s) in said {
         if states(&s.cited) {

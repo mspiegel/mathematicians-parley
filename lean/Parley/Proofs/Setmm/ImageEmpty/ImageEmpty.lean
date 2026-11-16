@@ -3,7 +3,6 @@ module
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -36,7 +35,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
     have s1 : ∀ t ∈ B, t ∈ (∅ : Set α) := by
       intro t hK1
       -- 1.1. mun:value-in-image, from H3, K1
-      have s1_1 : F t ∈ F '' (A ∩ B) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B) (f := F) (s := t) (W := Set.univ) hH3 hK1 (Set.mapsTo_univ _ _))
+      have s1_1 : F t ∈ F '' (A ∩ B) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B) (f := F) (s := t) (W := Y) hH3 hK1 hH2)
       -- 1.2. substitute F[B] = ∅ (D1) into line 1.1
       have s1_2 : F t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => F t ∈ u)) hD1 s1_1
       -- 1.3. inspection
@@ -52,7 +51,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
     have s4 : ∀ u ∈ F '' (A ∩ B), u ∈ (∅ : Set α) := by
       intro u hK2
       -- 4.1. def:image, from H3, K2
-      have s4_1 : ∃ s ∈ B, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Set.univ) hH3 (Set.mapsTo_univ _ _))).mp hK2
+      have s4_1 : ∃ s ∈ B, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Y) hH3 hH2)).mp hK2
       -- 4.2. obtain s from line 4.1
       obtain ⟨s, s4_2a, s4_2b⟩ := s4_1
       -- 4.3. substitute B = ∅ (D2) into line 4.2

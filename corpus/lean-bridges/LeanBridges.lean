@@ -13,6 +13,7 @@ public import Functions
 public import Sets
 public import Groups
 public import Polynomials
+public import ZF
 
 /-!
 # The bridges a generated proof uses

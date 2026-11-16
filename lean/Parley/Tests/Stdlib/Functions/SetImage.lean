@@ -2,7 +2,6 @@ module
 
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -26,6 +25,6 @@ namespace Parley.Tests.Stdlib.Functions.SetImage
 theorem set_image {α : Type*} (Y : Set α) (Z : Set α) (u : α) (E : α → α) (hH3 : Set.MapsTo E Y Z) (hH5 : u ∈ (fun s : α => E s) '' Y) :
     (∃ s ∈ Y, u = E s) := by
   -- 1. def:functions-set-image, from H5
-  exact ((Parley.Items.Stdlib.Functions.def_set_image (E := E) (Y := Y) (u := u) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp hH5
+  exact ((Parley.Items.Stdlib.Functions.def_set_image (E := E) (Y := Y) (u := u) (Z := Z) hH3)).mp hH5
 
 end Parley.Tests.Stdlib.Functions.SetImage

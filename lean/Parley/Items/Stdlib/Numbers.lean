@@ -338,6 +338,22 @@ theorem mun_half_power (x : ℂ) :
     x ^ (1 / 2 : ℂ) = x ^ (1 / 2 : ℂ) :=
   by rfl
 
+theorem mun_cube_root_real (x : ℝ) :
+    True :=
+  trivial
+
+theorem mun_cube_root_cubed (x : ℝ) :
+    LeanBridges.Numbers.root 3 x ^ 3 = x :=
+  LeanBridges.Numbers.cube_root_cubed x
+
+theorem mun_cube_root_of_cube (x : ℝ) :
+    LeanBridges.Numbers.root 3 (x ^ 3) = x :=
+  LeanBridges.Numbers.cube_root_of_cube x
+
+theorem mun_cube_root_as_power (x : ℝ) (h2 : 0 ≤ x) :
+    LeanBridges.Numbers.root 3 x = x ^ (1 / 3 : ℝ) :=
+  LeanBridges.Numbers.cube_root_as_power x h2
+
 theorem axi_trichotomy {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     (x < 0 ∨ x = 0) ∨ 0 < x :=
   or_assoc.mpr (lt_trichotomy x 0)

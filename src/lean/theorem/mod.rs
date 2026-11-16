@@ -263,6 +263,9 @@ fn statement(
             prop,
         });
     }
+    let props: Vec<&Printed> = conclusion.iter().map(|c| &c.prop).collect();
+    let lets = super::statement::let_letters(&thm.hypotheses, &thm.path);
+    let binders = super::statement::with_sethoods(binders, &lets, &props);
     Route::Built(Statement {
         binders,
         conclusion,
@@ -354,6 +357,18 @@ struct Proof<'a> {
     /// (`OpeningGoal`): an `assume` takes its statement from it, as `intro`
     /// does, `V.encard = 2` of a direction of `V.encard = 2 ↔ …`.
     opening_goal: Option<OpeningGoal>,
+    /// The statement's facts that a thing is one of ZF's sets, by name with
+    /// what each says as Lean states it, the page's `assume X exists` and
+    /// those its `let` lines give (`statement::with_sethoods`): what meets
+    /// a cited item's own (`StatedAt::Sethood`).
+    sethoods: Vec<Sethood>,
+}
+
+/// A statement's fact that a thing is one of ZF's sets.
+struct Sethood {
+    name: String,
+    /// What it says, as Lean states it.
+    says: String,
 }
 
 /// The goal a part of a block opens, and where its own lines start.
@@ -633,9 +648,11 @@ pub fn theorem(
         claim_now: std::cell::RefCell::new(None),
         defines_in_goal: std::cell::RefCell::new(Vec::new()),
         opening_goal: None,
+        sethoods: Vec::new(),
     };
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(&rec.said_finite);
+    proof.writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
     proof.writer.bounds = rec.statement_bounds.clone();
     proof.writer.whole_bounds = rec.statement_bounds.clone();
     let Statement {
@@ -693,6 +710,23 @@ pub fn theorem(
         }
     }
     let props: Vec<&Printed> = conclusion.iter().map(|c| &c.prop).collect();
+    proof.sethoods = binders
+        .iter()
+        .filter_map(|b| match b {
+            Binder::Fact { name, says, .. }
+                if says
+                    .constants()
+                    .iter()
+                    .any(|c| c.name == super::expr::IS_SET) =>
+            {
+                Some(Sethood {
+                    name: name.clone(),
+                    says: says.text(),
+                })
+            }
+            _ => None,
+        })
+        .collect();
     let decl_binders: Vec<super::doc::file::Binder> =
         super::statement::things_binder(&binders, &props)
             .into_iter()

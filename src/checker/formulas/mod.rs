@@ -75,7 +75,7 @@ pub use self::closures::{
     check_chain_links, check_closed_arithmetic, check_closed_by_arithmetic,
     check_closed_by_real_arithmetic, check_define_citation, check_membership_claims,
     check_real_arithmetic_holds, check_recursions, define_cases, define_link_meetings,
-    link_places,
+    link_places, pairs_apart,
 };
 use self::ends::*;
 pub(super) use self::ends::{
@@ -96,7 +96,7 @@ pub(super) use self::relations::define_equation;
 use self::relations::*;
 pub use self::relations::{
     antisymmetries, calculation_meetings, check_calculation_claims, check_define_names,
-    check_substitute_rows, check_transitivity, divided_by, order_steps,
+    check_substitute_rows, check_transitivity, divided_by, finite_under, order_steps,
     transitivity_links,
 };
 use self::rows::*;

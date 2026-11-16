@@ -16,11 +16,12 @@ pub enum BridgeModule {
     Polynomials,
     Sets,
     Groups,
+    ZF,
 }
 
 impl BridgeModule {
     /// Every module, in no order Lean reads.
-    pub const ALL: [BridgeModule; 12] = [
+    pub const ALL: [BridgeModule; 13] = [
         BridgeModule::PowerTactics,
         BridgeModule::Logarithms,
         BridgeModule::Counting,
@@ -33,6 +34,7 @@ impl BridgeModule {
         BridgeModule::Polynomials,
         BridgeModule::Sets,
         BridgeModule::Groups,
+        BridgeModule::ZF,
     ];
 
     /// The module's name, as a file imports it and as its namespace
@@ -51,6 +53,7 @@ impl BridgeModule {
             BridgeModule::Polynomials => "Polynomials",
             BridgeModule::Sets => "Sets",
             BridgeModule::Groups => "Groups",
+            BridgeModule::ZF => "ZF",
         }
     }
 

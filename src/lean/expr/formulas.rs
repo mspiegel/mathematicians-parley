@@ -23,6 +23,31 @@ impl Writer<'_> {
                 return self.relation(inner, true);
             }
         }
+        // "If P then Q": Q written with the sets P makes finite, as the
+        // checker records them (`finite_under`), and P as it stands, a
+        // count in it not vouching for itself.
+        if let ([p, q], crate::notations::CONDITIONAL | crate::notations::IMPLICATION) =
+            (node.children.as_slice(), node.notation())
+        {
+            if let Some(sets) = self
+                .finite_under
+                .get(&crate::formula::node::ByShape(node.clone()))
+            {
+                let mut inner = self.with_letters(self.letters.clone());
+                for (set, why) in sets {
+                    inner
+                        .finite
+                        .entry(set.clone())
+                        .or_insert_with(|| why.clone());
+                }
+                return match (self.formula(p), inner.formula(q)) {
+                    (Route::Built(a), Route::Built(b)) => relation_of("→", a, b),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        Route::Declined(d)
+                    }
+                };
+            }
+        }
         if let Some(said) = self.slot_witness(node) {
             return said;
         }
@@ -44,6 +69,41 @@ impl Writer<'_> {
                 Printed::applied(
                     "IsOpen",
                     super::super::doc::Source::Mathlib,
+                    vec![s],
+                    LeanType::Prop,
+                )
+            });
+        }
+        // X exists: X is one of ZF's sets, `LeanBridges.ZF.IsSet X`, of a
+        // set of things or of integers, each of which the bridge makes a
+        // set, ℕ of the axiom of infinity among them. Of other numbers,
+        // which the bridge does not make sets yet, it is left out.
+        if let ("exists", [set]) = (&*node.notation_name(), node.children.as_slice()) {
+            if let Some(Members::Numbers(n)) = self.set_members(set) {
+                if n != Num::Int {
+                    return Route::left_out(format!(
+                        "{} exists, of numbers no ZF sets stand for yet",
+                        self.grammar.print(set)
+                    ));
+                }
+            }
+            // ∅ of no things the lines name, the empty-set axiom's, is a set
+            // of the statement's things, `(∅ : Set α)`.
+            let unheld = set.notation() == crate::notations::EMPTY_SET
+                && self.set_members(set).is_none();
+            return self.set_term(set).map(|s| {
+                let s = match unheld {
+                    true => super::super::doc::Term::cast(
+                        s,
+                        LeanType::Set(Box::new(LeanType::Things(0))),
+                    ),
+                    false => s,
+                };
+                Printed::applied(
+                    IS_SET,
+                    super::super::doc::Source::Bridge(
+                        super::super::doc::bridges::BridgeModule::ZF,
+                    ),
                     vec![s],
                     LeanType::Prop,
                 )
@@ -181,20 +241,21 @@ impl Writer<'_> {
                         );
                     };
                     return match (
+                        self.function_printed(f),
                         self.numbers_at(from, own_from),
                         self.numbers_at(to, own_to),
                     ) {
-                        (Route::Built(a), Route::Built(b)) => {
+                        (Route::Built(g), Route::Built(a), Route::Built(b)) => {
                             Route::Built(Printed::applied(
                                 "Set.MapsTo",
                                 super::super::doc::Source::Mathlib,
-                                vec![self.function_printed(f), a, b],
+                                vec![g, a, b],
                                 LeanType::Prop,
                             ))
                         }
-                        (Route::Declined(d), _) | (_, Route::Declined(d)) => {
-                            Route::Declined(d)
-                        }
+                        (Route::Declined(d), _, _)
+                        | (_, Route::Declined(d), _)
+                        | (_, _, Route::Declined(d)) => Route::Declined(d),
                     };
                 };
                 // Between number systems, by f's type, where it takes all
@@ -213,6 +274,30 @@ impl Writer<'_> {
                 }
             }
             THERE_IS | FOR_ALL => self.quantified(node),
+            crate::notations::FOR_ALL_SETS => match node.children.as_slice() {
+                [letter, body] => self.quantified_over_sets(letter, body),
+                _ => Route::no("for all sets of other than a letter and a body"),
+            },
+            // a = b = c: the equation between each two neighbouring terms,
+            // joined as the parts of an "and" are, as set.mm's chain says
+            // (`page::chain_links`).
+            crate::notations::EQUAL_CHAIN => {
+                let Some(links) = crate::formula::page::chain_links(self.grammar, node)
+                else {
+                    return Route::no("a chain of equations with no links");
+                };
+                let mut parts = Vec::new();
+                for link in &links {
+                    match self.formula(link) {
+                        Route::Built(p) => parts.push(p),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                match joined(super::super::doc::Op::AND, parts, 36) {
+                    Some(all) => Route::Built(all),
+                    None => Route::no("a chain of equations with no links"),
+                }
+            }
             crate::notations::COMMA_CONJUNCTION => {
                 let mut parts = Vec::new();
                 for (i, c) in node.children.iter().enumerate() {
@@ -454,6 +539,9 @@ impl Writer<'_> {
                 return w.relation_from(node, negated, floor);
             }
         }
+        if let (Some(l), Some(r)) = (pair_coordinates(left), pair_coordinates(right)) {
+            return self.pair_relation(node, l, r, negated);
+        }
         if !self.is_number(left) || !self.is_number(right) {
             return Route::no(format!(
                 "{} between terms that are not numbers",
@@ -492,6 +580,84 @@ impl Writer<'_> {
             other => return Route::no(format!("the relation {other}")),
         };
         relation_of(op, l, r)
+    }
+
+    /// (a, b) = (c, d) or (a, b) ≠ (c, d): Lean's pairs, each coordinate
+    /// of the type holding it on both sides (`pair_types`), the left pair
+    /// given its type, `((1, 1) : ℤ × ℤ) ≠ (2, 3)`.
+    fn pair_relation(
+        &self,
+        node: &Node,
+        left: [&Node; 2],
+        right: [&Node; 2],
+        negated: bool,
+    ) -> Route<Printed> {
+        if node.notation() != EQUALITY {
+            return Route::no("an order between pairs");
+        }
+        let types = match self.pair_types(left, right) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let (l, r) = match (self.pair_term(left, &types), self.pair_term(right, &types))
+        {
+            (Route::Built(l), Route::Built(r)) => (l, r),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        let op = if negated { "≠" } else { "=" };
+        relation_of(op, Printed::cast(l, pair_type(&types)), r)
+    }
+
+    /// What each coordinate of two pairs compared is: numbers of the least
+    /// type holding that coordinate of both, or members of the kind both
+    /// are, a and c of (a, b) = (c, d) elements of one set.
+    pub fn pair_types(
+        &self,
+        left: [&Node; 2],
+        right: [&Node; 2],
+    ) -> Route<[Members; 2]> {
+        let mut out = Vec::new();
+        for (l, r) in left.into_iter().zip(right) {
+            if self.is_number(l) && self.is_number(r) {
+                match (self.carrier(l), self.carrier(r)) {
+                    (Route::Built(a), Route::Built(b)) => {
+                        out.push(Members::Numbers(a.max(b)));
+                    }
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        return Route::Declined(d)
+                    }
+                }
+                continue;
+            }
+            match (self.member_kind(l), self.member_kind(r)) {
+                (Some(a), Some(b)) if a == b => out.push(a),
+                _ => return Route::no("a pair whose coordinates have no one type"),
+            }
+        }
+        match <[Members; 2]>::try_from(out) {
+            Ok(types) => Route::Built(types),
+            Err(_) => Route::no("a pair of other than two coordinates"),
+        }
+    }
+
+    /// A pair, `(a, b)`, each coordinate of its type (`pair_types`).
+    pub fn pair_term(&self, pair: [&Node; 2], types: &[Members; 2]) -> Route<Printed> {
+        let mut items = Vec::new();
+        for (part, members) in pair.into_iter().zip(types) {
+            match self.element_term(part, members) {
+                Route::Built(p) => items.push(p),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        Route::Built(Printed::of(
+            super::super::doc::TermKind::Listed {
+                brackets: super::super::doc::Brackets::Round,
+                items,
+            },
+            pair_type(types),
+        ))
     }
 
     /// `x ∈ S`. In a number system, the membership is what it says of x in
@@ -919,4 +1085,20 @@ impl Writer<'_> {
             super::super::doc::LeanType::Prop,
         ))
     }
+}
+
+/// The two coordinates of a pair, (a, b); None for any other term.
+pub fn pair_coordinates(node: &Node) -> Option<[&Node; 2]> {
+    match (&*node.notation_name(), node.children.as_slice()) {
+        ("pair", [a, b]) => Some([a, b]),
+        _ => None,
+    }
+}
+
+/// Lean's type of pairs of members of these two kinds, `ℤ × ℝ`.
+pub fn pair_type(types: &[Members; 2]) -> LeanType {
+    LeanType::Prod(
+        Box::new(types[0].member_type()),
+        Box::new(types[1].member_type()),
+    )
 }

@@ -1,9 +1,13 @@
 module
 
 public import Sets
+public import ZF
 public import Aesop.BuiltinRules
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Prod.Basic
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.BooleanAlgebra
 public import Mathlib.Data.Set.Defs
@@ -34,6 +38,38 @@ namespace Parley.Items.Stdlib.Sets
 theorem axi_extensionality {α : Type*} (X : Set α) (Y : Set α) (h1 : ∀ t ∈ X, t ∈ Y) (h2 : ∀ t ∈ Y, t ∈ X) :
     X = Y :=
   by exact Set.Subset.antisymm h1 h2
+
+theorem axi_empty_set {α : Type*} [LeanBridges.ZF.Sets α] :
+    LeanBridges.ZF.IsSet (∅ : Set α) :=
+  LeanBridges.ZF.empty_set
+
+theorem axi_pairing {α : Type*} [LeanBridges.ZF.Sets α] (a : α) (ha_set : LeanBridges.ZF.IsSet a) (b : α) (hb_set : LeanBridges.ZF.IsSet b) :
+    LeanBridges.ZF.IsSet ({a, b} : Set α) :=
+  LeanBridges.ZF.pairing a b ha_set hb_set
+
+theorem axi_unions {α : Type*} [LeanBridges.ZF.Sets α] (C : Set (Set α)) (h1 : LeanBridges.ZF.IsSet C) :
+    LeanBridges.ZF.IsSet (⋃ X ∈ C, X) :=
+  LeanBridges.ZF.unions C h1
+
+theorem axi_power_sets {α : Type*} [LeanBridges.ZF.Sets α] (X : Set α) (h1 : LeanBridges.ZF.IsSet X) :
+    LeanBridges.ZF.IsSet (𝒫 X) :=
+  LeanBridges.ZF.power_sets X h1
+
+theorem axi_separation {α : Type*} [LeanBridges.ZF.Sets α] (P : α → Prop) (X : Set α) (h1 : LeanBridges.ZF.IsSet X) :
+    LeanBridges.ZF.IsSet {t ∈ X | P t} :=
+  LeanBridges.ZF.separation X h1 P
+
+theorem axi_replacement {α β : Type*} [LeanBridges.ZF.Sets α] [LeanBridges.ZF.Sets β] (E : α → β) (Y : Set α) (Z : Set β) (hZ_set : LeanBridges.ZF.IsSet Z) (h1 : LeanBridges.ZF.IsSet Y) (hE : Set.MapsTo E Y Z) :
+    LeanBridges.ZF.IsSet ((fun s : α => E s) '' Y) :=
+  LeanBridges.ZF.replacement Y h1 Z hZ_set E hE
+
+theorem axi_infinity :
+    LeanBridges.ZF.IsSet {n : ℤ | 0 < n} :=
+  LeanBridges.ZF.infinity
+
+theorem axi_choice {α : Type*} [LeanBridges.ZF.Sets α] (C : Set (Set α)) (h1 : LeanBridges.ZF.IsSet C) (h2 : ∀ X ∈ C, ¬ X = ∅) :
+    ∃ f : Set α → α, Set.MapsTo f C (⋃ Y ∈ C, Y) ∧ (∀ X ∈ C, f X ∈ X) :=
+  LeanBridges.ZF.choice C h2
 
 theorem def_subset {α : Type*} (X : Set α) (Y : Set α) :
     X ⊆ Y ↔ (∀ t ∈ X, t ∈ Y) :=
@@ -95,6 +131,10 @@ theorem mun_pair_equal {α : Type*} (a : α) (b : α) (c : α) (d : α) :
     ({a, b} : Set α) = ({c, d} : Set α) ↔ a = c ∧ b = d ∨ a = d ∧ b = c :=
   Set.pair_eq_pair_iff
 
+theorem mun_pair_parts_equal (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) :
+    ((a, b) : ℂ × ℂ) = (c, d) ↔ a = c ∧ b = d :=
+  Prod.mk_inj
+
 theorem def_singleton {α : Type*} (a : α) (x : α) :
     x ∈ ({a} : Set α) ↔ x = a :=
   Iff.rfl
@@ -118,6 +158,10 @@ theorem mun_triple_members_3 {α : Type*} (u : α) (v : α) (w : α) :
 theorem mun_pair_finite {α : Type*} (u : α) (w : α) :
     ({u, w} : Set α).Finite :=
   by simp_all
+
+theorem mun_difference_set {α : Type*} [LeanBridges.ZF.Sets α] (X : Set α) (hX_set : LeanBridges.ZF.IsSet X) (a : α) (ha_set : LeanBridges.ZF.IsSet a) :
+    LeanBridges.ZF.IsSet (X \ ({a} : Set α)) :=
+  LeanBridges.ZF.difference_set X a hX_set
 
 theorem mun_subset_of_difference {α : Type*} (X : Set α) (Y : Set α) (a : α) (h1 : Y ⊆ X \ ({a} : Set α)) :
     ¬ a ∈ Y :=
@@ -342,6 +386,10 @@ theorem mun_union_contains_member {α : Type*} (D : Set (Set α)) (Y : Set α) (
 theorem mun_union_within {α : Type*} (D : Set (Set α)) (Z : Set α) (h1 : ∀ X ∈ D, X ⊆ Z) :
     (⋃ X ∈ D, X) ⊆ Z :=
   by (simp_all; done)
+
+theorem mun_intersection_within {α : Type*} (D : Set (Set α)) (Z : Set α) (h1 : ∀ X ∈ D, Z ⊆ X) :
+    Z ⊆ (⋂ X ∈ D, X) :=
+  Set.subset_iInter₂ h1
 
 theorem mun_subset_antisymmetric {α : Type*} (X : Set α) (Y : Set α) (h1 : X ⊆ Y) (h2 : Y ⊆ X) :
     X = Y :=

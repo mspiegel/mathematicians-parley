@@ -48,6 +48,11 @@ pub enum StatedAt {
     /// meets with the citing proof's define of the same recursion
     /// (`Cited::recursions`).
     Recursion(String),
+    /// That the letter of this page name, which a `let` line introduces,
+    /// is one of ZF's sets: what set.mm's reading of the line adds, and the
+    /// page never writes (`with_sethoods`). A citation meets it with the
+    /// citing statement's own fact of the letter it gives.
+    Sethood(String),
 }
 
 impl Binder {
@@ -364,10 +369,123 @@ pub fn things_binder(
         vars.insert(0);
     }
     let names: Vec<String> = vars.into_iter().map(super::expr::things_name).collect();
-    (!names.is_empty()).then(|| super::doc::file::Binder::Typed {
-        text: format!("{{{} : Type*}}", names.join(" ")),
-        ty: None,
-    })
+    if names.is_empty() {
+        return None;
+    }
+    // Where the statement says a collection exists, its things are of a
+    // type whose ZF sets `Sets` says, as `ZFSet` and sets of it are.
+    let mut text = format!("{{{} : Type*}}", names.join(" "));
+    if says_exists(binders, statement) {
+        for n in &names {
+            text.push_str(&format!(" [{} {n}]", super::expr::ZF_SETS));
+        }
+    }
+    Some(super::doc::file::Binder::Typed { text, ty: None })
+}
+
+/// That a thing is one of ZF's sets, `LeanBridges.ZF.IsSet X`.
+pub fn is_set(of: Printed) -> Printed {
+    Printed::applied(
+        super::expr::IS_SET,
+        super::doc::Source::Bridge(super::doc::bridges::BridgeModule::ZF),
+        vec![of],
+        super::doc::LeanType::Prop,
+    )
+}
+
+/// The name of the fact that a letter is one of ZF's sets, `hX_set`.
+pub fn sethood_name(letter: &str) -> String {
+    format!("h{}_set", super::names::letter(letter))
+}
+
+/// The letters a statement's `let` lines introduce as sets or members of
+/// them, A of `let A be a set`, x of `let x be an element`, a of `let a ∉
+/// X`: those set.mm reads as sets of ZF.
+pub fn let_letters(
+    hypotheses: &[crate::corpus::proof::Hypothesis],
+    path: &str,
+) -> Vec<String> {
+    use crate::sorts::introduction::{Form, Introduction};
+    hypotheses
+        .iter()
+        .filter(|h| h.kind == crate::corpus::Intro::Let)
+        .filter_map(|h| match Introduction::read(h.body(path)).form {
+            Form::Set(name) | Form::Element(name) | Form::NotIn(name) => Some(name),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The binders with, after each letter of `lets` a statement that says some
+/// collection exists introduces, the fact that the letter is one of ZF's
+/// sets: set.mm reads `let X be a set`, `let x be an element` and `let a ∉
+/// X` so (`elab::reading::hypothesis_node`), and the page never writes it.
+/// A letter of numbers is none of ZF's things, and a letter a hypothesis
+/// says exists has its fact already. `statement` is what it concludes.
+pub fn with_sethoods(
+    binders: Vec<Binder>,
+    lets: &[String],
+    statement: &[&Printed],
+) -> Vec<Binder> {
+    if !says_exists(&binders, statement) {
+        return binders;
+    }
+    // As Lean states them, which is how two statements of one fact agree.
+    let said: Vec<String> = binders
+        .iter()
+        .filter_map(|b| match b {
+            Binder::Fact { says, .. } => Some(says.text()),
+            Binder::Letter { .. } => None,
+        })
+        .collect();
+    let mut out = Vec::new();
+    for b in binders {
+        let fact = match &b {
+            Binder::Letter { name, page, ty, .. }
+                if lets.contains(page) && of_things(ty) =>
+            {
+                let says = is_set(Printed::letter(name.clone(), ty.lean_type()));
+                (!said.contains(&says.text())).then(|| Binder::Fact {
+                    name: sethood_name(page),
+                    says,
+                    at: Some(StatedAt::Sethood(page.clone())),
+                })
+            }
+            _ => None,
+        };
+        out.push(b);
+        out.extend(fact);
+    }
+    out
+}
+
+/// Whether a letter of this type is a thing ZF's sets are, a set of things
+/// or a member of one, and not a number or a set of numbers.
+fn of_things(ty: &LetterType) -> bool {
+    use super::expr::Members;
+    fn things(m: &Members) -> bool {
+        match m {
+            Members::Things(_) => true,
+            Members::Sets(m) => things(m),
+            _ => false,
+        }
+    }
+    match ty {
+        LetterType::Set(m) | LetterType::Member(m) => things(m),
+        _ => false,
+    }
+}
+
+/// Whether a statement says some collection exists, in what it asks or
+/// what it concludes.
+pub fn says_exists(binders: &[Binder], statement: &[&Printed]) -> bool {
+    let names =
+        |p: &Printed| p.constants().iter().any(|c| c.name == super::expr::IS_SET);
+    statement.iter().any(|s| names(s))
+        || binders.iter().any(|b| match b {
+            Binder::Fact { says, .. } => names(says),
+            Binder::Letter { .. } => false,
+        })
 }
 
 /// Where a line says what sets a map or function letter maps between, `f :

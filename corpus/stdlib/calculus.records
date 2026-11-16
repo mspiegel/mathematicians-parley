@@ -183,7 +183,7 @@ mundane theorem integer-sup-member
   note        A set of whole numbers with an element and an upper bound has
               a largest element, and it is the least upper bound: below the
               bound there are only finitely many whole numbers to pass.
-  lean-proof  not yet implemented
+  lean-proof  Int.csSup_mem (h2.imp fun _ h => h.1) h3
 
 mundane theorem integer-sup-above
   let S ⊆ ℤ                                                           (H1)
@@ -193,7 +193,7 @@ mundane theorem integer-sup-above
   metamath-proof suprzub
   note        No element of a set of whole numbers bounded above is above
               its least upper bound.
-  lean-proof  not yet implemented
+  lean-proof  le_csSup h2 h3
 
 theorem rolle
   let a ∈ ℝ                                                           (H1)
@@ -354,7 +354,7 @@ mundane theorem map-continuous-on-part
   metamath-proof metamath-bridges/calculus/gcncfmappart with D := D
   note        "f is continuous on S" says f restricted to S is, and that
               restriction is the map sending each x ∈ S to f(x).
-  lean-proof  not yet implemented
+  lean-proof  h3
 
 theorem continuous-bounded
   let a ∈ ℝ                                                           (H1)

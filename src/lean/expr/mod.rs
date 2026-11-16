@@ -24,6 +24,8 @@ mod arguments;
 mod formulas;
 mod operators;
 
+pub use formulas::{pair_coordinates, pair_type};
+
 /// What a letter is in Lean.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum LetterType {
@@ -78,6 +80,14 @@ pub enum Members {
 
 /// The type variable a theorem's sets of things are sets of.
 pub const THINGS: &str = "α";
+
+/// That a thing is one of ZF's sets, what "X exists" says
+/// (`corpus/lean-bridges/ZF.lean`).
+pub const IS_SET: &str = "LeanBridges.ZF.IsSet";
+
+/// The class a type of things takes where a statement says a collection of
+/// them exists: which of them are ZF's sets.
+pub const ZF_SETS: &str = "LeanBridges.ZF.Sets";
 
 /// The name of the type variable numbered: α, then β, γ, δ.
 pub fn things_name(var: usize) -> String {
@@ -261,8 +271,16 @@ pub struct Writer<'a> {
     pub finite: crate::citing::finite::FiniteSets,
     /// For each hypothesis that makes a set finite and may not vouch for
     /// itself, as printed, the sets only it does (`Writer::without_line`).
-    pub finite_only_by:
-        std::collections::BTreeMap<String, std::collections::BTreeSet<String>>,
+    pub finite_only_by: IndexMap<
+        crate::formula::node::ByShape,
+        indexmap::IndexSet<crate::formula::node::ByShape>,
+    >,
+    /// Of each "if P then Q", the sets P makes finite within Q, by the
+    /// sentence as a tree, as the checker records them
+    /// (`CheckedTheorem::finite_under`): Q is written with them finite.
+    pub finite_under: std::rc::Rc<
+        IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets>,
+    >,
     /// What ∅ holds where nothing in it says, as a count compared with the
     /// count of a set of those, |S| = |∅| (`relation_from`); None where it
     /// is a set of the theorem's things.
@@ -507,7 +525,8 @@ impl<'a> Writer<'a> {
             domains: IndexMap::new(),
             reals: Vec::new(),
             finite: crate::citing::finite::FiniteSets::new(),
-            finite_only_by: std::collections::BTreeMap::new(),
+            finite_only_by: IndexMap::new(),
+            finite_under: std::rc::Rc::default(),
             empty_of: None,
             bounds: SaidBounds::default(),
             whole_bounds: SaidBounds::default(),
@@ -528,6 +547,7 @@ impl<'a> Writer<'a> {
             reals: self.reals.clone(),
             finite: self.finite.clone(),
             finite_only_by: self.finite_only_by.clone(),
+            finite_under: self.finite_under.clone(),
             empty_of: self.empty_of.clone(),
             bounds: self.bounds.clone(),
             whole_bounds: self.whole_bounds.clone(),

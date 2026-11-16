@@ -179,6 +179,11 @@ impl<'a> Proof<'a> {
                 at.sentence
             ));
         };
+        // The equation between two terms of the chain the sentence is
+        // (`FirstAt::pair`): the links between them joined, `Eq.trans`.
+        if let Some(pair) = at.pair {
+            return self.chain_pair(&found, pair, &at.written);
+        }
         match at.part {
             None => Route::Built(found),
             // The part as the page writes it (`FirstAt::written`), found in
@@ -199,6 +204,52 @@ impl<'a> Proof<'a> {
                 )),
             },
         }
+    }
+
+    /// The equation between the terms at `pair` of the chain `chain` says,
+    /// `written` as the page writes it, x = w of x = y = z = w: the links
+    /// between the two, each the projection the writer joins it as (`a = b
+    /// ∧ b = c`, the first by `.1`, the last by `.2`), joined by `Eq.trans`.
+    pub(super) fn chain_pair(
+        &self,
+        chain: &super::super::algebra::Cited,
+        pair: crate::checker::record::ChainTerms,
+        written: &Node,
+    ) -> Route<super::super::algebra::Cited> {
+        let Some(links) =
+            crate::formula::page::chain_links(self.writer.grammar, &chain.node)
+        else {
+            return Route::no("a pair of a chain from a sentence that is no chain");
+        };
+        if pair.from >= pair.to || pair.to > links.len() {
+            return Route::no("a pair of a chain's terms the chain does not have");
+        }
+        let last = links.len() - 1;
+        let link = |k: usize| {
+            let mut path = vec!["2"; k];
+            if k < last {
+                path.push("1");
+            }
+            super::headers::fields(chain.proof.clone(), &path)
+        };
+        let mut proof = link(pair.from);
+        for k in pair.from + 1..pair.to {
+            proof = Printed::applied(
+                "Eq.trans",
+                super::super::doc::Source::Core,
+                vec![super::super::tactics::bracket(proof), link(k)],
+                super::super::doc::LeanType::Prop,
+            );
+        }
+        let says = match self.writer.formula(written) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        Route::Built(super::super::algebra::Cited {
+            node: written.clone(),
+            proof,
+            says: Some(says),
+        })
     }
 
     /// Whether Lean writes the membership `node` as a bound, `0 < x` or
@@ -532,6 +583,62 @@ impl<'a> Proof<'a> {
     /// turned round, or by the identities the meeting names. None where the
     /// bridge has no fact to read the item by, or the meeting gives no one
     /// way.
+    /// The proof of `written`, the cited item as the citing step spells it,
+    /// from `term`, the item as Lean states it, `said`, where the two differ
+    /// only in how they spell the parts of a finite Y with j elements: the
+    /// item counts a part as some natural number, `{S ∈ 𝒫 Y | ∃ m : ℕ,
+    /// S.encard = m ∧ m = j}`, its Y being any set, and the step counts it
+    /// in ℕ, `{S ∈ 𝒫 Y | S.ncard = j}`, its Y finite. Each such Y is the
+    /// value the citation gives a letter, shown finite by the record
+    /// (`shown_finite`), and the bridge `builder_count_spelt` takes the one
+    /// form to the other. None where no set is so spelt, or the two differ
+    /// otherwise too.
+    fn parts_respelt(
+        &self,
+        cited: Option<&crate::checker::record::Cited>,
+        term: &Printed,
+        said: &Printed,
+        written: &Printed,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        let cited = cited?;
+        let mut rules = Vec::new();
+        let mut respelt = said.clone();
+        let mut found = Vec::new();
+        parts_counted_extended(said, &mut found);
+        for y in &found {
+            let value = cited.binding.values().find(|v| {
+                self.writer
+                    .set_term(v)
+                    .built()
+                    .is_some_and(|p| p.untyped() == y.untyped())
+            })?;
+            let finite = self.shown_finite(value)?;
+            rules.push(t::forwards(Printed::applied(
+                "LeanBridges.Counting.builder_count_spelt",
+                super::super::doc::Source::Bridge(
+                    super::super::doc::bridges::BridgeModule::Counting,
+                ),
+                vec![y.clone(), t::bracket(finite.proof)],
+                super::super::doc::LeanType::Prop,
+            )));
+        }
+        if rules.is_empty() {
+            return None;
+        }
+        parts_counted_natural(&mut respelt);
+        if !super::super::doc::forms::written_alike(&respelt, written) {
+            return None;
+        }
+        Some(super::super::doc::Proof::By(t::on_h(
+            term,
+            vec![
+                t::simp_only(false, None, rules, Some(t::at_h(true))),
+                Tactic::Exact(t::hyp("h")),
+            ],
+        )))
+    }
+
     pub(super) fn read_in_spelling(
         &self,
         cited: Option<&crate::checker::record::Cited>,
@@ -561,12 +668,22 @@ impl<'a> Proof<'a> {
         // fact holds only under the binder, where `omega` is not asked.
         let binder_powers_apart =
             integer_powers_under_binders(written) != integer_powers_under_binders(said);
+        // An item that counts a set in ℕ∞ at a value in ℕ₀ for a claim that
+        // counts it in ℤ is no other spelling of the claim: the two are met
+        // by the count's definition (`count_value_met`).
+        let count_value = super::orders::count_value_shape(said, claim).is_some();
         if written.is_truth()
             || through_named
             || (item_counts(claim) && !claim_stated)
             || binder_powers_apart
+            || count_value
         {
             return None;
+        }
+        // The item and the step apart only in how they count the parts of
+        // a finite set (`parts_respelt`).
+        if let Some(respelt) = self.parts_respelt(cited, term, said, written) {
+            return Some(respelt);
         }
         // Of an item in a wider type: not a value given it that is a numeral
         // alone, `Complex.cos 0`, which stands at the wider type with no cast
@@ -776,6 +893,16 @@ impl<'a> Proof<'a> {
                 && super::super::casts::push_cast_moves_all_in_sides(claim);
             let same_to_nat = to_nat_texts(&reduced) == to_nat_texts(claim);
             let atoms = same_ring_atoms(&reduced, claim, &values);
+            // An item that counts a set in ℕ∞ at a value in ℕ₀, for a claim
+            // that counts it finite (`count_value_met`).
+            if let (false, [_, value]) = (
+                matches!(facing, Some(Facing::Turned)),
+                node.children.as_slice(),
+            ) {
+                if let Some(met) = self.count_value_met(value, &term, &reduced, claim) {
+                    return Route::Built(met);
+                }
+            }
             match node.notation() {
                 EQUALITY
                     if one_type && of_numbers && pushed && same_to_nat && atoms =>
@@ -992,38 +1119,39 @@ impl<'a> Proof<'a> {
 
     /// The part of a "there is"'s body as Lean states it, `stated` taken
     /// apart at every "and", that the record's part `owed` is: the one at
-    /// its place; or, where the parts from its place on, joined, meet it and
-    /// that one alone does not, those, as Lean's pattern gives them to the
-    /// name that takes the rest. None where the writer does not write the
-    /// record's part as it stands, a phrase Lean writes as several, `W is a
-    /// clique of size at least 1` as `1 ≤ |W| ∧ ∀ Y …`: the obtain writes
-    /// the page's sentence, the phrase read.
+    /// its place; a phrase whose meaning Lean writes as several parts, `W
+    /// is a clique of size at least 1` as `1 ≤ |W| ∧ ∀ Y …`, those parts
+    /// from its place, joined; or, where the parts from its place on,
+    /// joined, meet it and that one alone does not, those, as Lean's
+    /// pattern gives them to the name that takes the rest. None where the
+    /// writer does not write the record's part, or the statement has too
+    /// few parts for it.
     pub(super) fn stated_part(
         &self,
         stated: &[Printed],
         owed: &crate::checker::record::ObtainedPart,
     ) -> Option<Printed> {
         let single = stated.get(owed.owed)?;
-        // A part the writer writes only once its phrase is read, `W is a
-        // clique of size at least 1`, is the page's sentence (`obtain`).
         let written = self.writer.formula(&owed.owed_written).built()?;
-        let values = self.set_values();
-        let meets = |p: &Printed| {
-            super::super::doc::forms::meets(p, &written, &values).is_some()
-        };
-        let rest = stated[owed.owed..]
-            .iter()
-            .cloned()
-            .rev()
-            .reduce(|right, left| Printed {
+        let joined = |parts: &[Printed]| {
+            parts.iter().cloned().rev().reduce(|right, left| Printed {
                 kind: super::super::doc::TermKind::Infix {
                     op: super::super::doc::Op::AND,
                     lhs: Box::new(left),
                     rhs: Box::new(right),
                 },
                 ty: Some(super::super::doc::LeanType::Prop),
-            });
-        match rest {
+            })
+        };
+        let several = super::conversions::conjoined_parts(&written).len();
+        if several > 1 {
+            return joined(stated.get(owed.owed..owed.owed + several)?);
+        }
+        let values = self.set_values();
+        let meets = |p: &Printed| {
+            super::super::doc::forms::meets(p, &written, &values).is_some()
+        };
+        match joined(&stated[owed.owed..]) {
             Some(rest) if !meets(single) && meets(&rest) => Some(rest),
             _ => Some(single.clone()),
         }
@@ -1684,6 +1812,24 @@ impl<'a> Proof<'a> {
                     ),
                 )));
             }
+            // Two pairs equal in other types, `((a, b) : ℝ × ℝ) = (c, d)` for
+            // the pairs in ℂ × ℂ: each taken apart into its coordinates'
+            // equations, which `exact_mod_cast` takes across; `norm_cast`
+            // moves no cast through a pair.
+            if pair_equation(&says) && pair_equation(wanted) {
+                use super::super::tactics as t;
+                let apart = || {
+                    t::simp_only(
+                        false,
+                        None,
+                        vec![t::forwards(t::lemma("Prod.mk.injEq"))],
+                        Some(t::at_h(true)),
+                    )
+                };
+                return Route::Built(t::by_term(super::super::doc::Proof::By(
+                    t::on_h(&proof, vec![apart(), t::exact_mod_cast(t::hyp("h"))]),
+                )));
+            }
             if !lifts {
                 return Route::no("a line in another type no cast takes across");
             }
@@ -1929,9 +2075,8 @@ impl<'a> Proof<'a> {
     /// (`intro x _; exact h x`); and with what a set of ℝ around each of
     /// its points says of it, `Set.univ ∈ nhds x`, which Lean writes into a
     /// differentiability on ℝ and the line does not
-    /// (`⟨Filter.univ_mem, h x hx⟩`). A "for all" with no condition on its
-    /// letter is met under its binders by its casts (`casts_under`). None
-    /// for any other two.
+    /// (`⟨Filter.univ_mem, h x hx⟩`). Any other "for all" is met under its
+    /// binders by its casts (`casts_under`). None for any other two.
     pub(super) fn for_all_converted(
         &self,
         proof: Printed,
@@ -1986,12 +2131,12 @@ impl<'a> Proof<'a> {
             // The same set, with `Set.univ ∈ nhds x` before the line's body.
             (_, Some(g)) if g.untyped() == guard.untyped() => {
                 let TermKind::Infix { op, lhs, rhs } = &bare_term(body).kind else {
-                    return None;
+                    return self.casts_under(proof.clone(), says, wanted);
                 };
                 let around = matches!(&bare_term(lhs).kind, TermKind::Infix { op: m, lhs: u, .. }
                     if m.symbol == "∈" && is_constant(u, "Set.univ"));
                 if op.symbol != "∧" || !around || !meets(&their_body, rhs) {
-                    return None;
+                    return self.casts_under(proof.clone(), says, wanted);
                 }
                 let part = applied_to(at_x(), Printed::letter(&hx, LeanType::Prop));
                 vec![
@@ -2221,5 +2366,92 @@ impl<'a> Proof<'a> {
             Route::Declined(why) => return Route::Declined(why),
         };
         self.writer.formula(&fact).map(|says| (fact, says))
+    }
+}
+
+/// Of a set of the parts of Y with j elements counted as some natural
+/// number, `{S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = m ∧ (m : ℤ) = j}`: Y, and j.
+/// None for any other term.
+fn parts_counted(p: &Printed) -> Option<(&Printed, &Printed)> {
+    use super::super::doc::{BoundForm, CountForm, PrefixMark, Quant, TermKind};
+    let TermKind::Bound {
+        form: BoundForm::SetOfMember { set },
+        letter,
+        body,
+        ..
+    } = &p.kind
+    else {
+        return None;
+    };
+    let TermKind::Prefix {
+        mark: PrefixMark::Powerset,
+        inner: y,
+    } = &set.kind
+    else {
+        return None;
+    };
+    let TermKind::Quantified {
+        quant: Quant::Exists,
+        letter: m,
+        guard: Some(guard),
+        body: said,
+        ..
+    } = &body.kind
+    else {
+        return None;
+    };
+    let (g_left, g_right) = super::orders::equation_sides(guard)?;
+    let (b_left, j) = super::orders::equation_sides(said)?;
+    let counts_letter = matches!(&g_left.kind, TermKind::Count { set, form: CountForm::Extended }
+        if matches!(&set.kind, TermKind::Letter(l) if l == letter));
+    let is_m = |t: &Printed| {
+        let mut at = t;
+        while let TermKind::Cast { inner, .. } = &at.kind {
+            at = inner;
+        }
+        matches!(&at.kind, TermKind::Letter(l) if l == m)
+    };
+    (counts_letter && is_m(g_right) && is_m(b_left)).then_some((&**y, j))
+}
+
+/// Each Y of a set of the parts of Y with j elements a term counts as some
+/// natural number (`parts_counted`), into `out`.
+fn parts_counted_extended(p: &Printed, out: &mut Vec<Printed>) {
+    if let Some((y, _)) = parts_counted(p) {
+        if !out.iter().any(|o| o.untyped() == y.untyped()) {
+            out.push(y.clone());
+        }
+    }
+    for child in p.children() {
+        parts_counted_extended(child, out);
+    }
+}
+
+/// The term with each set of parts counted as some natural number
+/// (`parts_counted`) counted in ℕ instead, `{S ∈ 𝒫 Y | (S.ncard : ℤ) = j}`:
+/// what `builder_count_spelt` rewrites it to.
+fn parts_counted_natural(p: &mut Printed) {
+    use super::super::doc::{CountForm, LeanType, TermKind};
+    use super::super::templates::Num;
+    let natural = parts_counted(p).map(|(_, j)| j.clone());
+    if let (Some(j), TermKind::Bound { letter, body, .. }) = (natural, &mut p.kind) {
+        let count = Printed::of(
+            TermKind::Count {
+                set: Box::new(Printed::letter(letter.clone(), LeanType::Num(Num::Int))),
+                form: CountForm::Natural,
+            },
+            LeanType::Num(Num::Nat),
+        );
+        if let Route::Built(eq) = super::super::expr::relation_of(
+            "=",
+            Printed::cast(count, LeanType::Num(Num::Int)),
+            j,
+        ) {
+            **body = eq;
+        }
+        return;
+    }
+    for child in p.children_mut() {
+        parts_counted_natural(child);
     }
 }

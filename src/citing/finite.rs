@@ -12,26 +12,29 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::formula::{Grammar, Node};
+use indexmap::{IndexMap, IndexSet};
 
-/// Why a set is finite: what a backend proves it finite from, a line's name
-/// or how the set is made, in one form for every backend.
+use crate::formula::node::ByShape;
+use crate::formula::Node;
+
+/// Why a set is finite: what a backend proves it finite from, a line or how
+/// the set is made, in one form for every backend.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FiniteBy {
-    /// A line says so, `A is finite`: the line, as the page prints it.
-    Said(String),
+    /// A line says so, `A is finite`: the line's sentence.
+    Said(ByShape),
     /// A line gives its count as a number, |Y| = 2 or |Y| = m.
     Counted {
-        /// The line, as the page prints it.
-        line: String,
+        /// The line's sentence.
+        line: ByShape,
         /// Whether the number is at least 1, as `positive` says
         /// (`finite_sets`): such a line vouches for itself and is written in
         /// ℕ, `Y.ncard = 2`; one that may be 0 in ℕ∞, `Y.encard = m`.
         at_least_one: bool,
     },
-    /// A part of a finite set, B of `B ⊆ A` or of `B ∈ 𝒫A`: that line, as
-    /// the page prints it, and why the whole is finite.
-    Part { line: String, whole: Box<FiniteBy> },
+    /// A part of a finite set, B of `B ⊆ A` or of `B ∈ 𝒫A`: that line's
+    /// sentence, and why the whole is finite.
+    Part { line: ByShape, whole: Box<FiniteBy> },
     /// The name a define gives a finite set.
     Define(String),
     /// A letter the theorem binds only over sets of finite sets.
@@ -69,21 +72,33 @@ pub enum Making {
     Applied(String),
 }
 
-/// The sets known finite, each as the page prints it, with why.
-pub type FiniteSets = BTreeMap<String, FiniteBy>;
+/// The sets known finite, each by its tree, with why: a define's or a bound
+/// letter's name by its name (`name_key`).
+pub type FiniteSets = IndexMap<ByShape, FiniteBy>;
 
-/// What a theorem makes finite, as the page prints each set or name.
+/// The key of a set in `FiniteSets`: its tree.
+pub fn key(set: &Node) -> ByShape {
+    ByShape(set.clone())
+}
+
+/// The key of a name, a define's or a bound letter's, in `FiniteSets`: the
+/// name as a tree, which is that name wherever the page writes it.
+pub fn name_key(name: &str) -> ByShape {
+    ByShape(Node::name(crate::formula::Sort::unknown(), name))
+}
+
+/// What a theorem makes finite, each set or name by its tree.
 #[derive(Clone, Debug, Default)]
 pub struct SaidFinite {
     /// The sets its hypotheses make finite, the names its defines give
     /// finite sets, and the letters it binds only over sets of finite sets
     /// (`finite_names`), each with why.
     pub sets: FiniteSets,
-    /// For each hypothesis that makes a set finite, as printed, the sets
-    /// only it does and it may not vouch for itself (`finite_sets_vouched`):
-    /// it is written knowing only the rest, since `|X| = 0` written with
-    /// `X.ncard` would hold of every infinite X too.
-    pub only_by: BTreeMap<String, BTreeSet<String>>,
+    /// For each hypothesis that makes a set finite, the sets only it does
+    /// and it may not vouch for itself (`finite_sets_vouched`): it is
+    /// written knowing only the rest, since `|X| = 0` written with `X.ncard`
+    /// would hold of every infinite X too.
+    pub only_by: IndexMap<ByShape, IndexSet<ByShape>>,
 }
 
 /// What a theorem's hypotheses, defines and lines make finite. Of its
@@ -93,33 +108,28 @@ pub struct SaidFinite {
 /// bind (`finite_names`). `positive` says which numbers a count given in a
 /// hypothesis is at least 1 as, so that it vouches for itself.
 pub fn said_finite(
-    grammar: &Grammar,
     hypotheses: &[Node],
     defines: &[Named],
     lines: &[&Node],
     positive: &dyn Fn(&Node) -> bool,
 ) -> SaidFinite {
-    let by_all = finite_sets(grammar, hypotheses, positive);
-    let mut only_by = BTreeMap::new();
+    let by_all = finite_sets(hypotheses, positive);
+    let mut only_by = IndexMap::new();
     for line in hypotheses {
-        let printed = grammar.print(line);
-        let by_others = finite_sets(
-            grammar,
-            hypotheses.iter().filter(|l| grammar.print(l) != printed),
-            positive,
-        );
-        let by_itself = finite_sets_vouched(grammar, std::iter::once(line), positive);
-        let only: BTreeSet<String> = by_all
+        let by_others =
+            finite_sets(hypotheses.iter().filter(|l| !l.spelt_alike(line)), positive);
+        let by_itself = finite_sets_vouched(std::iter::once(line), positive);
+        let only: IndexSet<ByShape> = by_all
             .keys()
             .filter(|s| !by_others.contains_key(*s) && !by_itself.contains_key(*s))
             .cloned()
             .collect();
         if !only.is_empty() {
-            only_by.insert(printed, only);
+            only_by.insert(key(line), only);
         }
     }
     let mut sets = by_all;
-    finite_names(grammar, &mut sets, defines, lines);
+    finite_names(&mut sets, defines, lines);
     SaidFinite { sets, only_by }
 }
 
@@ -134,11 +144,37 @@ pub fn said_finite(
 /// or one part of an "and"; under an "if" or a "not" it says nothing of the
 /// set.
 pub fn finite_sets<'n>(
-    grammar: &Grammar,
     lines: impl IntoIterator<Item = &'n Node>,
     positive: &dyn Fn(&Node) -> bool,
 ) -> FiniteSets {
-    sets_read(grammar, lines, positive, true)
+    sets_read(lines, positive, true)
+}
+
+/// Of each "if P then Q" the sentences write, anywhere in them, the sets P
+/// makes finite within Q, by the whole "if" as a tree (`ByShape`): X of
+/// "for all sets X, if |X| = m then |{S ⊆ X : |S| = j}| = C(m, j)", where X
+/// has m elements. A count P gives that may be 0 counts too, as a line
+/// `assume |X| = m` makes X finite from there on (`finite_sets`). An "if"
+/// whose P makes nothing finite is left out.
+pub fn finite_under<'n>(
+    sentences: impl IntoIterator<Item = &'n Node>,
+) -> indexmap::IndexMap<crate::formula::node::ByShape, FiniteSets> {
+    use crate::notations::{CONDITIONAL, IMPLICATION};
+    let mut out = indexmap::IndexMap::new();
+    for sentence in sentences {
+        for node in sentence.walk() {
+            let ([condition, _], CONDITIONAL | IMPLICATION) =
+                (node.children.as_slice(), node.notation())
+            else {
+                continue;
+            };
+            let sets = finite_sets([condition], &|_| false);
+            if !sets.is_empty() {
+                out.insert(crate::formula::node::ByShape(node.clone()), sets);
+            }
+        }
+    }
+    out
 }
 
 /// `finite_sets` of what the lines may say of themselves: a count given as
@@ -147,16 +183,14 @@ pub fn finite_sets<'n>(
 /// written in ℕ∞ in its own line, since `Y.ncard = 0` holds of every
 /// infinite set too.
 pub fn finite_sets_vouched<'n>(
-    grammar: &Grammar,
     lines: impl IntoIterator<Item = &'n Node>,
     positive: &dyn Fn(&Node) -> bool,
 ) -> FiniteSets {
-    sets_read(grammar, lines, positive, false)
+    sets_read(lines, positive, false)
 }
 
 /// `finite_sets`, a count that may be 0 taken where `maybe_zero`.
 fn sets_read<'n>(
-    grammar: &Grammar,
     lines: impl IntoIterator<Item = &'n Node>,
     positive: &dyn Fn(&Node) -> bool,
     maybe_zero: bool,
@@ -172,42 +206,41 @@ fn sets_read<'n>(
     let mut out = FiniteSets::new();
     for s in &said.finite {
         let why = match s.counted {
-            None => FiniteBy::Said(grammar.print(s.line)),
+            None => FiniteBy::Said(key(s.line)),
             Some(true) => FiniteBy::Counted {
-                line: grammar.print(s.line),
+                line: key(s.line),
                 at_least_one: true,
             },
             Some(false) => continue,
         };
-        out.entry(grammar.print(s.set)).or_insert(why);
+        out.entry(key(s.set)).or_insert(why);
     }
-    with_parts(grammar, &said.subsets, &mut out);
+    with_parts(&said.subsets, &mut out);
     if maybe_zero {
         for s in said.finite.iter().filter(|s| s.counted == Some(false)) {
-            out.entry(grammar.print(s.set))
-                .or_insert_with(|| FiniteBy::Counted {
-                    line: grammar.print(s.line),
-                    at_least_one: false,
-                });
+            out.entry(key(s.set)).or_insert_with(|| FiniteBy::Counted {
+                line: key(s.line),
+                at_least_one: false,
+            });
         }
-        with_parts(grammar, &said.subsets, &mut out);
+        with_parts(&said.subsets, &mut out);
     }
     out
 }
 
 /// Adds to `out` each part of a finite set by the lines `subsets`, and each
 /// part of those, until no more are.
-fn with_parts(grammar: &Grammar, subsets: &[Subset<'_>], out: &mut FiniteSets) {
+fn with_parts(subsets: &[Subset<'_>], out: &mut FiniteSets) {
     loop {
-        let more: Vec<(String, FiniteBy)> = subsets
+        let more: Vec<(ByShape, FiniteBy)> = subsets
             .iter()
-            .filter(|s| !out.contains_key(&grammar.print(s.part)))
+            .filter(|s| !out.contains_key(&key(s.part)))
             .filter_map(|s| {
-                let whole = finite_by(grammar, out, s.whole)?;
+                let whole = finite_by(out, s.whole)?;
                 Some((
-                    grammar.print(s.part),
+                    key(s.part),
                     FiniteBy::Part {
-                        line: grammar.print(s.line),
+                        line: key(s.line),
                         whole: Box::new(whole),
                     },
                 ))
@@ -306,14 +339,10 @@ impl<'n> SaidOfSets<'n, '_> {
 /// Why a letter bound over `set` is finite, a set of its own whatever a set
 /// of its name outside is: where `set` is 𝒫A of a finite A, a part of A.
 /// None for any other binder.
-pub fn bound_over(
-    grammar: &Grammar,
-    finite: &FiniteSets,
-    set: &Node,
-) -> Option<FiniteBy> {
+pub fn bound_over(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
     match (&*set.notation_name(), set.children.as_slice()) {
         ("powerset", [whole]) => {
-            finite_by(grammar, finite, whole).map(|w| FiniteBy::MemberOf(Box::new(w)))
+            finite_by(finite, whole).map(|w| FiniteBy::MemberOf(Box::new(w)))
         }
         _ => None,
     }
@@ -360,23 +389,19 @@ pub fn natural_beside_count(node: &Node, natural: &dyn Fn(&str) -> bool) -> bool
 }
 
 /// Whether a set is finite (`finite_by`).
-pub fn is_finite(grammar: &Grammar, finite: &FiniteSets, set: &Node) -> bool {
-    finite_by(grammar, finite, set).is_some()
+pub fn is_finite(finite: &FiniteSets, set: &Node) -> bool {
+    finite_by(finite, set).is_some()
 }
 
 /// Why a set is finite, by what lines say (`finite_sets`) and how it is
 /// made: ∅, a listed set {a, b} and a range {a, …, b}; A ∖ B where A is,
 /// A ∩ B where either is, A ∪ B where both are; 𝒫A, {x ∈ A : …} and
 /// {E(s) : s ∈ A} where A is. None where it is not shown finite.
-pub fn finite_by(
-    grammar: &Grammar,
-    finite: &FiniteSets,
-    set: &Node,
-) -> Option<FiniteBy> {
-    if let Some(why) = finite.get(&grammar.print(set)) {
+pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
+    if let Some(why) = finite.get(&key(set)) {
         return Some(why.clone());
     }
-    let of = |s: &Node| finite_by(grammar, finite, s).map(Box::new);
+    let of = |s: &Node| finite_by(finite, s).map(Box::new);
     let made = match (
         &*set.notation_name(),
         &*set.spelling().text(),
@@ -400,9 +425,9 @@ pub fn finite_by(
                 set.notation(),
                 crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
             ) && f.is_name()
-                && finite.contains_key(&grammar.print(f)) =>
+                && finite.contains_key(&key(f)) =>
         {
-            Making::Applied(grammar.print(f))
+            Making::Applied(f.text.to_string())
         }
         _ => return None,
     };
@@ -412,22 +437,17 @@ pub fn finite_by(
 /// Whether every member of a set is a finite set: 𝒫A where A is finite,
 /// and what is made from such a set by {x ∈ _ : …}, ∖, ∩ and ∪, or named
 /// for one (`members`).
-fn holds_finite(
-    grammar: &Grammar,
-    finite: &FiniteSets,
-    members: &BTreeSet<String>,
-    set: &Node,
-) -> bool {
-    if members.contains(&grammar.print(set)) {
+fn holds_finite(finite: &FiniteSets, members: &BTreeSet<String>, set: &Node) -> bool {
+    if set.is_name() && members.contains(&*set.text) {
         return true;
     }
-    let of = |s: &Node| holds_finite(grammar, finite, members, s);
+    let of = |s: &Node| holds_finite(finite, members, s);
     match (
         &*set.notation_name(),
         &*set.spelling().text(),
         set.children.as_slice(),
     ) {
-        ("powerset", _, [a]) => is_finite(grammar, finite, a),
+        ("powerset", _, [a]) => is_finite(finite, a),
         ("set-builder", _, [_, a, _]) => of(a),
         ("set-operations", "∖", [a, _]) => of(a),
         ("set-operations", "∩", [a, b]) => of(a) || of(b),
@@ -442,26 +462,30 @@ pub struct Named<'n> {
     pub value: &'n Node,
 }
 
+/// Each define whose term is a finite set by `finite`, its name added as
+/// one, in the order defined, so that a define made from an earlier one is
+/// finite where that one is: F = {S ⊆ X : |S| = j} of a finite X.
+pub fn finite_defines(finite: &mut FiniteSets, defines: &[Named]) {
+    for d in defines {
+        if is_finite(finite, d.value) {
+            finite
+                .entry(name_key(&d.name))
+                .or_insert_with(|| FiniteBy::Define(d.name.clone()));
+        }
+    }
+}
+
 /// What a theorem's defines and bound letters add to the finite sets its
 /// hypotheses give: a name for a finite set, F = {S ⊆ X : |S| = j} of a
 /// finite X, is one; and a letter bound over sets that hold only finite
 /// sets, the S of {S ∈ 𝒫X : |S| = j}, is one where every place the
 /// theorem binds it is such a set, so that a property given for it, "|S|
 /// = j", counts it as the set-builder does.
-fn finite_names(
-    grammar: &Grammar,
-    finite: &mut FiniteSets,
-    defines: &[Named],
-    lines: &[&Node],
-) {
+pub fn finite_names(finite: &mut FiniteSets, defines: &[Named], lines: &[&Node]) {
     let mut members = BTreeSet::new();
+    finite_defines(finite, defines);
     for d in defines {
-        if is_finite(grammar, finite, d.value) {
-            finite
-                .entry(d.name.clone())
-                .or_insert_with(|| FiniteBy::Define(d.name.clone()));
-        }
-        if holds_finite(grammar, finite, &members, d.value) {
+        if holds_finite(finite, &members, d.value) {
             members.insert(d.name.clone());
         }
     }
@@ -478,14 +502,14 @@ fn finite_names(
             _ => None,
         };
         if let Some((x, set)) = over.filter(|(x, _)| x.is_name()) {
-            let holds = holds_finite(grammar, finite, &members, set);
+            let holds = holds_finite(finite, &members, set);
             let all = bound.entry(x.text.to_string()).or_insert(true);
             *all = *all && holds;
         }
     }
     for (x, _) in bound.into_iter().filter(|(_, all)| *all) {
         finite
-            .entry(x.clone())
+            .entry(name_key(&x))
             .or_insert_with(|| FiniteBy::Bound(x));
     }
 }

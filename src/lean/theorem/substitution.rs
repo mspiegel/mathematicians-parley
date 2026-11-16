@@ -1004,11 +1004,9 @@ impl<'a> Proof<'a> {
         was: &Node,
         now: &Node,
     ) {
-        let grammar = self.writer.grammar;
-        if let Some(why) =
-            crate::citing::finite::finite_by(grammar, &self.writer.finite, was)
-        {
-            w.finite.insert(letter.to_string(), why);
+        if let Some(why) = crate::citing::finite::finite_by(&self.writer.finite, was) {
+            w.finite
+                .insert(crate::citing::finite::name_key(letter), why);
         }
         if let (Some(a), Some(b)) = (self.writer.least(was), self.writer.least(now)) {
             w.bounds.terms.push(crate::citing::bounds::Bound {
@@ -1685,59 +1683,134 @@ impl<'a> Proof<'a> {
         if writer.carrier(term).built()? <= n {
             return None;
         }
-        // The other side's membership a line states, `∃ m, ↑m = k(k + 1)/2`:
-        // its witness carried along the equation faced so the other side is
-        // its left, `s3.imp (fun _ h => h.trans s2.symm)`.
-        if let Some(stated) = &beside.other_stated {
-            let ctx = self.sources.ctx;
-            let cited = self.cited_parts(&just.refs);
-            let line = cited.iter().find(|c| read_alike(&c.node, stated, ctx))?;
-            let equation = cited
-                .iter()
-                .find(|c| read_alike(&c.node, &beside.equation, ctx))?;
-            let to_term = match beside.facing {
-                Facing::Turned => equation.proof.clone(),
-                Facing::Straight => super::super::tactics::symm(
-                    super::super::tactics::bracket(equation.proof.clone()),
-                ),
-            };
-            let carried = Printed::of(
-                super::super::doc::TermKind::Lambda {
-                    letters: vec!["_".to_string(), "h".to_string()],
-                    body: Box::new(applied_to(
-                        fields(super::super::tactics::hyp("h"), &["trans"]),
-                        to_term,
-                    )),
-                },
-                super::super::doc::LeanType::Prop,
-            );
-            return Some(super::super::doc::Proof::Term(applied_to(
-                fields(line.proof.clone(), &["imp"]),
-                carried,
-            )));
-        }
-        let other = &beside.other;
-        if !writer.carrier(other).built().is_some_and(|c| c <= n) {
-            return None;
-        }
-        let w = writer.number_fixed(other, n).built()?;
-        let equation = self
-            .cited_parts(&just.refs)
-            .into_iter()
-            .find(|c| read_alike(&c.node, &beside.equation, self.sources.ctx))?;
-        // The witness is the side that is not the term: the equation as it
-        // stands where the term is its right side, turned where its left.
-        let faced = match beside.facing {
-            Facing::Turned => equation.proof,
+        let cited = self.cited_equations(&just.refs);
+        self.witness_beside(beside, n, node, writer, &cited)
+            .map(super::super::doc::Proof::Term)
+    }
+
+    /// `∃ m : n, ↑m = t` of a term t the checker found beside a cited
+    /// equation (`Besides`), from `cited`, the lines the claim cites, and
+    /// `node`, the claim t ∈ S, whose set a nested witness is stated in. The
+    /// equation is faced so the other side is its left, ↑w = t. Where a
+    /// line states the other side's membership, or another equation
+    /// carries the other side on (`Besides::other_beside`), that witness is
+    /// carried along it, `s3.imp (fun _ h => h.trans s2.symm)`; otherwise
+    /// the other side, which Lean writes in n, is the witness itself,
+    /// `⟨w, by exact_mod_cast s2.symm⟩`. None where a line it rests on is
+    /// not among `cited`, or Lean writes the other side wider than n.
+    fn witness_beside(
+        &self,
+        beside: &crate::checker::record::Besides,
+        n: super::super::templates::Num,
+        node: &Node,
+        writer: &Writer,
+        cited: &[super::super::algebra::Cited],
+    ) -> Option<Printed> {
+        let ctx = self.sources.ctx;
+        let equation = cited
+            .iter()
+            .find(|c| read_alike(&c.node, &beside.equation, ctx))?;
+        // The equation faced so the other side is its left: as it stands
+        // where the term is its right side, turned where its left.
+        let to_term = match beside.facing {
+            Facing::Turned => equation.proof.clone(),
             Facing::Straight => super::super::tactics::symm(
-                super::super::tactics::bracket(equation.proof),
+                super::super::tactics::bracket(equation.proof.clone()),
             ),
         };
-        let proof = super::super::tactics::by_term(super::super::doc::Proof::By(
-            super::super::tactics::exact_mod_cast(faced),
-        ));
-        Some(super::super::doc::Proof::Term(
-            super::super::expr::anonymous(vec![w, proof]),
+        let held = match (&beside.other_stated, &beside.other_beside) {
+            (Some(stated), _) => cited
+                .iter()
+                .find(|c| read_alike(&c.node, stated, ctx))?
+                .proof
+                .clone(),
+            // Its type given, `(⟨r, _⟩ : ∃ m : ℝ, ↑m = y)`, which Lean cannot
+            // take from a constructor `.imp` is read off.
+            (None, Some(on)) => super::conversions::ascribed(
+                self.witness_beside(on, n, node, writer, cited)?,
+                writer
+                    .formula(&node.with_children(vec![
+                        beside.other.clone(),
+                        node.children.get(1)?.clone(),
+                    ]))
+                    .built()?,
+            ),
+            (None, None) => {
+                let other = &beside.other;
+                if !writer.carrier(other).built().is_some_and(|c| c <= n) {
+                    return None;
+                }
+                let w = writer.number_fixed(other, n).built()?;
+                let proof =
+                    super::super::tactics::by_term(super::super::doc::Proof::By(
+                        super::super::tactics::exact_mod_cast(to_term),
+                    ));
+                return Some(super::super::expr::anonymous(vec![w, proof]));
+            }
+        };
+        let carried = Printed::of(
+            super::super::doc::TermKind::Lambda {
+                letters: vec!["_".to_string(), "h".to_string()],
+                body: Box::new(applied_to(
+                    fields(super::super::tactics::hyp("h"), &["trans"]),
+                    to_term,
+                )),
+            },
+            super::super::doc::LeanType::Prop,
+        );
+        Some(applied_to(fields(held, &["imp"]), carried))
+    }
+
+    /// The bound `0 ≤ t` or `0 < t` of a term t the checker found beside a
+    /// cited equation t = u (`Besides`), from `cited`, the lines the claim
+    /// cites: u's bound carried along the equation faced u = t,
+    /// `le_of_le_of_eq (hu) s1_6.symm`. u's bound is the line stating u is
+    /// in the system, the closure table's row (`Besides::other_row`),
+    /// another equation carrying u on (`Besides::other_beside`), or what
+    /// the page says once. None where a line it rests on is not among
+    /// `cited`, or no proof is written for u's bound.
+    fn bound_beside(
+        &self,
+        beside: &crate::checker::record::Besides,
+        system: crate::rules::System,
+        just: &Justification,
+        cited: &[super::super::algebra::Cited],
+    ) -> Option<Printed> {
+        use super::super::tactics as t;
+        use crate::rules::System;
+        let ctx = self.sources.ctx;
+        let equation = cited
+            .iter()
+            .find(|c| read_alike(&c.node, &beside.equation, ctx))?;
+        let other = match (
+            &beside.other_stated,
+            &beside.other_row,
+            &beside.other_beside,
+        ) {
+            (Some(stated), _, _) => cited
+                .iter()
+                .find(|c| read_alike(&c.node, stated, ctx))?
+                .proof
+                .clone(),
+            (None, Some(row), _) => whole_nonneg(&row.op, || {
+                self.said_bound(&row.right, System::N, &just.refs)
+            })?,
+            (None, None, Some(on)) => self.bound_beside(on, system, just, cited)?,
+            (None, None, None) => self.said_bound(&beside.other, system, &just.refs)?,
+        };
+        let to_term = match beside.facing {
+            Facing::Straight => t::symm(t::bracket(equation.proof.clone())),
+            Facing::Turned => equation.proof.clone(),
+        };
+        let lemma = match system {
+            System::N => "lt_of_lt_of_eq",
+            _ => "le_of_le_of_eq",
+        };
+        Some(Printed::applied(
+            lemma,
+            super::super::doc::Source::Mathlib,
+            vec![t::bracket(other), to_term],
+            super::super::doc::LeanType::Prop,
         ))
     }
 
@@ -1771,40 +1844,7 @@ impl<'a> Proof<'a> {
             ShownBy::Said => self.said_bound(term, system, &just.refs),
             ShownBy::Beside(beside) => {
                 let cited = self.cited_parts(&just.refs);
-                let ctx = self.sources.ctx;
-                let equation = cited
-                    .iter()
-                    .find(|c| read_alike(&c.node, &beside.equation, ctx))?;
-                // The other side by the line stating it, the closure table's
-                // row (`Besides::other_row`), or what the page says once.
-                let other = match (&beside.other_stated, &beside.other_row) {
-                    (Some(stated), _) => cited
-                        .iter()
-                        .find(|c| read_alike(&c.node, stated, ctx))?
-                        .proof
-                        .clone(),
-                    (None, Some(row)) => whole_nonneg(&row.op, || {
-                        self.said_bound(&row.right, System::N, &just.refs)
-                    })?,
-                    (None, None) => {
-                        self.said_bound(&beside.other, system, &just.refs)?
-                    }
-                };
-                // The equation faced u = t, and u's bound carried along it.
-                let to_term = match beside.facing {
-                    Facing::Straight => t::symm(t::bracket(equation.proof.clone())),
-                    Facing::Turned => equation.proof.clone(),
-                };
-                let lemma = match system {
-                    System::N => "lt_of_lt_of_eq",
-                    _ => "le_of_le_of_eq",
-                };
-                Some(Printed::applied(
-                    lemma,
-                    super::super::doc::Source::Mathlib,
-                    vec![t::bracket(other), to_term],
-                    super::super::doc::LeanType::Prop,
-                ))
+                self.bound_beside(beside, system, just, &cited)
             }
             // The type `Set.MapsTo f X Y` applied to the point's membership
             // of X, which a set-builder or `Set.univ` holds as its bound.

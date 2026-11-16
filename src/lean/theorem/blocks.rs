@@ -869,6 +869,13 @@ impl<'a> Proof<'a> {
         for line in lines {
             self.push_at(depth, line, step.line, spot.clone());
         }
+        // The claim's body as the induction states it, written once: what a
+        // part's lines teach the writer, a set they show finite, is no part
+        // of the motive Lean made before them.
+        let motive = match self.writer.formula(body) {
+            Route::Built(m) => m,
+            Route::Declined(d) => return Route::Declined(d),
+        };
         // Each part starts from the lines in scope as the induction found
         // them: a line one part opens is no line of the next.
         let kept_lines = self.trees.clone();
@@ -963,10 +970,6 @@ impl<'a> Proof<'a> {
             // k + 1, the cast of the letter a cast of that value, `↑(k + 1)`;
             // its own lines open it (`opening_goal`) and take off it what
             // their intros take.
-            let motive = match self.writer.formula(body) {
-                Route::Built(m) => m,
-                Route::Declined(d) => return Route::Declined(d),
-            };
             let int =
                 super::super::doc::LeanType::Num(super::super::templates::Num::Int);
             let at = match marker {
@@ -1193,7 +1196,7 @@ impl<'a> Proof<'a> {
             Some(LetterType::Function { from, to }) => {
                 match writer.function_type(value) {
                     Route::Built(t) if t == (from, to) => {
-                        Route::Built(writer.function_printed(value))
+                        writer.function_printed(value)
                     }
                     Route::Built(_) => {
                         Route::no("a function given for one of other types")
@@ -1283,6 +1286,31 @@ impl<'a> Proof<'a> {
                     .get(&o.line)
                     .cloned()
                     .unwrap_or_default();
+            }
+            // `let X be a set`, which asserts nothing: the letter, typed by
+            // its sort as a theorem's own `let X be a set` is
+            // (`set_letter_type`), as "for all sets X" gives it.
+            if o.kind == Intro::Let && nodes.is_empty() {
+                use crate::sorts::introduction::{Form, Introduction};
+                let Form::Set(name) = Introduction::read(body.clone()).form else {
+                    return Route::no("a let that is no formula and lets no set");
+                };
+                let Some(ty) = self
+                    .rec
+                    .sorts
+                    .get(&name)
+                    .and_then(super::super::sets::set_letter_type)
+                else {
+                    return Route::no(format!("{name}, a set whose sort is no set's"));
+                };
+                self.writer.letters.insert(name.clone(), ty);
+                self.intro(
+                    depth,
+                    vec![super::super::names::letter(&name)],
+                    o.line,
+                    &spot,
+                );
+                continue;
             }
             match o.kind {
                 Intro::Let => {

@@ -60,18 +60,20 @@ fn count_of(set: Printed, form: CountForm) -> Printed {
 }
 
 /// Whether a term counts, somewhere, a set not among `finite`: a count the
-/// writer takes in ℕ∞.
+/// writer takes in ℕ∞. A count is of its own set: what that set's own
+/// definition counts, |S| of {S ∈ 𝒫X : |S| = j}, is of a letter bound
+/// there, which the set's writer counts by its binder.
 pub fn counts_in_extended(
-    grammar: &crate::formula::Grammar,
     finite: &crate::citing::finite::FiniteSets,
     node: &Node,
 ) -> bool {
-    node.walk().iter().any(|n| {
-        &*n.notation_name() == "cardinality"
-            && n.children
-                .first()
-                .is_none_or(|set| !is_finite(grammar, finite, set))
-    })
+    if &*node.notation_name() == "cardinality" {
+        return node
+            .children
+            .first()
+            .is_none_or(|set| !is_finite(finite, set));
+    }
+    node.children.iter().any(|c| counts_in_extended(finite, c))
 }
 
 /// The parts `Writer::map_claim` writes for a line of this notation about
@@ -165,8 +167,9 @@ impl Writer<'_> {
             }
             // [a, b] and (a, b) hold real numbers.
             "closed-interval" | "open-interval" => Some(Members::Numbers(Num::Real)),
-            // ⋃(x ∈ S) T holds what each T does, x a member of S.
-            "indexed-union" => {
+            // ⋃(x ∈ S) T and ⋂(x ∈ S) T hold what each T does, x a member
+            // of S.
+            "indexed-union" | "indexed-intersection" => {
                 let [x, s, t] = node.children.as_slice() else {
                     return None;
                 };
@@ -670,8 +673,10 @@ impl Writer<'_> {
                 (_, Route::Declined(d)) => Route::Declined(d),
             },
             "set-builder" => self.set_builder(node),
-            // ⋃(x ∈ S) T, the union of T as x runs over S: `⋃ x ∈ S, T`.
-            "indexed-union" => {
+            // ⋃(x ∈ S) T, the union of T as x runs over S: `⋃ x ∈ S, T`;
+            // ⋂(x ∈ S) T, the intersection, `⋂ x ∈ S, T`, which over an
+            // empty S is everything of T's type, as the notation reads it.
+            name @ ("indexed-union" | "indexed-intersection") => {
                 let [x, s, t] = node.children.as_slice() else {
                     return Route::no("a union of other than three parts");
                 };
@@ -683,9 +688,14 @@ impl Writer<'_> {
                 match (self.set_term(s), inner.set_term(t)) {
                     (Route::Built(a), Route::Built(b)) => {
                         let ty = b.ty.clone();
+                        let set = Box::new(a);
+                        let form = match name {
+                            "indexed-union" => super::doc::BoundForm::Union { set },
+                            _ => super::doc::BoundForm::Inter { set },
+                        };
                         Route::Built(Printed {
                             kind: TermKind::Bound {
-                                form: super::doc::BoundForm::Union { set: Box::new(a) },
+                                form,
                                 letter: super::names::letter(&x.text),
                                 letter_ty: over.letter().lean_type(),
                                 body: Box::new(b),
@@ -861,6 +871,14 @@ impl Writer<'_> {
             .letters
             .insert(letter.text.to_string(), members.letter());
         inner.wholes.shift_remove(&*letter.text);
+        // The letter bound here is a set of its own, finite where its
+        // binder makes it so, S of {S ∈ 𝒫X : …} of a finite X, as a "for
+        // all" over the set binds it (`citing::finite::bound_over`).
+        let bound = crate::citing::finite::key(letter);
+        inner.finite.shift_remove(&bound);
+        if let Some(why) = crate::citing::finite::bound_over(&self.finite, set) {
+            inner.finite.insert(bound, why);
+        }
         // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
         // letter a line puts there is.
         let system = match super::expr::system_of(set) {
@@ -1201,7 +1219,7 @@ impl Writer<'_> {
     /// Whether a term counts, somewhere, a set no line says is finite, |A|
     /// or |A| + 1: a count in ℕ∞.
     pub fn counts(&self, node: &Node) -> bool {
-        counts_in_extended(self.grammar, &self.finite, node)
+        counts_in_extended(&self.finite, node)
     }
 
     /// Whether a relation that counts a set is one ℕ∞ says as the page
@@ -1226,7 +1244,7 @@ impl Writer<'_> {
     /// infinite X too where m is 0; `X.encard = m` says X has m elements.
     /// None where the line vouches for every set it makes finite.
     pub fn without_line(&self, line: &Node) -> Option<Writer<'_>> {
-        let only = self.finite_only_by.get(&self.grammar.print(line))?;
+        let only = self.finite_only_by.get(&crate::citing::finite::key(line))?;
         let mut out = self.with_letters(self.letters.clone());
         out.finite.retain(|s, _| !only.contains(s));
         Some(out)
@@ -1238,8 +1256,8 @@ impl Writer<'_> {
         let [set] = node.children.as_slice() else {
             return None;
         };
-        let finite = &*node.notation_name() == "cardinality"
-            && is_finite(self.grammar, &self.finite, set);
+        let finite =
+            &*node.notation_name() == "cardinality" && is_finite(&self.finite, set);
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
         if finite && &*set.notation_name() == "empty-set" {
@@ -1583,6 +1601,11 @@ impl Writer<'_> {
             &*set.notation_name(),
             "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four"
         );
+        if let Some(pair) =
+            super::expr::pair_coordinates(x).filter(|_| listed && !empty)
+        {
+            return Some(self.pair_in_listed(pair, set));
+        }
         let members = self.members_of(set).or_else(|| {
             listed
                 .then(|| {
@@ -1604,6 +1627,52 @@ impl Writer<'_> {
             (Route::Built(a), Route::Built(b)) => relation_of("∈", a, b),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
+    }
+
+    /// A pair of numbers in a set listed by pairs, (1, 2) ∈ {(3, 4), (1, 5)}:
+    /// each coordinate in the least type holding it in the pair and in every
+    /// member, both sides given their type, `((1, 2) : ℤ × ℤ) ∈ ({(3, 4),
+    /// (1, 5)} : Set (ℤ × ℤ))`.
+    fn pair_in_listed(&self, pair: [&Node; 2], set: &Node) -> Route<Printed> {
+        let mut members = Vec::new();
+        for m in &set.children {
+            match super::expr::pair_coordinates(m) {
+                Some(c) => members.push(c),
+                None => return Route::no("a pair in a set listed by other than pairs"),
+            }
+        }
+        // Each coordinate's numbers in the widest type any member's take.
+        let mut types = match self.pair_types(pair, pair) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        for m in &members {
+            let each = match self.pair_types(pair, *m) {
+                Route::Built(t) => t,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            for (t, e) in types.iter_mut().zip(each) {
+                if let (Members::Numbers(a), Members::Numbers(b)) = (&*t, &e) {
+                    *t = Members::Numbers((*a).max(*b));
+                }
+            }
+        }
+        let ty = super::expr::pair_type(&types);
+        let mut listed = Vec::new();
+        for m in members {
+            match self.pair_term(m, &types) {
+                Route::Built(p) => listed.push(p),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        let x = match self.pair_term(pair, &types) {
+            Route::Built(p) => Printed::cast(p, ty.clone()),
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let set_ty = LeanType::Set(Box::new(ty));
+        let listed =
+            Printed::cast(super::expr::listed_set(listed, set_ty.clone()), set_ty);
+        relation_of("∈", x, listed)
     }
 
     /// A relation between two sets, A = B or A ⊆ B, or two members of one,
@@ -1654,6 +1723,37 @@ impl Writer<'_> {
 
     /// For all t ∈ S, or there is t ∈ S, of a set S: `∀ t ∈ S, …`, the letter
     /// a member of S's; None where S is no set this writer has a type for.
+    /// For all sets X, P: `∀ X : Set α, P`. The notation binds a set of the
+    /// things the theorem's sets hold (its record's sort, `set of α`), as
+    /// `let X be a set` lets one. The letter bound here is a set of its own,
+    /// finite only where the body says so.
+    pub fn quantified_over_sets(&self, letter: &Node, body: &Node) -> Route<Printed> {
+        if !letter.is_name() {
+            return Route::no("for all sets of a term that is no letter");
+        }
+        let ty = LetterType::Set(Members::Things(0));
+        let mut inner = self.with_letters(self.letters.clone());
+        inner.letters.insert(letter.text.to_string(), ty.clone());
+        inner
+            .finite
+            .shift_remove(&crate::citing::finite::key(letter));
+        let body = match inner.formula(body) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        Route::Built(Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::ForAll,
+                letter: super::names::letter(&letter.text),
+                letter_ty: ty.lean_type(),
+                guard: None,
+                body: Box::new(body),
+                bounded: false,
+            },
+            LeanType::Prop,
+        ))
+    }
+
     pub fn quantified_over_set(
         &self,
         letter: &Node,
@@ -1700,11 +1800,9 @@ impl Writer<'_> {
         // The letter bound here is a set of its own, whatever a set of its
         // name outside is: finite where its binder makes it so
         // (`citing::finite::bound_over`), and not otherwise.
-        let name = self.grammar.print(letter);
-        inner.finite.remove(&name);
-        if let Some(why) =
-            crate::citing::finite::bound_over(self.grammar, &self.finite, set)
-        {
+        let name = crate::citing::finite::key(letter);
+        inner.finite.shift_remove(&name);
+        if let Some(why) = crate::citing::finite::bound_over(&self.finite, set) {
             inner.finite.insert(name, why);
         }
         let body = match inner.formula(body) {

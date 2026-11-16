@@ -46,9 +46,9 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     have s3_2a : s ∈ W := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).1
     have s3_2b : s ∈ X := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).2
     -- 3.3. mun:value-in-image Y := W, from H4, 3.2
-    have s3_3 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := Set.univ) hH4 s3_2a (Set.mapsTo_univ _ _))
+    have s3_3 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := B) hH4 s3_2a hH3)
     -- 3.4. mun:value-in-image Y := X, from H5, 3.2
-    have s3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := Set.univ) hH5 s3_2b (Set.mapsTo_univ _ _))
+    have s3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := B) hH5 s3_2b hH3)
     -- 3.5. substitute y = f(s) (line 3.1) into line 3.3
     have s3_5 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ W))) s3_1b.symm s3_3
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4

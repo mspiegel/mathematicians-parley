@@ -27,6 +27,6 @@ namespace Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APreimageInTheDom
 theorem a_preimage_in_the_domain (f : ℝ → ℝ) (B : Set ℝ) (hH2 : B ⊆ (Set.univ : Set ℝ)) :
     (Set.univ : Set ℝ) ∩ f ⁻¹' B ⊆ (Set.univ : Set ℝ) := by
   -- 1. mun:preimage-within X := ℝ, W := ℝ, Z := B
-  exact (Parley.Items.Stdlib.Functions.mun_preimage_within (X := (Set.univ : Set ℝ)) (Z := B) (f := f) (W := Set.univ) (Set.mapsTo_univ _ _))
+  exact (Parley.Items.Stdlib.Functions.mun_preimage_within (X := (Set.univ : Set ℝ)) (Z := B) (f := f) (W := (Set.univ : Set ℝ)) (Set.mapsTo_univ _ _))
 
 end Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APreimageInTheDomain

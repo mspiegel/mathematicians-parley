@@ -11,6 +11,7 @@ public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -19,6 +20,7 @@ public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
@@ -86,7 +88,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr ⟨s7_2_3, hC5⟩
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by
-            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (by omega)).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; exact_mod_cast h)))
+            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s3; rw [h0] at h; exact ne_of_lt ((by norm_num : 0 < 1)) (by exact_mod_cast h))).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; exact_mod_cast h)))
             have row1 : t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => t ∈ u)) c1 s7_2_5_3
             exact row1
           -- 7.2.5.5. inspection

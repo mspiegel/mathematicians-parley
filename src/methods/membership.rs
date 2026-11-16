@@ -128,6 +128,11 @@ pub struct Beside<'f> {
     /// system by its own operation, with its two parts, where no fact
     /// states it: (t + 1) mod 10 beside s(t) of s(t) = (t + 1) mod 10.
     pub other_row: Option<(&'static rules::Whole, [&'f Node; 2])>,
+    /// Another equation among the facts that puts the other side beside a
+    /// term in the system, where no fact states it, no row puts it there
+    /// and the page does not say it once: y = r carrying x on from x = y,
+    /// where x = y = r and only r is real.
+    pub other_beside: Option<Box<Beside<'f>>>,
 }
 
 /// `besides`, each with the equation that puts the term there.
@@ -142,6 +147,7 @@ fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
                 term_left: true,
                 other_stated: None,
                 other_row: None,
+                other_beside: None,
             }),
             (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(Beside {
                 equation: f,
@@ -149,16 +155,31 @@ fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
                 term_left: false,
                 other_stated: None,
                 other_row: None,
+                other_beside: None,
             }),
             _ => None,
         })
         .collect()
 }
 
-/// `b` with how its other side is in `system`: the fact stating it, or else
-/// the closure table's row of its own operation, its parts walked to
-/// `depth`.
+/// `b`, which puts `term` beside its other side, with how that side is in
+/// `system`: the fact stating it, or else the closure table's row of its
+/// own operation, its parts walked to `depth`, or else another equation
+/// carrying it on (`carried_on`).
 fn with_other_held<'f>(
+    term: &Node,
+    b: Beside<'f>,
+    system: System,
+    facts: &'f Facts,
+    depth: usize,
+) -> Beside<'f> {
+    with_other_held_past(&[term], b, system, facts, depth)
+}
+
+/// `with_other_held`, where `past` are the terms the equations so far
+/// carried the claim's term through, the claim's term first.
+fn with_other_held_past<'f>(
+    past: &[&Node],
     b: Beside<'f>,
     system: System,
     facts: &'f Facts,
@@ -169,11 +190,42 @@ fn with_other_held<'f>(
         Some(_) => None,
         None => whole_by(b.other, system, facts, depth),
     };
+    let other_beside = match (other_stated, &other_row) {
+        (None, None) if !member(b.other, system, facts, 0) => {
+            carried_on(past, b.other, system, facts, depth)
+        }
+        _ => None,
+    };
     Beside {
         other_stated,
         other_row,
+        other_beside,
         ..b
     }
+}
+
+/// The equation among the facts that carries `other`, the side an equation
+/// put a term beside, on to a term in `system`, as `held_at` found it
+/// there: y = r of x = y = r, where only r is real. A term already passed
+/// through (`past`) is not gone back to, so x = y read the other way is
+/// not taken for y. None where `depth` is spent or no equation carries it.
+fn carried_on<'f>(
+    past: &[&Node],
+    other: &Node,
+    system: System,
+    facts: &'f Facts,
+    depth: usize,
+) -> Option<Box<Beside<'f>>> {
+    let depth = depth.checked_sub(1)?;
+    let mut through = past.to_vec();
+    through.push(other);
+    let b = besides_by(other, facts).into_iter().find(|b| {
+        !through.iter().any(|t| same(t, b.other, facts.ctx))
+            && member(b.other, system, facts, depth)
+    })?;
+    Some(Box::new(with_other_held_past(
+        &through, b, system, facts, depth,
+    )))
 }
 
 /// How an atom is in its system (`atom_held`), so that a backend proves it
@@ -205,7 +257,7 @@ pub fn atom_held_by<'f>(
     besides_by(term, facts)
         .into_iter()
         .find(|b| holds(b.other, system, facts))
-        .map(|b| Held::Beside(with_other_held(b, system, facts, CARRIED)))
+        .map(|b| Held::Beside(with_other_held(term, b, system, facts, CARRIED)))
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts
@@ -429,6 +481,7 @@ fn held_at<'f>(
             .find(|b| member(b.other, system, facts, depth - 1))
         {
             return Some(HeldHow::Beside(with_other_held(
+                term,
                 b,
                 system,
                 facts,

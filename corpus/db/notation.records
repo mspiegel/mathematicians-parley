@@ -414,6 +414,7 @@ notation root
   metamath-syntax the real root: x ↑𝑐 (1/n) for x ≥ 0, and −((−x) ↑𝑐 (1/n))
               below, by if
   metamath-builds cc0 _2 cle wbr _2 c1 _1 cdiv co ccxp co _2 cneg c1 _1 cdiv co ccxp co cneg cif
+  lean-builds ℕ, ℝ → ℝ: LeanBridges.Numbers.root _1 _2
   note        ⁵√x, the index a numeral written raised as an exponent is; ∛x
               and ∜x are ³√x and ⁴√x written as one character. The index is 3
               or more, √ being the square root. For an odd index it is the

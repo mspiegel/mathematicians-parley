@@ -438,6 +438,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
     );
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
+    writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
     writer.bounds = rec.statement_bounds.clone();
     writer.whole_bounds = rec.statement_bounds.clone();
     let stated = match statement(&mut writer, thm, rec) {

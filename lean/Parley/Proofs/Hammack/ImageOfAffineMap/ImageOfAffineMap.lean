@@ -55,7 +55,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 4.2. instantiate x := m − 1 in H2
     have s4_2 : f (m - 1) = 4 * (m - 1) + 5 := by exact (hH2 (m - 1))
     -- 4.3. mun:value-in-image Y := ℤ, s := m − 1, from 1
-    have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := Set.univ) s1 (Set.mem_univ _) (Set.mapsTo_univ _ _))
+    have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := (Set.univ : Set ℤ)) s1 (Set.mem_univ _) (Set.mapsTo_univ _ _))
     -- 4.4. substitute
     have c1 : f (m - 1) = y := by linear_combination (-1) * s4_1 + s4_2
     have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := Eq.subst (motive := (fun t : ℤ => t ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)))) c1 s4_3

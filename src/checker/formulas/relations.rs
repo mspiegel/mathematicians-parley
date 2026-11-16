@@ -10,6 +10,9 @@ pub(super) struct AlgebraDecided {
     /// counts among.
     pub(super) facts: Vec<Node>,
     pub(super) verdict: algebra::Verdict,
+    /// Of a claim that two pairs differ, the coordinate a cited difference
+    /// shows them apart at (`algebra::apart_at`).
+    pub(super) pair_apart: Option<crate::methods::pairs::Coordinate>,
 }
 
 /// The `algebra` decision of one claim; None where the claim does not read.
@@ -41,10 +44,14 @@ pub(super) fn algebra_decided(
     let verdict = crate::methods::field::reading_sums(linear, || {
         algebra::decide(&claimed, &cited, &labels)
     });
+    let pair_apart = crate::methods::pairs::relation(&claimed)
+        .filter(|p| p.apart)
+        .and_then(|p| algebra::apart_at(&p, &cited, &labels));
     Some(AlgebraDecided {
         read,
         facts,
         verdict,
+        pair_apart,
     })
 }
 
@@ -103,6 +110,7 @@ pub(super) fn divided_at(
         read,
         facts,
         verdict: algebra::Verdict::Holds { combined },
+        ..
     }) = algebra_decided(at, known, targets)
     else {
         return Vec::new();
@@ -1485,6 +1493,14 @@ pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Know
             );
         }
     }
+}
+
+/// Of each "if P then Q" the page writes, the sets P makes finite within Q
+/// (`citing::finite::finite_under`).
+pub fn finite_under(
+    page: &crate::checker::record::PageReading,
+) -> IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets> {
+    crate::citing::finite::finite_under(page.entries().map(|(_, node)| node))
 }
 
 /// How each calculation's ends meet the step's claim, by the line of its

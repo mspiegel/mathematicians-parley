@@ -3,7 +3,6 @@ module
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -32,7 +31,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
   have s1 : ∀ u ∈ F '' (A ∩ X), u ∈ {y ∈ B | ∃ x ∈ X, F x = y} := by
     intro u hK1
     -- 1.1. def:image X := A, Y := X, from H4, K1
-    have s1_1 : ∃ s ∈ X, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := F) (u := u) (W := Set.univ) hH4 (Set.mapsTo_univ _ _))).mp hK1
+    have s1_1 : ∃ s ∈ X, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := F) (u := u) (W := B) hH4 hH3)).mp hK1
     -- 1.2. obtain s from line 1.1
     obtain ⟨s, s1_2a, s1_2b⟩ := s1_1
     -- 1.3. mun:in-subset, from H4, 1.2
@@ -55,7 +54,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 3.2. obtain x from line 3.1
     obtain ⟨x, s3_2a, s3_2b⟩ := s3_1
     -- 3.3. mun:value-in-image, from H4, 3.2
-    have s3_3 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := Set.univ) hH4 s3_2a (Set.mapsTo_univ _ _))
+    have s3_3 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := B) hH4 s3_2a hH3)
     -- 3.4. substitute F(x) = u (line 3.2) into line 3.3
     exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3_2b s3_3
   -- 4. def:subset, from 3

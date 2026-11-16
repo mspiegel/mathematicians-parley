@@ -116,6 +116,14 @@ pub fn written_out(
         .iter()
         .map(|line| line.iter().map(out).collect())
         .collect();
+    // The statement's defines, E = {c ∈ O : c is a counting ahead through
+    // m + n}, with the phrases in their terms written as their meanings,
+    // as the page's lines are.
+    for d in written.statement_definitions.values_mut() {
+        if let crate::matching::Defined::Term(t) = d {
+            *t = out(t);
+        }
+    }
     for c in written
         .cited
         .iter_mut()
@@ -228,6 +236,9 @@ pub fn written_out(
     for c in written.contradicted.values_mut() {
         c.at.written = out(&c.at.written);
     }
+    for p in written.obtained_parts.values_mut().flatten() {
+        p.owed_written = out(&p.owed_written);
+    }
     // A substitution's places are paths into what it is put into, which
     // writing a define out moves, s(n + (j + 1)) becoming a sum over its
     // range: they are found again between the start written out and what
@@ -277,12 +288,16 @@ pub fn written_out(
         .substituted_sentences
         .retain(|_, s| substitution_written(s));
     let beside_written = |b: &mut super::record::Besides| {
-        b.equation = out(&b.equation);
-        b.other = out(&b.other);
-        b.other_stated = b.other_stated.as_ref().map(out);
-        if let Some(row) = &mut b.other_row {
-            row.left = out(&row.left);
-            row.right = out(&row.right);
+        let mut at = Some(b);
+        while let Some(b) = at {
+            b.equation = out(&b.equation);
+            b.other = out(&b.other);
+            b.other_stated = b.other_stated.as_ref().map(out);
+            if let Some(row) = &mut b.other_row {
+                row.left = out(&row.left);
+                row.right = out(&row.right);
+            }
+            at = b.other_beside.as_deref_mut();
         }
     };
     for shown in written
@@ -322,7 +337,8 @@ pub fn written_out(
     // The sets the page makes finite, read of the page as written here: a
     // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
     // is one the page as read does not bind.
-    written.said_finite = super::finite_of(&checked.grammar, ctx, thm, &written);
+    written.said_finite = super::finite_of(ctx, thm, &written);
+    written.finite_under = super::formulas::finite_under(&written.page);
     written.set_systems = super::set_systems_of(&written);
     written.element_systems = super::element_systems_of(&written);
     written.function_systems = super::function_systems_of(&written);
@@ -395,7 +411,7 @@ pub fn item_facts(
         };
         let facts = read
             .iter()
-            .map(|g| group_facts(&group_written(g, phrases, grammar), grammar, ctx))
+            .map(|g| group_facts(&group_written(g, phrases, grammar), ctx))
             .collect();
         out.insert(full.clone(), facts);
     }
@@ -409,7 +425,6 @@ pub fn item_facts(
 /// hypotheses and that sentence.
 fn group_facts(
     group: &crate::citing::Group,
-    grammar: &Grammar,
     ctx: &crate::matching::Context,
 ) -> super::record::GroupFacts {
     let wants: Vec<Node> = group.asked().cloned().collect();
@@ -433,8 +448,7 @@ fn group_facts(
     }
     let bounds = super::bounds::said_by(&wants, &none, ctx);
     let positive = super::bounds::positive_by(&letters, &bounds, ctx);
-    let finite =
-        crate::citing::finite::said_finite(grammar, &wants, &[], &[], &positive);
+    let finite = crate::citing::finite::said_finite(&wants, &[], &[], &positive);
     super::record::GroupFacts {
         bounds,
         finite,

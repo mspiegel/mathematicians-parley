@@ -438,27 +438,33 @@ impl Writer<'_> {
     }
 
     /// f is continuous on D, `ContinuousOn f D`, of a function into ℝ and a
-    /// set of reals: `predicate` is what goes before f.
+    /// set of reals: `predicate` is what goes before f. f is a function
+    /// letter, or a map of reals into ℝ, `(fun x : ℝ => f x)`.
     pub(super) fn continuous(&self, node: &Node, predicate: &str) -> Route<Printed> {
         let [f, set] = node.children.as_slice() else {
             return Route::no("a continuity of other than a function and a set");
         };
-        if !f.is_name()
-            || !matches!(
+        let letter = f.is_name()
+            && matches!(
                 self.letters.get(f.text.as_str()),
                 Some(LetterType::Function { to: Num::Real, .. })
-            )
-        {
-            return Route::left_out(format!("{} is no function into ℝ", f.text));
+            );
+        let map = super::arguments::MapRule::of(f).is_some()
+            && matches!(self.function_type(f), Route::Built((Num::Real, Num::Real)));
+        if !letter && !map {
+            return Route::left_out(format!(
+                "{} is no function into ℝ",
+                self.grammar.print(f)
+            ));
         }
-        match self.numbers_at(set, Num::Real) {
-            Route::Built(s) => Route::Built(Printed::applied(
+        match (self.function_printed(f), self.numbers_at(set, Num::Real)) {
+            (Route::Built(g), Route::Built(s)) => Route::Built(Printed::applied(
                 predicate,
                 super::super::doc::Source::Mathlib,
-                vec![self.function_letter(&f.text), s],
+                vec![g, s],
                 LeanType::Prop,
             )),
-            Route::Declined(d) => Route::Declined(d),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
 
@@ -486,6 +492,28 @@ impl Writer<'_> {
         if let Some(count) = self.finite_count(node) {
             return match count {
                 Route::Built(c) => self.raise(c, Num::Nat, at),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
+        // sup S, Mathlib's `sSup S` in the type of S's numbers. Every
+        // statement using it says S has a member and an upper bound, so
+        // Mathlib's value for any other set is never read.
+        if let Some(set) = super::arguments::supremum_of(node) {
+            let own = match self.carrier(node) {
+                Route::Built(n) => n,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            return match self.set_term(set) {
+                Route::Built(s) => self.raise(
+                    Printed::applied(
+                        "sSup",
+                        super::super::doc::Source::Mathlib,
+                        vec![s],
+                        LeanType::Num(own),
+                    ),
+                    own,
+                    at,
+                ),
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -587,9 +615,13 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let to = applied.gives;
+                let head = match self.function_printed(&node.children[0]) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 let value = Printed::of(
                     super::super::doc::TermKind::App {
-                        head: Box::new(self.function_printed(&node.children[0])),
+                        head: Box::new(head),
                         args: vec![super::super::doc::Arg::Explicit(arg)],
                         explicit: false,
                     },

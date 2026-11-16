@@ -151,13 +151,14 @@ impl Writer<'_> {
                     self.letters.get(node.text.as_str()),
                     Some(LetterType::Number(_))
                 ))
-            // g⁻¹(y) and (g ∘ f)(x) of functions of numbers, whose sort the
-            // checker leaves open, and f(i) of a function letter into
-            // numbers a quantifier binds.
+            // g⁻¹(y), (g ∘ f)(x) and a map applied, of functions of numbers,
+            // whose sort the checker leaves open, and f(i) of a function
+            // letter into numbers a quantifier binds.
             || (node.notation() == crate::notations::APPLICATION
                 && node.children.first().is_some_and(|f| {
                     self.inverse_of_function(f).is_some()
-                        || (matches!(&*f.notation_name(), "composition" | "derivative")
+                        || ((matches!(&*f.notation_name(), "composition" | "derivative")
+                            || MapRule::of(f).is_some())
                             && self.function_type(f).built().is_some())
                         || (f.is_name()
                             && self.library_function(node).is_none()
@@ -214,6 +215,13 @@ impl Writer<'_> {
         // states it.
         if matches!(&*node.notation_name(), "series" | "integral") {
             return Route::Built(Num::Real);
+        }
+        // A least upper bound is a number of its set's type (`supremum`).
+        if let Some(set) = supremum_of(node) {
+            return match self.set_members(set) {
+                Some(Members::Numbers(n)) => Route::Built(n.max(Num::Int)),
+                _ => Route::no("a least upper bound of a set of no numbers"),
+            };
         }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
@@ -327,6 +335,17 @@ impl Writer<'_> {
     /// The types a function takes and gives: a function letter's, or a
     /// composite's, g ∘ f taking what f takes and giving what g gives.
     pub fn function_type(&self, f: &Node) -> Route<(Num, Num)> {
+        // A map takes the numbers its set holds, as a letter of that set is
+        // typed, and gives what its rule is computed in.
+        if let Some(map) = MapRule::of(f) {
+            let Some(over) = self.map_over(&map) else {
+                return Route::no("a map over a set of no numbers");
+            };
+            return self
+                .map_rule_writer(&map, over)
+                .carrier(map.rule)
+                .map(|to| (super::letter_type(over), to));
+        }
         if f.is_name() {
             return match self.letters.get(f.text.as_str()) {
                 Some(LetterType::Function { from, to }) => Route::Built((*from, *to)),
@@ -396,9 +415,39 @@ impl Writer<'_> {
     }
 
     /// A function as Lean writes it, a citation's value as well: a letter,
-    /// `(g ∘ f)`, `(deriv f)` or the inverse of a map on its domain, each
-    /// but a letter in brackets.
-    pub fn function_printed(&self, f: &Node) -> Printed {
+    /// a map `(fun y : ℝ => y + 1)`, `(g ∘ f)`, `(deriv f)` or the inverse
+    /// of a map on its domain, each but a letter in brackets. Declined
+    /// where a map's rule is no number Lean writes.
+    pub fn function_printed(&self, f: &Node) -> Route<Printed> {
+        // A map, `(fun y : ℝ => y + 1)`: its rule in what it gives
+        // (`function_type`), its letter of the type it takes.
+        if let Some(map) = MapRule::of(f) {
+            let Some(over) = self.map_over(&map) else {
+                return Route::no("a map over a set of no numbers");
+            };
+            let inner = self.map_rule_writer(&map, over);
+            let to = match inner.carrier(map.rule) {
+                Route::Built(n) => n,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let from = LeanType::Num(super::letter_type(over));
+            return inner.number(map.rule, to).map(|body| {
+                paren(Printed::of(
+                    super::super::doc::TermKind::Quantified {
+                        quant: super::super::doc::Quant::Fun,
+                        letter: super::super::names::letter(&map.letter.text),
+                        letter_ty: from.clone(),
+                        guard: None,
+                        body: Box::new(body),
+                        bounded: false,
+                    },
+                    LeanType::Fun {
+                        from: Box::new(from),
+                        to: Box::new(LeanType::Num(to)),
+                    },
+                ))
+            });
+        }
         if let Some((g, domain)) = self.inverse_of_function(f) {
             let letter = self.function_letter(&g.text);
             let ty = letter.ty.clone();
@@ -418,12 +467,15 @@ impl Writer<'_> {
                 },
                 ty,
             };
-            return paren(inverse);
+            return Route::Built(paren(inverse));
         }
         if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
-            let inner = self.function_printed(g);
+            let inner = match self.function_printed(g) {
+                Route::Built(p) => p,
+                declined => return declined,
+            };
             let ty = inner.ty.clone();
-            return paren(Printed {
+            return Route::Built(paren(Printed {
                 kind: super::super::doc::TermKind::App {
                     head: Box::new(Printed::head(
                         "deriv",
@@ -433,24 +485,49 @@ impl Writer<'_> {
                     explicit: false,
                 },
                 ty,
-            });
+            }));
         }
         match f.children.as_slice() {
             [g, inner] => {
-                let (outer, inner) =
-                    (self.function_printed(g), self.function_printed(inner));
+                let outer = match self.function_printed(g) {
+                    Route::Built(p) => p,
+                    declined => return declined,
+                };
+                let inner = match self.function_printed(inner) {
+                    Route::Built(p) => p,
+                    declined => return declined,
+                };
                 let ty = outer.ty.clone();
-                paren(Printed {
+                Route::Built(paren(Printed {
                     kind: super::super::doc::TermKind::Infix {
                         op: super::super::doc::Op::COMPOSE,
                         lhs: Box::new(outer),
                         rhs: Box::new(inner),
                     },
                     ty,
-                })
+                }))
             }
-            _ => self.function_letter(&f.text),
+            _ => Route::Built(self.function_letter(&f.text)),
         }
+    }
+
+    /// The number system a map's letter runs over: its set, where that is
+    /// one, ℕ a positive integer as a letter of ℕ is; else the type of its
+    /// set's numbers, ℝ of S ⊆ ℝ. None where its set holds no numbers.
+    fn map_over(&self, map: &MapRule) -> Option<System> {
+        system_of(map.set).or_else(|| match self.set_members(map.set)? {
+            Members::Numbers(n) => Some(System::Type(n)),
+            _ => None,
+        })
+    }
+
+    /// The writer a map's rule is read with: the outer letters, and the
+    /// map's own letter introduced in `over` (`map_over`), shadowing any
+    /// letter of the same name outside.
+    fn map_rule_writer(&self, map: &MapRule, over: System) -> Writer<'_> {
+        let mut inner = self.with_letters(self.letters.clone());
+        inner.introduce(&map.letter.text, over);
+        inner
     }
 
     /// A function letter with the Lean type the writer gives it, where it
@@ -637,5 +714,36 @@ impl Writer<'_> {
                 _ => None,
             }
         })
+    }
+}
+
+/// The set a least upper bound is of, S of sup S; None for any other term.
+pub(super) fn supremum_of(node: &Node) -> Option<&Node> {
+    match (&*node.notation_name(), node.children.as_slice()) {
+        ("supremum", [set]) => Some(set),
+        _ => None,
+    }
+}
+
+/// A map, the map sending y ∈ A to E or y ∈ A ↦ E: Lean's `fun y => E`, a
+/// function on the whole type of A's members, as a function letter is.
+pub(super) struct MapRule<'n> {
+    /// The letter it binds, y.
+    pub letter: &'n Node,
+    /// The set the letter runs over, A.
+    pub set: &'n Node,
+    /// What it sends the letter to, E.
+    pub rule: &'n Node,
+}
+
+impl<'n> MapRule<'n> {
+    /// The map `f` is; None where it is no map.
+    pub fn of(f: &'n Node) -> Option<MapRule<'n>> {
+        let (crate::notations::MAP, [letter, set, rule]) =
+            (f.notation(), f.children.as_slice())
+        else {
+            return None;
+        };
+        Some(MapRule { letter, set, rule })
     }
 }

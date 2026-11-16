@@ -6,6 +6,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -49,7 +50,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     intro Y hK1
     intro hK2
     -- 6.1. mun:card-subset A := Y, B := {v}, from K1
-    have s6_1 : (Y.ncard : ℤ) ≤ (({v} : Set α).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1); simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (by omega) : (Y : Set α).Finite)), ← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (by omega) : (({v} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
+    have s6_1 : (Y.ncard : ℤ) ≤ (({v} : Set α).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1); simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := hK2; rw [h0] at h; exact ne_of_lt ((by norm_num : 0 < 2)) (by exact_mod_cast h)) : (Y : Set α).Finite)), ← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s5; rw [h0] at h; exact ne_of_lt ((by norm_num : 0 < 1)) (by exact_mod_cast h)) : (({v} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
     -- 6.2. substitute |{v}| = 1 (line 5) into line 6.1
     have s6_2 : (Y.ncard : ℤ) ≤ 1 := by
       have e_nat : ({v} : Set α).ncard = 1 := by exact_mod_cast s5

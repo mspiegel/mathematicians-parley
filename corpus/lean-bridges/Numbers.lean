@@ -5,6 +5,7 @@ public import Mathlib.Tactic.Positivity
 public import Lean.Parser.Command
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 /-!
 # Numbers
@@ -130,5 +131,39 @@ theorem abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] 
 theorem archimedean (x : ℝ) (h2 : 0 < x) :
     ∃ N : ℤ, 0 < N ∧ 1 / (N : ℝ) < x :=
   by obtain ⟨N, hN⟩ := exists_nat_one_div_lt h2; exact ⟨N + 1, by omega, by push_cast; exact hN⟩
+
+/-- The real n-th root of x, `ⁿ√x`, as set.mm builds it (the `root`
+notation): x^(1/n) for x ≥ 0, and −((−x)^(1/n)) below 0. For an odd index
+it is the real root of every real number, ∛(−8) = −2, where Mathlib's
+x ^ (1/3 : ℝ) is 0 below 0. -/
+@[expose] noncomputable def root (n : ℕ) (x : ℝ) : ℝ :=
+  if 0 ≤ x then x ^ (1 / (n : ℝ)) else -((-x) ^ (1 / (n : ℝ)))
+
+/-- `mun:stdlib/numbers/cube-root-cubed`. -/
+theorem cube_root_cubed (x : ℝ) : root 3 x ^ 3 = x := by
+  unfold root
+  split_ifs with h
+  · rw [← Real.rpow_natCast, ← Real.rpow_mul h]; norm_num
+  · have h' : 0 ≤ -x := by linarith
+    rw [neg_pow, ← Real.rpow_natCast ((-x) ^ _), ← Real.rpow_mul h']; norm_num
+
+/-- `mun:stdlib/numbers/cube-root-of-cube`. -/
+theorem cube_root_of_cube (x : ℝ) : root 3 (x ^ 3) = x := by
+  unfold root
+  split_ifs with h
+  · have hx : 0 ≤ x :=
+      le_of_not_gt (fun hn => absurd h (not_le.mpr (Odd.pow_neg (by decide) hn)))
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hx]; norm_num
+  · have hx : x < 0 := lt_of_not_ge (fun hn => h (pow_nonneg hn 3))
+    have h' : 0 ≤ -x := by linarith
+    rw [show -(x ^ 3) = (-x) ^ 3 by ring, ← Real.rpow_natCast, ← Real.rpow_mul h']
+    norm_num
+
+/-- `mun:stdlib/numbers/cube-root-as-power`. -/
+theorem cube_root_as_power (x : ℝ) (h : x ≥ 0) : root 3 x = x ^ (1 / 3 : ℝ) := by
+  unfold root
+  split_ifs with h'
+  · norm_num
+  · exact absurd h h'
 
 end LeanBridges.Numbers

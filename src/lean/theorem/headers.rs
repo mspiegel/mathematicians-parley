@@ -232,6 +232,28 @@ pub(super) fn listed_membership(t: &Printed) -> bool {
     )
 }
 
+/// Whether `t` says two pairs are equal, `((a, b) : ℝ × ℝ) = (c, d)`.
+pub(super) fn pair_equation(t: &Printed) -> bool {
+    use super::super::doc::{Brackets, TermKind};
+    let pair = |side: &Printed| {
+        let side = match &bare_term(side).kind {
+            TermKind::Cast { inner, .. } => bare_term(inner),
+            _ => bare_term(side),
+        };
+        matches!(
+            &side.kind,
+            TermKind::Listed {
+                brackets: Brackets::Round,
+                ..
+            }
+        )
+    };
+    matches!(
+        &bare_term(t).kind,
+        TermKind::Infix { op, lhs, rhs } if op.symbol == "=" && pair(lhs) && pair(rhs)
+    )
+}
+
 /// Whether `t` is the constant `name`, `(Set.univ : Set ℝ)` of `Set.univ`.
 pub(super) fn is_constant(t: &Printed, name: &str) -> bool {
     matches!(&bare_term(t).kind, super::super::doc::TermKind::Const(c) if c.name == name)
@@ -569,7 +591,23 @@ pub(super) fn defined_out(node: &Node, rec: &CheckedTheorem, writer: &Writer) ->
     if put.is_empty() {
         return node.clone();
     }
-    crate::matching::substitute_apart_by(node, &put, &writer.grammar.binders())
+    // A define's term may name one defined before it, E = {c ∈ O : …} of an
+    // O defined above: put again while a define's name is left in the
+    // tree, once for each define at most.
+    let binders = writer.grammar.binders();
+    let named = |n: &Node| {
+        crate::matching::free_names(n, &binders)
+            .iter()
+            .any(|name| put.contains_key(&crate::formula::symbol::Symbol::of(name)))
+    };
+    let mut out = node.clone();
+    for _ in 0..put.len() {
+        if !named(&out) {
+            break;
+        }
+        out = crate::matching::substitute_apart_by(&out, &put, &binders);
+    }
+    out
 }
 
 /// The defines a theorem's statement is read with, each a name and the term

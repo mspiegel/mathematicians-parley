@@ -3,27 +3,32 @@
 use super::*;
 
 impl<'a> Proof<'a> {
-    /// The sentence of a line in scope the page prints as `printed`.
-    pub(super) fn line_node(&self, printed: &str) -> Option<&Node> {
+    /// The sentence of a line in scope that is `line`, by its tree.
+    pub(super) fn line_node(
+        &self,
+        line: &crate::formula::node::ByShape,
+    ) -> Option<&Node> {
+        self.line_sentence(line).map(|s| &s.node)
+    }
+
+    /// The proof of the sentence of a line in scope that is `line`, by its
+    /// tree: its name, or the projection that takes it.
+    pub(super) fn line_saying(
+        &self,
+        line: &crate::formula::node::ByShape,
+    ) -> Option<Printed> {
+        self.line_sentence(line).map(|s| s.proof.clone())
+    }
+
+    /// The sentence of a line in scope that is `line`, by its tree.
+    pub(super) fn line_sentence(
+        &self,
+        line: &crate::formula::node::ByShape,
+    ) -> Option<&LineSentence> {
         self.trees
             .values()
             .flatten()
-            .map(|s| &s.node)
-            .find(|n| self.writer.grammar.print(n) == printed)
-    }
-
-    /// The proof of the sentence of a line in scope the page prints as
-    /// `printed`: its name, or the projection that takes it.
-    pub(super) fn line_saying(&self, printed: &str) -> Option<Printed> {
-        self.line_sentence(printed).map(|s| s.proof.clone())
-    }
-
-    /// The sentence of a line in scope the page prints as `printed`.
-    pub(super) fn line_sentence(&self, printed: &str) -> Option<&LineSentence> {
-        self.trees
-            .values()
-            .flatten()
-            .find(|s| self.writer.grammar.print(&s.node) == printed)
+            .find(|s| s.node.spelt_alike(&line.0))
     }
 
     /// A `transitivity` step's chain composed link by link
@@ -704,6 +709,18 @@ impl<'a> Proof<'a> {
             }
             return Route::Built(super::super::expr::anonymous(items));
         }
+        // a = b = c: its links, each a part, as the checker reads a chain
+        // (`page::chain_links`) and the writer joins them.
+        if let Some(links) = crate::formula::page::chain_links(w.grammar, node) {
+            let mut items = Vec::new();
+            for link in &links {
+                match self.joined_term(link, parts, w) {
+                    Route::Built(t) => items.push(t),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            return Route::Built(super::super::expr::anonymous(items));
+        }
         let Some(at) = parts.next() else {
             return Route::no("a join recorded with fewer parts than its claim");
         };
@@ -832,7 +849,33 @@ impl<'a> Proof<'a> {
         // The values as the page gives them, each to its letter.
         let mut binding = crate::matching::Binding::new();
         let mut body = line;
-        while body.notation() == crate::notations::FOR_ALL {
+        while matches!(
+            body.notation(),
+            crate::notations::FOR_ALL | crate::notations::FOR_ALL_SETS
+        ) {
+            // For all sets X: the set given it, `∀ X : Set α` taking no
+            // guard after it.
+            if let [letter, inner] = body.children.as_slice() {
+                let Some((_, given_set)) =
+                    just.values.pairs().find(|(n, _)| *n == &*letter.text)
+                else {
+                    return Route::no(format!("no set given {}", letter.text));
+                };
+                let value = match self.tree(given_set) {
+                    Route::Built(v) => v,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                match writer.set_term(&value) {
+                    Route::Built(p) => {
+                        given.push((p.clone(), false));
+                        args.push(p);
+                    }
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                binding.insert(crate::formula::symbol::Symbol::of(&letter.text), value);
+                body = inner;
+                continue;
+            }
             let [letter, set, inner] = body.children.as_slice() else {
                 break;
             };
@@ -969,9 +1012,14 @@ impl<'a> Proof<'a> {
         // where it found it supplied, as Lean states it at the values.
         for (k, condition) in recorded.conditions.iter().enumerate() {
             let proof = match &instance {
-                Route::Built(i) => self
-                    .supplied_proof(&condition.by, &i.conditions[k], None)
-                    .built(),
+                Route::Built(i) => {
+                    match self.counts_apart(&condition.by, &i.conditions[k]) {
+                        Some(met) => met.built(),
+                        None => self
+                            .supplied_proof(&condition.by, &i.conditions[k], None)
+                            .built(),
+                    }
+                }
                 Route::Declined(_) => None,
             };
             match proof {
@@ -1142,6 +1190,11 @@ impl<'a> Proof<'a> {
             true => super::super::doc::forms::turned_statement(&says),
             false => says,
         };
+        // An instance that counts a set as some natural number, for a claim
+        // that counts it finite (`count_witness_met`).
+        if let Some(met) = self.count_witness_met(&proof, &says, &wanted) {
+            return Route::Built(met);
+        }
         let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
         let pushed = super::super::casts::push_cast_moves_all_in_sides(&says)
             && super::super::casts::push_cast_moves_all_in_sides(&wanted);
@@ -1164,6 +1217,254 @@ impl<'a> Proof<'a> {
                 ))
             }
         }))
+    }
+
+    /// The proof of `wanted`, a finite set's count in ℤ, `(U.ncard : ℤ) =
+    /// j`, from `proof` of a statement that counts it as some natural
+    /// number, `∃ m : ℕ, S.encard = m ∧ (m : ℤ) = j`
+    /// (`Writer::count_equals_number`), S the set the claim counts or the
+    /// value of the `set` letter it counts: the number taken out, the
+    /// claim's set read as its value, its count in ℕ as the one in ℕ∞ in ℕ
+    /// (`Set.ncard_def`), and the number's equation is the claim. None for
+    /// any other two statements.
+    pub(super) fn count_witness_met(
+        &self,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::doc::{CountForm, TermKind};
+        use super::super::tactics as t;
+        let TermKind::Quantified {
+            quant: super::super::doc::Quant::Exists,
+            letter,
+            guard: Some(guard),
+            body,
+            ..
+        } = &says.kind
+        else {
+            return None;
+        };
+        let counted = |p: &Printed, form: CountForm| match &uncast(p).kind {
+            TermKind::Count { set, form: f } if *f == form => Some((**set).clone()),
+            _ => None,
+        };
+        let (g_left, _) = equation_sides(guard)?;
+        let (b_left, number) = equation_sides(body)?;
+        let (w_left, w_right) = equation_sides(wanted)?;
+        let said_set = counted(g_left, CountForm::Extended)?;
+        let claim_set = counted(w_left, CountForm::Natural)?;
+        let named = matches!(&uncast(b_left).kind, TermKind::Letter(l) if l == letter);
+        if !named || uncast(number).untyped() != uncast(w_right).untyped() {
+            return None;
+        }
+        // The claim's set as the statement writes it, or the `set` letter
+        // whose value it is, read as that value by the letter's equation.
+        let mut rules = Vec::new();
+        if claim_set.untyped() != said_set.untyped() {
+            let TermKind::Letter(name) = &claim_set.kind else {
+                return None;
+            };
+            let value = self.set_values().get(name)?.clone();
+            if value.value.untyped() != said_set.untyped() {
+                return None;
+            }
+            rules.push(t::hyp(&value.equation));
+        }
+        let (hm, he) = ("hm", "he");
+        rules.extend([
+            t::lemma("Set.ncard_def"),
+            t::hyp(hm),
+            t::lemma("ENat.toNat_coe"),
+        ]);
+        Some(super::super::doc::Proof::By(Tactic::Seq(vec![
+            Tactic::Obtain {
+                names: vec![letter.clone(), hm.to_string(), he.to_string()],
+                says: None,
+                from: proof.clone(),
+            },
+            t::call("rw", vec![t::rules(rules)]),
+            Tactic::Exact(t::hyp(he)),
+        ])))
+    }
+
+    /// The proof of `wanted`, a set's count as some natural number, `∃ m :
+    /// ℕ, S.encard = m ∧ (m : ℤ) = j` (`Writer::count_equals_number`), from
+    /// `proof` of a line that counts it in ℤ, `(S.ncard : ℤ) = j`, of a set
+    /// shown finite: the number is the count in ℕ, which is the one in ℕ∞
+    /// (`Set.Finite.cast_ncard_eq`), and the line says it is j. None for any
+    /// other two statements, or where `set`, S as the page writes it, is
+    /// not shown finite.
+    pub(super) fn count_witness_made(
+        &self,
+        set: &Node,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<Printed> {
+        use super::super::doc::{CountForm, TermKind};
+        let TermKind::Quantified {
+            quant: super::super::doc::Quant::Exists,
+            guard: Some(guard),
+            body,
+            ..
+        } = &wanted.kind
+        else {
+            return None;
+        };
+        let (g_left, _) = equation_sides(guard)?;
+        let (_, number) = equation_sides(body)?;
+        let (s_left, s_right) = equation_sides(says)?;
+        let (
+            TermKind::Count {
+                set: owed,
+                form: CountForm::Extended,
+            },
+            TermKind::Count {
+                set: said,
+                form: CountForm::Natural,
+            },
+        ) = (&uncast(g_left).kind, &uncast(s_left).kind)
+        else {
+            return None;
+        };
+        // The number alike, or alike once a numeral's `toNat` the one side
+        // writes is worked out, `2 ^ (0 : ℤ).toNat` beside 2 ^ 0, as
+        // `met_proof` works it out.
+        let written = uncast(number).untyped() == uncast(s_right).untyped();
+        let worked = numerals_worked(uncast(number)).untyped()
+            == numerals_worked(uncast(s_right)).untyped();
+        if owed.untyped() != said.untyped() || !worked {
+            return None;
+        }
+        let proof = match written {
+            true => proof.clone(),
+            false => {
+                use super::super::templates::Num;
+                let mut rules: Vec<&'static str> =
+                    super::super::doc::forms::to_nat_rules(body)
+                        .into_iter()
+                        .collect();
+                rules.extend(
+                    super::super::casts::NUMERAL_CASTS
+                        .iter()
+                        .filter(|(from, _, _)| matches!(from, Num::Nat | Num::Int))
+                        .map(|(_, _, lemma)| *lemma),
+                );
+                super::super::tactics::by_term(super::super::doc::Proof::By(
+                    super::super::tactics::simpa_only(rules, proof.clone()),
+                ))
+            }
+        };
+        let finite = self.shown_finite(set)?;
+        let counted = Printed::of(
+            TermKind::Count {
+                set: said.clone(),
+                form: CountForm::Natural,
+            },
+            super::super::doc::LeanType::Num(super::super::templates::Num::Nat),
+        );
+        let equal = Printed::applied(
+            "Eq.symm",
+            super::super::doc::Source::Core,
+            vec![cast_ncard_eq(&finite)],
+            super::super::doc::LeanType::Prop,
+        );
+        Some(super::super::expr::anonymous(vec![counted, equal, proof]))
+    }
+
+    /// The proof of `claim`, a set's count in ℤ, `(T.ncard : ℤ) = j`, from
+    /// `proof` of a statement that counts it in ℕ∞ at a value in ℕ₀,
+    /// `T.encard = ((j.toNat : ℕ) : ℕ∞)`, as an item states `|Y| = m` of m
+    /// ∈ ℕ₀: its count in ℕ is the one in ℕ∞ in ℕ (`Set.ncard_def`), of
+    /// any set, and j its own `toNat` (`count_value_nonneg`). None for any
+    /// other two statements.
+    pub(super) fn count_value_met(
+        &self,
+        value: &Node,
+        proof: &Printed,
+        says: &Printed,
+        claim: &Printed,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        let nonneg = self.count_value_nonneg(value, says, claim)?;
+        Some(super::super::doc::Proof::By(t::call(
+            "rw",
+            vec![t::rules(vec![
+                t::lemma("Set.ncard_def"),
+                proof.clone(),
+                t::lemma("ENat.toNat_coe"),
+                Printed::applied(
+                    "Int.toNat_of_nonneg",
+                    super::super::doc::Source::Mathlib,
+                    vec![nonneg],
+                    super::super::doc::LeanType::Prop,
+                ),
+            ])],
+        )))
+    }
+
+    /// Of a statement `says` that counts a set in ℕ∞ at a value in ℕ₀,
+    /// `T.encard = ((j.toNat : ℕ) : ℕ∞)`, and a claim that counts it in ℤ,
+    /// `(T.ncard : ℤ) = j`, the proof that j is at 0 or above, as the page
+    /// says (`nonneg_proof` of `value`, j as the page writes it): what
+    /// `count_value_met` takes j's `toNat` off by. None for any other two
+    /// statements.
+    pub(super) fn count_value_nonneg(
+        &self,
+        value: &Node,
+        says: &Printed,
+        claim: &Printed,
+    ) -> Option<Printed> {
+        count_value_shape(says, claim)?;
+        self.nonneg_proof(value, &[])
+    }
+
+    /// The proof of `wanted`, a set's count in ℕ∞ at a value in ℕ₀,
+    /// `S.encard = ((j.toNat : ℕ) : ℕ∞)`, from `proof` of a line that counts
+    /// it in ℤ, `(S.ncard : ℤ) = j`: the count in ℕ∞ as the one in ℕ of a set
+    /// shown finite (`Set.Finite.cast_ncard_eq`), j as that count by the
+    /// line, and its `toNat` taken off (`Int.toNat_natCast`). None for any
+    /// other two statements, or where `set`, S as the page writes it, is not
+    /// shown finite.
+    pub(super) fn count_value_made(
+        &self,
+        set: &Node,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        count_value_shape(wanted, says)?;
+        let finite = self.shown_finite(set)?;
+        // The line's count taken to ℕ, `S.ncard = j.toNat`, and the goal's
+        // count rewritten by it alone: j may stand inside S as well,
+        // `{1, …, m}` counted as m, which rewriting j would change.
+        let to_nat = Printed::applied(
+            "congrArg",
+            super::super::doc::Source::Core,
+            vec![t::lemma("Int.toNat"), t::bracket(proof.clone())],
+            super::super::doc::LeanType::Prop,
+        );
+        let at = TacticArg::At(vec![super::super::doc::Location::Hypothesis(
+            "h".to_string(),
+        )]);
+        Some(super::super::doc::Proof::By(t::on_h(
+            &to_nat,
+            vec![
+                t::call(
+                    "rw",
+                    vec![t::rules(vec![t::lemma("Int.toNat_natCast")]), at],
+                ),
+                t::call(
+                    "rw",
+                    vec![TacticArg::Rules(vec![
+                        t::backwards(cast_ncard_eq(&finite)),
+                        t::forwards(t::hyp("h")),
+                    ])],
+                ),
+            ],
+        )))
     }
 
     /// The defines among the lines a step cites, each as its equation says
@@ -1306,5 +1607,124 @@ impl<'a> Proof<'a> {
                 .map(|c| self.put_define(c, d))
                 .collect(),
         )
+    }
+}
+
+/// A term with its casts and brackets taken off, `((S.ncard : ℕ) : ℤ)` as
+/// `S.ncard`.
+fn uncast(p: &Printed) -> &Printed {
+    use super::super::doc::TermKind;
+    match &p.kind {
+        TermKind::Cast { inner, .. } | TermKind::Paren(inner) => uncast(inner),
+        _ => p,
+    }
+}
+
+/// Whether `extended` counts a set in ℕ∞ at a value in ℕ₀, `S.encard =
+/// ((j.toNat : ℕ) : ℕ∞)`, and `natural` the same set in ℤ at the same
+/// value, `(S.ncard : ℤ) = j`: the two forms of one count the writer
+/// meets (`count_value_met`, `count_value_made`). None otherwise.
+pub(super) fn count_value_shape(extended: &Printed, natural: &Printed) -> Option<()> {
+    use super::super::doc::{CountForm, TermKind};
+    let (e_left, e_right) = equation_sides(extended)?;
+    let (n_left, n_right) = equation_sides(natural)?;
+    let counted = |p: &Printed, form: CountForm| match &uncast(p).kind {
+        TermKind::Count { set, form: f } if *f == form => Some((**set).clone()),
+        _ => None,
+    };
+    let e_set = counted(e_left, CountForm::Extended)?;
+    let n_set = counted(n_left, CountForm::Natural)?;
+    let TermKind::ToNat(j) = &uncast(e_right).kind else {
+        return None;
+    };
+    (e_set.untyped() == n_set.untyped()
+        && uncast(j).untyped() == uncast(n_right).untyped())
+    .then_some(())
+}
+
+/// The proof of `wanted`, a set's count in ℕ∞ at a value in ℕ₀, `S.encard
+/// = ((j.toNat : ℕ) : ℕ∞)`, from `proof` of a statement that counts it as
+/// some natural number, `∃ m : ℕ, S.encard = m ∧ (m : ℤ) = j`: the count is
+/// that number, which is j, whose `toNat` is the number again
+/// (`Int.toNat_natCast`). Of any set. None for any other two statements.
+pub(super) fn witness_to_value(
+    proof: &Printed,
+    says: &Printed,
+    wanted: &Printed,
+) -> Option<super::super::doc::Proof> {
+    use super::super::doc::{CountForm, TermKind};
+    use super::super::tactics as t;
+    let TermKind::Quantified {
+        quant: super::super::doc::Quant::Exists,
+        letter,
+        guard: Some(guard),
+        body,
+        ..
+    } = &says.kind
+    else {
+        return None;
+    };
+    let (g_left, _) = equation_sides(guard)?;
+    let (b_left, number) = equation_sides(body)?;
+    let (w_left, w_right) = equation_sides(wanted)?;
+    let counted = |p: &Printed| match &uncast(p).kind {
+        TermKind::Count {
+            set,
+            form: CountForm::Extended,
+        } => Some((**set).clone()),
+        _ => None,
+    };
+    let TermKind::ToNat(j) = &uncast(w_right).kind else {
+        return None;
+    };
+    let named = matches!(&uncast(b_left).kind, TermKind::Letter(l) if l == letter);
+    if !named
+        || counted(g_left)?.untyped() != counted(w_left)?.untyped()
+        || uncast(number).untyped() != uncast(j).untyped()
+    {
+        return None;
+    }
+    let (hm, he) = ("hm", "he");
+    Some(super::super::doc::Proof::By(Tactic::Seq(vec![
+        Tactic::Obtain {
+            names: vec![letter.clone(), hm.to_string(), he.to_string()],
+            says: None,
+            from: proof.clone(),
+        },
+        t::call(
+            "rw",
+            vec![TacticArg::Rules(vec![
+                t::forwards(t::hyp(hm)),
+                t::backwards(t::hyp(he)),
+                t::forwards(t::lemma("Int.toNat_natCast")),
+            ])],
+        ),
+    ])))
+}
+
+/// The term with each `toNat` of a term with no letter, a numeral's, taken
+/// off: what `Int.reduceToNat` works out, `(0 : ℤ).toNat` as 0.
+fn numerals_worked(p: &Printed) -> Printed {
+    use super::super::doc::TermKind;
+    if let TermKind::ToNat(inner) = &p.kind {
+        if !inner.lettered() {
+            return numerals_worked(inner);
+        }
+    }
+    let mut out = p.clone();
+    for child in out.children_mut() {
+        *child = numerals_worked(child);
+    }
+    out
+}
+
+/// The two sides of an equation as Lean writes it; None for any other
+/// statement.
+pub(super) fn equation_sides(p: &Printed) -> Option<(&Printed, &Printed)> {
+    use super::super::doc::TermKind;
+    match &p.kind {
+        TermKind::Infix { op, lhs, rhs } if op.symbol == "=" => Some((lhs, rhs)),
+        TermKind::Paren(inner) => equation_sides(inner),
+        _ => None,
     }
 }

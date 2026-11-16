@@ -889,6 +889,17 @@ fn pairs_decided(pairs: &super::pairs::PairRelation) -> Route<Verdict> {
     Built(Verdict::Holds(pairs.holds(each[0], each[1])))
 }
 
+/// The coordinate `real arithmetic` finds two pairs differ at: the first
+/// whose equation it decides false (`PairRelation::apart_at`).
+pub fn pairs_apart_at(
+    pairs: &super::pairs::PairRelation,
+) -> Option<super::pairs::Coordinate> {
+    pairs.apart_at(&mut |equation| match decide_closed(equation) {
+        Built(Verdict::Holds(h)) => Some(h),
+        _ => None,
+    })
+}
+
 // --- what a proof costs ------------------------------------------------------
 
 /// Whether the proof of a true claim stays within `surds::WORK` and writes

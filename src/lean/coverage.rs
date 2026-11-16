@@ -91,7 +91,14 @@ pub const IN_CODE: &[&str] = &[
     "open",
     "open-interval",
     "indexed-union",
+    "indexed-intersection",
     "bijection",
+    "for-all-sets",
+    "equal-chain",
+    "map",
+    "pair",
+    "supremum",
+    "exists",
 ];
 
 /// Every theorem of the corpus, in or out.

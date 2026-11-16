@@ -36,7 +36,7 @@ theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
     have s1_2 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := X) (Y := A) (u := s) hH4 s1_1a)
     -- 1.3. mun:value-in-image Y := A, from 1.2
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
-    have s1_3 : F s ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (Set.mapsTo_univ _ _))
+    have s1_3 : F s ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := B) r25_1 s1_2 hH3)
     -- 1.4. substitute u = F(s) (line 1.1) into line 1.3
     exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s1_1b.symm s1_3
   -- 2. def:subset, from 1

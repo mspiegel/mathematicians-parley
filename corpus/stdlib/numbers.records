@@ -442,19 +442,19 @@ mundane theorem cube-root-real
   let x ∈ ℝ                                                           (H1)
   then        ∛x ∈ ℝ
   metamath-proof metamath-bridges/roots/gcbrtre
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem cube-root-cubed
   let x ∈ ℝ                                                           (H1)
   then        (∛x)³ = x
   metamath-proof metamath-bridges/roots/gcbrtexp
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Numbers.cube_root_cubed x
 
 mundane theorem cube-root-of-cube
   let x ∈ ℝ                                                           (H1)
   then        ∛(x³) = x
   metamath-proof metamath-bridges/roots/gcbrtcube
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Numbers.cube_root_of_cube x
 
 mundane theorem cube-root-as-power
   let x ∈ ℝ                                                           (H1)
@@ -463,7 +463,7 @@ mundane theorem cube-root-as-power
   metamath-proof metamath-bridges/roots/gcbrtpw
   note        Where x ≥ 0 the real root and the principal power are one; below
               0 they differ, ∛(−8) being −2 and (−8)^(1/3) not real.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Numbers.cube_root_as_power x h2
 
 axiom trichotomy
   let x ∈ ℝ                                                           (H1)

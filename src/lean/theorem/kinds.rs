@@ -930,6 +930,9 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
+                if let Some(met) = self.count_values(at, &proof, &says, wanted) {
+                    return met;
+                }
                 if !says.has_count(Natural) {
                     return self.supplied_proof(&s.by, wanted, s.meeting.as_ref());
                 }
@@ -938,8 +941,82 @@ impl<'a> Proof<'a> {
                     None => Route::no("a count in ℕ∞ of a set not shown finite"),
                 }
             }
-            _ => self.supplied_proof(&s.by, wanted, s.meeting.as_ref()),
+            _ => match self.counts_apart(&s.by, wanted) {
+                Some(met) => met,
+                None => self.supplied_proof(&s.by, wanted, s.meeting.as_ref()),
+            },
         }
+    }
+
+    /// The proof of `wanted` from the line `by` names where the two count a
+    /// set in different forms, one in ℕ∞ and the other in ℤ: `|X| = k + 1`
+    /// assumed of a set the record shows finite only from that line on, or
+    /// an instance's condition in ℕ∞ of a line in ℤ. Both are taken to the
+    /// count in ℕ (`counted_between`). None where the line is no line, or
+    /// the two count alike.
+    pub(super) fn counts_apart(
+        &self,
+        by: &SuppliedBy,
+        wanted: &Printed,
+    ) -> Option<Route<Printed>> {
+        use super::super::doc::CountForm::{Extended, Natural};
+        let (SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at)) = by else {
+            return None;
+        };
+        let (proof, says) = self.line_says(at).built()?;
+        let apart = (wanted.has_count(Extended) && says.has_count(Natural))
+            || (wanted.has_count(Natural) && says.has_count(Extended));
+        if !apart {
+            return None;
+        }
+        if let Some(met) = self.count_values(at, &proof, &says, wanted) {
+            return Some(met);
+        }
+        Some(
+            match self.counted_between(&proof, &says, wanted, &[&at.written]) {
+                Some(p) => Route::Built(p),
+                None => Route::no("a count in ℕ∞ of a set not shown finite"),
+            },
+        )
+    }
+
+    /// The proof of `wanted` from `proof` of the line at `at`, which `says`,
+    /// where the two are one count equal to a value in ℕ₀, in ℕ∞ in the one
+    /// and in ℤ in the other (`count_value_shape`): met by the count's
+    /// definition one way (`count_value_met`), and by the set's finiteness
+    /// the other (`count_value_made`). None where they are not such a pair.
+    pub(super) fn count_values(
+        &self,
+        at: &crate::checker::record::FirstAt,
+        proof: &Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<Route<Printed>> {
+        let (EQUALITY, [count, value]) =
+            (at.written.notation(), at.written.children.as_slice())
+        else {
+            return None;
+        };
+        // A count said as some natural number, asked in ℕ∞ at the value.
+        if let Some(p) = super::orders::witness_to_value(proof, says, wanted) {
+            return Some(Route::Built(super::super::tactics::by_term(p)));
+        }
+        if super::orders::count_value_shape(says, wanted).is_some() {
+            return Some(match self.count_value_met(value, proof, says, wanted) {
+                Some(p) => Route::Built(super::super::tactics::by_term(p)),
+                None => Route::no("a count's value not shown at 0 or above"),
+            });
+        }
+        let (Some(()), [set]) = (
+            super::orders::count_value_shape(wanted, says),
+            count.children.as_slice(),
+        ) else {
+            return None;
+        };
+        Some(match self.count_value_made(set, proof, says, wanted) {
+            Some(p) => Route::Built(super::super::tactics::by_term(p)),
+            None => Route::no("a count in ℕ∞ of a set not shown finite"),
+        })
     }
 
     /// The proof of `wanted`, a count in ℕ∞ Lean asks, `X.encard = ((0 : ℕ)
@@ -1213,6 +1290,24 @@ impl<'a> Proof<'a> {
                 })
             })
             .collect()
+    }
+
+    /// The proof that `e` is above 0, `0 < e`, from why the said-once walk
+    /// puts it in ℕ (`citing::reason_within`), as `positive_by` writes it.
+    /// None where the walk does not put e in ℕ, or gives a reason
+    /// `positive_by` writes no proof for.
+    pub(super) fn positive_proof(&self, e: &Node) -> Option<Printed> {
+        use crate::rules::System;
+        let letters = self.writer.page_systems();
+        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
+        let said = |_: &Node, _: System| None;
+        let reason =
+            crate::citing::reason_within(e, System::N, &letters, &nonzero, &said)?;
+        let facts = match self.step_now.get() {
+            Some(i) => self.step_facts(i),
+            None => Vec::new(),
+        };
+        self.positive_by(e, &reason, &facts)
     }
 
     /// The proof that the integer `e` is at least 0, `0 ≤ e`, from why the
@@ -1714,11 +1809,7 @@ impl<'a> Proof<'a> {
         {
             return Some(super::super::tactics::hyp(have));
         }
-        let why = crate::citing::finite::finite_by(
-            self.writer.grammar,
-            &self.writer.finite,
-            set,
-        )?;
+        let why = crate::citing::finite::finite_by(&self.writer.finite, set)?;
         self.proof_of_finite(&why, set)
     }
 
@@ -1784,19 +1875,71 @@ impl<'a> Proof<'a> {
                     super::super::doc::LeanType::Prop,
                 ))
             }
+            // The count is not 0: were it, the line would say 0 is its
+            // number, which is above 0 as the said-once walk puts it in ℕ
+            // (`positive_proof`).
             FiniteBy::Counted {
-                at_least_one: true, ..
-            } => Some(Printed::applied(
-                "Set.finite_of_ncard_ne_zero",
-                super::super::doc::Source::Mathlib,
-                vec![super::super::tactics::by_term(
-                    super::super::doc::Proof::By(super::super::tactics::call(
-                        "omega",
-                        vec![],
-                    )),
-                )],
-                super::super::doc::LeanType::Prop,
-            )),
+                line,
+                at_least_one: true,
+            } => {
+                use super::super::tactics as t;
+                let said = self.line_sentence(line)?;
+                let [_, value] = said.node.children.as_slice() else {
+                    return None;
+                };
+                // The number as the line states it, and the statement that
+                // it is above 0, which a numeral's `norm_num` is told.
+                let says = said.says.as_ref()?;
+                let (_, number) = super::orders::equation_sides(says)?;
+                let ty = number
+                    .ty
+                    .clone()
+                    .unwrap_or(super::super::doc::LeanType::Num(
+                        super::super::templates::Num::Int,
+                    ));
+                let above = Printed::of(
+                    super::super::doc::TermKind::Ascribed {
+                        says: Box::new(
+                            super::super::expr::relation_of(
+                                "<",
+                                Printed::numeral("0", ty),
+                                number.clone(),
+                            )
+                            .built()?,
+                        ),
+                        proof: Box::new(self.positive_proof(value)?),
+                    },
+                    super::super::doc::LeanType::Prop,
+                );
+                let ne = Printed::applied(
+                    "ne_of_lt",
+                    super::super::doc::Source::Mathlib,
+                    vec![t::bracket(above)],
+                    super::super::doc::LeanType::Prop,
+                );
+                let at = TacticArg::At(vec![super::super::doc::Location::Hypothesis(
+                    "h".to_string(),
+                )]);
+                let not_zero = untyped_lambda(
+                    &["h0"],
+                    t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
+                        t::name_h(&said.proof),
+                        t::call("rw", vec![t::rules(vec![t::hyp("h0")]), at]),
+                        Tactic::Exact(applied_to(
+                            ne,
+                            t::bracket(t::by_term(super::super::doc::Proof::By(
+                                t::exact_mod_cast(t::hyp("h")),
+                            ))),
+                        )),
+                    ]))),
+                );
+                Some(Printed::applied(
+                    "Set.finite_of_ncard_ne_zero",
+                    super::super::doc::Source::Mathlib,
+                    vec![t::bracket(not_zero)],
+                    super::super::doc::LeanType::Prop,
+                ))
+            }
             // A count that may be 0, written in ℕ∞, `X.encard = ↑m`. One
             // written in ℕ, `(X.ncard : ℤ) = 0`, was written so because the
             // set was finite before the line: why it was then.
@@ -1809,10 +1952,9 @@ impl<'a> Proof<'a> {
                     s.has_count(super::super::doc::CountForm::Natural)
                 });
                 if in_naturals {
-                    let grammar = self.writer.grammar;
                     let mut before = self.writer.finite.clone();
-                    before.remove(&grammar.print(set));
-                    let why = crate::citing::finite::finite_by(grammar, &before, set)?;
+                    before.shift_remove(&crate::citing::finite::key(set));
+                    let why = crate::citing::finite::finite_by(&before, set)?;
                     return self.proof_of_finite(&why, set);
                 }
                 Some(Printed::applied(

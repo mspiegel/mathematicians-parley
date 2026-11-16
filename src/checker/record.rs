@@ -432,6 +432,12 @@ pub struct CheckedTheorem {
     /// proves each case one way: r = 0 or r = 1 or r = 2 from r ∈ {0, …, 2}
     /// by the range's bounds.
     pub inspected: IndexMap<usize, Inspection>,
+    /// Each claim that two pairs differ, by the line its reason is on, with
+    /// the coordinate its method found them apart at
+    /// (`formulas::pairs_apart`): the first of (1, 1) ≠ (2, 3) by
+    /// arithmetic, the second of (a, b) ≠ (c, d) by algebra from b ≠ d. A
+    /// backend proves the pairs apart there.
+    pub pairs_apart: IndexMap<usize, crate::methods::pairs::Coordinate>,
     /// The parts of the terms a reason's claim and lines write that the
     /// lines it names put in a number system, each with how, by the line
     /// the reason is on: a step's, or a requires line's
@@ -466,6 +472,12 @@ pub struct CheckedTheorem {
     /// count of one is a natural number from there on, as of one
     /// `said_finite` holds.
     pub finite_at: Vec<crate::citing::finite::FiniteSets>,
+    /// Of each "if P then Q" on the page, the sets P makes finite within Q,
+    /// as `finite_sets` reads P: X of "if |X| = m then |𝒫X| = 2^m", by the
+    /// whole sentence as a tree (`formulas::finite_under`). A backend that
+    /// writes a count by whether its set is finite writes Q's so.
+    pub finite_under:
+        IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets>,
     /// The number system each letter the page's lines put in sets of
     /// numbers is in, the widest of them, A of `let A be an element` and
     /// `A ∈ ℝ ∖ ℚ` (`citing::number_sets::element_systems`): what a backend
@@ -622,6 +634,11 @@ pub struct Besides {
     /// The closure table's row that puts `other` in the system, where no
     /// line states it: (t + 1) mod 10 beside s(t).
     pub other_row: Option<WholeRow>,
+    /// Another equation the lines hold that puts `other` beside a term in
+    /// the system, where no line states it, no row puts it there and the
+    /// page does not say it once: y = r of `let r ∈ ℝ` and x = y = r,
+    /// carrying x on from x = y.
+    pub other_beside: Option<Box<Besides>>,
 }
 
 impl Besides {
@@ -640,6 +657,7 @@ impl Besides {
                 left: left.clone(),
                 right: right.clone(),
             }),
+            other_beside: b.other_beside.as_deref().map(|o| Box::new(Besides::of(o))),
         }
     }
 }
@@ -714,6 +732,20 @@ pub struct Cited {
     /// by its label: `D1` of fibonacci-natural is `D1` of a proof that
     /// defines F and G the same way (`citations::recursions_met`).
     pub recursions: IndexMap<String, String>,
+}
+
+impl Cited {
+    /// The binding with what the citation's own pairs give the letters it
+    /// leaves out (`written`), Z of `Z := B` where Z is named only in a
+    /// map's type, as the checker finds what supplies a hypothesis
+    /// (`citations::with_seed`).
+    pub fn binding_with_written(&self) -> Binding {
+        let mut out = self.binding.clone();
+        for (letter, value) in &self.written {
+            out.entry(*letter).or_insert_with(|| value.clone());
+        }
+        out
+    }
 }
 
 /// One part of what a definition's right side asks, at a citation's values
@@ -813,6 +845,18 @@ pub struct FirstAt {
     /// the sentence or part named above says what implies it, `k ∈ {1, …,
     /// n}` of `k ≤ n`.
     pub implied: Option<crate::citing::Implication>,
+    /// Where the fact is the equation between two terms of a chain the
+    /// sentence writes, x = w of x = y = z = w, which two: a backend proves
+    /// it by joining the chain's links between them.
+    pub pair: Option<ChainTerms>,
+}
+
+/// Two terms of a chain of equations, by their places among its terms from
+/// 0, the first before the second (`FirstAt::pair`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ChainTerms {
+    pub from: usize,
+    pub to: usize,
 }
 
 /// What says a define's argument is in the define's domain

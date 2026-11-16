@@ -205,6 +205,74 @@ pub(super) fn printed(
         .unwrap_or_else(|| want.to_string())
 }
 
+/// The coordinate each claim that two pairs differ is shown at, by the line
+/// its reason is on (`CheckedTheorem::pairs_apart`): a step's and each
+/// requires line's whose reason is `arithmetic`, `real arithmetic` or
+/// `algebra`, as that method found it (`methods::pairs`). (1, 1) ≠ (2, 3)
+/// by arithmetic is apart at the first; (a, b) ≠ (c, d) by algebra from
+/// b ≠ d at the second.
+pub fn pairs_apart(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, crate::methods::pairs::Coordinate> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let at = ClosureClaim::step(step);
+        if let Some(c) = pair_apart_at(&at, step.just.head.method(), known, targets) {
+            out.insert(step.just.line, c);
+        }
+        for req in &step.requires {
+            let Ok(by) = &req.by else {
+                continue;
+            };
+            let at = ClosureClaim::requires(step, req);
+            if let Some(c) = pair_apart_at(&at, by.head.method(), known, targets) {
+                out.insert(by.line, c);
+            }
+        }
+    }
+    out
+}
+
+/// `pairs_apart` of one claim, by its reason's method; None where the
+/// claim says no two pairs differ, or its method finds no coordinate.
+fn pair_apart_at(
+    at: &ClosureClaim,
+    method: Option<Method>,
+    known: &Known,
+    targets: &Targets,
+) -> Option<crate::methods::pairs::Coordinate> {
+    use crate::methods::pairs;
+    // The claim's one fact, as the method reads it.
+    let one = || {
+        let facts: Vec<Node> = at
+            .claim
+            .sentences()
+            .iter()
+            .filter_map(|s| known.read_as_written(s))
+            .flat_map(|n| conjuncts(&n))
+            .collect();
+        match facts.as_slice() {
+            [one] => Some(one.clone()),
+            _ => None,
+        }
+    };
+    let apart = |term: &Term| pairs::relation(term).filter(|p| p.apart);
+    match method? {
+        Method::Arithmetic => {
+            let term = term_of_node(&written_out(&one()?, known), targets);
+            crate::methods::field::pairs_apart_at(&apart(&term)?)
+        }
+        Method::RealArithmetic => {
+            let term = real_term(&one()?, known, targets);
+            reals::pairs_apart_at(&apart(&term)?)
+        }
+        Method::Algebra => algebra_decided(at, known, targets)?.pair_apart,
+        _ => None,
+    }
+}
+
 /// What working out a fact `arithmetic` claims finds.
 pub(in crate::checker) enum Worked {
     Holds,
@@ -825,19 +893,14 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
             };
             let own = known.sentence_count(stated);
             // A link read off a chain, a = c of a = b = c, stands in the
-            // sentence the chain is, and is the pair it reads.
+            // sentence the chain is, as the pair it reads (`placed`).
             let placed = reading.at.and_then(|k| {
-                let s = &reading.says[k];
-                match s.from {
-                    SaidFrom::Pair(sentence) => Some(crate::checker::record::FirstAt {
-                        line: cite.to_string(),
-                        sentence: Some(sentence),
-                        part: None,
-                        written: s.written.clone(),
-                        implied: None,
-                    }),
-                    _ => super::super::citations::placed(cite, s, &reading.says, own),
-                }
+                super::super::citations::placed(
+                    cite,
+                    &reading.says[k],
+                    &reading.says,
+                    own,
+                )
             });
             if let Some(at) = placed {
                 // How the line as written met the link, where not as written.

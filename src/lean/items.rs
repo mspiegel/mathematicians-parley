@@ -932,6 +932,12 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
             w.finite_from(&read.finite);
+            // Within the "then" of an "if" in the item, the sets its "if"
+            // makes finite, as the checker records them of a theorem's own
+            // sentences (`citing::finite::finite_under`).
+            w.finite_under = std::rc::Rc::new(crate::citing::finite::finite_under(
+                lines.iter().copied(),
+            ));
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
@@ -1258,6 +1264,8 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
+            let lets = super::statement::let_letters(&record.hypotheses, &record.path);
+            let binders = super::statement::with_sethoods(binders, &lets, &[&prop]);
             let name = if total == 1 {
                 base.clone()
             } else {

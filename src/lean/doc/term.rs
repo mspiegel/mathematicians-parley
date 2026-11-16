@@ -31,6 +31,8 @@ pub enum LeanType {
     /// The members of a set as a type, `↥X`: what a function on X itself
     /// takes, a member of the functions from X to Y.
     Within(Box<Term>),
+    /// Pairs of a member of the one type and one of the other, `ℤ × ℝ`.
+    Prod(Box<LeanType>, Box<LeanType>),
 }
 
 impl LeanType {
@@ -41,7 +43,9 @@ impl LeanType {
         match self {
             LeanType::Things(_) | LeanType::General => true,
             LeanType::Set(inner) => inner.open(),
-            LeanType::Fun { from, to } => from.open() || to.open(),
+            LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
+                a.open() || b.open()
+            }
             LeanType::Within(set) => set.ty.as_ref().is_some_and(LeanType::open),
             _ => false,
         }
@@ -53,7 +57,9 @@ impl LeanType {
         self == ty
             || match self {
                 LeanType::Set(inner) => inner.contains(ty),
-                LeanType::Fun { from, to } => from.contains(ty) || to.contains(ty),
+                LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
+                    a.contains(ty) || b.contains(ty)
+                }
                 _ => false,
             }
     }
@@ -64,7 +70,9 @@ impl LeanType {
         match self {
             LeanType::Num(_) | LeanType::ENat | LeanType::Prop => true,
             LeanType::Set(inner) => inner.fixed(),
-            LeanType::Fun { from, to } => from.fixed() && to.fixed(),
+            LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
+                a.fixed() && b.fixed()
+            }
             LeanType::General
             | LeanType::Things(_)
             | LeanType::Elements(_)
@@ -267,6 +275,8 @@ pub enum BoundForm {
     SetOfMember { set: Box<Term> },
     /// `⋃ x ∈ set, body`.
     Union { set: Box<Term> },
+    /// `⋂ x ∈ set, body`.
+    Inter { set: Box<Term> },
 }
 
 impl BoundForm {
@@ -275,7 +285,8 @@ impl BoundForm {
         match self {
             BoundForm::BigOp { set, .. }
             | BoundForm::SetOfMember { set }
-            | BoundForm::Union { set } => vec![&**set],
+            | BoundForm::Union { set }
+            | BoundForm::Inter { set } => vec![&**set],
             BoundForm::Integral { from, to } => vec![&**from, &**to],
             BoundForm::SetOf => Vec::new(),
         }
@@ -286,7 +297,8 @@ impl BoundForm {
         match self {
             BoundForm::BigOp { set, .. }
             | BoundForm::SetOfMember { set }
-            | BoundForm::Union { set } => vec![&mut **set],
+            | BoundForm::Union { set }
+            | BoundForm::Inter { set } => vec![&mut **set],
             BoundForm::Integral { from, to } => vec![&mut **from, &mut **to],
             BoundForm::SetOf => Vec::new(),
         }
@@ -300,6 +312,8 @@ pub enum Brackets {
     Angle,
     /// `{a, b}`.
     Brace,
+    /// `(a, b)`, a pair.
+    Round,
 }
 
 /// A mark Lean writes before a term (`TermKind::Prefix`).
@@ -1208,6 +1222,7 @@ impl Term {
                         BoundForm::SetOfMember { set: filled(set)? }
                     }
                     BoundForm::Union { set } => BoundForm::Union { set: filled(set)? },
+                    BoundForm::Inter { set } => BoundForm::Inter { set: filled(set)? },
                 };
                 TermKind::Bound {
                     form,

@@ -10,7 +10,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -48,14 +47,14 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
   have s3 : ∀ x ∈ X, f x ∈ f '' (X ∩ X) := by
     intro x hK1
     -- 3.1. mun:value-in-image W := X, Y := X, s := x, from 2
-    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := X) (Y := X) (f := f) (s := x) (W := Set.univ) s2 hK1 (Set.mapsTo_univ _ _))
+    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := X) (Y := X) (f := f) (s := x) (W := X) s2 hK1 hH3.1)
   -- 4. mun:function-into E := f, Y := f[X], from 3
   have s4 : Set.MapsTo f X (f '' (X ∩ X)) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := X) (Y := f '' (X ∩ X)) s3)
   -- 5. proof
   have s5 : ∀ y ∈ f '' (X ∩ X), ∃ x ∈ X, y = f x := by
     intro y hK2
     -- 5.1. def:image u := y, W := X, Y := X, from K2, 2
-    exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := Set.univ) s2 (Set.mapsTo_univ _ _))).mp hK2
+    exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := X) s2 hH3.1)).mp hK2
   -- 6. def:onto Y := f[X], from 4, 5
   have s6 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.SurjOn f X (f '' (X ∩ X)) := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := f '' (X ∩ X)) (f := f) s4)).mpr ⟨s4, s5⟩
   -- 7. def:one-to-one Y := f[X], from 1, 4
@@ -83,7 +82,7 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     -- 16.1. mun:in-subset, from K3, 15
     have s16_1 : y ∈ f '' (X ∩ X) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := X) (Y := f '' (X ∩ X)) (u := y) s15 hK3)
     -- 16.2. def:image u := y, W := X, Y := X, from 2, 16.1
-    exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := Set.univ) s2 (Set.mapsTo_univ _ _))).mp s16_1
+    exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := X) s2 hH3.1)).mp s16_1
   -- 17. def:onto Y := X, from 1, 16
   have s17 : Set.MapsTo f X X ∧ Set.SurjOn f X X := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := X) (f := f) s1.1)).mpr ⟨s1.1, s16⟩
   -- 18. def:one-to-one-onto Y := X, from H3, 17

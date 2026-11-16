@@ -90,11 +90,17 @@ pub fn printed_but(
         }
     }
     for (set, why) in &record.said_finite.sets {
-        writeln!(out, "finite {set}, by {why:?}").unwrap();
+        writeln!(out, "finite {}, by {}", g.print(&set.0), finite_why(why, g)).unwrap();
     }
     for (line, only) in &record.said_finite.only_by {
-        let only: Vec<&str> = only.iter().map(String::as_str).collect();
-        writeln!(out, "only {line} makes finite {}", only.join(", ")).unwrap();
+        let only: Vec<String> = only.iter().map(|s| g.print(&s.0)).collect();
+        writeln!(
+            out,
+            "only {} makes finite {}",
+            g.print(&line.0),
+            only.join(", ")
+        )
+        .unwrap();
     }
     for (set, system) in &record.set_systems {
         writeln!(out, "set {set} holds numbers of {}", system.label()).unwrap();
@@ -292,6 +298,46 @@ pub fn requires_at(thm: &Theorem, line: usize) -> String {
 
 /// A citation as the record holds it: the item and group, its binding,
 /// each conclusion and the way it is read, and where each fact is taken.
+/// Why a set is finite, each line and set printed as the page writes it.
+fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
+    use parley::citing::finite::FiniteBy;
+    match why {
+        FiniteBy::Said(line) => format!("Said({:?})", g.print(&line.0)),
+        FiniteBy::Counted { line, at_least_one } => format!(
+            "Counted {{ line: {:?}, at_least_one: {at_least_one} }}",
+            g.print(&line.0)
+        ),
+        FiniteBy::Part { line, whole } => format!(
+            "Part {{ line: {:?}, whole: {} }}",
+            g.print(&line.0),
+            finite_why(whole, g)
+        ),
+        FiniteBy::Define(name) => format!("Define({name:?})"),
+        FiniteBy::Bound(name) => format!("Bound({name:?})"),
+        FiniteBy::MemberOf(whole) => format!("MemberOf({})", finite_why(whole, g)),
+        FiniteBy::Made(made) => format!("Made({})", making(made, g)),
+    }
+}
+
+/// How a finite set is made, its parts' reasons printed by `finite_why`.
+fn making(made: &parley::citing::finite::Making, g: &Grammar) -> String {
+    use parley::citing::finite::Making;
+    match made {
+        Making::Empty => "Empty".to_string(),
+        Making::Listed => "Listed".to_string(),
+        Making::Range => "Range".to_string(),
+        Making::Minus(a) => format!("Minus({})", finite_why(a, g)),
+        Making::Inter(a) => format!("Inter({})", finite_why(a, g)),
+        Making::Union(a, b) => {
+            format!("Union({}, {})", finite_why(a, g), finite_why(b, g))
+        }
+        Making::Powerset(a) => format!("Powerset({})", finite_why(a, g)),
+        Making::Builder(a) => format!("Builder({})", finite_why(a, g)),
+        Making::Image(a) => format!("Image({})", finite_why(a, g)),
+        Making::Applied(name) => format!("Applied({name:?})"),
+    }
+}
+
 fn citation(cited: &Cited, g: &Grammar) -> String {
     // A binding says what each letter stands for, in no order.
     let mut binding: Vec<String> = cited
