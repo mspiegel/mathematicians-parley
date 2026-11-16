@@ -805,6 +805,9 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("an instantiate of no line");
         };
+        // What the check found the step's lines hold, by which a value a
+        // line says is an integer is that line's number (`integer_line`).
+        *self.held_now.borrow_mut() = self.held_at(just.line);
         let stated = self.stated_claim(just.line, node);
         let claim = match stated {
             Some(printed) => Route::Built(printed),
@@ -957,8 +960,8 @@ impl<'a> Proof<'a> {
             }
             // A function or map between sets: it, and that it maps the one
             // into the other.
-            if let ("functions-from", [from, to]) =
-                (&*set.notation_name(), set.children.as_slice())
+            if let (crate::notations::FUNCTIONS_FROM, [from, to]) =
+                (set.notation(), set.children.as_slice())
             {
                 match self.function_given(writer, &value, from, to) {
                     Route::Built(p) => {
@@ -988,7 +991,24 @@ impl<'a> Proof<'a> {
                     }
                 }
             };
-            match writer.number_fixed(&value, ty) {
+            // A value of a wider type that a line says is in the letter's,
+            // d·s(r) ∈ ℤ of rationals: the number that line gives, as a
+            // citation's value is (`letter_given`).
+            let fixed = match writer.number_fixed(&value, ty) {
+                Route::Declined(d) => match self.integer_line(&value, ty) {
+                    Some(line) => {
+                        let printed = super::super::tactics::bracket(line.chosen(ty));
+                        self.said_used.borrow_mut().push(SaidUsed {
+                            line,
+                            term: self.writer.grammar.print(&value),
+                        });
+                        Route::Built(printed)
+                    }
+                    None => Route::Declined(d),
+                },
+                built => built,
+            };
+            match fixed {
                 Route::Built(p) => {
                     given.push((p.clone(), guarded));
                     args.push(p);
@@ -1106,6 +1126,22 @@ impl<'a> Proof<'a> {
                     faced(proof, facing_of_turned(turned)),
                 )));
             }
+        }
+        // A value given as the number a line names, p := d·s(r) of `d·s(r) ∈
+        // ℤ`, met as written: the step's proof first puts the claim in terms
+        // of that number (`specs_in`, `proof_of`), and what is left is the
+        // instance with its casts, as a citation so given is closed.
+        let met = &recorded.meeting;
+        let through_named = !self.specs_in(node, &self.said_used.borrow()).is_empty();
+        if through_named
+            && met.identities.is_empty()
+            && !met.turned
+            && !met.permuted
+            && !met.respelled
+        {
+            return Route::Built(super::super::doc::Proof::By(
+                super::super::tactics::exact_mod_cast(proof),
+            ));
         }
         let met = match (instance, claim) {
             // Lean's statement of the instance is the claim's as Lean

@@ -1,6 +1,7 @@
 //! Proof methods: obtaining, blocks and inductions.
 
 use super::*;
+use crate::notations::{POWERSET, SUBSET, THERE_IS_SOME};
 
 impl<'a> Proof<'a> {
     pub(super) fn obtain(&mut self, i: usize, depth: usize) -> Route<()> {
@@ -41,7 +42,7 @@ impl<'a> Proof<'a> {
             let in_set = match node.children.as_slice() {
                 [x, set]
                     if (node.notation() == crate::notations::MEMBERSHIP
-                        || &*node.notation_name() == "subset")
+                        || node.notation() == SUBSET)
                         && x.is_name()
                         && self.writer.members_of(set).is_some() =>
                 {
@@ -75,8 +76,8 @@ impl<'a> Proof<'a> {
         }
         // there is a ∈ X with nothing said, `∃ a ∈ X, True`: the letter, the
         // fact that it is in X, and nothing.
-        if let ("there-is-some", [obtained]) =
-            (&*source.says.notation_name(), step.just.obtained.as_slice())
+        if let (THERE_IS_SOME, [obtained]) =
+            (source.says.notation(), step.just.obtained.as_slice())
         {
             let guard = guards
                 .get(obtained)
@@ -1050,8 +1051,7 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("an induction on a set whose claim says no \"for all\"");
         };
-        let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
-        else {
+        let (POWERSET, [whole]) = (set.notation(), set.children.as_slice()) else {
             return Route::no("an induction on a set of other than the parts of a set");
         };
         let Some(members) = self.writer.members_of(whole) else {
@@ -1178,7 +1178,7 @@ impl<'a> Proof<'a> {
     ) -> bool {
         !o.is_hypothesis
             && self.opener_node(o).is_some_and(|n| {
-                &*n.notation_name() == "subset"
+                n.notation() == SUBSET
                     && n.children.first().is_some_and(|y| &*y.text == letter)
             })
     }
@@ -1371,7 +1371,10 @@ impl<'a> Proof<'a> {
                             continue;
                         }
                         if let Some((letter, ty)) =
-                            super::super::statement::introduces_function(node)
+                            super::super::statement::introduces_function(
+                                &self.writer,
+                                node,
+                            )
                         {
                             self.writer.letters.insert(letter.clone(), ty);
                             super::super::statement::record_domain(
@@ -1422,8 +1425,7 @@ impl<'a> Proof<'a> {
                             let member = node.notation()
                                 == crate::notations::MEMBERSHIP
                                 && t.is_name();
-                            let part =
-                                &*node.notation_name() == "subset" && t.is_name();
+                            let part = node.notation() == SUBSET && t.is_name();
                             let ty = match (member, part) {
                                 (true, _) => {
                                     self.writer.members_of(set).map(|m| m.letter())

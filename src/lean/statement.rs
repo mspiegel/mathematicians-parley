@@ -9,7 +9,11 @@
 use super::expr::{letter_type, system_of, LetterType, Printed, System, Writer};
 use crate::citing::HypothesisAt;
 use crate::formula::Node;
-use crate::notations::{IN, NUMBER_SYSTEMS};
+use crate::notations::{
+    EMPTY_SET, FUNCTION_TYPE, IN, IS_AN_INTEGER_POLYNOMIAL, IS_A_POLYNOMIAL,
+    LISTED_FOUR, LISTED_THREE, LISTED_TWO, MEMBERSHIP, NUMBER_SYSTEMS, ONE_TO_ONE,
+    ONE_TO_ONE_ONTO, ONTO, POLYNOMIALS, POWERSET, SINGLETON, SUBGROUP, SUBSET,
+};
 use crate::outcome::Route;
 
 /// One binder of a statement.
@@ -143,27 +147,48 @@ pub fn introduces(node: &Node) -> Option<(String, System)> {
 }
 
 /// The letter a fact `f : A → B` introduces, a function between number
-/// systems, with its Lean type; None for any other fact.
-pub fn introduces_function(node: &Node) -> Option<(String, LetterType)> {
+/// systems, with its Lean type; None for any other fact. The systems are
+/// the checker's (`CheckedTheorem::function_systems`); what is Lean's own is
+/// which sets its types cover: a number system or a range of integers, as
+/// the domain, a function from ℕ, ℕ₀ or a range being one on all of ℤ; and
+/// no codomain ℕ, whose values are above 0. A function between other sets
+/// is a map with its domain beside it (`introduces_in_set`).
+pub fn introduces_function(
+    writer: &Writer,
+    node: &Node,
+) -> Option<(String, LetterType)> {
     let [f, from, to] = node.children.as_slice() else {
         return None;
     };
     if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
         return None;
     }
-    let (from, to) = super::expr::function_systems(from, to)?;
-    Some((f.text.to_string(), LetterType::Function { from, to }))
+    let whole = |set: &Node| {
+        set.notation() == crate::notations::INTEGER_RANGE || system_of(set).is_some()
+    };
+    if !whole(from) || !whole(to) || to.notation() == crate::notations::INTEGER_RANGE {
+        return None;
+    }
+    let between = writer.function_systems.get(f.text.as_str())?;
+    if between.to == crate::rules::System::N {
+        return None;
+    }
+    let ty = LetterType::Function {
+        from: super::expr::recorded_set_type(between.from),
+        to: super::expr::recorded_set_type(between.to),
+    };
+    Some((f.text.to_string(), ty))
 }
 
 /// The letter a fact `p is a polynomial` introduces, a function from ℂ to
 /// ℂ; None for any other fact. The page's words are read as the membership
 /// p ∈ (the polynomials), or as the notation itself.
 pub fn introduces_polynomial(node: &Node) -> Option<String> {
-    match (&*node.notation_name(), node.children.as_slice()) {
-        ("is-a-polynomial", [p]) if p.is_name() => Some(p.text.to_string()),
-        ("membership", [p, set])
-            if p.is_name() && &*set.notation_name() == "polynomials" =>
-        {
+    match (node.notation(), node.children.as_slice()) {
+        (IS_A_POLYNOMIAL | IS_AN_INTEGER_POLYNOMIAL, [p]) if p.is_name() => {
+            Some(p.text.to_string())
+        }
+        (MEMBERSHIP, [p, set]) if p.is_name() && set.notation() == POLYNOMIALS => {
             Some(p.text.to_string())
         }
         _ => None,
@@ -241,12 +266,12 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             domain: None,
         });
     }
-    match (node.notation_name().as_ref(), rest) {
+    match (node.notation(), rest) {
         // x ∈ {1, 2} of numbers: a number of the type that holds them all.
-        ("membership", [set])
+        (MEMBERSHIP, [set])
             if matches!(
-                set.notation_name().as_ref(),
-                "singleton" | "listed-two" | "listed-three" | "listed-four"
+                set.notation(),
+                SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
             ) && set.children.iter().all(|c| writer.is_number(c)) =>
         {
             let mut at = super::templates::Num::Int;
@@ -261,19 +286,19 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             })
         }
         // D ∈ 𝒫ℝ, the page's `let D ⊆ ℝ`, is a set as of `D ⊆ ℝ`.
-        ("membership", [set]) if &*set.notation_name() == "powerset" => Some(InSet {
+        (MEMBERSHIP, [set]) if set.notation() == POWERSET => Some(InSet {
             letter: letter.text.to_string(),
             ty: LetterType::Set(writer.set_members(set.children.first()?)?),
             fact: Fact::Line,
             domain: None,
         }),
-        ("membership", [set]) => Some(InSet {
+        (MEMBERSHIP, [set]) => Some(InSet {
             letter: letter.text.to_string(),
             ty: writer.members_of(set)?.letter(),
             fact: Fact::Line,
             domain: None,
         }),
-        ("subset", [set]) => Some(InSet {
+        (SUBSET, [set]) => Some(InSet {
             letter: letter.text.to_string(),
             ty: LetterType::Set(writer.set_members(set)?),
             fact: Fact::Line,
@@ -281,7 +306,7 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
         }),
         // H is a subgroup of G: Lean's `Subgroup G`, whose type says it, so
         // that the line's own hypothesis is `True` (`sets::subgroup_claim`).
-        ("subgroup", [group])
+        (SUBGROUP, [group])
             if matches!(
                 writer.letters.get(group.text.as_str()),
                 Some(LetterType::Group)
@@ -297,15 +322,12 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
         // f : A → B, alone or one-to-one, onto, or both: a map, and the
         // fact of it, which is the line itself where it says more than the
         // type.
-        (
-            kind @ ("function-type" | "one-to-one" | "onto" | "one-to-one-onto"),
-            [from, to],
-        ) => {
+        (kind @ (FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO), [from, to]) => {
             // ∅ holds nothing of any type, so a map into it gives the
             // domain's.
             let a = writer.set_members(from)?;
-            let b = match &*to.notation_name() {
-                "empty-set" => a.clone(),
+            let b = match to.notation() {
+                EMPTY_SET => a.clone(),
                 _ => writer.set_members(to)?,
             };
             let (from_text, to_text) =
@@ -328,7 +350,7 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             Some(InSet {
                 letter: letter.text.to_string(),
                 ty,
-                fact: match kind == "function-type" {
+                fact: match kind == FUNCTION_TYPE {
                     true => Fact::Said(Printed::applied(
                         "Set.MapsTo",
                         super::doc::Source::Mathlib,
@@ -430,11 +452,10 @@ pub fn with_sethoods(
     if !says_exists(&binders, statement) {
         return binders;
     }
-    // As Lean states them, which is how two statements of one fact agree.
-    let said: Vec<String> = binders
+    let said: Vec<Printed> = binders
         .iter()
         .filter_map(|b| match b {
-            Binder::Fact { says, .. } => Some(says.text()),
+            Binder::Fact { says, .. } => Some(says.clone()),
             Binder::Letter { .. } => None,
         })
         .collect();
@@ -445,7 +466,7 @@ pub fn with_sethoods(
                 if lets.contains(page) && of_things(ty) =>
             {
                 let says = is_set(Printed::letter(name.clone(), ty.lean_type()));
-                (!said.contains(&says.text())).then(|| Binder::Fact {
+                (!said.contains(&says)).then(|| Binder::Fact {
                     name: sethood_name(page),
                     says,
                     at: Some(StatedAt::Sethood(page.clone())),
@@ -493,7 +514,7 @@ pub fn says_exists(binders: &[Binder], statement: &[&Printed]) -> bool {
 /// though the letter's type came first. A function from ℕ, whose Lean type
 /// is from ℤ, has ℕ for its domain, not all of ℤ.
 pub(super) fn record_domain(writer: &mut Writer, node: &Node) {
-    let kinds = ["function-type", "one-to-one", "onto", "one-to-one-onto"];
+    let kinds = [FUNCTION_TYPE, ONE_TO_ONE, ONTO, ONE_TO_ONE_ONTO];
     let [f, from, _] = node.children.as_slice() else {
         return;
     };
@@ -501,7 +522,7 @@ pub(super) fn record_domain(writer: &mut Writer, node: &Node) {
         writer.letters.get(f.text.as_str()),
         Some(LetterType::Map { .. } | LetterType::Function { .. })
     );
-    if !map || !kinds.contains(&&*node.notation_name()) {
+    if !map || !kinds.contains(&node.notation()) {
         return;
     }
     if let Route::Built(d) = writer.set_term(from) {
@@ -550,7 +571,7 @@ pub fn binders(
                 ty,
             });
         }
-        if let Some((letter, ty)) = introduces_function(a.node) {
+        if let Some((letter, ty)) = introduces_function(writer, a.node) {
             writer.letters.insert(letter.clone(), ty.clone());
             record_domain(writer, a.node);
             out.push(Binder::Letter {

@@ -99,6 +99,10 @@ pub const IN_CODE: &[&str] = &[
     "pair",
     "supremum",
     "exists",
+    "is-an-integer-polynomial",
+    "polynomial-degree",
+    "nth-derivative",
+    "defined-at",
 ];
 
 /// Every theorem of the corpus, in or out.

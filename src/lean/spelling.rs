@@ -284,6 +284,19 @@ fn is_universe(term: &Printed) -> bool {
     is_const(term, "Set.univ")
 }
 
+/// Whether the statement says the whole type is about a point, `Set.univ ∈
+/// nhds x`, which a differentiability over a domain says of a domain that is
+/// all of its type, and which holds of every point (`Filter.univ_mem`).
+pub fn whole_about_a_point(term: &Printed) -> bool {
+    term.walk().iter().any(|n| {
+        matches!(&n.kind, TermKind::Infix { op, lhs, rhs }
+            if op.symbol == "∈"
+                && is_universe(lhs)
+                && matches!(&innermost(rhs).kind,
+                    TermKind::App { head, .. } if is_const(head, "nhds")))
+    })
+}
+
 /// Whether a guard says its letter is in the whole type, `x ∈ Set.univ`.
 fn over_universe(guard: &Printed) -> bool {
     matches!(&innermost(guard).kind,

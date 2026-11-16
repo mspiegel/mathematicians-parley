@@ -961,6 +961,29 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
             }
         }
     }
+    // The reason under a define that says a kind, read as the requires line
+    // it is checked as, under the step after the define
+    // (`citations::check_kinds`, `Reason::under`), by its reason's line.
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let (Some(after), Some(reason)) = (thm.step_after(d.line), d.reason.as_ref())
+        else {
+            continue;
+        };
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        let Some(req) = under.requires.last().filter(|r| r.is_lines()) else {
+            continue;
+        };
+        let Ok(by) = &req.by else {
+            continue;
+        };
+        if let Some(found) = restated_at(&under, req.lines(), &req.fact, known, library)
+        {
+            out.add(by.line, found);
+        }
+    }
     out
 }
 

@@ -1,6 +1,7 @@
 //! Sums, series, integrals, limits and numbers.
 
 use super::*;
+use crate::notations::{DERIVATIVE, INTEGRAL};
 
 impl Writer<'_> {
     /// Σ(k = a to b) t, `∑ k ∈ Finset.Icc a b, t`, and ∏ alike, its index ranging over
@@ -36,7 +37,7 @@ impl Writer<'_> {
                 }
             }
             // ∅ takes the index's type, which Lean cannot read from it.
-            Over::Set(set) if &*set.notation_name() == "empty-set" => (
+            Over::Set(set) if set.notation() == EMPTY_SET => (
                 true,
                 empty_of_type(LeanType::Set(Box::new(index_ty.clone()))),
                 0,
@@ -81,6 +82,13 @@ impl Writer<'_> {
         };
         if !index.is_name() {
             return Route::no("a series whose index is no letter");
+        }
+        // Wanted in ℂ, F(L) of a series L: the real series, cast up.
+        if at > Num::Real {
+            return match self.series(node, Num::Real) {
+                Route::Built(s) => self.raise(s, Num::Real, at),
+                Route::Declined(d) => Route::Declined(d),
+            };
         }
         if at != Num::Real {
             return Route::no("a series computed in other than ℝ");
@@ -349,75 +357,27 @@ impl Writer<'_> {
     /// about it, and f has a derivative there, `∀ x ∈ U, D ∈ nhds x ∧
     /// DifferentiableAt ℝ f x`. set.mm takes a derivative only at a point
     /// inside the domain, where it is Lean's `deriv f`; of f between number
-    /// systems, D is all of ℝ and only the derivative is said.
+    /// systems, D is all of ℝ and only the derivative is said. f may be a
+    /// derivative itself, f′ (`differentiable_at`).
     pub(super) fn differentiable(&self, node: &Node) -> Route<Printed> {
         let [f, set] = node.children.as_slice() else {
             return Route::no("a differentiability of other than a function and a set");
-        };
-        if !f.is_name()
-            || !matches!(
-                self.letters.get(f.text.as_str()),
-                Some(LetterType::Function {
-                    from: Num::Real,
-                    to: Num::Real
-                })
-            )
-        {
-            return Route::no(format!("{} is no function from ℝ to ℝ", f.text));
-        }
-        let Some(domain) = self.domain_of(&f.text) else {
-            return Route::no(format!(
-                "a derivative of {}, whose domain no line gives",
-                f.text
-            ));
         };
         let u = match self.numbers_at(set, Num::Real) {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let Some(x) = ["x", "y", "z", "t", "w", "v"]
+        let mut free = ["x", "y", "z", "t", "w", "v"]
             .into_iter()
-            .find(|l| !self.letters.contains_key(*l) && *l != &*f.text)
-        else {
+            .filter(|l| !self.letters.contains_key(*l) && !f.names().contains(*l));
+        let (Some(x), Some(y)) = (free.next(), free.next()) else {
             return Route::no("a differentiability using every letter it could bind");
         };
-        let given = self.domains.contains_key(f.text.as_str());
         let real = LeanType::Num(Num::Real);
-        let point = Printed::letter(x, real.clone());
-        let at = Printed::applied(
-            "DifferentiableAt",
-            super::super::doc::Source::Mathlib,
-            vec![
-                Printed::constant(
-                    "ℝ",
-                    super::super::doc::Source::Mathlib,
-                    LeanType::Universe,
-                ),
-                self.function_letter(&f.text),
-                point.clone(),
-            ],
-            LeanType::Prop,
-        );
-        let said = match given {
-            true => {
-                let near = Printed::applied(
-                    "nhds",
-                    super::super::doc::Source::Mathlib,
-                    vec![point],
-                    LeanType::Set(Box::new(LeanType::Set(Box::new(real.clone())))),
-                );
-                // The domain stands bracketed as an argument does, as a
-                // map's domain is written everywhere it is named.
-                let inside = match relation_of("∈", as_argument(domain), near) {
-                    Route::Built(i) => i,
-                    Route::Declined(d) => return Route::Declined(d),
-                };
-                match conjunction(inside, at) {
-                    Route::Built(c) => c,
-                    Route::Declined(d) => return Route::Declined(d),
-                }
-            }
-            false => at,
+        let said = match self.differentiable_at(f, Printed::letter(x, real.clone()), y)
+        {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
         };
         let member = Printed::letter(x, real.clone());
         let guard = match relation_of("∈", member, as_argument(u)) {
@@ -437,6 +397,97 @@ impl Writer<'_> {
         ))
     }
 
+    /// That f has a derivative at `point`, as set.mm takes one: `point` is
+    /// inside f's domain and f is differentiable there. Of a function
+    /// letter, its domain D where a line gives one, `D ∈ nhds p ∧
+    /// DifferentiableAt ℝ f p`. Of a derivative g′, whose domain is where g
+    /// has a derivative, `{y | …g at y…} ∈ nhds p ∧ DifferentiableAt ℝ
+    /// (deriv g) p`, `y` the letter that set binds.
+    fn differentiable_at(&self, f: &Node, point: Printed, y: &str) -> Route<Printed> {
+        let real = LeanType::Num(Num::Real);
+        let near = |domain: Printed| {
+            relation_of(
+                "∈",
+                domain,
+                Printed::applied(
+                    "nhds",
+                    super::super::doc::Source::Mathlib,
+                    vec![point.clone()],
+                    LeanType::Set(Box::new(LeanType::Set(Box::new(real.clone())))),
+                ),
+            )
+        };
+        let domain = match (f.notation(), f.children.as_slice()) {
+            (DERIVATIVE, [g]) => {
+                let at_y = match self.differentiable_at(
+                    g,
+                    Printed::letter(y, real.clone()),
+                    y,
+                ) {
+                    Route::Built(a) => a,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                Some(super::super::sets::set_of(y, real.clone(), at_y))
+            }
+            _ if f.is_name()
+                && matches!(
+                    self.letters.get(f.text.as_str()),
+                    Some(LetterType::Function {
+                        from: Num::Real,
+                        to: Num::Real
+                    })
+                ) =>
+            {
+                // The domain stands bracketed as an argument does, as a
+                // map's domain is written everywhere it is named.
+                match (
+                    self.domains.contains_key(f.text.as_str()),
+                    self.domain_of(&f.text),
+                ) {
+                    (true, Some(d)) => Some(as_argument(d)),
+                    (false, Some(_)) => None,
+                    (_, None) => {
+                        return Route::no(format!(
+                            "a derivative of {}, whose domain no line gives",
+                            f.text
+                        ))
+                    }
+                }
+            }
+            _ => {
+                return Route::no(format!(
+                    "{} is no function from ℝ to ℝ",
+                    self.grammar.print(f)
+                ))
+            }
+        };
+        let function = match self.function_printed(f) {
+            Route::Built(g) => g,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let at = Printed::applied(
+            "DifferentiableAt",
+            super::super::doc::Source::Mathlib,
+            vec![
+                Printed::constant(
+                    "ℝ",
+                    super::super::doc::Source::Mathlib,
+                    LeanType::Universe,
+                ),
+                function,
+                point.clone(),
+            ],
+            LeanType::Prop,
+        );
+        match domain {
+            Some(d) => match near(d) {
+                Route::Built(inside) => conjunction(inside, at),
+                Route::Declined(d) => Route::Declined(d),
+            },
+            None => Route::Built(at),
+        }
+    }
+
     /// f is continuous on D, `ContinuousOn f D`, of a function into ℝ and a
     /// set of reals: `predicate` is what goes before f. f is a function
     /// letter, or a map of reals into ℝ, `(fun x : ℝ => f x)`.
@@ -449,7 +500,10 @@ impl Writer<'_> {
                 self.letters.get(f.text.as_str()),
                 Some(LetterType::Function { to: Num::Real, .. })
             );
-        let map = super::arguments::MapRule::of(f).is_some()
+        // A map of reals, or a derivative f′, into ℝ.
+        let derived =
+            super::arguments::MapRule::of(f).is_some() || f.notation() == DERIVATIVE;
+        let map = derived
             && matches!(self.function_type(f), Route::Built((Num::Real, Num::Real)));
         if !letter && !map {
             return Route::left_out(format!(
@@ -492,6 +546,25 @@ impl Writer<'_> {
         if let Some(count) = self.finite_count(node) {
             return match count {
                 Route::Built(c) => self.raise(c, Num::Nat, at),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
+        // deg(F), the bridges' degree of the polynomial that gives F, a
+        // natural number as set.mm's is (`Polynomials.lean`).
+        if let Some(f) = super::arguments::degree_of(node) {
+            return match self.function_printed(f) {
+                Route::Built(f) => self.raise(
+                    Printed::applied(
+                        DEGREE,
+                        super::super::doc::Source::Bridge(
+                            super::super::doc::bridges::BridgeModule::Polynomials,
+                        ),
+                        vec![f],
+                        LeanType::Num(Num::Nat),
+                    ),
+                    Num::Nat,
+                    at,
+                ),
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -568,10 +641,10 @@ impl Writer<'_> {
         if is_big_operator(node) {
             return self.sum(node, at);
         }
-        if &*node.notation_name() == "series" {
+        if node.notation() == SERIES {
             return self.series(node, at);
         }
-        if &*node.notation_name() == "integral" {
+        if node.notation() == INTEGRAL {
             return self.integral(node, at);
         }
         match node.notation() {

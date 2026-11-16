@@ -16,7 +16,14 @@ use super::templates::Num;
 use crate::citing::bounds;
 use crate::citing::finite::{is_finite, SaidFinite};
 use crate::formula::Node;
-use crate::notations::NUMBER_SYSTEMS;
+use crate::notations::{
+    ADDITIVE, APPLICATION, BY_CASES, CARDINALITY, CLOSED_INTERVAL, COMPOSITION, COSET,
+    EMPTY_SET, FINITE, GROUP_INVERSE, GROUP_OPERATION, IMAGE, INDEXED_INTERSECTION,
+    INDEXED_UNION, INTEGER_RANGE, IS_AN_INTEGER_POLYNOMIAL, IS_A_POLYNOMIAL,
+    LISTED_FOUR, LISTED_THREE, LISTED_TWO, MEMBERSHIP, MULTIPLICATIVE, NUMBER_SYSTEMS,
+    OPEN_INTERVAL, POWERSET, SET_BUILDER, SET_IMAGE, SET_OPERATIONS, SINGLETON,
+    SUBGROUP,
+};
 use crate::outcome::Route;
 
 /// The inverse of a map on its domain, in the bridges: Mathlib's asks a
@@ -32,7 +39,7 @@ const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
 
 /// `{x : T | body}`: the members of type `ty` the body holds of, `letter`
 /// standing for each.
-fn set_of(letter: &str, ty: LeanType, body: Printed) -> Printed {
+pub(super) fn set_of(letter: &str, ty: LeanType, body: Printed) -> Printed {
     Printed::of(
         TermKind::Bound {
             form: super::doc::BoundForm::SetOf,
@@ -67,7 +74,7 @@ pub fn counts_in_extended(
     finite: &crate::citing::finite::FiniteSets,
     node: &Node,
 ) -> bool {
-    if &*node.notation_name() == "cardinality" {
+    if node.notation() == CARDINALITY {
         return node
             .children
             .first()
@@ -126,22 +133,22 @@ impl Writer<'_> {
                 _ => None,
             };
         }
-        match &*node.notation_name() {
+        match node.notation() {
             // gH holds elements of g's group.
-            "coset" => self.member_kind(node.children.first()?),
-            "set-operations" | "set-builder" => {
-                let first = match &*node.notation_name() {
-                    "set-builder" => node.children.get(1)?,
+            COSET => self.member_kind(node.children.first()?),
+            SET_OPERATIONS | SET_BUILDER => {
+                let first = match node.notation() {
+                    SET_BUILDER => node.children.get(1)?,
                     _ => node.children.first()?,
                 };
                 self.set_members(first)
                     .or_else(|| node.children.get(1).and_then(|c| self.set_members(c)))
             }
-            "powerset" => self
+            POWERSET => self
                 .set_members(node.children.first()?)
                 .map(|m| Members::Sets(Box::new(m))),
             // The functions from X to Y hold functions on X itself.
-            "functions-from" => {
+            crate::notations::FUNCTIONS_FROM => {
                 let [from, to] = node.children.as_slice() else {
                     return None;
                 };
@@ -151,14 +158,14 @@ impl Writer<'_> {
                     to: Box::new(self.set_members(to)?),
                 })
             }
-            "singleton" | "listed-two" | "listed-three" | "listed-four" => node
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR => node
                 .children
                 .iter()
                 .find_map(|c| self.member_kind(c))
                 .or_else(|| self.numbers_held(&node.children))
                 .or_else(|| self.sets_of_nothing(&node.children)),
             // {E(s) : s ∈ Y} holds what E(s) is.
-            "set-image" => {
+            SET_IMAGE => {
                 let inner = self.set_image_inner(node)?;
                 let term = node.children.first()?;
                 inner
@@ -166,10 +173,10 @@ impl Writer<'_> {
                     .or_else(|| inner.numbers_held(std::slice::from_ref(term)))
             }
             // [a, b] and (a, b) hold real numbers.
-            "closed-interval" | "open-interval" => Some(Members::Numbers(Num::Real)),
+            CLOSED_INTERVAL | OPEN_INTERVAL => Some(Members::Numbers(Num::Real)),
             // ⋃(x ∈ S) T and ⋂(x ∈ S) T hold what each T does, x a member
             // of S.
-            "indexed-union" | "indexed-intersection" => {
+            INDEXED_UNION | INDEXED_INTERSECTION => {
                 let [x, s, t] = node.children.as_slice() else {
                     return None;
                 };
@@ -180,7 +187,7 @@ impl Writer<'_> {
                 inner.set_members(t)
             }
             // A preimage holds what the map takes, an image what it gives.
-            "image" => match self.preimage_of(node) {
+            IMAGE => match self.preimage_of(node) {
                 Some(f) => match self.letters.get(f.text.as_str()) {
                     Some(LetterType::Map { from, .. }) => Some(from.clone()),
                     Some(LetterType::Function { from, .. }) => {
@@ -198,7 +205,7 @@ impl Writer<'_> {
             },
             // A map into sets applied, f(x) of f : A → 𝒫A, holds what each
             // of the sets it gives does.
-            "application" => {
+            APPLICATION => {
                 match self.letters.get(node.children.first()?.text.as_str()) {
                     Some(LetterType::Map {
                         to: Members::Sets(m),
@@ -245,8 +252,8 @@ impl Writer<'_> {
     /// writes it, where its members are already of that type.
     pub fn numbers_at(&self, set: &Node, at: Num) -> Route<Printed> {
         let listed = matches!(
-            &*set.notation_name(),
-            "singleton" | "listed-two" | "listed-three" | "listed-four"
+            set.notation(),
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
         );
         // A narrower number system among wider numbers, ℚ among the reals:
         // the numbers its membership says are in it, as `in_system` writes
@@ -317,11 +324,11 @@ impl Writer<'_> {
             }
         }
         // A value by cases is a member of what its first value is.
-        if &*node.notation_name() == "by-cases" {
+        if node.notation() == BY_CASES {
             return self.member_kind(node.children.first()?);
         }
         // a·b and a⁻¹ in a group are elements of it.
-        if matches!(&*node.notation_name(), "group-operation" | "group-inverse") {
+        if matches!(node.notation(), GROUP_OPERATION | GROUP_INVERSE) {
             return node.children.iter().find_map(|c| self.member_kind(c));
         }
         if let Some(LetterType::Map { to, .. }) = node
@@ -329,7 +336,7 @@ impl Writer<'_> {
             .first()
             .and_then(|f| self.letters.get(f.text.as_str()))
         {
-            if &*node.notation_name() == "application" {
+            if node.notation() == APPLICATION {
                 return Some(to.clone());
             }
         }
@@ -338,7 +345,7 @@ impl Writer<'_> {
         if let Some(LetterType::Map { from, .. }) =
             inverse.and_then(|g| self.letters.get(g.text.as_str()))
         {
-            if &*node.notation_name() == "application" {
+            if node.notation() == APPLICATION {
                 return Some(from.clone());
             }
         }
@@ -381,8 +388,8 @@ impl Writer<'_> {
         }
         // a·b, a⁻¹ and gH of a group: Mathlib's `*`, `⁻¹`, and the left
         // coset.
-        match &*node.notation_name() {
-            "group-operation" => {
+        match node.notation() {
+            GROUP_OPERATION => {
                 let p = match self.set_parts(node, 2) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
@@ -397,7 +404,7 @@ impl Writer<'_> {
                     ty,
                 });
             }
-            "group-inverse" => {
+            GROUP_INVERSE => {
                 let p = match self.set_parts(node, 1) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
@@ -413,7 +420,7 @@ impl Writer<'_> {
             }
             // gH is the image of H under h ↦ g·h, as Mathlib's left coset
             // g • H is defined, written so that no scope need be opened.
-            "coset" => {
+            COSET => {
                 let p = match self.set_parts(node, 2) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
@@ -436,7 +443,7 @@ impl Writer<'_> {
             // F(x) if x ∈ A, G(x) otherwise, of things: as the notation's
             // template writes it of numbers, the condition decided
             // classically.
-            "by-cases" => {
+            BY_CASES => {
                 let [first, condition, otherwise] = node.children.as_slice() else {
                     return Route::no("a define by cases of other than three parts");
                 };
@@ -501,8 +508,8 @@ impl Writer<'_> {
                 .map(|bound| set_of("n", int, bound));
         }
         let parts = |want: usize| self.set_parts(node, want);
-        match &*node.notation_name() {
-            "set-operations" => {
+        match node.notation() {
+            SET_OPERATIONS => {
                 // Of sets of numbers, both at the wider of their types: ℝ ∖
                 // {2} is `Set.univ \ ({2} : Set ℝ)`.
                 let numbers: Option<Num> = node
@@ -556,12 +563,12 @@ impl Writer<'_> {
                 })
             }
             // [a, b] and (a, b), the reals from a to b, ends in or out.
-            interval @ ("closed-interval" | "open-interval") => {
+            interval @ (CLOSED_INTERVAL | OPEN_INTERVAL) => {
                 let [from, to] = node.children.as_slice() else {
                     return Route::no("an interval of other than two ends");
                 };
                 let lean = match interval {
-                    "closed-interval" => "Set.Icc",
+                    CLOSED_INTERVAL => "Set.Icc",
                     _ => "Set.Ioo",
                 };
                 match (
@@ -586,7 +593,7 @@ impl Writer<'_> {
                 }
             }
             // {a, …, b}, the integers from a to b.
-            "integer-range" => {
+            INTEGER_RANGE => {
                 let [from, to] = node.children.as_slice() else {
                     return Route::no("a range of other than two ends");
                 };
@@ -611,14 +618,12 @@ impl Writer<'_> {
                     }
                 }
             }
-            "powerset" => match parts(1) {
+            POWERSET => match parts(1) {
                 Route::Built(p) => {
                     // 𝒫∅ says nothing of what ∅ holds, which Lean must be
                     // told: `𝒫 (∅ : Set α)` (`empty_told`).
                     let inner = match node.children.first() {
-                        Some(c) if &*c.notation_name() == "empty-set" => {
-                            self.empty_told()
-                        }
+                        Some(c) if c.notation() == EMPTY_SET => self.empty_told(),
                         _ => p[0].clone(),
                     };
                     let ty = inner.ty.clone().map(|t| LeanType::Set(Box::new(t)));
@@ -632,8 +637,8 @@ impl Writer<'_> {
                 }
                 Route::Declined(d) => Route::Declined(d),
             },
-            "empty-set" => Route::Built(Printed::head("∅", Source::Core)),
-            "singleton" | "listed-two" | "listed-three" | "listed-four" => {
+            EMPTY_SET => Route::Built(Printed::head("∅", Source::Core)),
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR => {
                 // Ascribed its type, which Lean cannot take from a member
                 // alone: `{u, w}` of things of α is `({u, w} : Set α)`.
                 let Some(members) = self.members_of(node) else {
@@ -641,10 +646,10 @@ impl Writer<'_> {
                 };
                 self.listed(node, &members)
             }
-            "image" if self.preimage_of(node).is_some() => self.preimage(node),
+            IMAGE if self.preimage_of(node).is_some() => self.preimage(node),
             // f[{1, 2}] of a function on numbers: the set at the type the
             // function takes, which may be wider than its own members'.
-            "image"
+            IMAGE
                 if matches!(
                     node.children
                         .first()
@@ -665,18 +670,18 @@ impl Writer<'_> {
                     Route::Declined(d) => Route::Declined(d),
                 }
             }
-            "image" => match (node.children.as_slice(), parts(2)) {
+            IMAGE => match (node.children.as_slice(), parts(2)) {
                 ([f, _], Route::Built(p)) => self.image_within(f, &p[1]),
                 (_, Route::Built(_)) => {
                     Route::no("an image of other than a map and a set")
                 }
                 (_, Route::Declined(d)) => Route::Declined(d),
             },
-            "set-builder" => self.set_builder(node),
+            SET_BUILDER => self.set_builder(node),
             // ⋃(x ∈ S) T, the union of T as x runs over S: `⋃ x ∈ S, T`;
             // ⋂(x ∈ S) T, the intersection, `⋂ x ∈ S, T`, which over an
             // empty S is everything of T's type, as the notation reads it.
-            name @ ("indexed-union" | "indexed-intersection") => {
+            name @ (INDEXED_UNION | INDEXED_INTERSECTION) => {
                 let [x, s, t] = node.children.as_slice() else {
                     return Route::no("a union of other than three parts");
                 };
@@ -690,7 +695,7 @@ impl Writer<'_> {
                         let ty = b.ty.clone();
                         let set = Box::new(a);
                         let form = match name {
-                            "indexed-union" => super::doc::BoundForm::Union { set },
+                            INDEXED_UNION => super::doc::BoundForm::Union { set },
                             _ => super::doc::BoundForm::Inter { set },
                         };
                         Route::Built(Printed {
@@ -708,10 +713,10 @@ impl Writer<'_> {
                     }
                 }
             }
-            "set-image" => self.set_image(node),
-            "application" => self.map_applied(node),
-            "functions-from" => self.functions_set(node),
-            other => Route::no(format!("{other} as a set")),
+            SET_IMAGE => self.set_image(node),
+            APPLICATION => self.map_applied(node),
+            crate::notations::FUNCTIONS_FROM => self.functions_set(node),
+            other => Route::no(format!("{} as a set", other.name())),
         }
     }
 
@@ -750,7 +755,7 @@ impl Writer<'_> {
         let [g] = node.children.as_slice() else {
             return None;
         };
-        let inverse = &*node.notation_name() == "inverse"
+        let inverse = node.notation() == crate::notations::INVERSE
             && matches!(
                 self.letters.get(g.text.as_str()),
                 Some(LetterType::Map { .. } | LetterType::Function { .. })
@@ -1101,8 +1106,8 @@ impl Writer<'_> {
                 _ => None,
             };
         }
-        match (&*f.notation_name(), f.children.as_slice()) {
-            ("composition", [g, inner]) => {
+        match (f.notation(), f.children.as_slice()) {
+            (COMPOSITION, [g, inner]) => {
                 let (outer, inner) = (self.map_term(g)?, self.map_term(inner)?);
                 let ty = outer.ty.clone();
                 let composed = Printed {
@@ -1256,11 +1261,10 @@ impl Writer<'_> {
         let [set] = node.children.as_slice() else {
             return None;
         };
-        let finite =
-            &*node.notation_name() == "cardinality" && is_finite(&self.finite, set);
+        let finite = node.notation() == CARDINALITY && is_finite(&self.finite, set);
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
-        if finite && &*set.notation_name() == "empty-set" {
+        if finite && set.notation() == EMPTY_SET {
             return Some(Route::Built(count_of(
                 self.empty_told(),
                 CountForm::Natural,
@@ -1295,20 +1299,20 @@ impl Writer<'_> {
                 Route::Declined(d) => Route::Declined(d),
             };
         }
-        if &*node.notation_name() == "cardinality" {
+        if node.notation() == CARDINALITY {
             let [set] = node.children.as_slice() else {
                 return Route::no("a count of other than one set");
             };
             // ∅ counted is told it is a set of things, which nothing else
             // in |∅| = 0 gives Lean.
-            if &*set.notation_name() == "empty-set" {
+            if set.notation() == EMPTY_SET {
                 return Route::Built(count_of(self.empty_told(), CountForm::Extended));
             }
             return self.set_term(set).map(|s| count_of(s, CountForm::Extended));
         }
-        let op = match (&*node.notation_name(), &*node.spelling().text()) {
-            ("additive", "+") => "+",
-            ("multiplicative", "·") => "*",
+        let op = match (node.notation(), &*node.spelling().text()) {
+            (ADDITIVE, "+") => "+",
+            (MULTIPLICATIVE, "·") => "*",
             (_, other) => {
                 return Route::left_out(format!(
                     "{other} of a count, which ℕ∞ does not compute as the page does"
@@ -1357,7 +1361,7 @@ impl Writer<'_> {
         let [a, b] = node.children.as_slice() else {
             return None;
         };
-        let bare = |n: &Node| &*n.notation_name() == "cardinality" && self.counts(n);
+        let bare = |n: &Node| n.notation() == CARDINALITY && self.counts(n);
         let (count, number, count_first) = match (bare(a), bare(b)) {
             (true, false) if !self.counts(b) => (a, b, true),
             (false, true) if !self.counts(a) => (b, a, false),
@@ -1436,7 +1440,7 @@ impl Writer<'_> {
     /// H is a subgroup of G, of a letter Lean types `Subgroup G`: its type
     /// says it, so the claim is `True`. None for any other claim.
     pub fn subgroup_claim(&self, node: &Node) -> Option<Route<Printed>> {
-        if &*node.notation_name() != "subgroup" {
+        if node.notation() != SUBGROUP {
             return None;
         }
         let [h, g] = node.children.as_slice() else {
@@ -1453,19 +1457,25 @@ impl Writer<'_> {
     }
 
     /// p is a polynomial, or x ∈ the polynomials: a function from ℂ to ℂ in
-    /// set.mm's polynomials, which the bridges define (`POLYNOMIALS`). None
-    /// for any other claim.
+    /// set.mm's polynomials, which the bridges define (`POLYNOMIALS`); and p
+    /// is a polynomial with integer coefficients, one of set.mm's Poly ℤ
+    /// (`INTEGER_POLYNOMIALS`). None for any other claim.
     pub fn polynomial_claim(&self, node: &Node) -> Option<Route<Printed>> {
-        let p = match (&*node.notation_name(), node.children.as_slice()) {
-            ("is-a-polynomial", [p]) => p,
-            ("membership", [p, set]) if &*set.notation_name() == "polynomials" => p,
+        let (p, set) = match (node.notation(), node.children.as_slice()) {
+            (IS_A_POLYNOMIAL, [p]) => (p, POLYNOMIALS),
+            (MEMBERSHIP, [p, set])
+                if set.notation() == crate::notations::POLYNOMIALS =>
+            {
+                (p, POLYNOMIALS)
+            }
+            (IS_AN_INTEGER_POLYNOMIAL, [p]) => (p, super::expr::INTEGER_POLYNOMIALS),
             _ => return None,
         };
         Some(match self.set_term(p) {
             Route::Built(f) => relation_of(
                 "∈",
                 f,
-                Printed::head(POLYNOMIALS, Source::Bridge(BridgeModule::Polynomials)),
+                Printed::head(set, Source::Bridge(BridgeModule::Polynomials)),
             ),
             Route::Declined(d) => Route::Declined(d),
         })
@@ -1480,7 +1490,7 @@ impl Writer<'_> {
         body: &Node,
         exists: bool,
     ) -> Option<Route<Printed>> {
-        if &*set.notation_name() != "polynomials" {
+        if set.notation() != crate::notations::POLYNOMIALS {
             return None;
         }
         let mut inner = self.with_letters(self.letters.clone());
@@ -1527,7 +1537,7 @@ impl Writer<'_> {
 
     /// X is finite: `X.Finite`.
     pub fn finite(&self, node: &Node) -> Option<Route<Printed>> {
-        if &*node.notation_name() != "finite" {
+        if node.notation() != FINITE {
             return None;
         }
         let [set] = node.children.as_slice() else {
@@ -1574,7 +1584,7 @@ impl Writer<'_> {
     /// things of α as ∅ counted alone does (`empty_told`). None where a
     /// member is anything but ∅, or the letters hold only numbers.
     pub fn sets_of_nothing(&self, members: &[Node]) -> Option<Members> {
-        let empties = members.iter().all(|m| &*m.notation_name() == "empty-set");
+        let empties = members.iter().all(|m| m.notation() == EMPTY_SET);
         let things = self.letters.is_empty()
             || self.letters.values().any(|t| t.things_vars().contains(&0));
         (empties && things).then(|| Members::Sets(Box::new(Members::Things(0))))
@@ -1584,8 +1594,8 @@ impl Writer<'_> {
     /// those members, {∅} as `({∅} : Set (Set ℤ))`; any other as the writer
     /// writes it.
     pub fn listed_as(&self, node: &Node, members: &Members) -> Route<Printed> {
-        match &*node.notation_name() {
-            "singleton" | "listed-two" | "listed-three" | "listed-four" => {
+        match node.notation() {
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR => {
                 self.listed(node, members)
             }
             _ => self.set_term(node),
@@ -1596,10 +1606,10 @@ impl Writer<'_> {
     pub fn set_membership(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
         // A set whose members say no type, ∅ or {∅}, holds what x is, so
         // x ∈ ∅ is of x's type.
-        let empty = &*set.notation_name() == "empty-set";
+        let empty = set.notation() == EMPTY_SET;
         let listed = matches!(
-            &*set.notation_name(),
-            "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four"
+            set.notation(),
+            EMPTY_SET | SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
         );
         if let Some(pair) =
             super::expr::pair_coordinates(x).filter(|_| listed && !empty)
@@ -1709,8 +1719,8 @@ impl Writer<'_> {
     /// reads it; any other set as the writer writes it.
     fn side_term(&self, side: &Node, other: &Node) -> Route<Printed> {
         let listed = matches!(
-            &*side.notation_name(),
-            "singleton" | "listed-two" | "listed-three" | "listed-four"
+            side.notation(),
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
         );
         match (
             listed && self.members_of(side).is_none(),
@@ -1763,7 +1773,7 @@ impl Writer<'_> {
     ) -> Option<Route<Printed>> {
         // ∅, which holds no one type, holds what the body puts the letter
         // in: x of "for all x ∈ ∅, x ∈ A" is one of A's members.
-        let empty = &*set.notation_name() == "empty-set";
+        let empty = set.notation() == EMPTY_SET;
         if empty && self.empty_of.is_none() {
             let held = body.walk().into_iter().find_map(|n| {
                 match (n.notation(), n.children.as_slice()) {

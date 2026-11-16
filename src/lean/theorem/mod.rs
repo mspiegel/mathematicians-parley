@@ -358,7 +358,7 @@ struct Proof<'a> {
     /// does, `V.encard = 2` of a direction of `V.encard = 2 ↔ …`.
     opening_goal: Option<OpeningGoal>,
     /// The statement's facts that a thing is one of ZF's sets, by name with
-    /// what each says as Lean states it, the page's `assume X exists` and
+    /// what each says as a Lean tree, the page's `assume X exists` and
     /// those its `let` lines give (`statement::with_sethoods`): what meets
     /// a cited item's own (`StatedAt::Sethood`).
     sethoods: Vec<Sethood>,
@@ -367,8 +367,8 @@ struct Proof<'a> {
 /// A statement's fact that a thing is one of ZF's sets.
 struct Sethood {
     name: String,
-    /// What it says, as Lean states it.
-    says: String,
+    /// What it says, as a Lean tree.
+    says: Printed,
 }
 
 /// The goal a part of a block opens, and where its own lines start.
@@ -610,6 +610,29 @@ struct CitedRecursion {
     by_cases: bool,
 }
 
+/// A writer for a theorem's statement, with what the checker records of it
+/// that the statement is written by: its function letters' systems, the
+/// terms it holds real, the sets it makes finite and the bounds its
+/// hypotheses say. The theorem's own file and a citation of it write the
+/// statement alike.
+pub(super) fn statement_writer<'a>(
+    sources: &'a Sources<'a>,
+    rec: &CheckedTheorem,
+) -> Writer<'a> {
+    let mut writer = Writer::new(
+        &sources.checked.grammar,
+        sources.templates,
+        &sources.ctx.conjunctions,
+    );
+    writer.function_systems = std::rc::Rc::new(rec.function_systems.clone());
+    writer.reals = held_real(rec, &writer);
+    writer.finite_from(&rec.said_finite);
+    writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
+    writer.bounds = rec.statement_bounds.clone();
+    writer.whole_bounds = rec.statement_bounds.clone();
+    writer
+}
+
 /// The theorem written as a Lean file's declaration: its statement and its
 /// proof, with an origin for every line, counted from the first line of
 /// the declaration.
@@ -623,11 +646,7 @@ pub fn theorem(
         sources,
         thm,
         rec,
-        writer: Writer::new(
-            &sources.checked.grammar,
-            sources.templates,
-            &sources.ctx.conjunctions,
-        ),
+        writer: statement_writer(sources, rec),
         lines: Vec::new(),
         named: IndexMap::new(),
         trees: IndexMap::new(),
@@ -650,11 +669,6 @@ pub fn theorem(
         opening_goal: None,
         sethoods: Vec::new(),
     };
-    proof.writer.reals = held_real(rec, &proof.writer);
-    proof.writer.finite_from(&rec.said_finite);
-    proof.writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
-    proof.writer.bounds = rec.statement_bounds.clone();
-    proof.writer.whole_bounds = rec.statement_bounds.clone();
     let Statement {
         binders,
         conclusion,
@@ -721,7 +735,7 @@ pub fn theorem(
             {
                 Some(Sethood {
                     name: name.clone(),
-                    says: says.text(),
+                    says: says.clone(),
                 })
             }
             _ => None,

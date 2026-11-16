@@ -1,6 +1,7 @@
 //! Proof methods: kinds, exhibits, counts and non-negativity.
 
 use super::*;
+use crate::notations::{CARDINALITY, FUNCTIONS_FROM, POLYNOMIALS, THERE_IS_SOME};
 
 impl<'a> Proof<'a> {
     /// The proof of `fact`, a define of a kind's, by the define's reason.
@@ -19,6 +20,9 @@ impl<'a> Proof<'a> {
         let Ok(just) = &kinded.shown.by else {
             return Route::no("a define whose reason does not read");
         };
+        // What the check found the reason's lines hold, as a requires line's
+        // proof reads it (`CheckedTheorem::held_by_lines`).
+        *self.held_now.borrow_mut() = self.held_at(just.line);
         let reason = Reason {
             just,
             cited: self.rec.cited_requires.get(&kinded.shown.line),
@@ -158,16 +162,21 @@ impl<'a> Proof<'a> {
     /// elaborator types the function (`kind_of_values`), and the define's
     /// equation is said at each member, in the value's type, as a line a
     /// step reads at its letter.
+    /// `to` is the type of the kind's numbers: ℤ of `an integer`, ℝ of `a
+    /// real number`, `∃ g : ℝ → ℝ, ∀ x, ↑(g x) = F ↑x`. A fact over all of a
+    /// number type has no guard, `∀ x : ℝ, …`, and each value is its witness
+    /// there.
     pub(super) fn kinded_function(
         &mut self,
         d: usize,
         def: &crate::corpus::Define,
         from: super::super::templates::Num,
-        domain: Node,
-        body: Node,
+        to: super::super::templates::Num,
+        read: FunctionRead,
         depth: usize,
     ) -> Route<()> {
         use super::super::doc::{Proof, Quant, TermKind};
+        let FunctionRead { domain, body } = read;
         use super::super::tactics as t;
         let Some(param) = def.params.first() else {
             return Route::no("a kinded function of no argument");
@@ -208,15 +217,11 @@ impl<'a> Proof<'a> {
         let TermKind::Infix { rhs: value, .. } = &witness.kind else {
             return Route::no("a kinded function whose witness is no equation");
         };
-        let Some(guard) = guard else {
-            return Route::no("a kinded function whose fact has no domain");
-        };
         let line = &self.thm.defines[d];
         let (at, page_label) = (line.line, line.label.clone());
         let label = line_name(&line.label);
         let kind = format!("{label}_kind");
-        let int = super::super::templates::Num::Int;
-        let function = LetterType::Function { from, to: int }.lean_type();
+        let function = LetterType::Function { from, to }.lean_type();
         let a = || t::hyp(letter);
         let h = || t::hyp("h");
         // ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a) = v.
@@ -238,7 +243,7 @@ impl<'a> Proof<'a> {
                 quant: Quant::ForAll,
                 letter: letter.clone(),
                 letter_ty: letter_ty.clone(),
-                guard: Some(guard.clone()),
+                guard: guard.clone(),
                 body: Box::new(equal),
                 bounded: false,
             },
@@ -246,36 +251,55 @@ impl<'a> Proof<'a> {
         );
         let chosen =
             super::super::expr::witnessed("g".to_string(), function, None, every);
-        // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a h
-        // => by simp only [h, ↓reduceDIte]; exact (hD1_kind a h).choose_spec⟩.
-        let at_member = || applied_to(applied_to(t::hyp(&kind), a()), h());
-        let pick = Printed::of(
-            TermKind::DependentIf {
-                proof: "h".to_string(),
-                cond: guard.clone(),
-                yes: Box::new(projected(at_member(), &["choose"])),
-                no: Box::new(Printed::numeral(
-                    "0",
-                    super::super::doc::LeanType::Num(int),
-                )),
-            },
-            super::super::doc::LeanType::Num(int),
-        );
-        // The function applied is reduced and its `if` taken by h together,
-        // as `rw` does not reach under the application.
-        let spec = t::by_term(Proof::By(Tactic::Seq(vec![
-            t::simp_only(
-                false,
-                None,
-                vec![t::forwards(h()), t::forwards(t::lemma("↓reduceDIte"))],
-                None,
-            ),
-            Tactic::Exact(projected(at_member(), &["choose_spec"])),
-        ])));
-        let made = super::super::expr::anonymous(vec![
-            untyped_lambda(&[letter.as_str()], pick),
-            untyped_lambda(&[letter.as_str(), "h"], spec),
-        ]);
+        let made = match guard {
+            // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a
+            // h => by simp only [h, ↓reduceDIte]; exact (hD1_kind a
+            // h).choose_spec⟩.
+            Some(guard) => {
+                let at_member = || applied_to(applied_to(t::hyp(&kind), a()), h());
+                let pick = Printed::of(
+                    TermKind::DependentIf {
+                        proof: "h".to_string(),
+                        cond: guard.clone(),
+                        yes: Box::new(projected(at_member(), &["choose"])),
+                        no: Box::new(Printed::numeral(
+                            "0",
+                            super::super::doc::LeanType::Num(to),
+                        )),
+                    },
+                    super::super::doc::LeanType::Num(to),
+                );
+                // The function applied is reduced and its `if` taken by h
+                // together, as `rw` does not reach under the application.
+                let spec = t::by_term(Proof::By(Tactic::Seq(vec![
+                    t::simp_only(
+                        false,
+                        None,
+                        vec![t::forwards(h()), t::forwards(t::lemma("↓reduceDIte"))],
+                        None,
+                    ),
+                    Tactic::Exact(projected(at_member(), &["choose_spec"])),
+                ])));
+                super::super::expr::anonymous(vec![
+                    untyped_lambda(&[letter.as_str()], pick),
+                    untyped_lambda(&[letter.as_str(), "h"], spec),
+                ])
+            }
+            // ⟨fun x => (hD1_kind x).choose, fun x => (hD1_kind x).choose_spec⟩.
+            None => {
+                let at_member = || applied_to(t::hyp(&kind), a());
+                super::super::expr::anonymous(vec![
+                    untyped_lambda(
+                        &[letter.as_str()],
+                        projected(at_member(), &["choose"]),
+                    ),
+                    untyped_lambda(
+                        &[letter.as_str()],
+                        projected(at_member(), &["choose_spec"]),
+                    ),
+                ])
+            }
+        };
         self.push_at(
             depth,
             Tactic::Have {
@@ -299,7 +323,7 @@ impl<'a> Proof<'a> {
         );
         self.writer
             .letters
-            .insert(def.name.clone(), LetterType::Function { from, to: int });
+            .insert(def.name.clone(), LetterType::Function { from, to });
         // The define says its equation at every member: ∀ a ∈ X, f(a) = v.
         let g = &self.sources.checked.grammar;
         let a_node = Node::name(
@@ -465,11 +489,21 @@ impl<'a> Proof<'a> {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
         };
-        // A function whose kind says its values are whole, which Lean
-        // computes wider: its values are the kind's witnesses.
-        if def.kind.is_some() && to > super::super::templates::Num::Int {
-            let (domain, body) = (domain.clone(), body.clone());
-            return self.kinded_function(d, def, from, domain, body, depth);
+        // A function whose kind says its values are among narrower numbers
+        // than Lean computes them in, whole numbers of a rational value or
+        // reals of a complex one: its values are the kind's witnesses.
+        let kind = line
+            .kinded(&self.thm.path, &self.sources.checked.grammar.members)
+            .ok()
+            .flatten()
+            .and_then(|k| crate::rules::System::of_sign(&k.set))
+            .map(super::super::expr::recorded_set_type);
+        if let Some(kind) = kind.filter(|k| to > *k) {
+            let read = FunctionRead {
+                domain: domain.clone(),
+                body: body.clone(),
+            };
+            return self.kinded_function(d, def, from, kind, read, depth);
         }
         let name = super::super::names::letter(&def.name);
         let label = line_name(&line.label);
@@ -596,8 +630,8 @@ impl<'a> Proof<'a> {
         let mut shown = exhibit.shown.iter().peekable();
         // there is a ∈ X with nothing said of a, `∃ a ∈ X, True`: the
         // member, that it is in X, and nothing.
-        if let ("there-is-some", [letter, set]) =
-            (&*node.notation_name(), node.children.as_slice())
+        if let (THERE_IS_SOME, [letter, set]) =
+            (node.notation(), node.children.as_slice())
         {
             let Some(value) = binding.get(&letter.text) else {
                 return Route::no(format!("no value for {}", letter.text));
@@ -665,9 +699,9 @@ impl<'a> Proof<'a> {
             // other. Lean states the one or the other first in what the
             // "there is" says, `∃ q, q ∈ polynomials ∧ …`, `∃ f, Set.MapsTo
             // f A B ∧ …`, proved where the checker found it stated.
-            let function = match (&*set.notation_name(), set.children.as_slice()) {
-                ("polynomials", _) => Some(self.writer.set_term(value)),
-                ("functions-from", [from, to]) => {
+            let function = match (set.notation(), set.children.as_slice()) {
+                (POLYNOMIALS, _) => Some(self.writer.set_term(value)),
+                (FUNCTIONS_FROM, [from, to]) => {
                     Some(self.function_given(&self.writer, value, from, to))
                 }
                 _ => None,
@@ -862,7 +896,7 @@ impl<'a> Proof<'a> {
         for set in formulas
             .iter()
             .flat_map(|n| n.walk())
-            .filter(|c| &*c.notation_name() == "cardinality")
+            .filter(|c| c.notation() == CARDINALITY)
             .filter_map(|c| c.children.first().cloned())
         {
             if !seen
@@ -1120,8 +1154,8 @@ impl<'a> Proof<'a> {
     /// `at_values` is no such equation or A is not shown finite.
     pub(super) fn count_itself(&self, at_values: &Node) -> Option<Printed> {
         use super::super::tactics as t;
-        let counted = |n: &Node| match (&*n.notation_name(), n.children.as_slice()) {
-            ("cardinality", [set]) => Some(set.clone()),
+        let counted = |n: &Node| match (n.notation(), n.children.as_slice()) {
+            (CARDINALITY, [set]) => Some(set.clone()),
             _ => None,
         };
         let [lhs, rhs] = at_values.children.as_slice() else {

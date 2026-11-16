@@ -311,12 +311,19 @@ fn taken(
 fn library_reading(c: &Checking<'_>, records: &[Record]) -> LibraryReading {
     let groups = c.library.all_groups();
     let phrases = written::library_phrases(records, &groups);
-    let item_facts = written::item_facts(&groups, &phrases, c.env.g, &c.library.ctx);
+    let function_types = c.library.all_function_types();
+    let item_facts = written::item_facts(
+        &groups,
+        &phrases,
+        c.env.g,
+        &c.library.ctx,
+        &function_types,
+    );
     LibraryReading {
         record_sorts: c.record_sorts.clone(),
         cited: c.cited.clone(),
         groups,
-        function_types: c.library.all_function_types(),
+        function_types,
         item_facts,
     }
 }
@@ -2182,6 +2189,7 @@ fn check_passes(
     formulas::check_kind_methods(report, thm, k, &library.targets);
     citations::check_surplus(report, thm, library, k, scopes);
     citations::check_defined_types(report, thm, library, k, scopes);
+    citations::check_define_systems(report, thm, k);
     // After the surplus of what a requires line cites, which says more of
     // the line than that its term is not the step's.
     formulas::check_requires_combined(report, thm, k, targets);

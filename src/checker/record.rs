@@ -212,6 +212,11 @@ pub struct GroupFacts {
     /// numbers holds by the hypotheses and that sentence
     /// (`citing::number_sets::set_letter_systems`).
     pub set_systems: Vec<IndexMap<String, crate::rules::System>>,
+    /// The function letters its function-type lines and hypotheses give a
+    /// type between sets of numbers, `t : {a, …, b} → ℝ`, with the systems
+    /// of the domain and the codomain, as a theorem's are
+    /// (`CheckedTheorem::function_systems`).
+    pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
 }
 
 /// A condition of a define by cases that a step citing it passes: `t = c`

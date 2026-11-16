@@ -1,6 +1,7 @@
 //! Proof methods: a step's reason: defines, methods, closing.
 
 use super::*;
+use crate::notations::{BY_CASES, CARDINALITY};
 
 impl<'a> Proof<'a> {
     /// Whether the define of that label gives its value by cases, as the
@@ -13,7 +14,7 @@ impl<'a> Proof<'a> {
             .page
             .entries()
             .filter(|(key, _)| key.line == d.line)
-            .any(|(_, n)| n.walk().iter().any(|m| &*m.notation_name() == "by-cases"))
+            .any(|(_, n)| n.walk().iter().any(|m| m.notation() == BY_CASES))
     }
 
     /// The recursion a step cites by its label, the header's or one the
@@ -1502,7 +1503,7 @@ impl<'a> Proof<'a> {
             let counted_set = page_parts
                 .get(i)
                 .and_then(|n| n.children.first())
-                .filter(|c| &*c.notation_name() == "cardinality")
+                .filter(|c| c.notation() == CARDINALITY)
                 .and_then(|c| c.children.first());
             let witness = match (proof, counted_set) {
                 (Some(proof), Some(set)) if met.as_written() => {

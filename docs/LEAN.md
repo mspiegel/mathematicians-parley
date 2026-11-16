@@ -369,9 +369,11 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   (`places_shown`, `members_shown`), and the writer proves it that way: a
   term beside an equation is named by the other side's number, the equation
   turning one into the other. A function's define that says its values are
-  integers is a function to ℤ whose values are its kind's witnesses,
-  `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a) = v`, its equation said
-  at each member.
+  among narrower numbers than its rule computes in, integers of a rational
+  value or reals of a complex one, is a function to the kind's numbers whose
+  values are its kind's witnesses, `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈
+  X, ↑(g a) = v`, or over all of ℝ `∃ g : ℝ → ℝ, ∀ x, ↑(g x) = F ↑x`, its
+  equation said at each member.
 - `t ∈ ℤ` for a rational t is `∃ m : ℤ, (m : ℚ) = t`; a membership the
   letter's type already gives says nothing and is left out.
 
@@ -431,7 +433,12 @@ as written and met with the claim by `exact_mod_cast`, since `qify` and
 `rify` would rewrite the condition under its binder. A property, `let P be a property of the elements of X`, is
 `(P : α → Prop)` and P(t) is `P t`; a citation gives it `fun t => …`. A group
 is `{G : Type*} [Group G]`, its operation `*`, its identity `1`; a polynomial
-is a function from ℂ to ℂ among the bridges' polynomials.
+is a function from ℂ to ℂ among the bridges' polynomials. One with integer
+coefficients is among the bridges' `integerPolynomials`, set.mm's Poly ℤ:
+the functions a polynomial over ℤ gives. deg(F) is the bridges' `degree F`,
+a natural number. It is the degree of the polynomial over ℂ that gives F
+(there is only one, as ℂ is infinite), and 0 where no polynomial gives F, as
+set.mm's deg is.
 
 `for all sets X, P` is `∀ X : Set α, P`, X a set of the theorem's things. A
 chain of equations, a = b = c, is the conjunction of its neighbouring
@@ -500,6 +507,19 @@ f's domain D with c left out; continuity on D is `ContinuousOn f D`; [a, b] is
 `Calculus.lean`. Floor takes ℝ, as set.mm's does, and a term the theorem takes
 the floor of is a real wherever it is written. A claim about natural numbers
 inside a limit's proof is written in ℝ from the start.
+
+f is differentiable on U is `∀ x ∈ U, D ∈ nhds x ∧ DifferentiableAt ℝ f x`,
+with D f's domain where a line gives one. Of f between number systems, only
+the derivative is said. f′ is `deriv f`, and stands wherever a function of
+reals does: continuous, differentiable, or applied. Its domain is where f
+has a derivative, so "f′ is differentiable on U" says `{y | …f at y…} ∈ nhds
+x ∧ DifferentiableAt ℝ (deriv f) x`. A line that says the derivative alone
+meets an item that asks it over a domain that is all of ℝ, by
+`Filter.univ_mem`. f^(n) is `iteratedDeriv n f`, with n as a natural number.
+"g is defined at c" is `c ∈ LeanBridges.Calculus.derivDomain k f`, for g the
+k-th derivative of f, where set.mm takes it to be defined: the 0th
+everywhere, and the (k + 1)-th at a point that the k-th's domain contains a
+neighbourhood of and where the k-th is differentiable.
 
 ## Fields
 

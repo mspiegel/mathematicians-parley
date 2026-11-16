@@ -403,15 +403,22 @@ pub fn item_facts(
     phrases: &IndexMap<NotationId, Phrase>,
     grammar: &Grammar,
     ctx: &crate::matching::Context,
+    function_types: &IndexMap<String, Vec<crate::citing::Want>>,
 ) -> IndexMap<String, Vec<super::record::GroupFacts>> {
     let mut out = IndexMap::new();
     for (full, read) in groups {
         let Some(read) = read else {
             continue;
         };
+        let typed: Vec<Node> = function_types
+            .get(full)
+            .into_iter()
+            .flatten()
+            .map(|t| t.tree.clone())
+            .collect();
         let facts = read
             .iter()
-            .map(|g| group_facts(&group_written(g, phrases, grammar), ctx))
+            .map(|g| group_facts(&group_written(g, phrases, grammar), &typed, ctx))
             .collect();
         out.insert(full.clone(), facts);
     }
@@ -422,9 +429,11 @@ pub fn item_facts(
 /// lines: what its hypotheses bound below and make finite, a set only its
 /// conclusion says is finite being counted after it; and for each sentence
 /// it concludes, the number system each set letter of numbers holds by the
-/// hypotheses and that sentence.
+/// hypotheses and that sentence; and the systems of the function letters
+/// its function-type lines, `typed`, and hypotheses give a type.
 fn group_facts(
     group: &crate::citing::Group,
+    typed: &[Node],
     ctx: &crate::matching::Context,
 ) -> super::record::GroupFacts {
     let wants: Vec<Node> = group.asked().cloned().collect();
@@ -449,10 +458,17 @@ fn group_facts(
     let bounds = super::bounds::said_by(&wants, &none, ctx);
     let positive = super::bounds::positive_by(&letters, &bounds, ctx);
     let finite = crate::citing::finite::said_finite(&wants, &[], &[], &positive);
+    let lines: Vec<&Node> = typed.iter().chain(&wants).collect();
+    let function_systems = crate::citing::number_sets::function_systems(
+        &lines,
+        &letters,
+        &IndexMap::new(),
+    );
     super::record::GroupFacts {
         bounds,
         finite,
         set_systems,
+        function_systems,
     }
 }
 

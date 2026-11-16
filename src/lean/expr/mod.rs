@@ -15,8 +15,9 @@ use super::templates::{Num, Slot, Template, Templates};
 use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
 use crate::notations::{
-    EQUALITY, EQUALS, FOR_ALL, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME, NATURALS,
-    NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER, THERE_IS,
+    CARDINALITY, EMPTY_SET, EQUALITY, EQUALS, FOR_ALL, INTEGER_RANGE, LOGICAL_NOT,
+    MEMBERSHIP, NAME, NATURALS, NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER,
+    PRODUCT_OVER, SERIES, SUM_OVER, THERE_IS,
 };
 use crate::outcome::Route;
 
@@ -80,6 +81,14 @@ pub enum Members {
 
 /// The type variable a theorem's sets of things are sets of.
 pub const THINGS: &str = "α";
+
+/// The degree of the polynomial that gives a function, set.mm's deg
+/// (`corpus/lean-bridges/Polynomials.lean`).
+pub const DEGREE: &str = "LeanBridges.Polynomials.degree";
+
+/// The functions a polynomial with integer coefficients gives, set.mm's
+/// Poly ℤ (`corpus/lean-bridges/Polynomials.lean`).
+pub const INTEGER_POLYNOMIALS: &str = "LeanBridges.Polynomials.integerPolynomials";
 
 /// That a thing is one of ZF's sets, what "X exists" says
 /// (`corpus/lean-bridges/ZF.lean`).
@@ -301,6 +310,11 @@ pub struct Writer<'a> {
     /// reports (`Writer::roots_written_both_ways`). Shared by every writer
     /// made from this one.
     pub root_forms: std::rc::Rc<std::cell::RefCell<IndexMap<String, (bool, bool)>>>,
+    /// The systems of each function letter a line types between sets of
+    /// numbers, as the checker records them (`CheckedTheorem::
+    /// function_systems`, `GroupFacts::function_systems`).
+    pub function_systems:
+        std::rc::Rc<IndexMap<String, crate::citing::number_sets::Between>>,
 }
 
 /// The writer's view for the shared rule of what terms are at least
@@ -406,13 +420,13 @@ fn is_big_operator(node: &Node) -> bool {
     matches!(
         node.notation(),
         crate::notations::SUM | crate::notations::PRODUCT
-    ) || matches!(&*node.notation_name(), "sum-over" | "product-over")
+    ) || matches!(node.notation(), SUM_OVER | PRODUCT_OVER)
 }
 
 /// A sum or product over a set that is a range, Σ(k ∈ {a, …, b}) t: its
 /// index, the range's ends, and its term.
 fn over_range(node: &Node) -> Option<[&Node; 4]> {
-    if !matches!(&*node.notation_name(), "sum-over" | "product-over") {
+    if !matches!(node.notation(), SUM_OVER | PRODUCT_OVER) {
         return None;
     }
     let [index, set, term] = node.children.as_slice() else {
@@ -440,8 +454,8 @@ impl RangedOperators {
         };
         for node in formula.walk() {
             if over_range(&node).is_some() {
-                match &*node.notation_name() {
-                    "product-over" => out.product = true,
+                match node.notation() {
+                    PRODUCT_OVER => out.product = true,
                     _ => out.sum = true,
                 }
             }
@@ -460,8 +474,7 @@ pub(super) fn put_for(node: &Node, from: &Node, to: &Node) -> Node {
 
 /// Whether a big operator is a product, ∏(k = a to b) or ∏(k ∈ {a, …, b}).
 fn is_product(node: &Node) -> bool {
-    node.notation() == crate::notations::PRODUCT
-        || &*node.notation_name() == "product-over"
+    node.notation() == crate::notations::PRODUCT || node.notation() == PRODUCT_OVER
 }
 
 /// The type variable an item's general letters range over.
@@ -531,6 +544,7 @@ impl<'a> Writer<'a> {
             bounds: SaidBounds::default(),
             whole_bounds: SaidBounds::default(),
             root_forms: Default::default(),
+            function_systems: Default::default(),
         }
     }
 
@@ -552,6 +566,7 @@ impl<'a> Writer<'a> {
             bounds: self.bounds.clone(),
             whole_bounds: self.whole_bounds.clone(),
             root_forms: self.root_forms.clone(),
+            function_systems: self.function_systems.clone(),
         }
     }
 
@@ -628,8 +643,8 @@ impl<'a> Writer<'a> {
         let ([s], [e]) = (a.children.as_slice(), b.children.as_slice()) else {
             return None;
         };
-        let counts = |n: &Node| &*n.notation_name() == "cardinality";
-        if !counts(a) || !counts(b) || &*e.notation_name() != "empty-set" {
+        let counts = |n: &Node| n.notation() == CARDINALITY;
+        if !counts(a) || !counts(b) || e.notation() != EMPTY_SET {
             return None;
         }
         self.set_members(s)
@@ -963,7 +978,7 @@ pub fn function_systems(from: &Node, to: &Node) -> Option<(Num, Num)> {
 /// ℤ from any other start. None where no sum in it has that index.
 pub fn index_letter_system(node: &Node, letter: &str) -> Option<System> {
     node.walk().iter().find_map(|n| {
-        let series = &*n.notation_name() == "series";
+        let series = n.notation() == SERIES;
         if !is_big_operator(n) && !series {
             return None;
         }

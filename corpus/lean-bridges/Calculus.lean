@@ -6,6 +6,7 @@ public import Mathlib.Algebra.Order.Star.Int
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.Metrizable.Uniformity
+public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
 
 /-!
 # Calculus
@@ -67,5 +68,13 @@ theorem series_sum_from_zero (t : ℤ → ℝ) (L : ℝ)
       Filter.atTop (nhds L)) :
     Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℝ)) = L :=
   h2.limUnder_eq
+
+/-- Where the k-th derivative of f is defined, as set.mm takes it: f itself
+everywhere, and the (k + 1)-th at a point the k-th's domain is about and
+where the k-th is differentiable. Lean's `iteratedDeriv` has a value at
+every point; this is where it is the page's. -/
+@[expose] def derivDomain : ℕ → (ℝ → ℝ) → Set ℝ
+  | 0, _ => Set.univ
+  | k + 1, f => {c | derivDomain k f ∈ nhds c ∧ DifferentiableAt ℝ (iteratedDeriv k f) c}
 
 end LeanBridges.Calculus

@@ -1,6 +1,7 @@
 //! Proof methods: calculations and cited items.
 
 use super::*;
+use crate::notations::{EMPTY_SET, PROPERTY_OF, THERE_IS_SOME};
 
 impl<'a> Proof<'a> {
     /// `calculation`: the chain as Lean's `calc`, every term in one type,
@@ -611,7 +612,7 @@ impl<'a> Proof<'a> {
                 None => Route::no(format!("{}, whose domain no line gives", g.text)),
             },
             // A map given by its values, x ↦ c, is given on all its type.
-            Some(g) if &*g.notation_name() == "property-of" => {
+            Some(g) if g.notation() == PROPERTY_OF => {
                 Route::Built(super::super::expr::Printed::head(
                     "Set.univ",
                     super::super::doc::Source::Mathlib,
@@ -690,8 +691,7 @@ impl<'a> Proof<'a> {
                 continue;
             };
             let value = binding.get(&crate::formula::symbol::Symbol::of(page));
-            let Some(value) = value.filter(|v| &*v.notation_name() == "property-of")
-            else {
+            let Some(value) = value.filter(|v| v.notation() == PROPERTY_OF) else {
                 continue;
             };
             let [body] = value.children.as_slice() else {
@@ -821,13 +821,11 @@ impl<'a> Proof<'a> {
                         // That what the citation gives a letter of a `let`
                         // is one of ZF's sets: the citing statement's own
                         // fact of it, as set.mm's reading has it in scope.
-                        Some(StatedAt::Sethood(_)) => {
-                            let wanted = wanted.text();
-                            self.sethoods
-                                .iter()
-                                .find(|s| s.says == wanted)
-                                .map(|s| super::super::tactics::hyp(&s.name))
-                        }
+                        Some(StatedAt::Sethood(_)) => self
+                            .sethoods
+                            .iter()
+                            .find(|s| s.says == wanted)
+                            .map(|s| super::super::tactics::hyp(&s.name)),
                         None => None,
                     });
                     match proof {
@@ -967,8 +965,8 @@ impl<'a> Proof<'a> {
                 // things, sets of what is given for those.
                 let put = things.put(members, &things_at);
                 let (of, of_type) = (put.letter(), put.member_type());
-                match (&*value.notation_name(), value.children.as_slice()) {
-                    ("property-of", [body]) => {
+                match (value.notation(), value.children.as_slice()) {
+                    (PROPERTY_OF, [body]) => {
                         let mut letters = self.writer.letters.clone();
                         letters.insert(value.text.to_string(), of);
                         let inner = self.writer.with_letters(letters);
@@ -991,7 +989,7 @@ impl<'a> Proof<'a> {
             // A function given by its values, k ↦ t, a sum's
             // term: `fun k : ℤ => t`, t in what it gives.
             (LetterType::Function { from, to }, given)
-                if &*value.notation_name() == "property-of" =>
+                if value.notation() == PROPERTY_OF =>
             {
                 // A function into the general type gives the
                 // type chosen for it.
@@ -1108,10 +1106,22 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        // A term the claim puts in a hole of a fixed type, ⌊A/B⌋ in
+        // A value the claim puts in a hole of a fixed type, A/B of ⌊A/B⌋ in
         // ℝ's, is of that type.
+        let values: Vec<&Node> = sentence
+            .binders
+            .iter()
+            .filter_map(|b| match b {
+                Binder::Letter {
+                    page,
+                    general: true,
+                    ..
+                } => binding.get(&crate::formula::symbol::Symbol::of(page)),
+                _ => None,
+            })
+            .collect();
         if let Some(c) = claim {
-            at = at.max(self.held_in(c));
+            at = at.max(self.held_in(c, &values));
         }
         for b in &sentence.binders {
             let Binder::Letter {
@@ -1336,26 +1346,24 @@ impl<'a> Proof<'a> {
                     to: super::super::expr::Members::Things(to),
                 },
                 _,
-            ) if &*value.notation_name() == "property-of" => {
-                match value.children.as_slice() {
-                    [body] => {
-                        let mut letters = self.writer.letters.clone();
-                        letters.insert(
-                            value.text.to_string(),
-                            LetterType::Number(things_at(from)),
-                        );
-                        let inner = self.writer.with_letters(letters);
-                        inner.number_fixed(body, things_at(to)).map(|b| {
-                            lambda(
-                                &super::super::names::letter(&value.text),
-                                super::super::doc::LeanType::Num(things_at(from)),
-                                b,
-                            )
-                        })
-                    }
-                    _ => Route::no("a map by its values of other than one body"),
+            ) if value.notation() == PROPERTY_OF => match value.children.as_slice() {
+                [body] => {
+                    let mut letters = self.writer.letters.clone();
+                    letters.insert(
+                        value.text.to_string(),
+                        LetterType::Number(things_at(from)),
+                    );
+                    let inner = self.writer.with_letters(letters);
+                    inner.number_fixed(body, things_at(to)).map(|b| {
+                        lambda(
+                            &super::super::names::letter(&value.text),
+                            super::super::doc::LeanType::Num(things_at(from)),
+                            b,
+                        )
+                    })
                 }
-            }
+                _ => Route::no("a map by its values of other than one body"),
+            },
             // A map from things into numbers given by its
             // values, x ↦ x·c for t : X → ℤ: `fun x : ℤ => x *
             // c`, x a member of what the things are taken at
@@ -1366,7 +1374,7 @@ impl<'a> Proof<'a> {
                     to: super::super::expr::Members::Numbers(to),
                 },
                 given,
-            ) if &*value.notation_name() == "property-of" => {
+            ) if value.notation() == PROPERTY_OF => {
                 let put = things.put(from, &things_at);
                 let gives = given.unwrap_or(*to);
                 match value.children.as_slice() {
@@ -1426,7 +1434,7 @@ impl<'a> Proof<'a> {
             // {∅} (`Writer::sets_of_nothing`), which ∅ alone
             // does not give Lean.
             (LetterType::Member(super::super::expr::Members::Things(_)), _)
-                if &*value.notation_name() == "empty-set" =>
+                if value.notation() == EMPTY_SET =>
             {
                 match self.writer.sets_of_nothing(std::slice::from_ref(value)) {
                     Some(set) => Route::Built(Printed::cast(
@@ -1483,7 +1491,7 @@ impl<'a> Proof<'a> {
     ) -> Route<super::super::templates::Num> {
         match (ty, value.children.as_slice()) {
             (LetterType::Function { from, .. }, [body])
-                if &*value.notation_name() == "property-of" =>
+                if value.notation() == PROPERTY_OF =>
             {
                 let mut letters = self.writer.letters.clone();
                 letters.insert(value.text.to_string(), LetterType::Number(*from));
@@ -1501,7 +1509,7 @@ impl<'a> Proof<'a> {
                     ..
                 },
                 [body],
-            ) if &*value.notation_name() == "property-of" => {
+            ) if value.notation() == PROPERTY_OF => {
                 // Things given things, x ↦ c of a set of the theorem's
                 // things: x one of them.
                 let x = match things.at.get(var) {
@@ -2749,8 +2757,11 @@ impl<'a> Proof<'a> {
             super::super::templates::Num::Rat => crate::rules::System::Q,
             _ => crate::rules::System::R,
         };
+        // The check reads a step with the defines it names written out, d of
+        // `from D3` as its value 2^(r!), and records what it found so.
+        let checked = self.with_named_defines(value);
         let stated = matches!(
-            self.held(value, asked),
+            self.held(&checked, asked),
             Some(crate::checker::record::LinesHold::Stated { .. })
         );
         // The latest such line the step names, or part of an "and".
@@ -2801,6 +2812,29 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// The term as the check reads the step being written: each define of
+    /// one name the step names put for by its value, d of `let d = 2^(r!)`
+    /// as 2^(r!), as its equation line says it.
+    pub(super) fn with_named_defines(&self, term: &Node) -> Node {
+        let named = self.named_now.borrow();
+        let mut out = term.clone();
+        for d in &self.thm.defines {
+            if !named.as_ref().is_some_and(|n| n.contains(&d.label)) {
+                continue;
+            }
+            for line in self.trees.get(&d.label).into_iter().flatten() {
+                if let ([name, value], EQUALITY) =
+                    (line.node.children.as_slice(), line.node.notation())
+                {
+                    if name.is_name() {
+                        out = super::super::expr::put_for(&out, name, value);
+                    }
+                }
+            }
+        }
+        out
+    }
+
     /// `obtain`: the witnesses of a "there is" an item gives, named as the
     /// claim names them.
     /// The "there is" an `obtain` takes its witnesses from: a line of the
@@ -2825,7 +2859,7 @@ impl<'a> Proof<'a> {
                 .map(|c| self.at_recorded_letter(&c, &names).unwrap_or(c))
                 .find(|c| {
                     c.node.notation() == crate::notations::THERE_IS
-                        || &*c.node.notation_name() == "there-is-some"
+                        || c.node.notation() == THERE_IS_SOME
                 }) {
                 Some(c) => Route::Built(Obtained {
                     term: c.proof,

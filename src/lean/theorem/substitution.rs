@@ -2246,7 +2246,8 @@ impl<'a> Proof<'a> {
                         Route::Built(super::super::templates::Num::Int)
                     ))
         };
-        if &*node.notation_name() == "mod" && node.children.iter().all(integer) {
+        if node.notation() == crate::notations::MOD && node.children.iter().all(integer)
+        {
             return true;
         }
         node.children

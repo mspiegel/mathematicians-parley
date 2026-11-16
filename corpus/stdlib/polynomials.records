@@ -76,7 +76,7 @@ theorem algebraic-root
   metamath-proof metamath-bridges/polynomials/galgroot
   note        What being algebraic is: a root of a polynomial with integer
               coefficients, other than 0, so of degree at least 1.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨F, hF, hd, hα⟩ := LeanBridges.Polynomials.algebraic_root α h2; exact ⟨F, Set.mapsTo_univ _ _, ⟨hF, by exact_mod_cast hd⟩, hα⟩
 
 definition transcendental
   let α ∈ ℂ                                                           (H1)
@@ -96,7 +96,7 @@ theorem integer-polynomial-at-a-fraction
   metamath-proof metamath-bridges/polynomials/gaalioulem1
   note        Each term a·(p/q)^k of F(p/q), k at most the degree, times
               q^deg(F) is an integer, so the whole is.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Polynomials.integer_polynomial_at_a_fraction F h1 p q h3
 
 mundane theorem integer-polynomial-real
   let F : ℂ → ℂ                                                       (H1)
@@ -104,7 +104,7 @@ mundane theorem integer-polynomial-real
   let x ∈ ℝ                                                           (H3)
   then        F(x) ∈ ℝ
   metamath-proof metamath-bridges/polynomials/gplyzre with F := F
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Polynomials.integer_polynomial_real F h1 x
 
 theorem roots-isolated
   let F : ℂ → ℂ                                                       (H1)
@@ -119,7 +119,7 @@ theorem roots-isolated
   metamath-proof metamath-bridges/polynomials/grootsiso
   note        A polynomial other than 0 has finitely many roots, so the
               others lie some distance from α.
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Polynomials.roots_isolated F h1 (by rw [← h3] at h2; exact_mod_cast h2) α
 
 theorem polynomial-on-the-reals
   let F : ℂ → ℂ                                                       (H1)
@@ -131,4 +131,4 @@ theorem polynomial-on-the-reals
   metamath-proof metamath-bridges/polynomials/gplyrecn, metamath-bridges/polynomials/gplyredv, metamath-bridges/polynomials/gplyredvf, metamath-bridges/polynomials/gplyredvcn
   note        F on the real line: continuous, differentiable everywhere, and
               its derivative is a polynomial too, so continuous.
-  lean-proof  not yet implemented
+  lean-proof  (LeanBridges.Polynomials.polynomial_on_the_reals F h1 f h2).1.continuousOn ; fun x _ => (LeanBridges.Polynomials.polynomial_on_the_reals F h1 f h2).2.1 x ; trivial ; (LeanBridges.Polynomials.polynomial_on_the_reals F h1 f h2).2.2.continuousOn

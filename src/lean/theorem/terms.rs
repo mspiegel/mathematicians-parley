@@ -431,16 +431,7 @@ pub fn as_written(rec: &CheckedTheorem) -> &CheckedTheorem {
 /// projection.
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
     let rec = as_written(rec);
-    let mut writer = Writer::new(
-        &sources.checked.grammar,
-        sources.templates,
-        &sources.ctx.conjunctions,
-    );
-    writer.reals = held_real(rec, &writer);
-    writer.finite_from(&rec.said_finite);
-    writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
-    writer.bounds = rec.statement_bounds.clone();
-    writer.whole_bounds = rec.statement_bounds.clone();
+    let mut writer = super::statement_writer(sources, rec);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),

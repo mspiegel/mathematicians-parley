@@ -1,6 +1,7 @@
 //! Paths, conjuncts, intros and the conversions a citation needs.
 
 use super::*;
+use crate::notations::{APPLICATION, HOLDS_OF, MOD, PROPERTY_OF};
 
 /// The child indices that lead from `node` to a part of the shape of `part`,
 /// the first in the tree's order; None where there is none.
@@ -120,12 +121,12 @@ pub(super) fn read_at_values(
     // A property holds of a term, P(x), and a function letter applied to
     // one, t(k): each read as the rule the citation gives the letter,
     // `property-of`, with the term for its letter.
-    if let ("holds-of" | "application", [p, arg]) =
-        (&*node.notation_name(), node.children.as_slice())
+    if let (HOLDS_OF | APPLICATION, [p, arg]) =
+        (node.notation(), node.children.as_slice())
     {
         if let Some(stands) = binding.get(&p.text).filter(|_| p.is_name()) {
-            if let ("property-of", [body]) =
-                (&*stands.notation_name(), stands.children.as_slice())
+            if let (PROPERTY_OF, [body]) =
+                (stands.notation(), stands.children.as_slice())
             {
                 let arg = crate::matching::substitute_apart_by(arg, binding, binders);
                 let put = crate::matching::Binding::from([(stands.text, arg)]);
@@ -1129,7 +1130,7 @@ pub(super) fn wide_range_member(writer: &Writer, claim: &Node) -> bool {
 /// bridge's `mod` of real numbers where its parts are, and as `%` of
 /// integers where a step names them whole.
 pub(super) fn takes_remainder(term: &Node) -> bool {
-    term.walk().iter().any(|n| &*n.notation_name() == "mod")
+    term.walk().iter().any(|n| n.notation() == MOD)
 }
 
 /// `LeanBridges.Divisibility.mod_intCast _ _ (by omega)`: the bridge's `mod`

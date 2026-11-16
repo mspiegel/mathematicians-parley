@@ -1730,6 +1730,30 @@ impl<'a> Proof<'a> {
                 None => Route::no("a number's own line asked for more than it says"),
             };
         }
+        // A differentiability Lean asks over a domain that is all of its
+        // type, `∀ y ∈ Set.univ, Set.univ ∈ nhds y ∧ DifferentiableAt ℝ f y`,
+        // of a line that says the derivative alone, as of f between number
+        // systems: the whole type about each point taken as true, then the
+        // line.
+        if super::super::spelling::whole_about_a_point(wanted)
+            && !super::super::spelling::whole_about_a_point(&says)
+        {
+            use super::super::tactics as t;
+            return Route::Built(t::by_term(super::super::doc::Proof::By(
+                Tactic::Seq(vec![
+                    t::simp_only(
+                        false,
+                        None,
+                        vec![
+                            t::forwards(t::lemma("Filter.univ_mem")),
+                            t::forwards(t::lemma("true_and")),
+                        ],
+                        None,
+                    ),
+                    Tactic::Exact(proof),
+                ]),
+            )));
+        }
         use super::super::doc::forms;
         // A line in another type than Lean asks, `(10^(k + 1) : ℤ) > 0` for
         // `0 < (10^(k + 1) : ℚ)`, is taken across by `exact_mod_cast`, where

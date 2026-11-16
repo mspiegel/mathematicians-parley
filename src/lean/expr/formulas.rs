@@ -1,6 +1,11 @@
 //! Formulas, relations, membership and quantifiers.
 
 use super::*;
+use crate::notations::{
+    BIJECTION, CONTINUOUS, DIFFERENTIABLE, EXISTS, FUNCTIONS_FROM, FUNCTION_LIMIT,
+    FUNCTION_ON, HOLDS_OF, LISTED_FOUR, LISTED_THREE, LISTED_TWO, OPEN, PAIR, POWERSET,
+    SINGLETON, SUBSET, TENDS_TO, THERE_IS_SOME,
+};
 
 impl Writer<'_> {
     /// The node, a formula, written as a Lean proposition.
@@ -51,20 +56,20 @@ impl Writer<'_> {
         if let Some(said) = self.slot_witness(node) {
             return said;
         }
-        if &*node.notation_name() == "tends-to" {
+        if node.notation() == TENDS_TO {
             return self.tends_to(node);
         }
-        if &*node.notation_name() == "function-limit" {
+        if node.notation() == FUNCTION_LIMIT {
             return self.function_limit(node);
         }
-        if &*node.notation_name() == "continuous" {
+        if node.notation() == CONTINUOUS {
             return self.continuous(node, "ContinuousOn");
         }
-        if &*node.notation_name() == "differentiable" {
+        if node.notation() == DIFFERENTIABLE {
             return self.differentiable(node);
         }
         // D is open: `IsOpen D`, of a set of reals.
-        if let ("open", [set]) = (&*node.notation_name(), node.children.as_slice()) {
+        if let (OPEN, [set]) = (node.notation(), node.children.as_slice()) {
             return self.numbers_at(set, Num::Real).map(|s| {
                 Printed::applied(
                     "IsOpen",
@@ -74,11 +79,63 @@ impl Writer<'_> {
                 )
             });
         }
+        // g is defined at c, g the k-th derivative of a function of reals:
+        // c in where set.mm takes that derivative to be defined,
+        // `c ∈ LeanBridges.Calculus.derivDomain k f`, k of f^(k), 1 of f′,
+        // 0 of f itself.
+        if let (crate::notations::DEFINED_AT, [g, c]) =
+            (node.notation(), node.children.as_slice())
+        {
+            let (base, order) = match (g.notation(), g.children.as_slice()) {
+                (crate::notations::NTH_DERIVATIVE, [f, n]) => {
+                    (f, self.number(n, Num::Nat))
+                }
+                (crate::notations::DERIVATIVE, [f]) => (
+                    f,
+                    Route::Built(Printed::numeral("1", LeanType::Num(Num::Nat))),
+                ),
+                _ => (
+                    g,
+                    Route::Built(Printed::numeral("0", LeanType::Num(Num::Nat))),
+                ),
+            };
+            if !matches!(
+                self.function_type(base),
+                Route::Built((Num::Real, Num::Real))
+            ) {
+                return Route::no(format!(
+                    "{} is defined at a point, of no function from ℝ to ℝ",
+                    self.grammar.print(g)
+                ));
+            }
+            let real = LeanType::Num(Num::Real);
+            return match (
+                order,
+                self.function_printed(base),
+                self.number_fixed(c, Num::Real),
+            ) {
+                (Route::Built(k), Route::Built(f), Route::Built(point)) => relation_of(
+                    "∈",
+                    point,
+                    Printed::applied(
+                        "LeanBridges.Calculus.derivDomain",
+                        super::super::doc::Source::Bridge(
+                            super::super::doc::bridges::BridgeModule::Calculus,
+                        ),
+                        vec![k, f],
+                        LeanType::Set(Box::new(real)),
+                    ),
+                ),
+                (Route::Declined(d), _, _)
+                | (_, Route::Declined(d), _)
+                | (_, _, Route::Declined(d)) => Route::Declined(d),
+            };
+        }
         // X exists: X is one of ZF's sets, `LeanBridges.ZF.IsSet X`, of a
         // set of things or of integers, each of which the bridge makes a
         // set, ℕ of the axiom of infinity among them. Of other numbers,
         // which the bridge does not make sets yet, it is left out.
-        if let ("exists", [set]) = (&*node.notation_name(), node.children.as_slice()) {
+        if let (EXISTS, [set]) = (node.notation(), node.children.as_slice()) {
             if let Some(Members::Numbers(n)) = self.set_members(set) {
                 if n != Num::Int {
                     return Route::left_out(format!(
@@ -111,17 +168,13 @@ impl Writer<'_> {
         }
         // There is a bijection from A to B: some map of the one's members to
         // the other's that is one-to-one from A onto B, `Set.BijOn g A B`.
-        if let ("bijection", [a, b]) =
-            (&*node.notation_name(), node.children.as_slice())
-        {
+        if let (BIJECTION, [a, b]) = (node.notation(), node.children.as_slice()) {
             return self.bijection(a, b);
         }
         // f is a function on a set: a Lean function is one on every set of
         // the type it takes, its values off the set none of the page's. Of
         // numbers, a set of numbers it takes; of things, a set of things.
-        if let ("function-on", [f, set]) =
-            (&*node.notation_name(), node.children.as_slice())
-        {
+        if let (FUNCTION_ON, [f, set]) = (node.notation(), node.children.as_slice()) {
             let takes = match (self.letters.get(f.text.as_str()), self.set_members(set))
             {
                 (
@@ -140,8 +193,7 @@ impl Writer<'_> {
             };
         }
         // P(t), the property P of t: `P t`.
-        if let ("holds-of", [p, t]) = (&*node.notation_name(), node.children.as_slice())
-        {
+        if let (HOLDS_OF, [p, t]) = (node.notation(), node.children.as_slice()) {
             let Some(LetterType::Property(members)) = self.letters.get(p.text.as_str())
             else {
                 return Route::no(format!(
@@ -164,8 +216,8 @@ impl Writer<'_> {
         }
         // there is a ∈ X, with nothing said of a: set.mm's "there is" over a
         // true body, `∃ a ∈ X, True`.
-        if let ("there-is-some", [letter, set]) =
-            (&*node.notation_name(), node.children.as_slice())
+        if let (THERE_IS_SOME, [letter, set]) =
+            (node.notation(), node.children.as_slice())
         {
             let Some(members) = self.set_members(set) else {
                 return Route::no("there is some member of a set with no Lean type");
@@ -194,7 +246,7 @@ impl Writer<'_> {
             ));
         }
         // A relation between sets, A ⊆ B or A = B.
-        if &*node.notation_name() == "subset" {
+        if node.notation() == SUBSET {
             if let Some(r) = self.set_relation(node, "⊆") {
                 return r;
             }
@@ -445,7 +497,7 @@ impl Writer<'_> {
             });
             // A count of a set no line says is finite, |H| of "|H| divides
             // |G|", is a natural number only where the set is finite.
-            if &*arg.notation_name() == "cardinality" && self.counts(arg) {
+            if arg.notation() == CARDINALITY && self.counts(arg) {
                 return free.then(|| (arg.clone(), Num::Nat));
             }
             // A term said once in ℕ₀ is written `t.toNat` there (`number`).
@@ -669,8 +721,7 @@ impl Writer<'_> {
             return Route::no("a membership of other than two sides");
         };
         // D ∈ 𝒫ℝ of a set of numbers is D ⊆ ℝ.
-        if let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
-        {
+        if let (POWERSET, [whole]) = (set.notation(), set.children.as_slice()) {
             if let Some(Members::Numbers(_)) = self.set_members(whole) {
                 let subset = node.with_children(vec![x.clone(), whole.clone()]);
                 if let Some(r) = self.set_relation(&subset, "⊆") {
@@ -684,7 +735,7 @@ impl Writer<'_> {
             }
             return self.in_system(x, set);
         }
-        if &*set.notation_name() == "functions-from" {
+        if set.notation() == FUNCTIONS_FROM {
             return self.in_functions_from(x, set);
         }
         // x ∈ {a, b, c} of numbers: a membership of Lean's sets, in the
@@ -692,8 +743,8 @@ impl Writer<'_> {
         // once, as the page writes it. Ahead of other sets, whose type is
         // their members' alone.
         if matches!(
-            &*set.notation_name(),
-            "singleton" | "listed-two" | "listed-three" | "listed-four"
+            set.notation(),
+            SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
         ) && self.is_number(x)
         {
             let mut at = Num::Int;
@@ -918,7 +969,7 @@ impl Writer<'_> {
         // A function letter the quantifier binds is a map on the whole type
         // with `Set.MapsTo`, as a `let` line's is: only the set as an object
         // is of functions on X itself (`Members::Maps`).
-        if &*set.notation_name() == "functions-from" {
+        if set.notation() == FUNCTIONS_FROM {
             return self.quantified_over_functions(letter, set, body, exists);
         }
         if let Some(q) = self.quantified_over_set(letter, set, body, exists) {
@@ -1089,8 +1140,8 @@ impl Writer<'_> {
 
 /// The two coordinates of a pair, (a, b); None for any other term.
 pub fn pair_coordinates(node: &Node) -> Option<[&Node; 2]> {
-    match (&*node.notation_name(), node.children.as_slice()) {
-        ("pair", [a, b]) => Some([a, b]),
+    match (node.notation(), node.children.as_slice()) {
+        (PAIR, [a, b]) => Some([a, b]),
         _ => None,
     }
 }

@@ -1082,5 +1082,24 @@ pub(super) fn cases() -> Vec<Case> {
             )],
             "and `_ = _` wants a term",
         ),
+        // A define's values are in the number system it gives them where it
+        // is made: Lean fixes a function's type there, so a later line that
+        // puts them in a narrower one is refused and the define says it.
+        case(
+            "a later line narrowing a define's values to ℝ",
+            vec![
+                edit(
+                    "proofs/wiedijk/liouville.proof",
+                    Some("let f(x) = F(x), a real number, for x ∈ ℝ                             (D1)\n    from 1\n".to_string()),
+                    "let f = (x ∈ ℝ ↦ F(x))                                                (D1)\n".to_string(),
+                ),
+                edit(
+                    "proofs/wiedijk/liouville.proof",
+                    Some("2.  For all x ∈ ℝ, f(x) = F(x).\n    D1".to_string()),
+                    "2.  f : ℝ → ℝ\n    mun:function-into, from D1, 1".to_string(),
+                ),
+            ],
+            "step 2 puts f's values in ℝ, which its define does not; the define says it, as its kind",
+        ),
     ]
 }

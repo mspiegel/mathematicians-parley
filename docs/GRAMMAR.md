@@ -736,6 +736,11 @@ substitution in the corpus comes close.
                   <newline> <reason>
                   { <newline> <requires> }
                   `reads` <words>
+                | `let` <name> `(` <name> `)` `=` <rule> `,` <kind> `,`
+                  `for` <name> `∈` <term> `(` <label> `)`
+                  <newline> <reason>
+                  { <newline> <requires> }
+                  `reads` <words>
                 | `let` <recursion> `,` `for` <name> `∈` `ℕ₀`
                   `(` <label> `)` `reads` <words>
 <recursion>   ::= <name> `(` `0` `)` `=` <rule>

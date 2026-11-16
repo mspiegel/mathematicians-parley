@@ -1,6 +1,7 @@
 //! Proof methods: steps read: names, claims, what a step holds.
 
 use super::*;
+use crate::notations::{PI, PROPERTY_OF, SQUARE_ROOT, SUBSET};
 
 impl<'a> Proof<'a> {
     /// `intro a b` as a line of the proof at a depth of its blocks.
@@ -263,7 +264,7 @@ impl<'a> Proof<'a> {
         let [w, set] = node.children.as_slice() else {
             return None;
         };
-        let new = &*node.notation_name() == "subset"
+        let new = node.notation() == SUBSET
             && w.is_name()
             && !self.writer.letters.contains_key(w.text.as_str());
         new.then(|| self.writer.members_of(set))
@@ -526,7 +527,7 @@ impl<'a> Proof<'a> {
             // shown false by real arithmetic; any other by `norm_num`.
             let real = claim.iter().any(|(node, _)| {
                 node.walk().iter().any(|n| {
-                    matches!(&*n.notation_name(), "square-root" | "pi")
+                    matches!(n.notation(), SQUARE_ROOT | PI)
                         || n.children.first().is_some_and(|f| {
                             matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                         })
@@ -595,16 +596,32 @@ impl<'a> Proof<'a> {
         }
     }
 
-    /// The widest fixed type a hole of the claim takes, ℝ of ⌊A/B⌋, which
-    /// a term in that hole is computed in; ℤ where there is none.
-    pub(super) fn held_in(&self, claim: &Node) -> super::super::templates::Num {
+    /// The widest fixed type a hole of the claim takes where what fills it
+    /// holds one of `values`, ℝ of ⌊A/B⌋ cited with x := A/B, which a term
+    /// in that hole is computed in; ℤ where there is none. A hole holding
+    /// none of them, F(p/q) of |F(p/q)| cited with y := q^N·|F(p/q)|, is
+    /// computed apart from them.
+    pub(super) fn held_in(
+        &self,
+        claim: &Node,
+        values: &[&Node],
+    ) -> super::super::templates::Num {
+        let holds = |filled: &Node| {
+            filled
+                .walk()
+                .iter()
+                .any(|m| values.iter().any(|v| m.spelt_alike(v)))
+        };
         claim
             .walk()
             .iter()
-            .filter_map(|n| self.writer.template(n).built())
-            .flat_map(|t| t.holes.iter())
-            .filter_map(|s| match s {
-                super::super::templates::Slot::Fixed(n) => Some(*n),
+            .filter_map(|n| {
+                let t = self.writer.template(n).built()?;
+                Some(t.holes.clone().into_iter().zip(n.children.clone()))
+            })
+            .flatten()
+            .filter_map(|(slot, filled)| match slot {
+                super::super::templates::Slot::Fixed(n) if holds(&filled) => Some(n),
                 _ => None,
             })
             .fold(super::super::templates::Num::Int, std::cmp::Ord::max)
@@ -1997,7 +2014,7 @@ impl<'a> Proof<'a> {
         // values, t := k ↦ a(k)², whose k is its own.
         let binders = self.sources.checked.grammar.binders();
         cited.binding.values().any(|v| {
-            let own = |n: &str| &*v.notation_name() == "property-of" && *v.text == *n;
+            let own = |n: &str| v.notation() == PROPERTY_OF && *v.text == *n;
             crate::matching::free_names(v, &binders)
                 .iter()
                 .any(|n| !own(n) && bound.iter().any(|b| **b == **n))

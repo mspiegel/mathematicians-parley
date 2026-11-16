@@ -1,6 +1,10 @@
 //! Templates, functions, carriers and natural forms.
 
 use super::*;
+use crate::notations::{
+    COMPOSITION, DERIVATIVE, INTEGRAL, INVERSE, NTH_DERIVATIVE, POLYNOMIAL_DEGREE,
+    SUPREMUM, UNARY_MINUS,
+};
 
 impl Writer<'_> {
     /// The node's arguments that every Lean form of its notation reads at ℝ,
@@ -157,7 +161,7 @@ impl Writer<'_> {
             || (node.notation() == crate::notations::APPLICATION
                 && node.children.first().is_some_and(|f| {
                     self.inverse_of_function(f).is_some()
-                        || ((matches!(&*f.notation_name(), "composition" | "derivative")
+                        || ((matches!(f.notation(), COMPOSITION | DERIVATIVE | NTH_DERIVATIVE)
                             || MapRule::of(f).is_some())
                             && self.function_type(f).built().is_some())
                         || (f.is_name()
@@ -213,8 +217,13 @@ impl Writer<'_> {
         }
         // A series is a limit, of real numbers as the series-sum item
         // states it.
-        if matches!(&*node.notation_name(), "series" | "integral") {
+        if matches!(node.notation(), SERIES | INTEGRAL) {
             return Route::Built(Num::Real);
+        }
+        // A polynomial's degree is a natural number, computed in ℤ as a
+        // count is.
+        if degree_of(node).is_some() {
+            return Route::Built(Num::Int);
         }
         // A least upper bound is a number of its set's type (`supremum`).
         if let Some(set) = supremum_of(node) {
@@ -362,8 +371,11 @@ impl Writer<'_> {
                 _ => Route::no(format!("{}⁻¹ of a function between two types", g.text)),
             };
         }
-        // f′ of a function of reals into ℝ, Mathlib's `deriv f`, is one too.
-        if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+        // f′ of a function of reals into ℝ, Mathlib's `deriv f`, is one too,
+        // and so is f^(n), `iteratedDeriv`.
+        if let (DERIVATIVE, [g]) | (NTH_DERIVATIVE, [g, _]) =
+            (f.notation(), f.children.as_slice())
+        {
             return match self.function_type(g) {
                 Route::Built((Num::Real, Num::Real)) => {
                     Route::Built((Num::Real, Num::Real))
@@ -377,7 +389,7 @@ impl Writer<'_> {
         let [g, inner] = f.children.as_slice() else {
             return Route::no("a function that is no letter or composite");
         };
-        if &*f.notation_name() != "composition" {
+        if f.notation() != COMPOSITION {
             return Route::no("a function that is no letter or composite");
         }
         let (from, middle) = match self.function_type(inner) {
@@ -403,7 +415,7 @@ impl Writer<'_> {
         let [g] = f.children.as_slice() else {
             return None;
         };
-        if &*f.notation_name() != "inverse"
+        if f.notation() != INVERSE
             || !matches!(
                 self.letters.get(g.text.as_str()),
                 Some(LetterType::Function { .. })
@@ -469,7 +481,33 @@ impl Writer<'_> {
             };
             return Route::Built(paren(inverse));
         }
-        if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+        // f^(n), the n-th derivative: Mathlib's `iteratedDeriv` at the
+        // order as a natural number, n.toNat of an integer letter of ℕ₀.
+        if let (NTH_DERIVATIVE, [g, n]) = (f.notation(), f.children.as_slice()) {
+            let (inner, order) =
+                match (self.function_printed(g), self.number(n, Num::Nat)) {
+                    (Route::Built(p), Route::Built(k)) => (p, k),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        return Route::Declined(d)
+                    }
+                };
+            let ty = inner.ty.clone();
+            return Route::Built(paren(Printed {
+                kind: super::super::doc::TermKind::App {
+                    head: Box::new(Printed::head(
+                        "iteratedDeriv",
+                        super::super::doc::Source::Mathlib,
+                    )),
+                    args: vec![
+                        super::super::doc::Arg::Explicit(order),
+                        super::super::doc::Arg::Explicit(inner),
+                    ],
+                    explicit: false,
+                },
+                ty,
+            }));
+        }
+        if let (DERIVATIVE, [g]) = (f.notation(), f.children.as_slice()) {
             let inner = match self.function_printed(g) {
                 Route::Built(p) => p,
                 declined => return declined,
@@ -549,7 +587,7 @@ impl Writer<'_> {
             NAME => true,
             NUMERAL => false,
             _ if is_big_operator(node)
-                || matches!(&*node.notation_name(), "series" | "integral") =>
+                || matches!(node.notation(), SERIES | INTEGRAL) =>
             {
                 true
             }
@@ -574,7 +612,7 @@ impl Writer<'_> {
     /// built by `+`, `·` and powers from ℕ letters, numerals and values in
     /// ℕ. Subtraction and division are not.
     pub fn natural(&self, node: &Node) -> bool {
-        if self.finite_count(node).is_some() {
+        if self.finite_count(node).is_some() || degree_of(node).is_some() {
             return true;
         }
         // A term a step names as a natural number is the one it names.
@@ -610,7 +648,7 @@ impl Writer<'_> {
                     Slot::Alpha(Num::Int) => {
                         let literal = node.spelling().text();
                         !matches!(&*literal, "−" | "/")
-                            && !matches!(&*node.notation_name(), "unary-minus")
+                            && node.notation() != UNARY_MINUS
                             && self.args(node).iter().zip(&t.holes).all(|(c, s)| {
                                 !matches!(s, Slot::Alpha(_)) || self.natural(c)
                             })
@@ -629,7 +667,7 @@ impl Writer<'_> {
                 (index, Over::Range { from, to }, term)
             }
             (None, [index, set, term])
-                if matches!(&*node.notation_name(), "sum-over" | "product-over") =>
+                if matches!(node.notation(), SUM_OVER | PRODUCT_OVER) =>
             {
                 (index, Over::Set(set), term)
             }
@@ -688,8 +726,8 @@ impl Writer<'_> {
     /// of X in the base of an induction on the parts of X; None for any
     /// other set, or where nothing says.
     pub(super) fn empty_holds(&self, set: &Node) -> Option<Members> {
-        match &*set.notation_name() {
-            "empty-set" => self.empty_of.clone(),
+        match set.notation() {
+            EMPTY_SET => self.empty_of.clone(),
             _ => None,
         }
     }
@@ -699,7 +737,7 @@ impl Writer<'_> {
     /// the least type, ℤ, that holds what it writes, as the library's
     /// `sum-empty-set` is over a `Set ℤ`. None for any other set.
     pub(super) fn empty_of_numbers(&self, set: &Node) -> Option<Members> {
-        (&*set.notation_name() == "empty-set").then_some(Members::Numbers(Num::Int))
+        (set.notation() == EMPTY_SET).then_some(Members::Numbers(Num::Int))
     }
 
     /// What a function the term applies to the index letter takes, the
@@ -717,10 +755,18 @@ impl Writer<'_> {
     }
 }
 
+/// The function a degree is of, F of deg(F); None for any other term.
+pub(super) fn degree_of(node: &Node) -> Option<&Node> {
+    match (node.notation(), node.children.as_slice()) {
+        (POLYNOMIAL_DEGREE, [f]) => Some(f),
+        _ => None,
+    }
+}
+
 /// The set a least upper bound is of, S of sup S; None for any other term.
 pub(super) fn supremum_of(node: &Node) -> Option<&Node> {
-    match (&*node.notation_name(), node.children.as_slice()) {
-        ("supremum", [set]) => Some(set),
+    match (node.notation(), node.children.as_slice()) {
+        (SUPREMUM, [set]) => Some(set),
         _ => None,
     }
 }

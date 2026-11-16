@@ -65,7 +65,7 @@ pub(super) use self::cited_facts::{facing_of, fact_at, placed};
 use self::defined::*;
 pub use self::defined::{
     check_cited_domains, check_conclusion_domains, check_define_domains,
-    check_defined_types, check_stated_domains, define_domains,
+    check_define_systems, check_defined_types, check_stated_domains, define_domains,
 };
 pub(super) use self::defined::{
     defined_functions, domains_unsaid, letters_bound, Defined,

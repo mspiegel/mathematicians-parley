@@ -879,8 +879,8 @@ fn cleared() -> Tactic {
 /// lemmas that gather sums into one (`Finset.mul_sum`,
 /// `Finset.sum_add_distrib`) act on.
 fn sums_joined(node: &Node) -> bool {
-    use crate::notations::{JUXTAPOSITION, MINUS, MULTIPLICATIVE, PLUS};
-    let sum = |n: &Node| &*n.notation_name() == "sum";
+    use crate::notations::{JUXTAPOSITION, MINUS, MULTIPLICATIVE, PLUS, SUM};
+    let sum = |n: &Node| n.notation() == SUM;
     node.walk().iter().any(|n| {
         let product = [JUXTAPOSITION, MULTIPLICATIVE].contains(&n.notation());
         let joined = [PLUS, MINUS].contains(&n.spelling());

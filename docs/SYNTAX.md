@@ -876,6 +876,28 @@ The line under it gives the reason the rule's value is in that system, read
 at a member of the domain: the argument is a letter in the set after `for`,
 and what the reason cites stands above the define.
 
+**A define's values are among the numbers its rule gives them, and no later
+line narrows those.** `let f(x) = F(x), for x ∈ ℝ` of an F into ℂ is a
+function into ℂ, though each F(x) is real. A later line saying `f : ℝ → ℝ`
+is refused, and the define says it as its kind instead, its reason the line
+showing each value real:
+
+```proof
+1.  For all x ∈ ℝ, F(x) ∈ ℝ.
+    mun:integer-polynomial-real, from H2
+
+let f(x) = F(x), a real number, for x ∈ ℝ                             (D1)
+    from 1
+    reads F on the real line
+```
+
+The numbers here are the integers, the rationals, the reals and the complex
+numbers; ℕ and ℕ₀ are sets of integers. A later line may still put the
+values in a set among the define's numbers, as `t : H → gH` does, or a
+function of integers into ℕ. The same holds of a map a define names, `let f
+= (x ∈ ℝ ↦ F(x))`. Lean fixes what a function maps into where the function
+is made, so both backends read the define's numbers from the define itself.
+
 A naming line in a theorem's statement, between its hypotheses and `then`,
 says no kind of number: the statement is what the theorem assumes, and a
 reason is a step of its proof.
@@ -1033,7 +1055,8 @@ of its own.
 domain is written beside the rule: `let t(c) = g·c, for c ∈ H (D2)`
 gives `t is a function on H`, cited `D2` as a step or `from D2` in a
 `requires` line. It states nothing about where the values lie, save what
-the page says once of its rule: `t : H → gH`
+the page says once of its rule or its kind says, and a later line puts them
+only in a set among those numbers: `t : H → gH`
 is proved, from a line saying each value is in gH, as Lagrange's step 8.2
 does. The domain may be a set another define names, as Euler's `let f(r) =
 (r·a) mod n, for r ∈ S` is on S. A cited item whose `let g : D → ℝ` the citation fills with a defined

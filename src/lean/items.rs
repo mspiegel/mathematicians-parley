@@ -14,7 +14,18 @@ use super::statement::{binders, Asked, Binder, StatedAt};
 use super::templates::Num;
 use crate::checker::CheckedCorpus;
 use crate::corpus::{Record, RecordKind};
+use crate::formula::notation_id::NotationId;
 use crate::formula::Node;
+use crate::notations::{
+    ABSOLUTE_VALUE, ADDITIVE, APPLICATION, BICONDITIONAL, BIJECTION, CARDINALITY,
+    COMMA_CONJUNCTION, COMPOSITION, CONDITIONAL, CONJUNCTION, DISJUNCTION, EMPTY_SET,
+    EQUALITY, FINITE, FLOOR, FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, IMAGE,
+    IMPLICATION, INTEGER_RANGE, INTEGRAL, INVERSE, LISTED_FOUR, LISTED_THREE,
+    LISTED_TWO, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE, NAME, NUMBER_SYSTEMS, NUMERAL,
+    ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, ORDER, POWER, POWERSET, PRODUCT, PRODUCT_OVER,
+    SET_BUILDER, SET_IMAGE, SET_OPERATIONS, SINGLETON, SUBSET, SUM, SUM_OVER,
+    SUPERSCRIPT, THERE_ARE, THERE_ARE_TWO, THERE_IS, UNARY_MINUS,
+};
 use crate::outcome::Route;
 
 /// One sentence an item concludes, as Lean has it.
@@ -104,52 +115,52 @@ impl General {
 /// The notations a statement may use and hold in any ring of a kind: its
 /// arithmetic, order, floor and connectives. A statement using any other, √
 /// or π, is about ℝ or ℂ themselves.
-const ALGEBRAIC: &[&str] = &[
-    "name",
-    "numeral",
-    "additive",
-    "multiplicative",
-    "power",
-    "superscript",
-    "unary-minus",
-    "equality",
-    "order",
-    "absolute-value",
-    "floor",
-    "conjunction",
-    "comma-conjunction",
-    "disjunction",
-    "logical-not",
-    "biconditional",
-    "conditional",
-    "implication",
-    "membership",
-    "number-systems",
-    "sum",
-    "product",
+const ALGEBRAIC: &[NotationId] = &[
+    NAME,
+    NUMERAL,
+    ADDITIVE,
+    MULTIPLICATIVE,
+    POWER,
+    SUPERSCRIPT,
+    UNARY_MINUS,
+    EQUALITY,
+    ORDER,
+    ABSOLUTE_VALUE,
+    FLOOR,
+    CONJUNCTION,
+    COMMA_CONJUNCTION,
+    DISJUNCTION,
+    LOGICAL_NOT,
+    BICONDITIONAL,
+    CONDITIONAL,
+    IMPLICATION,
+    MEMBERSHIP,
+    NUMBER_SYSTEMS,
+    SUM,
+    PRODUCT,
     // Sums and products over a set, and what is said of the set, of things
     // or of numbers: these ask nothing of the ring the values are in.
-    "sum-over",
-    "product-over",
-    "finite",
-    "cardinality",
-    "subset",
-    "set-operations",
-    "empty-set",
-    "singleton",
-    "listed-two",
-    "listed-three",
-    "listed-four",
-    "powerset",
-    "function-type",
-    "one-to-one",
-    "onto",
-    "one-to-one-onto",
-    "for-all",
-    "there-is",
-    "there-are",
-    "there-are-two",
-    "integer-range",
+    SUM_OVER,
+    PRODUCT_OVER,
+    FINITE,
+    CARDINALITY,
+    SUBSET,
+    SET_OPERATIONS,
+    EMPTY_SET,
+    SINGLETON,
+    LISTED_TWO,
+    LISTED_THREE,
+    LISTED_FOUR,
+    POWERSET,
+    FUNCTION_TYPE,
+    ONE_TO_ONE,
+    ONTO,
+    ONE_TO_ONE_ONTO,
+    FOR_ALL,
+    THERE_IS,
+    THERE_ARE,
+    THERE_ARE_TWO,
+    INTEGER_RANGE,
 ];
 
 /// Whether an item's sentence holds of any ring of a kind, and which: where
@@ -158,6 +169,7 @@ const ALGEBRAIC: &[&str] = &[
 /// it divides, ordered where it orders, as Mathlib states such facts. A
 /// citation then applies it in the citing claim's own type.
 fn general_kind(
+    w: &Writer,
     group: &crate::citing::Group,
     says: &Node,
     functions: &[Node],
@@ -172,7 +184,7 @@ fn general_kind(
     // term t : {a, …, b} → ℝ is a function into any ring of the kind.
     let given = functions
         .iter()
-        .filter_map(function_gives)
+        .filter_map(|n| function_gives(w, n))
         .map(|(_, to)| to);
     let systems: Vec<Num> = nodes
         .iter()
@@ -198,8 +210,8 @@ fn general_kind(
         .chain(functions.iter())
         .filter_map(|n| {
             let mapping = matches!(
-                &*n.notation_name(),
-                "function-type" | "one-to-one" | "onto" | "one-to-one-onto"
+                n.notation(),
+                FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO
             );
             match n.children.first() {
                 Some(f) if mapping && f.is_name() => Some(f.text.to_string()),
@@ -208,12 +220,12 @@ fn general_kind(
         });
     let own: Vec<String> = functions
         .iter()
-        .filter_map(function_gives)
+        .filter_map(|n| function_gives(w, n))
         .map(|(f, _)| f)
         .chain(maps)
         .collect();
     let applies_own = |p: &Node| {
-        &*p.notation_name() == "application"
+        p.notation() == APPLICATION
             && p.children
                 .first()
                 .is_some_and(|f| own.iter().any(|o| *o == *f.text))
@@ -221,7 +233,7 @@ fn general_kind(
     let parts: Vec<Node> = nodes.iter().flat_map(|n| n.walk()).collect();
     if !parts
         .iter()
-        .all(|p| ALGEBRAIC.contains(&&*p.notation_name()) || applies_own(p))
+        .all(|p| ALGEBRAIC.contains(&p.notation()) || applies_own(p))
     {
         return None;
     }
@@ -253,7 +265,7 @@ fn general_kind(
         .iter()
         .any(|p| p.spelling() == crate::notations::DIVIDED || integer_power(p))
         || systems_named.iter().any(|s| &*s.text == "ℚ");
-    let floor = parts.iter().any(|p| &*p.notation_name() == "floor");
+    let floor = parts.iter().any(|p| p.notation() == FLOOR);
     // An order between integers, b + 1 ≥ a of a range's ends, is an order
     // of ℤ and asks nothing of the ring.
     let ordered = floor
@@ -268,12 +280,9 @@ fn general_kind(
     // A "there is" beside an order may say what holds of ℝ itself and not
     // of every ordered field: a natural number above any x, which a field
     // that is not Archimedean lacks.
-    let exists = parts.iter().any(|p| {
-        matches!(
-            &*p.notation_name(),
-            "there-is" | "there-are" | "there-are-two"
-        )
-    });
+    let exists = parts
+        .iter()
+        .any(|p| matches!(p.notation(), THERE_IS | THERE_ARE | THERE_ARE_TWO));
     if exists && ordered {
         return None;
     }
@@ -289,9 +298,9 @@ fn general_kind(
 /// The function letter of a function line into a number system and the
 /// type of its values: t : {a, …, b} → ℝ between number systems, or t : X
 /// → ℝ from a set of things. None for any other line.
-fn function_gives(node: &Node) -> Option<(String, Num)> {
+fn function_gives(w: &Writer, node: &Node) -> Option<(String, Num)> {
     if let Some((f, LetterType::Function { to, .. })) =
-        super::statement::introduces_function(node)
+        super::statement::introduces_function(w, node)
     {
         return Some((f, to));
     }
@@ -408,7 +417,7 @@ fn free_letters(
         .chain(functions)
         .filter_map(|n| {
             super::statement::range_letter(n)
-                .or_else(|| function_gives(n).map(|(l, _)| l))
+                .or_else(|| function_gives(w, n).map(|(l, _)| l))
                 .or_else(|| super::statement::introduces(n).map(|(l, _)| l))
                 .or_else(|| super::statement::introduces_polynomial(n))
         })
@@ -458,8 +467,8 @@ fn function_into_numbers(
         return None;
     };
     let typed = matches!(
-        &*node.notation_name(),
-        "function-type" | "one-to-one" | "onto" | "one-to-one-onto"
+        node.notation(),
+        FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO
     );
     if !typed || !f.is_name() {
         return None;
@@ -638,14 +647,14 @@ impl ThingTypes {
         let is_map = |n: &Node| {
             map_letter(n, sorts) || (n.is_name() && bound.contains(&*n.text))
         };
-        let name = node.notation_name();
+        let name = node.notation();
         let kids = node.children.as_slice();
-        match (&*name, kids) {
+        match (name, kids) {
             // There is f : X → Y with …, or {f ∈ the functions from X to Y :
             // …}: f a map from X's things to Y's, what the body says of it
             // read as of a map letter.
-            ("there-is" | "for-all" | "set-builder", [f, set, body])
-                if f.is_name() && &*set.notation_name() == "functions-from" =>
+            (THERE_IS | FOR_ALL | SET_BUILDER, [f, set, body])
+                if f.is_name() && set.notation() == FUNCTIONS_FROM =>
             {
                 self.bound_maps.insert(f.text.to_string());
                 if let [from, to] = set.children.as_slice() {
@@ -667,15 +676,12 @@ impl ThingTypes {
             // f : Y → Z, with or without a property, of a map letter, g ∘ f
             // or g⁻¹: the map takes Y's things to Z's (`sides`), so g ∘ f :
             // X → W puts X with f's side and W with g's, three types apart.
-            (
-                "function-type" | "one-to-one" | "onto" | "one-to-one-onto",
-                [f, from, to],
-            ) if is_map(f)
-                || matches!(&*f.notation_name(), "composition" | "inverse") =>
+            (FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO, [f, from, to])
+                if is_map(f) || matches!(f.notation(), COMPOSITION | INVERSE) =>
             {
                 // g⁻¹ is the bridges' inverse, which gives y itself where g
                 // sends nothing to it, so g's two sides are one type.
-                if let ("inverse", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+                if let (INVERSE, [g]) = (f.notation(), f.children.as_slice()) {
                     if let Some((takes, gives)) = self.sides(g, sorts) {
                         self.join(Some(takes), Some(gives));
                     }
@@ -689,11 +695,11 @@ impl ThingTypes {
             }
             // f(x), and f[X] the image: x and X are of what f takes, the
             // value of what it gives; under g⁻¹ the other way round.
-            ("application" | "image", [f, x]) => {
+            (APPLICATION | IMAGE, [f, x]) => {
                 // g⁻¹(y) is the bridges' inverse, which gives y itself where
                 // g sends nothing to it, so g's two sides are one type.
-                if let ("application", ("inverse", [g])) =
-                    (&*name, (&*f.notation_name(), f.children.as_slice()))
+                if let (APPLICATION, (INVERSE, [g])) =
+                    (name, (f.notation(), f.children.as_slice()))
                 {
                     if let Some((takes, gives)) = self.sides(g, sorts) {
                         self.join(Some(takes), Some(gives));
@@ -717,13 +723,13 @@ impl ThingTypes {
             // A bijection from X to Y, or the maps from X to Y a "there is
             // f : X → Y" ranges over: X's things and Y's may be of two
             // types, as a map's sides are.
-            ("bijection" | "functions-from", [from, to]) => {
+            (BIJECTION | FUNCTIONS_FROM, [from, to]) => {
                 self.class(from, sorts);
                 self.class(to, sorts);
                 None
             }
             // {E(s) : s ∈ Y}: s is of Y's things, and the set holds E(s)'s.
-            ("set-image", [term, letter, set]) => {
+            (SET_IMAGE, [term, letter, set]) => {
                 let (s, y) = (self.class(letter, sorts), self.class(set, sorts));
                 self.join(s, y);
                 self.class(term, sorts)
@@ -758,9 +764,9 @@ impl ThingTypes {
             self.meet(&to);
             return Some((from, to));
         }
-        match (&*f.notation_name(), f.children.as_slice()) {
-            ("inverse", [g]) => self.sides(g, sorts).map(|(a, b)| (b, a)),
-            ("composition", [g, inner]) => {
+        match (f.notation(), f.children.as_slice()) {
+            (INVERSE, [g]) => self.sides(g, sorts).map(|(a, b)| (b, a)),
+            (COMPOSITION, [g, inner]) => {
                 let (takes, mid) = self.sides(inner, sorts)?;
                 let (mid2, gives) = self.sides(g, sorts)?;
                 self.join(Some(mid), Some(mid2));
@@ -903,6 +909,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
             }
             w.bounds = read.bounds.clone();
+            w.function_systems = std::rc::Rc::new(read.function_systems.clone());
             let typed: &[crate::citing::Want] = checked
                 .library
                 .function_types
@@ -982,8 +989,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // numbers where it does neither, as its number letters are
             // (`free_letters`).
             let ordered = said.iter().flat_map(|n| n.walk()).any(|n| {
-                n.notation() == crate::notations::ORDER
-                    || &*n.notation_name() == "integral"
+                n.notation() == crate::notations::ORDER || n.notation() == INTEGRAL
             });
             let of_numbers = |s: &crate::formula::Sort| {
                 matches!(s.full(), Some(crate::formula::Whole::Set(m))
@@ -1023,8 +1029,8 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             let listed = |n: &Node| {
                 matches!(
-                    &*n.notation_name(),
-                    "singleton" | "listed-two" | "listed-three" | "listed-four"
+                    n.notation(),
+                    SINGLETON | LISTED_TWO | LISTED_THREE | LISTED_FOUR
                 )
             };
             let of_no_number = |n: &Node| {
@@ -1078,7 +1084,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .filter(|f| !sets.iter().any(|(s, _)| *s == f.name))
                 .filter(|f| !w.letters.contains_key(&f.name) && !of_group(&f.name))
                 .collect();
-            let kind = general_kind(group, says, functions, &free);
+            let kind = general_kind(&w, group, says, functions, &free);
             w.general = kind.map(|k| k.num);
             // A group line is the group's binder, not a fact asked
             // (`group_lines`).
@@ -1129,8 +1135,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 if let [_, from, _] = node.children.as_slice() {
                     type_named_set(&mut w, &mut statements, sorts, &things, from);
                 }
-                if let Some((letter, ty)) = super::statement::introduces_function(node)
-                    .or_else(|| function_into_numbers(&w, node))
+                if let Some((letter, ty)) =
+                    super::statement::introduces_function(&w, node)
+                        .or_else(|| function_into_numbers(&w, node))
                 {
                     // A function into the item's general type gives K, and
                     // so does a map of things into it.

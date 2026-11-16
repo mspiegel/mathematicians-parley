@@ -16,8 +16,8 @@ use std::collections::BTreeMap;
 use super::expr::Writer;
 use crate::formula::Node;
 use crate::notations::{
-    DIVIDED, FOR_ALL, MEMBERSHIP, MINUS, PLUS, POWER, SUPERSCRIPT, THERE_IS, TIMES,
-    UNARY_MINUS,
+    COSET, DIVIDED, FOR_ALL, FUNCTION_LIMIT, GROUP_OPERATION, MEMBERSHIP, MINUS, PLUS,
+    POWER, SUPERSCRIPT, THERE_IS, TIMES, UNARY_MINUS,
 };
 
 /// The arithmetic the page writes in these sentences, by the name
@@ -44,7 +44,7 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
                 | super::expr::LetterType::Function { .. }
         )
     );
-    let by_type = super::statement::introduces_function(node).is_some();
+    let by_type = super::statement::introduces_function(writer, node).is_some();
     if let (true, false, Some(parts), [_, from, to]) = (
         of_map,
         by_type,
@@ -82,9 +82,7 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
     }
     // f tends to L at c is written with c twice, the point and the point
     // left out of the domain: `nhdsWithin c (D \ {c})`.
-    if let ("function-limit", [_, _, at]) =
-        (&*node.notation_name(), node.children.as_slice())
-    {
+    if let (FUNCTION_LIMIT, [_, _, at]) = (node.notation(), node.children.as_slice()) {
         count(writer, at, out);
     }
     let spelling = node.spelling();
@@ -92,9 +90,7 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
         Some("addition")
     } else if spelling == MINUS {
         Some("subtraction")
-    } else if spelling == TIMES
-        || matches!(&*node.notation_name(), "group-operation" | "coset")
-    {
+    } else if spelling == TIMES || matches!(node.notation(), GROUP_OPERATION | COSET) {
         // A group's operation a·b is its multiplication, Lean's `*` on G;
         // a coset gH is g times each element of H, `(g * ·) '' H`.
         Some("multiplication")
