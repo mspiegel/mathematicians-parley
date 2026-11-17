@@ -5,6 +5,8 @@ public import Mathlib.Algebra.Group.Subgroup.Defs
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -12,6 +14,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Linter.Style
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -89,6 +92,7 @@ theorem coset_size {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : 
   have r255_2 : Set.MapsTo t (H : Set G) ((g * ·) '' (H : Set G)) ∧ Set.InjOn t (H : Set G) ∧ Set.SurjOn t (H : Set G) ((g * ·) '' (H : Set G)) := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := (H : Set G)) (Y := (g * ·) '' (H : Set G)) (f := t) s6.1)).mpr ⟨s6, r255_1⟩
   have s8 : ∃ h : G → G, Set.BijOn h (H : Set G) ((g * ·) '' (H : Set G)) := by exact (Parley.Items.Stdlib.Functions.def_bijection (X := (H : Set G)) (Y := (g * ·) '' (H : Set G)) (f := t) r255_2)
   -- 9. mun:card-equal X := H, Y := gH, from 2, 8
-  exact (Parley.Items.Stdlib.Counting.mun_card_equal (X := (H : Set G)) (Y := (g * ·) '' (H : Set G)) s2 s8).symm
+  have s9 : (((g * ·) '' (H : Set G)).ncard : ℤ) = ((H : Set G).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_equal (X := (H : Set G)) (Y := (g * ·) '' (H : Set G)) s2 s8); simp only [← Set.Finite.cast_ncard_eq (((s2).image _ : ((g * ·) '' (H : Set G) : Set G).Finite)), ← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h.symm)
+  show ((g * ·) '' (H : Set G)).encard = (H : Set G).encard; exact by (have h := s9; simp only [← Set.Finite.cast_ncard_eq (((s2).image _ : ((g * ·) '' (H : Set G) : Set G).Finite)), ← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Lagrange.CosetSize

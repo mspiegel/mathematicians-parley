@@ -378,15 +378,23 @@ impl<'a> Proof<'a> {
     /// Whether Lean writes the membership `node` as a bound, `0 < x` or
     /// `0 ≤ x`.
     pub(super) fn written_as_bound(&self, node: &Node) -> bool {
-        match self.writer.formula(node) {
-            Route::Built(says) => matches!(
-                &says.kind,
-                super::super::doc::TermKind::Infix { op, .. } if op.symbol == "<" || op.symbol == "≤"
-            ),
-            Route::Declined(_) => false,
-        }
+        written_as_bound(node, &self.writer)
     }
+}
 
+/// Whether `writer` writes the membership `node` as a bound, `0 < x` or `0
+/// ≤ x`.
+pub(super) fn written_as_bound(node: &Node, writer: &Writer) -> bool {
+    match writer.formula(node) {
+        Route::Built(says) => matches!(
+            &says.kind,
+            super::super::doc::TermKind::Infix { op, .. } if op.symbol == "<" || op.symbol == "≤"
+        ),
+        Route::Declined(_) => false,
+    }
+}
+
+impl<'a> Proof<'a> {
     /// The proof of what `found`, a sentence or part of a line, implies by
     /// `rule` (`FirstAt::implied`), from how Lean writes `found`: a range
     /// membership is `x ∈ Finset.Icc a b`, whose bounds `Finset.mem_Icc`
@@ -632,10 +640,17 @@ impl<'a> Proof<'a> {
                     ],
                 ))))
             }
-            Meets::Casts { .. } => match self.casts_apart(says, wanted) {
-                Some(apart) => cast_proved(apart, proof, says, wanted)?,
-                None => Proved::Term(proof),
-            },
+            // Two "for all"s apart in casts are met under their binders
+            // (`casts_under`), where a relation of ℚ is taken to ℝ.
+            Meets::Casts { .. } => {
+                match self.casts_under(proof.clone(), says, wanted) {
+                    Some(met) => Proved::Term(met),
+                    None => match self.casts_apart(says, wanted) {
+                        Some(apart) => cast_proved(apart, proof, says, wanted)?,
+                        None => Proved::Term(proof),
+                    },
+                }
+            }
         })
     }
 
@@ -1095,11 +1110,17 @@ impl<'a> Proof<'a> {
             if as_written && through_named {
                 match node.notation() {
                     // An equation the way the checker found it faces, or an
-                    // order: `exact_mod_cast` of the item.
+                    // order: `exact_mod_cast` of the item, of a relation in
+                    // the claim's type, its casts within the sides, or one
+                    // `norm_cast` lifts to it.
                     EQUALITY | ORDER
                         if super::super::doc::forms::relation_type(claim)
                             .is_some_and(|to| {
-                                super::super::casts::norm_cast_lifts_relation(says, &to)
+                                super::super::doc::forms::relation_type(says).as_ref()
+                                    == Some(&to)
+                                    || super::super::casts::norm_cast_lifts_relation(
+                                        says, &to,
+                                    )
                             }) =>
                     {
                         let faced_term = match (node.notation(), facing) {
@@ -2232,6 +2253,17 @@ impl<'a> Proof<'a> {
         if intros.is_empty() || !cast {
             return None;
         }
+        // A relation of ℚ for the same of ℝ, which `norm_cast` does not take
+        // up, the line holding no cast to ℝ: by the relation's lemma at ℝ,
+        // ℚ's casts pushed down to the letters and numerals, and the two
+        // then met by pushing the casts left in both alike.
+        if rat_crossing(&s, &w) {
+            let lifted = rat_lifted(applied, &s)?;
+            return Some(t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
+                Tactic::Intro(intros),
+                Tactic::Exact(lifted),
+            ]))));
+        }
         Some(t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
             Tactic::Intro(intros),
             t::exact_mod_cast(applied),
@@ -2286,16 +2318,50 @@ impl<'a> Proof<'a> {
         let hx = "hx".to_string();
         let at_x = || applied_to(proof.clone(), x.clone());
         let shown = match (&bare_term(guard).kind, their_guard) {
-            // Over all of a type.
+            // Over all of a type, each "for all" in turn: `∀ s ∈ Set.univ,
+            // ∀ t ∈ Set.univ, …` of a line `∀ s, ∀ t, …`, `intro s _ t _`.
             (TermKind::Infix { op, rhs, .. }, None)
-                if op.symbol == "∈"
-                    && is_constant(rhs, "Set.univ")
-                    && meets(&their_body, body) =>
+                if op.symbol == "∈" && is_constant(rhs, "Set.univ") =>
             {
-                vec![
-                    Tactic::Intro(vec![letter.clone(), "_".to_string()]),
-                    Tactic::Exact(at_x()),
-                ]
+                let mut intros = vec![letter.clone(), "_".to_string()];
+                let mut applied = at_x();
+                let (mut ours, mut theirs) = ((**body).clone(), their_body.clone());
+                while let (
+                    TermKind::Quantified {
+                        quant: Quant::ForAll,
+                        letter: next,
+                        letter_ty: next_ty,
+                        guard: Some(g),
+                        body: b,
+                        ..
+                    },
+                    TermKind::Quantified {
+                        quant: Quant::ForAll,
+                        letter: their_next,
+                        guard: None,
+                        body: tb,
+                        ..
+                    },
+                ) = (&bare_term(&ours).kind, &bare_term(&theirs).kind)
+                {
+                    let univ = matches!(&bare_term(g).kind,
+                        TermKind::Infix { op, rhs, .. } if op.symbol == "∈" && is_constant(rhs, "Set.univ"));
+                    if !univ {
+                        break;
+                    }
+                    let y = Printed::letter(next, next_ty.clone());
+                    intros.extend([next.clone(), "_".to_string()]);
+                    applied = applied_to(applied, y.clone());
+                    let tb = tb.substituted(&std::collections::BTreeMap::from([(
+                        their_next.clone(),
+                        y,
+                    )]));
+                    (ours, theirs) = ((**b).clone(), tb);
+                }
+                if !meets(&theirs, &ours) {
+                    return self.casts_under(proof.clone(), says, wanted);
+                }
+                vec![Tactic::Intro(intros), Tactic::Exact(applied)]
             }
             // The same set, with `Set.univ ∈ nhds x` before the line's body.
             (_, Some(g)) if g.untyped() == guard.untyped() => {

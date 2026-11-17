@@ -438,7 +438,8 @@ impl<'a> Proof<'a> {
                                     _ => false,
                                 },
                                 Route::Declined(_) => false,
-                            };
+                            } || self
+                                .kinded_at_compound(&reason.just.refs, node);
                             let alone = met.as_ref().is_some_and(unfolds_alone);
                             return Route::Built(Proof::By(unfolded_by(
                                 &unfold,
@@ -852,8 +853,10 @@ impl<'a> Proof<'a> {
                         said: vec![node.clone()],
                         stated: writer.formula(node).built().into_iter().collect(),
                     }];
+                    // The rewrite leaves the sides one term, which it closes:
+                    // no cast is left to push.
                     let mut lines = header_rewrite;
-                    lines.extend(written_out(&defines, &goal, writer));
+                    lines.extend(written_out_as(&defines, &goal, writer, false));
                     return Route::Built(Proof::By(Tactic::Seq(lines)));
                 }
                 let mut haves = Vec::new();
@@ -1523,7 +1526,7 @@ impl<'a> Proof<'a> {
         let values = self.set_values();
         // The last step that says what is owed as written proves it by its
         // `have`, the goal's own proof.
-        if let ([(_, _, says)], [owe], [met], [name]) = (
+        if let ([(_, node, says)], [owe], [met], [name]) = (
             all.as_slice(),
             owes.as_slice(),
             meetings.as_slice(),
@@ -1545,6 +1548,24 @@ impl<'a> Proof<'a> {
                 && super::super::doc::forms::casts_differ(says, owe, &values).is_none()
                 && exists(says) == exists(owe)
             {
+                // A count the step writes in ℕ of a set a line shows finite,
+                // which what is owed counts in ℕ∞, |H| of a theorem that does
+                // not assume H finite, is taken across (`counts_converted`).
+                let line = super::super::tactics::hyp(name);
+                if let Some(converted) = self.counts_converted(line, says, owe, node) {
+                    // The goal shown as the statement writes it first: a
+                    // define's `set` writes its name for its value in the
+                    // goal, `t '' H` for gH, which the count's rewrite does
+                    // not meet.
+                    let shown = super::super::tactics::call(
+                        "show",
+                        vec![super::super::doc::TacticArg::Term(owe.clone())],
+                    );
+                    return Route::Built(Closing::Tactic(Box::new(Tactic::Seq(vec![
+                        shown,
+                        Tactic::Exact(converted),
+                    ]))));
+                }
                 return Route::Built(Closing::Last(name.clone()));
             }
         }
@@ -1571,7 +1592,25 @@ impl<'a> Proof<'a> {
                 }
                 _ => None,
             };
-            let proved = match (owe.is_truth(), proof, witness) {
+            // A count the step writes in ℕ of a set it shows finite, where
+            // what is owed counts it in ℕ∞, |H| of a theorem that does not
+            // assume H finite: each such count taken across
+            // (`counted_across`).
+            let facing = match met.turned {
+                true => super::super::doc::forms::turned_statement(says),
+                false => says.clone(),
+            };
+            let counted = match (proof, page_parts.get(i)) {
+                (Some(proof), Some(node)) => {
+                    let faced = match met.turned {
+                        true => turned_proof(proof.clone(), says),
+                        false => proof.clone(),
+                    };
+                    self.counts_converted(faced, &facing, owe, node)
+                }
+                _ => None,
+            };
+            let proved = match (owe.is_truth(), proof, witness.or(counted)) {
                 (true, _, _) => Some(Proved::Term(trivial())),
                 (false, _, Some(made)) => Some(Proved::Term(made)),
                 (false, Some(proof), None) => {
@@ -1614,6 +1653,82 @@ impl<'a> Proof<'a> {
                 assembled.into_iter().map(Proved::term).collect(),
             )),
         })))
+    }
+
+    /// Whether the claim applies a function a cited define names with its
+    /// kind, at an argument that is no single letter, f(p/q) of `let f(x) =
+    /// F(x), a real number`. Its equation is stated in the wider type,
+    /// `↑(f x) = F ↑x`, so put in there it leaves the argument cast whole,
+    /// `↑(p/q)`, which the claim writes pushed in, `↑p/↑q`.
+    pub(super) fn kinded_at_compound(&self, refs: &[String], claim: &Node) -> bool {
+        let members = &self.sources.checked.grammar.members;
+        let names: Vec<String> = self
+            .thm
+            .defines
+            .iter()
+            .filter(|d| refs.contains(&d.label))
+            .filter_map(|d| d.kinded(&self.thm.path, members).ok().flatten())
+            .filter(|k| k.domain.is_some())
+            .map(|k| k.name)
+            .collect();
+        claim.walk().iter().any(|n| {
+            matches!((n.notation(), n.children.as_slice()),
+                (crate::notations::APPLICATION, [f, at])
+                    if f.is_name() && names.iter().any(|m| *m == *f.text) && !at.is_name())
+        })
+    }
+
+    /// The sets the two count in two forms, `ncard` in one and `encard` in
+    /// the other (`forms::FormDifference::Count`), as Lean writes each.
+    fn counted_apart(&self, says: &Printed, wanted: &Printed) -> Vec<Printed> {
+        use super::super::doc::forms::{differences, FormDifference};
+        let templates = self.sources.templates;
+        let widen = |head: &str, at| templates.same_function_at(head, at);
+        differences(says, wanted, &widen)
+            .into_iter()
+            .filter_map(|d| match d {
+                FormDifference::Count { line_set, .. } => Some(line_set),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `wanted` from `proof` of `says`, where the two count sets of `node`,
+    /// the page's sentence, in two forms and are otherwise alike: each such
+    /// set, shown finite, counted in ℕ (`forms_converted`). None where they
+    /// count none apart, or one is not shown finite.
+    pub(super) fn counts_converted(
+        &self,
+        proof: Printed,
+        says: &Printed,
+        wanted: &Printed,
+        node: &Node,
+    ) -> Option<Printed> {
+        let apart = self.counted_apart(says, wanted);
+        if apart.is_empty() {
+            return None;
+        }
+        let mut finite = Vec::new();
+        for set in self.counted_sets(&[node]) {
+            let written = self.writer.set_term(&set).built()?;
+            if apart.iter().any(|a| a.untyped() == written.untyped()) {
+                finite.push(self.shown_finite(&set)?);
+            }
+        }
+        if finite.len() != apart.len() {
+            return None;
+        }
+        let conversion = super::conversions::Conversion {
+            finite: &finite,
+            whole: &[],
+            bound: &[],
+            cast_powers: false,
+            identities: &[],
+            numeral_to_nat: false,
+        };
+        Some(super::super::tactics::by_term(
+            super::conversions::forms_converted(&proof, &conversion, false),
+        ))
     }
 
     /// How `proof`, a line that says `says`, proves `wanted`, the two met as

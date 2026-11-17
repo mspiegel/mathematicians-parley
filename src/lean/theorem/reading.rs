@@ -455,12 +455,12 @@ impl<'a> Proof<'a> {
             let name = format!("r{}_{}", step.line, k + 1);
             // A requires line is a line in scope from here, as a step's
             // claim is: what names an integer it says one is. It says what
-            // its `have` states, whatever writer later reads it.
-            if let Route::Built(node) = self.tree(&r.fact) {
-                let mut line = LineSentence::only(node, name.clone());
-                line.says = Some(fact.clone());
-                self.trees.insert(name.clone(), vec![line]);
-            }
+            // its `have` states, whatever writer later reads it: under the
+            // claim's binders where it is said so, `∀ x ∈ ℚ, denom(x) ∈ ℕ`,
+            // which says nothing of a later x.
+            let mut line = LineSentence::only(stated.clone(), name.clone());
+            line.says = Some(fact.clone());
+            self.trees.insert(name.clone(), vec![line]);
             self.push_at(
                 depth,
                 Tactic::Have {
@@ -1052,15 +1052,32 @@ impl<'a> Proof<'a> {
     pub(super) fn step_facts(&self, i: usize) -> Vec<super::super::algebra::Cited> {
         let step = &self.thm.steps[i];
         let mut facts = Vec::new();
+        // A requires line said under the claim's "for all"s is, inside the
+        // step, the fact at the claim's letters, which the step's proof
+        // introduces as `peel` names them: `r101_3 x`.
+        let claimed = step
+            .claim
+            .sentences()
+            .first()
+            .and_then(|s| self.rec.page.get(s))
+            .cloned();
         for (k, r) in step.requires.iter().enumerate() {
             if let Route::Built(node) = self.tree(&r.fact) {
+                let mut proof =
+                    super::super::tactics::hyp(&format!("r{}_{}", step.line, k + 1));
+                let under = claimed
+                    .as_ref()
+                    .filter(|c| crate::citing::speaks_of_claim_letter(c, &node))
+                    .map(|c| crate::citing::under_claim_binders(c, &node));
+                if let Some(wrapped) = under {
+                    let (intros, _, _) = self.peel(&wrapped);
+                    for name in intros {
+                        proof = applied_to(proof, super::super::tactics::hyp(&name));
+                    }
+                }
                 facts.push(super::super::algebra::Cited {
                     node,
-                    proof: super::super::tactics::hyp(&format!(
-                        "r{}_{}",
-                        step.line,
-                        k + 1
-                    )),
+                    proof,
                     says: None,
                 });
             }
@@ -1947,6 +1964,18 @@ impl<'a> Proof<'a> {
         system: crate::rules::System,
         refs: &[String],
     ) -> Option<Printed> {
+        self.said_bound_in(term, system, refs, &self.writer)
+    }
+
+    /// `said_bound`, the step's lines read as `writer` writes them: the
+    /// writer inside a claim's "for all", where its letter has a type.
+    pub(super) fn said_bound_in(
+        &self,
+        term: &Node,
+        system: crate::rules::System,
+        refs: &[String],
+        writer: &Writer,
+    ) -> Option<Printed> {
         use crate::rules::System;
         let i = self.step_now.get()?;
         let letters = self.rec.introduced.get(i)?;
@@ -1960,7 +1989,9 @@ impl<'a> Proof<'a> {
             crate::citing::reason_within(term, system, letters, &nonzero, &said);
         let reason = reason?;
         match system {
-            System::N0 => self.nonneg_by(term, &reason, &self.wholes_among(&facts)),
+            System::N0 => {
+                self.nonneg_by(term, &reason, &self.wholes_among_in(&facts, writer))
+            }
             System::N => self.positive_by(term, &reason, &facts),
             _ => None,
         }

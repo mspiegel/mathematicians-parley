@@ -67,6 +67,8 @@ pub enum Making {
     Builder(Box<FiniteBy>),
     /// {E(s) : s ∈ A}, of a finite A.
     Image(Box<FiniteBy>),
+    /// gH, of a finite H: the image of H under multiplying by g.
+    Coset(Box<FiniteBy>),
     /// G(m, n) of a function a define names finite sets with
     /// (`finite_names`).
     Applied(String),
@@ -439,6 +441,7 @@ pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
         ("powerset", _, [a]) => Making::Powerset(of(a)?),
         ("set-builder", _, [_, a, _]) => Making::Builder(of(a)?),
         ("set-image", _, [_, _, a]) => Making::Image(of(a)?),
+        ("coset", _, [_, h]) => Making::Coset(of(h)?),
         ("functions-from", _, [x, y]) => Making::Functions(of(x)?, of(y)?),
         ("product-set", _, [x, y]) => Making::Product(of(x)?, of(y)?),
         // A function a define names finite sets with, G(m, n) of a G whose

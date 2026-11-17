@@ -505,10 +505,12 @@ pub fn set_systems_of(
 /// (`CheckedTheorem::thing_types`): read over its hypotheses first, so that
 /// its sets take the type variables in the order they are let, A α and B β
 /// of `let A be a set`, `let B be a set`; then over the record's page in
-/// the order it is written.
+/// the order it is written; then over the values `instantiate` gives the
+/// page's own letters, X with A of `instantiate X := A in line 1`.
 pub fn thing_types_of(
     thm: &Theorem,
     record: &CheckedTheorem,
+    known: &Known,
 ) -> crate::citing::things::ThingTypes {
     let hypotheses = hypothesis_lines(thm, record);
     let mut entries: Vec<(&record::PartKey, &Node)> = record.page.entries().collect();
@@ -517,7 +519,17 @@ pub fn thing_types_of(
         .iter()
         .chain(entries.into_iter().map(|(_, node)| node))
         .collect();
-    crate::citing::things::ThingTypes::read(&lines, Some(&record.sorts))
+    let none = crate::matching::Definitions::new();
+    let mut given: Vec<(String, Node)> = Vec::new();
+    for step in &thm.steps {
+        if !step.just.head.is(Method::Instantiate) {
+            continue;
+        }
+        for (letter, value) in known.seed(&step.just.values, &none, None) {
+            given.push((letter.to_string(), value));
+        }
+    }
+    crate::citing::things::ThingTypes::read_given(&lines, &given, Some(&record.sorts))
 }
 
 /// The number system each letter the page's lines put in sets of numbers
@@ -849,7 +861,7 @@ fn theorem_record(
     };
     record.finite_at = finite_at;
     record.set_systems = set_systems_of(&record);
-    record.thing_types = thing_types_of(thm, &record);
+    record.thing_types = thing_types_of(thm, &record, &c.known[i]);
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);
     record.items = std::sync::Arc::clone(items);

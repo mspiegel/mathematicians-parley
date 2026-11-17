@@ -6,6 +6,9 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -35,6 +38,6 @@ namespace Parley.Tests.Elaborator.ASequenceGivenAsAMap.ALateBoundOverAnotherLett
 theorem a_late_bound_over_another_letter (L : ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds L)) (hH3 : ∀ i : ℤ, 0 < i → i ≥ 1 → 1 / (i : ℚ) ≤ 1) :
     L ≤ 1 := by
   -- 1. thm:limit-at-most x := (n ∈ ℕ ↦ u(n)), B := 1, N := 1, from H2, H3
-  exact (Parley.Items.Stdlib.Calculus.thm_limit_at_most (x := (fun x : ℤ => (((fun n : ℤ => 1 / (n : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := hH2; push_cast at h ⊢; exact h)) (B := (1 : ℝ)) (N := (1 : ℤ)) (by norm_num) (by intro n h_n h_3; exact_mod_cast hH3 n h_n h_3))
+  exact (Parley.Items.Stdlib.Calculus.thm_limit_at_most (x := (fun x : ℤ => (((fun n : ℤ => 1 / (n : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := hH2; push_cast at h ⊢; exact h)) (B := (1 : ℝ)) (N := (1 : ℤ)) (by norm_num) (by intro n h_n h_3; exact by have h := (Rat.cast_le (K := ℝ)).mpr (hH3 n h_n h_3); simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; push_cast at h ⊢; exact h))
 
 end Parley.Tests.Elaborator.ASequenceGivenAsAMap.ALateBoundOverAnotherLetter

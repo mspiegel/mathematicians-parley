@@ -477,6 +477,25 @@ pub(super) fn conjoined_parts(term: &Printed) -> Vec<Printed> {
     }
 }
 
+/// The projection that takes part `k` of `conjoined_parts(term)` from a
+/// proof of `term`, read off how its "and"s nest: part 2 of `(A ∧ B) ∧ C`
+/// is `.2`, of `A ∧ (B ∧ C)` `.2.2`. None where `term` has no part `k`.
+pub(super) fn conjunct_path(term: &Printed, k: usize) -> Option<Vec<&'static str>> {
+    match and_sides(term) {
+        Some((lhs, rhs)) => {
+            let left = conjoined_parts(&lhs).len();
+            let (field, inner, at) = match k < left {
+                true => ("1", lhs, k),
+                false => ("2", rhs, k - left),
+            };
+            let mut out = vec![field];
+            out.extend(conjunct_path(&inner, at)?);
+            Some(out)
+        }
+        None => (k == 0).then(Vec::new),
+    }
+}
+
 /// A set as Lean writes it, with the proof that it is finite
 /// (`finite_proof`).
 #[derive(Clone, Debug)]

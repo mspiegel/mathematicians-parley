@@ -89,8 +89,10 @@ theorem liouville (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomials.integer
   have s4 : (f α : ℂ) = F (α : ℂ) := by simp (disch := omega) only [hD1]
   -- 5. calculation
   have s5 : f α = 0 := by
-    calc (f α : ℂ) = F (α : ℂ) := s4
-      _ = 0 := hH6
+    have h := by
+      calc (f α : ℂ) = F (α : ℂ) := s4
+        _ = 0 := hH6
+    exact_mod_cast h
   -- 6. obtain δ: thm:roots-isolated, from H2, H4, H6
   obtain ⟨δ, ⟨s6a, s6b⟩⟩ := (Parley.Items.Stdlib.Polynomials.thm_roots_isolated (F := F) hH2 (N := N) hH3 hH4 (α := α) hH6)
   -- 7. mun:interval-real
@@ -177,16 +179,13 @@ theorem liouville (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomials.integer
         -- 25.3.4.3. thm:value-at-a-fraction, from C3, H2, H4
         have s25_3_4_3 : ‖F ((p : ℂ) / (q : ℂ))‖ ≥ 1 / (q : ℝ) ^ N.toNat := by exact (Parley.Proofs.Wiedijk.Liouville.ValueAtAFraction.value_at_a_fraction (F := F) hH2 (N := N) hH3 hH4 (p := p) (q := q) hK4 hC3)
         -- 25.3.4.4. D1
-        have s25_3_4_4 : (f ((p : ℝ) / (q : ℝ)) : ℂ) = F ((p : ℂ) / (q : ℂ)) := by simp (disch := omega) only [hD1]
+        have s25_3_4_4 : (f ((p : ℝ) / (q : ℝ)) : ℂ) = F ((p : ℂ) / (q : ℂ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
         -- 25.3.4.5. thm:near-a-root f := f, x := p/q, from D1, 3, 5, 15, 16, 25.3.1
-        have s25_3_4_5 : abs (f ((p : ℝ) / (q : ℝ))) ≤ K * abs (α - (p : ℝ) / (q : ℝ)) := by
-          simp only [hD1] at ⊢
-          push_cast at ⊢
-          exact (Parley.Proofs.Wiedijk.Liouville.NearARoot.near_a_root (f := f) s3a (by simp only [Filter.univ_mem, true_and]; exact s3b) (α := α) s5 (K := K) s15 s16 (x := (p : ℝ) / (q : ℝ)) s25_3_1)
+        have s25_3_4_5 : abs (f ((p : ℝ) / (q : ℝ))) ≤ K * abs (α - (p : ℝ) / (q : ℝ)) := by exact (Parley.Proofs.Wiedijk.Liouville.NearARoot.near_a_root (f := f) s3a (by simp only [Filter.univ_mem, true_and]; exact s3b) (α := α) s5 (K := K) s15 s16 (x := (p : ℝ) / (q : ℝ)) s25_3_1)
         -- 25.3.4.6. substitute f(p/q) = F(p/q) (line 25.3.4.4) into line 25.3.4.5
         have s25_3_4_6 : ‖F ((p : ℂ) / (q : ℂ))‖ ≤ K * abs (α - (p : ℝ) / (q : ℝ)) := by
-          have s25_3_4_5_w : abs (f ((p : ℝ) / (q : ℝ)) : ℂ) ≤ (K : ℂ) * abs ((α : ℂ) - (p : ℂ) / (q : ℂ)) := by exact_mod_cast s25_3_4_5
-          exact Eq.subst (motive := (fun t : ℂ => ‖t‖ ≤ K * abs (α - (p : ℝ) / (q : ℝ)))) s25_3_4_4 s25_3_4_5_w
+          have e_line : ‖(f ((p : ℝ) / (q : ℝ)) : ℂ)‖ ≤ K * abs (α - (p : ℝ) / (q : ℝ)) := by exact_mod_cast s25_3_4_5
+          exact Eq.subst (motive := (fun t : ℂ => ‖t‖ ≤ K * abs (α - (p : ℝ) / (q : ℝ)))) s25_3_4_4 e_line
         -- 25.3.4.7. transitivity, from 25.3.4.3, 25.3.4.6
         have r581_1 : ∃ m : ℝ, (m : ℂ) = F ((p : ℂ) / (q : ℂ)) := by
           have hI : ∃ m : ℝ, (m : ℂ) = F ((p : ℂ) / (q : ℂ)) := by (have h := ((Parley.Items.Stdlib.Polynomials.mun_integer_polynomial_real (F := F) hH2 (x := (p : ℝ) / (q : ℝ)))); push_cast at h ⊢; exact h)

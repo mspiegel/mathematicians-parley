@@ -13,6 +13,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -39,7 +40,7 @@ theorem a_polynomial_derivative_real (G : ℂ → ℂ) (hH2 : G ∈ LeanBridges.
   -- 1. thm:polynomial-on-the-reals F := G, f := g, from H2, H4
   have s1a : ContinuousOn g (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Polynomials.thm_polynomial_on_the_reals_1 (F := G) (f := g) hH2 hH4)
   have s1b : ∀ x ∈ (Set.univ : Set ℝ), (Set.univ : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by
-    have hI : ∀ x ∈ (Set.univ : Set ℝ), (Set.univ : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by (have h := ((Parley.Items.Stdlib.Polynomials.thm_polynomial_on_the_reals_2 (F := G) (f := g) hH2 hH4)); simp only [Set.mem_univ, true_implies] at h; exact h)
+    have hI : ∀ x ∈ (Set.univ : Set ℝ), (Set.univ : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by (have h := ((Parley.Items.Stdlib.Polynomials.thm_polynomial_on_the_reals_2 (F := G) (f := g) hH2 hH4)); simp only [Set.mem_univ, true_implies] at h; simp only [Filter.univ_mem, true_and, Set.mem_univ, true_implies]; exact h)
     exact hI
   have s1c : ContinuousOn (deriv g) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Polynomials.thm_polynomial_on_the_reals_4 (F := G) (f := g) hH2 hH4)
   exact ⟨s1a, s1b, trivial, s1c⟩

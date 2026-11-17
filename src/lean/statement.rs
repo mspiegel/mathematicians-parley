@@ -323,11 +323,14 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
         // fact of it, which is the line itself where it says more than the
         // type.
         (kind @ (FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO), [from, to]) => {
-            // ∅ holds nothing of any type, so a map into it gives the
-            // domain's.
+            // ∅ holds nothing of any type, so a map into it gives what the
+            // map's values are of (`citing::things`): the domain's kind, of
+            // the type variable its values take.
             let a = writer.set_members(from)?;
             let b = match to.notation() {
-                EMPTY_SET => a.clone(),
+                EMPTY_SET => a.with_things(writer.things.var(
+                    &crate::citing::things::ThingKey::To(letter.text.to_string()),
+                )),
                 _ => writer.set_members(to)?,
             };
             let (from_text, to_text) =

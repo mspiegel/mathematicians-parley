@@ -576,7 +576,21 @@ impl<'a> Elaborator<'a> {
         let supplied = self.supplied(Some(step), scope, facts)?;
         let cited = self.with_cited(Some(step), scope, &supplied, None)?;
         let known = facts.with(&cited);
-        match self.member_of(&claim, scope, &known, Some(step))? {
+        // A cited define that says its kind of number keeps its name: its
+        // kind gives the value's membership, u(x) ∈ ℝ of `let u(x) = …, a
+        // real number`, as the checker reads the step.
+        let mut kinded = BTreeSet::new();
+        for d in &self.thm.defines {
+            if step.just.refs.contains(&d.label)
+                && d.kinded(&self.thm.path, &self.g.members)?.is_some()
+            {
+                kinded.insert(d.label.clone());
+            }
+        }
+        let kept = std::mem::replace(&mut self.kept_named, kinded);
+        let made = self.member_of(&claim, scope, &known, Some(step));
+        self.kept_named = kept;
+        match made? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,

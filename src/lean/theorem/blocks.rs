@@ -38,13 +38,14 @@ impl<'a> Proof<'a> {
         let mut body: Vec<String> = Vec::new();
         for ((node, _), name) in claim.iter().zip(&names) {
             // A letter's fact of being in a set, x ∈ A, as of a range, or
-            // of being a part of one, W ⊆ X.
+            // of being a part of one, W ⊆ X, of things or of numbers, T ⊆
+            // {1, …, N}.
             let in_set = match node.children.as_slice() {
                 [x, set]
                     if (node.notation() == crate::notations::MEMBERSHIP
                         || node.notation() == SUBSET)
                         && x.is_name()
-                        && self.writer.members_of(set).is_some() =>
+                        && self.writer.set_members(set).is_some() =>
                 {
                     Some(x.text.to_string())
                 }
@@ -370,6 +371,25 @@ impl<'a> Proof<'a> {
         // the a^(p − 2) of (a^(p − 2)) mod p, is there at ℝ whatever type
         // the line naming its number says it in.
         let mut real: Vec<(String, Node)> = Vec::new();
+        // A claim Lean states in ℝ holds every term at ℝ, `L = (d·s(r))/d`
+        // of a real L: a term computed in a narrower field, d·s(r) in ℚ,
+        // whose line names its number there, is restated at ℝ.
+        let claim_real = self.writer.formula(claim).built().is_some_and(|c| {
+            super::super::spelling::fields_of(&c).last()
+                == Some(&super::super::templates::Num::Real)
+        });
+        if claim_real {
+            for n in claim.walk() {
+                let narrower = self
+                    .writer
+                    .carrier(&n)
+                    .built()
+                    .is_some_and(|c| c < super::super::templates::Num::Real);
+                if narrower {
+                    real.push((self.writer.grammar.print(&n), n.clone()));
+                }
+            }
+        }
         for n in claim.walk() {
             let mut at_real: Vec<&Node> = self.writer.always_real_args(&n);
             if let Route::Built(t) = self.writer.template(&n) {

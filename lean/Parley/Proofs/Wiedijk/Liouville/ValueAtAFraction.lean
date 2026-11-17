@@ -70,9 +70,7 @@ theorem value_at_a_fraction (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomia
   -- 6. mun:nonzero-integer-abs z := q^N·F(p/q), from 2, 5
   have s6 : ‖(q : ℂ) ^ N.toNat * F ((p : ℂ) / (q : ℂ))‖ ≥ 1 := by rw [← Classical.choose_spec s2]; rw [← Classical.choose_spec s2] at s5; norm_cast at s5; (exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonzero_integer_abs (z := (Classical.choose s2)) (by exact_mod_cast s5)))
   -- 7. mun:abs-product x := q^N, y := F(p/q), from 3
-  have s7 : ‖(q : ℂ) ^ N.toNat * F ((p : ℂ) / (q : ℂ))‖ = abs ((q : ℝ) ^ N.toNat) * ‖F ((p : ℂ) / (q : ℂ))‖ := by
-    have hI : ‖(q : ℂ) ^ N.toNat * F ((p : ℂ) / (q : ℂ))‖ = abs ((q : ℝ) ^ N.toNat) * ‖F ((p : ℂ) / (q : ℂ))‖ := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_product (x := (q : ℂ) ^ N.toNat) (y := F ((p : ℂ) / (q : ℂ)))))
-    exact hI
+  have s7 : ‖(q : ℂ) ^ N.toNat * F ((p : ℂ) / (q : ℂ))‖ = abs ((q : ℝ) ^ N.toNat) * ‖F ((p : ℂ) / (q : ℂ))‖ := by rw [← Classical.choose_spec s3]; (exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_product (x := (q : ℝ) ^ N.toNat) (y := (Classical.choose s3))))
   -- 8. inequalities
   have s8 : q ^ N.toNat ≥ 0 := by linarith only [s4]
   -- 9. def:abs x := q^N, from 8

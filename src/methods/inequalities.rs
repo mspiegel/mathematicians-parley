@@ -418,7 +418,8 @@ fn conjoined(term: &Term) -> bool {
 }
 
 /// What a plain step `decide` refuses is told, its claim `shown` and the
-/// step by its number. A claim that follows from the facts by linear
+/// step by its name (`Step::called`: step 4, or let D2 for a let's
+/// reason). A claim that follows from the facts by linear
 /// arithmetic, but not by adding them as they stand, is told the move it
 /// takes is written as a row (`METHODS.md`, inequalities, Refusals): a
 /// disequality from an order is a `weakening` row, and any other move a
@@ -426,7 +427,7 @@ fn conjoined(term: &Term) -> bool {
 /// at all is told so.
 pub fn refusal(
     shown: &str,
-    number: &str,
+    step: &str,
     claimed: &Term,
     cited: &[Term],
     implied: &[Term],
@@ -438,11 +439,11 @@ pub fn refusal(
         .iter()
         .all(|part| follows_linearly(&part.fact, &given));
     if claims.is_empty() || !follows {
-        return format!("{shown} does not follow from what step {number} cites");
+        return format!("{shown} does not follow from what {step} cites");
     }
     if claims.iter().any(|part| part.fact.how == How::Ne) {
         return format!(
-            "{shown} follows from an order step {number} cites by a `weakening` row, and a plain inequalities step only adds its lines as they stand; write the line, then the claim with `weakening` as its reason"
+            "{shown} follows from an order {step} cites by a `weakening` row, and a plain inequalities step only adds its lines as they stand; write the line, then the claim with `weakening` as its reason"
         );
     }
     if claims
@@ -450,11 +451,11 @@ pub fn refusal(
         .any(|part| !searched_whole(&part.fact, &given))
     {
         return format!(
-            "{shown} may follow from what step {number} cites by adding its lines as they stand, but they give more facts than a plain inequalities step tries every way of adding; cite fewer lines, or add them in steps of their own"
+            "{shown} may follow from what {step} cites by adding its lines as they stand, but they give more facts than a plain inequalities step tries every way of adding; cite fewer lines, or add them in steps of their own"
         );
     }
     format!(
-        "{shown} follows from what step {number} cites by a move other than adding its lines as they stand, which is all a plain inequalities step does; write the move as a row that names it, or a chain of lines as `transitivity`"
+        "{shown} follows from what {step} cites by a move other than adding its lines as they stand, which is all a plain inequalities step does; write the move as a row that names it, or a chain of lines as `transitivity`"
     )
 }
 

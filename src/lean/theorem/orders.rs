@@ -467,6 +467,30 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
+        // An equation in ℂ, which has no order for `linarith`: a plain step
+        // adds its facts as they stand, so the claim is their sum,
+        // `linear_combination h₁ + h₂`.
+        let complex = widest == Some(super::super::templates::Num::Complex);
+        let equation = matches!(&bare_term(&wanted).kind,
+            TermKind::Infix { op, .. } if op.symbol == "=");
+        if complex && equation && apart.is_empty() && part.weakened.is_none() {
+            // A fact taken up to ℂ, `show T by p`, is given as `(by p : T)`,
+            // which `linear_combination` reads as a proof and not a term.
+            let as_proof = |f: Printed| match &bare_term(&f).kind {
+                TermKind::Show { says, proof } => {
+                    super::conversions::ascribed((**proof).clone(), (**says).clone())
+                }
+                _ => f,
+            };
+            let Some(sum) = added.into_iter().map(as_proof).reduce(|a, b| {
+                Printed::infix(super::super::doc::Op::PLUS, a, b, LeanType::Prop)
+            }) else {
+                return Route::no("an equation in ℂ an order step adds no facts to");
+            };
+            return Route::Built(Proof::By(super::super::tactics::linear_combination(
+                sum,
+            )));
+        }
         let linear = split_linarith(&apart, added);
         let narrower = match (claim_in, widest) {
             (Some(c), Some(u)) if c != u => Some(u),
@@ -1300,9 +1324,10 @@ impl<'a> Proof<'a> {
         if sentences > 1 {
             if let Route::Built(whole) = &instance {
                 let parts = super::conversions::conjoined_parts(whole);
-                if parts.len() == sentences {
+                let path = super::conversions::conjunct_path(whole, k);
+                if let (true, Some(path)) = (parts.len() == sentences, path) {
                     instance = Route::Built(parts[k].clone());
-                    proof = fields(proof, &projection_path(k, sentences));
+                    proof = fields(proof, &path);
                     written = written.and_then(|w| {
                         super::conversions::conjoined_parts(&w).get(k).cloned()
                     });
@@ -1364,8 +1389,12 @@ impl<'a> Proof<'a> {
                 false => says.clone(),
             };
             if forms::one_term_once_set(&facing, wanted, &self.set_values()) {
+                let proof = match turned {
+                    true => turned_proof(proof, says),
+                    false => proof,
+                };
                 return Route::Built(super::super::doc::Proof::By(Tactic::Exact(
-                    faced(proof, facing_of_turned(turned)),
+                    proof,
                 )));
             }
         }
@@ -1584,8 +1613,20 @@ impl<'a> Proof<'a> {
             return None;
         };
         let (g_left, _) = equation_sides(guard)?;
-        let (_, number) = equation_sides(body)?;
-        let (s_left, s_right) = equation_sides(says)?;
+        // The number related to j by one relation in both, `(m : ℤ) = j` or
+        // `(m : ℤ) ∣ |G|`.
+        let sides = |p: &Printed| match &bare_term(p).kind {
+            TermKind::Infix { op, lhs, rhs } => {
+                Some((op.symbol, (**lhs).clone(), (**rhs).clone()))
+            }
+            _ => None,
+        };
+        let (owed_op, _, number) = sides(body)?;
+        let (said_op, s_left, s_right) = sides(says)?;
+        if owed_op != said_op {
+            return None;
+        }
+        let (number, s_left, s_right) = (&number, &s_left, &s_right);
         let (
             TermKind::Count {
                 set: owed,

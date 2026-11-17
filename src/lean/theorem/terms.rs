@@ -682,6 +682,33 @@ pub(super) fn rat_relation_lemma(says: &Printed) -> Option<&'static str> {
     }
 }
 
+/// The proof of a relation of ℝ from `proof` of the same relation of ℚ,
+/// `says`, which holds no cast to ℝ for `norm_cast` to take up: by the
+/// relation's lemma at ℝ, ℚ's casts pushed down to the letters and
+/// numerals (`rat_cast_lemmas`), and the casts left in both pushed alike.
+/// None of a relation with no such lemma.
+pub(super) fn rat_lifted(proof: Printed, says: &Printed) -> Option<Printed> {
+    use super::super::tactics as t;
+    let lemma = rat_relation_lemma(says)?;
+    let up = applied_to(
+        fields(
+            rat_relation_at(lemma, super::super::templates::Num::Real),
+            &["mpr"],
+        ),
+        proof,
+    );
+    let both = super::super::doc::TacticArg::At(vec![
+        super::super::doc::Location::Hypothesis("h".to_string()),
+        super::super::doc::Location::Goal,
+    ]);
+    Some(t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
+        t::name_h(&up),
+        t::simp_only(false, None, rat_cast_lemmas(says), Some(t::at_h(false))),
+        t::push_cast(Some(both)),
+        Tactic::Exact(t::hyp("h")),
+    ]))))
+}
+
 /// `(Rat.cast_le (K := ℝ))`: the relation lemma `lemma` at the field `to`.
 pub(super) fn rat_relation_at(
     lemma: &str,

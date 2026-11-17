@@ -21,8 +21,8 @@ public section
 
 namespace Parley.Tests.Elaborator.ATypeALineStates.IntoTheEmptySet
 
-theorem into_the_empty_set {α : Type*} [Nonempty α] (A : Set α) (F : α → α) (hH2 : Set.MapsTo F A ∅) :
-    (∀ t ∈ A, F t ∈ (∅ : Set α)) := by
+theorem into_the_empty_set {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (F : α → β) (hH2 : Set.MapsTo F A ∅) :
+    (∀ t ∈ A, F t ∈ (∅ : Set β)) := by
   -- 1. mun:function-value f := F
   intro t h_t; (exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ∅) (f := F) (x := t) h_t hH2))
 

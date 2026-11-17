@@ -132,7 +132,29 @@ impl<'s> ClosureClaim<'s> {
             Some(_) => None,
             None => self.step.just.cited_item().map(|c| self.step.just.item(&c)),
         };
-        let defined = known.citing_item(self.refs, item.as_deref());
+        // A `membership` citing a let that says its kind of number takes the
+        // kind, u(x) ∈ ℝ of `let u(x) = …, a real number`, and leaves the
+        // name standing (`SYNTAX.md`: a step that needs a value's
+        // membership cites the label); any other method reads its rule.
+        let kinded: Vec<String> = match self.membership() {
+            true => crate::checker::library::kinded_above(
+                known.thm,
+                known.shape(),
+                self.step,
+                known.env,
+            )
+            .into_iter()
+            .map(|k| k.label)
+            .collect(),
+            false => Vec::new(),
+        };
+        let written_out: Vec<String> = self
+            .refs
+            .iter()
+            .filter(|r| !kinded.contains(r))
+            .cloned()
+            .collect();
+        let defined = known.citing_item(&written_out, item.as_deref());
         // A claim of several sentences is their conjunction (`SYNTAX.md`),
         // as `0 ≤ e. e ≤ 9.` is `0 ≤ e and e ≤ 9`.
         let sentences: Vec<Node> = self
@@ -172,6 +194,16 @@ impl<'s> ClosureClaim<'s> {
             sentences,
             ..ClosureRead::new(claimed, lines, line_of)
         })
+    }
+
+    /// Whether the claim's reason is the `membership` method: the requires
+    /// line's own, or the step's.
+    fn membership(&self) -> bool {
+        let just = match self.requires {
+            Some(req) => req.by.as_ref().ok(),
+            None => Some(&self.step.just),
+        };
+        just.is_some_and(|j| j.head.is(crate::corpus::Method::Membership))
     }
 
     /// A refusal as it is said here: of the requires line, where the claim

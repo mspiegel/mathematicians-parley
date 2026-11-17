@@ -1522,9 +1522,9 @@ pub(super) fn algebra_holds(
     let labels = FloatLabels::new(IndexMap::new());
     let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
     let render = |t: &Term| printed(t, &shown, known, targets, &labels);
-    let number = at.step.number.to_string();
+    let step = at.step.called();
     if let Some(said) =
-        algebra::refusal(&verdict, &at.claim.to_string(), &number, &render)
+        algebra::refusal(&verdict, &at.claim.to_string(), &step, &render)
     {
         report.say(&thm.path, at.line, at.said(said));
         return true;

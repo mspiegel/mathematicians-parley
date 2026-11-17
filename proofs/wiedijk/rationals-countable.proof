@@ -16,8 +16,9 @@ theorem rationals-countable
               Schröder–Bernstein then gives a bijection.
   then there is a bijection from ℕ to ℚ
 
-let f(n) = n, for n ∈ ℕ                                               (D1)
-       reads each natural number, as a rational
+let f(n) = n, a rational number, for n ∈ ℕ                            (D1)
+    membership
+    reads each natural number, as a rational
 
 let s(x) = 0    if numer(x) ≥ 0
            1    otherwise,  for x ∈ ℚ                                 (D2)
@@ -110,9 +111,6 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), a positive integer, for x ∈ ℚ  
 
 6.  For all x ∈ ℚ, g(x) ∈ ℕ.
     membership, from D3
-    requires numer(x) ∈ ℤ: mun:lowest-terms-parts
-    requires denom(x) ∈ ℕ: mun:lowest-terms-parts
-    requires s(x) ∈ ℕ₀: from 4
 
 7.  g : ℚ → ℕ
     mun:function-into, from 6

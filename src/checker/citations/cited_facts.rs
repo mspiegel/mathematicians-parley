@@ -1310,9 +1310,16 @@ pub(super) fn supplied_at(
     supplying
         .into_iter()
         .map(|Supplying { want, fact, at }| {
-            let fact = fact.unwrap_or_else(|| {
-                standard(&substitute_apart(&want, binding, ctx), ctx)
-            });
+            // The hypothesis at the citation's values, where the fact the
+            // search took is alike it: the search takes `1·(m + 1) ∈ ℕ₀` for
+            // `m + 1 ∈ ℕ₀`, which `alike` reads the same, and what supplies
+            // it is looked for as the citation writes it.
+            let at_values = standard(&substitute_apart(&want, binding, ctx), ctx);
+            let none = IndexMap::new();
+            let fact = match fact {
+                Some(f) if !alike(&f, &at_values, ctx, &none, &none) => f,
+                _ => at_values,
+            };
             let by = suppliers.by(&fact);
             // The hypothesis as the citation asks it, a property given read
             // as its body where it is applied (`filled`), as a conclusion's

@@ -289,6 +289,9 @@ pub(super) struct DefinedRule {
     pub(super) letter: String,
     pub(super) domain: Node,
     pub(super) rule: Node,
+    /// The system its kind puts its values in, `let F(x) = …, a real
+    /// number, for x ∈ D`; None where it says no kind.
+    pub(super) kind: Option<System>,
 }
 
 impl DefinedRule {
@@ -314,18 +317,26 @@ impl DefinedRule {
         )?;
         let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
         let domain = known.parse(&d.domain(param).formula()?)?;
+        // A kind no record names is reported where the lets are checked.
+        let kind = d
+            .kinded(&d.path, &known.env.g.members)
+            .ok()
+            .flatten()
+            .and_then(|k| System::of_sign(&k.set));
         Ok(Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
             domain,
             rule,
+            kind,
         }))
     }
 
     /// Whether the type `f : D → E` asked of this function is said once
     /// (`SYNTAX.md`, "A define with a parameter also states what its
-    /// function is on"): its domain holds D, and its rule at a point of D
-    /// is in E by what the page says once, with `letters` the step's.
+    /// function is on"): its domain holds D, and its kind, or its rule at a
+    /// point of D by what the page says once, with `letters` the step's,
+    /// puts its values in E. A kind says the type as `let f : D → ℝ` would.
     pub(super) fn typed_once(
         &self,
         domain: &Node,
@@ -349,6 +360,9 @@ impl DefinedRule {
                 && System::of_sign(&self.domain.text)
                     .zip(inside)
                     .is_some_and(|(own, asked)| asked.within(own)));
+        if holds && self.kind.is_some_and(|kind| kind.within(into)) {
+            return true;
+        }
         let Some(inside) = inside.filter(|_| holds) else {
             return false;
         };

@@ -938,6 +938,17 @@ pub(super) fn written_out(
     at: &[RewriteAt],
     writer: &Writer,
 ) -> Vec<Tactic> {
+    written_out_as(defines, at, writer, true)
+}
+
+/// `written_out`, the casts pushed in after where `push`; not where the
+/// rewrite leaves a claim's two sides one term, which it closes.
+pub(super) fn written_out_as(
+    defines: &[CitedDefine],
+    at: &[RewriteAt],
+    writer: &Writer,
+    push: bool,
+) -> Vec<Tactic> {
     use super::super::tactics as t;
     if defines.is_empty() {
         return Vec::new();
@@ -1022,7 +1033,7 @@ pub(super) fn written_out(
             Some(TacticArg::At(locs)),
         ));
     }
-    if !pushed.is_empty() {
+    if push && !pushed.is_empty() {
         out.push(t::push_cast(Some(TacticArg::At(pushed))));
     }
     out

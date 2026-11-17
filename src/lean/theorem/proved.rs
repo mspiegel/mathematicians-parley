@@ -119,6 +119,18 @@ pub(super) fn cast_proved(
     wanted: &Printed,
 ) -> Option<Proved> {
     use super::super::casts::{norm_cast_moves_all, push_cast_moves_all_in_sides};
+    // A line whose numbers are of a narrower field than the goal's, under
+    // its "for all"s as well, ℚ for ℝ, is lifted to it.
+    // A relation of ℚ for the same of ℝ: by ℚ's lemma for it, as
+    // `norm_cast` does not take a fact of ℚ with no cast to ℝ up to it.
+    if rat_crossing(says, wanted) {
+        if let Some(lifted) = rat_lifted(line.clone(), says) {
+            return Some(Proved::Term(lifted));
+        }
+    }
+    let fields = super::super::spelling::fields_of;
+    let mut apart = apart;
+    apart.lift |= fields(says).last() < fields(wanted).last();
     let by = if norm_cast_moves_all(says) && norm_cast_moves_all(wanted) {
         CastsBy::NormCast
     } else if !apart.lift

@@ -993,10 +993,10 @@ pub(super) fn inequalities_hold(
             true
         }
         Some(false) => {
-            let number = at.step.number.to_string();
+            let step = at.step.called();
             let said = inequalities::refusal(
                 &at.claim.to_string(),
-                &number,
+                &step,
                 &claimed,
                 &cited,
                 &implied,
@@ -1419,7 +1419,7 @@ pub(super) fn membership_holds(
     };
     let given = held.given(targets, known);
     if !methods_membership::holds(term, system, &given) {
-        let number = at.step.number.to_string();
+        let step = at.step.called();
         // The first part the claim is built from that nothing held says is
         // a number there, through a cited equation where one carries it, or
         // a divisor nothing says is not zero.
@@ -1445,10 +1445,7 @@ pub(super) fn membership_holds(
                     })
             })
             .unwrap_or_default();
-        let said = format!(
-            "{} is not built from what step {number} cites{unsaid}",
-            at.claim
-        );
+        let said = format!("{} is not built from what {step} cites{unsaid}", at.claim);
         report.say(&thm.path, at.line, at.said(said));
     }
     true
@@ -1490,6 +1487,20 @@ impl MembershipIn {
                         .iter()
                         .filter_map(|s| known.read_citing(s, &defined)),
                 );
+            }
+        }
+        // A claim said of every member of a set is decided at a member, which
+        // is in that set: x ∈ [a, b] of "for all x ∈ [a, b], …", where a
+        // function typed on [a, b] gives its value.
+        if let (FOR_ALL, [bound, set, _]) =
+            (read.claimed.notation(), read.claimed.children.as_slice())
+        {
+            if let Some(member) = crate::formula::page::made_as(
+                known.env.g,
+                "_ ∈ _",
+                vec![bound.clone(), set.clone()],
+            ) {
+                lines.push(member);
             }
         }
         // A step said of every member in one line, and its requires lines,

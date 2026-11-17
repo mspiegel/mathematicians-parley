@@ -103,8 +103,7 @@ theorem birthday :
       exact congrArg (fun t : ℤ => t) e_w
     have row1 : (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (23 - 1 : ℤ), (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)) := by
       have e_nat : (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ).ncard = 23 := by exact_mod_cast c1
-      have e_w : ((Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ).ncard : ℤ) = 23 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-      (have h := Eq.subst (motive := (fun t : ℤ => (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (t - 1), (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)))) e_w s9; push_cast at h ⊢; exact_mod_cast h)
+      (have h := Eq.subst (motive := (fun t : ℕ => (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) ((t : ℤ) - 1), (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)))) e_nat s9; push_cast at h ⊢; exact_mod_cast h)
     have c2 : (23 - 1 : ℤ) = 22 := by norm_num
     have row2 : (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) t, (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)))) c2 row1; push_cast at h ⊢; exact_mod_cast h)
     have c3 : ((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) = 365 := by
@@ -113,8 +112,7 @@ theorem birthday :
       exact congrArg (fun t : ℤ => t) e_w
     have row3 : (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (365 - k : ℤ)) := by
       have e_nat : (Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard = 365 := by exact_mod_cast c3
-      have e_w : ((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) = 365 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-      exact Eq.subst (motive := (fun t : ℤ => (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (t - k : ℤ)))) e_w row2
+      (have h := Eq.subst (motive := (fun t : ℕ => (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), ((t : ℤ) - k : ℤ)))) e_nat row2; push_cast at h ⊢; exact_mod_cast h)
     exact row3
   -- 11. arithmetic
   have s11 : (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (365 - (k : ℚ) : ℚ)) / 365 ^ 23 < 1 / 2 := by field_simp; norm_cast

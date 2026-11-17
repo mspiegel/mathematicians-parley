@@ -392,6 +392,11 @@ pub struct Elaborator<'a> {
     pub said_back: Option<Vec<String>>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
+    /// The defines, by label, whose names the proof being built keeps
+    /// standing rather than reading as what they name: those a `membership`
+    /// step cites that say their kind of number, whose kind gives the
+    /// value's membership (`SYNTAX.md`).
+    pub kept_named: BTreeSet<String>,
     /// While a record's lemma is applied for a step citing it, each
     /// hypothesis of the record, in set.mm at the citation's values, with the
     /// proof of the fact the checker recorded as supplying it
@@ -583,6 +588,7 @@ impl<'a> Elaborator<'a> {
             adding_only: false,
             said_back: None,
             resting: None,
+            kept_named: BTreeSet::new(),
             hypotheses_given: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),

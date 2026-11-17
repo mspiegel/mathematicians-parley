@@ -32,9 +32,11 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
@@ -50,7 +52,7 @@ namespace Parley.Proofs.Wiedijk.RationalsCountable.RationalsCountable
 
 theorem rationals_countable :
     (∃ g : ℤ → ℚ, Set.BijOn g {n : ℤ | 0 < n} (Set.univ : Set ℚ)) := by
-  set f : ℤ → ℤ := fun n : ℤ => n with hD1
+  set f : ℤ → ℚ := fun n : ℤ => (n : ℚ) with hD1
   set s : ℚ → ℤ := fun x : ℚ => (@ite _ (Rat.num x ≥ 0) (Classical.propDecidable (Rat.num x ≥ 0)) 0 1 : ℤ) with hD2
   -- 1. mun:function-into
   -- 2. proof
@@ -59,16 +61,17 @@ theorem rationals_countable :
     intro n hK3
     intro hA1
     -- 2.1. calculation
-    calc m = f m := by simp (disch := omega) only [hD1]
+    qify
+    calc (m : ℚ) = f m := by simp (disch := omega) only [hD1]
       _ = f n := hA1
-      _ = n := by simp (disch := omega) only [hD1]
+      _ = (n : ℚ) := by simp (disch := omega) only [hD1]
   -- 3. def:one-to-one, from 1, 2
   have s3 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℚ) ∧ Set.InjOn f {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℚ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by exact_mod_cast s2⟩
   -- 4. proof
   have s4 : ∀ x : ℚ, 0 ≤ s x ∧ Rat.num x = (1 - 2 * s x) * abs (Rat.num x) := by
     intro x
     -- 4.1. membership, from D2
-    have s4_1 : 0 ≤ s x := by rw [hD2]; split; norm_num; norm_num
+    have s4_1 : 0 ≤ s x := by simp only [hD2]; split; norm_num; norm_num
     -- 4.2. axi:excluded-middle P := numer(x) ≥ 0
     have s4_2 : Rat.num x ≥ 0 ∨ ¬ Rat.num x ≥ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := 0 ≤ Rat.num x))
     -- 4.3. cases, from 4.2
@@ -98,15 +101,13 @@ theorem rationals_countable :
     have s4_4 : 0 ≤ s x ∧ Rat.num x = (1 - 2 * s x) * abs (Rat.num x) := ⟨s4_1, s4_3⟩
     exact ⟨(s4_4).1, (s4_4).2⟩
   -- 5. membership
-  have r101_2 : ∀ x : ℚ, 0 < (Rat.den x : ℤ) := by intro x; (exact (Parley.Items.Stdlib.Numbers.mun_lowest_terms_parts_2 (x := x)))
-  have r101_3 : ∀ x : ℚ, 0 ≤ s x := by intro x; (exact (s4 x).1)
-  have s5 : ∀ x : ℚ, ∃ m : ℤ, 0 < m ∧ (m : ℚ) = 2 ^ abs (Rat.num x) * 3 ^ Rat.den x * 5 ^ s x := by intro x; exact mul_pos (mul_pos (pow_pos (by norm_num) _) (pow_pos (by norm_num) _)) (pow_pos (by norm_num) _)
+  have r102_2 : ∀ x : ℚ, 0 < (Rat.den x : ℤ) := by intro x; (exact (Parley.Items.Stdlib.Numbers.mun_lowest_terms_parts_2 (x := x)))
+  have r102_3 : ∀ x : ℚ, 0 ≤ s x := by intro x; (exact (s4 x).1)
+  have s5 : ∀ x : ℚ, ∃ m : ℤ, 0 < m ∧ (m : ℚ) = 2 ^ abs (Rat.num x) * 3 ^ Rat.den x * 5 ^ s x := by intro x; exact ⟨2 ^ (abs (Rat.num x)).toNat * 3 ^ Rat.den x * 5 ^ (s x).toNat, mul_pos (mul_pos (pow_pos (by norm_num) _) (pow_pos (by norm_num) _)) (pow_pos (by norm_num) _), by simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := abs_nonneg _), parley_zpow_toNat (n := s x) (h := r102_3 x)]; push_cast; ring⟩
   have hD3_kind : ∀ x : ℚ, ∃ m : ℤ, 0 < m ∧ (m : ℚ) = 2 ^ abs (Rat.num x) * 3 ^ Rat.den x * 5 ^ s x := by exact s5
-  obtain ⟨g, hD3⟩ : ∃ g : ℚ → ℤ, ∀ x : ℚ, (g x : ℚ) = 2 ^ abs (Rat.num x) * 3 ^ Rat.den x * 5 ^ s x := ⟨fun x => (hD3_kind x).choose, fun x => (hD3_kind x).choose_spec⟩
+  obtain ⟨g, hD3_pos, hD3⟩ : ∃ g : ℚ → ℤ, (∀ x : ℚ, 0 < g x) ∧ (∀ x : ℚ, (g x : ℚ) = 2 ^ abs (Rat.num x) * 3 ^ Rat.den x * 5 ^ s x) := ⟨fun x => (hD3_kind x).choose, fun x => (hD3_kind x).choose_spec.1, fun x => (hD3_kind x).choose_spec.2⟩
   -- 6. membership, from D3
-  have r111_2 : ∀ x : ℚ, 0 < (Rat.den x : ℤ) := by intro x; (exact (Parley.Items.Stdlib.Numbers.mun_lowest_terms_parts_2 (x := x)))
-  have r111_3 : ∀ x : ℚ, 0 ≤ s x := by intro x; (exact (s4 x).1)
-  have s6 : ∀ x : ℚ, 0 < g x := by intro x; exact by rw [hD3]; exact mul_pos (mul_pos (pow_pos (by norm_num) _) (pow_pos (by norm_num) _)) (pow_pos (by norm_num) _)
+  have s6 : ∀ x : ℚ, 0 < g x := by intro x; exact hD3_pos x
   -- 7. mun:function-into, from 6
   have s7 : Set.MapsTo g (Set.univ : Set ℚ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.univ : Set ℚ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Set.mem_univ, forall_const, Set.mem_ofPred_eq] using s6))
   -- 8. proof
@@ -130,13 +131,13 @@ theorem rationals_countable :
         _ = (g y : ℚ) := by exact_mod_cast hA2
         _ = 2 ^ abs (Rat.num y) * 3 ^ Rat.den y * 5 ^ s y := by simp (disch := omega) only [hD3]
     -- 8.6. thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 8.3, 8.4, 8.5
-    have r147_1 : 0 ≤ abs (Rat.num x) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_integer (z := Rat.num x))
-    have r147_2 : 0 ≤ abs (Rat.num y) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_integer (z := Rat.num y))
-    have r147_3 : 0 ≤ (Rat.den x : ℤ) := le_of_lt r101_2
-    have r147_4 : 0 ≤ (Rat.den y : ℤ) := le_of_lt s8_2a
-    have s8_6a : abs (Rat.num x) = abs (Rat.num y) := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_1 (a := abs (Rat.num x)) r147_1 (b := (Rat.den x : ℤ)) r147_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r147_2 (b' := (Rat.den y : ℤ)) r147_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r147_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt r101_2), parley_zpow_toNat (n := s x) (h := r101_3), parley_zpow_toNat (n := abs (Rat.num y)) (h := r147_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
-    have s8_6b : (Rat.den x : ℤ) = (Rat.den y : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_2 (a := abs (Rat.num x)) r147_1 (b := (Rat.den x : ℤ)) r147_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r147_2 (b' := (Rat.den y : ℤ)) r147_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r147_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt r101_2), parley_zpow_toNat (n := s x) (h := r101_3), parley_zpow_toNat (n := abs (Rat.num y)) (h := r147_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
-    have s8_6c : s x = s y := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_3 (a := abs (Rat.num x)) r147_1 (b := (Rat.den x : ℤ)) r147_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r147_2 (b' := (Rat.den y : ℤ)) r147_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r147_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt r101_2), parley_zpow_toNat (n := s x) (h := r101_3), parley_zpow_toNat (n := abs (Rat.num y)) (h := r147_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
+    have r145_1 : 0 ≤ abs (Rat.num x) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_integer (z := Rat.num x))
+    have r145_2 : 0 ≤ abs (Rat.num y) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_integer (z := Rat.num y))
+    have r145_3 : 0 ≤ (Rat.den x : ℤ) := le_of_lt s8_1a
+    have r145_4 : 0 ≤ (Rat.den y : ℤ) := le_of_lt s8_2a
+    have s8_6a : abs (Rat.num x) = abs (Rat.num y) := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_1 (a := abs (Rat.num x)) r145_1 (b := (Rat.den x : ℤ)) r145_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r145_2 (b' := (Rat.den y : ℤ)) r145_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r145_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt s8_1a), parley_zpow_toNat (n := s x) (h := s8_3.1), parley_zpow_toNat (n := abs (Rat.num y)) (h := r145_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
+    have s8_6b : (Rat.den x : ℤ) = (Rat.den y : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_2 (a := abs (Rat.num x)) r145_1 (b := (Rat.den x : ℤ)) r145_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r145_2 (b' := (Rat.den y : ℤ)) r145_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r145_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt s8_1a), parley_zpow_toNat (n := s x) (h := s8_3.1), parley_zpow_toNat (n := abs (Rat.num y)) (h := r145_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
+    have s8_6c : s x = s y := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_powers_unique_3 (a := abs (Rat.num x)) r145_1 (b := (Rat.den x : ℤ)) r145_3 (c := s x) s8_3.1 (a' := abs (Rat.num y)) r145_2 (b' := (Rat.den y : ℤ)) r145_4 (c' := s y) s8_4.1 (by (have h := s8_5; simp only [parley_zpow_toNat (n := abs (Rat.num x)) (h := r145_1), parley_zpow_toNat (n := (Rat.den x : ℤ)) (h := le_of_lt s8_1a), parley_zpow_toNat (n := s x) (h := s8_3.1), parley_zpow_toNat (n := abs (Rat.num y)) (h := r145_2), parley_zpow_toNat (n := (Rat.den y : ℤ)) (h := le_of_lt s8_2a), parley_zpow_toNat (n := s y) (h := s8_4.1)] at h ⊢; exact_mod_cast h)))
     -- 8.7. calculation
     have s8_7 : Rat.num x = Rat.num y := by
       calc Rat.num x = (1 - 2 * s x) * abs (Rat.num x) := s8_3.2
@@ -153,7 +154,7 @@ theorem rationals_countable :
           exact congrArg (fun t : ℚ => (Rat.num y : ℚ) / t) e_w
       _ = y := s8_2b.symm
   -- 9. def:one-to-one, from 7, 8
-  have s9 : Set.MapsTo g (Set.univ : Set ℚ) {n : ℤ | 0 < n} ∧ Set.InjOn g (Set.univ : Set ℚ) := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℚ)) (Y := {n : ℤ | 0 < n}) (f := g) s7)).mpr ⟨s7, by intro s _; exact s8 s⟩
+  have s9 : Set.MapsTo g (Set.univ : Set ℚ) {n : ℤ | 0 < n} ∧ Set.InjOn g (Set.univ : Set ℚ) := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℚ)) (Y := {n : ℤ | 0 < n}) (f := g) s7)).mpr ⟨s7, by intro s _ t _; exact s8 s t⟩
   -- 10. thm:schroeder-bernstein A := ℕ, B := ℚ, from 3, 9
   exact (Parley.Proofs.Wiedijk.SchroederBernstein.SchroederBernstein.schroeder_bernstein (A := {n : ℤ | 0 < n}) (B := (Set.univ : Set ℚ)) (f := f) s3 (g := g) s9)
 

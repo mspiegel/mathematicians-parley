@@ -92,7 +92,11 @@ impl<'a> Proof<'a> {
                 )
             })
         });
-        let met_after = moved && builds_sets;
+        // A chain in ℂ has no tactic to move the goal up, as `qify` and
+        // `rify` do, and is met with its claim the same way: `(f α : ℂ) =
+        // 0` of a claim f(α) = 0 in ℝ.
+        let met_after =
+            moved && (builds_sets || at == super::super::templates::Num::Complex);
         let mut block: Vec<Tactic> = match (moved && !met_after, at) {
             (true, super::super::templates::Num::Rat) => {
                 vec![super::super::tactics::call("qify", vec![])]
@@ -658,18 +662,29 @@ impl<'a> Proof<'a> {
                         given.raise(*var, c);
                     }
                 }
+                // A thing given a thing of the citing proof, u := y of a y
+                // in B, is of y's type, β where B holds β.
+                LetterType::Member(Members::Things(var)) => {
+                    match self.writer.member_kind(value) {
+                        Some(Members::Numbers(_)) | None => {}
+                        Some(m) => {
+                            given.others.entry(*var).or_insert(m);
+                        }
+                    }
+                }
                 // A set of things given a set of numbers, X := ℝ, sets the
-                // things' type at least to that set's.
+                // things' type at least to that set's; given any other set,
+                // X := B, they are what that set holds.
                 LetterType::Set(Members::Things(var)) => {
                     match self.writer.set_members(value) {
                         Some(Members::Numbers(n)) => {
                             given.raise(*var, n);
                             given.numbers.insert(*var);
                         }
-                        Some(m @ Members::Sets(_)) => {
-                            given.others.insert(*var, m);
+                        Some(m) => {
+                            given.others.entry(*var).or_insert(m);
                         }
-                        _ => {}
+                        None => {}
                     }
                 }
                 _ => {}
@@ -941,11 +956,12 @@ impl<'a> Proof<'a> {
             .find(|w| crate::matching::alike_top(&w.value, value, self.sources.ctx))
             .map_or(value, |w| &w.letter);
         match (ty, general.filter(|_| in_general)) {
-            (LetterType::Number(_), Some(at)) => self.writer.number_fixed(value, at),
-            // A value of a wider type that a line says is in the
-            // letter's, A + B ∈ ℚ of reals: the number that line
-            // gives.
-            (LetterType::Number(n), None) => {
+            // A value of a wider type that a line says is in the letter's
+            // type, its own or the one the item's general letters take, A +
+            // B ∈ ℚ of reals or F(p/q) ∈ ℝ of a complex F: the number that
+            // line gives.
+            (LetterType::Number(own), at) => {
+                let n = &at.unwrap_or(*own);
                 match self.writer.number_fixed(value, *n) {
                     Route::Declined(d) => match self.integer_line(value, *n) {
                         Some(line) => {
@@ -1146,6 +1162,36 @@ impl<'a> Proof<'a> {
             match self.given_type(value, ty, things) {
                 Route::Built(c) => at = at.max(c),
                 Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        // An item that orders holds in no type without an order, ℂ among
+        // them: where each value Lean holds in ℂ is one a line the step
+        // names says is real, F(p/q) of `F(p/q) ∈ ℝ`, the item is taken at
+        // ℝ, each such value the real number its line gives
+        // (`letter_given`).
+        use super::super::templates::Num;
+        if g.ordered && at == Num::Complex {
+            let complex_values_real = sentence.binders.iter().all(|b| {
+                let Binder::Letter {
+                    page,
+                    general: true,
+                    ..
+                } = b
+                else {
+                    return true;
+                };
+                let Some(value) =
+                    binding.get(&crate::formula::symbol::Symbol::of(page))
+                else {
+                    return true;
+                };
+                match self.writer.carrier(value).built() {
+                    Some(Num::Complex) => self.integer_line(value, Num::Real).is_some(),
+                    _ => true,
+                }
+            });
+            if complex_values_real {
+                at = Num::Real;
             }
         }
         Route::Built(Some(at))
@@ -1615,7 +1661,8 @@ impl<'a> Proof<'a> {
             let (proof, says) = match concluded.part.filter(|_| !whole) {
                 Some(part) => {
                     let at = parts.get(part)?.clone();
-                    (fields(proof, &projection_path(part, parts.len())), at)
+                    let path = super::conversions::conjunct_path(&says, part)?;
+                    (fields(proof, &path), at)
                 }
                 None => (proof, says),
             };
@@ -2160,7 +2207,39 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         // A define the step cites is written out first, as for algebra.
-        let defines = self.cited_defines(&reason.just.refs);
+        let mut defines = self.cited_defines(&reason.just.refs);
+        // A function a define names with its kind has its equation in the
+        // wider type, `↑(f x) = F ↑x`, which meets the goal only where Lean
+        // writes f applied and cast up: in a goal of f's own type it is left
+        // out.
+        let kinded: Vec<String> = {
+            let members = &self.sources.checked.grammar.members;
+            self.thm
+                .defines
+                .iter()
+                .filter_map(|d| d.kinded(&self.thm.path, members).ok().flatten())
+                .filter(|k| k.domain.is_some())
+                .map(|k| k.name)
+                .collect()
+        };
+        let cast_up_in_goal = |name: &str| {
+            claim_lean.as_ref().is_some_and(|c| {
+                c.walk().iter().any(|n| {
+                    let super::super::doc::TermKind::Cast { inner, .. } = &n.kind
+                    else {
+                        return false;
+                    };
+                    matches!(&bare_term(inner).kind,
+                        super::super::doc::TermKind::App { head, .. }
+                            if matches!(&head.kind,
+                                super::super::doc::TermKind::Letter(l)
+                                    if *l == super::super::names::letter(name)))
+                })
+            })
+        };
+        defines.retain(|d| {
+            !kinded.iter().any(|k| *k == *d.name.text) || cast_up_in_goal(&d.name.text)
+        });
         let in_goal: Vec<String> = defines
             .iter()
             .filter(|d| d.param.is_none())

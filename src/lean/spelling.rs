@@ -203,6 +203,21 @@ fn spelling(said: &Printed, written: &Printed) -> Spelling {
     if numerals_cast && step.iter().any(|n| numeral_sum(n, true)) {
         add_facts(&mut at_step, &["one_add_one_eq_two"]);
     }
+    // A differentiability on all of ℝ the step writes with what the whole
+    // type says about each point, `Set.univ ∈ nhds x`, and the item without
+    // it: that holds of every point (`Filter.univ_mem`), and the step's
+    // quantifier over `Set.univ` is read over the type, as the item's is.
+    if whole_about_a_point(written) && !whole_about_a_point(said) {
+        add_facts(
+            &mut at_step,
+            &[
+                "Filter.univ_mem",
+                "true_and",
+                "Set.mem_univ",
+                "true_implies",
+            ],
+        );
+    }
     let item_ranges = item.iter().any(|n| member_of_range(n, "Set.Icc"));
     if item_ranges && step.iter().any(|n| member_of_range(n, "Finset.Icc")) {
         add_facts(&mut at_step, &["Finset.mem_Icc"]);

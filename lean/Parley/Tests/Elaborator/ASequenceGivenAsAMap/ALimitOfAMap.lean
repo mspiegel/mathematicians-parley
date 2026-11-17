@@ -6,6 +6,9 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -35,7 +38,7 @@ namespace Parley.Tests.Elaborator.ASequenceGivenAsAMap.ALimitOfAMap
 theorem a_limit_of_a_map (hH1 : ∀ n : ℤ, 0 < n → 1 / (n : ℚ) ≤ 1 / ((n : ℚ) + 1)) (hH2 : ∀ n : ℤ, 0 < n → 1 / (n : ℚ) ≤ 1) :
     (∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds L)) := by
   -- 1. obtain L: thm:monotone-limit x := (n ∈ ℕ ↦ u(n)), B := 1, from H1, H2
-  obtain ⟨L, s1_obtained⟩ := (Parley.Items.Stdlib.Calculus.thm_monotone_limit (x := (fun x : ℤ => (((fun n : ℤ => 1 / (n : ℚ)) (x : ℤ) : ℚ) : ℝ))) (by intro n h_n; exact_mod_cast hH1 n h_n) (B := (1 : ℝ)) (by intro n h_n; exact_mod_cast hH2 n h_n))
+  obtain ⟨L, s1_obtained⟩ := (Parley.Items.Stdlib.Calculus.thm_monotone_limit (x := (fun x : ℤ => (((fun n : ℤ => 1 / (n : ℚ)) (x : ℤ) : ℚ) : ℝ))) (by intro n h_n; exact by have h := (Rat.cast_le (K := ℝ)).mpr (hH1 n h_n); simp only [Rat.cast_add, Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; push_cast at h ⊢; exact h) (B := (1 : ℝ)) (by intro n h_n; exact by have h := (Rat.cast_le (K := ℝ)).mpr (hH2 n h_n); simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; push_cast at h ⊢; exact h))
   have s1 : Filter.Tendsto (fun n : ℤ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds L) := by (have h := s1_obtained; push_cast at h ⊢; exact h)
   -- 2. exhibit, from 1
   exact ⟨L, s1⟩

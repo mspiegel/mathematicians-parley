@@ -81,7 +81,7 @@ pub enum RuleText {
 /// The lines of a define by cases.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cases {
-    /// The lines as written, joined, for a message.
+    /// The cases on one line, `0 if t = c, f(t) otherwise`, for a message.
     pub written: String,
     /// Each case before the last, in order.
     pub cases: Vec<CaseText>,
@@ -646,8 +646,16 @@ fn by_cases(lines: &[&str]) -> Route<RuleText> {
             condition: case.condition.to_string(),
         });
     }
+    // For a message, the cases on one line as a sentence writes them, `0 if
+    // t = c, f(t) otherwise`, not the lines with their columns' spacing.
+    let written = cases
+        .iter()
+        .map(|c| format!("{} if {}", c.value, c.condition))
+        .chain(std::iter::once(format!("{last} otherwise")))
+        .collect::<Vec<_>>()
+        .join(", ");
     Built(RuleText::Cases(Cases {
-        written: lines.join(" "),
+        written,
         cases,
         otherwise: last.to_string(),
     }))

@@ -169,11 +169,11 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.3. instantiate k := p + g in line 3
       have s5_3 : L (p + g) ≤ L (p + g + 1) ∧ U (p + g + 1) ≤ U (p + g) := by exact (s3 (p + g) (add_nonneg (hP2) (hG)))
       -- 5.4. instantiate k := p in line 4
-      have s5_4 : L p ≤ U p := by exact (s4 p hP2).2.2
+      have s5_4 : L p ≤ U p := by exact (s4 p hP2).2
       -- 5.5. instantiate k := p + g in line 4
-      have s5_5 : L (p + g) ≤ U (p + g) := by exact (s4 (p + g) (add_nonneg (hP2) (hG))).2.2
+      have s5_5 : L (p + g) ≤ U (p + g) := by exact (s4 (p + g) (add_nonneg (hP2) (hG))).2
       -- 5.6. instantiate k := (p + g) + 1 in line 4
-      have s5_6 : L (p + g + 1) ≤ U (p + g + 1) := by exact (s4 (p + g + 1) (add_nonneg (add_nonneg (hP2) (hG)) (by norm_num))).2.2
+      have s5_6 : L (p + g + 1) ≤ U (p + g + 1) := by exact (s4 (p + g + 1) (add_nonneg (add_nonneg (hP2) (hG)) (by norm_num))).2
       -- 5.7. inequalities, from 5.2, 5.4, 5.5
       have s5_7 : L p ≤ L (p + g) := by linarith only [s5_2.1]
       -- 5.8. inequalities, from 5.3, 5.5, 5.6
@@ -198,9 +198,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     intro j hJ1
     intro k hK3
     -- 6.1. instantiate k := j in line 4
-    have s6_1 : L j ≤ U j := by exact (s4 j hJ1).2.2
+    have s6_1 : L j ≤ U j := by exact (s4 j hJ1).2
     -- 6.2. instantiate k := k in line 4
-    have s6_2 : L k ≤ U k := by exact (s4 k hK3).2.2
+    have s6_2 : L k ≤ U k := by exact (s4 k hK3).2
     -- 6.3. axi:excluded-middle P := j ≤ k
     have s6_3 : j ≤ k ∨ ¬ j ≤ k := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j ≤ k))
     -- 6.4. cases, from 6.3

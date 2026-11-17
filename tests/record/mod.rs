@@ -340,6 +340,7 @@ fn making(made: &parley::citing::finite::Making, g: &Grammar) -> String {
         Making::Powerset(a) => format!("Powerset({})", finite_why(a, g)),
         Making::Builder(a) => format!("Builder({})", finite_why(a, g)),
         Making::Image(a) => format!("Image({})", finite_why(a, g)),
+        Making::Coset(a) => format!("Coset({})", finite_why(a, g)),
         Making::Applied(name) => format!("Applied({name:?})"),
         Making::Functions(a, b) => {
             format!("Functions({}, {})", finite_why(a, g), finite_why(b, g))

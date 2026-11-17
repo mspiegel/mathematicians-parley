@@ -84,7 +84,7 @@ public section
 namespace Parley.Proofs.Wiedijk.LiouvilleNumber.LiouvilleNumber
 
 theorem liouville_number :
-    Transcendental ℤ (Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) : ℂ) := by
+    Transcendental ℤ ((Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) : ℝ) : ℂ) := by
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. proof
@@ -113,7 +113,7 @@ theorem liouville_number :
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / 2 ^ LeanBridges.Counting.factorial (1 + 1 : ℤ) := by exact (s7 n hK4 hK4)
       _ = 1 := s6
   -- 9. obtain L: thm:monotone-limit x := (n ∈ ℕ ↦ s(n)), B := 1, from 2, 8
-  obtain ⟨L, s9_obtained⟩ := (Parley.Items.Stdlib.Calculus.thm_monotone_limit (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (by (have h := s2; push_cast at h ⊢; exact h)) (B := (1 : ℝ)) (by (have h := s8; push_cast at h ⊢; exact h)))
+  obtain ⟨L, s9_obtained⟩ := (Parley.Items.Stdlib.Calculus.thm_monotone_limit (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (by intro n h_n; exact by have h := (Rat.cast_le (K := ℝ)).mpr (s2 n h_n); simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; push_cast at h ⊢; exact h) (B := (1 : ℝ)) (by intro n h_n; exact by have h := (Rat.cast_le (K := ℝ)).mpr (s8 n h_n); simp only [Rat.cast_sum, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; push_cast at h ⊢; exact h))
   have s9 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ) : ℝ)) Filter.atTop (nhds L) := by (have h := s9_obtained; push_cast at h ⊢; exact h)
   -- 10. contradiction
   have s10 : ¬ IsAlgebraic ℤ (L : ℂ) := by
@@ -144,13 +144,17 @@ theorem liouville_number :
     -- 10.6. instantiate n := r in line 10.5, from D2
     have s10_6 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial r * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by exact (s10_5 r hD2_pos)
     -- 10.7. substitute 2^(r!) = d (D3) into line 10.6
-    have s10_7 : ∃ m : ℤ, (m : ℚ) = (d : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := Eq.subst (motive := (fun t : ℤ => ∃ m : ℤ, (m : ℚ) = (t : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)))) hD3.symm s10_6
+    have s10_7 : ∃ m : ℤ, (m : ℚ) = (d : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by
+      have e_w : 2 ^ LeanBridges.Counting.factorial r = (d : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD3.symm; push_cast at h; linear_combination h
+      exact Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)))) e_w s10_6
     -- 10.8. instantiate p := d·s(r), q := d in line 10.2, from D3, 10.7
-    have s10_8 : L = (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ)) := by rw [← Classical.choose_spec s10_7]; (exact_mod_cast (s10_2b (Classical.choose s10_7) d hD3_pos))
+    have s10_8 : L = (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ)) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s10_7); push_cast at h; exact h : ((Classical.choose s10_7 : ℤ) : ℝ) = (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)))]; (exact_mod_cast (s10_2b (Classical.choose s10_7) d hD3_pos))
     -- 10.9. substitute
     have s10_9 : L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by
       have c1 : (d : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) / (d : ℚ) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by field
-      have row1 : L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by (have h := Eq.subst (motive := (fun t : ℚ => L = (t : ℝ) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (t : ℝ)))) c1 s10_8; push_cast at h ⊢; exact_mod_cast h)
+      have row1 : L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by
+        have e_w : (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h ⊢; linear_combination h
+        exact Eq.subst (motive := (fun t : ℝ => L = t ∨ c / (d : ℝ) ^ N.toNat < abs (L - t))) e_w s10_8
       exact row1
     -- 10.10. thm:later-at-least n := r, from D2
     have s10_10 : ∀ i : ℤ, 0 < i → i ≥ r + 1 → (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by
@@ -179,8 +183,8 @@ theorem liouville_number :
     -- 10.16. calculation
     have s10_16 : (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) < L := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) < (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 1 / (e : ℝ) := (show (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) < (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 1 / (e : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr s10_15; simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
-        _ = (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by (have h := s10_13.symm; push_cast at h ⊢; exact_mod_cast h)
-        _ ≤ L := by exact (Parley.Items.Stdlib.Calculus.thm_limit_at_least (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := s9; push_cast at h ⊢; exact h)) (B := ∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) (N := r + 1) (add_pos (hD2_pos) (by norm_num)) (by (have h := s10_10; push_cast at h ⊢; exact h)))
+        _ = (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by have h := (Rat.cast_inj (α := ℝ)).mpr s10_13.symm; simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; push_cast at h ⊢; exact h
+        _ ≤ L := by exact (Parley.Items.Stdlib.Calculus.thm_limit_at_least (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := s9; push_cast at h ⊢; exact h)) (B := ∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) (N := r + 1) (add_pos (hD2_pos) (by norm_num)) (by intro n h_n h_3; exact by have h := (Rat.cast_le (K := ℝ)).mpr (s10_10 n h_n h_3); simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; push_cast at h ⊢; exact h))
     -- 10.17. inequalities
     have s10_17 : L ≠ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by linarith only [s10_16]
     -- 10.18. thm:later-at-most n := r, from D2
@@ -189,9 +193,11 @@ theorem liouville_number :
       push_cast at ⊢
       exact (Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtMost.later_at_most (n := m + N) hD2_pos)
     -- 10.19. substitute 2^((r + 1)!) = e (D4) into line 10.18
-    have s10_19 : ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / (e : ℚ) := Eq.subst (motive := (fun t : ℤ => ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / (t : ℚ))) hD4.symm s10_18
+    have s10_19 : ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / (e : ℚ) := by
+      have e_w : 2 ^ LeanBridges.Counting.factorial (r + 1) = (e : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD4.symm; push_cast at h; linear_combination h
+      exact Eq.subst (motive := (fun t : ℚ => ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / t)) e_w s10_18
     -- 10.20. thm:limit-at-most x := (n ∈ ℕ ↦ s(n)), B := s(r) + 2/e, N := r, from 9, 10.19
-    have s10_20 : L ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 2 / (e : ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_limit_at_most (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := s9; push_cast at h ⊢; exact h)) (B := (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 2 / (e : ℝ)) (N := r) hD2_pos (by (have h := s10_19; rw [hD2, hD4] at h; rw [hD2, hD4] at ⊢; push_cast at h ⊢; exact h)))
+    have s10_20 : L ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 2 / (e : ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_limit_at_most (x := (fun x : ℤ => (((fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) (x : ℤ) : ℚ) : ℝ))) (L := L) (by (have h := s9; push_cast at h ⊢; exact h)) (B := (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 2 / (e : ℝ)) (N := r) hD2_pos (by intro n h_n h_3; exact by have h := (Rat.cast_le (K := ℝ)).mpr (s10_19 n h_n h_3); simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; push_cast at h ⊢; exact h))
     -- 10.21. mun:quotient-positive x := 2, y := e
     have r567_1 : (2 : ℤ) > 0 := by norm_num
     have r567_2 : e > 0 := by linarith only [hD4_pos, hD4]
@@ -241,7 +247,7 @@ theorem liouville_number :
             exact congrArg (fun t : ℕ => 2 ^ t) e_nat
         _ = 2 ^ ((LeanBridges.Counting.factorial r : ℤ) * N + (LeanBridges.Counting.factorial r : ℤ) * (m + 1)).toNat := congrArg (fun t : ℤ => 2 ^ t.toNat) s10_31
         _ = 2 ^ ((LeanBridges.Counting.factorial r : ℤ) * N).toNat * 2 ^ ((LeanBridges.Counting.factorial r : ℤ) * (m + 1)).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial r : ℤ) * N) (mul_nonneg (Nat.cast_nonneg _) (le_of_lt hD1_pos)) (n := (LeanBridges.Counting.factorial r : ℤ) * (m + 1)) (mul_nonneg (Nat.cast_nonneg _) (add_nonneg (le_of_lt s10_3a) (by norm_num))))
-        _ = Q * R := by simp only [hD5, hD6] at ⊢; push_cast at ⊢
+        _ = Q * R := by simp only [hD5, hD6] at ⊢
     -- 10.33. substitute
     have s10_33 : c / (Q : ℝ) < 2 / ((Q : ℝ) * (R : ℝ)) := by
       have c1 : d ^ N.toNat = Q := congrArg (fun t : ℤ => t) s10_29
@@ -285,7 +291,7 @@ theorem liouville_number :
     have r679_1 : (1 : ℤ) ≥ -1 := by norm_num
     have s10_45 : m < R := by
       calc m < 1 + 1 * (m + 1) := s10_44
-        _ ≤ (1 + 1) ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := (1 : ℤ)) (n := m + 1) (mul_nonneg (by norm_num) (add_nonneg (le_of_lt s10_3a) (by norm_num))) (by norm_num))
+        _ ≤ (1 + 1) ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := (1 : ℤ)) (n := m + 1) (add_nonneg (le_of_lt s10_3a) (by norm_num)) (by norm_num))
         _ = 2 ^ (m + 1).toNat := by norm_num
         _ ≤ R := s10_43
     -- 10.46. transitivity, from 10.3, 10.45
@@ -305,7 +311,7 @@ theorem liouville_number :
   have c1 : L = Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by
     have hI : Filter.limUnder Filter.atTop (fun n : ℤ => ∑ a ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial a : ℝ)) = L := by exact ((Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) (L := L) s9))
     exact hI.symm
-  have row1 : Transcendental ℤ (Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) : ℂ) := Eq.subst (motive := (fun t : ℝ => Transcendental ℤ (t : ℂ))) c1 s11
+  have row1 : Transcendental ℤ ((Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) : ℝ) : ℂ) := Eq.subst (motive := (fun t : ℝ => Transcendental ℤ (t : ℂ))) c1 s11
   exact row1
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.LiouvilleNumber

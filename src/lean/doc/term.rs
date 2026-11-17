@@ -342,6 +342,18 @@ pub enum Arg {
 }
 
 impl Arg {
+    /// Whether the argument is a `fun`.
+    pub fn is_fun(&self) -> bool {
+        let (Arg::Explicit(t) | Arg::Named { value: t, .. }) = self;
+        matches!(
+            t.kind,
+            TermKind::Quantified {
+                quant: Quant::Fun,
+                ..
+            }
+        )
+    }
+
     /// The argument with a template's holes filled (`Term::instantiate`).
     fn instantiate(&self, args: &[Term]) -> Option<Arg> {
         Some(match self {

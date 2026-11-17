@@ -121,9 +121,19 @@ impl Term {
             }
             TermKind::Not(p) => format!("¬ {}", p.at(40)),
             TermKind::Neg(x) => format!("-{}", x.at(76)),
-            TermKind::Cast { inner, to } => {
-                format!("({} : {})", inner.text(), to.text())
-            }
+            // An application to a `fun` takes its type from what it is
+            // given, and Lean gives it the type it is cast to: it elaborates
+            // `(Filter.limUnder … : ℂ)` at ℂ, a limit of the terms cast. Its
+            // own type said first, `((Filter.limUnder … : ℝ) : ℂ)`, casts the
+            // real limit.
+            TermKind::Cast { inner, to } => match (&inner.kind, &inner.ty) {
+                (TermKind::App { args, .. }, Some(from @ LeanType::Num(_)))
+                    if from != to && args.iter().any(Arg::is_fun) =>
+                {
+                    format!("(({} : {}) : {})", inner.text(), from.text(), to.text())
+                }
+                _ => format!("({} : {})", inner.text(), to.text()),
+            },
             TermKind::Count { set, form } => {
                 let field = match form {
                     CountForm::Natural => "ncard",

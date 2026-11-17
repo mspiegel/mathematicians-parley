@@ -147,11 +147,15 @@ impl<'a> Proof<'a> {
         // a^φ(n), or at a count of a finite set, |{a}| = 1 put in |{a}| ≤
         // |A|: Lean writes either as a natural number, so the equation is put
         // there in ℕ, stated so first (`e_nat`), and the motive's letter is
-        // of ℕ.
+        // of ℕ. At a count the term put is a natural number as it stands: an
+        // integer said whole, u of u = |T|, is its `toNat` in ℕ, which the
+        // count's cast does not take back to u, so the equation is put as it
+        // stands.
         let natural_place = |p: &Vec<usize>| {
             place_is_exponent(&rec.start, p)
-                || at_path(&rec.start, p)
+                || (at_path(&rec.start, p)
                     .is_some_and(|n| self.writer.finite_count(n).is_some())
+                    && natural_form_named(knowing, now) == NaturalForm::AsItIs)
         };
         let natural_exponent = !rec.put.places.is_empty()
             && rec.put.places.iter().all(natural_place)
@@ -447,7 +451,7 @@ impl<'a> Proof<'a> {
         let close = |term: Printed| k.close(term);
         let close_as = |term: Printed, says: Option<Printed>| k.close_as(term, says);
         let in_arithmetic =
-            |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
+            |path: &Vec<usize>| self.place_in_line_type(&rec.start, path, ty);
         let whole_letter = |w: &mut Writer, letter: &str| {
             if whole_was {
                 w.wholes.insert(
@@ -474,14 +478,81 @@ impl<'a> Proof<'a> {
         // power's base, is written in the line's type, `2^k · 2` in a
         // line of ℚ; any other, a function's argument, in its own,
         // `factorial (4 − 2)` in ℤ, which is the equation's.
-        let line_type = match self
-            .line_statement(&into)
-            .built()
+        // A line saying a term is a whole number Lean computes wider,
+        // `∃ m : ℤ, (m : ℚ) = 2^(r!)·s(r)` of `2^(r!)·s(r) ∈ ℤ`, has its
+        // arithmetic in that term's type.
+        let member = match (rec.start.notation(), rec.start.children.as_slice()) {
+            (crate::notations::MEMBERSHIP, [term, set])
+                if set.notation() == crate::notations::NUMBER_SYSTEMS =>
+            {
+                Some(term.clone())
+            }
+            _ => self.writer.wide_in_slot(&rec.start).map(|(term, _)| term),
+        };
+        // A line of relations joined, `a = b or c < d`, has its arithmetic
+        // in the widest field its numbers are in. A "for all" or a "there
+        // is" is read by what it says of its letter, as its places are.
+        let stated = self.line_statement(&into).built();
+        let joined = stated.as_ref().is_some_and(|s| {
+            matches!(&bare_term(s).kind,
+                super::super::doc::TermKind::Infix { op, .. } if matches!(op.symbol, "∨" | "∧"))
+        });
+        // A "for all" or an "if" the line opens with: the relation under
+        // them, `s(i) ≤ s(r) + 2/t` of `∀ i, 0 < i → i ≥ r → …`.
+        let under = stated.as_ref().map(|s| {
+            let mut at = bare_term(s);
+            loop {
+                match &at.kind {
+                    super::super::doc::TermKind::Quantified {
+                        quant: super::super::doc::Quant::ForAll,
+                        body,
+                        ..
+                    } => at = bare_term(body),
+                    super::super::doc::TermKind::Infix { op, rhs, .. }
+                        if op.symbol == "→" =>
+                    {
+                        at = bare_term(rhs)
+                    }
+                    _ => break at.clone(),
+                }
+            }
+        });
+        // Of relations joined, the one the places are in: down the first
+        // place's path through the "and"s and "or"s to its relation.
+        let relation_of_place = || {
+            let path = rec.put.places.first()?;
+            let mut at = &rec.start;
+            for &k in path {
+                let connective = at.sort.is("formula")
+                    && !matches!(
+                        at.notation(),
+                        crate::notations::EQUALITY
+                            | crate::notations::ORDER
+                            | crate::notations::MEMBERSHIP
+                    );
+                if !connective {
+                    break;
+                }
+                at = at.children.get(k)?;
+            }
+            match self
+                .writer
+                .formula(at)
+                .built()
+                .as_ref()
+                .and_then(super::super::doc::forms::relation_type)
+            {
+                Some(LeanType::Num(n)) => Some(n),
+                _ => None,
+            }
+        };
+        let line_type = match under
             .as_ref()
             .and_then(super::super::doc::forms::relation_type)
         {
             Some(LeanType::Num(n)) => Some(n),
-            _ => None,
+            _ if joined => relation_of_place(),
+            _ => member.and_then(|term| self.writer.carrier(&term).built()),
         };
         // Each place's type: the line's for one in its arithmetic,
         // its own for any other; places of one type take one motive.
@@ -673,6 +744,37 @@ impl<'a> Proof<'a> {
                 return Route::no(
                     "a motive written in another form than the claim or the line",
                 )
+            }
+        };
+        // A place in a slot that takes the term in its own form for the
+        // equation's type, |f(p/q)| of a line in ℝ where the equation is in
+        // ℂ: the line restated as the motive at the old term, `‖(f (p/q) :
+        // ℂ)‖ ≤ …`, which its casts take it to (`exact_mod_cast`).
+        let own_form = rec.put.places.iter().any(|p| {
+            self.place_in_formula_type(&rec.start, p)
+                && !self.place_in_line_type(&rec.start, p, ty)
+        });
+        let into = match own_form && line_type.is_some_and(|l| l < place_type) {
+            false => into,
+            true => {
+                let was_at = match inner.number(was, place_type) {
+                    Route::Built(w) => w,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let restated = body.substituted(&std::collections::BTreeMap::from([(
+                    super::super::names::letter(letter),
+                    was_at,
+                )]));
+                haves.push(Tactic::Have {
+                    name: "e_line".to_string(),
+                    says: restated,
+                    proof: Box::new(Proof::By(t::exact_mod_cast(into.proof.clone()))),
+                });
+                super::super::algebra::Cited {
+                    proof: t::hyp("e_line"),
+                    says: None,
+                    ..into
+                }
             }
         };
         let motive = lambda(letter, LeanType::Num(place_type), body.clone());
@@ -892,7 +994,7 @@ impl<'a> Proof<'a> {
         } = p;
         let close_as = |term: Printed, says: Option<Printed>| k.close_as(term, says);
         let in_arithmetic =
-            |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
+            |path: &Vec<usize>| self.place_in_line_type(&rec.start, path, ty);
         let whole_letter = |w: &mut Writer, letter: &str| {
             if whole_was {
                 w.wholes.insert(
@@ -1850,6 +1952,27 @@ impl<'a> Proof<'a> {
             // of X, which a set-builder or `Set.univ` holds as its bound.
             ShownBy::Typed { map, at } => {
                 let ctx = self.sources.ctx;
+                // The type a cited define's kind gives its function, `g : ℚ
+                // → ℕ` of `g(x) = …, a positive integer`: its bound at the
+                // point, `hD3_pos x`.
+                let function = map.children.first()?;
+                let kinded = just
+                    .refs
+                    .iter()
+                    .filter_map(|r| self.kind_bounds.get(r))
+                    .find(|k| k.function == *function.text);
+                // The point is the claim's own letter, `for all x ∈ ℚ`, or a
+                // term of the step's letters.
+                if let Some(kinded) = kinded {
+                    let point = match at.is_name() {
+                        true => t::hyp(&super::super::names::letter(&at.text)),
+                        false => {
+                            let carrier = self.writer.carrier(at).built()?;
+                            self.writer.number(at, carrier).built()?
+                        }
+                    };
+                    return Some(applied_to(t::hyp(&kinded.bound), point));
+                }
                 let typed = self
                     .cited_parts(&just.refs)
                     .into_iter()
@@ -1902,9 +2025,13 @@ impl<'a> Proof<'a> {
                     {
                         return None;
                     }
-                    let mut steps = vec![t::call(
-                        "rw",
-                        vec![TacticArg::Rules(vec![t::forwards(t::hyp(define))])],
+                    // `simp only`, which reduces the function written out
+                    // at its argument, `(fun x => if …) x`, for `split`.
+                    let mut steps = vec![t::simp_only(
+                        false,
+                        None,
+                        vec![t::forwards(t::hyp(define))],
+                        None,
                     )];
                     for _ in 1..cases.len() {
                         steps.push(t::call("split", vec![]));
@@ -1927,6 +2054,99 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// A membership `t ∈ ℕ`, `ℕ₀` or `ℤ` of a t Lean computes in a field
+    /// for its integer powers alone, `2^|numer(x)|·5^s(x)`, each exponent at
+    /// least 0 as the record shows (`exponents_whole_in`): the witness is t
+    /// with those powers natural, in ℤ, `2 ^ (abs (Rat.num x)).toNat * 5 ^
+    /// (s x).toNat`; its bound by the said-once walk (`said_bound`); and its
+    /// equation with t by the powers taken back (`parley_zpow_toNat`). None
+    /// for any other membership.
+    fn member_by_natural_powers(
+        &self,
+        just: &Justification,
+        node: &Node,
+        writer: &Writer,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        use super::super::templates::Num;
+        use crate::rules::System;
+        let [term, set] = node.children.as_slice() else {
+            return None;
+        };
+        if node.notation() != crate::notations::MEMBERSHIP
+            || set.notation() != crate::notations::NUMBER_SYSTEMS
+        {
+            return None;
+        }
+        let system = System::of_sign(&set.text)?;
+        if !matches!(system, System::N | System::N0 | System::Z) {
+            return None;
+        }
+        let carrier = writer.carrier(term).built()?;
+        if carrier <= Num::Int {
+            return None;
+        }
+        // Each integer power's exponent, with its bound as the step's lines
+        // give it; every one at least 0, or no witness.
+        let mut exponents = Vec::new();
+        for power in term.walk() {
+            let Some([_, e]) = writer.integer_power(&power) else {
+                continue;
+            };
+            exponents.push(NonNegative {
+                exponent: writer.number_fixed(e, Num::Int).built()?,
+                proof: self.said_bound_in(e, System::N0, &just.refs, writer)?,
+            });
+        }
+        if exponents.is_empty() {
+            return None;
+        }
+        let value = writer.number(term, carrier).built()?;
+        let printed: Vec<Printed> =
+            exponents.iter().map(|e| e.exponent.clone()).collect();
+        let witness = super::super::doc::forms::at_integers(
+            &super::super::doc::forms::with_natural_powers(&value, &printed),
+        )?;
+        let powers = exponents
+            .iter()
+            .map(|e| {
+                t::forwards(Printed {
+                    kind: super::super::doc::TermKind::App {
+                        head: Box::new(t::bridge_lemma(
+                            "parley_zpow_toNat",
+                            super::super::doc::bridges::BridgeModule::PowerTactics,
+                        )),
+                        args: vec![
+                            super::super::doc::Arg::Named {
+                                name: "n".to_string(),
+                                value: e.exponent.clone(),
+                            },
+                            super::super::doc::Arg::Named {
+                                name: "h".to_string(),
+                                value: e.proof.clone(),
+                            },
+                        ],
+                        explicit: false,
+                    },
+                    ty: Some(super::super::doc::LeanType::Prop),
+                })
+            })
+            .collect();
+        let equation = t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
+            t::simp_only(false, None, powers, None),
+            t::push_cast(None),
+            t::call("ring", vec![]),
+        ])));
+        let mut parts = vec![witness];
+        if system != System::Z {
+            parts.push(self.said_bound_in(term, system, &just.refs, writer)?);
+        }
+        parts.push(equation);
+        Some(super::super::doc::Proof::Term(
+            super::super::expr::anonymous(parts),
+        ))
+    }
+
     /// `membership`. A term of a wider type said to be in a number system,
     /// an integer or a real, is one by a cited equation (`member_by_equation`).
     /// Any other membership is what the lines and the letters' types give.
@@ -1942,6 +2162,9 @@ impl<'a> Proof<'a> {
             return Route::Built(super::super::doc::Proof::Term(p));
         }
         if let Some(proof) = self.member_from_record(just, node, writer) {
+            return Route::Built(proof);
+        }
+        if let Some(proof) = self.member_by_natural_powers(just, node, writer) {
             return Route::Built(proof);
         }
         match self.member_bound(just, node) {
@@ -2374,11 +2597,55 @@ impl<'a> Proof<'a> {
     /// of its parent); the whole of `start` is. Any other, a function's
     /// argument or an exponent, is written in its own type.
     pub(super) fn place_in_formula_type(&self, start: &Node, path: &[usize]) -> bool {
+        // Each step down from what is put into is a term of its parent's
+        // arithmetic: A of 2^(A + j) is in an exponent, though A + j adds.
+        // A step through a connective, a quantifier or a relation's side
+        // keeps to the formula's arithmetic.
+        (0..path.len()).all(|depth| {
+            let (up, last) = (&path[..depth], path[depth]);
+            at_path(start, up).is_some_and(|parent| {
+                let formula = parent.sort.is("formula")
+                    && !matches!(
+                        parent.notation(),
+                        crate::notations::EQUALITY | crate::notations::ORDER
+                    );
+                formula || self.writer.in_formula_type(parent, last)
+            })
+        })
+    }
+
+    /// `place_in_formula_type` of a place the equation puts a term of type
+    /// `ty` at: not where the place's notation has a form of its own taking
+    /// `ty` to another type, |z| of a complex z as `‖z‖ : ℝ`, which takes
+    /// the term in its own type whatever the line's.
+    pub(super) fn place_in_line_type(
+        &self,
+        start: &Node,
+        path: &[usize],
+        ty: super::super::templates::Num,
+    ) -> bool {
+        if !self.place_in_formula_type(start, path) {
+            return false;
+        }
         let Some((&last, up)) = path.split_last() else {
             return true;
         };
-        at_path(start, up)
-            .is_some_and(|parent| self.writer.in_formula_type(parent, last))
+        let Some(parent) = at_path(start, up) else {
+            return true;
+        };
+        let Some(pattern) = self.writer.grammar.written_by(parent.spelling()) else {
+            return true;
+        };
+        let args = vec![ty; parent.children.len()];
+        let own = self
+            .writer
+            .templates
+            .get(&parent.notation_name(), &pattern.pattern, &args)
+            .is_some_and(|t| {
+                t.holes.get(last) == Some(&super::super::templates::Slot::Fixed(ty))
+                    && t.yields != super::super::templates::Slot::Fixed(ty)
+            });
+        !own
     }
 
     /// `have e_nat : was = now` in ℕ, from the equation's proof `equation`:

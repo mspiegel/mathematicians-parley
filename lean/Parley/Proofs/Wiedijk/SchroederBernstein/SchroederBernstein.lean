@@ -165,7 +165,7 @@ theorem schroeder_bernstein {α β : Type*} [Nonempty α] [Nonempty β] (A : Set
       rcases s7_2 with hC7 | hC8
       · skip
         -- 7.3.4.1. instantiate u := t, v := s in line 4, from C7, 7.3.2
-        have s7_3_4_1 : ¬ h s = h t := by exact (s4 t hC7 s s7_3_2).symm
+        have s7_3_4_1 : ¬ h s = h t := by exact Ne.symm (s4 t hC7 s s7_3_2)
         exact absurd hA1 s7_3_4_1
       · skip
         -- 7.3.4.2. def:difference, from C8, K6

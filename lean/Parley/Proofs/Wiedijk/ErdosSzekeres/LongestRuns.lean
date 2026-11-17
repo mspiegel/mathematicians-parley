@@ -131,10 +131,7 @@ theorem longest_runs (N : ℤ) (hH1 : 0 < N) (r : ℤ) (hH2 : 0 < r) (c : ℤ �
       have s1_10_12 : 0 ≤ u := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s1_10_1b.symm s1_10_5
       -- 1.10.13. membership, from 1.10.12
       -- 1.10.14. substitute u = |T| (line 1.10.1) into line 1.10.11
-      have s1_10_14 : u ≤ r - 1 := by
-        have e_nat : T.ncard = (u).toNat := by (have h := s1_10_1b.symm; omega)
-        have e_w : (T.ncard : ℤ) = u := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-        exact Eq.subst (motive := (fun t : ℤ => t ≤ r - 1)) e_w s1_10_11
+      have s1_10_14 : u ≤ r - 1 := Eq.subst (motive := (fun t : ℤ => t ≤ r - 1)) s1_10_1b.symm s1_10_11
       -- 1.10.15. join 1.10.13, 1.10.14
       have s1_10_15 : True ∧ u ≤ r - 1 := ⟨trivial, s1_10_14⟩
       exact ⟨trivial, (s1_10_15).2⟩
@@ -192,13 +189,13 @@ theorem longest_runs (N : ℤ) (hH1 : 0 < N) (r : ℤ) (hH2 : 0 < r) (c : ℤ �
     have hK9_bounds := Finset.mem_Icc.mp hK9
     intro hK10
     -- 2.1. instantiate k := i in line 1, from K8
-    have s2_1a : L i ∈ I i := by exact (s1 i hK8).1
-    have s2_1b : ∀ s ∈ I i, s ≤ L i := by exact (s1 i hK8).2.1
-    have s2_1c : L i ∈ Finset.Icc (1 : ℤ) (r - 1) := by exact (s1 i hK8).2.2.2
+    have s2_1a : L i ∈ I i := by exact (s1 i hK8).1.1.1
+    have s2_1b : ∀ s ∈ I i, s ≤ L i := by exact (s1 i hK8).1.1.2
+    have s2_1c : L i ∈ Finset.Icc (1 : ℤ) (r - 1) := by exact (s1 i hK8).2
     -- 2.2. instantiate k := j in line 1, from K9
-    have s2_2a : L j ∈ I j := by exact (s1 j hK9).1
-    have s2_2b : ∀ s ∈ I j, s ≤ L j := by exact (s1 j hK9).2.1
-    have s2_2c : L j ∈ Finset.Icc (1 : ℤ) (r - 1) := by exact (s1 j hK9).2.2.2
+    have s2_2a : L j ∈ I j := by exact (s1 j hK9).1.1.1
+    have s2_2b : ∀ s ∈ I j, s ≤ L j := by exact (s1 j hK9).1.1.2
+    have s2_2c : L j ∈ Finset.Icc (1 : ℤ) (r - 1) := by exact (s1 j hK9).2
     -- 2.3. obtain T: def:set-image u := L(i), from D4, K8, 2.1
     obtain ⟨T, s2_3a, s2_3b⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun S : Set ℤ => (S.ncard : ℤ))) (Y := U i) (u := L i) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp s2_1a
     -- 2.4. def:part-builder u := T, from D3, K8, 2.3
@@ -256,10 +253,7 @@ theorem longest_runs (N : ℤ) (hH1 : 0 < N) (r : ℤ) (hH2 : 0 < r) (c : ℤ �
     -- 2.23. instantiate s := |T| + 1 in line 2.22, from 2.21
     have s2_23 : (T.ncard : ℤ) + 1 ≤ L j := by exact (s2_22 ((T.ncard : ℤ) + 1) s2_21)
     -- 2.24. substitute L(i) = |T| (line 2.3) into line 2.23
-    have s2_24 : L i + 1 ≤ L j := by
-      have e_nat : T.ncard = (L i).toNat := by (have h := s2_3b.symm; omega)
-      have e_w : (T.ncard : ℤ) = L i := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-      exact Eq.subst (motive := (fun t : ℤ => t + 1 ≤ L j)) e_w s2_23
+    have s2_24 : L i + 1 ≤ L j := Eq.subst (motive := (fun t : ℤ => t + 1 ≤ L j)) s2_3b.symm s2_23
     -- 2.25. inequalities, from 2.1, 2.2, 2.24
     linarith only [s2_24]
   -- 3. proof

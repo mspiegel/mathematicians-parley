@@ -53,7 +53,7 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
   -- 2. mun:finite-part, from H1, 1
   have s2 : (H : Set G).Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.univ : Set G)) (Y := (H : Set G)) hH1 s1)
   -- 3. def:part-builder, from D1
-  have s3 : ∀ Y ∈ K, Y ⊆ (Set.univ : Set G) := by intro Y h_Y; (exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp h_Y).1)
+  have s3 : ∀ Y ∈ K, Y ⊆ (Set.univ : Set G) := by intro Y h_Y; (exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set G => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp h_Y).1)
   -- 4. mun:union-within, from 3
   have s4 : (⋃ Y ∈ K, Y) ⊆ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Sets.mun_union_within (D := K) (Z := (Set.univ : Set G)) s3)
   -- 5. proof
@@ -66,7 +66,7 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
     -- 5.3. exhibit, from K1
     have s5_3 : ∃ a ∈ (Set.univ : Set G), (g * ·) '' (H : Set G) = (a * ·) '' (H : Set G) := ⟨g, Set.mem_univ _, rfl⟩
     -- 5.4. def:part-builder u := gH, from D1, 5.1, 5.3
-    have s5_4 : (g * ·) '' (H : Set G) ∈ K := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := (g * ·) '' (H : Set G)))).mpr ⟨s5_1, s5_3⟩
+    have s5_4 : (g * ·) '' (H : Set G) ∈ K := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set G => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := (g * ·) '' (H : Set G)))).mpr ⟨s5_1, s5_3⟩
     -- 5.5. exhibit, from 5.2, 5.4
     have s5_5 : ∃ Y ∈ K, g ∈ Y := ⟨(g * ·) '' (H : Set G), s5_4, s5_2⟩
     -- 5.6. def:indexed-union u := g, from 5.5
@@ -81,9 +81,9 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
     intro Z hK3
     intro x hK4
     -- 8.1. obtain a: def:part-builder, from D1, K2
-    obtain ⟨_, a, s8_1a, s8_1b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp hK2
+    obtain ⟨_, a, s8_1a, s8_1b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set G => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp hK2
     -- 8.2. obtain b: def:part-builder, from D1, K3
-    obtain ⟨_, b, s8_2a, s8_2b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Z))).mp hK3
+    obtain ⟨_, b, s8_2a, s8_2b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set G => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Z))).mp hK3
     -- 8.3. def:intersection, from K4
     have s8_3a : x ∈ Y := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := x))).mp hK4).1
     have s8_3b : x ∈ Z := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := x))).mp hK4).2
@@ -100,13 +100,13 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
   have s9 : ∀ Y ∈ K, (Y.ncard : ℤ) = ((H : Set G).ncard : ℤ) := by
     intro Y hK5
     -- 9.1. obtain a: def:part-builder, from D1, K5
-    obtain ⟨_, a, s9_1a, s9_1b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp hK5
+    obtain ⟨_, a, s9_1a, s9_1b⟩ := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set G => ∃ g ∈ (Set.univ : Set G), X = (g * ·) '' (H : Set G))) (X := (Set.univ : Set G)) (u := Y))).mp hK5
     -- 9.2. calculation
-    calc ((Y.ncard : ℕ) : ℕ∞) = ((a * ·) '' (H : Set G)).encard := congrArg (fun t : Set G => (t.ncard : ℤ)) s9_1b
-      _ = (((H : Set G).ncard : ℕ) : ℕ∞) := by (have h := (Parley.Proofs.Wiedijk.Lagrange.CosetSize.coset_size (G := G) hH1 (H := H) (g := a) (Set.mem_univ _)); simp only [← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h)
+    calc (Y.ncard : ℤ) = (((a * ·) '' (H : Set G)).ncard : ℤ) := congrArg (fun t : Set G => (t.ncard : ℤ)) s9_1b
+      _ = ((H : Set G).ncard : ℤ) := by (have h := (Parley.Proofs.Wiedijk.Lagrange.CosetSize.coset_size (G := G) hH1 (H := H) (g := a) (Set.mem_univ _)); simp only [← Set.Finite.cast_ncard_eq (((s2).image _ : ((a * ·) '' (H : Set G) : Set G).Finite)), ← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h)
   -- 10. mun:partition-count A := G, m := |H|, from H1, 7, 8, 9
   have r355_1 : 0 ≤ ((H : Set G).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (H : Set G)) s2)
-  have s10 : ((Set.univ : Set G).ncard : ℤ) = (K.ncard : ℤ) * ((H : Set G).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_partition_count (A := (Set.univ : Set G)) (K := K) (m := ((H : Set G).ncard : ℤ)) r355_1 hH1 s7 s8 (by (have h := s9; rw []; exact_mod_cast h))); simp only [← Set.Finite.cast_ncard_eq ((hH1 : ((Set.univ : Set G) : Set G).Finite)), ← Set.Finite.cast_ncard_eq ((hD1_finite : (K : Set (Set G)).Finite)), ← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h)
+  have s10 : ((Set.univ : Set G).ncard : ℤ) = (K.ncard : ℤ) * ((H : Set G).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_partition_count (A := (Set.univ : Set G)) (K := K) (m := ((H : Set G).ncard : ℤ)) r355_1 hH1 s7 s8 (fun Y h_mem => by simp only [← Set.Finite.cast_ncard_eq ((((hH1)).subset (h_mem).1 : (Y : Set G).Finite)), Int.toNat_natCast]; exact_mod_cast s9 Y h_mem)); simp only [← Set.Finite.cast_ncard_eq ((hH1 : ((Set.univ : Set G) : Set G).Finite)), ← Set.Finite.cast_ncard_eq ((hD1_finite : (K : Set (Set G)).Finite)), ← Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))] at h ⊢; exact_mod_cast h)
   -- 11. mun:parts-finite A := G, from H1, 3
   have s11 : K.Finite := by exact (Parley.Items.Stdlib.Counting.mun_parts_finite (A := (Set.univ : Set G)) (K := K) hH1 s3)
   -- 12. algebra, from 10
@@ -117,6 +117,7 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
   have r367_1 : 0 ≤ ((H : Set G).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (H : Set G)) s2)
   have r367_2 : 0 ≤ (K.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := K) s11)
   have r367_3 : 0 ≤ ((Set.univ : Set G).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (Set.univ : Set G)) hH1)
-  exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := ((H : Set G).ncard : ℤ)) (n := ((Set.univ : Set G).ncard : ℤ)))).mpr ⟨(K.ncard : ℤ), s12⟩
+  have s13 : ((H : Set G).ncard : ℤ) ∣ ((Set.univ : Set G).ncard : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := ((H : Set G).ncard : ℤ)) (n := ((Set.univ : Set G).ncard : ℤ)))).mpr ⟨(K.ncard : ℤ), s12⟩
+  exact ⟨(H : Set G).ncard, Eq.symm (Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))), s13⟩
 
 end Parley.Proofs.Wiedijk.Lagrange.Lagrange

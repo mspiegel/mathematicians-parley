@@ -322,6 +322,11 @@ struct Proof<'a> {
     /// r: a citation given the value, as the checker reads one from the
     /// define's fact `m/p ∈ ℕ`, is given the letter.
     witness_letters: Vec<WitnessLetter>,
+    /// Each define of a function whose kind bounds its values, `g(x) …, a
+    /// positive integer`, by its page label, with the `have` that says the
+    /// bound at every point (`hD3_pos : ∀ x, 0 < g x`): what the kind's
+    /// type `g : ℚ → ℕ` gives at a point.
+    kind_bounds: IndexMap<String, KindBound>,
     /// Each name a define gives a finite set, U of `let U = {c ∈ G(m, n) :
     /// …}`, with the `have` that says it is (`hD3_finite`), which proves it
     /// finite for the reason the record gives a define's name
@@ -530,6 +535,14 @@ struct NumberRule {
     rule: super::doc::Rule,
 }
 
+/// What a define's kind says of its function's values (`kind_bounds`).
+struct KindBound {
+    /// The function's name on the page, g.
+    function: String,
+    /// The `have` that bounds its values at every point, `hD3_pos`.
+    bound: String,
+}
+
 /// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`; of ℕ and ℕ₀
 /// with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t`; or of a range, `∃ m : ℤ, ↑m
 /// = t ∧ m ∈ Finset.Icc a b` (`integer_line`).
@@ -664,6 +677,7 @@ pub fn theorem(
         named_specs: Vec::new(),
         witnessed: std::collections::BTreeSet::new(),
         witness_letters: Vec::new(),
+        kind_bounds: IndexMap::new(),
         finite_defined: IndexMap::new(),
         named_now: std::cell::RefCell::new(None),
         held_now: std::cell::RefCell::new(Vec::new()),
@@ -799,9 +813,16 @@ pub fn theorem(
             "{root} is written as Mathlib's real one in one place and the principal one in ℂ in another"
         ));
     }
+    // What the theorem owes is its statement as Lean states it, whatever the
+    // last step's lines let it write: |H| counted in ℕ∞ where only a step
+    // shows H finite.
     let owed: Vec<Node> = conclusion.iter().map(|c| c.says.clone()).collect();
-    let closing = match proof.closing(top.last().copied(), Owing::Written(Some(&owed)))
-    {
+    let goal: Vec<Printed> = conclusion.iter().map(|c| c.prop.clone()).collect();
+    let owing = Owing::Lean {
+        nodes: Some(&owed),
+        goal,
+    };
+    let closing = match proof.closing(top.last().copied(), owing) {
         Route::Built(c) => c,
         Route::Declined(d) => return Route::Declined(d),
     };

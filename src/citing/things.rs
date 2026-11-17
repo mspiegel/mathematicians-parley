@@ -54,9 +54,24 @@ pub struct ThingTypes {
 impl ThingTypes {
     /// Read from the lines in order.
     pub fn read(lines: &[&Node], sorts: Option<&crate::formula::Sorts>) -> ThingTypes {
+        ThingTypes::read_given(lines, &[], sorts)
+    }
+
+    /// Read from the lines in order, and from the values the page gives its
+    /// own letters, each letter of one type with its value: X and A of
+    /// `instantiate X := A in line 1`.
+    pub fn read_given(
+        lines: &[&Node],
+        given: &[(String, Node)],
+        sorts: Option<&crate::formula::Sorts>,
+    ) -> ThingTypes {
         let mut out = ThingTypes::default();
         for line in lines {
             out.class(line, sorts);
+        }
+        for (letter, value) in given {
+            let held = out.class(value, sorts);
+            out.join(Some(ThingKey::Letter(letter.clone())), held);
         }
         // Things a letter is or holds are numbered first: a map's side that
         // no letter is of, the numbers of `v : {0, …, n} → V`, takes no

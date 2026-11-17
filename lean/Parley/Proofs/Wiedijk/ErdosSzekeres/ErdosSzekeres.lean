@@ -22,7 +22,6 @@ public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -55,7 +54,7 @@ theorem erdos_szekeres (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (N : ℤ)
   have s1_1 : ¬ (∃ S ∈ 𝒫 (Set.Icc (1 : ℤ) N : Set ℤ), r ≤ (S.ncard : ℤ) ∧ (∀ i ∈ S, ∀ j ∈ S, i < j → a i < a j)) := by
     intro (hS2 : ∃ S ∈ 𝒫 (Set.Icc (1 : ℤ) N : Set ℤ), r ≤ (S.ncard : ℤ) ∧ (∀ i ∈ S, ∀ j ∈ S, i < j → a i < a j))
     -- 1.1.1. obtain T from S2
-    obtain ⟨T, _, ⟨s1_1_1a, s1_1_1b⟩⟩ := hS2
+    obtain ⟨T, s1_1_1a, s1_1_1b⟩ := hS2
     -- 1.1.2. mun:or-left, from 1.1.1
     have s1_1_2 : r ≤ (T.ncard : ℤ) ∧ (∀ i ∈ T, ∀ j ∈ T, i < j → a i < a j) ∨ s ≤ (T.ncard : ℤ) ∧ (∀ i ∈ T, ∀ j ∈ T, i < j → a i > a j) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := r ≤ (T.ncard : ℤ) ∧ (∀ i ∈ T, ∀ j ∈ T, i < j → a i < a j)) (Q := s ≤ (T.ncard : ℤ) ∧ (∀ i ∈ T, ∀ j ∈ T, i < j → a i > a j)) s1_1_1b)
     -- 1.1.3. exhibit, from 1.1.1, 1.1.2
@@ -68,7 +67,7 @@ theorem erdos_szekeres (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (N : ℤ)
   have s1_4 : ¬ (∃ S ∈ 𝒫 (Set.Icc (1 : ℤ) N : Set ℤ), s ≤ (S.ncard : ℤ) ∧ (∀ i ∈ S, ∀ j ∈ S, i < j → b i < b j)) := by
     intro (hS3 : ∃ S ∈ 𝒫 (Set.Icc (1 : ℤ) N : Set ℤ), s ≤ (S.ncard : ℤ) ∧ (∀ i ∈ S, ∀ j ∈ S, i < j → b i < b j))
     -- 1.4.1. obtain T from S3
-    obtain ⟨T, _, ⟨s1_4_1a, s1_4_1b⟩⟩ := hS3
+    obtain ⟨T, s1_4_1a, s1_4_1b⟩ := hS3
     -- 1.4.2. D1, from 1.4.1
     have s1_4_2 : s ≤ (T.ncard : ℤ) ∧ (∀ i ∈ T, ∀ j ∈ T, i < j → b i < b j) := s1_4_1b
     -- 1.4.3. proof
@@ -232,14 +231,8 @@ theorem erdos_szekeres (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (N : ℤ)
     calc N = ((Set.Icc (1 : ℤ) N : Set ℤ).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_range_size (n := N) (le_of_lt hH3)).symm
       _ ≤ (((Set.Icc (1 : ℤ) (r - 1) : Set ℤ) ×ˢ (Set.Icc (1 : ℤ) (s - 1) : Set ℤ)).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.thm_pigeonhole (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (r - 1) : Set ℤ) ×ˢ (Set.Icc (1 : ℤ) (s - 1) : Set ℤ)) (f := f) s1_12); simp only [← Set.Finite.cast_ncard_eq ((Set.finite_Icc _ _ : ((Set.Icc (1 : ℤ) N : Set ℤ) : Set ℤ).Finite)), ← Set.Finite.cast_ncard_eq (((s1_13).prod (s1_14) : ((Set.Icc (1 : ℤ) (r - 1) : Set ℤ) ×ˢ (Set.Icc (1 : ℤ) (s - 1) : Set ℤ) : Set (ℤ × ℤ)).Finite))] at h ⊢; exact_mod_cast h)
       _ = ((Set.Icc (1 : ℤ) (r - 1) : Set ℤ).ncard : ℤ) * ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_product (X := (Set.Icc (1 : ℤ) (r - 1) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (s - 1) : Set ℤ)) s1_13 s1_14)
-      _ = (r - 1) * ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ) := by
-          have e_nat : (Set.Icc (1 : ℤ) (r - 1) : Set ℤ).ncard = (r - 1).toNat := by (have h := s1_15; omega)
-          have e_w : ((Set.Icc (1 : ℤ) (r - 1) : Set ℤ).ncard : ℤ) = r - 1 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-          exact congrArg (fun t : ℤ => t * ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ)) e_w
-      _ = (r - 1) * (s - 1) := by
-          have e_nat : (Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard = (s - 1).toNat := by (have h := s1_16; omega)
-          have e_w : ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ) = s - 1 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
-          exact congrArg (fun t : ℤ => (r - 1) * t) e_w
+      _ = (r - 1) * ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ) := congrArg (fun t : ℤ => t * ((Set.Icc (1 : ℤ) (s - 1) : Set ℤ).ncard : ℤ)) s1_15
+      _ = (r - 1) * (s - 1) := congrArg (fun t : ℤ => (r - 1) * t) s1_16
   -- 1.18. inequalities, from 1.17
   have s1_18 : ¬ (r - 1) * (s - 1) < N := by linarith only [s1_17]
   exact s1_18 hH5

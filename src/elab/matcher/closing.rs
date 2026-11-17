@@ -805,7 +805,11 @@ impl<'a> Elaborator<'a> {
     /// Whether the proof being built may read the defined name `var` as what
     /// it names: whether it may rest on the name's define.
     pub(super) fn may_read(&self, var: &str) -> bool {
-        match (&self.resting, self.defined_by.get(var)) {
+        let label = self.defined_by.get(var);
+        if label.is_some_and(|l| self.kept_named.contains(l)) {
+            return false;
+        }
+        match (&self.resting, label) {
             (Some(allowed), Some(label)) => allowed.contains(label),
             _ => true,
         }

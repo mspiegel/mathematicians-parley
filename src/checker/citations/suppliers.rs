@@ -251,11 +251,15 @@ impl<'a> Suppliers<'a> {
         if let Some(line) = said_once_at(self.step, self.item, fact, known, library) {
             return Some(SuppliedBy::SaidOnce(line));
         }
-        // A membership the said-once walk gives, for its reason.
+        // A membership the said-once walk gives, for its reason. Of those
+        // alike, the one spelt as the fact is: `m + 1 ∈ ℕ₀` itself, not
+        // `1·(m + 1) ∈ ℕ₀`, which `alike` reads the same but whose reason is
+        // another term's.
         self.parts
             .said_once
             .iter()
-            .find(|s| alike(&s.fact, fact, ctx, &none, &none))
+            .filter(|s| alike(&s.fact, fact, ctx, &none, &none))
+            .min_by_key(|s| !s.fact.spelt_alike(fact))
             .map(|s| SuppliedBy::Walked(s.clone()))
     }
 }

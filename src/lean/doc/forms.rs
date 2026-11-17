@@ -227,6 +227,56 @@ pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
     out
 }
 
+/// The term written in ℤ where it is built of integers alone: a numeral,
+/// an integer or a natural number cast up, joined by +, − and ·, and
+/// powers to natural exponents, `2 ^ e.toNat * (Rat.den x : ℤ)` of `(2 : ℚ)
+/// ^ e.toNat * ((Rat.den x : ℤ) : ℚ)`. None where some part is no integer.
+pub fn at_integers(term: &Term) -> Option<Term> {
+    use super::term::Op;
+    let int = LeanType::Num(Num::Int);
+    let at = |kind: TermKind| Term {
+        kind,
+        ty: Some(int.clone()),
+    };
+    match &term.kind {
+        TermKind::Paren(x) => at_integers(x),
+        TermKind::Numeral(digits) if !digits.contains('.') => {
+            Some(at(TermKind::Numeral(digits.clone())))
+        }
+        TermKind::Cast { inner, .. } => match inner.ty {
+            Some(LeanType::Num(Num::Int)) => Some((**inner).clone()),
+            Some(LeanType::Num(Num::Nat)) => Some(at(TermKind::Cast {
+                inner: inner.clone(),
+                to: int.clone(),
+            })),
+            _ => at_integers(inner),
+        },
+        TermKind::Infix { op, lhs, rhs } if *op == Op::POWER => {
+            (rhs.ty == Some(LeanType::Num(Num::Nat))).then_some(())?;
+            Some(at(TermKind::Infix {
+                op: *op,
+                lhs: Box::new(at_integers(lhs)?),
+                rhs: rhs.clone(),
+            }))
+        }
+        TermKind::Infix { op, lhs, rhs }
+            if [Op::PLUS, Op::MINUS, Op::TIMES].contains(op) =>
+        {
+            Some(at(TermKind::Infix {
+                op: *op,
+                lhs: Box::new(at_integers(lhs)?),
+                rhs: Box::new(at_integers(rhs)?),
+            }))
+        }
+        _ if term.ty == Some(int.clone()) => Some(term.clone()),
+        _ if term.ty == Some(LeanType::Num(Num::Nat)) => Some(at(TermKind::Cast {
+            inner: Box::new(term.clone()),
+            to: int.clone(),
+        })),
+        _ => None,
+    }
+}
+
 /// An integer power inside a sum or product over a set whose exponent names
 /// the letter the sum runs by: `y ^ (k - 1 + 1)` in
 /// `∑ k ∈ Finset.Icc 1 (m + 1), …`. Its exponent is at least 0 only where

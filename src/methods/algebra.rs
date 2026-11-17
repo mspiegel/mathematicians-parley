@@ -31,12 +31,12 @@ pub enum Verdict {
 }
 
 /// What a step whose claim `shown` the verdict refuses is told, the step
-/// by its number, a term put in the page's words by `render`; None where
-/// the claim holds.
+/// by its name (`Step::called`: step 4, or let D2 for a let's reason), a
+/// term put in the page's words by `render`; None where the claim holds.
 pub fn refusal(
     verdict: &Verdict,
     shown: &str,
-    number: &str,
+    step: &str,
     render: &dyn Fn(&Term) -> String,
 ) -> Option<String> {
     match verdict {
@@ -48,11 +48,11 @@ pub fn refusal(
             field::WORK
         )),
         Verdict::NoCombination => Some(format!(
-            "{shown} is not an identity, nor does it follow from what step {number} \
+            "{shown} is not an identity, nor does it follow from what {step} \
              cites, added and subtracted with at most one equation multiplied by a term"
         )),
         Verdict::NoRescaling => Some(format!(
-            "{shown} is not a rescaling of any disequality step {number} cites"
+            "{shown} is not a rescaling of any disequality {step} cites"
         )),
     }
 }

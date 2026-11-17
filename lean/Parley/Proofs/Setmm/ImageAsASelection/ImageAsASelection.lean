@@ -43,14 +43,14 @@ theorem image_as_a_selection {α β : Type*} [Nonempty α] [Nonempty β] (A : Se
     -- 1.6. exhibit, from 1.2
     have s1_6 : ∃ x ∈ X, F x = u := ⟨s, s1_2a, s1_2b.symm⟩
     -- 1.7. def:set-builder, from 1.5, 1.6
-    exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr ⟨s1_5, s1_6⟩
+    exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : β => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr ⟨s1_5, s1_6⟩
   -- 2. def:subset, from 1
   have s2 : F '' (A ∩ X) ⊆ {y ∈ B | ∃ x ∈ X, F x = y} := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}))).mpr s1
   -- 3. proof
   have s3 : ∀ u ∈ {y ∈ B | ∃ x ∈ X, F x = y}, u ∈ F '' (A ∩ X) := by
     intro u hK2
     -- 3.1. def:set-builder, from K2
-    have s3_1 : ∃ x ∈ X, F x = u := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2).2
+    have s3_1 : ∃ x ∈ X, F x = u := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : β => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2).2
     -- 3.2. obtain x from line 3.1
     obtain ⟨x, s3_2a, s3_2b⟩ := s3_1
     -- 3.3. mun:value-in-image, from H4, 3.2

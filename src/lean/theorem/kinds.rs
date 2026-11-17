@@ -204,8 +204,12 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("a kinded function whose fact Lean states as no for all");
         };
+        // The witness's bound, where the kind gives one, the guard `0 < m` of
+        // `∃ m : ℤ, 0 < m ∧ ↑m = v`, and its equation.
         let TermKind::Quantified {
             quant: Quant::Exists,
+            letter: witness_letter,
+            guard: bound,
             body: witness,
             ..
         } = &each.kind
@@ -229,7 +233,7 @@ impl<'a> Proof<'a> {
         let equal = Printed::infix(
             super::super::doc::Op::EQUALS,
             Printed::cast(
-                g_a,
+                g_a.clone(),
                 value
                     .ty
                     .clone()
@@ -238,19 +242,44 @@ impl<'a> Proof<'a> {
             (**value).clone(),
             super::super::doc::LeanType::Prop,
         );
-        let every = Printed::of(
-            TermKind::Quantified {
-                quant: Quant::ForAll,
-                letter: letter.clone(),
-                letter_ty: letter_ty.clone(),
-                guard: guard.clone(),
-                body: Box::new(equal),
-                bounded: false,
-            },
-            super::super::doc::LeanType::Prop,
-        );
+        let every = |body: Printed| {
+            Printed::of(
+                TermKind::Quantified {
+                    quant: Quant::ForAll,
+                    letter: letter.clone(),
+                    letter_ty: letter_ty.clone(),
+                    guard: guard.clone(),
+                    body: Box::new(body),
+                    bounded: false,
+                },
+                super::super::doc::LeanType::Prop,
+            )
+        };
+        // The bound said of the function's values, `∀ x, 0 < g x`, beside its
+        // equation: `∃ g, (∀ x, 0 < g x) ∧ ∀ x, ↑(g x) = v`.
+        let bounded = bound.as_ref().map(|b| {
+            b.substituted(&std::collections::BTreeMap::from([(
+                witness_letter.clone(),
+                g_a.clone(),
+            )]))
+        });
+        let said = match &bounded {
+            Some(b) => Printed::infix(
+                super::super::doc::Op::AND,
+                every(b.clone()),
+                every(equal),
+                super::super::doc::LeanType::Prop,
+            ),
+            None => every(equal),
+        };
         let chosen =
-            super::super::expr::witnessed("g".to_string(), function, None, every);
+            super::super::expr::witnessed("g".to_string(), function, None, said);
+        // Each part of the witness's spec, by its projection: the whole of
+        // it, or its bound and its equation apart.
+        let parts: Vec<Vec<&str>> = match bounded {
+            Some(_) => vec![vec!["choose_spec", "1"], vec!["choose_spec", "2"]],
+            None => vec![vec!["choose_spec"]],
+        };
         let made = match guard {
             // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a
             // h => by simp only [h, ↓reduceDIte]; exact (hD1_kind a
@@ -271,35 +300,42 @@ impl<'a> Proof<'a> {
                 );
                 // The function applied is reduced and its `if` taken by h
                 // together, as `rw` does not reach under the application.
-                let spec = t::by_term(Proof::By(Tactic::Seq(vec![
-                    t::simp_only(
-                        false,
-                        None,
-                        vec![t::forwards(h()), t::forwards(t::lemma("↓reduceDIte"))],
-                        None,
-                    ),
-                    Tactic::Exact(projected(at_member(), &["choose_spec"])),
-                ])));
-                super::super::expr::anonymous(vec![
-                    untyped_lambda(&[letter.as_str()], pick),
-                    untyped_lambda(&[letter.as_str(), "h"], spec),
-                ])
+                let spec = |path: &[&str]| {
+                    t::by_term(Proof::By(Tactic::Seq(vec![
+                        t::simp_only(
+                            false,
+                            None,
+                            vec![
+                                t::forwards(h()),
+                                t::forwards(t::lemma("↓reduceDIte")),
+                            ],
+                            None,
+                        ),
+                        Tactic::Exact(projected(at_member(), path)),
+                    ])))
+                };
+                let mut out = vec![untyped_lambda(&[letter.as_str()], pick)];
+                out.extend(
+                    parts
+                        .iter()
+                        .map(|p| untyped_lambda(&[letter.as_str(), "h"], spec(p))),
+                );
+                super::super::expr::anonymous(out)
             }
             // ⟨fun x => (hD1_kind x).choose, fun x => (hD1_kind x).choose_spec⟩.
             None => {
                 let at_member = || applied_to(t::hyp(&kind), a());
-                super::super::expr::anonymous(vec![
-                    untyped_lambda(
-                        &[letter.as_str()],
-                        projected(at_member(), &["choose"]),
-                    ),
-                    untyped_lambda(
-                        &[letter.as_str()],
-                        projected(at_member(), &["choose_spec"]),
-                    ),
-                ])
+                let mut out = vec![untyped_lambda(
+                    &[letter.as_str()],
+                    projected(at_member(), &["choose"]),
+                )];
+                out.extend(parts.iter().map(|p| {
+                    untyped_lambda(&[letter.as_str()], projected(at_member(), p))
+                }));
+                super::super::expr::anonymous(out)
             }
         };
+        let ordered = parts.len() > 1;
         self.push_at(
             depth,
             Tactic::Have {
@@ -311,10 +347,22 @@ impl<'a> Proof<'a> {
             Spot::Statement,
         );
         let f = super::super::names::letter(&def.name);
+        if ordered {
+            self.kind_bounds.insert(
+                page_label.clone(),
+                super::KindBound {
+                    function: def.name.clone(),
+                    bound: format!("{label}_pos"),
+                },
+            );
+        }
         self.push_at(
             depth,
             Tactic::Obtain {
-                names: vec![f, label.clone()],
+                names: match ordered {
+                    true => vec![f, format!("{label}_pos"), label.clone()],
+                    false => vec![f, label.clone()],
+                },
                 says: Some(chosen),
                 from: made,
             },
@@ -495,14 +543,24 @@ impl<'a> Proof<'a> {
         if let Some(s) = system {
             self.writer.introduce(&param.name, s);
         }
+        // The numbers the define's kind says its values are among.
+        let kind = line
+            .kinded(&self.thm.path, &self.sources.checked.grammar.members)
+            .ok()
+            .flatten()
+            .and_then(|k| crate::rules::System::of_sign(&k.set))
+            .map(super::super::expr::recorded_set_type);
         // Of a real or complex argument, values of that type at least, as a
-        // header function's are (`header_function`).
+        // header function's are (`header_function`); of a kind wider than
+        // the rule's numbers, values of the kind's, `fun n => (n : ℚ)` of
+        // `f(n) = n, a rational number`.
         let value = match self.writer.carrier(body) {
             Route::Built(to) => {
                 let to = match from >= super::super::templates::Num::Real {
                     true => to.max(from),
                     false => to,
                 };
+                let to = kind.map_or(to, |k| to.max(k));
                 self.writer.number_fixed(body, to).map(|v| (to, v))
             }
             Route::Declined(why) => Route::Declined(why),
@@ -522,12 +580,6 @@ impl<'a> Proof<'a> {
         // A function whose kind says its values are among narrower numbers
         // than Lean computes them in, whole numbers of a rational value or
         // reals of a complex one: its values are the kind's witnesses.
-        let kind = line
-            .kinded(&self.thm.path, &self.sources.checked.grammar.members)
-            .ok()
-            .flatten()
-            .and_then(|k| crate::rules::System::of_sign(&k.set))
-            .map(super::super::expr::recorded_set_type);
         if let Some(kind) = kind.filter(|k| to > *k) {
             let read = FunctionRead {
                 domain: domain.clone(),
@@ -1215,6 +1267,9 @@ impl<'a> Proof<'a> {
                     if set.untyped() == written.untyped())
             })
         };
+        if let Some(each) = self.counted_across_each(proof.clone(), wanted, at_values) {
+            return Some(each);
+        }
         let mut rules = Vec::new();
         for set in self.counted_sets(&[at_values]) {
             // A set the writer does not write as the page does, one a define
@@ -1234,6 +1289,129 @@ impl<'a> Proof<'a> {
                 t::exact_mod_cast(t::hyp("h")),
             ],
         ))))
+    }
+
+    /// `counted_across` of a "for all y ∈ S" Lean asks, `∀ Y ∈ K, Y.encard
+    /// = …` of a line `∀ Y ∈ K, (Y.ncard : ℤ) = …`: at each member, the
+    /// counts taken across there, y finite as a member of S
+    /// (`member_finite`) and any other set as the record says, and a
+    /// natural count Lean writes as `(n : ℤ).toNat` read as n
+    /// (`Int.toNat_natCast`). None where `wanted` is no such "for all", or
+    /// a set it counts in ℕ∞ is not shown finite.
+    fn counted_across_each(
+        &self,
+        proof: Printed,
+        wanted: &Printed,
+        at_values: &Node,
+    ) -> Option<Printed> {
+        use super::super::doc::{CountForm, Quant, TermKind};
+        use super::super::tactics as t;
+        let TermKind::Quantified {
+            quant: Quant::ForAll,
+            letter,
+            guard: Some(_),
+            body,
+            ..
+        } = &bare_term(wanted).kind
+        else {
+            return None;
+        };
+        let (crate::notations::FOR_ALL, [bound, set, inner]) =
+            (at_values.notation(), at_values.children.as_slice())
+        else {
+            return None;
+        };
+        // The member's type as the citing proof has it, `Set G` of a member
+        // of K : Set (Set G), not the item's own.
+        let member_ty = self.writer.members_of(set)?.letter().lean_type();
+        let member = "h_mem";
+        let in_extended = |written: &Printed| {
+            body.walk().iter().any(|c| {
+                matches!(&c.kind, TermKind::Count { set, form: CountForm::Extended }
+                    if set.untyped() == written.untyped())
+            })
+        };
+        let mut rules = Vec::new();
+        for counted in self.counted_sets(&[inner]) {
+            if counted.is_name() && counted.text == bound.text {
+                let shown = ShownFinite {
+                    set: Printed::letter(letter, member_ty.clone()),
+                    proof: self.member_finite(set, t::hyp(member))?,
+                };
+                rules.push(t::backwards(cast_ncard_eq(&shown)));
+                continue;
+            }
+            let Route::Built(written) = self.writer.set_term(&counted) else {
+                continue;
+            };
+            if in_extended(&written) {
+                rules.push(t::backwards(cast_ncard_eq(&self.shown_finite(&counted)?)));
+            }
+        }
+        if rules.is_empty() {
+            return None;
+        }
+        let to_nat_of_cast = body.walk().iter().any(|n| {
+            let TermKind::ToNat(inner) = &n.kind else {
+                return false;
+            };
+            let mut inner = &**inner;
+            while let TermKind::Paren(within) = &inner.kind {
+                inner = within;
+            }
+            matches!(inner.kind, TermKind::Cast { .. })
+        });
+        if to_nat_of_cast {
+            rules.push(t::forwards(t::lemma("Int.toNat_natCast")));
+        }
+        let at_member = applied_to(applied_to(proof, t::hyp(letter)), t::hyp(member));
+        Some(untyped_lambda(
+            &[letter.as_str(), member],
+            t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
+                t::simp_only(false, None, rules, None),
+                t::exact_mod_cast(at_member),
+            ]))),
+        ))
+    }
+
+    /// That a member of `set` is finite, from `member`, the proof of its
+    /// membership: of 𝒫A, a part of A, `(p : A.Finite).subset h`; of a set
+    /// built from 𝒫A, {X ⊆ A : P(X)}, the same of `h.1`; of a define's name,
+    /// as of its value. None for any other set, or an A not shown finite.
+    pub(super) fn member_finite(&self, set: &Node, member: Printed) -> Option<Printed> {
+        use crate::notations::{POWERSET, SET_BUILDER};
+        let value = match set.is_name() {
+            true => self.define_value_tree(&set.text)?,
+            false => set.clone(),
+        };
+        let (whole, member) = match (value.notation(), value.children.as_slice()) {
+            (POWERSET, [a]) => (a.clone(), member),
+            (SET_BUILDER, [_, of, _]) if of.notation() == POWERSET => {
+                (of.children.first()?.clone(), projected(member, &["1"]))
+            }
+            _ => return None,
+        };
+        let whole_finite = self.finite_proof(&whole)?;
+        Some(applied_to(
+            projected(super::super::tactics::bracket(whole_finite), &["subset"]),
+            member,
+        ))
+    }
+
+    /// The value a define of no argument names, as the checker read its
+    /// rule; None where no such define names `name`, or its rule did not
+    /// read.
+    fn define_value_tree(&self, name: &str) -> Option<Node> {
+        self.thm.defines.iter().find_map(|d| {
+            let Route::Built(crate::corpus::DefineParts::One(one)) =
+                crate::corpus::define_parts(&d.text)
+            else {
+                return None;
+            };
+            (one.name == name && one.params.is_empty())
+                .then(|| super::headers::rule_tree(&one.body, d, self.rec))
+                .flatten()
+        })
     }
 
     /// The proof of `wanted` from `proof` of `says` where one of the two
@@ -1533,6 +1711,15 @@ impl<'a> Proof<'a> {
         &self,
         facts: &[super::super::algebra::Cited],
     ) -> Vec<ShownWhole> {
+        self.wholes_among_in(facts, &self.writer)
+    }
+
+    /// `wholes_among`, each fact read as `writer` writes it.
+    pub(super) fn wholes_among_in(
+        &self,
+        facts: &[super::super::algebra::Cited],
+        writer: &Writer,
+    ) -> Vec<ShownWhole> {
         let mut known = Vec::new();
         for b in self.writer.bounds.terms.iter().filter(|b| b.least >= 0) {
             if let Some(proof) = self.bound_nonneg(b) {
@@ -1546,7 +1733,7 @@ impl<'a> Proof<'a> {
             let Some((term, system)) = membership_of_whole(&f.node) else {
                 continue;
             };
-            if self.written_as_bound(&f.node) {
+            if super::cited_lines::written_as_bound(&f.node, writer) {
                 known.push(ShownWhole {
                     term: term.clone(),
                     proof: nonneg_of(system, f.proof.clone()),
@@ -2173,6 +2360,8 @@ impl<'a> Proof<'a> {
                     super::super::tactics::bracket(of(1)?),
                 )),
                 Making::Image(_) => Some(applied_to(field(of(2)?, "image"), hole())),
+                // gH, Lean's `(g * ·) '' H`: the image of a finite H.
+                Making::Coset(_) => Some(applied_to(field(of(1)?, "image"), hole())),
                 Making::Applied(_) => None,
                 // The functions from a finite X to a finite Y.
                 Making::Functions(_, _) => Some(applied_to(
