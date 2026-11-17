@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself
 
-theorem set_is_a_part_of_itself {α : Type*} (A : Set α) :
+theorem set_is_a_part_of_itself {α : Type*} [Nonempty α] (A : Set α) :
     A ∈ 𝒫 A := by
   -- 1. mun:subset-self
   have s1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))

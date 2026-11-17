@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Functions.InverseFunction
 
-theorem inverse_function {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B ∧ Set.InjOn f A) (hH4 : f '' (A ∩ A) = B) :
+theorem inverse_function {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B ∧ Set.InjOn f A) (hH4 : f '' (A ∩ A) = B) :
     Set.MapsTo (LeanBridges.Functions.inverse f A) B A := by
   -- 1. mun:functions-inverse-function, from H3, H4
   exact (Parley.Items.Stdlib.Functions.mun_inverse_function (X := A) (Y := B) (f := f) hH3 hH4)

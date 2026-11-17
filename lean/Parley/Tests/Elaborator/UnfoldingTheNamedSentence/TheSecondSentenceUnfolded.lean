@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.UnfoldingTheNamedSentence.TheSecondSentenceUnfolded
 
-theorem the_second_sentence_unfolded {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B ∧ A ⊆ C) :
+theorem the_second_sentence_unfolded {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B ∧ A ⊆ C) :
     (∀ t ∈ A, t ∈ C) := by
   -- 1. def:subset X := A, Y := C, from H4
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mp hH4.2

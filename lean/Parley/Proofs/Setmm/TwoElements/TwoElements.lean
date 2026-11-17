@@ -38,7 +38,7 @@ public section
 
 namespace Parley.Proofs.Setmm.TwoElements.TwoElements
 
-theorem two_elements {α : Type*} (V : Set α) :
+theorem two_elements {α : Type*} [Nonempty α] (V : Set α) :
     (V.encard = ((2 : ℕ) : ℕ∞) ↔ (∃ a ∈ V, ∃ b ∈ V, ¬ a = b ∧ V = ({a, b} : Set α))) := by
   -- the theorem. both directions
   constructor

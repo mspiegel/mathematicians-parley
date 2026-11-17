@@ -23,10 +23,10 @@ public section
 
 namespace Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty
 
-theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH3 : A = ∅) :
+theorem function_into_empty {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (F : α → β) (hH3 : A = ∅) :
     Set.MapsTo F A ∅ := by
   -- 1. proof
-  have s1 : ∀ x ∈ A, F x ∈ (∅ : Set α) := by
+  have s1 : ∀ x ∈ A, F x ∈ (∅ : Set β) := by
     intro x hK1
     -- 1.1. substitute A = ∅ (H3) into K1
     have s1_1 : x ∈ (∅ : Set α) := Eq.subst (motive := (fun t : Set α => x ∈ t)) hH3 hK1

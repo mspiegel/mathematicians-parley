@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
 
-theorem a_direction_ending_on_a_proof_block {α : Type*} (A : Set α) (B : Set α) :
+theorem a_direction_ending_on_a_proof_block {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ⊆ B ↔ (∀ t ∈ A, t ∈ B)) := by
   -- 1. both directions
   constructor

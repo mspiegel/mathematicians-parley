@@ -28,7 +28,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeIsNatural.SizeIsNatural
 
-theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
+theorem size_is_natural {α : Type*} [Nonempty α] (A : Set α) (hH2 : A.Finite) :
     (0 < (A.ncard : ℤ) ↔ ¬ A = ∅) := by
   -- the theorem. both directions
   constructor

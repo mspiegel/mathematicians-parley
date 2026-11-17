@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.DifferenceOfIntersection
 
-theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
+theorem difference_of_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A \ (A ∩ B) = A \ B := by
   -- 1. proof
   have s1 : ∀ u ∈ A \ (A ∩ B), u ∈ A \ B := by

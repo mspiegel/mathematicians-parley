@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DisjointWithinDifference.DisjointWithinDifference
 
-theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
+theorem disjoint_within_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
     (A ∩ B = ∅ ↔ A ⊆ C \ B) := by
   -- the theorem. both directions
   constructor

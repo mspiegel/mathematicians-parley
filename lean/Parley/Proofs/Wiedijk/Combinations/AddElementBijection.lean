@@ -30,7 +30,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.AddElementBijection
 
-theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈ Y) (j : ℤ) :
+theorem add_element_bijection {α : Type*} [Nonempty α] (Y : Set α) (a : α) (hH2 : ¬ a ∈ Y) (j : ℤ) :
     (∃ g : Set α → Set α, Set.BijOn g {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j} ((fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j})) := by
   set F : Set (Set α) := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j} with hD1
   -- 1. proof

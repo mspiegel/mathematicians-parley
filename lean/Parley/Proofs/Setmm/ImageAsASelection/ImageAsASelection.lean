@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageAsASelection.ImageAsASelection
 
-theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
+theorem image_as_a_selection {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
     F '' (A ∩ X) = {y ∈ B | ∃ x ∈ X, F x = y} := by
   -- 1. proof
   have s1 : ∀ u ∈ F '' (A ∩ X), u ∈ {y ∈ B | ∃ x ∈ X, F x = y} := by
@@ -39,7 +39,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 1.4. mun:function-value f := F, x := s, from 1.3
     have s1_4 : F s ∈ B := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := B) (f := F) (x := s) s1_3 hH3)
     -- 1.5. substitute u = F(s) (line 1.2) into line 1.4
-    have s1_5 : u ∈ B := Eq.subst (motive := (fun t : α => t ∈ B)) s1_2b.symm s1_4
+    have s1_5 : u ∈ B := Eq.subst (motive := (fun t : β => t ∈ B)) s1_2b.symm s1_4
     -- 1.6. exhibit, from 1.2
     have s1_6 : ∃ x ∈ X, F x = u := ⟨s, s1_2a, s1_2b.symm⟩
     -- 1.7. def:set-builder, from 1.5, 1.6
@@ -56,7 +56,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 3.3. mun:value-in-image, from H4, 3.2
     have s3_3 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := B) hH4 s3_2a hH3)
     -- 3.4. substitute F(x) = u (line 3.2) into line 3.3
-    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3_2b s3_3
+    exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ X))) s3_2b s3_3
   -- 4. def:subset, from 3
   have s4 : {y ∈ B | ∃ x ∈ X, F x = y} ⊆ F '' (A ∩ X) := ((Parley.Items.Stdlib.Sets.def_subset (X := {y ∈ B | ∃ x ∈ X, F x = y}) (Y := F '' (A ∩ X)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

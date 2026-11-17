@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceInsideALargerSet.DifferenceInsideALargerSet
 
-theorem difference_inside_a_larger_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
+theorem difference_inside_a_larger_set {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
     A \ B = (C \ B) ∩ A := by
   -- 1. proof
   have s1 : ∀ t ∈ A \ B, t ∈ (C \ B) ∩ A := by

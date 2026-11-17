@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Tests.Elaborator.APartCountedSaidBack.APartWithASize
 
-theorem a_part_with_a_size {α : Type*} (X : Set α) (hH2 : ∃ W ∈ 𝒫 X, ((1 : ℕ) : ℕ∞) ≤ W.encard) :
+theorem a_part_with_a_size {α : Type*} [Nonempty α] (X : Set α) (hH2 : ∃ W ∈ 𝒫 X, ((1 : ℕ) : ℕ∞) ≤ W.encard) :
     (∃ W ∈ 𝒫 X, ((1 : ℕ) : ℕ∞) ≤ W.encard) := by
   -- 1. restate H2
   exact hH2

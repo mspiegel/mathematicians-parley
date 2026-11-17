@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfUnion.PreimageOfUnion
 
-theorem preimage_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) (Z : Set α) (hH5 : Z ⊆ B) :
+theorem preimage_of_union {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) (Y : Set β) (hH4 : Y ⊆ B) (Z : Set β) (hH5 : Z ⊆ B) :
     A ∩ f ⁻¹' (Y ∪ Z) = A ∩ f ⁻¹' Y ∪ A ∩ f ⁻¹' Z := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∩ f ⁻¹' (Y ∪ Z), u ∈ A ∩ f ⁻¹' Y ∪ A ∩ f ⁻¹' Z := by

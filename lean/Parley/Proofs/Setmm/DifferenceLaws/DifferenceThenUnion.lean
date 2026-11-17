@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.DifferenceThenUnion
 
-theorem difference_then_union {α : Type*} (A : Set α) (B : Set α) :
+theorem difference_then_union {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A \ B ∪ B = A ∪ B := by
   -- 1. calculation
   calc A \ B ∪ B = B ∪ A \ B := by exact (Parley.Items.Stdlib.Sets.mun_union_commutes (Y := A \ B) (Z := B))

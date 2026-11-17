@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.NonemptyMember
 
-theorem nonempty_member {α : Type*} (Y : Set α) (hH2 : ¬ Y = ∅) :
+theorem nonempty_member {α : Type*} [Nonempty α] (Y : Set α) (hH2 : ¬ Y = ∅) :
     (∃ a ∈ Y, True) := by
   -- 1. mun:sets-nonempty-member, from H2
   exact (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := Y) hH2)

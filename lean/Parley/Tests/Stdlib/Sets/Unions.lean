@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Unions
 
-theorem unions {α : Type*} [LeanBridges.ZF.Sets α] (F : Set (Set α)) (hH2 : LeanBridges.ZF.IsSet F) :
+theorem unions {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (F : Set (Set α)) (hH2 : LeanBridges.ZF.IsSet F) :
     LeanBridges.ZF.IsSet (⋃ A ∈ F, A) := by
   -- 1. axi:sets-unions C := F, from H2
   exact (Parley.Items.Stdlib.Sets.axi_unions (C := F) hH2)

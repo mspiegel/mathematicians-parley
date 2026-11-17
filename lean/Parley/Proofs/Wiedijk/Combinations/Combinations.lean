@@ -45,7 +45,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.Combinations
 
-theorem combinations {α : Type*} (A : Set α) (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH4 : A.encard = ((n.toNat : ℕ) : ℕ∞)) :
+theorem combinations {α : Type*} [Nonempty α] (A : Set α) (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH4 : A.encard = ((n.toNat : ℕ) : ℕ∞)) :
     ({S ∈ 𝒫 A | (S.ncard : ℤ) = k}.ncard : ℤ) = (LeanBridges.Counting.choose n k : ℤ) := by
   -- 1. induction on m starting at 0
   have s1 : ∀ m : ℤ, 0 ≤ m → (∀ X : Set α, ∀ j : ℤ, X.encard = ((m.toNat : ℕ) : ℕ∞) → ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose m j : ℤ)) := by

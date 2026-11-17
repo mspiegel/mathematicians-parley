@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfAUnionWithADisjointSet.SubsetOfAUnionWithADisjointSet
 
-theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ∩ B = ∅) :
+theorem subset_of_a_union_with_a_disjoint_set {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ∩ B = ∅) :
     (A ⊆ B ∪ C ↔ A ⊆ C) := by
   -- the theorem. both directions
   constructor

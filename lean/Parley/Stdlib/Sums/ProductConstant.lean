@@ -39,7 +39,7 @@ public section
 
 namespace Parley.Stdlib.Sums.ProductConstant
 
-theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
+theorem product_constant {α : Type*} [Nonempty α] (X : Set α) (hH2 : X.Finite) (c : ℝ) :
     (∏ᶠ x ∈ X, (c : ℝ)) = c ^ X.ncard := by
   -- 1. induction on Y starting at ∅
   have r74_1 : X.Finite := by exact hH2

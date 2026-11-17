@@ -32,7 +32,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.OnePointPart
 
-theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Finite) (hH3 : 1 ≤ (X.ncard : ℤ)) :
+theorem one_point_part {α : Type*} [Nonempty α] (X : Set α) (G : Set (Set α)) (hH2 : X.Finite) (hH3 : 1 ≤ (X.ncard : ℤ)) :
     (∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G)) := by
   -- 1. inequalities, from H3
   have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)

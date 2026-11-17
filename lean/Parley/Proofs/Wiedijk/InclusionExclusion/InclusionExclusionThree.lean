@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionThree
 
-theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A.Finite) (hH5 : B.Finite) (hH6 : C.Finite) :
+theorem inclusion_exclusion_three {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A.Finite) (hH5 : B.Finite) (hH6 : C.Finite) :
     (((A ∪ B) ∪ C).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) + (C.ncard : ℤ) - ((A ∩ B).ncard : ℤ) - ((A ∩ C).ncard : ℤ) - ((B ∩ C).ncard : ℤ) + (((A ∩ B) ∩ C).ncard : ℤ) := by
   -- 1. mun:union-finite X := A, Y := B, from H4, H5
   have s1 : (A ∪ B).Finite := by exact (Parley.Items.Stdlib.Counting.mun_union_finite (X := A) (Y := B) hH4 hH5)

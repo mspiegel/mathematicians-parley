@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfIntersection.SubsetOfIntersection
 
-theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
+theorem subset_of_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∧ A ⊆ C ↔ A ⊆ B ∩ C) := by
   -- the theorem. both directions
   constructor

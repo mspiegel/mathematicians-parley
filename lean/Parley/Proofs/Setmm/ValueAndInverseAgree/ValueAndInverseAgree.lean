@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ValueAndInverseAgree.ValueAndInverseAgree
 
-theorem value_and_inverse_agree {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' (A ∩ A) = B) (C : α) (hH5 : C ∈ A) (D : α) (hH6 : D ∈ B) :
+theorem value_and_inverse_agree {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' (A ∩ A) = B) (C : α) (hH5 : C ∈ A) (D : β) (hH6 : D ∈ B) :
     (F C = D ↔ LeanBridges.Functions.inverse F A D = C) := by
   -- the theorem. both directions
   constructor
@@ -33,7 +33,7 @@ theorem value_and_inverse_agree {α : Type*} (A : Set α) (B : Set α) (F : α �
     -- 1. thm:inverse-of-value, from H3, H4, H5
     have s1 : LeanBridges.Functions.inverse F A (F C) = C := by exact (Parley.Proofs.Setmm.InverseOfValue.InverseOfValue.inverse_of_value (A := A) (B := B) (F := F) hH3 hH4 (C := C) hH5)
     -- 2. substitute F(C) = D (D1) into line 1
-    exact Eq.subst (motive := (fun t : α => LeanBridges.Functions.inverse F A t = C)) hD1 s1
+    exact Eq.subst (motive := (fun t : β => LeanBridges.Functions.inverse F A t = C)) hD1 s1
   · skip
     intro hD2
     -- 3. thm:value-of-inverse C := D, from H3, H4, H6

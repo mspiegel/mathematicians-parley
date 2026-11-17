@@ -392,17 +392,22 @@ them, `{2n : n ∈ ℤ}` a `Set ℤ`, and ℚ among the reals is
 `let D ⊆ ℝ`, is a set of those numbers; a letter that is only an element,
 `let A be an element`, takes the type of the sets later lines put it in.
 
-`let f : A → B` is `(f : α → α)` with `Set.MapsTo f A B` beside it, and
-between sets of numbers `(f : ℝ → ℝ)` with the same. A library item's map
-takes things of one type to things of another, `(E : α → β)`, wherever nothing
-the item says makes the two one, so that a citation may give it integers and
-take rationals, n ↦ 2ⁿ; an item that applies g⁻¹ to a point keeps g's two sides
-one type, since the bridges' g⁻¹(y) is y itself where g sends nothing to y. One-to-one is
+`let f : A → B` is `(f : α → β)` with `Set.MapsTo f A B` beside it, and
+between sets of numbers `(f : ℝ → ℝ)` with the same. A theorem's or an item's
+sets hold things of one type where something it says makes them one, `C ⊆ A`,
+`x ∈ A ∩ B`, f(x) ∈ B, and things of two types where nothing does: f takes
+A's things to B's, so schroeder-bernstein is stated over `{α β : Type*}`, and
+a citation may give it integers and take rationals. The checker records which
+sets share a type (`thing_types`), and the type variables follow the order
+the sets are let. Each type variable is `[Nonempty α]`: it stands for set.mm's
+universe of sets, which holds ∅, so a function from A to B exists whatever A
+and B are, and g⁻¹ has a value where g reaches nothing. One-to-one is
 `Set.InjOn f A` and onto `Set.SurjOn f A B`. A map's domain is the set its line
 gives it, or all of its type where it is given between number systems other
 than ℕ and ℕ₀; its image and preimage are taken within that domain, `f '' (A ∩ Y)`
 and `A ∩ f ⁻¹' Z`, as set.mm takes them, since Lean's `f` is total. f⁻¹(y) is
-the bridges' inverse on the domain. f is a function on A is `True` of a Lean
+the bridges' inverse on the domain, Mathlib's `Function.invFunOn`, from B's
+type back to A's. f is a function on A is `True` of a Lean
 function of A's type. The page's ℕ and ℕ₀, standing as a set, are the integers
 above and from 0, `{n : ℤ | 0 < n}` and `{n : ℤ | 0 ≤ n}`, so that a map from
 them into ℤ, or a set of them an integer is said to be in, has one type in and
@@ -456,6 +461,14 @@ which over an empty D is all of the type, as set.mm's is. `sup S` is
 `sSup S`. Every statement that uses it says S is non-empty and bounded above,
 so Mathlib's value elsewhere is never read.
 
+`A × B` is Mathlib's `A ×ˢ B`, a set of Lean's pairs. A function whose values
+are sets or pairs is a map into them: `let I(k) = {|x| : x ∈ 𝒫{1, …, k}}, for
+k ∈ {1, …, N}` is `I : ℤ → Set ℤ`, and `let f(i) = (L(i), M(i))` is
+`f : ℤ → ℤ × ℤ`, whichever the record's sort of the define says. `for X ⊆ A`
+takes X over `Set α`. A set of functions between finite sets, and a product
+of finite sets, is finite (`functions_from_finite`, `Set.Finite.prod`), so
+their counts are natural numbers.
+
 `X exists` is `LeanBridges.ZF.IsSet X`: X is one of ZF's sets
 (`corpus/lean-bridges/ZF.lean`). The bridge's class `Sets α` says which
 things of a type are sets, and which of Mathlib's `ZFSet`s each one is. Every
@@ -484,7 +497,14 @@ fact, whatever the type of its value, as `let m ∈ ℕ` does.
 A function the header lets is read as the page reads a let: a letter, with
 its definition as a hypothesis. `let f(x) = 2x + 1, for x ∈ ℝ` is
 `(f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1)`, guarded by the domain where
-that is a set, which is then its domain. A recursion,
+that is a set, which is then its domain. A step that applies such a function
+puts in its equation at the argument, `hD1 _ h`, h what the record found puts
+the argument in the domain (`applied_domains`). An order step adds it as a
+fact, a citation of an item or an algebra rewrites the goal by it, and at a
+sum's index it is used term by term,
+`Finset.sum_congr rfl (by intro k h; exact hD1 k (…))`, the index's fact read
+off the range. A limit of such a function is taken across from where the
+domain starts, `h.congr' (Filter.eventually_atTop.mpr ⟨1, …⟩)`. A recursion,
 `let F(0) = 0, G(0) = 1, F(k + 1) = G(k), G(k + 1) = F(k) + G(k), for k ∈ ℕ₀`,
 is `(F G : ℤ → ℤ)` with its starts and its step for k ≥ 0 as one hypothesis. A
 step citing the define, or a calculation row citing it, rewrites with that

@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.DifferenceSet
 
-theorem difference_set {α : Type*} [LeanBridges.ZF.Sets α] (X : Set α) (hX_set : LeanBridges.ZF.IsSet X) (a : α) (ha_set : LeanBridges.ZF.IsSet a) :
+theorem difference_set {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (X : Set α) (hX_set : LeanBridges.ZF.IsSet X) (a : α) (ha_set : LeanBridges.ZF.IsSet a) :
     LeanBridges.ZF.IsSet (X \ ({a} : Set α)) := by
   -- 1. mun:sets-difference-set
   exact (Parley.Items.Stdlib.Sets.mun_difference_set (X := X) hX_set (a := a) ha_set)

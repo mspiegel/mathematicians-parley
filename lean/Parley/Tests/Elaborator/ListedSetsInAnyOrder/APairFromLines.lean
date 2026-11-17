@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairFromLines
 
-theorem a_pair_from_lines {α : Type*} (X : Set α) (u : α) (w : α) (hH4 : ({u, w} : Set α) ⊆ X) (hH5 : X ⊆ ({u, w} : Set α)) :
+theorem a_pair_from_lines {α : Type*} [Nonempty α] (X : Set α) (u : α) (w : α) (hH4 : ({u, w} : Set α) ⊆ X) (hH5 : X ⊆ ({u, w} : Set α)) :
     X = ({w, u} : Set α) := by
   -- 1. mun:subset-antisymmetric Y := {u, w}, from H4, H5
   (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := X) (Y := ({u, w} : Set α)) hH5 hH4); ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)

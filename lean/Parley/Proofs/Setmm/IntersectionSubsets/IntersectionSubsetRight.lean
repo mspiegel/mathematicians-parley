@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetRight
 
-theorem intersection_subset_right {α : Type*} (A : Set α) (B : Set α) :
+theorem intersection_subset_right {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ∩ B ⊆ B := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∩ B, u ∈ B := by

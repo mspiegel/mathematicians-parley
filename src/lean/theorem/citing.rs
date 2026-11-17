@@ -702,8 +702,14 @@ impl<'a> Proof<'a> {
                 .get(from)
                 .copied()
                 .unwrap_or(super::super::templates::Num::Nat);
+            // Its letter a set where the things are taken at sets, x of x ↦
+            // |x| over 𝒫{1, …, k}; a number otherwise.
+            let letter = match given.others.get(from) {
+                Some(members) => members.letter(),
+                None => LetterType::Number(takes),
+            };
             let mut letters = self.writer.letters.clone();
-            letters.insert(value.text.to_string(), LetterType::Number(takes));
+            letters.insert(value.text.to_string(), letter);
             if let Route::Built(c) = self.writer.with_letters(letters).carrier(body) {
                 given.raise(*to, c);
             }
@@ -1347,17 +1353,24 @@ impl<'a> Proof<'a> {
                 },
                 _,
             ) if value.notation() == PROPERTY_OF => match value.children.as_slice() {
+                // Its letter a member of what the things are taken at here:
+                // numbers, or sets, x of x ↦ |x| over 𝒫{1, …, k}.
                 [body] => {
+                    let put = things
+                        .put(&super::super::expr::Members::Things(*from), &things_at);
                     let mut letters = self.writer.letters.clone();
-                    letters.insert(
-                        value.text.to_string(),
-                        LetterType::Number(things_at(from)),
-                    );
+                    letters.insert(value.text.to_string(), put.letter());
                     let inner = self.writer.with_letters(letters);
-                    inner.number_fixed(body, things_at(to)).map(|b| {
+                    // At its own type where that is wider, a count computed
+                    // in ℤ as the step's lines compute it.
+                    let at = match inner.carrier(body) {
+                        Route::Built(own) => own.max(things_at(to)),
+                        Route::Declined(_) => things_at(to),
+                    };
+                    inner.number_fixed(body, at).map(|b| {
                         lambda(
                             &super::super::names::letter(&value.text),
-                            super::super::doc::LeanType::Num(things_at(from)),
+                            put.member_type(),
                             b,
                         )
                     })
@@ -2089,17 +2102,46 @@ impl<'a> Proof<'a> {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
             Way::Backward => {
-                return self.definition_backwards(Backwards {
+                // A function the header lets, V(N), rewritten in the goal by
+                // its equation first, so the claim read is its rule there
+                // (`header_functions_applied`).
+                let headers = match self.header_functions_applied(reason.just) {
+                    Route::Built(h) => h,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let written = headers
+                    .iter()
+                    .fold(node.clone(), |n, h| self.put_define(&n, &h.define));
+                let claim_lean = match headers.is_empty() {
+                    true => claim_lean,
+                    false => self.writer.formula(&written).built(),
+                };
+                let proof = self.definition_backwards(Backwards {
                     reason,
                     k,
-                    node,
+                    node: &written,
                     cited,
                     sentence,
                     statement: &statement,
                     inst,
                     claim_lean: &claim_lean,
-                    stated: stated.is_some(),
+                    stated: stated.is_some() && headers.is_empty(),
                 });
+                if headers.is_empty() {
+                    return proof;
+                }
+                let rewrite = super::super::tactics::call(
+                    "rw",
+                    vec![TacticArg::Rules(
+                        headers
+                            .iter()
+                            .map(|h| {
+                                super::super::tactics::forwards(h.equation.clone())
+                            })
+                            .collect(),
+                    )],
+                );
+                return proof.map(|p| haves_then(vec![rewrite], p));
             }
         };
         let ProjectedReading { term, says, path } = match self.projected_reading(
@@ -2125,13 +2167,36 @@ impl<'a> Proof<'a> {
             .map(|d| d.proof.clone())
             .collect();
         let outer_in_goal = self.defines_in_goal.replace(in_goal);
+        // A function the header lets, V(N), is rewritten in the goal by its
+        // equation at each argument the record found its domain said for
+        // (`header_functions_applied`).
+        let headers = match self.header_functions_applied(reason.just) {
+            Route::Built(h) => h,
+            Route::Declined(d) => {
+                self.defines_in_goal.replace(outer_in_goal);
+                return Route::Declined(d);
+            }
+        };
+        // A function a define gives, M(X), is written out in the goal before
+        // the claim is closed (`written_out`), so the claim closed is its
+        // rule at the argument.
+        let written_node = defines
+            .iter()
+            .filter(|d| d.param.is_some())
+            .chain(headers.iter().map(|h| &h.define))
+            .fold(node.clone(), |n, d| self.put_define(&n, d));
+        let (closing_node, claim_lean) = if written_node.spelt_alike(node) {
+            (node, claim_lean)
+        } else {
+            (&written_node, self.writer.formula(&written_node).built())
+        };
         // An item that says a natural power of an integer is one gives the
         // claim nothing to read where the claim's exponent is an integer
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
         let closed = self.close_citation(
             CitationClosing {
-                node,
+                node: closing_node,
                 k,
                 cited,
                 sentence,
@@ -2156,10 +2221,19 @@ impl<'a> Proof<'a> {
             said: vec![node.clone()],
             stated: self.writer.formula(node).built().into_iter().collect(),
         };
-        Route::Built(haves_then(
-            written_out(&defines, &[goal], &self.writer),
-            closed,
-        ))
+        let mut before = written_out(&defines, &[goal], &self.writer);
+        if !headers.is_empty() {
+            before.push(super::super::tactics::call(
+                "rw",
+                vec![TacticArg::Rules(
+                    headers
+                        .iter()
+                        .map(|h| super::super::tactics::forwards(h.equation.clone()))
+                        .collect(),
+                )],
+            ));
+        }
+        Route::Built(haves_then(before, closed))
     }
 
     /// The proof a citation gives of its claim, once its term is projected to

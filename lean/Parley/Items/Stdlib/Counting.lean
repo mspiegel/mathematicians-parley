@@ -27,6 +27,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Nat
 public import Mathlib.Algebra.Star.Basic
 public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Basic.SProd
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.ENat.Basic
 public import Mathlib.Data.ENat.Defs
@@ -39,6 +40,7 @@ public import Mathlib.Data.Int.Cast.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Nat.Cast.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Cast.Order.Basic
 public import Mathlib.Data.Nat.Cast.Order.Ring
@@ -113,27 +115,27 @@ theorem mun_factorial_divisible (n : ℤ) (h1 : 0 < n) (m : ℤ) (h2 : 0 < m) (h
     m ∣ (LeanBridges.Counting.factorial n : ℤ) :=
   LeanBridges.Counting.factorial_divisible n h1 m h2 h3
 
-theorem mun_card_zero {α : Type*} (X : Set α) (h1 : X.encard = ((0 : ℕ) : ℕ∞)) :
+theorem mun_card_zero {α : Type*} [Nonempty α] (X : Set α) (h1 : X.encard = ((0 : ℕ) : ℕ∞)) :
     X = ∅ :=
   Set.encard_eq_zero.mp (by simpa using h1)
 
-theorem mun_card_singleton {α : Type*} (x : α) :
+theorem mun_card_singleton {α : Type*} [Nonempty α] (x : α) :
     (({x} : Set α).ncard : ℤ) = 1 :=
   by simp
 
-theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℤ) (h1 : 0 ≤ k) (h2 : (X.ncard : ℤ) = k + 1) :
+theorem mun_card_nonempty {α : Type*} [Nonempty α] (X : Set α) (k : ℤ) (h1 : 0 ≤ k) (h2 : (X.ncard : ℤ) = k + 1) :
     ∃ a ∈ X, True :=
   (Set.nonempty_of_ncard_ne_zero (by omega)).imp fun _ h => ⟨h, trivial⟩
 
-theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℤ) (h2 : 0 ≤ k) (h3 : (X.ncard : ℤ) = k + 1) :
+theorem mun_card_remove {α : Type*} [Nonempty α] (X : Set α) (a : α) (h1 : a ∈ X) (k : ℤ) (h2 : 0 ≤ k) (h3 : (X.ncard : ℤ) = k + 1) :
     ((X \ ({a} : Set α)).ncard : ℤ) = k :=
   by rw [Set.ncard_diff_singleton_of_mem h1]; omega
 
-theorem mun_card_bijection {α β : Type*} (X : Set α) (Y : Set β) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h3 : ∃ g : α → β, Set.BijOn g X Y) :
+theorem mun_card_bijection {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h3 : ∃ g : α → β, Set.BijOn g X Y) :
     Y.encard = ((m.toNat : ℕ) : ℕ∞) :=
   by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
-theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℤ) (h1 : 0 ≤ m) (n : ℤ) (h2 : 0 ≤ n) (h3 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h4 : Y.encard = ((n.toNat : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
+theorem mun_card_disjoint_union {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (m : ℤ) (h1 : 0 ≤ m) (n : ℤ) (h2 : 0 ≤ n) (h3 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h4 : Y.encard = ((n.toNat : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
     ((X ∪ Y).ncard : ℤ) = m + n :=
   by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hY : Y.Finite := Set.finite_of_encard_eq_coe h4; have hm : X.ncard = m.toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); have hn : Y.ncard = n.toNat := (by rw [← hY.cast_ncard_eq] at h4; exact_mod_cast h4); rw [Set.ncard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5) hX hY, hm, hn]; omega
 
@@ -185,11 +187,11 @@ theorem mun_binomial_nat (n : ℤ) (h1 : 0 ≤ n) (k : ℤ) (h2 : k ∈ Finset.I
     0 < (LeanBridges.Counting.choose n k : ℤ) :=
   LeanBridges.Counting.choose_pos n h1 k h2
 
-theorem mun_card_empty {α : Type*} :
+theorem mun_card_empty {α : Type*} [Nonempty α] :
     ((∅ : Set α).ncard : ℤ) = 0 :=
   by simp
 
-theorem mun_finite_part {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
+theorem mun_finite_part {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
     Y.Finite :=
   h1.subset h2
 
@@ -197,55 +199,55 @@ theorem mun_factorial_nonzero (n : ℤ) (h1 : 0 ≤ n) :
     (LeanBridges.Counting.factorial n : ℤ) ≠ 0 :=
   LeanBridges.Counting.factorial_nonzero n h1
 
-theorem mun_union_finite {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y.Finite) :
+theorem mun_union_finite {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y.Finite) :
     (X ∪ Y).Finite :=
   by simp_all
 
-theorem mun_card_nat0 {α : Type*} (X : Set α) (h1 : X.Finite) :
+theorem mun_card_nat0 {α : Type*} [Nonempty α] (X : Set α) (h1 : X.Finite) :
     0 ≤ (X.ncard : ℤ) :=
   Int.natCast_nonneg _
 
-theorem mun_card_finite {α : Type*} (X : Set α) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) :
+theorem mun_card_finite {α : Type*} [Nonempty α] (X : Set α) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) :
     X.Finite :=
   Set.finite_of_encard_eq_coe h2
 
-theorem mun_card_difference {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
+theorem mun_card_difference {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
     ((X \ Y).ncard : ℤ) = (X.ncard : ℤ) - (Y.ncard : ℤ) :=
   Set.cast_ncard_sdiff h2 h1
 
-theorem mun_card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
+theorem mun_card_at_least_one {α : Type*} [Nonempty α] (X : Set α) (h1 : ¬ X = ∅) :
     ((1 : ℕ) : ℕ∞) ≤ X.encard :=
   LeanBridges.Counting.card_at_least_one X h1
 
-theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Finite) (h2 : ∀ Y ∈ K, Y ⊆ A) :
+theorem mun_parts_finite {α : Type*} [Nonempty α] (A : Set α) (K : Set (Set α)) (h1 : A.Finite) (h2 : ∀ Y ∈ K, Y ⊆ A) :
     K.Finite :=
   (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
 
-theorem mun_card_equal {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : ∃ g : α → β, Set.BijOn g X Y) :
+theorem mun_card_equal {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : ∃ g : α → β, Set.BijOn g X Y) :
     ((X.ncard : ℕ) : ℕ∞) = Y.encard :=
   by obtain ⟨g, hg⟩ := h2; rw [h1.cast_ncard_eq, ← hg.image_eq, hg.injOn.encard_image]
 
-theorem mun_partition_count {α : Type*} (A : Set α) (K : Set (Set α)) (m : ℤ) (h1 : 0 ≤ m) (h2 : A.Finite) (h3 : (⋃ Y ∈ K, Y) = A) (h4 : ∀ Y ∈ K, ∀ Z ∈ K, ∀ x ∈ Y ∩ Z, Y = Z) (h5 : ∀ Y ∈ K, Y.encard = ((m.toNat : ℕ) : ℕ∞)) :
+theorem mun_partition_count {α : Type*} [Nonempty α] (A : Set α) (K : Set (Set α)) (m : ℤ) (h1 : 0 ≤ m) (h2 : A.Finite) (h3 : (⋃ Y ∈ K, Y) = A) (h4 : ∀ Y ∈ K, ∀ Z ∈ K, ∀ x ∈ Y ∩ Z, Y = Z) (h5 : ∀ Y ∈ K, Y.encard = ((m.toNat : ℕ) : ℕ∞)) :
     ((A.ncard : ℕ) : ℕ∞) = K.encard * ((m.toNat : ℕ) : ℕ∞) :=
   LeanBridges.Counting.partition_count A K m h1 h2 h3 h4 h5
 
-theorem mun_card_pair {α : Type*} (u : α) (w : α) :
+theorem mun_card_pair {α : Type*} [Nonempty α] (u : α) (w : α) :
     (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
   by have h := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at h; exact_mod_cast h
 
-theorem mun_card_subset {α : Type*} (A : Set α) (B : Set α) (h1 : A ⊆ B) :
+theorem mun_card_subset {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (h1 : A ⊆ B) :
     A.encard ≤ B.encard :=
   Set.encard_le_encard h1
 
-theorem mun_card_pair_distinct {α : Type*} (u : α) (w : α) :
+theorem mun_card_pair_distinct {α : Type*} [Nonempty α] (u : α) (w : α) :
     ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
   by constructor; (intro h; exact_mod_cast Set.ncard_pair h); (intro h huw; subst huw; simp at h)
 
-theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : (Y.ncard : ℤ) = 2) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
+theorem mun_card_two {α : Type*} [Nonempty α] (Y : Set α) (a : α) (b : α) (h1 : (Y.ncard : ℤ) = 2) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
     Y = ({a, b} : Set α) :=
   LeanBridges.Counting.card_two Y a b h1 h2 h3 h4
 
-theorem mun_card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :
+theorem mun_card_positive {α : Type*} [Nonempty α] (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :
     ¬ X = ∅ :=
   LeanBridges.Counting.card_positive X h1
 
@@ -253,20 +255,24 @@ theorem mun_range_size (n : ℤ) (h1 : 0 ≤ n) :
     ((Set.Icc (1 : ℤ) n : Set ℤ).ncard : ℤ) = n :=
   by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; omega
 
-theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
+theorem mun_card_add_one {α : Type*} [Nonempty α] (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
     ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
   by rw [Set.union_singleton, Set.ncard_insert_of_notMem h2 h1]; push_cast; ring
 
-theorem thm_pigeonhole {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
+theorem mun_card_product {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y.Finite) :
+    ((X ×ˢ Y).ncard : ℤ) = (X.ncard : ℤ) * (Y.ncard : ℤ) :=
+  by rw [Set.ncard_prod, Nat.cast_mul]
+
+theorem thm_pigeonhole {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
     X.encard ≤ Y.encard :=
   by rw [← h1.2.encard_image]; exact Set.encard_le_encard (h1.1.image_subset)
 
-theorem thm_count_functions {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) :
-    ∃ m : ℕ, (LeanBridges.Functions.functions_from X Y).encard = (m : ℕ∞) ∧ (m : ℤ) = (Y.ncard : ℤ) ^ X.ncard :=
-  LeanBridges.Counting.count_functions X Y h1 h2
+theorem thm_count_functions {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) :
+    ((LeanBridges.Functions.functions_from X Y).ncard : ℤ) = (Y.ncard : ℤ) ^ X.ncard :=
+  by obtain ⟨m, hm, he⟩ := LeanBridges.Counting.count_functions X Y h1 h2; rw [Set.ncard_def, hm, ENat.toNat_natCast]; exact he
 
-theorem thm_count_one_to_one {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) (h3 : (X.ncard : ℤ) ≤ (Y.ncard : ℤ)) :
-    ∃ m : ℕ, {f ∈ LeanBridges.Functions.functions_from X Y | Set.MapsTo f Set.univ Y ∧ Set.InjOn f Set.univ}.encard = (m : ℕ∞) ∧ (m : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) ((X.ncard : ℤ) - 1), ((Y.ncard : ℤ) - k : ℤ)) :=
-  LeanBridges.Counting.count_one_to_one X Y h1 h2 h3
+theorem thm_count_one_to_one {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) (h3 : (X.ncard : ℤ) ≤ (Y.ncard : ℤ)) :
+    ({f ∈ LeanBridges.Functions.functions_from X Y | Set.MapsTo f Set.univ Y ∧ Set.InjOn f Set.univ}.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) ((X.ncard : ℤ) - 1), ((Y.ncard : ℤ) - k : ℤ)) :=
+  by obtain ⟨m, hm, he⟩ := LeanBridges.Counting.count_one_to_one X Y h1 h2 h3; rw [Set.ncard_def, hm, ENat.toNat_natCast]; exact he
 
 end Parley.Items.Stdlib.Counting

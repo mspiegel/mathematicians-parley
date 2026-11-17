@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Subsets.AddElementBijection
 
-theorem add_element_bijection {α : Type*} (X : Set α) (a : α) (hH2 : ¬ a ∈ X) :
+theorem add_element_bijection {α : Type*} [Nonempty α] (X : Set α) (a : α) (hH2 : ¬ a ∈ X) :
     (∃ g : Set α → Set α, Set.BijOn g (𝒫 X) ((fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 X))) := by
   -- 1. proof
   have s1 : ∀ S ∈ 𝒫 X, ∀ T ∈ 𝒫 X, S ∪ ({a} : Set α) = T ∪ ({a} : Set α) → S = T := by

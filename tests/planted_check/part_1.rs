@@ -533,7 +533,7 @@ pub(super) fn cases() -> Vec<Case> {
                 Some("    membership, from D3\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n".to_string()),
                 "    membership, from D3\n    requires numer(x) ∈ ℕ: mun:lowest-terms-parts\n".to_string(),
             )],
-            "the requires line of step 5 needs something that mun:lowest-terms-parts does not conclude",
+            "the requires line of step 6 needs something that mun:lowest-terms-parts does not conclude",
         ),
         // A calculation's row citing a define is what the define makes its
         // name: D1 makes G(a, 0) the sum to 0, and G(a, 1) the sum to 1.

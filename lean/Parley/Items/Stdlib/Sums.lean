@@ -253,7 +253,7 @@ theorem mun_sum_constant {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a :
     (∑ k ∈ Finset.Icc a b, (c : K)) = ((b : K) - (a : K) + 1) * c :=
   LeanBridges.Sums.sum_constant a b h3 c
 
-theorem mun_sum_constant_over {K : Type*} [CommRing K] [IsDomain K] [CharZero K] {α : Type*} (X : Set α) (h1 : X.Finite) (c : K) :
+theorem mun_sum_constant_over {K : Type*} [CommRing K] [IsDomain K] [CharZero K] {α : Type*} [Nonempty α] (X : Set α) (h1 : X.Finite) (c : K) :
     (∑ᶠ x ∈ X, (c : K)) = (X.ncard : K) * c :=
   by rw [finsum_mem_eq_finite_toFinset_sum _ h1, Finset.sum_const, nsmul_eq_mul, Set.ncard_eq_toFinset_card _ h1]
 
@@ -293,35 +293,35 @@ theorem mun_product_integer (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 
     True :=
   by (simp_all; done)
 
-theorem mun_product_split {K : Type*} [CommRing K] [IsDomain K] {α : Type*} (t : α → K) (X : Set α) (Y : Set α) (Z : Set α) (h1 : X.Finite) (h2 : X = Y ∪ Z) (h3 : Y ∩ Z = ∅) :
+theorem mun_product_split {K : Type*} [CommRing K] [IsDomain K] {α : Type*} [Nonempty α] (t : α → K) (X : Set α) (Y : Set α) (Z : Set α) (h1 : X.Finite) (h2 : X = Y ∪ Z) (h3 : Y ∩ Z = ∅) :
     (∏ᶠ x ∈ X, (t x : K)) = (∏ᶠ x ∈ Y, (t x : K)) * (∏ᶠ x ∈ Z, (t x : K)) :=
   by subst h2; exact finprod_mem_union (Set.disjoint_iff_inter_eq_empty.mpr h3) (h1.subset Set.subset_union_left) (h1.subset Set.subset_union_right)
 
-theorem mun_product_reindex {K : Type*} [CommRing K] [IsDomain K] {α : Type*} (t : α → K) (Y : Set α) (Z : Set α) (g : α → α) (h1 : Y.Finite) (h2 : Set.MapsTo g Y Z ∧ Set.InjOn g Y ∧ Set.SurjOn g Y Z) :
+theorem mun_product_reindex {K : Type*} [CommRing K] [IsDomain K] {α : Type*} [Nonempty α] (t : α → K) (Y : Set α) (Z : Set α) (g : α → α) (h1 : Y.Finite) (h2 : Set.MapsTo g Y Z ∧ Set.InjOn g Y ∧ Set.SurjOn g Y Z) :
     (∏ᶠ z ∈ Z, (t z : K)) = (∏ᶠ y ∈ Y, (t (g y) : K)) :=
   by rw [← h2.2.2.image_eq_of_mapsTo h2.1]; exact finprod_mem_image h2.2.1
 
-theorem mun_product_of_products {K : Type*} [CommRing K] [IsDomain K] {α : Type*} (t : α → K) (u : α → K) (X : Set α) (h1 : X.Finite) :
+theorem mun_product_of_products {K : Type*} [CommRing K] [IsDomain K] {α : Type*} [Nonempty α] (t : α → K) (u : α → K) (X : Set α) (h1 : X.Finite) :
     (∏ᶠ x ∈ X, (t x * u x : K)) = (∏ᶠ x ∈ X, (t x : K)) * (∏ᶠ x ∈ X, (u x : K)) :=
   by exact finprod_mem_mul_distrib h1
 
-theorem mun_product_of_ones {α : Type*} (X : Set α) (h1 : X.Finite) :
+theorem mun_product_of_ones {α : Type*} [Nonempty α] (X : Set α) (h1 : X.Finite) :
     (∏ᶠ x ∈ X, (1 : ℤ)) = 1 :=
   by (simp_all; done)
 
-theorem mun_product_empty {K : Type*} [CommRing K] [IsDomain K] {α : Type*} (X : Set α) (t : α → K) :
+theorem mun_product_empty {K : Type*} [CommRing K] [IsDomain K] {α : Type*} [Nonempty α] (X : Set α) (t : α → K) :
     (∏ᶠ x ∈ (∅ : Set α), (t x : K)) = 1 :=
   by exact finprod_mem_empty
 
-theorem mun_product_add_one {K : Type*} [CommRing K] [IsDomain K] {α : Type*} (t : α → K) (X : Set α) (Y : Set α) (a : α) (h1 : Y ∈ 𝒫 X) (h2 : Y.Finite) (h3 : a ∈ X) (h4 : ¬ a ∈ Y) :
+theorem mun_product_add_one {K : Type*} [CommRing K] [IsDomain K] {α : Type*} [Nonempty α] (t : α → K) (X : Set α) (Y : Set α) (a : α) (h1 : Y ∈ 𝒫 X) (h2 : Y.Finite) (h3 : a ∈ X) (h4 : ¬ a ∈ Y) :
     (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : K)) = (∏ᶠ x ∈ Y, (t x : K)) * t a :=
   by rw [Set.union_singleton, finprod_mem_insert _ h4 h2, mul_comm]
 
-theorem mun_product_integer_terms {α : Type*} (t : α → ℤ) (X : Set α) (h1 : X.Finite) :
+theorem mun_product_integer_terms {α : Type*} [Nonempty α] (t : α → ℤ) (X : Set α) (h1 : X.Finite) :
     ∀ Y ∈ 𝒫 X, True :=
   by exact fun _ _ => trivial
 
-theorem mun_product_constant {K : Type*} [CommRing K] [IsDomain K] [CharZero K] {α : Type*} (X : Set α) (h1 : X.Finite) (c : K) :
+theorem mun_product_constant {K : Type*} [CommRing K] [IsDomain K] [CharZero K] {α : Type*} [Nonempty α] (X : Set α) (h1 : X.Finite) (c : K) :
     (∏ᶠ x ∈ X, (c : K)) = c ^ X.ncard :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h1, Finset.prod_const, Set.ncard_eq_toFinset_card _ h1]
 

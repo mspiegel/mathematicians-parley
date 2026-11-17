@@ -979,6 +979,13 @@ is stated `then G(a, n) = (1 − a^(n + 1))/(1 − a)`: the theorem is a fact ab
 G, and the reader meets G before the fact. A define over the theorem's own
 `let` names, which do not exist above the theorem, goes in its header.
 
+**A define applied at a sum's index, or a sequence's, is applied at every
+number the index runs over.** `Σ(k = 1 to n) t(k)` of `let t(j) = j + 1, for
+j ∈ ℕ` applies t at 1, …, n, each in ℕ, and asks no requires line: the sum's
+range says it. `Σ(k = 0 to n) t(k)` applies t at 0, which its rule says
+nothing of, and is refused. The index of a limit, n of `S(n) → K as n → ∞`,
+runs over ℕ, so a define on ℕ, ℕ₀ or ℤ may be applied there.
+
 **A map is a function without a name.** `the map sending x ∈ A to e` is read
 as a define's function is. Applied to a value it is e at that value: `(the
 map sending y ∈ ℝ to y + 1)(x)` is x + 1, and a step reading it so says x ∈ A

@@ -658,6 +658,34 @@ pub(super) fn cases() -> Vec<Case> {
             )],
             "mun:sum-real is neither imported nor a theorem of this file",
         ),
+        // A requires line under a let's reason cites as any requires line
+        // does: an item it names that nothing imports is reported.
+        case(
+            "cite an unknown item in a requires line under a let's reason",
+            vec![edit(
+                "proofs/wiedijk/liouville.proof",
+                Some("    from 1\n    reads F on the real line\n".to_string()),
+                "    from 1\n    requires x ∈ ℝ: mun:no-such-record\n    reads F on the real line\n"
+                    .to_string(),
+            )],
+            "mun:no-such-record is neither imported nor a theorem of this file",
+        ),
+        // A define applied at a sum's index is applied at every number the
+        // sum runs over: a sum from 0 of a function on ℕ applies it at 0,
+        // which its rule says nothing of.
+        case(
+            "sum a function on ℕ from 0",
+            vec![edit(
+                "tests/elaborator/textbook-exercise-shapes.proof",
+                Some(
+                    "1.  Σ(k = 1 to n) t(k) = Σ(k = 1 to n) (k + 1)\n    algebra, from D1"
+                        .to_string(),
+                ),
+                "1.  Σ(k = 0 to n) t(k) = Σ(k = 0 to n) (k + 1)\n    algebra, from D1"
+                    .to_string(),
+            )],
+            "step 1 applies D1 at k, the index of a sum or a sequence whose range is not inside ℕ",
+        ),
         // A theorem stated over a sequence by recursion is about that
         // sequence: a proof whose sequence of the name adds 2 does not have
         // what the cited theorem says of one that adds 1.

@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.UnionEmpty
 
-theorem union_empty {α : Type*} (Y : Set α) :
+theorem union_empty {α : Type*} [Nonempty α] (Y : Set α) :
     Y ∪ ∅ = Y := by
   -- 1. mun:sets-union-empty
   exact (Parley.Items.Stdlib.Sets.mun_union_empty (Y := Y))

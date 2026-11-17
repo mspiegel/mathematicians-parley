@@ -217,6 +217,8 @@ impl Op {
             // `f '' s` and `f ⁻¹' s`, Mathlib's image and preimage of a set.
             "''" => ("''", 80, Assoc::Left),
             "⁻¹'" => ("⁻¹'", 80, Assoc::Left),
+            // Mathlib's product of two sets, `infixr:82`.
+            "×ˢ" => ("×ˢ", 82, Assoc::Right),
             "∘" => return Some(Op::COMPOSE),
             _ => return None,
         };

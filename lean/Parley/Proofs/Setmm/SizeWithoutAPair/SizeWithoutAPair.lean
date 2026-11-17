@@ -30,7 +30,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeWithoutAPair.SizeWithoutAPair
 
-theorem size_without_a_pair {α : Type*} (A : Set α) (B : α) (hH2 : B ∈ A) (C : α) (hH3 : C ∈ A) (hH4 : A.Finite) (hH5 : ¬ B = C) :
+theorem size_without_a_pair {α : Type*} [Nonempty α] (A : Set α) (B : α) (hH2 : B ∈ A) (C : α) (hH3 : C ∈ A) (hH4 : A.Finite) (hH5 : ¬ B = C) :
     ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - 2 := by
   -- 1. mun:pair-subset a := B, b := C, X := A, from H2, H3
   have s1 : ({B, C} : Set α) ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := A) (a := B) (b := C) hH2 hH3)

@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Replacement
 
-theorem replacement {α : Type*} [LeanBridges.ZF.Sets α] (A : Set α) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) (g : α → α) (hH4 : Set.MapsTo g A B) :
+theorem replacement {α β : Type*} [Nonempty α] [Nonempty β] [LeanBridges.ZF.Sets α] [LeanBridges.ZF.Sets β] (A : Set α) (B : Set β) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) (g : α → β) (hH4 : Set.MapsTo g A B) :
     LeanBridges.ZF.IsSet ((fun x : α => g x) '' A) := by
   -- 1. axi:sets-replacement Y := A, Z := B, E := g, from H2
   exact (Parley.Items.Stdlib.Sets.axi_replacement (E := g) (Y := A) (Z := B) hB_set hH2 hH4)

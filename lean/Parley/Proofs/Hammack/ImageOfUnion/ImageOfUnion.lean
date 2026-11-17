@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfUnion.ImageOfUnion
 
-theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
+theorem image_of_union {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
     f '' (A ∩ (W ∪ X)) = f '' (A ∩ W) ∪ f '' (A ∩ X) := by
   -- 1. mun:union-subset, from H4, H5
   have s1 : W ∪ X ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := W) (Y := X) (Z := A) hH4 hH5)
@@ -42,14 +42,14 @@ theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (h
       -- 2.3.1. mun:value-in-image Y := W, from C1, H4
       have s2_3_1 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := B) hH4 hC1 hH3)
       -- 2.3.2. substitute y = f(s) (line 2.1) into line 2.3.1
-      have s2_3_2 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ W))) s2_1b.symm s2_3_1
+      have s2_3_2 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : β => t ∈ f '' (A ∩ W))) s2_1b.symm s2_3_1
       -- 2.3.3. mun:in-union-left Y := f[W], Z := f[X], from 2.3.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y) s2_3_2)
     · skip
       -- 2.3.4. mun:value-in-image Y := X, from C2, H5
       have s2_3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := B) hH5 hC2 hH3)
       -- 2.3.5. substitute y = f(s) (line 2.1) into line 2.3.4
-      have s2_3_5 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ X))) s2_1b.symm s2_3_4
+      have s2_3_5 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : β => t ∈ f '' (A ∩ X))) s2_1b.symm s2_3_4
       -- 2.3.6. mun:in-union-right Y := f[W], Z := f[X], from 2.3.5
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y) s2_3_5)
   -- 3. def:subset, from 2

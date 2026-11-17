@@ -640,7 +640,7 @@ pub(super) fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/rationals-countable.proof", Some("    membership, from D3\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n".to_string()), "    membership, from D3\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n".to_string()),
             ],
-            "the requires line of step 5 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply it",
+            "the requires line of step 6 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply it",
         ),
         // A sort is stated once, like a declared type, and a step does not cite
         // it to rely on it (`READERS.md`): citing one names a line that does no

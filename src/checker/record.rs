@@ -289,6 +289,12 @@ pub struct CheckedTheorem {
     /// c of `{1, …, i} ∖ c` (`citing::number_sets::set_letter_systems`):
     /// what a backend whose sets are typed gives the letter.
     pub set_systems: IndexMap<String, crate::rules::System>,
+    /// Which of the theorem's sets, members and maps' sides hold things of
+    /// one type, read over every line of its page in order
+    /// (`citing::things::ThingTypes`): A and B of `f : A → B` apart, C of
+    /// `C ⊆ A` with A. What a backend whose sets are typed gives each its
+    /// type variable by.
+    pub thing_types: crate::citing::things::ThingTypes,
     /// The number system each letter in scope at a step is introduced in,
     /// by the step's index (`library::introduced`): the narrower of two
     /// where a later line narrows it, q ∈ ℕ₀ of a q let in ℤ. What the
@@ -344,6 +350,13 @@ pub struct CheckedTheorem {
     /// turned, identity elements dropped, bound letters renamed, `d = n` of
     /// `n = d·1`. By the line of the justification (`restatements`).
     pub restated_meetings: IndexMap<usize, crate::matching::Meeting>,
+    /// The requires lines of `restated` whose line states the fact under the
+    /// claim's leading "for all", not the fact alone: `g′(x) ≠ 0: from H11`
+    /// of a claim "for all x ∈ D" and H11 "for all x ∈ D, g′(x) ≠ 0". With
+    /// the part of the line's own "for all" body the fact is, where it is
+    /// one part of several. By the requires line's line
+    /// (`citations::restatements`).
+    pub restated_under_claim: IndexMap<usize, Option<BodyPart>>,
     /// How each calculation link citing a define, and each step whose reason
     /// is defines, meets the defines written out: its equation's two sides
     /// once each define's name is its value, a "for all"'s at its body; None
@@ -359,6 +372,12 @@ pub struct CheckedTheorem {
     /// what says the argument it applies the function at is in that domain.
     /// By the step's line (`citations::define_domains`).
     pub define_domains: IndexMap<usize, DomainSaid>,
+    /// Of each step of a method or an item citing a function a define lets
+    /// on a domain, each application whose domain the step asks, with what
+    /// says the
+    /// argument is in it: q(a) of a transitivity from D1, a ∈ ℕ on the `let`
+    /// line. By the step's line (`citations::applied_domains`).
+    pub applied_domains: IndexMap<usize, Vec<AppliedDomain>>,
     /// Where in the line each calculation link cites the link stands, by
     /// the link's line (`formulas::link_places`). A link read off a chain,
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
@@ -864,6 +883,29 @@ pub struct ChainTerms {
     pub to: usize,
 }
 
+/// A part of the body of a line's "for all", joined by "and"
+/// (`CheckedTheorem::restated_under_claim`): s(x) ∈ ℕ₀, the first of two, of
+/// "for all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = …".
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct BodyPart {
+    /// Its place among the parts, from 0.
+    pub part: usize,
+    /// How many parts the body has.
+    pub of: usize,
+}
+
+/// An application of a function a define lets on a domain, in a step of a
+/// method citing the define, and what says its argument is in the domain
+/// (`CheckedTheorem::applied_domains`).
+#[derive(Clone, Debug)]
+pub struct AppliedDomain {
+    /// The define's label, D1.
+    pub label: String,
+    /// The argument, a of q(a).
+    pub arg: Node,
+    pub said: DomainSaid,
+}
+
 /// What says a define's argument is in the define's domain
 /// (`CheckedTheorem::define_domains`).
 #[derive(Clone, Debug)]
@@ -874,6 +916,14 @@ pub enum DomainSaid {
     /// The claim is said of every member of a set inside the domain, and the
     /// argument is the member: `for all j ∈ {1, …, m}` over a define on ℕ.
     Member,
+    /// The argument is the index of a sum in the claim, and the range the
+    /// sum runs over lies inside the domain: k of Σ(k = 1 to n) t(k) over a
+    /// define on ℕ.
+    SumRange,
+    /// The argument is the index of a sequence's limit in a line the step
+    /// cites, which runs over ℕ, and the domain holds ℕ: n of `S(n) → K as
+    /// n → ∞` over a define on ℕ.
+    LimitIndex,
 }
 
 impl FirstAt {

@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Halmos.UnionExists.UnionExists
 
-theorem union_exists {α : Type*} [LeanBridges.ZF.Sets α] (A : Set α) (hA_set : LeanBridges.ZF.IsSet A) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) :
+theorem union_exists {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (A : Set α) (hA_set : LeanBridges.ZF.IsSet A) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) :
     LeanBridges.ZF.IsSet (A ∪ B) := by
   -- 1. axi:pairing a := A, b := B
   have s1 : LeanBridges.ZF.IsSet ({A, B} : Set (Set α)) := by exact (Parley.Items.Stdlib.Sets.axi_pairing (a := A) hA_set (b := B) hB_set)

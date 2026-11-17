@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.IntersectionEmpty
 
-theorem intersection_empty {α : Type*} (Y : Set α) :
+theorem intersection_empty {α : Type*} [Nonempty α] (Y : Set α) :
     Y ∩ ∅ = ∅ := by
   -- 1. mun:sets-intersection-empty
   exact (Parley.Items.Stdlib.Sets.mun_intersection_empty (Y := Y))

@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Choice
 
-theorem choice {α : Type*} [LeanBridges.ZF.Sets α] (F : Set (Set α)) (hH2 : LeanBridges.ZF.IsSet F) (hH3 : ∀ A ∈ F, ¬ A = ∅) :
+theorem choice {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (F : Set (Set α)) (hH2 : LeanBridges.ZF.IsSet F) (hH3 : ∀ A ∈ F, ¬ A = ∅) :
     (∃ g : Set α → α, Set.MapsTo g F (⋃ B ∈ F, B) ∧ (∀ A ∈ F, g A ∈ A)) := by
   -- 1. obtain g: axi:sets-choice C := F, from H2, H3
   obtain ⟨g, s1a, s1b⟩ := (Parley.Items.Stdlib.Sets.axi_choice (C := F) hH2 hH3)

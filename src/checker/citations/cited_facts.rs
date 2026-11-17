@@ -286,17 +286,36 @@ pub(super) fn unfolded(
             let binding = rules_by_name(&taken.binding, step, known, library);
             let at = filled(right, &binding, &library.ctx);
             let witnesses = Binding::new();
+            let bound = bound_renamed(right, &at, &taken.bound);
             Some(unfolded_parts(
-                step,
-                &at,
-                &taken.bound,
-                &witnesses,
-                item,
-                known,
-                library,
+                step, &at, &bound, &witnesses, item, known, library,
             ))
         })
         .collect()
+}
+
+/// The witnesses `bound` gives the "there is" letters of `right`, given as
+/// well to the letters `at`, `right` filled at the citation's values, renames
+/// them to: filling renames a letter a value names apart from it, h of `there
+/// is h ∈ H` as a where u := t(h). The two have one shape, so their "there
+/// is" letters pair in order.
+fn bound_renamed(right: &Node, at: &Node, bound: &Binding) -> Binding {
+    let letters = |n: &Node| -> Vec<Symbol> {
+        n.walk()
+            .iter()
+            .filter(|m| matches!(m.notation(), THERE_IS | THERE_IS_SOME))
+            .filter_map(|m| m.children.first().map(|l| l.text))
+            .collect()
+    };
+    let mut out = bound.clone();
+    for (own, renamed) in letters(right).into_iter().zip(letters(at)) {
+        if own != renamed {
+            if let Some(value) = bound.get(&own) {
+                out.entry(renamed).or_insert_with(|| value.clone());
+            }
+        }
+    }
+    out
 }
 
 /// The parts of `node`, a definition's right side at a citation's values,
@@ -953,11 +972,44 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
                 out.add(step.just.line, found);
             }
         }
+        // A requires line of a letter the claim says "for all" of, which no
+        // line states at that letter: where a line states it under the
+        // claim's "for all", g′(x) ≠ 0 of "for all x ∈ D" from H11 "for all
+        // x ∈ D, g′(x) ≠ 0", that line, the fact said of every member.
+        let claimed = step
+            .claim
+            .sentences()
+            .first()
+            .and_then(|s| known.read_as_written(s));
         for req in step.requires.iter().filter(|r| r.is_lines()) {
             if let Some(found) =
                 restated_at(step, req.lines(), &req.fact, known, library)
             {
                 out.add(req.line, found);
+                continue;
+            }
+            let Some(claim) = claimed.as_ref() else {
+                continue;
+            };
+            let Some(fact) = known.whole_as_written(&req.fact) else {
+                continue;
+            };
+            if !crate::citing::speaks_of_claim_letter(claim, &fact) {
+                continue;
+            }
+            let under = standard(
+                &crate::citing::under_claim_binders(claim, &fact),
+                &library.ctx,
+            );
+            if let Some(at) = fact_at(step, req.lines(), None, &under, known, library) {
+                let meeting = known.alike_how(&under, &at.written);
+                out.add(req.line, (at, meeting));
+                out.under_claim.insert(req.line, None);
+            } else if let Some((at, part)) =
+                part_under_claim(step, req.lines(), &under, known, library)
+            {
+                out.add(req.line, (at, None));
+                out.under_claim.insert(req.line, Some(part));
             }
         }
     }
@@ -994,6 +1046,59 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
 pub struct Restatements {
     pub places: IndexMap<usize, FirstAt>,
     pub meetings: IndexMap<usize, crate::matching::Meeting>,
+    /// The requires lines found stated under the claim's "for all"
+    /// (`CheckedTheorem::restated_under_claim`).
+    pub under_claim: IndexMap<usize, Option<crate::checker::record::BodyPart>>,
+}
+
+/// Where a line `refs` names says `under`, a fact under the claim's "for
+/// all", as one part of the body of its own "for all" over the same set:
+/// `for all x ∈ ℚ, s(x) ∈ ℕ₀` of line 4 "for all x ∈ ℚ, s(x) ∈ ℕ₀ and
+/// numer(x) = (1 − 2·s(x))·|numer(x)|". The sentence, and the part.
+fn part_under_claim(
+    step: &Step,
+    refs: &[String],
+    under: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<(FirstAt, crate::checker::record::BodyPart)> {
+    let (crate::notations::FOR_ALL, [letter, set, fact]) =
+        (under.notation(), under.children.as_slice())
+    else {
+        return None;
+    };
+    let scope = known.scope(step);
+    let defined = known.citing_item(refs, None);
+    refs.iter().find_map(|r| {
+        let stated = scope.get(r)?;
+        let says = known.says(stated, &defined);
+        let own = known.sentence_count(stated);
+        says.iter()
+            .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+            .find_map(|s| {
+                let (crate::notations::FOR_ALL, [bound, over, body]) =
+                    (s.cited.notation(), s.cited.children.as_slice())
+                else {
+                    return None;
+                };
+                if !states(over, &standard(set, &library.ctx), library) {
+                    return None;
+                }
+                let put = Binding::from([(bound.text, letter.clone())]);
+                let body = substitute_apart(body, &put, &library.ctx);
+                let parts = crate::citing::conjuncts(&body, library);
+                let fact = standard(fact, &library.ctx);
+                let part = parts.iter().position(|p| states(p, &fact, library))?;
+                let at = placed(r, s, &says, own)?;
+                Some((
+                    at,
+                    crate::checker::record::BodyPart {
+                        part,
+                        of: parts.len(),
+                    },
+                ))
+            })
+    })
 }
 
 impl Restatements {

@@ -536,6 +536,12 @@ impl<'a> Proof<'a> {
                 Route::Built((proof, says)) => (proof, says, at.written.clone()),
                 Route::Declined(d) => return Route::Declined(d),
             },
+            // A function the header lets on a domain: its equation at the
+            // argument the step applies it to, `hD1 _ ha : q a = a + 1`, the
+            // membership from where the record found it (`applied_domains`).
+            OrderFact::Define(label) if self.header_function_named(label).is_some() => {
+                return self.header_equation_at(label, w)
+            }
             OrderFact::Define(label) => {
                 let lines =
                     self.trees.get(label).map(Vec::as_slice).unwrap_or_default();
@@ -663,6 +669,219 @@ impl<'a> Proof<'a> {
             widens: !at_intros && !matches!(fact, OrderFact::Kind { .. }),
             define: matches!(fact, OrderFact::Define(_)),
         })
+    }
+
+    /// The equation of a function the header lets, `label`, at the one
+    /// argument the step applies it to (`applied_domains`): `hD1 _ ha`,
+    /// saying `q a = a + 1`, ha the membership from where the record found
+    /// it. Declined where the step applies it at no argument or at several.
+    fn header_equation_at(&self, label: &str, w: &Writer) -> Route<OrderFactTerm> {
+        use super::super::doc::TermKind;
+        let Some(step) = self.step_now.get().map(|i| &self.thm.steps[i]) else {
+            return Route::no("a define an order step adds outside a step");
+        };
+        let at: Vec<&crate::checker::record::AppliedDomain> = self
+            .rec
+            .applied_domains
+            .get(&step.just.line)
+            .map(|all| all.iter().filter(|a| a.label == label).collect())
+            .unwrap_or_default();
+        let [applied] = at.as_slice() else {
+            return Route::no(
+                "a function the header lets, applied at other than one argument",
+            );
+        };
+        let Some(hyp) = self.header_function_named(label) else {
+            return Route::no(
+                "a define an order step adds, no function the header lets",
+            );
+        };
+        let Some(said) = self.header_equations.get(&hyp) else {
+            return Route::no("a function the header lets, with no equation in Lean");
+        };
+        // `∀ j : ℤ, 0 < j → q j = j + 1` at the argument.
+        let TermKind::Quantified {
+            letter,
+            letter_ty,
+            body,
+            ..
+        } = &bare_term(said).kind
+        else {
+            return Route::no("a function the header lets, said for no argument");
+        };
+        let arg = match letter_ty {
+            super::super::doc::LeanType::Num(n) => {
+                match w.number_fixed(&applied.arg, *n) {
+                    Route::Built(a) => a,
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            _ => return Route::no("a function the header lets on other than numbers"),
+        };
+        // The body past the guard, `q a = a + 1`: the quantifier holds the
+        // guard apart from it.
+        let statement = body
+            .substituted(&std::collections::BTreeMap::from([(letter.clone(), arg)]));
+        let domain = match self.domain_proof(&applied.said, None) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let proof =
+            super::terms::hyp_applied(&hyp, vec![super::terms::elided_term(), domain]);
+        // The equation as the page writes it: the application the step
+        // reads, and the define's rule at its argument.
+        let node = match self.header_equation_node(label, &applied.arg) {
+            Some(n) => n,
+            None => {
+                return Route::no("a function the header lets, read on no page line")
+            }
+        };
+        Route::Built(OrderFactTerm {
+            proof,
+            says: statement,
+            node,
+            widens: true,
+            define: true,
+        })
+    }
+
+    /// Each function the header lets that a step citing an item applies, at
+    /// each argument the record found its domain said for
+    /// (`applied_domains`): the define as `put_define` writes it out, and its
+    /// equation there, `hD1 _ hH2 : V N = {S ∈ 𝒫 (Set.Icc 1 N) | N ∈ S}`.
+    /// Declined where the record found no domain for a header function the
+    /// step cites.
+    pub(super) fn header_functions_applied(
+        &self,
+        just: &Justification,
+    ) -> Route<Vec<HeaderApplied>> {
+        let mut out = Vec::new();
+        for label in just
+            .refs
+            .iter()
+            .filter(|r| self.header_function_named(r).is_some())
+        {
+            let Some(hyp) = self.header_function_named(label) else {
+                continue;
+            };
+            let at: Vec<&crate::checker::record::AppliedDomain> = self
+                .rec
+                .applied_domains
+                .get(&just.line)
+                .map(|all| all.iter().filter(|a| a.label == *label).collect())
+                .unwrap_or_default();
+            if at.is_empty() {
+                return Route::no(
+                    "a function the header lets, applied where no domain is recorded",
+                );
+            }
+            let Some(define) = self.header_define(label, &hyp) else {
+                return Route::no("a function the header lets, read on no page line");
+            };
+            for applied in at {
+                // At a sum's index, under the sum: each term the sum adds by
+                // the equation at its index, whose range the record found
+                // inside the domain, `Finset.sum_congr rfl (by intro k h;
+                // exact hD1 k (…))`, k's fact from its place in the range.
+                if let crate::checker::record::DomainSaid::SumRange = applied.said {
+                    out.push(HeaderApplied {
+                        define: define.clone(),
+                        equation: sum_term_by_term(&hyp, &applied.arg.text),
+                    });
+                    continue;
+                }
+                let domain = match self.domain_proof(&applied.said, None) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                out.push(HeaderApplied {
+                    define: define.clone(),
+                    equation: super::terms::hyp_applied(
+                        &hyp,
+                        vec![super::terms::elided_term(), domain],
+                    ),
+                });
+            }
+        }
+        Route::Built(out)
+    }
+
+    /// The define of a function the header lets, `label`, as a citation
+    /// writes it out (`CitedDefine`): its name, letter and rule as the page
+    /// reads them, its equation the binder `hyp`.
+    fn header_define(&self, label: &str, hyp: &str) -> Option<CitedDefine> {
+        let d = self.thm.defines.iter().find(|d| d.label == label)?;
+        let Route::Built(crate::corpus::DefineParts::One(def)) =
+            crate::corpus::define_parts(&d.text)
+        else {
+            return None;
+        };
+        let [param] = def.params.as_slice() else {
+            return None;
+        };
+        let crate::corpus::RuleText::Term(body_text) = &def.body else {
+            return None;
+        };
+        let body = self
+            .rec
+            .page
+            .entries()
+            .find(|(key, _)| key.line == d.line && key.text == *body_text)
+            .map(|(_, node)| node)?;
+        Some(CitedDefine {
+            name: Node::name(crate::formula::Sort::none(), &def.name),
+            value: body.clone(),
+            proof: hyp.to_string(),
+            param: Some(param.name.clone()),
+        })
+    }
+
+    /// The equation of the function the header define `label` lets, at
+    /// `arg`, as the page writes it: the application the page reads, q(a),
+    /// equal to the define's rule with its letter given `arg`, a + 1. None
+    /// where the define or the application reads on no line of the page.
+    fn header_equation_node(&self, label: &str, arg: &Node) -> Option<Node> {
+        let d = self.thm.defines.iter().find(|d| d.label == label)?;
+        let Route::Built(crate::corpus::DefineParts::One(def)) =
+            crate::corpus::define_parts(&d.text)
+        else {
+            return None;
+        };
+        let [param] = def.params.as_slice() else {
+            return None;
+        };
+        let crate::corpus::RuleText::Term(body_text) = &def.body else {
+            return None;
+        };
+        let body = self
+            .rec
+            .page
+            .entries()
+            .find(|(key, _)| key.line == d.line && key.text == *body_text)
+            .map(|(_, node)| node)?;
+        let application = self.rec.page.entries().find_map(|(_, node)| {
+            node.walk().into_iter().find(|n| {
+                matches!(
+                    (n.notation(), n.children.as_slice()),
+                    (crate::notations::APPLICATION, [f, a])
+                        if f.is_name() && *f.text == def.name && a.spelt_alike(arg)
+                )
+            })
+        })?;
+        let put = crate::matching::Binding::from([(
+            crate::formula::symbol::Symbol::of(&param.name),
+            arg.clone(),
+        )]);
+        let rule = crate::matching::substitute_apart_by(
+            body,
+            &put,
+            &self.sources.checked.grammar.binders(),
+        );
+        Some(crate::formula::page::made(
+            self.writer.grammar,
+            crate::notations::EQUALS,
+            vec![application.clone(), rule],
+        ))
     }
 
     /// `join`: sentence `k` of the claim, `node`, from where the checker
@@ -795,6 +1014,7 @@ impl<'a> Proof<'a> {
     pub(super) fn instantiate(
         &self,
         just: &Justification,
+        k: usize,
         node: &Node,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
@@ -1068,10 +1288,32 @@ impl<'a> Proof<'a> {
             },
             ty: Some(super::super::doc::LeanType::Prop),
         };
+        let mut proof = super::super::tactics::bracket(applied);
+        let (mut instance, mut written, mut page) = (instance, written, page);
+        // A claim of several sentences the instance says together, "h(s) ∈ B
+        // ∖ R. g(h(s)) = s." of "… and …": the checker met the claim whole
+        // with it, and sentence k is its part k, `.1` or `.2`.
+        let sentences = self
+            .step_now
+            .get()
+            .map_or(1, |i| self.thm.steps[i].claim.sentences().len());
+        if sentences > 1 {
+            if let Route::Built(whole) = &instance {
+                let parts = super::conversions::conjoined_parts(whole);
+                if parts.len() == sentences {
+                    instance = Route::Built(parts[k].clone());
+                    proof = fields(proof, &projection_path(k, sentences));
+                    written = written.and_then(|w| {
+                        super::conversions::conjoined_parts(&w).get(k).cloned()
+                    });
+                    page = None;
+                }
+            }
+        }
         self.instance_closed(
             node,
             claim,
-            super::super::tactics::bracket(applied),
+            proof,
             instance,
             written,
             page.as_ref(),
@@ -1201,7 +1443,6 @@ impl<'a> Proof<'a> {
         if let Some(read) = read {
             return Route::Built(read);
         }
-        use super::super::tactics as t;
         // The instance turned round where the checker turned it.
         let proof = faced(proof, facing_of_turned(recorded.meeting.turned));
         // An instance in a wider field than the claim's, ℝ for a claim in ℚ,
@@ -1216,9 +1457,7 @@ impl<'a> Proof<'a> {
         // Lean fact holds of Lean's statements of them. An equation of
         // numbers whose casts `push_cast` all moves (the cast table) is the
         // instance once pushed in and put by the ring's laws,
-        // `linear_combination`; an order with the same casts as the
-        // instance is it over the same atoms, `linarith`. Any other is
-        // declined.
+        // `linear_combination`. Any other is declined.
         let Some((says, wanted)) = lean else {
             return several_ways(ListReason::CitedUnstated);
         };
@@ -1234,14 +1473,10 @@ impl<'a> Proof<'a> {
         let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
         let pushed = super::super::casts::push_cast_moves_all_in_sides(&says)
             && super::super::casts::push_cast_moves_all_in_sides(&wanted);
-        let same_casts = cast_texts(&says) == cast_texts(&wanted);
         let atoms = same_ring_atoms(&says, &wanted, &self.set_values());
         Route::Built(super::super::doc::Proof::By(match node.notation() {
             EQUALITY if of_numbers && pushed && atoms => {
                 ring_combination(&proof, &says, &wanted)
-            }
-            ORDER if same_casts && atoms => {
-                t::call("linarith", vec![t::rules(vec![proof])])
             }
             _ => {
                 return several_ways(apart(
@@ -1546,15 +1781,26 @@ impl<'a> Proof<'a> {
             .map(|(_, node)| node)
             .collect();
         let argument = |n: &Node| n.is_name() && *n.text == *param;
-        let Some(domain) =
-            read.iter()
-                .copied()
-                .find(|n| system_or_range(n))
-                .or_else(|| {
-                    read.iter()
-                        .copied()
-                        .find(|n| !argument(n) && self.numbers_set(n))
+        let Some(domain) = read
+            .iter()
+            .copied()
+            .find(|n| system_or_range(n))
+            .or_else(|| {
+                read.iter()
+                    .copied()
+                    .find(|n| !argument(n) && self.numbers_set(n))
+            })
+            // A set of other members, H of `for c ∈ H` a subgroup's
+            // elements: the define is a map on their type. The domain
+            // names no argument, which the rule, a set itself perhaps,
+            // g[B ∖ f[X]] of `for X ⊆ A`, does.
+            .or_else(|| {
+                read.iter().copied().find(|n| {
+                    !argument(n)
+                        && !n.names().iter().any(|m| *m == *param)
+                        && self.writer.set_members(n).is_some()
                 })
+            })
         else {
             return Route::left_out(
                 "a define of a function on other than a number system",
@@ -1565,14 +1811,20 @@ impl<'a> Proof<'a> {
             .copied()
             .filter(|n| !std::ptr::eq(*n, domain) && !argument(n))
             .collect();
-        let [body] = bodies.as_slice() else {
-            return Route::left_out(
-                "a define whose value the checker did not read as one term",
-            );
+        // A value that is the argument itself, f(n) = n, is read once with it.
+        let identity = read.iter().copied().find(|n| argument(n));
+        let body = match (bodies.as_slice(), identity) {
+            ([body], _) => *body,
+            ([], Some(arg)) => arg,
+            _ => {
+                return Route::left_out(
+                    "a define whose value the checker did not read as one term",
+                )
+            }
         };
         Route::Built(FunctionRead {
             domain: domain.clone(),
-            body: (*body).clone(),
+            body: body.clone(),
         })
     }
 
@@ -1752,6 +2004,42 @@ fn numerals_worked(p: &Printed) -> Printed {
         *child = numerals_worked(child);
     }
     out
+}
+
+/// A sum of a function the header lets, `hyp` its equation, said term by
+/// term by that equation at the sum's index `index`: `Finset.sum_congr rfl
+/// (by intro k h; exact hD1 k (by simp only [Finset.mem_Icc] at h ⊢;
+/// omega))`, the index's fact read off its place in the range.
+fn sum_term_by_term(hyp: &str, index: &str) -> Printed {
+    use super::super::doc::Proof;
+    use super::super::tactics as t;
+    let k = super::super::names::letter(index);
+    let in_domain = t::by_term(Proof::By(Tactic::Seq(vec![
+        t::simp_only(
+            false,
+            None,
+            vec![t::forwards(t::lemma("Finset.mem_Icc"))],
+            Some(t::at_h(true)),
+        ),
+        t::call("omega", vec![]),
+    ])));
+    let term = t::by_term(Proof::By(Tactic::Seq(vec![
+        Tactic::Intro(vec![k.clone(), "h".to_string()]),
+        Tactic::Exact(super::terms::hyp_applied(hyp, vec![t::hyp(&k), in_domain])),
+    ])));
+    Printed::applied(
+        "Finset.sum_congr",
+        super::super::doc::Source::Mathlib,
+        vec![
+            Printed::constant(
+                "rfl",
+                super::super::doc::Source::Core,
+                super::super::doc::LeanType::Prop,
+            ),
+            term,
+        ],
+        super::super::doc::LeanType::Prop,
+    )
 }
 
 /// The two sides of an equation as Lean writes it; None for any other

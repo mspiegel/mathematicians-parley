@@ -39,7 +39,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.ProductCongruentTermwise
 
-theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (t : α → ℤ) (hH4 : Set.MapsTo t X (Set.univ : Set ℤ)) (u : α → ℤ) (hH5 : Set.MapsTo u X (Set.univ : Set ℤ)) (hH6 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
+theorem product_congruent_termwise {α : Type*} [Nonempty α] (X : Set α) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (t : α → ℤ) (hH4 : Set.MapsTo t X (Set.univ : Set ℤ)) (u : α → ℤ) (hH5 : Set.MapsTo u X (Set.univ : Set ℤ)) (hH6 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
     (∏ᶠ x ∈ X, (t x : ℤ)) ≡ (∏ᶠ x ∈ X, (u x : ℤ)) [ZMOD n] := by
   -- 1. mun:product-integer-terms, from H2
   have s1 : ∀ Z ∈ 𝒫 X, True := by exact (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := t) (X := X) hH2)

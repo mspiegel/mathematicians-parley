@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
 
-theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 : Set.MapsTo F A Y) (B : Set α) (hH3 : B ⊆ A) :
+theorem image_empty {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (Y : Set β) (F : α → β) (hH2 : Set.MapsTo F A Y) (B : Set α) (hH3 : B ⊆ A) :
     (F '' (A ∩ B) = ∅ ↔ B = ∅) := by
   -- the theorem. both directions
   constructor
@@ -37,9 +37,9 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       -- 1.1. mun:value-in-image, from H3, K1
       have s1_1 : F t ∈ F '' (A ∩ B) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B) (f := F) (s := t) (W := Y) hH3 hK1 hH2)
       -- 1.2. substitute F[B] = ∅ (D1) into line 1.1
-      have s1_2 : F t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => F t ∈ u)) hD1 s1_1
+      have s1_2 : F t ∈ (∅ : Set β) := Eq.subst (motive := (fun u : Set β => F t ∈ u)) hD1 s1_1
       -- 1.3. inspection
-      have s1_3 : ¬ F t ∈ (∅ : Set α) := Set.notMem_empty _
+      have s1_3 : ¬ F t ∈ (∅ : Set β) := Set.notMem_empty _
       exact absurd s1_2 s1_3
     -- 2. def:subset, from 1
     have s2 : B ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := ∅))).mpr s1
@@ -48,7 +48,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
   · skip
     intro hD2
     -- 4. proof
-    have s4 : ∀ u ∈ F '' (A ∩ B), u ∈ (∅ : Set α) := by
+    have s4 : ∀ u ∈ F '' (A ∩ B), u ∈ (∅ : Set β) := by
       intro u hK2
       -- 4.1. def:image, from H3, K2
       have s4_1 : ∃ s ∈ B, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Y) hH3 hH2)).mp hK2

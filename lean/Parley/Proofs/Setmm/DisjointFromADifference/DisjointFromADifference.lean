@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DisjointFromADifference.DisjointFromADifference
 
-theorem disjoint_from_a_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : (A \ B) ∩ C = ∅) :
+theorem disjoint_from_a_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : (A \ B) ∩ C = ∅) :
     (C ⊆ A → C ⊆ B) := by
   -- the theorem. proof
   intro hK1

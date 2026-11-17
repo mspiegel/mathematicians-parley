@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.InAUnionOnTheRight
 
-theorem in_a_union_on_the_right {α : Type*} (A : Set α) (B : Set α) :
+theorem in_a_union_on_the_right {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ⊆ B ∪ A := by
   -- 1. proof
   have s1 : ∀ u ∈ A, u ∈ B ∪ A := by

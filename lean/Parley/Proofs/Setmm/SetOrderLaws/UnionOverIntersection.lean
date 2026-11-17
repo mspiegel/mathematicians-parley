@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SetOrderLaws.UnionOverIntersection
 
-theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
+theorem union_over_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) :
     A ∪ B ∩ C = (A ∪ B) ∩ (A ∪ C) := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∪ B ∩ C, u ∈ (A ∪ B) ∩ (A ∪ C) := by

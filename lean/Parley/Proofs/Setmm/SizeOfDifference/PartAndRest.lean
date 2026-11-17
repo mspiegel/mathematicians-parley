@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfDifference.PartAndRest
 
-theorem part_and_rest {α : Type*} (A : Set α) (B : Set α) (hH3 : B ⊆ A) :
+theorem part_and_rest {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (hH3 : B ⊆ A) :
     B ∪ A \ B = A := by
   -- 1. mun:difference-subset X := A, Y := B
   have s1 : A \ B ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := A) (Y := B))

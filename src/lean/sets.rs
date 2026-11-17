@@ -26,8 +26,9 @@ use crate::notations::{
 };
 use crate::outcome::Route;
 
-/// The inverse of a map on its domain, in the bridges: Mathlib's asks a
-/// nonempty type, which a statement over sets does not carry.
+/// The inverse of a map on its domain, in the bridges: Mathlib's
+/// `Function.invFunOn`, over the nonempty type each statement's things are
+/// of.
 pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 
 /// The functions from X to Y, in the bridges: functions on X itself.
@@ -100,8 +101,35 @@ pub fn map_claim_parts(notation: &str) -> Option<&'static [&'static str]> {
     }
 }
 
+/// The Lean type the sorts give a letter that is a set, a member of one or
+/// a map between sets, its things of the type variable `things` gives it;
+/// None for any other letter.
+pub fn set_type_in(
+    sorts: Option<&crate::formula::Sorts>,
+    things: &crate::citing::things::ThingTypes,
+    name: &str,
+) -> Option<LetterType> {
+    use crate::citing::things::ThingKey;
+    let ty = sorts.and_then(|s| s.get(name)).and_then(set_letter_type)?;
+    Some(match ty {
+        LetterType::Map { from, to } => LetterType::Map {
+            from: from.with_things(things.var(&ThingKey::From(name.to_string()))),
+            to: to.with_things(things.var(&ThingKey::To(name.to_string()))),
+        },
+        LetterType::Set(m) => LetterType::Set(m.with_things(things.of_letter(name))),
+        LetterType::Member(m) => {
+            LetterType::Member(m.with_things(things.of_letter(name)))
+        }
+        LetterType::Property(m) => {
+            LetterType::Property(m.with_things(things.of_letter(name)))
+        }
+        other => other,
+    })
+}
+
 /// The Lean type of a letter of this sort where it is a set, a member of
-/// one or a map between sets; None for any other sort.
+/// one or a map between sets, its things of the first type variable; None
+/// for any other sort.
 pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
     use crate::formula::Whole;
     match sort.full()? {
@@ -147,6 +175,16 @@ impl Writer<'_> {
             POWERSET => self
                 .set_members(node.children.first()?)
                 .map(|m| Members::Sets(Box::new(m))),
+            // X × Y holds pairs of what X and Y hold.
+            crate::notations::PRODUCT_SET => {
+                let [x, y] = node.children.as_slice() else {
+                    return None;
+                };
+                Some(Members::Pairs {
+                    first: Box::new(self.set_members(x)?),
+                    second: Box::new(self.set_members(y)?),
+                })
+            }
             // The functions from X to Y hold functions on X itself.
             crate::notations::FUNCTIONS_FROM => {
                 let [from, to] = node.children.as_slice() else {
@@ -305,8 +343,12 @@ impl Writer<'_> {
     /// A member of a set of these, as Lean writes it: a number at the
     /// set's type, or a term as `set_term` writes it.
     pub fn element_term(&self, node: &Node, members: &Members) -> Route<Printed> {
-        match members {
-            Members::Numbers(n) => self.number_fixed(node, *n),
+        match (members, super::expr::pair_coordinates(node)) {
+            (Members::Numbers(n), _) => self.number_fixed(node, *n),
+            // A pair written out, each coordinate at the pairs' types.
+            (Members::Pairs { first, second }, Some(pair)) => {
+                self.pair_term(pair, &[(**first).clone(), (**second).clone()])
+            }
             _ => self.set_term(node),
         }
     }
@@ -322,6 +364,14 @@ impl Writer<'_> {
                 }
                 _ => {}
             }
+        }
+        // A pair is a member of the pairs of its coordinates' kinds.
+        if let Some(pair) = super::expr::pair_coordinates(node) {
+            let [first, second] = self.pair_types(pair, pair).built()?;
+            return Some(Members::Pairs {
+                first: Box::new(first),
+                second: Box::new(second),
+            });
         }
         // A value by cases is a member of what its first value is.
         if node.notation() == BY_CASES {
@@ -561,6 +611,43 @@ impl Writer<'_> {
                     },
                     ty: p[0].ty.clone(),
                 })
+            }
+            // X × Y, the pairs from X and Y: Mathlib's `X ×ˢ Y`, each side
+            // bracketed where it is an operation itself.
+            crate::notations::PRODUCT_SET => {
+                let p = match parts(2) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let Some(op) = super::doc::Op::of("×ˢ") else {
+                    return Route::no("the product of two sets");
+                };
+                let inside = |p: &Printed| match p.prec() <= op.prec {
+                    true => super::tactics::bracket(p.clone()),
+                    false => p.clone(),
+                };
+                let ty = match self.members_of(node) {
+                    Some(m) => Some(LeanType::Set(Box::new(m.member_type()))),
+                    None => return Route::no("a product of sets with no Lean type"),
+                };
+                Route::Built(Printed {
+                    kind: TermKind::Infix {
+                        op,
+                        lhs: Box::new(inside(&p[0])),
+                        rhs: Box::new(inside(&p[1])),
+                    },
+                    ty,
+                })
+            }
+            // (a, b), a pair: each coordinate of its type (`pair_types`).
+            crate::notations::PAIR => {
+                let Some(pair) = super::expr::pair_coordinates(node) else {
+                    return Route::no("a pair of other than two coordinates");
+                };
+                match self.pair_types(pair, pair) {
+                    Route::Built(types) => self.pair_term(pair, &types),
+                    Route::Declined(d) => Route::Declined(d),
+                }
             }
             // [a, b] and (a, b), the reals from a to b, ends in or out.
             interval @ (CLOSED_INTERVAL | OPEN_INTERVAL) => {
@@ -878,10 +965,12 @@ impl Writer<'_> {
         inner.wholes.shift_remove(&*letter.text);
         // The letter bound here is a set of its own, finite where its
         // binder makes it so, S of {S ∈ 𝒫X : …} of a finite X, as a "for
-        // all" over the set binds it (`citing::finite::bound_over`).
+        // all" over the set binds it (`citing::finite::bound_letter`).
         let bound = crate::citing::finite::key(letter);
         inner.finite.shift_remove(&bound);
-        if let Some(why) = crate::citing::finite::bound_over(&self.finite, set) {
+        if let Some(why) =
+            crate::citing::finite::bound_letter(&self.finite, letter, set)
+        {
             inner.finite.insert(bound, why);
         }
         // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
@@ -1077,10 +1166,21 @@ impl Writer<'_> {
     fn map_term(&self, f: &Node) -> Option<Printed> {
         if let Some(g) = self.inverted(f) {
             let domain = self.domains.get(g.text.as_str())?.clone();
-            let ty = self.letters.get(g.text.as_str()).map(LetterType::lean_type);
+            let g_ty = self.letters.get(g.text.as_str());
             let letter = Printed {
                 kind: TermKind::Letter(super::names::letter(&g.text)),
-                ty: ty.clone(),
+                ty: g_ty.map(LetterType::lean_type),
+            };
+            // g⁻¹ takes what g gives back to what g takes.
+            let ty = match g_ty {
+                Some(LetterType::Map { from, to }) => Some(
+                    LetterType::Map {
+                        from: to.clone(),
+                        to: from.clone(),
+                    }
+                    .lean_type(),
+                ),
+                other => other.map(LetterType::lean_type),
             };
             return Some(Printed {
                 kind: TermKind::App {
@@ -1692,11 +1792,21 @@ impl Writer<'_> {
         let [a, b] = node.children.as_slice() else {
             return None;
         };
-        // A number system compared as a set, ℤ ⊆ ℤ, is one here.
+        // A number system compared as a set, ℤ ⊆ ℤ, is one here. Members
+        // that are numbers, f(c) of f into a set of numbers, are compared as
+        // numbers are.
+        let not_number = |m: Members| (!matches!(m, Members::Numbers(_))).then_some(m);
+        // Two pairs written out are compared coordinate by coordinate, each
+        // at the type that holds it on both sides (`Writer::pair_types`).
+        if super::expr::pair_coordinates(a).is_some()
+            && super::expr::pair_coordinates(b).is_some()
+        {
+            return None;
+        }
         self.set_members(a)
             .or_else(|| self.set_members(b))
-            .or_else(|| self.member_kind(a))
-            .or_else(|| self.member_kind(b))?;
+            .or_else(|| self.member_kind(a).and_then(not_number))
+            .or_else(|| self.member_kind(b).and_then(not_number))?;
         // Two sets of numbers are compared at the wider of their types,
         // {1, 2} ⊆ ℝ in ℝ.
         if let (Some(Members::Numbers(m)), Some(Members::Numbers(n))) =
@@ -1734,14 +1844,14 @@ impl Writer<'_> {
     /// For all t ∈ S, or there is t ∈ S, of a set S: `∀ t ∈ S, …`, the letter
     /// a member of S's; None where S is no set this writer has a type for.
     /// For all sets X, P: `∀ X : Set α, P`. The notation binds a set of the
-    /// things the theorem's sets hold (its record's sort, `set of α`), as
-    /// `let X be a set` lets one. The letter bound here is a set of its own,
-    /// finite only where the body says so.
+    /// things the statement's sets of its type hold (`things`), as `let X be
+    /// a set` lets one. The letter bound here is a set of its own, finite
+    /// only where the body says so.
     pub fn quantified_over_sets(&self, letter: &Node, body: &Node) -> Route<Printed> {
         if !letter.is_name() {
             return Route::no("for all sets of a term that is no letter");
         }
-        let ty = LetterType::Set(Members::Things(0));
+        let ty = LetterType::Set(Members::Things(self.things.of_letter(&letter.text)));
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(letter.text.to_string(), ty.clone());
         inner
@@ -1809,10 +1919,12 @@ impl Writer<'_> {
             .insert(letter.text.to_string(), members.letter());
         // The letter bound here is a set of its own, whatever a set of its
         // name outside is: finite where its binder makes it so
-        // (`citing::finite::bound_over`), and not otherwise.
+        // (`citing::finite::bound_letter`), and not otherwise.
         let name = crate::citing::finite::key(letter);
         inner.finite.shift_remove(&name);
-        if let Some(why) = crate::citing::finite::bound_over(&self.finite, set) {
+        if let Some(why) =
+            crate::citing::finite::bound_letter(&self.finite, letter, set)
+        {
             inner.finite.insert(name, why);
         }
         let body = match inner.formula(body) {

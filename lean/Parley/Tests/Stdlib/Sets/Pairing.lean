@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Pairing
 
-theorem pairing {α : Type*} [LeanBridges.ZF.Sets α] (x : α) (hx_set : LeanBridges.ZF.IsSet x) (y : α) (hy_set : LeanBridges.ZF.IsSet y) :
+theorem pairing {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (x : α) (hx_set : LeanBridges.ZF.IsSet x) (y : α) (hy_set : LeanBridges.ZF.IsSet y) :
     LeanBridges.ZF.IsSet ({x, y} : Set α) := by
   -- 1. axi:sets-pairing a := x, b := y
   exact (Parley.Items.Stdlib.Sets.axi_pairing (a := x) hx_set (b := y) hy_set)

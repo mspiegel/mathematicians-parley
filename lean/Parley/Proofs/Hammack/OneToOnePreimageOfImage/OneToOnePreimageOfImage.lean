@@ -26,7 +26,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage
 
-theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
+theorem one_to_one_preimage_of_image {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.InjOn f A ↔ (∀ X ∈ 𝒫 A, A ∩ f ⁻¹' (f '' (A ∩ X)) = X)) := by
   -- the theorem. both directions
   constructor
@@ -70,7 +70,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 3.3. mun:value-in-image Y := {t}, s := t, from 3.1, 3.2
       have s3_3 : f t ∈ f '' (A ∩ ({t} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({t} : Set α)) (f := f) (s := t) (W := B) s3_1 s3_2 hH3)
       -- 3.4. substitute f(s) = f(t) (A1) into line 3.3
-      have s3_4 : f s ∈ f '' (A ∩ ({t} : Set α)) := Eq.subst (motive := (fun u : α => u ∈ f '' (A ∩ ({t} : Set α)))) hA1.symm s3_3
+      have s3_4 : f s ∈ f '' (A ∩ ({t} : Set α)) := Eq.subst (motive := (fun u : β => u ∈ f '' (A ∩ ({t} : Set α)))) hA1.symm s3_3
       -- 3.5. def:preimage Z := f[{t}], from K3, 3.4
       have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := B) hH3)).mpr ⟨hK3, s3_4⟩
       -- 3.6. substitute

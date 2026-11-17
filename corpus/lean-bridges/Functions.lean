@@ -6,6 +6,8 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Computability.Reduce
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Data.Set.Finite.Range
+public import Mathlib.Basic.Finite.Prod
 
 /-!
 # Functions
@@ -19,12 +21,11 @@ public section
 namespace LeanBridges.Functions
 
 /-- g⁻¹(y) of a map g on A: the x in A that g sends to y, where there is
-one, and y itself where there is none. Mathlib's `Function.invFunOn` asks
-`[Nonempty α]`, which a statement over sets does not carry; what g⁻¹ gives
-off g's image is never used, as set.mm's converse leaves it unsaid. -/
-noncomputable def inverse {α : Type*} (g : α → α) (A : Set α) (y : α) : α := by
-  classical
-  exact if h : ∃ x ∈ A, g x = y then h.choose else y
+one, Mathlib's `Function.invFunOn`. α is nonempty, as each statement's
+things are; what g⁻¹ gives off g's image is never used, as set.mm's
+converse leaves it unsaid. -/
+noncomputable def inverse {α β : Type*} [Nonempty α] (g : α → β) (A : Set α) (y : β) : α :=
+  Function.invFunOn g A y
 
 /-- The functions from X to Y: functions on X itself whose values are in Y.
 A page's function has values on X alone, so these are the page's functions
@@ -33,18 +34,24 @@ would have values off X besides. -/
 @[expose] def functions_from {α β : Type*} (X : Set α) (Y : Set β) : Set (↥X → β) :=
   {g | ∀ x, g x ∈ Y}
 
+/-- The functions from a finite X to a finite Y are finitely many: each is
+one from X's members to Y's, of which there are finitely many. -/
+theorem functions_from_finite {α β : Type*} {X : Set α} {Y : Set β}
+    (hX : X.Finite) (hY : Y.Finite) : (functions_from X Y).Finite := by
+  have := hX.to_subtype
+  have := hY.to_subtype
+  refine (Set.finite_range (fun (g : ↥X → ↥Y) (x : ↥X) => (g x : β))).subset ?_
+  intro g hg
+  exact ⟨fun x => ⟨g x, hg x⟩, rfl⟩
+
 /-- g⁻¹ undoes a one-to-one g on its domain. -/
-theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
-    (hg : Set.InjOn g A) (hx : x ∈ A) : inverse g A (g x) = x := by
-  classical
-  have h : ∃ y ∈ A, g y = g x := ⟨x, hx, rfl⟩
-  unfold inverse
-  simp only [h, ↓reduceDIte]
-  exact hg h.choose_spec.1 hx h.choose_spec.2
+theorem inverse_of_value {α β : Type*} [Nonempty α] (g : α → β) (A : Set α) (x : α)
+    (hg : Set.InjOn g A) (hx : x ∈ A) : inverse g A (g x) = x :=
+  hg.leftInvOn_invFunOn hx
 
 /-- `mun:stdlib/functions/inverse-function`: each y of Y is f(x) for some x
 of X, which f⁻¹ gives back. -/
-theorem inverse_function {α : Type*} (X : Set α) (Y : Set α) (f : α → α)
+theorem inverse_function {α β : Type*} [Nonempty α] (X : Set α) (Y : Set β) (f : α → β)
     (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) (h2 : f '' (X ∩ X) = Y) :
     Set.MapsTo (inverse f X) Y X := by
   intro y hy

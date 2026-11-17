@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DifferenceOfAUnion.UnionThenDifference
 
-theorem union_then_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
+theorem union_then_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) :
     (A ∪ B) \ C = A \ C ∪ B \ C := by
   -- 1. proof
   have s1 : ∀ t ∈ (A ∪ B) \ C, t ∈ A \ C ∪ B \ C := by

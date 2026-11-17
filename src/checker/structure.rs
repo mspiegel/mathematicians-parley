@@ -1193,6 +1193,15 @@ pub fn check_citations(
         };
         let req = reason.shown(Written::new("", &thm.path, reason.line));
         at.check_reason(report, &req, &format!("the reason under let {}", d.label));
+        // So is each requires line under it: its citation resolves as any
+        // requires line's does.
+        for q in &reason.requires {
+            at.check_reason(
+                report,
+                q,
+                &format!("the requires line under let {}", d.label),
+            );
+        }
         // It is the let's, and rests on nothing written below the let; nor
         // do the requires lines under it, which are read as the step's.
         let lines = req.lines().iter().map(|r| (r, &req)).chain(

@@ -40,7 +40,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.Ramsey
 
-theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (hH4 : V.Finite) (hH7 : ∀ Y ∈ 𝒫 V, (Y.ncard : ℤ) = 2 → Y ∈ E ∨ Y ∈ F) (hH8 : (LeanBridges.Counting.choose (r + s - 2) (r - 1) : ℤ) ≤ (V.ncard : ℤ)) :
+theorem ramsey {α : Type*} [Nonempty α] (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (hH4 : V.Finite) (hH7 : ∀ Y ∈ 𝒫 V, (Y.ncard : ℤ) = 2 → Y ∈ E ∨ Y ∈ F) (hH8 : (LeanBridges.Counting.choose (r + s - 2) (r - 1) : ℤ) ≤ (V.ncard : ℤ)) :
     (∃ W ∈ 𝒫 V, r ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ s ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → (∀ j : ℤ, 0 < j → (∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) := by

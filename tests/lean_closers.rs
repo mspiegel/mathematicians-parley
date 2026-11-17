@@ -276,13 +276,6 @@ const SITES: &[Site] = &[
         why: "an instance Lean takes as the claim, its terms one with the claim's in one type (forms::one_term_once_set): exact",
     },
     Site {
-        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
-        step: "5.4",
-        holds: "linarith [",
-        list: false,
-        why: "an instance order with the claim's casts, over the same atoms: linarith",
-    },
-    Site {
         file: "lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean",
         step: "30",
         holds: "(have h := (Parley.Items.Stdlib.Sums.mun_sum_add",

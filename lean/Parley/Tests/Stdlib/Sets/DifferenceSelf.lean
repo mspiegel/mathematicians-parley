@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.DifferenceSelf
 
-theorem difference_self {α : Type*} (Y : Set α) :
+theorem difference_self {α : Type*} [Nonempty α] (Y : Set α) :
     Y \ Y = ∅ := by
   -- 1. mun:sets-difference-self
   exact (Parley.Items.Stdlib.Sets.mun_difference_self (Y := Y))

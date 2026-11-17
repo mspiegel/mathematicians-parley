@@ -1883,6 +1883,38 @@ impl<'a> Proof<'a> {
                     .iter()
                     .filter(|r| self.thm.defines.iter().any(|d| d.label == **r))
                     .find_map(|r| self.named.get(r).and_then(|n| n.first()))?;
+                // A value by cases, 0 if numer(x) ≥ 0 and 1 otherwise, is in
+                // the system where each case's is: of numerals, each case
+                // taken in turn, `split`, and worked out, `norm_num`.
+                if value.notation() == crate::notations::BY_CASES {
+                    let mut cases = Vec::new();
+                    let mut rest = value;
+                    while let (crate::notations::BY_CASES, [first, _, other]) =
+                        (rest.notation(), rest.children.as_slice())
+                    {
+                        cases.push(first);
+                        rest = other;
+                    }
+                    cases.push(rest);
+                    if !cases
+                        .iter()
+                        .all(|c| c.notation() == crate::notations::NUMERAL)
+                    {
+                        return None;
+                    }
+                    let mut steps = vec![t::call(
+                        "rw",
+                        vec![TacticArg::Rules(vec![t::forwards(t::hyp(define))])],
+                    )];
+                    for _ in 1..cases.len() {
+                        steps.push(t::call("split", vec![]));
+                        steps.push(t::call("norm_num", vec![]));
+                    }
+                    steps.push(t::call("norm_num", vec![]));
+                    return Some(t::by_term(super::super::doc::Proof::By(
+                        Tactic::Seq(steps),
+                    )));
+                }
                 let bound = self.said_bound(value, system, &just.refs)?;
                 Some(t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
                     t::call(

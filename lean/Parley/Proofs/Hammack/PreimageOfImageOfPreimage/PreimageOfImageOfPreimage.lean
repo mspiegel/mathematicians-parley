@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfImageOfPreimage.PreimageOfImageOfPreimage
 
-theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) :
+theorem preimage_of_image_of_preimage {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) (Y : Set β) (hH4 : Y ⊆ B) :
     A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) = A ∩ f ⁻¹' Y := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∩ f ⁻¹' Y, u ∈ A := by
@@ -46,7 +46,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     have s3_3a : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := B) hH3)).mp s3_2a).1
     have s3_3b : f s ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := B) hH3)).mp s3_2a).2
     -- 3.4. substitute f(u) = f(s) (line 3.2) into line 3.3
-    have s3_4 : f u ∈ Y := Eq.subst (motive := (fun t : α => t ∈ Y)) s3_2b.symm s3_3b
+    have s3_4 : f u ∈ Y := Eq.subst (motive := (fun t : β => t ∈ Y)) s3_2b.symm s3_3b
     -- 3.5. def:preimage Z := Y, from 3.1, 3.4
     exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := B) hH3)).mpr ⟨s3_1a, s3_4⟩
   -- 4. def:subset, from 3

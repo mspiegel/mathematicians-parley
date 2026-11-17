@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SubsetIffDifferenceEmpty.SubsetIffDifferenceEmpty
 
-theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
+theorem subset_iff_difference_empty {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ⊆ B ↔ A \ B = ∅) := by
   -- the theorem. both directions
   constructor

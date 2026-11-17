@@ -1295,12 +1295,11 @@ impl<'a> Proof<'a> {
                 let Form::Set(name) = Introduction::read(body.clone()).form else {
                     return Route::no("a let that is no formula and lets no set");
                 };
-                let Some(ty) = self
-                    .rec
-                    .sorts
-                    .get(&name)
-                    .and_then(super::super::sets::set_letter_type)
-                else {
+                let Some(ty) = super::super::sets::set_type_in(
+                    Some(&self.rec.sorts),
+                    &self.rec.thing_types,
+                    &name,
+                ) else {
                     return Route::no(format!("{name}, a set whose sort is no set's"));
                 };
                 self.writer.letters.insert(name.clone(), ty);

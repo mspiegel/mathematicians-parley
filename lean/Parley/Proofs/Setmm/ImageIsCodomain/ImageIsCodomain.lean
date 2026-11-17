@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageIsCodomain.ImageIsCodomain
 
-theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (hH4 : ∀ y ∈ B, ∃ x ∈ A, y = F x) :
+theorem image_is_codomain {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B) (hH4 : ∀ y ∈ B, ∃ x ∈ A, y = F x) :
     F '' (A ∩ A) = B := by
   -- 1. mun:image-within f := F
   have s1 : F '' (A ∩ A) ⊆ B := by exact (Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) hH3)
@@ -37,7 +37,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s2_2 : F x ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := B) r25_1 s2_1a hH3)
     -- 2.3. substitute y = F(x) (line 2.1) into line 2.2
-    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s2_1b.symm s2_2
+    exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ A))) s2_1b.symm s2_2
   -- 3. def:subset, from 2
   have s3 : B ⊆ F '' (A ∩ A) := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr s2
   -- 4. mun:subset-antisymmetric, from 1, 3

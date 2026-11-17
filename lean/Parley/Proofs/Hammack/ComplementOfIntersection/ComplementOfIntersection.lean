@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ComplementOfIntersection.ComplementOfIntersection
 
-theorem complement_of_intersection {α : Type*} (U : Set α) (A : Set α) (B : Set α) (hH4 : A ⊆ U) (hH5 : B ⊆ U) :
+theorem complement_of_intersection {α : Type*} [Nonempty α] (U : Set α) (A : Set α) (B : Set α) (hH4 : A ⊆ U) (hH5 : B ⊆ U) :
     U \ (A ∩ B) = U \ A ∪ U \ B := by
   -- 1. proof
   have s1 : ∀ t ∈ U \ (A ∩ B), t ∈ U \ A ∪ U \ B := by

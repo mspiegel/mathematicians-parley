@@ -416,14 +416,35 @@ impl<'a> Proof<'a> {
         let [param] = def.params.as_slice() else {
             return Route::no("a define of a function of more than one argument");
         };
-        if set_valued(self.rec, &def.name) {
-            return Route::left_out(SET_VALUED);
-        }
         let FunctionRead { domain, body } =
             match self.function_read(line.line, &param.name) {
                 Route::Built(read) => read,
                 Route::Declined(d) => return Route::Declined(d),
             };
+        // A function whose values are sets, I(k) = {|x| : x ∈ 𝒫{1, …, k}},
+        // or pairs, f(i) = (L(i), M(i)): a map from its domain's members to
+        // sets of the value's members, or to pairs.
+        if set_valued(self.rec, &def.name)
+            || super::terms::pair_valued(self.rec, &def.name)
+        {
+            let from = match (
+                super::super::expr::system_of(&domain),
+                self.writer.set_members(&domain),
+            ) {
+                (Some(system), _) => super::super::expr::Members::Numbers(
+                    super::super::expr::letter_type(system)
+                        .max(super::super::templates::Num::Int),
+                ),
+                (None, _) if domain.notation() == crate::notations::INTEGER_RANGE => {
+                    super::super::expr::Members::Numbers(
+                        super::super::templates::Num::Int,
+                    )
+                }
+                (None, Some(m)) => m,
+                (None, None) => return Route::left_out(SET_VALUED),
+            };
+            return self.define_map(d, def, from, FunctionRead { domain, body }, depth);
+        }
         let (domain, body) = (&domain, &body);
         // A function on ℕ, ℕ₀ or a range {0, …, m} takes integers, as the
         // writer's sequences do, so that q(j) of a sum's index is written
@@ -440,7 +461,16 @@ impl<'a> Proof<'a> {
             (None, Some(super::super::expr::Members::Numbers(n))) => {
                 n.max(super::super::templates::Num::Int)
             }
-            (None, _) => {
+            // On a set of other members, a subgroup's elements: a map on
+            // their type.
+            (None, Some(members)) => {
+                let read = FunctionRead {
+                    domain: domain.clone(),
+                    body: body.clone(),
+                };
+                return self.define_map(d, def, members, read, depth);
+            }
+            (None, None) => {
                 return Route::no(
                     "a define of a function on a set Lean has no type for",
                 )
@@ -550,6 +580,86 @@ impl<'a> Proof<'a> {
                 }
                 Route::Declined(why) => return Route::Declined(why),
             }
+        }
+        self.named.insert(line.label.clone(), vec![label]);
+        Route::Built(())
+    }
+
+    /// A define of a function on a set of members other than numbers, `let
+    /// t(c) = g·c, for c ∈ H` of a subgroup H: Lean's `set` of a map from
+    /// the members' type to the value's, `set t : G → G := fun c => g * c`,
+    /// as a function the header lets on such a set is (`header_function`).
+    /// Its domain is the set, within which the page applies it.
+    pub(super) fn define_map(
+        &mut self,
+        d: usize,
+        def: &crate::corpus::Define,
+        from: super::super::expr::Members,
+        read: FunctionRead,
+        depth: usize,
+    ) -> Route<()> {
+        let line = &self.thm.defines[d];
+        let Some(param) = def.params.first() else {
+            return Route::no("a define of a map of no argument");
+        };
+        let FunctionRead { domain, body } = read;
+        let before = self
+            .writer
+            .letters
+            .insert(param.name.clone(), from.letter());
+        // Its value a member of a set, g·c, or a set itself, {|x| : x ∈
+        // 𝒫{1, …, k}}, of the set's members' type.
+        let to = self.writer.member_kind(&body).or_else(|| {
+            self.writer
+                .members_of(&body)
+                .map(|m| super::super::expr::Members::Sets(Box::new(m)))
+        });
+        let value = match to {
+            Some(to) => self.writer.set_term(&body).map(|v| (to, v)),
+            None => Route::no(
+                "a define of a map whose value is no member Lean has a type for",
+            ),
+        };
+        match before {
+            Some(ty) => self.writer.letters.insert(param.name.clone(), ty),
+            None => self.writer.letters.shift_remove(&param.name),
+        };
+        let (to, value) = match value {
+            Route::Built(v) => v,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let name = super::super::names::letter(&def.name);
+        let label = line_name(&line.label);
+        let ty = LetterType::Map {
+            from: from.clone(),
+            to,
+        };
+        let function = ty.lean_type();
+        let lambda = Printed {
+            kind: super::super::doc::TermKind::Quantified {
+                quant: super::super::doc::term::Quant::Fun,
+                letter: super::super::names::letter(&param.name),
+                letter_ty: from.member_type(),
+                guard: None,
+                body: Box::new(value),
+                bounded: false,
+            },
+            ty: Some(function.clone()),
+        };
+        self.push_at(
+            depth,
+            Tactic::Set {
+                name,
+                ty: function,
+                value: lambda,
+                with: label.clone(),
+            },
+            line.line,
+            Spot::Statement,
+        );
+        self.writer.letters.insert(def.name.clone(), ty);
+        if let Route::Built(set) = self.writer.set_term(&domain) {
+            self.writer.domains.insert(def.name.clone(), set);
         }
         self.named.insert(line.label.clone(), vec![label]);
         Route::Built(())
@@ -977,9 +1087,40 @@ impl<'a> Proof<'a> {
             }
             _ => match self.counts_apart(&s.by, wanted) {
                 Some(met) => met,
-                None => self.supplied_proof(&s.by, wanted, s.meeting.as_ref()),
+                None => match self.supplied_proof(&s.by, wanted, s.meeting.as_ref()) {
+                    Route::Built(p) => Route::Built(p),
+                    // A line whose powers Lean writes as integer powers, `2 ^
+                    // abs (Rat.num x)`, for a hypothesis that writes them to
+                    // their exponents' `toNat`, each exponent at least 0 as
+                    // the record shows (`powers_converted_at`).
+                    Route::Declined(d) => {
+                        match self.powers_supplied(s, wanted, binding) {
+                            Some(p) => Route::Built(p),
+                            None => Route::Declined(d),
+                        }
+                    }
+                },
             },
         }
+    }
+
+    /// The proof of `wanted`, a cited item's hypothesis, from the line that
+    /// supplies it where the two are apart only in powers one writes as
+    /// integer powers and the other to their exponents' `toNat`, and in casts
+    /// (`powers_converted_at`). None of any other two.
+    fn powers_supplied(
+        &self,
+        s: &crate::checker::record::Supplied,
+        wanted: &Printed,
+        binding: &crate::matching::Binding,
+    ) -> Option<Printed> {
+        let (SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at)) = &s.by else {
+            return None;
+        };
+        let (proof, says) = self.line_says(at).built()?;
+        let asked = self.at_values(&s.want, binding);
+        self.powers_converted_at(&[&at.written, &asked], &says, wanted, &proof, false)
+            .map(super::super::tactics::by_term)
     }
 
     /// The proof of `wanted` from the line `by` names where the two count a
@@ -2033,6 +2174,22 @@ impl<'a> Proof<'a> {
                 )),
                 Making::Image(_) => Some(applied_to(field(of(2)?, "image"), hole())),
                 Making::Applied(_) => None,
+                // The functions from a finite X to a finite Y.
+                Making::Functions(_, _) => Some(applied_to(
+                    applied_to(
+                        super::super::tactics::bridge_lemma(
+                            "LeanBridges.Functions.functions_from_finite",
+                            super::super::doc::bridges::BridgeModule::Functions,
+                        ),
+                        super::super::tactics::bracket(of(0)?),
+                    ),
+                    super::super::tactics::bracket(of(1)?),
+                )),
+                // X ×ˢ Y of a finite X and a finite Y: Mathlib's `Set.Finite.prod`.
+                Making::Product(_, _) => Some(applied_to(
+                    field(of(0)?, "prod"),
+                    super::super::tactics::bracket(of(1)?),
+                )),
             },
             // The `have` written beside the define (`define`).
             FiniteBy::Define(name) => self

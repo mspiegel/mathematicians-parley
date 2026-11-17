@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AnObtainFromTwoSentences.AnObtainFromTwoSentences
 
-theorem an_obtain_from_two_sentences {α : Type*} (A : Set α) (u : α) (hH2 : u ∈ A) (hH3 : ∃ x ∈ A, x = u) :
+theorem an_obtain_from_two_sentences {α : Type*} [Nonempty α] (A : Set α) (u : α) (hH2 : u ∈ A) (hH3 : ∃ x ∈ A, x = u) :
     (∃ y ∈ A, y = u) := by
   -- 1. join H2, H3
   have s1a : u ∈ A := hH2

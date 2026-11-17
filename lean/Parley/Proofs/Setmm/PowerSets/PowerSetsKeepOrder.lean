@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PowerSets.PowerSetsKeepOrder
 
-theorem power_sets_keep_order {α : Type*} (A : Set α) (B : Set α) :
+theorem power_sets_keep_order {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ⊆ B ↔ 𝒫 A ⊆ 𝒫 B) := by
   -- the theorem. both directions
   constructor

@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.IntersectionSelf
 
-theorem intersection_self {α : Type*} (Y : Set α) :
+theorem intersection_self {α : Type*} [Nonempty α] (Y : Set α) :
     Y ∩ Y = Y := by
   -- 1. mun:sets-intersection-self
   exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := Y))

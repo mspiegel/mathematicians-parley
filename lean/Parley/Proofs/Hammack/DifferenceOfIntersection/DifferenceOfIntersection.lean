@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DifferenceOfIntersection.DifferenceOfIntersection
 
-theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
+theorem difference_of_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) :
     A \ (B ∩ C) = A \ B ∪ A \ C := by
   -- 1. proof
   have s1 : ∀ t ∈ A \ (B ∩ C), t ∈ A \ B ∪ A \ C := by

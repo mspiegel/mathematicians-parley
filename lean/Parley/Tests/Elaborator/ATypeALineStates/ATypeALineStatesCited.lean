@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesCited
 
-theorem a_type_a_line_states_cited {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH4 : Set.MapsTo F A B) (t : α) (hH5 : t ∈ A) :
+theorem a_type_a_line_states_cited {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH4 : Set.MapsTo F A B) (t : α) (hH5 : t ∈ A) :
     F t ∈ B := by
   -- 1. mun:function-value f := F, from H4, H5
   exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := B) (f := F) (x := t) hH5 hH4)

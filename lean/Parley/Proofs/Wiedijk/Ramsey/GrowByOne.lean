@@ -32,7 +32,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.GrowByOne
 
-theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set α)) (hH2 : X.Finite) (k : ℤ) (hH5 : 0 < k) (j : ℤ) (hH6 : 0 < j) (v : α) (hH7 : v ∈ X) (N : Set α) (hH8 : N ⊆ X \ ({v} : Set α)) (hH9 : ∀ w ∈ N, ({v, w} : Set α) ∈ E) (W : Set α) (hH10 : W ⊆ N) (hH11 : k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) :
+theorem grow_by_one {α : Type*} [Nonempty α] (X : Set α) (E : Set (Set α)) (F : Set (Set α)) (hH2 : X.Finite) (k : ℤ) (hH5 : 0 < k) (j : ℤ) (hH6 : 0 < j) (v : α) (hH7 : v ∈ X) (N : Set α) (hH8 : N ⊆ X \ ({v} : Set α)) (hH9 : ∀ w ∈ N, ({v, w} : Set α) ∈ E) (W : Set α) (hH10 : W ⊆ N) (hH11 : k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) :
     (∃ U ∈ 𝒫 X, k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by
   -- 1. mun:difference-subset
   have s1 : X \ ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := X) (Y := ({v} : Set α)))

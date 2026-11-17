@@ -141,16 +141,15 @@ fn statement(
         let unsorted_element =
             matches!(Introduction::read(body.clone()).form, Form::Element(_))
                 && rec.sorts.get(&name).is_none();
-        let Some(ty) = rec
-            .sorts
-            .get(&name)
-            .and_then(super::sets::set_letter_type)
-            .or_else(|| element_number_type(&name, rec))
-            .or_else(|| recorded_number_set_type(&name, rec))
-            .or_else(|| {
-                unsorted_element
-                    .then_some(LetterType::Member(super::expr::Members::Things(0)))
-            })
+        let Some(ty) =
+            super::sets::set_type_in(Some(&rec.sorts), &rec.thing_types, &name)
+                .or_else(|| element_number_type(&name, rec))
+                .or_else(|| recorded_number_set_type(&name, rec))
+                .or_else(|| {
+                    unsorted_element.then_some(LetterType::Member(
+                        super::expr::Members::Things(rec.thing_types.of_letter(&name)),
+                    ))
+                })
         else {
             untyped.get_or_insert_with(|| body.text().to_string());
             continue;
@@ -362,6 +361,11 @@ struct Proof<'a> {
     /// those its `let` lines give (`statement::with_sethoods`): what meets
     /// a cited item's own (`StatedAt::Sethood`).
     sethoods: Vec<Sethood>,
+    /// The equation for every x of each function the header lets, by its
+    /// binder's name, `hD1` with `∀ j : ℤ, 0 < j → q j = j + 1`
+    /// (`headers::header_function`), which a step applying the function
+    /// reads at its argument.
+    header_equations: std::collections::BTreeMap<String, Printed>,
 }
 
 /// A statement's fact that a thing is one of ZF's sets.
@@ -625,6 +629,7 @@ pub(super) fn statement_writer<'a>(
         &sources.ctx.conjunctions,
     );
     writer.function_systems = std::rc::Rc::new(rec.function_systems.clone());
+    writer.things = std::rc::Rc::new(rec.thing_types.clone());
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
     writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
@@ -668,6 +673,7 @@ pub fn theorem(
         defines_in_goal: std::cell::RefCell::new(Vec::new()),
         opening_goal: None,
         sethoods: Vec::new(),
+        header_equations: std::collections::BTreeMap::new(),
     };
     let Statement {
         binders,
@@ -721,6 +727,11 @@ pub fn theorem(
             proof
                 .named
                 .insert(d.label.clone(), vec![line_name(&d.label)]);
+            if let Some(says) = stated.get(line_name(&d.label).as_str()) {
+                proof
+                    .header_equations
+                    .insert(line_name(&d.label), (*says).clone());
+            }
         }
     }
     let props: Vec<&Printed> = conclusion.iter().map(|c| &c.prop).collect();

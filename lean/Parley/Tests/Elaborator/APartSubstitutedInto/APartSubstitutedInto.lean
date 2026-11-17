@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto
 
-theorem a_part_substituted_into {α : Type*} (X : Set α) (R : Set α) (hH2 : R ⊆ X) (hH3 : X = ∅) :
+theorem a_part_substituted_into {α : Type*} [Nonempty α] (X : Set α) (R : Set α) (hH2 : R ⊆ X) (hH3 : X = ∅) :
     R ⊆ ∅ := by
   -- 1. substitute X = ∅ (H3) into H2
   exact Eq.subst (motive := (fun t : Set α => R ⊆ t)) hH3 hH2

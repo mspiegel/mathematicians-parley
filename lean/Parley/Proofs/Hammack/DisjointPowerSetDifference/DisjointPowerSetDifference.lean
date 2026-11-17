@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DisjointPowerSetDifference.DisjointPowerSetDifference
 
-theorem disjoint_power_set_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A ∩ B = ∅) :
+theorem disjoint_power_set_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (hH3 : A ∩ B = ∅) :
     𝒫 A \ 𝒫 B ⊆ 𝒫 (A \ B) := by
   -- 1. proof
   have s1 : ∀ t ∈ 𝒫 A \ 𝒫 B, t ∈ 𝒫 (A \ B) := by

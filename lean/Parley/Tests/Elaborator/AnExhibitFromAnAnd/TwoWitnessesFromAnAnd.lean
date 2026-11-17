@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd
 
-theorem two_witnesses_from_an_and {α : Type*} (V : Set α) (b : α) (hH2 : b ∈ V) (a : α) (hH3 : a ∈ V \ ({b} : Set α)) :
+theorem two_witnesses_from_an_and {α : Type*} [Nonempty α] (V : Set α) (b : α) (hH2 : b ∈ V) (a : α) (hH3 : a ∈ V \ ({b} : Set α)) :
     (∃ x ∈ V, ∃ y ∈ V, ¬ x = y) := by
   -- 1. mun:remove-member u := a, Y := V, a := b, from H3
   have s1 : a ∈ V ∧ ¬ a = b := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp hH3

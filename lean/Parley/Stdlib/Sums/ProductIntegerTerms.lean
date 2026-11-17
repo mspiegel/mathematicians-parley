@@ -32,7 +32,7 @@ public section
 
 namespace Parley.Stdlib.Sums.ProductIntegerTerms
 
-theorem product_integer_terms {α : Type*} (X : Set α) (hH2 : X.Finite) (t : α → ℤ) (hH3 : Set.MapsTo t X (Set.univ : Set ℤ)) :
+theorem product_integer_terms {α : Type*} [Nonempty α] (X : Set α) (hH2 : X.Finite) (t : α → ℤ) (hH3 : Set.MapsTo t X (Set.univ : Set ℤ)) :
     (∀ Y ∈ 𝒫 X, True) := by
   -- 1. induction on Y starting at ∅
   have r34_1 : X.Finite := by exact hH2

@@ -77,6 +77,12 @@ pub enum Members {
         from: Box<Members>,
         to: Box<Members>,
     },
+    /// Pairs, the members of X × Y: `first` what X holds, `second` what Y
+    /// does; Lean's `α × β`.
+    Pairs {
+        first: Box<Members>,
+        second: Box<Members>,
+    },
 }
 
 /// The type variable a theorem's sets of things are sets of.
@@ -139,6 +145,10 @@ impl Members {
                 from: Box::new(LeanType::Within(on.clone())),
                 to: Box::new(to.member_type()),
             },
+            Members::Pairs { first, second } => LeanType::Prod(
+                Box::new(first.member_type()),
+                Box::new(second.member_type()),
+            ),
         }
     }
 
@@ -164,6 +174,9 @@ impl Members {
             Members::Sets(m) => m.things_var(),
             Members::Maps { from, to, .. } => {
                 from.things_var().or_else(|| to.things_var())
+            }
+            Members::Pairs { first, second } => {
+                first.things_var().or_else(|| second.things_var())
             }
             Members::Numbers(_) | Members::Elements(_) => None,
         }
@@ -315,6 +328,10 @@ pub struct Writer<'a> {
     /// function_systems`, `GroupFacts::function_systems`).
     pub function_systems:
         std::rc::Rc<IndexMap<String, crate::citing::number_sets::Between>>,
+    /// Which sets hold things of one type, by letter: a theorem's as the
+    /// checker records them (`CheckedTheorem::thing_types`), an item's read
+    /// of its sentences. A set letter's things take its type variable.
+    pub things: std::rc::Rc<crate::citing::things::ThingTypes>,
 }
 
 /// The writer's view for the shared rule of what terms are at least
@@ -545,6 +562,7 @@ impl<'a> Writer<'a> {
             whole_bounds: SaidBounds::default(),
             root_forms: Default::default(),
             function_systems: Default::default(),
+            things: Default::default(),
         }
     }
 
@@ -567,6 +585,7 @@ impl<'a> Writer<'a> {
             whole_bounds: self.whole_bounds.clone(),
             root_forms: self.root_forms.clone(),
             function_systems: self.function_systems.clone(),
+            things: self.things.clone(),
         }
     }
 

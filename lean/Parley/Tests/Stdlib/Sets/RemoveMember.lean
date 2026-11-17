@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.RemoveMember
 
-theorem remove_member {α : Type*} (Y : Set α) (a : α) (u : α) :
+theorem remove_member {α : Type*} [Nonempty α] (Y : Set α) (a : α) (u : α) :
     (u ∈ Y \ ({a} : Set α) ↔ u ∈ Y ∧ ¬ u = a) := by
   -- 1. mun:sets-remove-member
   exact (Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := a) (u := u))

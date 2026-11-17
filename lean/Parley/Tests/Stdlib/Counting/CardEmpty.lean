@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Counting.CardEmpty
 
-theorem card_empty {α : Type*} :
+theorem card_empty {α : Type*} [Nonempty α] :
     ((∅ : Set α).ncard : ℤ) = 0 := by
   -- 1. mun:counting-card-empty
   exact Parley.Items.Stdlib.Counting.mun_card_empty

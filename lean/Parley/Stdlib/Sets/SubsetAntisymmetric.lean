@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Stdlib.Sets.SubsetAntisymmetric
 
-theorem subset_antisymmetric {α : Type*} (X : Set α) (Y : Set α) (hH3 : X ⊆ Y) (hH4 : Y ⊆ X) :
+theorem subset_antisymmetric {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (hH3 : X ⊆ Y) (hH4 : Y ⊆ X) :
     X = Y := by
   -- 1. def:subset, from H3
   have s1 : ∀ t ∈ X, t ∈ Y := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp hH3

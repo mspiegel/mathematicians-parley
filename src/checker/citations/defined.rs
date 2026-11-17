@@ -442,6 +442,118 @@ pub fn define_domains(
     out
 }
 
+/// Of each step of a method or an item citing a function its theorem lets
+/// on a domain, each application the step asks the domain of, and what says
+/// the argument is in it (`CheckedTheorem::applied_domains`): `q(a)` of H4
+/// in a transitivity from H4, D1, H5, and `a ∈ ℕ` on the `let` line; V(N) of
+/// a claim `{N} ∈ V(N)` citing an item from D1, and `N ∈ {1, …, N}` of H2. The
+/// applications are those `evaluated` finds; each membership is found as
+/// `define_domains` finds one. A step whose define, substitution or
+/// calculation puts the equation in itself (`define_domains`), or whose
+/// membership Lean's types give, is not one; nor is an application none
+/// says the domain of, which `check_define_domains` reports.
+pub fn applied_domains(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) -> IndexMap<usize, Vec<crate::checker::record::AppliedDomain>> {
+    use crate::checker::record::{AppliedDomain, DomainSaid};
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let asks = match &step.just.head {
+            Head::Method(m) => !matches!(
+                m,
+                Method::Substitute | Method::Calculation | Method::Membership
+            ),
+            Head::Item { .. } => true,
+            _ => false,
+        };
+        if !asks {
+            continue;
+        }
+        let used: Vec<Defined> = functions
+            .iter()
+            .filter(|f| f.label.as_ref().is_some_and(|l| step.just.refs.contains(l)))
+            .cloned()
+            .collect();
+        if used.is_empty() {
+            continue;
+        }
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        let parts = known.parts(step, library);
+        let letters = super::super::library::introduced(known, step);
+        // An argument that is the index of a sum or a sequence's limit in
+        // `formula` whose range lies inside the domain.
+        let index_said = |formula: &Node, arg: &Node, domain: &Node| {
+            let formulas = std::slice::from_ref(formula);
+            let within = index_range_within(
+                formulas,
+                arg,
+                domain,
+                &letters,
+                known,
+                &library.ctx,
+            );
+            (within == Some(true)).then(|| match limit_index(formulas, arg) {
+                true => DomainSaid::LimitIndex,
+                false => DomainSaid::SumRange,
+            })
+        };
+        let mut found = Vec::new();
+        for asked in evaluated(step, &used, known, library) {
+            let Some(fact) = asked.says.first() else {
+                continue;
+            };
+            let [_, domain] = fact.children.as_slice() else {
+                continue;
+            };
+            let cited = parts.facts.iter().find(|f| known.alike(f, fact));
+            let said = cited
+                .and_then(|f| super::super::formulas::fact_placed(step, f, known))
+                .map(DomainSaid::Line)
+                .or_else(|| {
+                    member_in_domain(&claim, &asked.arg, domain, known)
+                        .then_some(DomainSaid::Member)
+                })
+                .or_else(|| {
+                    introduced_placed(thm, step, fact, known).map(DomainSaid::Line)
+                })
+                .or_else(|| index_said(&claim, &asked.arg, domain));
+            if let Some(said) = said {
+                found.push(AppliedDomain {
+                    label: asked.label.clone(),
+                    arg: asked.arg.clone(),
+                    said,
+                });
+            }
+        }
+        // An application in a line the step cites at a letter the line binds,
+        // S(n) of `S(n) → K as n → ∞`.
+        for (asked, part) in applied_at_bound_in_cited(step, &used, known, &library.ctx)
+        {
+            let Some(domain) = asked.says.first().and_then(|f| f.children.get(1))
+            else {
+                continue;
+            };
+            if let Some(said) = index_said(&part, &asked.arg, domain) {
+                found.push(AppliedDomain {
+                    label: asked.label.clone(),
+                    arg: asked.arg.clone(),
+                    said,
+                });
+            }
+        }
+        if !found.is_empty() {
+            out.insert(step.just.line, found);
+        }
+    }
+    out
+}
+
 /// Whether `claim` is said of every member of a set inside `domain`, and
 /// `arg` is that member: the set is the domain, or a range whose number
 /// system it is (`range_system`).
@@ -851,6 +963,132 @@ pub(super) fn applied(
     out
 }
 
+/// Whether `arg` is the index of a sequence's limit in `formulas`, n of S(n)
+/// → K as n → ∞.
+pub(super) fn limit_index(formulas: &[Node], arg: &Node) -> bool {
+    formulas.iter().flat_map(|f| f.walk()).any(|n| {
+        n.notation() == crate::notations::TENDS_TO
+            && matches!(n.children.as_slice(), [_, _, k] if k.is_name() && k.text == arg.text)
+    })
+}
+
+/// The applications of `used` the lines a step cites besides their defines
+/// make at a letter they bind, each with the sentence it stands in: S(n) of
+/// a cited `S(n) → K as n → ∞`, which `applied_in_cited` leaves to
+/// `index_range_within`.
+pub(super) fn applied_at_bound_in_cited(
+    step: &Step,
+    used: &[Defined],
+    known: &Known,
+    ctx: &Context,
+) -> Vec<(Applied, Node)> {
+    let scope = known.scope(step);
+    let mut out = Vec::new();
+    for r in &step.just.refs {
+        if used.iter().any(|f| f.label.as_ref() == Some(r)) {
+            continue;
+        }
+        let Some(stated) = scope.get(r.as_str()) else {
+            continue;
+        };
+        for part in known.sentences(stated) {
+            let mut bound = BTreeSet::new();
+            letters_bound(&part, ctx, &mut bound);
+            out.extend(
+                applied(used, &part, false, known)
+                    .into_iter()
+                    .filter(|asked| !asked.arg.names().is_disjoint(&bound))
+                    .map(|asked| (asked, part.clone())),
+            );
+        }
+    }
+    out
+}
+
+/// The applications a step citing a define makes at the index of a sum or
+/// a sequence's limit, in its claim or a line it cites, whose range is not
+/// inside the define's domain, each with that domain: Σ(k = 0 to n) t(k) of
+/// a t on ℕ, whose rule says nothing of t(0).
+fn indices_outside(
+    step: &Step,
+    functions: &[Defined],
+    known: &Known,
+    library: &Library,
+) -> Vec<(Applied, Node)> {
+    let used: Vec<Defined> = functions
+        .iter()
+        .filter(|f| f.label.as_ref().is_some_and(|l| step.just.refs.contains(l)))
+        .cloned()
+        .collect();
+    if used.is_empty() {
+        return Vec::new();
+    }
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return Vec::new();
+    };
+    let letters = super::super::library::introduced(known, step);
+    let in_claim = evaluated(step, &used, known, library)
+        .into_iter()
+        .map(|asked| (asked, claim.clone()));
+    in_claim
+        .chain(applied_at_bound_in_cited(step, &used, known, &library.ctx))
+        .filter_map(|(asked, formula)| {
+            let domain = asked.says.first()?.children.get(1)?.clone();
+            let within = index_range_within(
+                std::slice::from_ref(&formula),
+                &asked.arg,
+                &domain,
+                &letters,
+                known,
+                &library.ctx,
+            );
+            (within == Some(false)).then_some((asked, domain))
+        })
+        .collect()
+}
+
+/// Whether `arg` is the index of a sum or a sequence's limit in `formulas`
+/// whose range lies inside `domain`: t(k) in Σ(k = 1 to n) t(k) of a t on ℕ
+/// is, and in Σ(k = 0 to n) t(k) is not, as {0, …, n} holds 0; S(n) in S(n)
+/// → K as n → ∞ is where the domain holds ℕ, which a sequence's index runs
+/// over. None where `arg` is no such index there, or the range or the
+/// domain is no set whose numbers the page says once.
+pub(super) fn index_range_within(
+    formulas: &[Node],
+    arg: &Node,
+    domain: &Node,
+    letters: &Introduced,
+    known: &Known,
+    ctx: &Context,
+) -> Option<bool> {
+    if !arg.is_name() {
+        return None;
+    }
+    // A sequence's index, n of S(n) → K as n → ∞, runs over ℕ (the
+    // notation's own reading).
+    if limit_index(formulas, arg) {
+        let inside = crate::citing::set_system(domain, letters)?;
+        return Some(System::N.within(inside));
+    }
+    let sum = formulas.iter().flat_map(|f| f.walk()).find(|n| {
+        ctx.sums.contains(&n.notation())
+            && matches!(n.children.as_slice(), [k, _, _, _] if k.is_name() && k.text == arg.text)
+    })?;
+    let [_, from, to, _] = sum.children.as_slice() else {
+        return None;
+    };
+    let range = page::filled(
+        "{a, …, b}",
+        known.env.g,
+        &known.sorts,
+        &[("a", from), ("b", to)],
+    )
+    .ok()?;
+    let runs = crate::citing::range_system(&range)?;
+    let inside = crate::citing::set_system(domain, letters)?;
+    Some(runs.within(inside))
+}
+
 /// The indices of the sums anywhere in a formula, by the places the
 /// notation database declares each sum holds its index in.
 pub(super) fn sum_indices(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
@@ -888,6 +1126,20 @@ pub fn check_define_domains(
     }
     let needs = |asked: &Applied| known.print(&asked.says[0]);
     for step in &thm.steps {
+        for (asked, domain) in indices_outside(step, &functions, known, library) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} applies {} at {}, the index of a sum or a sequence whose range is not inside {}, the domain {} gives it on",
+                    step.number,
+                    asked.label,
+                    known.print(&asked.arg),
+                    known.print(&domain),
+                    asked.label,
+                ),
+            );
+        }
         for asked in domains_unsaid(step, &functions, known, library) {
             report.say(
                 &thm.path,

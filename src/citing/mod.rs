@@ -18,6 +18,7 @@ pub mod number_sets;
 mod once;
 mod parts;
 mod supply;
+pub mod things;
 mod typed;
 
 pub use asked::{asked, asks_of, filled, Asked};
@@ -38,8 +39,9 @@ pub use once::{
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_by,
-    implied_facts, said_otherwise, stood_for, subset_members, type_said_otherwise,
-    typed_seed, Bound, Implication, Parts, SaidOnceFact,
+    implied_facts, said_otherwise, speaks_of_claim_letter, stood_for, subset_members,
+    type_said_otherwise, typed_seed, under_claim_binders, Bound, Implication, Parts,
+    SaidOnceFact,
 };
 pub use supply::{
     largest_search, names_of, search, set_within, supplier, supply, Sites, Ways,

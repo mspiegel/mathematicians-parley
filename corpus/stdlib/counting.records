@@ -457,7 +457,7 @@ mundane theorem card-product
   metamath-proof hashxp
   note        Each of the |X| first parts goes with each of the |Y| second
               parts.
-  lean-proof  not yet implemented
+  lean-proof  by rw [Set.ncard_prod, Nat.cast_mul]
 
 theorem pigeonhole
   let Y be a set                                                      (H1)
@@ -478,7 +478,7 @@ theorem count-functions
   metamath-proof metamath-bridges/counts/gmapcnt
   note        Each of the |X| elements of X goes to one of the |Y| elements
               of Y.
-  lean-proof  lean-bridges/counting/count-functions
+  lean-proof  by obtain ⟨m, hm, he⟩ := LeanBridges.Counting.count_functions X Y h1 h2; rw [Set.ncard_def, hm, ENat.toNat_natCast]; exact he
 
 theorem count-one-to-one
   let X be a set                                                      (H1)
@@ -491,4 +491,4 @@ theorem count-one-to-one
   note        The one-to-one functions from X to Y number
               |Y|·(|Y| − 1)·…·(|Y| − |X| + 1): each element of X in turn
               goes to one of the elements of Y not yet used.
-  lean-proof  lean-bridges/counting/count-one-to-one
+  lean-proof  by obtain ⟨m, hm, he⟩ := LeanBridges.Counting.count_one_to_one X Y h1 h2 h3; rw [Set.ncard_def, hm, ENat.toNat_natCast]; exact he

@@ -990,9 +990,16 @@ pub fn obtained(
                 let mut need = first.clone();
                 need.extend(asked.iter().cloned());
                 let variables = of.letters(&need);
+                // The claim fixes the letters of the "there is" too, A, B, f
+                // and g of fixed-part's, which asks nothing: the item's
+                // letters its function-type lines give and no hypothesis
+                // names.
+                let mut said = need.clone();
+                said.push(target.clone());
+                let claimed = of.letters(&said);
                 let mut start = seed.clone();
                 for (name, value) in
-                    fixed_by_claim(&target, claims, names, seed, &variables, library)
+                    fixed_by_claim(&target, claims, names, seed, &claimed, library)
                 {
                     start.entry(name).or_insert(value);
                 }

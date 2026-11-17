@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.UnionSelf
 
-theorem union_self {α : Type*} (Y : Set α) :
+theorem union_self {α : Type*} [Nonempty α] (Y : Set α) :
     Y ∪ Y = Y := by
   -- 1. mun:sets-union-self
   exact (Parley.Items.Stdlib.Sets.mun_union_self (Y := Y))

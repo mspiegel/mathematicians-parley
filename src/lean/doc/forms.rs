@@ -103,23 +103,9 @@ fn read_for_comparison(item: &Term, line: &Term, widen: &Widen) -> (Term, Term) 
 /// which `norm_cast` takes it to (`Nat.cast_le`, `Nat.cast_inj`); any
 /// other term as it is.
 fn in_naturals(term: &Term) -> Term {
-    let natural = |t: &Term| -> Option<Term> {
-        match &bare(t).kind {
-            TermKind::Cast { inner, .. }
-                if inner.ty == Some(LeanType::Num(Num::Nat)) =>
-            {
-                Some((**inner).clone())
-            }
-            TermKind::Numeral(d) => Some(Term::of(
-                TermKind::Numeral(d.clone()),
-                LeanType::Num(Num::Nat),
-            )),
-            _ => None,
-        }
-    };
     if let TermKind::Infix { op, lhs, rhs } = &bare(term).kind {
         if term.ty == Some(LeanType::Prop) {
-            if let (Some(l), Some(r)) = (natural(lhs), natural(rhs)) {
+            if let (Some(l), Some(r)) = (natural_side(lhs), natural_side(rhs)) {
                 return Term::of(
                     TermKind::Infix {
                         op: *op,
@@ -132,6 +118,34 @@ fn in_naturals(term: &Term) -> Term {
         }
     }
     term.clone()
+}
+
+/// A side of a relation as a natural number, where it is one cast up: a
+/// natural number cast, a numeral, or a sum or product of those, `(a : ℤ) *
+/// (b : ℤ)` as `a * b`, which `Nat.cast_add` and `Nat.cast_mul` take it to.
+/// None for any other term.
+fn natural_side(t: &Term) -> Option<Term> {
+    match &bare(t).kind {
+        TermKind::Cast { inner, .. } if inner.ty == Some(LeanType::Num(Num::Nat)) => {
+            Some((**inner).clone())
+        }
+        TermKind::Numeral(d) => Some(Term::of(
+            TermKind::Numeral(d.clone()),
+            LeanType::Num(Num::Nat),
+        )),
+        TermKind::Infix { op, lhs, rhs } if matches!(op.symbol, "+" | "*") => {
+            let (l, r) = (natural_side(lhs)?, natural_side(rhs)?);
+            Some(Term::of(
+                TermKind::Infix {
+                    op: *op,
+                    lhs: Box::new(l),
+                    rhs: Box::new(r),
+                },
+                LeanType::Num(Num::Nat),
+            ))
+        }
+        _ => None,
+    }
 }
 
 /// An equation with its sides swapped; any other term as it is.
@@ -967,6 +981,54 @@ fn casts_alike(
 /// `norm_cast`, both `simp` sets, see.
 pub fn beta_reduced(term: &Term) -> Term {
     reduced(term)
+}
+
+/// A statement with each `set` map it applies given by its rule, `f i = f j`
+/// of `set f := fun i => (L i, M i)` as `(L i, M i) = (L j, M j)`, worked
+/// out as `simp` reads it, and the equations of those maps. None where it
+/// applies no such map.
+pub fn maps_opened(term: &Term, values: &Values) -> Option<MapsOpened> {
+    let applied: std::collections::BTreeSet<String> = term
+        .walk()
+        .into_iter()
+        .filter_map(|n| match &n.kind {
+            TermKind::App { head, .. } => match &head.kind {
+                TermKind::Letter(l) => Some(l.clone()),
+                _ => None,
+            },
+            _ => None,
+        })
+        .collect();
+    let maps: Values = values
+        .iter()
+        .filter(|(name, v)| {
+            applied.contains(*name)
+                && matches!(
+                    v.value.kind,
+                    TermKind::Quantified {
+                        quant: super::term::Quant::Fun,
+                        ..
+                    }
+                )
+        })
+        .map(|(name, v)| (name.clone(), v.clone()))
+        .collect();
+    if maps.is_empty() {
+        return None;
+    }
+    Some(MapsOpened {
+        says: reduced(&with_values(term, &maps, 1)),
+        equations: maps.values().map(|v| v.equation.clone()).collect(),
+    })
+}
+
+/// A statement with the `set` maps it applies given by their rules
+/// (`maps_opened`).
+pub struct MapsOpened {
+    /// What it says once they are.
+    pub says: Term,
+    /// The equations of the maps, which `simp only` rewrites by.
+    pub equations: Vec<String>,
 }
 
 /// The term with each function written by its rule applied, `(fun k => b) t`,

@@ -267,12 +267,16 @@ impl<'a> Proof<'a> {
                 // the whole claim, "for all" and all, and end on it; so does
                 // a substitution the checker found into a line's "for all"
                 // as a whole, its places counted from the top of it
-                // (`substituted`).
+                // (`substituted`). So does an instance whose values name no
+                // letter of the claim's "for all", `L(i) is an upper bound of
+                // I(i)` at k := i, which says the "for all" itself.
                 let whole = self
                     .substitution_record(reason.just.line, Some(k), false)
                     .is_some_and(|r| r.start.notation() == crate::notations::FOR_ALL);
-                let rows =
-                    *m == Method::Substitute && (!reason.just.rows.is_empty() || whole);
+                let rows = (*m == Method::Substitute
+                    && (!reason.just.rows.is_empty() || whole))
+                    || (*m == Method::Instantiate
+                        && self.instance_says_for_all(reason.just, node));
                 let (intros, body, writer) = match rows {
                     true => (
                         Vec::new(),
@@ -572,6 +576,46 @@ impl<'a> Proof<'a> {
     /// A claim's leading "for all" taken off: the names its letters and
     /// their guards are introduced by, the body, and the letters in scope
     /// with the claim's own added.
+    /// Whether an instantiate's claim, said "for all", is said by the
+    /// instance itself: every letter the line's "for all" binds is given a
+    /// value, k := i of "for all k ∈ {1, …, N}, … L(k) is an upper bound of
+    /// I(k) …", so what is left of the line says the claim's "for all".
+    /// Where a letter of the line is given none, j of "for all N, for all
+    /// j ∈ {1, …, N}" at N := n, it is read at the claim's own letter, and
+    /// the claim is proved of one member.
+    pub(super) fn instance_says_for_all(
+        &self,
+        just: &Justification,
+        node: &Node,
+    ) -> bool {
+        if node.notation() != crate::notations::FOR_ALL || just.values.is_empty() {
+            return false;
+        }
+        let Some(recorded) = self.rec.instantiated.get(&just.line) else {
+            return false;
+        };
+        let Route::Built(part) = self.line_part(&recorded.at) else {
+            return false;
+        };
+        let mut body = &part.node;
+        while matches!(
+            body.notation(),
+            crate::notations::FOR_ALL | crate::notations::FOR_ALL_SETS
+        ) {
+            let Some(letter) = body.children.first() else {
+                return false;
+            };
+            if !just.values.pairs().any(|(n, _)| *n == *letter.text) {
+                return false;
+            }
+            body = match body.children.last() {
+                Some(inner) => inner,
+                None => return false,
+            };
+        }
+        true
+    }
+
     pub(super) fn peel<'n>(
         &self,
         node: &'n Node,
@@ -748,7 +792,30 @@ impl<'a> Proof<'a> {
                 // A define's value may name another the step cites, v's of
                 // ω₁, so they are written out until none is left.
                 let defines = self.cited_defines(&just.refs);
-                let mut claim = node.clone();
+                // A function the header lets, rewritten by its equation at
+                // each argument the record found (`header_functions_applied`),
+                // under a sum term by term.
+                let headers = match self.header_functions_applied(just) {
+                    Route::Built(h) => h,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let header_rewrite: Vec<Tactic> = match headers.is_empty() {
+                    true => Vec::new(),
+                    false => vec![super::super::tactics::call(
+                        "rw",
+                        vec![TacticArg::Rules(
+                            headers
+                                .iter()
+                                .map(|h| {
+                                    super::super::tactics::forwards(h.equation.clone())
+                                })
+                                .collect(),
+                        )],
+                    )],
+                };
+                let mut claim = headers
+                    .iter()
+                    .fold(node.clone(), |n, h| self.put_define(&n, &h.define));
                 for d in &defines {
                     cited.retain(|c| c.proof != super::super::tactics::hyp(&d.proof));
                 }
@@ -785,9 +852,9 @@ impl<'a> Proof<'a> {
                         said: vec![node.clone()],
                         stated: writer.formula(node).built().into_iter().collect(),
                     }];
-                    return Route::Built(Proof::By(Tactic::Seq(written_out(
-                        &defines, &goal, writer,
-                    ))));
+                    let mut lines = header_rewrite;
+                    lines.extend(written_out(&defines, &goal, writer));
+                    return Route::Built(Proof::By(Tactic::Seq(lines)));
                 }
                 let mut haves = Vec::new();
                 for c in &mut cited {
@@ -833,8 +900,8 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let mut lines: Vec<Tactic> =
-                    written_out(&defines, &self.rewritten_at(node), writer);
+                let mut lines: Vec<Tactic> = header_rewrite;
+                lines.extend(written_out(&defines, &self.rewritten_at(node), writer));
                 lines.extend(haves);
                 return Route::Built(haves_then(lines, proof));
             }
@@ -865,17 +932,10 @@ impl<'a> Proof<'a> {
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
-                // A chain whose links the checker placed: composed link by
-                // link (`chain_composed`).
-                if just.head.is(Method::Transitivity) {
-                    if let Route::Built(composed) =
-                        self.chain_composed(just, node, writer)
-                    {
-                        return Route::Built(composed);
-                    }
-                }
-                // What the checker recorded the step rests on (`orders`,
-                // `antisymmetric`).
+                // What the checker recorded the step rests on: a chain's
+                // links, composed link by link (`chain_composed`); the facts
+                // of an order step (`orders`); the two lines of an
+                // antisymmetry (`antisymmetric`).
                 return match m {
                     Method::Inequalities => {
                         self.order_proof(just.line, k, node, writer)
@@ -883,13 +943,13 @@ impl<'a> Proof<'a> {
                     Method::Antisymmetry => {
                         self.antisymmetry_proof(just.line, node, writer)
                     }
-                    _ => Route::no("a transitivity chain is composed from its links"),
+                    _ => self.chain_composed(just, node, writer),
                 };
             }
             Method::Substitute => return self.substitute(just, k, node, writer),
             Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node),
-            Method::Instantiate => return self.instantiate(just, node, writer),
+            Method::Instantiate => return self.instantiate(just, k, node, writer),
             Method::Membership => return self.membership(just, node, writer),
             // The lines the checker found each part of the claim in
             // (`joined`), put together.
@@ -1977,18 +2037,14 @@ impl<'a> Proof<'a> {
                 Route::Built(s) => s,
                 Route::Declined(d) => return Route::Declined(d),
             };
+            // A condition of things, t ∉ C, is of its own type whatever the
+            // claim's, h(t) = g⁻¹(t) of another; only numbers are cast.
             let proof = match (relation_type(&says), &claim_type) {
-                (Some(line), Some(claim)) if line != *claim => {
-                    let (
-                        super::super::doc::LeanType::Num(l),
-                        super::super::doc::LeanType::Num(c),
-                    ) = (&line, claim)
-                    else {
-                        return Route::no(
-                            "a case's condition said by a line in another type than the claim's",
-                        );
-                    };
-                    if l > c {
+                (
+                    Some(super::super::doc::LeanType::Num(l)),
+                    Some(super::super::doc::LeanType::Num(c)),
+                ) if l != *c => {
+                    if l > *c {
                         return Route::no(
                             "a case's condition said by a line in a wider type than the claim's",
                         );

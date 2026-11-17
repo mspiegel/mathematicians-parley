@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Cantor.Cantor
 
-theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f A (𝒫 A)) :
+theorem cantor {α : Type*} [Nonempty α] (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f A (𝒫 A)) :
     (∃ B ∈ 𝒫 A, ∀ x ∈ A, ¬ f x = B) := by
   set B : Set α := {x ∈ A | ¬ x ∈ f x} with hD1
   -- 1. mun:set-builder-subset, from D1

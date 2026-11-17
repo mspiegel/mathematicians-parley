@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
 
-theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
+theorem image_of_intersection_within {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
     f '' (A ∩ (W ∩ X)) ⊆ f '' (A ∩ W) ∩ f '' (A ∩ X) := by
   -- 1. proof
   have s1 : ∀ s ∈ W ∩ X, s ∈ A := by
@@ -50,9 +50,9 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.4. mun:value-in-image Y := X, from H5, 3.2
     have s3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := B) hH5 s3_2b hH3)
     -- 3.5. substitute y = f(s) (line 3.1) into line 3.3
-    have s3_5 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ W))) s3_1b.symm s3_3
+    have s3_5 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : β => t ∈ f '' (A ∩ W))) s3_1b.symm s3_3
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4
-    have s3_6 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ X))) s3_1b.symm s3_4
+    have s3_6 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : β => t ∈ f '' (A ∩ X))) s3_1b.symm s3_4
     -- 3.7. def:intersection u := y, Y := f[W], Z := f[X], from 3.5, 3.6
     exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr ⟨s3_5, s3_6⟩
   -- 4. def:subset, from 3

@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InductionOverASet.AProductOfOnesByInduction
 
-theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite) :
+theorem a_product_of_ones_by_induction {α : Type*} [Nonempty α] (X : Set α) (hH2 : X.Finite) :
     (∏ᶠ x ∈ X, (1 : ℤ)) = 1 := by
   -- 1. induction on Y starting at ∅
   have r14_1 : X.Finite := by exact hH2

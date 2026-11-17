@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.OntoBijectionReachesAll.OntoBijectionReachesAll
 
-theorem onto_bijection_reaches_all {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' (A ∩ A) = B) :
+theorem onto_bijection_reaches_all {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' (A ∩ A) = B) :
     (∀ y ∈ B, ∃ x ∈ A, y = F x) := by
   -- 1. proof
   intro y hK1

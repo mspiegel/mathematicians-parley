@@ -775,8 +775,19 @@ pub(super) fn after_known(known: &[Tactic], proof: Printed) -> Printed {
     super::super::tactics::by_term(super::super::doc::Proof::By(Tactic::Seq(tactics)))
 }
 
+/// A function the header lets, applied in a step citing an item
+/// (`Proof::header_functions_applied`).
+#[derive(Clone)]
+pub(super) struct HeaderApplied {
+    /// The define, as `put_define` writes it out.
+    pub(super) define: CitedDefine,
+    /// Its equation at the argument, `hD1 _ hH2`.
+    pub(super) equation: Printed,
+}
+
 /// A define a step cites: its letter, the term it names, and the Lean name
 /// of its equation.
+#[derive(Clone)]
 pub(super) struct CitedDefine {
     pub(super) name: Node,
     pub(super) value: Node,

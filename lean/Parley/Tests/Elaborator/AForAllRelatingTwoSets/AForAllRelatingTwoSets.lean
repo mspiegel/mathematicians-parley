@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AForAllRelatingTwoSets.AForAllRelatingTwoSets
 
-theorem a_for_all_relating_two_sets {α : Type*} (A : Set α) (B : Set α) :
+theorem a_for_all_relating_two_sets {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (∀ u ∈ A, u ∈ B ∪ A) := by
   -- 1. proof
   intro u hK1

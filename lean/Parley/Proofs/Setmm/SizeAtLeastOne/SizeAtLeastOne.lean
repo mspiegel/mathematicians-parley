@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne
 
-theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
+theorem size_at_least_one {α : Type*} [Nonempty α] (A : Set α) (hH2 : ¬ A = ∅) :
     ((1 : ℕ) : ℕ∞) ≤ A.encard := by
   -- 1. contradiction
   have s1 : ∃ a ∈ A, True := by

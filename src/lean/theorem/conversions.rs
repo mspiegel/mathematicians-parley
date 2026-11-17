@@ -145,33 +145,6 @@ pub(super) fn read_at_values(
     )
 }
 
-/// Whether a fact speaks of a letter the claim's leading "for all" binds.
-pub(super) fn bound_in(claim: &Node, fact: &Node) -> bool {
-    let mut body = claim;
-    let mut bound = Vec::new();
-    while let (crate::notations::FOR_ALL, [letter, _, inner]) =
-        (body.notation(), body.children.as_slice())
-    {
-        bound.push(letter.text.to_string());
-        body = inner;
-    }
-    let names = fact.names();
-    bound.iter().any(|b| names.iter().any(|n| **n == **b))
-}
-
-/// The fact under the claim's leading "for all" binders, x² ≥ 0 as "for
-/// all x ∈ [0, 1], x² ≥ 0".
-pub(super) fn under_binders(claim: &Node, fact: &Node) -> Node {
-    match (claim.notation(), claim.children.as_slice()) {
-        (crate::notations::FOR_ALL, [letter, set, inner]) => claim.with_children(vec![
-            letter.clone(),
-            set.clone(),
-            under_binders(inner, fact),
-        ]),
-        _ => fact.clone(),
-    }
-}
-
 /// An `obtain` pattern for a sentence, one name to each part of its "and"
 /// as it nests, the names taken in order; a part left with no name is `_`.
 pub(super) fn shaped_pattern(said: &Node, names: &[String], w: &Writer) -> String {

@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.SubsetEmpty
 
-theorem subset_empty {α : Type*} (Y : Set α) :
+theorem subset_empty {α : Type*} [Nonempty α] (Y : Set α) :
     (Y ⊆ ∅ ↔ Y = ∅) := by
   -- 1. mun:sets-subset-empty
   exact (Parley.Items.Stdlib.Sets.mun_subset_empty (Y := Y))

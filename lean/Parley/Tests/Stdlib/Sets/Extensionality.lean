@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Extensionality
 
-theorem extensionality {α : Type*} (A : Set α) (B : Set α) (hH3 : ∀ x ∈ A, x ∈ B) (hH4 : ∀ x ∈ B, x ∈ A) :
+theorem extensionality {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (hH3 : ∀ x ∈ A, x ∈ B) (hH4 : ∀ x ∈ B, x ∈ A) :
     A = B := by
   -- 1. axi:sets-extensionality X := A, Y := B, from H3, H4
   exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := A) (Y := B) hH3 hH4)

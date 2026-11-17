@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Subsets.PowersetSplitDisjoint
 
-theorem powerset_split_disjoint {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
+theorem powerset_split_disjoint {α : Type*} [Nonempty α] (X : Set α) (a : α) (hH2 : a ∈ X) :
     𝒫 (X \ ({a} : Set α)) ∩ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) = ∅ := by
   -- 1. proof
   have s1 : ∀ S ∈ 𝒫 (X \ ({a} : Set α)), ¬ S ∪ ({a} : Set α) ∈ 𝒫 (X \ ({a} : Set α)) := by

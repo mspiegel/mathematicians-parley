@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight
 
-theorem subset_of_union_right {α : Type*} (A : Set α) (B : Set α) :
+theorem subset_of_union_right {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ⊆ B ∪ A := by
   -- 1. proof
   have s1 : ∀ u ∈ A, u ∈ B ∪ A := by

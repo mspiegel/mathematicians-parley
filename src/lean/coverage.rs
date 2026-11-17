@@ -65,6 +65,7 @@ pub const IN_CODE: &[&str] = &[
     "set-operations",
     "empty-set",
     "powerset",
+    "product-set",
     "set-builder",
     "singleton",
     "listed-two",

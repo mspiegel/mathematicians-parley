@@ -256,7 +256,8 @@ impl<'a> Proof<'a> {
     }
 
     /// The letter a line says is a part of a set, `W ⊆ X`, where the letter
-    /// is new and the writer has a type for X's members: a set of those.
+    /// is new and the writer has a type for X's members: a set of those,
+    /// numbers among them, T ⊆ {1, …, N} a set of integers.
     pub(super) fn part_said(
         &self,
         node: &Node,
@@ -267,7 +268,7 @@ impl<'a> Proof<'a> {
         let new = node.notation() == SUBSET
             && w.is_name()
             && !self.writer.letters.contains_key(w.text.as_str());
-        new.then(|| self.writer.members_of(set))
+        new.then(|| self.writer.set_members(set))
             .flatten()
             .map(|m| (w.text.to_string(), m))
     }
@@ -295,12 +296,23 @@ impl<'a> Proof<'a> {
         // x (`header_function`), which a step citing the define or
         // substituting from it puts in, and a calculation's rows citing it;
         // a step of another method citing it, an algebra from D1, does not.
+        // A membership needs no value of it: q(x) ∈ ℝ of q into ℝ is what
+        // Lean's type of q says. An order step adds its equation at the
+        // argument it applies it to, a citation of an item or an algebra
+        // rewrites the goal by it, and a restated limit is the line's from
+        // where the domain starts (`applied_domains`).
         let through = !matches!(
             step.just.head,
             crate::corpus::Head::Define
+                | crate::corpus::Head::Item { .. }
                 | crate::corpus::Head::Method(
                     crate::corpus::Method::Substitute
                         | crate::corpus::Method::Calculation
+                        | crate::corpus::Method::Membership
+                        | crate::corpus::Method::Transitivity
+                        | crate::corpus::Method::Inequalities
+                        | crate::corpus::Method::Algebra
+                        | crate::corpus::Method::Restate
                 )
         );
         if through
@@ -376,8 +388,8 @@ impl<'a> Proof<'a> {
             // proved with its letters given.
             let under = claimed
                 .as_ref()
-                .filter(|c| bound_in(c, &node))
-                .map(|c| under_binders(c, &node));
+                .filter(|c| crate::citing::speaks_of_claim_letter(c, &node))
+                .map(|c| crate::citing::under_claim_binders(c, &node));
             let stated = under.clone().unwrap_or_else(|| node.clone());
             let fact = match self.writer.formula(&stated) {
                 Route::Built(f) => f,
@@ -403,6 +415,28 @@ impl<'a> Proof<'a> {
                 None => {
                     let facts = self.cited_parts(&just.refs);
                     self.proof_named_from(reason, 0, &node, i, &facts)
+                }
+                // A line that says it of every member, the claim's "for all"
+                // and all (`restated_under_claim`): that line; or a part of
+                // its "for all"'s body, taken at each member, `(h x).1`.
+                Some(wrapped)
+                    if self.rec.restated_under_claim.contains_key(&just.line) =>
+                {
+                    match self
+                        .rec
+                        .restated_under_claim
+                        .get(&just.line)
+                        .copied()
+                        .flatten()
+                    {
+                        None => match self.restated_proof(just.line, wrapped) {
+                            Some(p) => Route::Built(p),
+                            None => Route::no(
+                                "a requires line its line says otherwise for all",
+                            ),
+                        },
+                        Some(part) => self.body_part_proof(just.line, wrapped, part),
+                    }
                 }
                 Some(wrapped) => {
                     let (intros, _, inner) = self.peel(wrapped);

@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Separation
 
-theorem separation {α : Type*} [LeanBridges.ZF.Sets α] (A : Set α) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) :
+theorem separation {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (A : Set α) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) :
     LeanBridges.ZF.IsSet {x ∈ A | ¬ x ∈ B} := by
   -- 1. axi:sets-separation, from H2
   exact (Parley.Items.Stdlib.Sets.axi_separation (P := (fun x : α => ¬ x ∈ B)) (X := A) hH2)

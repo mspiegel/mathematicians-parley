@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SetOrderLaws.IntersectionKeepsOrder
 
-theorem intersection_keeps_order {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
+theorem intersection_keeps_order {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
     A ∩ C ⊆ B ∩ C := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∩ C, u ∈ B ∩ C := by

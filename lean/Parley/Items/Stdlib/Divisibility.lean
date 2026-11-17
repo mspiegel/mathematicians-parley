@@ -508,7 +508,7 @@ theorem thm_product_coprime (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 
     (Int.gcd (∏ᶠ x ∈ X, (x : ℤ)) n : ℤ) = 1 :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h
 
-theorem thm_product_congruent_termwise {α : Type*} (t : α → ℤ) (u : α → ℤ) (X : Set α) (h1 : X.Finite) (n : ℤ) (h2 : 0 < n) (h3 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
+theorem thm_product_congruent_termwise {α : Type*} [Nonempty α] (t : α → ℤ) (u : α → ℤ) (X : Set α) (h1 : X.Finite) (n : ℤ) (h2 : 0 < n) (h3 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
     (∏ᶠ x ∈ X, (t x : ℤ)) ≡ (∏ᶠ x ∈ X, (u x : ℤ)) [ZMOD n] :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h1, finprod_mem_eq_finite_toFinset_prod _ h1]; exact Int.ModEq.prod fun x hx => h3 x ((Set.Finite.mem_toFinset h1).mp hx)
 

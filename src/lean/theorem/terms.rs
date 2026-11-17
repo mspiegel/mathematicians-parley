@@ -419,6 +419,16 @@ pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
     )
 }
 
+/// Whether the record sorts a letter as a function whose values are pairs,
+/// f(i) = (L(i), M(i)).
+pub fn pair_valued(rec: &CheckedTheorem, name: &str) -> bool {
+    matches!(
+        rec.sorts.get(name).and_then(|s| s.full()),
+        Some(crate::formula::Whole::Function(_, to))
+            if matches!(**to, crate::formula::Whole::Pair(_, _))
+    )
+}
+
 /// The record the writer reads: the checker's with what the theorem's file
 /// defines outside it written out (`CheckedTheorem::written`), or as read
 /// where it defines nothing so.

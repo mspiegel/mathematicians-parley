@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Functions.CompositionOneToOne
 
-theorem composition_one_to_one {α : Type*} (A : Set α) (B : Set α) (C : Set α) (f : α → α) (hH4 : Set.MapsTo f A B ∧ Set.InjOn f A) (g : α → α) (hH5 : Set.MapsTo g B C ∧ Set.InjOn g B) :
+theorem composition_one_to_one {α β γ : Type*} [Nonempty α] [Nonempty β] [Nonempty γ] (A : Set α) (B : Set β) (C : Set γ) (f : α → β) (hH4 : Set.MapsTo f A B ∧ Set.InjOn f A) (g : β → γ) (hH5 : Set.MapsTo g B C ∧ Set.InjOn g B) :
     (Set.MapsTo (g ∘ f) A C ∧ Set.InjOn (g ∘ f) A) := by
   -- 1. mun:functions-composition-one-to-one, from H4, H5
   exact (Parley.Items.Stdlib.Functions.mun_composition_one_to_one (W := C) (X := A) (Y := B) (f := f) (g := g) hH4 hH5)

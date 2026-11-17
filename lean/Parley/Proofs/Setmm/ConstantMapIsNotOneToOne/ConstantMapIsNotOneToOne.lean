@@ -23,12 +23,12 @@ public section
 
 namespace Parley.Proofs.Setmm.ConstantMapIsNotOneToOne.ConstantMapIsNotOneToOne
 
-theorem constant_map_is_not_one_to_one {α : Type*} (A : Set α) (C : Set α) (B : α) (F : α → α) (hH4 : Set.MapsTo F A ({B} : Set α)) (X : α) (hH5 : X ∈ A) (Y : α) (hH6 : Y ∈ A) (hH7 : ¬ X = Y) :
+theorem constant_map_is_not_one_to_one {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (C : Set β) (B : β) (F : α → β) (hH4 : Set.MapsTo F A ({B} : Set β)) (X : α) (hH5 : X ∈ A) (Y : α) (hH6 : Y ∈ A) (hH7 : ¬ X = Y) :
     ¬ (Set.MapsTo F A C ∧ Set.InjOn F A) := by
   -- 1. mun:function-value f := F, x := X, from H5
-  have s1 : F X ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := X) hH5 hH4)
+  have s1 : F X ∈ ({B} : Set β) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set β)) (f := F) (x := X) hH5 hH4)
   -- 2. mun:function-value f := F, x := Y, from H6
-  have s2 : F Y ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := Y) hH6 hH4)
+  have s2 : F Y ∈ ({B} : Set β) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set β)) (f := F) (x := Y) hH6 hH4)
   -- 3. calculation
   have s3 : F X = F Y := by
     calc F X = B := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := B) (x := F X))).mp s1

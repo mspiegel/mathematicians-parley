@@ -131,4 +131,5 @@ notations! {
     PAIR = 99, "pair";
     NTH_DERIVATIVE = 100, "nth-derivative";
     DEFINED_AT = 101, "defined-at";
+    PRODUCT_SET = 102, "product-set";
 }

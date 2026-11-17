@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Functions.CompositionValue
 
-theorem composition_value {α : Type*} (A : Set α) (B : Set α) (C : Set α) (f : α → α) (hH4 : Set.MapsTo f A B) (g : α → α) (hH5 : Set.MapsTo g B C) (a : α) (hH6 : a ∈ A) :
+theorem composition_value {α β γ : Type*} [Nonempty α] [Nonempty β] [Nonempty γ] (A : Set α) (B : Set β) (C : Set γ) (f : α → β) (hH4 : Set.MapsTo f A B) (g : β → γ) (hH5 : Set.MapsTo g B C) (a : α) (hH6 : a ∈ A) :
     (g ∘ f) a = g (f a) := by
   -- 1. mun:functions-composition-value x := a, from H6
   exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := B) (X := A) (f := f) (g := g) (x := a) (W := C) hH6 hH4 hH5)

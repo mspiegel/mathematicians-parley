@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfUnionAndDifference.SubsetOfUnionAndDifference
 
-theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
+theorem subset_of_union_and_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∪ C ↔ A \ B ⊆ C) := by
   -- the theorem. both directions
   constructor

@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ACitedCodomain.ACitedCodomain
 
-theorem a_cited_codomain {α : Type*} (A : Set α) (C : Set α) (B : α) (F : α → α) (hH4 : Set.MapsTo F A ({B} : Set α)) :
+theorem a_cited_codomain {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (C : Set β) (B : β) (F : α → β) (hH4 : Set.MapsTo F A ({B} : Set β)) :
     (Set.MapsTo F A C ∧ Set.InjOn F A → (∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t)) := by
   -- 1. proof
   intro hS

@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ADefinePutIntoALine.ADefinePutIntoALine
 
-theorem a_define_put_into_a_line {α : Type*} (A : Set α) (B : Set α) :
+theorem a_define_put_into_a_line {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ∩ B ⊆ A := by
   set C : Set α := A ∩ B with hD1
   -- 1. mun:intersection-subset Y := A, Z := B, from D1

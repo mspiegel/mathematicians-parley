@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Halmos.EmptySetUnique.EmptySetUnique
 
-theorem empty_set_unique {α : Type*} (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)) :
+theorem empty_set_unique {α : Type*} [Nonempty α] (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)) :
     A = ∅ := by
   -- 1. proof
   have s1 : ∀ x ∈ A, x ∈ (∅ : Set α) := by

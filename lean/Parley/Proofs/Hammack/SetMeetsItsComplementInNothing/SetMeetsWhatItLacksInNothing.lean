@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SetMeetsItsComplementInNothing.SetMeetsWhatItLacksInNothing
 
-theorem set_meets_what_it_lacks_in_nothing {α : Type*} (A : Set α) (B : Set α) :
+theorem set_meets_what_it_lacks_in_nothing {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ∩ (B \ A) = ∅ := by
   -- 1. proof
   have s1 : ∀ s ∈ B \ A, ¬ s ∈ A := by

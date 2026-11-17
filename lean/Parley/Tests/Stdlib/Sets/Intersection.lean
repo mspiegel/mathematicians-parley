@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Intersection
 
-theorem intersection {α : Type*} (Y : Set α) (Z : Set α) (u : α) (hH4 : u ∈ Y ∩ Z) :
+theorem intersection {α : Type*} [Nonempty α] (Y : Set α) (Z : Set α) (u : α) (hH4 : u ∈ Y ∩ Z) :
     (u ∈ Y ∧ u ∈ Z) := by
   -- 1. def:sets-intersection, from H4
   have s1 : u ∈ Y ∧ u ∈ Z := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := u))).mp hH4

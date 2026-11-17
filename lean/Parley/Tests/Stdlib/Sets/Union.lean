@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.Union
 
-theorem union {α : Type*} (Y : Set α) (Z : Set α) (u : α) (hH4 : u ∈ Y ∪ Z) :
+theorem union {α : Type*} [Nonempty α] (Y : Set α) (Z : Set α) (u : α) (hH4 : u ∈ Y ∪ Z) :
     (u ∈ Y ∨ u ∈ Z) := by
   -- 1. def:sets-union, from H4
   exact ((Parley.Items.Stdlib.Sets.def_union (Y := Y) (Z := Z) (u := u))).mp hH4

@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Halmos.IntersectionExists.IntersectionExists
 
-theorem intersection_exists {α : Type*} [LeanBridges.ZF.Sets α] (A : Set α) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) :
+theorem intersection_exists {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (A : Set α) (B : Set α) (hB_set : LeanBridges.ZF.IsSet B) (hH2 : LeanBridges.ZF.IsSet A) :
     LeanBridges.ZF.IsSet (A ∩ B) := by
   -- 1. proof
   have s1 : ∀ x ∈ {t ∈ A | t ∈ B}, x ∈ A ∩ B := by

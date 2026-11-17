@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Tests.Notations.Families.ASetWithinAnIntersection
 
-theorem a_set_within_an_intersection {α : Type*} (D : Set (Set α)) (Z : Set α) (hH3 : ∀ X ∈ D, Z ⊆ X) :
+theorem a_set_within_an_intersection {α : Type*} [Nonempty α] (D : Set (Set α)) (Z : Set α) (hH3 : ∀ X ∈ D, Z ⊆ X) :
     Z ⊆ (⋂ X ∈ D, X) := by
   -- 1. mun:intersection-within, from H3
   exact (Parley.Items.Stdlib.Sets.mun_intersection_within (D := D) (Z := Z) hH3)

@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap
 
-theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (X : α) (hH4 : X ∈ A) (Y : Set α) (hH5 : Y ⊆ A) :
+theorem image_of_a_point_under_a_one_to_one_map {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (X : α) (hH4 : X ∈ A) (Y : Set α) (hH5 : Y ⊆ A) :
     (F X ∈ F '' (A ∩ Y) ↔ X ∈ Y) := by
   -- 1. def:one-to-one, from H3
   have s1a : Set.MapsTo F A B := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) hH3.1)).mp hH3).1

@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage
 
-theorem subset_of_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (X : Set α) (hH4 : X ⊆ A) :
+theorem subset_of_preimage_of_image {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) (X : Set α) (hH4 : X ⊆ A) :
     X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by
   -- 1. proof
   have s1 : ∀ x ∈ X, x ∈ A ∩ f ⁻¹' (f '' (A ∩ X)) := by

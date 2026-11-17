@@ -734,9 +734,7 @@ pub(super) fn header_reading(
     rec: &CheckedTheorem,
 ) -> Route<HeaderReading> {
     use super::super::templates::Num;
-    if set_valued(rec, &def.name) {
-        return Route::left_out(SET_VALUED);
-    }
+    let sets = set_valued(rec, &def.name);
     let [param] = def.params.as_slice() else {
         return Route::no("a function the header lets of more than one argument");
     };
@@ -775,12 +773,26 @@ pub(super) fn header_reading(
         .copied()
         .filter(|n| !system_or_range(n))
         .filter(|n| !(n.is_name() && *n.text == *param.name))
-        .filter(|n| writer.set_members(&defined_out(n, rec, writer)).is_none())
+        // A value that is a set, V(k) = {S ⊆ {1, …, k} : k ∈ S}, is the set
+        // that names the argument; any other value is no set.
+        .filter(|n| match sets {
+            true => n.names().iter().any(|m| *m == *param.name),
+            false => writer.set_members(&defined_out(n, rec, writer)).is_none(),
+        })
         .collect();
-    let [body] = bodies.as_slice() else {
-        return Route::no(
-            "a function the header lets whose value did not read as one term",
-        );
+    // A value that is the argument itself, f(n) = n, is read once with it.
+    let identity = read
+        .iter()
+        .copied()
+        .find(|n| n.is_name() && *n.text == *param.name);
+    let body = match (bodies.as_slice(), identity) {
+        ([body], _) => *body,
+        ([], Some(arg)) => arg,
+        _ => {
+            return Route::no(
+                "a function the header lets whose value did not read as one term",
+            )
+        }
     };
     // What it takes: the domain's numbers, integers for ℕ, ℕ₀ or a range
     // as the writer's sequences take; or the things of a set of things.
@@ -808,7 +820,7 @@ pub(super) fn header_reading(
     );
     Route::Built(HeaderReading {
         domain,
-        body: (**body).clone(),
+        body: body.clone(),
         takes,
         member,
     })
@@ -863,6 +875,21 @@ pub(super) fn header_function(
     // that type, as continuity and derivatives read it: a step of 0 and 1
     // on [0, 1] is a function into ℝ.
     let value = match &takes {
+        // Values that are sets: a map to sets of the value's members.
+        m if set_valued(rec, &def.name) => match inside.members_of(body) {
+            Some(members) => inside.set_term(body).map(|v| {
+                (
+                    LetterType::Map {
+                        from: m.clone(),
+                        to: super::super::expr::Members::Sets(Box::new(members)),
+                    },
+                    v,
+                )
+            }),
+            None => {
+                Route::no("a function the header lets whose value has no Lean type")
+            }
+        },
         super::super::expr::Members::Numbers(from) => match inside.carrier(body) {
             Route::Built(to) => {
                 let to = match *from >= Num::Real {

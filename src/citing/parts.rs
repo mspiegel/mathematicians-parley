@@ -219,6 +219,34 @@ pub fn claimed_member(claim: &Node, g: &Grammar) -> Option<(Node, Node)> {
     Some((bound_in(how, letter, domain, g), body.clone()))
 }
 
+/// Whether a fact speaks of a letter the claim's leading "for all" binds,
+/// x of `f′(x) ∈ ℝ` under "for all x ∈ (a, b) ∖ {c}".
+pub fn speaks_of_claim_letter(claim: &Node, fact: &Node) -> bool {
+    let mut body = claim;
+    let mut bound = Vec::new();
+    while let (FOR_ALL, [letter, _, inner]) =
+        (body.notation(), body.children.as_slice())
+    {
+        bound.push(letter.text.to_string());
+        body = inner;
+    }
+    let names = fact.names();
+    bound.iter().any(|b| names.iter().any(|n| **n == **b))
+}
+
+/// The fact under the claim's leading "for all" binders, x² ≥ 0 as "for
+/// all x ∈ [0, 1], x² ≥ 0".
+pub fn under_claim_binders(claim: &Node, fact: &Node) -> Node {
+    match (claim.notation(), claim.children.as_slice()) {
+        (FOR_ALL, [letter, set, inner]) => claim.with_children(vec![
+            letter.clone(),
+            set.clone(),
+            under_claim_binders(inner, fact),
+        ]),
+        _ => fact.clone(),
+    }
+}
+
 /// What a binder says of the letter it binds, `x ∈ S` or `x ⊆ S` as `how`
 /// has it, at the letter and the domain.
 pub fn bound_in(how: Bound, letter: &Node, domain: &Node, g: &Grammar) -> Node {

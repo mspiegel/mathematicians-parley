@@ -29,7 +29,7 @@ public section
 
 namespace Parley.Tests.Elaborator.APhraseWithAWherePart.ACliqueIsLarge
 
-theorem a_clique_is_large {α : Type*} (X : Set α) (E : Set (Set α)) (hH3 : ∀ Y ∈ E, Y ⊆ X) (k : ℤ) (hH4 : 0 < k) (W : Set α) (hH5 : W ⊆ X) (hH6 : (((k + 1).toNat : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E)) :
+theorem a_clique_is_large {α : Type*} [Nonempty α] (X : Set α) (E : Set (Set α)) (hH3 : ∀ Y ∈ E, Y ⊆ X) (k : ℤ) (hH4 : 0 < k) (W : Set α) (hH5 : W ⊆ X) (hH6 : (((k + 1).toNat : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E)) :
     (((k + 1).toNat : ℕ) : ℕ∞) ≤ W.encard := by
   -- 1. D1 n := k + 1, from H6
   have s1 : (((k + 1).toNat : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) := hH6

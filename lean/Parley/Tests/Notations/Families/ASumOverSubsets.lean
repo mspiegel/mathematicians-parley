@@ -30,7 +30,7 @@ public section
 
 namespace Parley.Tests.Notations.Families.ASumOverSubsets
 
-theorem a_sum_over_subsets {α : Type*} (D : Set α) (K : Set (Set α)) (hH2 : K ⊆ 𝒫 D) (hH3 : K.Finite) :
+theorem a_sum_over_subsets {α : Type*} [Nonempty α] (D : Set α) (K : Set (Set α)) (hH2 : K ⊆ 𝒫 D) (hH3 : K.Finite) :
     (∑ᶠ s ∈ K, (1 : ℤ)) = (K.ncard : ℤ) * 1 := by
   -- 1. mun:sum-constant-over X := K, c := 1, from H3
   exact (Parley.Items.Stdlib.Sums.mun_sum_constant_over (X := K) hH3 (c := (1 : ℤ)))

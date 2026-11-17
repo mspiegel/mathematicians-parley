@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.IntersectionCommutes
 
-theorem intersection_commutes {α : Type*} (Y : Set α) (Z : Set α) :
+theorem intersection_commutes {α : Type*} [Nonempty α] (Y : Set α) (Z : Set α) :
     Y ∩ Z = Z ∩ Y := by
   -- 1. mun:sets-intersection-commutes
   exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := Y) (Z := Z))

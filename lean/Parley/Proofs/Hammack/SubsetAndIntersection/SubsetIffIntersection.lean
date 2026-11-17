@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection
 
-theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
+theorem subset_iff_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ⊆ B ↔ A ∩ B = A) := by
   -- the theorem. both directions
   constructor

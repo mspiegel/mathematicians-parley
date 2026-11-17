@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.IntersectionDistributes
 
-theorem intersection_distributes {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+theorem intersection_distributes {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (Z : Set α) :
     X ∩ (Y ∪ Z) = X ∩ Y ∪ X ∩ Z := by
   -- 1. mun:sets-intersection-distributes
   exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes (X := X) (Y := Y) (Z := Z))

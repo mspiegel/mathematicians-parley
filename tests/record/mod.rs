@@ -265,6 +265,12 @@ pub fn printed_but(
             parley::checker::record::DomainSaid::Member => {
                 "the claim's member".to_string()
             }
+            parley::checker::record::DomainSaid::SumRange => {
+                "the sum's range".to_string()
+            }
+            parley::checker::record::DomainSaid::LimitIndex => {
+                "the sequence's index".to_string()
+            }
         };
         writeln!(
             out,
@@ -335,6 +341,12 @@ fn making(made: &parley::citing::finite::Making, g: &Grammar) -> String {
         Making::Builder(a) => format!("Builder({})", finite_why(a, g)),
         Making::Image(a) => format!("Image({})", finite_why(a, g)),
         Making::Applied(name) => format!("Applied({name:?})"),
+        Making::Functions(a, b) => {
+            format!("Functions({}, {})", finite_why(a, g), finite_why(b, g))
+        }
+        Making::Product(a, b) => {
+            format!("Product({}, {})", finite_why(a, g), finite_why(b, g))
+        }
     }
 }
 

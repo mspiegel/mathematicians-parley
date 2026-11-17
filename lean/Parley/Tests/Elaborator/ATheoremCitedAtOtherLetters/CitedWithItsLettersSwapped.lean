@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.CitedWithItsLettersSwapped
 
-theorem cited_with_its_letters_swapped {α : Type*} (A : Set α) (B : Set α) :
+theorem cited_with_its_letters_swapped {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     B ⊆ A ∪ B := by
   -- 1. thm:in-a-union-on-the-right
   exact (Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.InAUnionOnTheRight.in_a_union_on_the_right (A := B) (B := A))

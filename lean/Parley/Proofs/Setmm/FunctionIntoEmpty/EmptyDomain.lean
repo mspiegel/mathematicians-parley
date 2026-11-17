@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.FunctionIntoEmpty.EmptyDomain
 
-theorem empty_domain {α : Type*} (A : Set α) (F : α → α) (hH2 : Set.MapsTo F A ∅) :
+theorem empty_domain {α : Type*} [Nonempty α] (A : Set α) (F : α → α) (hH2 : Set.MapsTo F A ∅) :
     A = ∅ := by
   -- 1. proof
   have s1 : ∀ t ∈ A, t ∈ (∅ : Set α) := by

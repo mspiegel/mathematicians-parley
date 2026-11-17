@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OntoImageOfPreimage.OntoImageOfPreimage
 
-theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
+theorem onto_image_of_preimage {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (f : α → β) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.SurjOn f A B ↔ (∀ Y ∈ 𝒫 B, f '' (A ∩ (A ∩ f ⁻¹' Y)) = Y)) := by
   -- the theorem. both directions
   constructor
@@ -51,7 +51,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s2_3_2a : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := B) hH3)).mp s2_3_1a).1
       have s2_3_2b : f s ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := B) hH3)).mp s2_3_1a).2
       -- 2.3.3. substitute y = f(s) (line 2.3.1) into line 2.3.2
-      exact Eq.subst (motive := (fun t : α => t ∈ Y)) s2_3_1b.symm s2_3_2b
+      exact Eq.subst (motive := (fun t : β => t ∈ Y)) s2_3_1b.symm s2_3_2b
     -- 2.4. def:subset, from 2.3
     have s2_4 : f '' (A ∩ (A ∩ f ⁻¹' Y)) ⊆ Y := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y))).mpr s2_3
     -- 2.5. proof
@@ -64,13 +64,13 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 2.5.3. obtain x from line 2.5.2
       obtain ⟨x, s2_5_3a, s2_5_3b⟩ := s2_5_2
       -- 2.5.4. substitute y = f(x) (line 2.5.3) into K4
-      have s2_5_4 : f x ∈ Y := Eq.subst (motive := (fun t : α => t ∈ Y)) s2_5_3b hK4
+      have s2_5_4 : f x ∈ Y := Eq.subst (motive := (fun t : β => t ∈ Y)) s2_5_3b hK4
       -- 2.5.5. def:preimage u := x, Z := Y, from 2.5.3, 2.5.4
       have s2_5_5 : x ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := B) hH3)).mpr ⟨s2_5_3a, s2_5_4⟩
       -- 2.5.6. mun:value-in-image Y := f⁻¹[Y], s := x, from 2.2, 2.5.5
       have s2_5_6 : f x ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := B) s2_2 s2_5_5 hH3)
       -- 2.5.7. substitute y = f(x) (line 2.5.3) into line 2.5.6
-      exact Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)))) s2_5_3b.symm s2_5_6
+      exact Eq.subst (motive := (fun t : β => t ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)))) s2_5_3b.symm s2_5_6
     -- 2.6. def:subset, from 2.5
     have s2_6 : Y ⊆ f '' (A ∩ (A ∩ f ⁻¹' Y)) := ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := f '' (A ∩ (A ∩ f ⁻¹' Y))))).mpr s2_5
     -- 2.7. mun:subset-antisymmetric, from 2.4, 2.6
@@ -81,25 +81,25 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
     have s3 : ∀ y ∈ B, ∃ x ∈ A, y = f x := by
       intro y hK5
       -- 3.1. mun:singleton-subset a := y, X := B, from K5
-      have s3_1 : ({y} : Set α) ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5)
+      have s3_1 : ({y} : Set β) ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5)
       -- 3.2. def:singleton x := y, a := y
-      have s3_2 : y ∈ ({y} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr rfl
+      have s3_2 : y ∈ ({y} : Set β) := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr rfl
       -- 3.3. substitute
-      have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by
-        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact (hD2 ({y} : Set α) s3_1).symm
-        have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := Eq.subst (motive := (fun t : Set α => y ∈ t)) c1 s3_2
+      have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set β))) := by
+        have c1 : ({y} : Set β) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set β))) := by exact (hD2 ({y} : Set β) s3_1).symm
+        have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set β))) := Eq.subst (motive := (fun t : Set β => y ∈ t)) c1 s3_2
         exact row1
       -- 3.4. proof
-      have s3_4 : ∀ u ∈ A ∩ f ⁻¹' ({y} : Set α), u ∈ A := by
+      have s3_4 : ∀ u ∈ A ∩ f ⁻¹' ({y} : Set β), u ∈ A := by
         intro u hK6
         -- 3.4.1. def:preimage Z := {y}, from K6
-        exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set α)) (f := f) (u := u) (W := B) hH3)).mp hK6).1
+        exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set β)) (f := f) (u := u) (W := B) hH3)).mp hK6).1
       -- 3.5. def:subset, from 3.4
-      have s3_5 : A ∩ f ⁻¹' ({y} : Set α) ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' ({y} : Set α)) (Y := A))).mpr s3_4
+      have s3_5 : A ∩ f ⁻¹' ({y} : Set β) ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' ({y} : Set β)) (Y := A))).mpr s3_4
       -- 3.6. obtain s: def:image u := y, Y := f⁻¹[{y}], from 3.3, 3.5
-      obtain ⟨s, s3_6a, s3_6b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' ({y} : Set α)) (f := f) (u := y) (W := Set.univ) s3_5 (Set.mapsTo_univ _ _))).mp s3_3
+      obtain ⟨s, s3_6a, s3_6b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' ({y} : Set β)) (f := f) (u := y) (W := Set.univ) s3_5 (Set.mapsTo_univ _ _))).mp s3_3
       -- 3.7. def:preimage u := s, Z := {y}, from 3.6
-      have s3_7 : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set α)) (f := f) (u := s) (W := B) hH3)).mp s3_6a).1
+      have s3_7 : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set β)) (f := f) (u := s) (W := B) hH3)).mp s3_6a).1
       -- 3.8. exhibit, from 3.6, 3.7
       exact ⟨s, s3_7, s3_6b⟩
     -- 4. def:onto, from H3, 3

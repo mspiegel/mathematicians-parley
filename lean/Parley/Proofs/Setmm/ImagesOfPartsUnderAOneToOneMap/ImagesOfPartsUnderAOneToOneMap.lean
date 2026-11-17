@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImagesOfPartsUnderAOneToOneMap.ImagesOfPartsUnderAOneToOneMap
 
-theorem images_of_parts_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : Set α) (hH4 : C ⊆ A) (D : Set α) (hH5 : D ⊆ A) :
+theorem images_of_parts_under_a_one_to_one_map {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : Set α) (hH4 : C ⊆ A) (D : Set α) (hH5 : D ⊆ A) :
     (F '' (A ∩ C) ⊆ F '' (A ∩ D) ↔ C ⊆ D) := by
   -- the theorem. both directions
   constructor

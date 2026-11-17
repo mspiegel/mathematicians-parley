@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.AddElementDisjoint
 
-theorem add_element_disjoint {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈ Y) (j : ℤ) :
+theorem add_element_disjoint {α : Type*} [Nonempty α] (Y : Set α) (a : α) (hH2 : ¬ a ∈ Y) (j : ℤ) :
     {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j} ∩ (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j - 1} = ∅ := by
   set U : Set (Set α) := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j} with hD1
   set V : Set (Set α) := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j - 1} with hD2

@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesRequired
 
-theorem a_type_a_line_states_required {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH4 : Set.MapsTo F A B) (t : α) (hH5 : t ∈ A) :
+theorem a_type_a_line_states_required {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH4 : Set.MapsTo F A B) (t : α) (hH5 : t ∈ A) :
     F t ∈ B := by
   -- 1. mun:function-value f := F, from H5
   have r24_1 : Set.MapsTo F A B := by exact hH4

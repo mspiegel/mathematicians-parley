@@ -137,8 +137,8 @@ pub fn members_system(
     }
 }
 
-/// D and the system of `D ⊆ S` or `D ∈ 𝒫S` where S holds numbers; None
-/// for any other node.
+/// D and the system of `D ⊆ S`, `D ∈ 𝒫S` or `D ∈ {T ∈ 𝒫S : …}`, the page's
+/// `D ∈ {T ⊆ S : …}`, where S holds numbers; None for any other node.
 fn subset_system(
     node: &Node,
     found: &IndexMap<String, System>,
@@ -150,6 +150,12 @@ fn subset_system(
     let whole = match (&*node.notation_name(), whole.children.as_slice()) {
         ("subset", _) => whole,
         ("membership", [inner]) if &*whole.notation_name() == "powerset" => inner,
+        ("membership", [_, parts, _])
+            if &*whole.notation_name() == "set-builder"
+                && &*parts.notation_name() == "powerset" =>
+        {
+            parts.children.first()?
+        }
         _ => return None,
     };
     if !d.is_name() {

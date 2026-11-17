@@ -75,6 +75,12 @@ impl<'a> Proof<'a> {
     ) -> Option<super::super::doc::Proof> {
         let at = self.rec.restated.get(&line)?;
         let (proof, says) = self.line_says(at).built()?;
+        // A limit of a function the header lets, S(n) → K, restated with the
+        // function's rule, at a sequence's index (`DomainSaid::LimitIndex`):
+        // the line's sequence is the claim's from where the domain starts.
+        if let Some(limit) = self.limit_restated(line, &proof) {
+            return Some(limit);
+        }
         let claim = self.claim_as_stated(line, node)?;
         if !super::super::doc::forms::relation_types_agree(&says, &claim) {
             return None;
@@ -86,6 +92,114 @@ impl<'a> Proof<'a> {
             None => self.proof_meeting(proof, &says, &claim),
         };
         proved.map(|p| super::super::doc::Proof::By(p.closer()))
+    }
+
+    /// A limit restated with a function the header lets written out at the
+    /// sequence's index (`applied_domains`, `DomainSaid::LimitIndex`):
+    /// `proof`, the line's limit, taken to the claim's by `congr'`, the two
+    /// sequences one from n = 1 on, where the index is in the domain, by the
+    /// function's equation there: `hH3.congr' (Filter.eventually_atTop.mpr
+    /// ⟨1, by intro n hn; rw [hD2 n (by omega)]⟩)`. None where the step
+    /// applies no such function at one index.
+    fn limit_restated(
+        &self,
+        line: usize,
+        proof: &Printed,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::doc::{LeanType, Proof, Source, TermKind};
+        use super::super::tactics as t;
+        let at: Vec<&crate::checker::record::AppliedDomain> = self
+            .rec
+            .applied_domains
+            .get(&line)?
+            .iter()
+            .filter(|a| {
+                matches!(a.said, crate::checker::record::DomainSaid::LimitIndex)
+            })
+            .collect();
+        let [applied] = at.as_slice() else {
+            return None;
+        };
+        let hyp = self.header_function_named(&applied.label)?;
+        let guarded = matches!(
+            self.header_equations.get(&hyp).map(|s| &bare_term(s).kind),
+            Some(TermKind::Quantified { guard: Some(_), .. })
+        );
+        let n = super::super::names::letter(&applied.arg.text);
+        let mut args = vec![t::hyp(&n)];
+        if guarded {
+            args.push(t::by_term(Proof::By(t::call("omega", vec![]))));
+        }
+        let equation = super::terms::hyp_applied(&hyp, args);
+        let agree = t::by_term(Proof::By(Tactic::Seq(vec![
+            Tactic::Intro(vec![n.clone(), "hn".to_string()]),
+            t::call("rw", vec![TacticArg::Rules(vec![t::forwards(equation)])]),
+        ])));
+        let eventually = Printed::applied(
+            "Filter.eventually_atTop.mpr",
+            Source::Mathlib,
+            vec![super::super::expr::anonymous(vec![
+                Printed::numeral("1", LeanType::Num(super::super::templates::Num::Int)),
+                agree,
+            ])],
+            LeanType::Prop,
+        );
+        let congr = Printed {
+            kind: TermKind::App {
+                head: Box::new(Printed {
+                    kind: TermKind::Field {
+                        inner: Box::new(t::bracket(proof.clone())),
+                        field: "congr'".to_string(),
+                    },
+                    ty: None,
+                }),
+                args: vec![super::super::doc::Arg::Explicit(eventually)],
+                explicit: false,
+            },
+            ty: Some(LeanType::Prop),
+        };
+        Some(Proof::By(Tactic::Exact(congr)))
+    }
+
+    /// The proof of `wrapped`, a requires fact under the claim's "for all",
+    /// from the part of a line's own "for all" body the record found it to
+    /// be (`restated_under_claim`): the line at each member, that part taken,
+    /// `intro x; exact (s4 x).1`.
+    pub(super) fn body_part_proof(
+        &self,
+        line: usize,
+        wrapped: &Node,
+        part: crate::checker::record::BodyPart,
+    ) -> Route<super::super::doc::Proof> {
+        let Some(at) = self.rec.restated.get(&line) else {
+            return Route::no("a requires line under the claim no line was found for");
+        };
+        let found = match self.line_part(at) {
+            Route::Built(f) => f,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let (intros, _, _) = self.peel(wrapped);
+        let applied = Printed {
+            kind: super::super::doc::TermKind::App {
+                head: Box::new(found.proof),
+                args: intros
+                    .iter()
+                    .map(|i| {
+                        super::super::doc::Arg::Explicit(super::super::tactics::hyp(i))
+                    })
+                    .collect(),
+                explicit: false,
+            },
+            ty: None,
+        };
+        let taken = fields(
+            super::super::tactics::bracket(applied),
+            &projection_path(part.part, part.of),
+        );
+        Route::Built(after_intros(
+            &intros,
+            super::super::doc::Proof::By(Tactic::Exact(taken)),
+        ))
     }
 
     /// The proof that a define's argument is in its domain, as the record
@@ -104,9 +218,18 @@ impl<'a> Proof<'a> {
                 self.line_part(at).map(|found| found.proof)
             }
             (DomainSaid::Line(_), _) => Route::no("a domain a line implies"),
-            (DomainSaid::Member, Some(fact)) => Route::Built(fact),
+            (
+                DomainSaid::Member | DomainSaid::SumRange | DomainSaid::LimitIndex,
+                Some(fact),
+            ) => Route::Built(fact),
+            (DomainSaid::LimitIndex, None) => {
+                Route::no("a domain a sequence's index gives, outside its limit")
+            }
             (DomainSaid::Member, None) => {
                 Route::no("a domain the claim's member says, of a claim not peeled")
+            }
+            (DomainSaid::SumRange, None) => {
+                Route::no("a domain a sum's range gives, outside the sum")
             }
         }
     }
@@ -1660,6 +1783,25 @@ impl<'a> Proof<'a> {
                 None => Route::no("a line met otherwise than one tactic takes"),
             };
         }
+        // A "there is" a line says with its map applied worked out and its
+        // letter renamed, `∃ x ∈ S, t = x.ncard` for `∃ s ∈ S, t = (fun x =>
+        // x.ncard) s`, which Lean takes as one statement
+        // (`forms::one_term_once_set`): the line itself.
+        if wanted.walk().iter().any(|n| {
+            matches!(
+                n.kind,
+                super::super::doc::TermKind::Quantified {
+                    quant: super::super::doc::Quant::Exists,
+                    ..
+                }
+            )
+        }) && super::super::doc::forms::one_term_once_set(
+            &says,
+            wanted,
+            &self.set_values(),
+        ) {
+            return Route::Built(proof);
+        }
         // A membership Lean writes as the number it is with what the
         // number system asks of it, `∃ m : ℤ, 0 ≤ m ∧ (m : ℤ) = N` of N ∈
         // ℕ₀, from a line saying what is asked, `0 ≤ N`: `⟨N, h, rfl⟩`.
@@ -1839,17 +1981,20 @@ impl<'a> Proof<'a> {
             // Two pairs equal in other types, `((a, b) : ℝ × ℝ) = (c, d)` for
             // the pairs in ℂ × ℂ: each taken apart into its coordinates'
             // equations, which `exact_mod_cast` takes across; `norm_cast`
-            // moves no cast through a pair.
-            if pair_equation(&says) && pair_equation(wanted) {
+            // moves no cast through a pair. A line of a `set` map whose
+            // values are pairs, `f i = f j` of f's rule `fun i => (L i, M
+            // i)`, is that map's equation put in first (`maps_opened`).
+            let opened = forms::maps_opened(&says, &self.set_values())
+                .filter(|o| pair_equation(&o.says));
+            if (pair_equation(&says) || opened.is_some()) && pair_equation(wanted) {
                 use super::super::tactics as t;
-                let apart = || {
-                    t::simp_only(
-                        false,
-                        None,
-                        vec![t::forwards(t::lemma("Prod.mk.injEq"))],
-                        Some(t::at_h(true)),
-                    )
-                };
+                let mut rules: Vec<_> = opened
+                    .iter()
+                    .flat_map(|o| o.equations.iter().map(|e| t::forwards(t::hyp(e))))
+                    .collect();
+                rules.push(t::forwards(t::lemma("Prod.mk.injEq")));
+                let apart =
+                    || t::simp_only(false, None, rules.clone(), Some(t::at_h(true)));
                 return Route::Built(t::by_term(super::super::doc::Proof::By(
                     t::on_h(&proof, vec![apart(), t::exact_mod_cast(t::hyp("h"))]),
                 )));

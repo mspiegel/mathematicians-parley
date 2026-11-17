@@ -25,12 +25,12 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair
 
-theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH3 : Set.MapsTo F A Y) (B : α) (hH4 : B ∈ A) (C : α) (hH5 : C ∈ A) :
-    F '' (A ∩ ({B, C} : Set α)) = ({F B, F C} : Set α) := by
+theorem image_of_a_pair {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (Y : Set β) (F : α → β) (hH3 : Set.MapsTo F A Y) (B : α) (hH4 : B ∈ A) (C : α) (hH5 : C ∈ A) :
+    F '' (A ∩ ({B, C} : Set α)) = ({F B, F C} : Set β) := by
   -- 1. mun:pair-subset a := B, b := C, X := A, from H4, H5
   have s1 : ({B, C} : Set α) ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := A) (a := B) (b := C) hH4 hH5)
   -- 2. proof
-  have s2 : ∀ u ∈ F '' (A ∩ ({B, C} : Set α)), u ∈ ({F B, F C} : Set α) := by
+  have s2 : ∀ u ∈ F '' (A ∩ ({B, C} : Set α)), u ∈ ({F B, F C} : Set β) := by
     intro u hK1
     -- 2.1. def:image X := A, Y := {B, C}, from K1, 1
     have s2_1 : ∃ s ∈ ({B, C} : Set α), u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := ({B, C} : Set α)) (f := F) (u := u) (W := Y) s1 hH3)).mp hK1
@@ -55,9 +55,9 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
       -- 2.4.6. def:pair x := u, u := F(B), w := F(C), from 2.4.5
       exact ((Parley.Items.Stdlib.Sets.def_pair (u := F B) (w := F C) (x := u))).mpr s2_4_5
   -- 3. def:subset, from 2
-  have s3 : F '' (A ∩ ({B, C} : Set α)) ⊆ ({F B, F C} : Set α) := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ ({B, C} : Set α))) (Y := ({F B, F C} : Set α)))).mpr s2
+  have s3 : F '' (A ∩ ({B, C} : Set α)) ⊆ ({F B, F C} : Set β) := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ ({B, C} : Set α))) (Y := ({F B, F C} : Set β)))).mpr s2
   -- 4. proof
-  have s4 : ∀ u ∈ ({F B, F C} : Set α), u ∈ F '' (A ∩ ({B, C} : Set α)) := by
+  have s4 : ∀ u ∈ ({F B, F C} : Set β), u ∈ F '' (A ∩ ({B, C} : Set α)) := by
     intro u hK2
     -- 4.1. def:pair x := u, u := F(B), w := F(C), from K2
     have s4_1 : u = F B ∨ u = F C := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := F B) (w := F C) (x := u))).mp hK2
@@ -69,17 +69,17 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
       -- 4.2.2. mun:value-in-image, from 1, 4.2.1
       have s4_2_2 : F B ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := B) (W := Y) s1 s4_2_1 hH3)
       -- 4.2.3. substitute u = F(B) (C3) into line 4.2.2
-      exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ ({B, C} : Set α)))) hC3.symm s4_2_2
+      exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ ({B, C} : Set α)))) hC3.symm s4_2_2
     · skip
       -- 4.2.4. inspection
       have s4_2_4 : C ∈ ({B, C} : Set α) := by simp
       -- 4.2.5. mun:value-in-image, from 1, 4.2.4
       have s4_2_5 : F C ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := C) (W := Y) s1 s4_2_4 hH3)
       -- 4.2.6. substitute u = F(C) (C4) into line 4.2.5
-      exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ ({B, C} : Set α)))) hC4.symm s4_2_5
+      exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ ({B, C} : Set α)))) hC4.symm s4_2_5
   -- 5. def:subset, from 4
-  have s5 : ({F B, F C} : Set α) ⊆ F '' (A ∩ ({B, C} : Set α)) := ((Parley.Items.Stdlib.Sets.def_subset (X := ({F B, F C} : Set α)) (Y := F '' (A ∩ ({B, C} : Set α))))).mpr s4
+  have s5 : ({F B, F C} : Set β) ⊆ F '' (A ∩ ({B, C} : Set α)) := ((Parley.Items.Stdlib.Sets.def_subset (X := ({F B, F C} : Set β)) (Y := F '' (A ∩ ({B, C} : Set α))))).mpr s4
   -- 6. mun:subset-antisymmetric, from 3, 5
-  exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ ({B, C} : Set α))) (Y := ({F B, F C} : Set α)) s3 s5)
+  exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ ({B, C} : Set α))) (Y := ({F B, F C} : Set β)) s3 s5)
 
 end Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair

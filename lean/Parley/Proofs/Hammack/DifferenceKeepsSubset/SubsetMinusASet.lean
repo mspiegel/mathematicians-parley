@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DifferenceKeepsSubset.SubsetMinusASet
 
-theorem subset_minus_a_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
+theorem subset_minus_a_set {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
     A \ C ⊆ B \ C := by
   -- 1. proof
   have s1 : ∀ t ∈ A \ C, t ∈ B \ C := by

@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetByDoubleDifference.SubsetByDoubleDifference
 
-theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
+theorem subset_by_double_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ⊆ B ↔ B \ (B \ A) = A) := by
   -- the theorem. both directions
   constructor

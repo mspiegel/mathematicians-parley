@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageOfPart.ImageOfPart
 
-theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
+theorem image_of_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
     F '' (A ∩ X) ⊆ F '' (A ∩ A) := by
   -- 1. proof
   have s1 : ∀ u ∈ F '' (A ∩ X), u ∈ F '' (A ∩ A) := by
@@ -38,7 +38,7 @@ theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s1_3 : F s ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := B) r25_1 s1_2 hH3)
     -- 1.4. substitute u = F(s) (line 1.1) into line 1.3
-    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s1_1b.symm s1_3
+    exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ A))) s1_1b.symm s1_3
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1
 

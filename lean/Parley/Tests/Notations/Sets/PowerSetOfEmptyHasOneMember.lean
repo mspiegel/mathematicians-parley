@@ -25,7 +25,7 @@ public section
 
 namespace Parley.Tests.Notations.Sets.PowerSetOfEmptyHasOneMember
 
-theorem power_set_of_empty_has_one_member {α : Type*} :
+theorem power_set_of_empty_has_one_member {α : Type*} [Nonempty α] :
     ((𝒫 (∅ : Set α)).ncard : ℤ) = 1 := by
   -- 1. mun:powerset-empty
   have s1 : 𝒫 (∅ : Set α) = ({∅} : Set (Set α)) := by exact Parley.Items.Stdlib.Sets.mun_powerset_empty

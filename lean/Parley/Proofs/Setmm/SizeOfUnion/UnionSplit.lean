@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfUnion.UnionSplit
 
-theorem union_split {α : Type*} (A : Set α) (B : Set α) :
+theorem union_split {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ∪ B \ A = A ∪ B := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∪ B \ A, u ∈ A ∪ B := by

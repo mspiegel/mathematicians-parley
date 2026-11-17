@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.TwoPointParts
 
-theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y : Set α) (hH3 : Y ⊆ W ∪ ({v} : Set α)) (hH4 : (Y.ncard : ℤ) = 2) :
+theorem two_point_parts {α : Type*} [Nonempty α] (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y : Set α) (hH3 : Y ⊆ W ∪ ({v} : Set α)) (hH4 : (Y.ncard : ℤ) = 2) :
     (Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α))) := by
   -- 1. calculation
   have s1 : (W ∪ ({v} : Set α)) \ ({v} : Set α) = W := by

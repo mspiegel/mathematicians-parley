@@ -27,7 +27,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AnEquationThePairsMakeTrue.AnEquationThePairsMakeTrue
 
-theorem an_equation_the_pairs_make_true {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) (hH5 : A ∩ B = ∅) :
+theorem an_equation_the_pairs_make_true {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) (hH5 : A ∩ B = ∅) :
     ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) := by
   -- 1. mun:card-nat0 X := A, from H3
   have s1 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3)

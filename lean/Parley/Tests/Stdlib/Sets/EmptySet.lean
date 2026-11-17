@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.EmptySet
 
-theorem empty_set {α : Type*} [LeanBridges.ZF.Sets α] :
+theorem empty_set {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] :
     LeanBridges.ZF.IsSet (∅ : Set α) := by
   -- 1. axi:sets-empty-set
   exact Parley.Items.Stdlib.Sets.axi_empty_set

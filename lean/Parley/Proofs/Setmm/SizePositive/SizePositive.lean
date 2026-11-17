@@ -28,7 +28,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizePositive.SizePositive
 
-theorem size_positive {α : Type*} (A : Set α) (hH2 : A.Finite) (hH3 : ¬ A = ∅) :
+theorem size_positive {α : Type*} [Nonempty α] (A : Set α) (hH2 : A.Finite) (hH3 : ¬ A = ∅) :
     0 < (A.ncard : ℤ) := by
   -- 1. thm:size-at-least-one, from H3
   have s1 : 1 ≤ (A.ncard : ℤ) := by (have h := (Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne.size_at_least_one (A := A) hH3); simp only [← Set.Finite.cast_ncard_eq ((hH2 : (A : Set α).Finite))] at h ⊢; exact_mod_cast h)

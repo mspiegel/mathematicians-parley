@@ -148,7 +148,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   the step by that line, `s5_9 a hK8`. Where the line meets the fact
   otherwise than as written, turned round or with identity elements
   dropped, how it meets it is kept in `restated_meetings`, by the same
-  line, and Lean adds `.symm` or `simpa only`.
+  line, and Lean adds `.symm` or `simpa only`. A requires line of the
+  claim's own "for all" letter that no line states as written, but a line
+  states under the claim's "for all", or as a part of its own "for all"'s
+  body, is recorded in `restated_under_claim`, with the part (`BodyPart`);
+  Lean proves the fact said of every member from that line, `(s4 x).1`.
 - `link_places`: for each link of a calculation that cites a line, where in
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
@@ -216,6 +220,12 @@ line's own. A list holds one entry for each step, in the proof's order.
   every member of a set inside the domain, the member itself (`Member`).
   Lean puts the function's equation at that argument, `hD1 _ h`, h that
   line or, after `intro j h_j`, the member's fact or a range's lower bound.
+- `applied_domains`: for each step of a method, or citing an item, that
+  applies a function a define lets on a domain, each application with what
+  says its argument is in the domain (`AppliedDomain`): a line (`Line`), the
+  claim's member (`Member`), or, at a sum's index, the sum's range lying
+  inside the domain (`SumRange`), and at a sequence's index in a cited limit,
+  ℕ inside it (`LimitIndex`). Lean puts the equation in at each argument.
 - `links`: for each `transitivity` step, by the line of its justification,
   its chain (`Chain`): each link (`ChainLink`), with the relation the cited
   line gives, where it stands (`OrderFact`: a sentence or part of the line,
@@ -289,10 +299,17 @@ line's own. A list holds one entry for each step, in the proof's order.
   itself. Whether any other set
   is finite, and why, is `citing::finite::finite_by` over these: ∅, a listed
   set, a range, and A ∖ B, A ∩ B, A ∪ B, 𝒫A, a set-builder or an image of
-  finite parts. Every backend asks that one function, and none decides it
-  for itself.
+  finite parts, the functions from a finite set to a finite set, and the
+  product of two finite sets; a letter bound only over sets of finite sets
+  counts a define applied whose value is such a set, S of S ∈ U(k). Every
+  backend asks that one function, and none decides it for itself.
 - `set_systems`: the number system each set letter of numbers holds. Lean
   types the letter by it.
+- `thing_types`: which of the theorem's sets, members and maps' sides hold
+  things of one type (`citing::things::ThingTypes`), read over its
+  hypotheses and then every line of its page: A and B of `f : A → B` apart,
+  C of `C ⊆ A` with A. The same rule reads an item's sentences. Lean gives
+  each type its own type variable.
 - `typed`: the function types the lines in scope at each step say, which a
   citation of an item over a function is read with. Lean reads it.
 - `asserted`, `opener_asserted`: what a `let` line asserts that the page does

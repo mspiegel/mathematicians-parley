@@ -31,7 +31,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference
 
-theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B ⊆ A) :
+theorem size_of_difference {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B ⊆ A) :
     ((A \ B).ncard : ℤ) = (A.ncard : ℤ) - (B.ncard : ℤ) := by
   -- 1. mun:difference-subset X := A, Y := B
   have s1 : A \ B ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := A) (Y := B))

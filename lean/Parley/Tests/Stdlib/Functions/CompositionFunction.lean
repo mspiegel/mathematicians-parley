@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Functions.CompositionFunction
 
-theorem composition_function {α : Type*} (A : Set α) (B : Set α) (C : Set α) (f : α → α) (hH4 : Set.MapsTo f A B) (g : α → α) (hH5 : Set.MapsTo g B C) :
+theorem composition_function {α β γ : Type*} [Nonempty α] [Nonempty β] [Nonempty γ] (A : Set α) (B : Set β) (C : Set γ) (f : α → β) (hH4 : Set.MapsTo f A B) (g : β → γ) (hH5 : Set.MapsTo g B C) :
     Set.MapsTo (g ∘ f) A C := by
   -- 1. mun:functions-composition-function
   exact (Parley.Items.Stdlib.Functions.mun_composition_function (Y := B) (W := C) (X := A) (f := f) (g := g) hH4 hH5)

@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Proofs.Setmm.MemberOfImage.MemberOfImage
 
-theorem member_of_image {α : Type*} (A : Set α) (B : Set α) (y : α) (F : α → α) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
+theorem member_of_image {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (y : β) (F : α → β) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
     (y ∈ F '' (A ∩ X) ↔ (∃ x ∈ X, F x = y)) := by
   -- the theorem. both directions
   constructor
@@ -41,6 +41,6 @@ theorem member_of_image {α : Type*} (A : Set α) (B : Set α) (y : α) (F : α 
     -- 4. mun:value-in-image Y := X, s := x, from H4, 3
     have s4 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := B) hH4 s3a hH3)
     -- 5. substitute F(x) = y (line 3) into line 4
-    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3b s4
+    exact Eq.subst (motive := (fun t : β => t ∈ F '' (A ∩ X))) s3b s4
 
 end Parley.Proofs.Setmm.MemberOfImage.MemberOfImage

@@ -10,20 +10,21 @@ use indexmap::IndexMap;
 
 use super::expr::{LetterType, Writer, GENERAL};
 use super::names::{module_of, snake};
+use super::sets::set_type_in;
 use super::statement::{binders, Asked, Binder, StatedAt};
 use super::templates::Num;
 use crate::checker::CheckedCorpus;
+use crate::citing::things::ThingTypes;
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::NotationId;
 use crate::formula::Node;
 use crate::notations::{
-    ABSOLUTE_VALUE, ADDITIVE, APPLICATION, BICONDITIONAL, BIJECTION, CARDINALITY,
-    COMMA_CONJUNCTION, COMPOSITION, CONDITIONAL, CONJUNCTION, DISJUNCTION, EMPTY_SET,
-    EQUALITY, FINITE, FLOOR, FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, IMAGE,
-    IMPLICATION, INTEGER_RANGE, INTEGRAL, INVERSE, LISTED_FOUR, LISTED_THREE,
-    LISTED_TWO, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE, NAME, NUMBER_SYSTEMS, NUMERAL,
-    ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, ORDER, POWER, POWERSET, PRODUCT, PRODUCT_OVER,
-    SET_BUILDER, SET_IMAGE, SET_OPERATIONS, SINGLETON, SUBSET, SUM, SUM_OVER,
+    ABSOLUTE_VALUE, ADDITIVE, APPLICATION, BICONDITIONAL, CARDINALITY,
+    COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION, EMPTY_SET, EQUALITY,
+    FINITE, FLOOR, FOR_ALL, FUNCTION_TYPE, IMPLICATION, INTEGER_RANGE, INTEGRAL,
+    LISTED_FOUR, LISTED_THREE, LISTED_TWO, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
+    NAME, NUMBER_SYSTEMS, NUMERAL, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, ORDER, POWER,
+    POWERSET, PRODUCT, PRODUCT_OVER, SET_OPERATIONS, SINGLETON, SUBSET, SUM, SUM_OVER,
     SUPERSCRIPT, THERE_ARE, THERE_ARE_TWO, THERE_IS, UNARY_MINUS,
 };
 use crate::outcome::Route;
@@ -484,33 +485,6 @@ fn function_into_numbers(
     }
 }
 
-/// The Lean type the sorts give a letter that is a set, a member of one or
-/// a map between sets, its things of the type variable `things` gives it;
-/// None for any other letter.
-fn set_type_in(
-    sorts: Option<&crate::formula::Sorts>,
-    things: &ThingTypes,
-    name: &str,
-) -> Option<LetterType> {
-    let ty = sorts
-        .and_then(|s| s.get(name))
-        .and_then(super::sets::set_letter_type)?;
-    Some(match ty {
-        LetterType::Map { from, to } => LetterType::Map {
-            from: from.with_things(things.var(&ThingKey::From(name.to_string()))),
-            to: to.with_things(things.var(&ThingKey::To(name.to_string()))),
-        },
-        LetterType::Set(m) => LetterType::Set(m.with_things(things.of_letter(name))),
-        LetterType::Member(m) => {
-            LetterType::Member(m.with_things(things.of_letter(name)))
-        }
-        LetterType::Property(m) => {
-            LetterType::Property(m.with_things(things.of_letter(name)))
-        }
-        other => other,
-    })
-}
-
 /// A set letter named in a function's type that has no type yet, given the
 /// one its sort makes and a binder for it.
 fn type_named_set(
@@ -532,248 +506,6 @@ fn type_named_set(
             ty,
             general: false,
         });
-    }
-}
-
-/// Whether the node is a letter the sorts make a map.
-fn map_letter(node: &Node, sorts: Option<&crate::formula::Sorts>) -> bool {
-    node.is_name()
-        && matches!(
-            sorts
-                .and_then(|s| s.get(node.text.as_str()))
-                .and_then(|s| s.full()),
-            Some(crate::formula::Whole::Function(..))
-        )
-}
-
-/// What an item's things are of: a letter's own, or what a map letter
-/// takes or gives.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum ThingKey {
-    /// The things a set, element or property letter is or holds or is of.
-    Letter(String),
-    /// What a map letter takes.
-    From(String),
-    /// What a map letter gives.
-    To(String),
-}
-
-/// The type variable an item's things take, by what they are of: things
-/// two of its terms compare, join or are members of are of one type, and a
-/// map takes the things of its domain to those of the set it maps into,
-/// which are of another where nothing the item says makes them one. Of
-/// `E : Y → Z` and `u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)`, Y
-/// and s are α, Z and u are β; of `f : X → X`, all are α. Variables are
-/// numbered in the order the item first names their things.
-#[derive(Default)]
-struct ThingTypes {
-    parent: std::collections::BTreeMap<ThingKey, ThingKey>,
-    /// Each key, in the order first met.
-    met: Vec<ThingKey>,
-    vars: std::collections::BTreeMap<ThingKey, usize>,
-    /// The letters a "there is f : X → Y" binds, maps as a map letter of
-    /// the item's sorts is.
-    bound_maps: std::collections::BTreeSet<String>,
-}
-
-impl ThingTypes {
-    /// Read from the item's map lines, then its lines.
-    fn read(lines: &[&Node], sorts: Option<&crate::formula::Sorts>) -> ThingTypes {
-        let mut out = ThingTypes::default();
-        for line in lines {
-            out.class(line, sorts);
-        }
-        let mut roots: Vec<ThingKey> = Vec::new();
-        for key in out.met.clone() {
-            let root = out.root(&key);
-            let var = match roots.iter().position(|r| *r == root) {
-                Some(i) => i,
-                None => {
-                    roots.push(root);
-                    roots.len() - 1
-                }
-            };
-            out.vars.insert(key, var);
-        }
-        out
-    }
-
-    /// The type variable of these things; the first for any the item
-    /// does not name.
-    fn var(&self, key: &ThingKey) -> usize {
-        self.vars.get(key).copied().unwrap_or(0)
-    }
-
-    fn of_letter(&self, name: &str) -> usize {
-        self.var(&ThingKey::Letter(name.to_string()))
-    }
-
-    fn root(&self, key: &ThingKey) -> ThingKey {
-        let mut at = key.clone();
-        while let Some(up) = self.parent.get(&at) {
-            at = up.clone();
-        }
-        at
-    }
-
-    fn meet(&mut self, key: &ThingKey) {
-        if !self.met.contains(key) {
-            self.met.push(key.clone());
-        }
-    }
-
-    /// The things of the two are of one type.
-    fn join(&mut self, a: Option<ThingKey>, b: Option<ThingKey>) {
-        let (Some(a), Some(b)) = (a, b) else {
-            return;
-        };
-        self.meet(&a);
-        self.meet(&b);
-        let (ra, rb) = (self.root(&a), self.root(&b));
-        if ra != rb {
-            self.parent.insert(rb, ra);
-        }
-    }
-
-    /// The key of the things a term is, holds or is made of, joining what
-    /// the term says are of one type; None for a statement, a number or a
-    /// map.
-    fn class(
-        &mut self,
-        node: &Node,
-        sorts: Option<&crate::formula::Sorts>,
-    ) -> Option<ThingKey> {
-        let bound = self.bound_maps.clone();
-        let is_map = |n: &Node| {
-            map_letter(n, sorts) || (n.is_name() && bound.contains(&*n.text))
-        };
-        let name = node.notation();
-        let kids = node.children.as_slice();
-        match (name, kids) {
-            // There is f : X → Y with …, or {f ∈ the functions from X to Y :
-            // …}: f a map from X's things to Y's, what the body says of it
-            // read as of a map letter.
-            (THERE_IS | FOR_ALL | SET_BUILDER, [f, set, body])
-                if f.is_name() && set.notation() == FUNCTIONS_FROM =>
-            {
-                self.bound_maps.insert(f.text.to_string());
-                if let [from, to] = set.children.as_slice() {
-                    let (a, b) = (self.class(from, sorts), self.class(to, sorts));
-                    self.join(Some(ThingKey::From(f.text.to_string())), a);
-                    self.join(Some(ThingKey::To(f.text.to_string())), b);
-                }
-                self.class(body, sorts);
-                None
-            }
-            _ if node.is_name() => {
-                if is_map(node) || node.sort.is("number") || node.sort.is("formula") {
-                    return None;
-                }
-                let key = ThingKey::Letter(node.text.to_string());
-                self.meet(&key);
-                Some(key)
-            }
-            // f : Y → Z, with or without a property, of a map letter, g ∘ f
-            // or g⁻¹: the map takes Y's things to Z's (`sides`), so g ∘ f :
-            // X → W puts X with f's side and W with g's, three types apart.
-            (FUNCTION_TYPE | ONE_TO_ONE | ONTO | ONE_TO_ONE_ONTO, [f, from, to])
-                if is_map(f) || matches!(f.notation(), COMPOSITION | INVERSE) =>
-            {
-                // g⁻¹ is the bridges' inverse, which gives y itself where g
-                // sends nothing to it, so g's two sides are one type.
-                if let (INVERSE, [g]) = (f.notation(), f.children.as_slice()) {
-                    if let Some((takes, gives)) = self.sides(g, sorts) {
-                        self.join(Some(takes), Some(gives));
-                    }
-                }
-                if let Some((takes, gives)) = self.sides(f, sorts) {
-                    let (a, b) = (self.class(from, sorts), self.class(to, sorts));
-                    self.join(Some(takes), a);
-                    self.join(Some(gives), b);
-                }
-                None
-            }
-            // f(x), and f[X] the image: x and X are of what f takes, the
-            // value of what it gives; under g⁻¹ the other way round.
-            (APPLICATION | IMAGE, [f, x]) => {
-                // g⁻¹(y) is the bridges' inverse, which gives y itself where
-                // g sends nothing to it, so g's two sides are one type.
-                if let (APPLICATION, (INVERSE, [g])) =
-                    (name, (f.notation(), f.children.as_slice()))
-                {
-                    if let Some((takes, gives)) = self.sides(g, sorts) {
-                        self.join(Some(takes), Some(gives));
-                    }
-                }
-                let arg = self.class(x, sorts);
-                match self.sides(f, sorts) {
-                    Some((takes, gives)) => {
-                        self.join(Some(takes), arg);
-                        Some(gives)
-                    }
-                    // P(t) of a property: t is of what P is of.
-                    None if f.is_name() && !node.sort.is("number") => {
-                        let p = self.class(f, sorts);
-                        self.join(p, arg);
-                        None
-                    }
-                    None => None,
-                }
-            }
-            // A bijection from X to Y, or the maps from X to Y a "there is
-            // f : X → Y" ranges over: X's things and Y's may be of two
-            // types, as a map's sides are.
-            (BIJECTION | FUNCTIONS_FROM, [from, to]) => {
-                self.class(from, sorts);
-                self.class(to, sorts);
-                None
-            }
-            // {E(s) : s ∈ Y}: s is of Y's things, and the set holds E(s)'s.
-            (SET_IMAGE, [term, letter, set]) => {
-                let (s, y) = (self.class(letter, sorts), self.class(set, sorts));
-                self.join(s, y);
-                self.class(term, sorts)
-            }
-            // A statement joins its terms, u = E(s), x ∈ X, ∀ x ∈ X; a
-            // number is made of numbers; a term of sets, X ∪ Y, joins them.
-            _ => {
-                let classes: Vec<ThingKey> =
-                    kids.iter().filter_map(|k| self.class(k, sorts)).collect();
-                for pair in classes.windows(2) {
-                    self.join(Some(pair[0].clone()), Some(pair[1].clone()));
-                }
-                let term = !node.sort.is("number") && !node.sort.is("formula");
-                term.then(|| classes.into_iter().next()).flatten()
-            }
-        }
-    }
-
-    /// What a map term takes and gives: f's, g ∘ f's, or g⁻¹'s; None for
-    /// a term no map letter makes.
-    fn sides(
-        &mut self,
-        f: &Node,
-        sorts: Option<&crate::formula::Sorts>,
-    ) -> Option<(ThingKey, ThingKey)> {
-        if map_letter(f, sorts) || (f.is_name() && self.bound_maps.contains(&*f.text)) {
-            let (from, to) = (
-                ThingKey::From(f.text.to_string()),
-                ThingKey::To(f.text.to_string()),
-            );
-            self.meet(&from);
-            self.meet(&to);
-            return Some((from, to));
-        }
-        match (f.notation(), f.children.as_slice()) {
-            (INVERSE, [g]) => self.sides(g, sorts).map(|(a, b)| (b, a)),
-            (COMPOSITION, [g, inner]) => {
-                let (takes, mid) = self.sides(inner, sorts)?;
-                let (mid2, gives) = self.sides(g, sorts)?;
-                self.join(Some(mid), Some(mid2));
-                Some((takes, gives))
-            }
-            _ => None,
-        }
     }
 }
 
@@ -935,6 +667,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .chain(std::iter::once(says))
                 .collect();
             let things = ThingTypes::read(&lines, sorts);
+            w.things = std::rc::Rc::new(things.clone());
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
@@ -1026,6 +759,37 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 let ty = LetterType::Set(super::expr::Members::Numbers(num));
                 w.letters.insert(name.clone(), ty.clone());
                 sets.push((name, ty));
+            }
+            // A phrase's function of numbers no line types, the a of its
+            // `where a is a function from numbers to numbers`: of reals
+            // where the item orders numbers, as its sets of numbers are, and
+            // of complex numbers where it does not.
+            let of_function = |s: &crate::formula::Sort| {
+                matches!(s.full(), Some(crate::formula::Whole::Function(from, to))
+                    if matches!(**from, crate::formula::Whole::Number)
+                        && matches!(**to, crate::formula::Whole::Number))
+            };
+            let typed_by_line = |name: &str| {
+                functions.iter().chain(said.iter().copied()).any(|n| {
+                    n.notation() == crate::notations::FUNCTION_TYPE
+                        && n.children.first().is_some_and(|f| *f.text == *name)
+                })
+            };
+            for f in free.iter().filter(|_| record.phrase.is_some()) {
+                let sorted = sorts.and_then(|s| s.get(f.name.as_str()));
+                if w.letters.contains_key(&f.name)
+                    || !sorted.is_some_and(of_function)
+                    || typed_by_line(&f.name)
+                {
+                    continue;
+                }
+                let num = match ordered {
+                    true => Num::Real,
+                    false => Num::Complex,
+                };
+                let ty = LetterType::Function { from: num, to: num };
+                w.letters.insert(f.name.clone(), ty.clone());
+                sets.push((f.name.clone(), ty));
             }
             let listed = |n: &Node| {
                 matches!(

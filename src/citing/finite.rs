@@ -70,6 +70,10 @@ pub enum Making {
     /// G(m, n) of a function a define names finite sets with
     /// (`finite_names`).
     Applied(String),
+    /// The functions from X to Y, of a finite X and a finite Y.
+    Functions(Box<FiniteBy>, Box<FiniteBy>),
+    /// X × Y, of a finite X and a finite Y.
+    Product(Box<FiniteBy>, Box<FiniteBy>),
 }
 
 /// The sets known finite, each by its tree, with why: a define's or a bound
@@ -348,6 +352,22 @@ pub fn bound_over(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
     }
 }
 
+/// Why a letter bound over `set` is finite where it is bound: as a part of
+/// a finite A where `set` is 𝒫A (`bound_over`), or as the record has it
+/// where every place the theorem binds it holds only finite sets, S of S ∈
+/// U(k) (`FiniteBy::Bound`, `finite_names`). None otherwise, whatever a set
+/// of its name outside is.
+pub fn bound_letter(
+    finite: &FiniteSets,
+    letter: &Node,
+    set: &Node,
+) -> Option<FiniteBy> {
+    bound_over(finite, set).or_else(|| match finite.get(&name_key(&letter.text)) {
+        Some(why @ FiniteBy::Bound(_)) => Some(why.clone()),
+        _ => None,
+    })
+}
+
 /// Whether a relation that counts a set is one ℕ∞ says as the page does:
 /// each side made of counts, whole numerals and letters `natural` says the
 /// page puts in ℕ or ℕ₀, by + and ·, k ≤ |W| or |X| = |Y| + 1. Such a
@@ -396,7 +416,8 @@ pub fn is_finite(finite: &FiniteSets, set: &Node) -> bool {
 /// Why a set is finite, by what lines say (`finite_sets`) and how it is
 /// made: ∅, a listed set {a, b} and a range {a, …, b}; A ∖ B where A is,
 /// A ∩ B where either is, A ∪ B where both are; 𝒫A, {x ∈ A : …} and
-/// {E(s) : s ∈ A} where A is. None where it is not shown finite.
+/// {E(s) : s ∈ A} where A is; the functions from X to Y where both are.
+/// None where it is not shown finite.
 pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
     if let Some(why) = finite.get(&key(set)) {
         return Some(why.clone());
@@ -418,6 +439,8 @@ pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
         ("powerset", _, [a]) => Making::Powerset(of(a)?),
         ("set-builder", _, [_, a, _]) => Making::Builder(of(a)?),
         ("set-image", _, [_, _, a]) => Making::Image(of(a)?),
+        ("functions-from", _, [x, y]) => Making::Functions(of(x)?, of(y)?),
+        ("product-set", _, [x, y]) => Making::Product(of(x)?, of(y)?),
         // A function a define names finite sets with, G(m, n) of a G whose
         // body is finite whatever its arguments (`finite_names`).
         (_, _, [f, ..])
@@ -436,10 +459,18 @@ pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
 
 /// Whether every member of a set is a finite set: 𝒫A where A is finite,
 /// and what is made from such a set by {x ∈ _ : …}, ∖, ∩ and ∪, or named
-/// for one (`members`).
+/// for one (`members`), a function's define among them applied, U(k) of
+/// U(k) = {S ⊆ {1, …, k} : …}, whose body holds finite sets whatever k is.
 fn holds_finite(finite: &FiniteSets, members: &BTreeSet<String>, set: &Node) -> bool {
     if set.is_name() && members.contains(&*set.text) {
         return true;
+    }
+    if let (crate::notations::APPLICATION, [f, ..]) =
+        (set.notation(), set.children.as_slice())
+    {
+        if f.is_name() && members.contains(&*f.text) {
+            return true;
+        }
     }
     let of = |s: &Node| holds_finite(finite, members, s);
     match (

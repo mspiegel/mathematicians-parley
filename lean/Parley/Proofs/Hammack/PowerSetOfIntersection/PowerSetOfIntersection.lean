@@ -22,7 +22,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
 
-theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
+theorem power_set_of_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     𝒫 A ∩ 𝒫 B = 𝒫 (A ∩ B) := by
   -- 1. proof
   have s1 : ∀ t ∈ 𝒫 A ∩ 𝒫 B, t ∈ 𝒫 (A ∩ B) := by

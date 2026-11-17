@@ -21,8 +21,8 @@ public section
 
 namespace Parley.Tests.Notations.ForAllFunctions.EveryFunctionTakesItsValuesInItsCodomain
 
-theorem every_function_takes_its_values_in_its_codomain {α : Type*} (X : Set α) (Y : Set α) (a : α) (hH3 : a ∈ X) :
-    (∀ f : α → α, Set.MapsTo f X Y → f a ∈ Y) := by
+theorem every_function_takes_its_values_in_its_codomain {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (a : α) (hH3 : a ∈ X) :
+    (∀ f : α → β, Set.MapsTo f X Y → f a ∈ Y) := by
   -- 1. proof
   intro f hK1
   -- 1.1. mun:function-value x := a, from H3

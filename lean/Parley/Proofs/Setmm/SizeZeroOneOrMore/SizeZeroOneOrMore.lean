@@ -29,7 +29,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeZeroOneOrMore.SizeZeroOneOrMore
 
-theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
+theorem size_zero_one_or_more {α : Type*} [Nonempty α] (M : Set α) (hH2 : M.Finite) :
     (((M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) ∨ 1 < (M.ncard : ℤ)) := by
   -- 1. mun:card-nat0, from H2
   have s1 : 0 ≤ (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := M) hH2)

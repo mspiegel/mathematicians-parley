@@ -38,7 +38,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.ChooseFromNone
 
-theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = ((0 : ℕ) : ℕ∞)) :
+theorem choose_from_none {α : Type*} [Nonempty α] (X : Set α) (j : ℤ) (hH3 : X.encard = ((0 : ℕ) : ℕ∞)) :
     ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
   have hD1_finite : F.Finite := by rw [hD1]; exact ((Set.finite_of_encard_eq_coe hH3).powerset).subset (fun _ h => h.1)

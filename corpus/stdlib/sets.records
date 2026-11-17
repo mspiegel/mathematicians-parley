@@ -246,7 +246,7 @@ mundane theorem pair-in-product
   metamath-proof opelxp
   note        A pair is in X × Y when its first part is in X and its second
               in Y.
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_prod
 
 definition singleton
   let x be an element                                                 (H1)

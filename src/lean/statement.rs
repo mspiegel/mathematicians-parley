@@ -394,9 +394,15 @@ pub fn things_binder(
     if names.is_empty() {
         return None;
     }
+    // Each type stands for set.mm's universe of sets, which is never empty:
+    // ∅ is in it. So a function between two of them exists, and an inverse
+    // has a value where it takes nothing back.
+    let mut text = format!("{{{} : Type*}}", names.join(" "));
+    for n in &names {
+        text.push_str(&format!(" [Nonempty {n}]"));
+    }
     // Where the statement says a collection exists, its things are of a
     // type whose ZF sets `Sets` says, as `ZFSet` and sets of it are.
-    let mut text = format!("{{{} : Type*}}", names.join(" "));
     if says_exists(binders, statement) {
         for n in &names {
             text.push_str(&format!(" [{} {n}]", super::expr::ZF_SETS));

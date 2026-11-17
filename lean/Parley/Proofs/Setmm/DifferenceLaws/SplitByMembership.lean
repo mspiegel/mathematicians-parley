@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.SplitByMembership
 
-theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
+theorem split_by_membership {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     A ∩ B ∪ A \ B = A := by
   -- 1. proof
   have s1 : ∀ u ∈ A ∩ B ∪ A \ B, u ∈ A := by

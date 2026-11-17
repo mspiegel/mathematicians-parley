@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SetOrderLaws.UnionKeepsOrder
 
-theorem union_keeps_order {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
+theorem union_keeps_order {α : Type*} [Nonempty α] (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ B) :
     A ∪ C ⊆ B ∪ C := by
   -- 1. thm:subset-of-union A := B, B := C
   have s1 : B ⊆ B ∪ C := by exact (Parley.Proofs.Setmm.SubsetOfUnion.SubsetOfUnion.subset_of_union (A := B) (B := C))

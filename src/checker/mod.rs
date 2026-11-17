@@ -487,7 +487,37 @@ pub fn set_systems_of(
         }
     }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    crate::citing::number_sets::set_letter_systems(&lines, &letters)
+    let mut out = crate::citing::number_sets::set_letter_systems(&lines, &letters);
+    // A set of numbers no line places among narrower ones, `let A be a set`
+    // with 3 ∈ A, holds complex numbers, set.mm's numbers: the page says no
+    // narrower system of it.
+    for (name, sort) in record.sorts.iter() {
+        let of_numbers = matches!(sort.full(), Some(crate::formula::Whole::Set(m))
+            if matches!(**m, crate::formula::Whole::Number));
+        if of_numbers {
+            out.entry(name.clone()).or_insert(crate::rules::System::C);
+        }
+    }
+    out
+}
+
+/// Which of the theorem's sets hold things of one type
+/// (`CheckedTheorem::thing_types`): read over its hypotheses first, so that
+/// its sets take the type variables in the order they are let, A α and B β
+/// of `let A be a set`, `let B be a set`; then over the record's page in
+/// the order it is written.
+pub fn thing_types_of(
+    thm: &Theorem,
+    record: &CheckedTheorem,
+) -> crate::citing::things::ThingTypes {
+    let hypotheses = hypothesis_lines(thm, record);
+    let mut entries: Vec<(&record::PartKey, &Node)> = record.page.entries().collect();
+    entries.sort_by(|a, b| (a.0.line, &a.0.text).cmp(&(b.0.line, &b.0.text)));
+    let lines: Vec<&Node> = hypotheses
+        .iter()
+        .chain(entries.into_iter().map(|(_, node)| node))
+        .collect();
+    crate::citing::things::ThingTypes::read(&lines, Some(&record.sorts))
 }
 
 /// The number system each letter the page's lines put in sets of numbers
@@ -533,10 +563,16 @@ fn define_named<'r>(
     else {
         return None;
     };
+    // The line's sentence that is the define's body: a function's line
+    // holds its domains too, {1, …, N} of `for k ∈ {1, …, N}`. A body by
+    // cases names no one set.
+    let crate::corpus::RuleText::Term(body) = &def.body else {
+        return None;
+    };
     let value = record
         .page
         .entries()
-        .find(|(key, _)| key.line == d.line)
+        .find(|(key, _)| key.line == d.line && key.text == *body)
         .map(|(_, node)| node)?;
     // A function's define names its body for any arguments: where the body
     // is finite whatever they are, so is each application of it.
@@ -699,6 +735,7 @@ fn theorem_record(
     let restated = citations::restatements(thm, c.library, &c.known[i]);
     record.restated = restated.places;
     record.restated_meetings = restated.meetings;
+    record.restated_under_claim = restated.under_claim;
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
     record.define_cases = formulas::define_cases(thm, c.library, &c.known[i]);
     let links = formulas::link_places(thm, c.library, &c.known[i]);
@@ -709,6 +746,8 @@ fn theorem_record(
     record.substituted_rows = citations::row_substitutions(thm, &c.known[i]);
     record.define_domains =
         citations::define_domains(thm, c.library, &c.known[i], &record.substituted);
+    record.applied_domains =
+        citations::applied_domains(thm, c.library, &c.known[i], c.scopes);
     record.substituted_sentences =
         citations::sentence_substitutions(thm, &c.known[i], &record.substituted);
     record.asserted = library::let_assertions(&c.known[i]);
@@ -810,6 +849,7 @@ fn theorem_record(
     };
     record.finite_at = finite_at;
     record.set_systems = set_systems_of(&record);
+    record.thing_types = thing_types_of(thm, &record);
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);
     record.items = std::sync::Arc::clone(items);

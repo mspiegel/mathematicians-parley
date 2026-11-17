@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Proofs.Setmm.OneToOneValues.OneToOneValues
 
-theorem one_to_one_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : α) (hH4 : C ∈ A) (D : α) (hH5 : D ∈ A) (hH6 : F C = F D) :
+theorem one_to_one_values {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B : Set β) (F : α → β) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : α) (hH4 : C ∈ A) (D : α) (hH5 : D ∈ A) (hH6 : F C = F D) :
     C = D := by
   -- 1. def:one-to-one, from H3
   have s1 : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) hH3.1)).mp hH3).2

@@ -24,7 +24,7 @@ public section
 
 namespace Parley.Tests.Docs.Syntax.NothingToShow
 
-theorem nothing_to_show {α : Type*} (V : Set α) (n : ℤ) (hH1 : 0 ≤ n) (v : ℤ → α) (hH3 : Set.MapsTo v {n : ℤ | 0 ≤ n} V) :
+theorem nothing_to_show {α : Type*} [Nonempty α] (V : Set α) (n : ℤ) (hH1 : 0 ≤ n) (v : ℤ → α) (hH3 : Set.MapsTo v {n : ℤ | 0 ≤ n} V) :
     (∀ x ∈ V, (0 ≤ n ∧ x = v (0 : ℤ)) ∧ ¬ x = v (0 : ℤ) → x = v n) := by
   -- 1. proof
   intro x hK1

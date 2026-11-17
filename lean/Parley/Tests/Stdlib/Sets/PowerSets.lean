@@ -21,7 +21,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Sets.PowerSets
 
-theorem power_sets {α : Type*} [LeanBridges.ZF.Sets α] (A : Set α) (hH2 : LeanBridges.ZF.IsSet A) :
+theorem power_sets {α : Type*} [Nonempty α] [LeanBridges.ZF.Sets α] (A : Set α) (hH2 : LeanBridges.ZF.IsSet A) :
     LeanBridges.ZF.IsSet (𝒫 A) := by
   -- 1. axi:sets-power-sets X := A, from H2
   exact (Parley.Items.Stdlib.Sets.axi_power_sets (X := A) hH2)

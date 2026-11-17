@@ -26,7 +26,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SetOrderLaws.UnionEqualsIntersection
 
-theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
+theorem union_equals_intersection {α : Type*} [Nonempty α] (A : Set α) (B : Set α) :
     (A ∪ B = A ∩ B ↔ A = B) := by
   -- the theorem. both directions
   constructor
