@@ -338,6 +338,12 @@ Lean's ℕ starts at 0 where the page's starts at 1.
     numeral's `toNat` is worked out (`Int.reduceToNat`);
   - then `exact_mod_cast` closes the step.
 
+  A membership `t ∈ ℕ`, `ℕ₀` or `ℤ` of a t that Lean computes in ℚ only for
+  its integer powers, `2^|numer(x)|·5^s(x) ∈ ℕ`, has t written in ℤ as its
+  witness, each such power made natural: `2 ^ (abs (Rat.num x)).toNat * 5
+  ^ (s x).toNat`. Each exponent's bound comes from the step's lines, and the
+  witness's equation with t from `parley_zpow_toNat`.
+
   The proof of `0 ≤ e` is written from why the said-once walk puts e in ℕ₀
   (`citing::reason_within`), the reasons the Metamath build proves
   memberships from:
@@ -374,6 +380,12 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   values are its kind's witnesses, `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈
   X, ↑(g a) = v`, or over all of ℝ `∃ g : ℝ → ℝ, ∀ x, ↑(g x) = F ↑x`, its
   equation said at each member.
+
+  Where the kind also bounds the values, `a positive integer`, the bound is
+  kept beside the equation: `obtain ⟨g, hD3_pos, hD3⟩ : ∃ g : ℚ → ℤ, (∀ x,
+  0 < g x) ∧ ∀ x, ↑(g x) = v`. A membership the kind's type gives at a
+  point is then `hD3_pos x`. A kind wider than the rule's numbers makes the
+  function the kind's: `f n = (n : ℚ)` of `f(n) = n, a rational number`.
 - `t ∈ ℤ` for a rational t is `∃ m : ℤ, (m : ℚ) = t`; a membership the
   letter's type already gives says nothing and is left out.
 
@@ -618,6 +630,10 @@ No proof is left to a general search tactic.
 A requires line is a `have` proved by its own reason, and a define is
 `set m : ℝ := … with D1`. A define the statement is read with is written out
 in Lean's statement and named again by `set` at the head of the proof.
+A requires line of a step that says "for all x" is stated under the claim's
+binders, `have r102_3 : ∀ x : ℚ, 0 ≤ s x`. Inside its step it is the fact
+at the step's x, `r102_3 x`. It says nothing of a later step's x, which is
+another letter.
 
 A step or a calculation row a define proves is `simp only [hD]`, with
 `push_cast; norm_num` after it where the checker met the two sides otherwise

@@ -705,7 +705,7 @@ fn quoted_lines(
     old: &[&str],
 ) -> Vec<(String, String)> {
     let mut places: Vec<(String, Vec<String>)> = Vec::new();
-    // The planted cases are cut into part files, each case whole in one.
+    // The planted cases are in a file for each topic, each case whole in one.
     if let Ok(dir) = std::fs::read_dir(root.join("tests/planted_check")) {
         let mut parts: Vec<_> = dir.flatten().map(|e| e.path()).collect();
         parts.sort();

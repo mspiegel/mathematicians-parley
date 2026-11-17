@@ -71,7 +71,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   no line writes the fact, or one implies it. Lean proves the hypothesis
   from the line by it. Where the line says a "for all" over a wider set
   than asked, the entry says over which set it is read
-  (`Supplied::narrowed`).
+  (`Supplied::narrowed`). A hypothesis is looked for as the citation
+  writes it, at the citation's values. Of the said-once memberships alike
+  it, the one written the same is taken: `m + 1 ∈ ℕ₀`, not `1·(m + 1) ∈
+  ℕ₀`. The comparison reads those two as one, but the second's reason is
+  about another term.
 - `Cited::unfolded`: for each conclusion a citation reads backwards, what
   the right side of its `↔` asks at the citation's values (`Unfolded`), its
   parts joined by "and" in order. A "there is" whose letter the citation

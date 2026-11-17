@@ -22,12 +22,16 @@ use parley::checker::Clean;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
 
-mod part_1;
-mod part_2;
-mod part_3;
-mod part_4;
-mod part_5;
-mod part_6;
+mod calculations;
+mod citations;
+mod defines;
+mod geometry;
+mod imports;
+mod library;
+mod methods;
+mod numbers;
+mod reading;
+mod structure;
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).
@@ -915,11 +919,15 @@ const UNPLANTED: &[(&str, &str)] = &[
 
 fn cases() -> Vec<Case> {
     let mut all = Vec::new();
-    all.extend(part_1::cases());
-    all.extend(part_2::cases());
-    all.extend(part_3::cases());
-    all.extend(part_4::cases());
-    all.extend(part_5::cases());
-    all.extend(part_6::cases());
+    all.extend(structure::cases());
+    all.extend(imports::cases());
+    all.extend(library::cases());
+    all.extend(reading::cases());
+    all.extend(citations::cases());
+    all.extend(defines::cases());
+    all.extend(calculations::cases());
+    all.extend(methods::cases());
+    all.extend(numbers::cases());
+    all.extend(geometry::cases());
     all
 }

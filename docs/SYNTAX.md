@@ -876,6 +876,11 @@ The line under it gives the reason the rule's value is in that system, read
 at a member of the domain: the argument is a letter in the set after `for`,
 and what the reason cites stands above the define.
 
+The kind is the function's type said once. A step that cites an item asking
+for `f : {2, …, p − 2} → ℤ` has it from the define, and no requires line
+says it again. A membership built from f's values, `f(a) + 1 ∈ ℤ`, cites
+the define for `f(a) ∈ ℤ` and reads f(a) by its name, not by its rule.
+
 **A define's values are among the numbers its rule gives them, and no later
 line narrows those.** `let f(x) = F(x), for x ∈ ℝ` of an F into ℂ is a
 function into ℂ, though each F(x) is real. A later line saying `f : ℝ → ℝ`
@@ -897,6 +902,9 @@ values in a set among the define's numbers, as `t : H → gH` does, or a
 function of integers into ℕ. The same holds of a map a define names, `let f
 = (x ∈ ℝ ↦ F(x))`. Lean fixes what a function maps into where the function
 is made, so both backends read the define's numbers from the define itself.
+A kind may also say wider numbers than the rule gives. `let f(n) = n, a
+rational number, for n ∈ ℕ` is a function into ℚ, as Schröder–Bernstein
+needs it to be, though each f(n) is a natural number.
 
 A naming line in a theorem's statement, between its hypotheses and `then`,
 says no kind of number: the statement is what the theorem assumes, and a
