@@ -5,6 +5,7 @@ public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
+public import Parley.Items.Stdlib.Graphs
 public import Parley.Items.Stdlib.Groups
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
@@ -20,6 +21,7 @@ public import Parley.Items.Proofs.Wiedijk.PrimeFactorisation
 public import Parley.Items.Proofs.Wiedijk.PythagoreanTriples
 public import Parley.Items.Proofs.Wiedijk.Ramsey
 public import Parley.Items.Tests.Elaborator.APhraseDefined
+public import Parley.Items.Tests.Elaborator.APhraseOfThreeSlots
 public import Parley.Items.Tests.Elaborator.APhraseWithAWherePart
 public import Parley.Items.Tests.Elaborator.APhraseWithAnd
 public import Parley.Stdlib.Calculus.CauchyMeanValue
@@ -619,6 +621,10 @@ public import Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionTwo
 public import Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionThree
 public import Parley.Proofs.Wiedijk.InfinitelyManyPrimes.PrimeAbove
 public import Parley.Proofs.Wiedijk.IntermediateValue.IntermediateValue
+public import Parley.Proofs.Wiedijk.Konigsberg.DegreeByWalk
+public import Parley.Proofs.Wiedijk.Konigsberg.WalkParity
+public import Parley.Proofs.Wiedijk.Konigsberg.OddVertices
+public import Parley.Proofs.Wiedijk.Konigsberg.Konigsberg
 public import Parley.Proofs.Wiedijk.Lagrange.CosetWithin
 public import Parley.Proofs.Wiedijk.Lagrange.CosetMember
 public import Parley.Proofs.Wiedijk.Lagrange.CosetInclusion
@@ -811,6 +817,8 @@ public import Parley.Tests.Elaborator.APhraseDefined.SixIsTriangular
 public import Parley.Tests.Elaborator.APhraseDefined.ATriangularNumberIsNatural
 public import Parley.Tests.Elaborator.APhraseImported.TenIsTriangular
 public import Parley.Tests.Elaborator.APhraseImported.NotTriangularSaidTwoWays
+public import Parley.Tests.Elaborator.APhraseOfThreeSlots.TwoIsACubeRootOfEight
+public import Parley.Tests.Elaborator.APhraseOfThreeSlots.ARootHasANaturalPower
 public import Parley.Tests.Elaborator.APhraseWithAWherePart.ACliqueIsLarge
 public import Parley.Tests.Elaborator.APhraseWithAWherePart.ARisingRunIsLong
 public import Parley.Tests.Elaborator.APhraseWithAnd.ACommonDivisorDividesTheFirst
@@ -993,6 +1001,7 @@ public import Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce
 public import Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialInALink
 public import Parley.Tests.Elaborator.FloorInABound.ABoundOnTheSizeOfAFloor
 public import Parley.Tests.Elaborator.FloorInABound.ARoundingErrorAtMostAHalf
+public import Parley.Tests.Elaborator.FunctionWitness.TraversableFoldedFromItsWitnesses
 public import Parley.Tests.Elaborator.IdentityLeftOut.AnItemInstanceWithoutItsZero
 public import Parley.Tests.Elaborator.IdentityLeftOut.AnObtainWithoutItsZero
 public import Parley.Tests.Elaborator.IdentityLeftOut.AnExhibitWithoutItsZero
@@ -1000,6 +1009,7 @@ public import Parley.Tests.Elaborator.IdentityLeftOut.ACitedExistentialWithoutIt
 public import Parley.Tests.Elaborator.IdentityLeftOut.TwoWitnessesWithoutAZero
 public import Parley.Tests.Elaborator.ImpliedBounds.ANaturalAtLeastOneForAnItem
 public import Parley.Tests.Elaborator.InductionOverASet.AProductOfOnesByInduction
+public import Parley.Tests.Elaborator.InductionUnderACondition.WalkParityByInduction
 public import Parley.Tests.Elaborator.InequalityRows.HalfwayAbove
 public import Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
 public import Parley.Tests.Elaborator.InequalityRows.AnEquationReadAsAnOrder
@@ -1018,6 +1028,10 @@ public import Parley.Tests.Elaborator.InspectionCasesOfARange.OneOfAListedPair
 public import Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeBelowZero
 public import Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeAboutZero
 public import Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeFromANegativeEndWorkedOut
+public import Parley.Tests.Elaborator.Inspection.ListedMember
+public import Parley.Tests.Elaborator.Inspection.ListedNonmember
+public import Parley.Tests.Elaborator.Inspection.ListedProperty
+public import Parley.Tests.Elaborator.Inspection.ListedPropertyNone
 public import Parley.Tests.Elaborator.Integral.IntegralLetters
 public import Parley.Tests.Elaborator.Integral.IntegralOverALetterInUse
 public import Parley.Tests.Elaborator.LargeArithmetic.SidesEqual
@@ -1383,6 +1397,9 @@ public import Parley.Tests.Notations.Functions.AValueInAnImage
 public import Parley.Tests.Notations.Functions.AnInverseValue
 public import Parley.Tests.Notations.Functions.ASquareIsNotOneToOne
 public import Parley.Tests.Notations.Functions.ASquareIsNotOnto
+public import Parley.Tests.Notations.Graphs.ATriangleHasEvenDegrees
+public import Parley.Tests.Notations.Graphs.APathHasTwoOddEnds
+public import Parley.Tests.Notations.Graphs.AWalkOfOneEdge
 public import Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse
 public import Parley.Tests.Notations.Groups.TheInverseOfAProduct
 public import Parley.Tests.Notations.Groups.ASubgroupTest
@@ -1407,6 +1424,7 @@ public import Parley.Tests.Notations.Numbers.AbsMinusThree
 public import Parley.Tests.Notations.Numbers.AbsThree
 public import Parley.Tests.Notations.Numbers.SqrtFour
 public import Parley.Tests.Notations.Numbers.SqrtFourNotIrrational
+public import Parley.Tests.Notations.Pairs.AFunctionOnPairs
 public import Parley.Tests.Notations.Pairs.AnIntervalAndAPair
 public import Parley.Tests.Notations.Powers.ARealPowerOfAPositiveReal
 public import Parley.Tests.Notations.Powers.AFractionForAnExponent
@@ -1529,6 +1547,7 @@ public import Parley.Tests.Stdlib.Divisibility.LcmAMultiple
 public import Parley.Tests.Stdlib.Divisibility.LcmLeast
 public import Parley.Tests.Stdlib.Divisibility.LcmTimesGcd
 public import Parley.Tests.Stdlib.Divisibility.ModReal
+public import Parley.Tests.Stdlib.Divisibility.Sigma
 public import Parley.Tests.Stdlib.Divisibility.GcdCommutes
 public import Parley.Tests.Stdlib.Divisibility.GcdOne
 public import Parley.Tests.Stdlib.Divisibility.GcdInteger
@@ -1547,6 +1566,7 @@ public import Parley.Tests.Stdlib.Functions.CompositionOneToOne
 public import Parley.Tests.Stdlib.Functions.Preimage
 public import Parley.Tests.Stdlib.Functions.InverseFunction
 public import Parley.Tests.Stdlib.Functions.SetImage
+public import Parley.Tests.Stdlib.Graphs.Walk
 public import Parley.Tests.Stdlib.Logarithms.LnProduct
 public import Parley.Tests.Stdlib.Logarithms.LnQuotient
 public import Parley.Tests.Stdlib.Logarithms.LnPower

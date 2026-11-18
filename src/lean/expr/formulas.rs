@@ -59,6 +59,11 @@ impl Writer<'_> {
         if node.notation() == TENDS_TO {
             return self.tends_to(node);
         }
+        match (node.notation(), node.children.as_slice()) {
+            (crate::notations::JOINS, [a, u, w]) => return self.joins(a, u, w),
+            (crate::notations::INCIDENT, [x, a]) => return self.incident(x, a),
+            _ => {}
+        }
         if node.notation() == FUNCTION_LIMIT {
             return self.function_limit(node);
         }
@@ -491,10 +496,15 @@ impl Writer<'_> {
             };
             // A library function the term applies, the gcd of a/gcd(a, b),
             // is no letter the witness could capture.
-            let free = arg.names().iter().all(|name| {
-                self.letters.contains_key(name.as_str())
-                    || self.templates.function(name).is_some()
-            });
+            // Its free letters only: the a of |{a ∈ E : x is incident
+            // with a}| is the set-builder's own.
+            let binders = self.grammar.binders();
+            let free = crate::matching::free_names(arg, &binders)
+                .iter()
+                .all(|name| {
+                    self.letters.contains_key(name.as_str())
+                        || self.templates.function(name).is_some()
+                });
             // A count of a set no line says is finite, |H| of "|H| divides
             // |G|", is a natural number only where the set is finite.
             if arg.notation() == CARDINALITY && self.counts(arg) {

@@ -46,6 +46,14 @@ impl Writer<'_> {
                 Route::Built(p) => (true, p, MAX),
                 Route::Declined(d) => return Route::Declined(d),
             },
+            // Over those members of a set that meet a condition, the set
+            // they make, `{d : ℤ | 0 < d ∧ d ∣ n}`.
+            Over::Where { set, condition } => {
+                match self.set_built(s.index, set, condition) {
+                    Route::Built(p) => (true, p, MAX),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
         };
         let term = match s.inner.number(s.term, at) {
             Route::Built(t) => t,
@@ -671,17 +679,30 @@ impl Writer<'_> {
                 _ => Route::no(format!("{} has no Lean number type", node.text)),
             },
             NUMERAL => Route::Built(Printed::numeral(&*node.text, self.num_type(at))),
-            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+                if self.library_function(node).is_none() =>
+            {
                 let applied = match self.applied(node) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let Some(arg) = node.children.get(1) else {
-                    return Route::no("an application with no argument");
-                };
-                let arg = match &applied.takes {
-                    Members::Numbers(from) => self.number(arg, *from),
-                    _ => self.set_term(arg),
+                // f(x, y) of a function on pairs applies it to the pair
+                // (x, y), each part in what f's domain holds there.
+                let arg = match (&node.children[1..], &applied.takes) {
+                    ([x, y], Members::Pairs { first, second })
+                        if node.notation() == crate::notations::APPLICATION_TO_PAIR =>
+                    {
+                        self.pair_term([x, y], &[(**first).clone(), (**second).clone()])
+                    }
+                    ([_, _], _) => {
+                        return Route::no(format!(
+                            "{} applied to a pair is no function on pairs",
+                            node.children[0].text
+                        ))
+                    }
+                    ([arg], Members::Numbers(from)) => self.number(arg, *from),
+                    ([arg], _) => self.set_term(arg),
+                    _ => return Route::no("an application with no argument"),
                 };
                 let arg = match arg {
                     Route::Built(p) => p,

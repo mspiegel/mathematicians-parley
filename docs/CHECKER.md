@@ -342,7 +342,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   listed set, or its denial; the size of a listed set; the size of a set
   taken by a property from a listed set, or that set said equal to the
   members it keeps; or another. Lean
-  proves each case one way.
+  proves each case one way. Of a set taken by a property from a listed
+  set, and of its size, which listed members the property keeps, in the
+  list's order (`kept`). A size a cited "for all" gives a term, deg(A) of
+  "for all x ∈ V, deg(x) = |…|", is read as that size.
 - `divided_by`: for each step or calculation row whose `algebra` divides by
   a term other than numerals, by the line its reason is on, each term it
   divides by and why it is not 0: a line the reason rests on says so
@@ -402,3 +405,6 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `item_facts`, of the library's reading rather than a theorem's: for each
   group of each item, what its hypotheses bound below and make finite, and
   for each sentence it concludes, the number systems of its set letters.
+- `property_domains`, of the library's reading: for each item, the set each
+  property its `let` lines name is of, read (ℕ of "P be a property of the
+  elements of ℕ").

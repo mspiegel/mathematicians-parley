@@ -132,4 +132,8 @@ notations! {
     NTH_DERIVATIVE = 100, "nth-derivative";
     DEFINED_AT = 101, "defined-at";
     PRODUCT_SET = 102, "product-set";
+    APPLICATION_TO_PAIR = 103, "application-to-pair";
+    SUM_OVER_CONDITION = 104, "sum-over-condition";
+    JOINS = 105, "joins";
+    INCIDENT = 106, "incident";
 }

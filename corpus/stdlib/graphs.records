@@ -38,7 +38,7 @@ definition traversable
               "Characteristics of Traversable Graph"). The edges are counted
               from 1, as `def:stdlib/graphs/euler-path` counts them; set.mm
               counts them from 0, and `gtrav` carries one count to the other.
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition walk
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -52,7 +52,7 @@ definition walk
               edges it crosses, e(1) first, each edge joining the vertex
               before it to the vertex after it (Diestel, "Graph Theory",
               §1.3, and ProofWiki, "Definition:Walk (Graph Theory)").
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition euler-path
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -69,7 +69,7 @@ definition euler-path
               edges from 0, and `def:stdlib/graphs/traversable` says the one
               count is the other). A Hamiltonian path is the same for
               vertices.
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem walk-step
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -81,7 +81,7 @@ mundane theorem walk-step
   then        e(i) joins v(i − 1) and v(i)
   metamath-proof metamath-bridges/graphs/gwalkstep
   note        Each edge of a walk joins the vertices on either side of it.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/walk-step
 
 mundane theorem joined-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -91,7 +91,7 @@ mundane theorem joined-incident
   assume a joins u and w                                              (H5)
   then        u is incident with a. w is incident with a.
   metamath-proof metamath-bridges/graphs/gjoinend1, metamath-bridges/graphs/gjoinend2
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/joined-incident-left ; lean-bridges/graphs/joined-incident-right
 
 mundane theorem walk-distinct
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -104,7 +104,7 @@ mundane theorem walk-distinct
   metamath-proof metamath-bridges/graphs/gwalkne
   note        A walk never stays where it is: an edge of a multigraph joins
               two different vertices.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/walk-distinct
 
 mundane theorem incident-of-joined
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -114,7 +114,7 @@ mundane theorem incident-of-joined
   metamath-proof metamath-bridges/graphs/gends
   note        The vertices incident with an edge that joins u and w are u
               and w.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/incident-of-joined
 
 mundane theorem not-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -127,7 +127,7 @@ mundane theorem not-incident
   assume x ≠ w                                                        (H8)
   then        x is not incident with a
   metamath-proof metamath-bridges/graphs/gnotend
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/not-incident
 
 mundane theorem join-distinct
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -137,7 +137,7 @@ mundane theorem join-distinct
   assume a joins u and w                                              (H5)
   then        u ≠ w
   metamath-proof metamath-bridges/graphs/gjoinne
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/graphs/join-distinct
 
 definition degree
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -147,4 +147,4 @@ definition degree
   note        The degree of a vertex is how many edges it is incident with. A
               multigraph has no edge from a vertex to itself, so no edge counts
               twice.
-  lean-proof  not yet implemented
+  lean-proof  rfl

@@ -231,6 +231,42 @@ theorem mun_partition_count {α : Type*} [Nonempty α] (A : Set α) (K : Set (Se
     ((A.ncard : ℕ) : ℕ∞) = K.encard * ((m.toNat : ℕ) : ℕ∞) :=
   LeanBridges.Counting.partition_count A K m h1 h2 h3 h4 h5
 
+theorem mun_count_nat0 (P : ℤ → Prop) (k : ℤ) :
+    0 ≤ ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_nat0 P k
+
+theorem mun_count_empty_range (P : ℤ → Prop) :
+    ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | P i}.ncard : ℤ) = 0 :=
+  LeanBridges.Counting.count_empty_range P
+
+theorem mun_count_step_holds (P : ℤ → Prop) (k : ℤ) (h1 : 0 ≤ k) (h2 : P (k + 1)) :
+    ({i ∈ (Set.Icc (1 : ℤ) (k + 1) : Set ℤ) | P i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) + 1 :=
+  LeanBridges.Counting.count_step_holds P k h1 h2
+
+theorem mun_count_step_fails (P : ℤ → Prop) (k : ℤ) (h1 : 0 ≤ k) (h2 : ¬ P (k + 1)) :
+    ({i ∈ (Set.Icc (1 : ℤ) (k + 1) : Set ℤ) | P i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_step_fails P k h1 h2
+
+theorem mun_count_same (P : ℤ → Prop) (Q : ℤ → Prop) (n : ℤ) (h2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → (P i ↔ Q i)) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_same P Q n h2
+
+theorem mun_count_either (P : ℤ → Prop) (Q : ℤ → Prop) (n : ℤ) (h2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → ¬ (P i ∧ Q i)) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i ∨ Q i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) + ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_either P Q n h2
+
+theorem mun_count_shift (P : ℤ → Prop) (n : ℤ) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P (i - 1)}.ncard : ℤ) = ({i ∈ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) | P i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_shift P n
+
+theorem mun_count_first_fails (P : ℤ → Prop) (m : ℤ) (h2 : ¬ P (0 : ℤ)) :
+    ({i ∈ (Set.Icc (0 : ℤ) m : Set ℤ) | P i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) m : Set ℤ) | P i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_first_fails P m h2
+
+theorem mun_count_last_fails (P : ℤ → Prop) (n : ℤ) (h2 : ¬ P n) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | P i}.ncard : ℤ) :=
+  LeanBridges.Counting.count_last_fails P n h2
+
 theorem mun_card_pair {α : Type*} [Nonempty α] (u : α) (w : α) :
     (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
   by have h := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at h; exact_mod_cast h

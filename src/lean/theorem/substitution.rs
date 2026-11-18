@@ -42,10 +42,23 @@ impl<'a> Proof<'a> {
                     Proof::By(t) => t,
                     Proof::Block(ts) => Tactic::Seq(ts),
                 };
-                Proof::By(Tactic::Seq(vec![
-                    super::super::tactics::call("symm", vec![]),
-                    rest,
-                ]))
+                // `symm` turns a relation; a denial of an equation, `¬ y =
+                // v j`, which `symm` does not take, is turned by `Ne.symm`.
+                let denial = matches!(
+                    (claim.notation(), claim.children.as_slice()),
+                    (crate::notations::LOGICAL_NOT, [inner])
+                        if inner.notation() == crate::notations::EQUALITY
+                );
+                let turn = match denial {
+                    true => super::super::tactics::call(
+                        "apply",
+                        vec![super::super::doc::TacticArg::Term(
+                            super::super::tactics::lemma("Ne.symm"),
+                        )],
+                    ),
+                    false => super::super::tactics::call("symm", vec![]),
+                };
+                Proof::By(Tactic::Seq(vec![turn, rest]))
             }),
         }
     }
@@ -1894,11 +1907,14 @@ impl<'a> Proof<'a> {
             &beside.other_row,
             &beside.other_beside,
         ) {
-            (Some(stated), _, _) => cited
-                .iter()
-                .find(|c| read_alike(&c.node, stated, ctx))?
-                .proof
-                .clone(),
+            // The line that states it, among those the step names or, a
+            // requires line of the step's above, by its tree.
+            (Some(stated), _, _) => {
+                match cited.iter().find(|c| read_alike(&c.node, stated, ctx)) {
+                    Some(c) => c.proof.clone(),
+                    None => self.line_saying(&crate::citing::finite::key(stated))?,
+                }
+            }
             (None, Some(row), _) => whole_nonneg(&row.op, || {
                 self.said_bound(&row.right, System::N, &just.refs)
             })?,
@@ -1942,8 +1958,16 @@ impl<'a> Proof<'a> {
         if set.notation() != crate::notations::NUMBER_SYSTEMS {
             return None;
         }
-        let system = System::of_sign(&set.text)
-            .filter(|s| matches!(s, System::N0 | System::N))?;
+        // A count in ℤ is one in ℕ₀, as Lean states both (`count_in_system`).
+        let counted = term.notation() == crate::notations::CARDINALITY
+            && self.writer.counts(term);
+        let system = match System::of_sign(&set.text)? {
+            System::Z if counted => System::N0,
+            s => s,
+        };
+        if !matches!(system, System::N0 | System::N) {
+            return None;
+        }
         // The record keeps a membership shown beside an equation; any other
         // is shown by what the page says once (`ShownBy::Said`).
         let by = self.rec.members_shown.get(&just.line).map(|s| &s.by);
@@ -1951,6 +1975,30 @@ impl<'a> Proof<'a> {
             ShownBy::Said => self.said_bound(term, system, &just.refs),
             ShownBy::Beside(beside) => {
                 let cited = self.cited_parts(&just.refs);
+                // A count Lean holds in ℕ∞, of a set not known finite, beside
+                // an equation with the count of one that is: that count is the
+                // whole number it is, `⟨B.ncard, h.symm⟩` of `A.encard =
+                // ↑B.ncard`.
+                if term.notation() == crate::notations::CARDINALITY
+                    && self.writer.counts(term)
+                {
+                    if let (System::N0, Some(Route::Built(whole))) =
+                        (system, self.writer.finite_count(&beside.other))
+                    {
+                        // The equation by its tree among the lines in scope,
+                        // a requires line of the step's among them.
+                        let equation = self.line_saying(
+                            &crate::citing::finite::key(&beside.equation),
+                        )?;
+                        let to_term = match beside.facing {
+                            Facing::Straight => t::symm(t::bracket(equation)),
+                            Facing::Turned => equation,
+                        };
+                        return Some(super::super::expr::anonymous(vec![
+                            whole, to_term,
+                        ]));
+                    }
+                }
                 self.bound_beside(beside, system, just, &cited)
             }
             // The type `Set.MapsTo f X Y` applied to the point's membership

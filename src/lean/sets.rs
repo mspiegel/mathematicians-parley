@@ -53,7 +53,7 @@ pub(super) fn set_of(letter: &str, ty: LeanType, body: Printed) -> Printed {
 }
 
 /// A count of a set in this form: a natural number, or in ℕ∞.
-fn count_of(set: Printed, form: CountForm) -> Printed {
+pub(crate) fn count_of(set: Printed, form: CountForm) -> Printed {
     let ty = match form {
         CountForm::Natural => LeanType::Num(Num::Nat),
         CountForm::Extended => LeanType::ENat,
@@ -957,6 +957,17 @@ impl Writer<'_> {
         let [letter, set, body] = node.children.as_slice() else {
             return Route::no("a set-builder of other than three parts");
         };
+        self.set_built(letter, set, body)
+    }
+
+    /// The set of the members `letter` of `set` that meet `body`, as a
+    /// set-builder writes it, and as a sum over a condition runs over it.
+    pub(crate) fn set_built(
+        &self,
+        letter: &Node,
+        set: &Node,
+        body: &Node,
+    ) -> Route<Printed> {
         let Some(members) = self.set_members(set) else {
             return Route::no("a set-builder over a set with no Lean type");
         };
@@ -1504,9 +1515,9 @@ impl Writer<'_> {
         })
     }
 
-    /// A count in ℕ or ℕ₀, |A| ∈ ℕ: some natural number is the count, and
-    /// for the page's ℕ, which starts at 1, one above 0. None where the term
-    /// counts no set.
+    /// A count in a number system, |A| ∈ ℕ: some natural number is the
+    /// count, and for the page's ℕ, which starts at 1, one above 0. None
+    /// where the term counts no set.
     pub fn count_in_system(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
         if !self.counts(x) {
             return None;
@@ -1524,8 +1535,15 @@ impl Writer<'_> {
                 Printed::numeral("0", nat.clone()),
                 letter.clone(),
             )),
-            Some(super::expr::System::NonNegative) => None,
-            _ => return Some(Route::no("a count in other than ℕ or ℕ₀")),
+            // A count is in ℤ, or in any wider system, exactly where it is
+            // some natural number: ∞ is in none of them, as set.mm's ♯ of
+            // an infinite set is in none.
+            Some(super::expr::System::NonNegative | super::expr::System::Type(_)) => {
+                None
+            }
+            None => {
+                return Some(Route::no("a count in a set that is no number system"))
+            }
         };
         let said = relation_of("=", Printed::cast(letter, LeanType::ENat), count);
         Some(match (above, said) {

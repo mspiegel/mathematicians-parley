@@ -95,7 +95,24 @@ fn statement(
     // A `let` that is no formula, `A be a set` or `x be an element`, gives
     // its letter the type its sort settles, ahead of the lines that use it.
     let mut binders_of_sets = Vec::new();
-    let mut read: usize = said.iter().map(|(_, s)| s.len()).sum();
+    // Each sentence the page reads is read once; a line read by what the
+    // checker reads it to assert, a graph given in full with its lists and
+    // joins, is read whole, however many facts it asserts.
+    let mut read: usize = said
+        .iter()
+        .zip(&thm.hypotheses)
+        .map(|((_, s), h)| {
+            let sentences = h.body(&thm.path).sentences();
+            let on_page = sentences
+                .iter()
+                .filter(|t| rec.page.get(t).is_some())
+                .count();
+            match (on_page, s.is_empty()) {
+                (0, false) => sentences.len(),
+                _ => s.len(),
+            }
+        })
+        .sum();
     // The first `let` that is no formula and that no Lean type is given
     // for, `let A be a point`: what keeps the theorem out.
     let mut untyped: Option<String> = None;
@@ -126,6 +143,68 @@ fn statement(
                     general: false,
                     ty: LetterType::Group,
                 });
+                if rec.asserted.get(i).is_none_or(Vec::is_empty) {
+                    read += body.sentences().len();
+                }
+                continue;
+            }
+            // `let G be an undirected multigraph with vertices V and edges
+            // E`: the sets V and E, of the things the checker types them
+            // by, and G the function sending each edge to its two ends. A
+            // graph given in full asserts its lists and joins, which are
+            // among `said`.
+            Form::Graph(line) | Form::GraphListed(line) => {
+                let part = |name: &str| match super::sets::set_type_in(
+                    Some(&rec.sorts),
+                    &rec.thing_types,
+                    name,
+                ) {
+                    Some(LetterType::Set(m)) => Some(m),
+                    _ => None,
+                };
+                let (Some(vertex), Some(edge)) =
+                    (part(&line.vertices), part(&line.edges))
+                else {
+                    untyped.get_or_insert_with(|| body.text().to_string());
+                    continue;
+                };
+                let graph = LetterType::Graph {
+                    vertices: line.vertices.clone(),
+                    edges: line.edges.clone(),
+                    vertex: vertex.clone(),
+                    edge: edge.clone(),
+                };
+                // A graph given in full names each vertex and edge, a member
+                // of the vertices' type or the edges'.
+                let listed: Vec<(&String, LetterType)> = line
+                    .listed
+                    .iter()
+                    .flat_map(|l| {
+                        let vertices = l
+                            .vertices
+                            .iter()
+                            .map(|n| (n, LetterType::Member(vertex.clone())));
+                        let edges = l
+                            .edges
+                            .iter()
+                            .map(|n| (n, LetterType::Member(edge.clone())));
+                        vertices.chain(edges).collect::<Vec<_>>()
+                    })
+                    .collect();
+                let parts = [
+                    (&line.vertices, LetterType::Set(vertex)),
+                    (&line.edges, LetterType::Set(edge)),
+                    (&line.graph, graph),
+                ];
+                for (name, ty) in parts.into_iter().chain(listed) {
+                    writer.letters.insert(name.clone(), ty.clone());
+                    binders_of_sets.push(Binder::Letter {
+                        name: super::names::letter(name),
+                        page: name.clone(),
+                        general: false,
+                        ty,
+                    });
+                }
                 if rec.asserted.get(i).is_none_or(Vec::is_empty) {
                     read += body.sentences().len();
                 }
@@ -192,9 +271,8 @@ fn statement(
         .filter(|d| d.line < thm.conclusion_line)
         .filter(|d| match crate::corpus::define_parts(&d.text) {
             Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
-            Route::Built(crate::corpus::DefineParts::One(one)) => {
-                !one.params.is_empty()
-            }
+            // One of several arguments is written out, and lets nothing.
+            Route::Built(crate::corpus::DefineParts::One(one)) => one.params.len() == 1,
             _ => false,
         })
         .map(|d| d.line)
@@ -753,9 +831,8 @@ pub fn theorem(
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
         let function = match crate::corpus::define_parts(&d.text) {
             Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
-            Route::Built(crate::corpus::DefineParts::One(one)) => {
-                !one.params.is_empty()
-            }
+            // One of several arguments is written out, and has no hypothesis.
+            Route::Built(crate::corpus::DefineParts::One(one)) => one.params.len() == 1,
             _ => false,
         };
         if function {

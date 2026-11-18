@@ -104,6 +104,10 @@ pub const IN_CODE: &[&str] = &[
     "polynomial-degree",
     "nth-derivative",
     "defined-at",
+    "application-to-pair",
+    "sum-over-condition",
+    "joins",
+    "incident",
 ];
 
 /// Every theorem of the corpus, in or out.

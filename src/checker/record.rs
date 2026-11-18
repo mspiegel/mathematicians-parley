@@ -198,6 +198,10 @@ pub struct LibraryReading {
     /// out, by the item's full name and the group's place
     /// (`checker::written::item_facts`).
     pub item_facts: IndexMap<String, Vec<GroupFacts>>,
+    /// The set each property an item's `let` lines name is of, read, by
+    /// the item's full name and the property's letter: ℕ of `P be a
+    /// property of the elements of ℕ`.
+    pub property_domains: IndexMap<String, IndexMap<String, crate::formula::Node>>,
 }
 
 /// What one group of an item says of its terms, read as a theorem's lines
@@ -605,11 +609,13 @@ pub enum Inspection {
     Member,
     /// The size of a set listed in full.
     Size,
-    /// The size of a set taken by a property from a set listed in full.
-    TakenSize,
+    /// The size of a set taken by a property from a set listed in full;
+    /// `kept` says of each listed member, in the list's order, whether the
+    /// property holds of it.
+    TakenSize { kept: Vec<bool> },
     /// A set taken by a property from a set listed in full, said equal to
-    /// the members it keeps.
-    Taken,
+    /// the members it keeps; `kept` as of `TakenSize`.
+    Taken { kept: Vec<bool> },
     /// Any other the method decides.
     Other,
 }

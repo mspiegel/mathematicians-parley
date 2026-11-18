@@ -4,6 +4,7 @@ public import Lean.Parser.Command
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Insert
 public import Mathlib.Data.Set.Finite.Basic
+public import Mathlib.Data.Int.Interval
 
 /-!
 # Sets
@@ -47,5 +48,51 @@ theorem subset_induction {α : Type*} {X : Set α} (hX : X.Finite) {P : Set α �
   have haX : a ∈ X := hsub (Set.mem_insert a s)
   have h := step s hsX (ih hsX) a ⟨haX, has⟩
   rwa [Set.union_singleton] at h
+
+/-- A set each member of which is f(i) for some i in a range of integers is
+finite: the edges of a walk that crosses every edge, each some e(i). -/
+theorem finite_of_covered_by_range {α : Type*} {A : Set α} (a b : ℤ) (f : ℤ → α)
+    (h : ∀ x ∈ A, ∃ i : ℤ, i ∈ Finset.Icc a b ∧ x = f i) : A.Finite :=
+  ((Finset.Icc a b).finite_toSet.image f).subset fun x hx => by
+    obtain ⟨i, hi, rfl⟩ := h x hx
+    exact ⟨i, hi, rfl⟩
+
+/-! What a property keeps of a set listed in full, member by member: what
+`inspection` reads of {x ∈ E : P(x)} where E = {b₁, …, bₙ}. -/
+
+/-- A listed member the property holds of is kept. -/
+theorem sep_insert_of {α : Type*} {s : Set α} {p : α → Prop} {a : α} (h : p a) :
+    {x ∈ insert a s | p x} = insert a {x ∈ s | p x} := by
+  ext x; simp only [Set.mem_ofPred_eq, Set.mem_insert_iff]; constructor
+  · rintro ⟨rfl | hx, hp⟩
+    · exact Or.inl rfl
+    · exact Or.inr ⟨hx, hp⟩
+  · rintro (rfl | ⟨hx, hp⟩)
+    · exact ⟨Or.inl rfl, h⟩
+    · exact ⟨Or.inr hx, hp⟩
+
+/-- A listed member the property does not hold of is left out. -/
+theorem sep_insert_of_not {α : Type*} {s : Set α} {p : α → Prop} {a : α} (h : ¬ p a) :
+    {x ∈ insert a s | p x} = {x ∈ s | p x} := by
+  ext x; simp only [Set.mem_ofPred_eq, Set.mem_insert_iff]; constructor
+  · rintro ⟨rfl | hx, hp⟩
+    · exact absurd hp h
+    · exact ⟨hx, hp⟩
+  · rintro ⟨hx, hp⟩
+    exact ⟨Or.inr hx, hp⟩
+
+/-- The last listed member, kept. -/
+theorem sep_singleton_of {α : Type*} {p : α → Prop} {a : α} (h : p a) :
+    {x ∈ ({a} : Set α) | p x} = {a} := by
+  ext x; simp only [Set.mem_ofPred_eq, Set.mem_singleton_iff]; constructor
+  · exact fun ⟨hx, _⟩ => hx
+  · rintro rfl; exact ⟨rfl, h⟩
+
+/-- The last listed member, left out. -/
+theorem sep_singleton_of_not {α : Type*} {p : α → Prop} {a : α} (h : ¬ p a) :
+    {x ∈ ({a} : Set α) | p x} = ∅ := by
+  ext x; simp only [Set.mem_ofPred_eq, Set.mem_singleton_iff, Set.mem_empty_iff_false,
+    iff_false, not_and]
+  rintro rfl; exact h
 
 end LeanBridges.Sets

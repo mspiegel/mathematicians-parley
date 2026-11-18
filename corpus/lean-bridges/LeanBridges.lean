@@ -12,6 +12,7 @@ public import Calculus
 public import Functions
 public import Sets
 public import Groups
+public import Graphs
 public import Polynomials
 public import ZF
 

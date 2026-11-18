@@ -120,6 +120,23 @@ impl Binder {
                 ty: LetterType::Group,
                 ..
             } => format!("{{{name} : Type*}} [Group {name}]"),
+            // A graph is the function sending each edge to its ends, with
+            // what makes it an undirected multigraph on its vertices and
+            // edges beside it.
+            Binder::Letter {
+                name,
+                ty:
+                    ty @ LetterType::Graph {
+                        vertices, edges, ..
+                    },
+                ..
+            } => format!(
+                "({name} : {}) [{} {} {} {name}]",
+                ty.lean(),
+                super::expr::GRAPH_CLASS,
+                super::names::letter(vertices),
+                super::names::letter(edges),
+            ),
             Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
             Binder::Fact { name, says, .. } => format!("({name} : {})", says.text()),
         }

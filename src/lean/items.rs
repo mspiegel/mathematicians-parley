@@ -245,6 +245,11 @@ fn general_kind(
         .filter_map(|n| super::statement::introduces(n))
         .filter(|(_, s)| *s == super::expr::System::Type(Num::Int))
         .map(|(letter, _)| letter)
+        .chain(
+            free.iter()
+                .filter(|f| f.num == Num::Int)
+                .map(|f| f.name.clone()),
+        )
         .collect();
     let integer_power = |p: &Node| {
         p.notation() == crate::notations::POWER
@@ -294,6 +299,79 @@ fn general_kind(
         floor,
         cast,
     })
+}
+
+/// The letter of a line `f : D → X` from a set of numbers into a set of
+/// things, and its map type; None for any other line, or a letter already
+/// typed.
+fn map_into_things(w: &Writer, node: &Node) -> Option<(String, LetterType)> {
+    let [f, from, to] = node.children.as_slice() else {
+        return None;
+    };
+    if node.notation() != FUNCTION_TYPE
+        || !f.is_name()
+        || w.letters.contains_key(f.text.as_str())
+    {
+        return None;
+    }
+    match (w.set_members(from)?, w.set_members(to)?) {
+        (
+            from @ super::expr::Members::Numbers(_),
+            to @ super::expr::Members::Things(_),
+        ) => Some((f.text.to_string(), LetterType::Map { from, to })),
+        _ => None,
+    }
+}
+
+/// The letters the lines put where a graph's words put an edge or a vertex,
+/// each with what it is a member of: the edge of "a joins u and w" or "x is
+/// incident with a" a member of the edges, the others of the vertices.
+fn graph_word_letters(
+    said: &[Node],
+    vertex: &super::expr::Members,
+    edge: &super::expr::Members,
+) -> Vec<(String, super::expr::Members)> {
+    let mut out: Vec<(String, super::expr::Members)> = Vec::new();
+    for n in said.iter().flat_map(|n| n.walk()) {
+        let places: Vec<(&Node, &super::expr::Members)> =
+            match (n.notation(), n.children.as_slice()) {
+                (crate::notations::JOINS, [a, u, w]) => {
+                    vec![(a, edge), (u, vertex), (w, vertex)]
+                }
+                (crate::notations::INCIDENT, [x, a]) => vec![(x, vertex), (a, edge)],
+                _ => Vec::new(),
+            };
+        for (letter, members) in places {
+            if letter.is_name() && !out.iter().any(|(l, _)| *l == *letter.text) {
+                out.push((letter.text.to_string(), members.clone()));
+            }
+        }
+    }
+    out
+}
+
+/// What a graph's vertex or edge set holds, the set given its binder where
+/// the item has not typed it already: things of the type the item's sorts
+/// give it.
+fn graph_part(
+    w: &mut Writer,
+    statements: &mut Vec<Binder>,
+    things: &ThingTypes,
+    name: &str,
+) -> super::expr::Members {
+    if let Some(LetterType::Set(m)) = w.letters.get(name) {
+        return m.clone();
+    }
+    let m = super::expr::Members::Things(things.of_letter(name));
+    let ty = LetterType::Set(m.clone());
+    w.letters.insert(name.to_string(), ty.clone());
+    statements.push(Binder::Letter {
+        name: super::names::letter(name),
+        page: name.to_string(),
+        ty,
+        general: false,
+    });
+    m
 }
 
 /// The function letter of a function line into a number system and the
@@ -400,6 +478,35 @@ fn free_letters(
             super::statement::range_letter(&n).into_iter().chain(ends)
         })
         .collect();
+    // A power's exponent the statement puts in ℕ, ℕ₀ or ℤ, the n of "n ∈ ℕ
+    // and z^n = w", is an integer: Lean raises to integers only, and of any
+    // other n the statement is false. A letter put in ℕ that is no exponent,
+    // the n of a triangular number, may be cited at a real, and keeps ℂ.
+    let said_integer: std::collections::BTreeSet<String> = stated
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter_map(|n| super::statement::introduces(&n))
+        .filter(|(_, s)| {
+            matches!(
+                s,
+                super::expr::System::Positive
+                    | super::expr::System::NonNegative
+                    | super::expr::System::Type(Num::Int)
+            )
+        })
+        .map(|(letter, _)| letter)
+        .collect();
+    let exponents: std::collections::BTreeSet<String> = stated
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter(|n| n.notation() == crate::notations::POWER)
+        .filter_map(|n| {
+            n.children
+                .get(1)
+                .filter(|e| e.is_name())
+                .map(|e| e.text.to_string())
+        })
+        .collect();
     let mut fixed = std::collections::BTreeSet::new();
     for n in stated.iter().flat_map(|n| n.walk()) {
         let Route::Built(t) = w.template(&n) else {
@@ -439,7 +546,9 @@ fn free_letters(
             // theorem: of any other k both sides are false.
             let num = if beside_count.contains(&name) {
                 Num::Nat
-            } else if in_range.contains(&name) {
+            } else if in_range.contains(&name)
+                || (said_integer.contains(&name) && exponents.contains(&name))
+            {
                 Num::Int
             } else if real {
                 Num::Real
@@ -623,9 +732,18 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
         &checked.library.groups,
     );
     let facts = checked.library.item_facts.get(&full);
+    let graph =
+        crate::checker::written::graph_letters(&record.hypotheses, &record.path);
     let groups: Vec<crate::citing::Group> = groups
         .iter()
-        .map(|g| crate::checker::written::group_written(g, &phrases, writer.grammar))
+        .map(|g| {
+            crate::checker::written::group_written(
+                g,
+                &phrases,
+                writer.grammar,
+                graph.as_ref(),
+            )
+        })
         .collect();
     for (gi, group) in groups.iter().enumerate() {
         // What the checker read the group's lines to say of its terms
@@ -666,7 +784,11 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .chain(group.asked())
                 .chain(std::iter::once(says))
                 .collect();
-            let things = ThingTypes::read(&lines, sorts);
+            let graph_sets: Vec<String> = graph
+                .iter()
+                .flat_map(|g| [g.vertices.clone(), g.edges.clone()])
+                .collect();
+            let things = ThingTypes::read(&graph_sets, &lines, sorts);
             w.things = std::rc::Rc::new(things.clone());
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
@@ -686,6 +808,22 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .collect();
             for (name, ty) in &sets {
                 w.letters.insert(name.clone(), ty.clone());
+            }
+            // A property of numbers, `P be a property of the elements of ℕ`,
+            // is of the numbers of the set the checker read it to be of.
+            let domains = checked.library.property_domains.get(&full);
+            for (name, domain) in domains.into_iter().flatten() {
+                if w.letters.contains_key(name) || !free.iter().any(|f| f.name == *name)
+                {
+                    continue;
+                }
+                if let Some(m @ super::expr::Members::Numbers(_)) =
+                    w.set_members(domain)
+                {
+                    let ty = LetterType::Property(m);
+                    w.letters.insert(name.clone(), ty.clone());
+                    sets.push((name.clone(), ty));
+                }
             }
             // A letter the sorts leave out that stands as a member of a set,
             // the u of "u ∈ Y ∖ Z", is a member of that set's kind.
@@ -933,6 +1071,57 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     ty: ty.clone(),
                     general,
                 });
+            }
+            // A graph the item lets is the function sending each edge to its
+            // ends, after its vertices and edges, which it is a graph on
+            // even where the statement names neither (`LetterType::Graph`).
+            if let Some(g) = &graph {
+                let vertex = graph_part(&mut w, &mut statements, &things, &g.vertices);
+                let edge = graph_part(&mut w, &mut statements, &things, &g.edges);
+                let ty = LetterType::Graph {
+                    vertices: g.vertices.clone(),
+                    edges: g.edges.clone(),
+                    vertex: vertex.clone(),
+                    edge: edge.clone(),
+                };
+                w.letters.insert(g.graph.clone(), ty.clone());
+                statements.push(Binder::Letter {
+                    name: super::names::letter(&g.graph),
+                    page: g.graph.clone(),
+                    ty,
+                    general: false,
+                });
+                // A letter no line lets that stands where a graph's word puts
+                // an edge or a vertex, the a, u and w of "a joins u and w",
+                // is a member of the edges or the vertices.
+                let free_names = group.free_names(&writer.grammar.binders());
+                for (name, members) in graph_word_letters(&stated, &vertex, &edge) {
+                    if w.letters.contains_key(&name) || !free_names.contains(&name) {
+                        continue;
+                    }
+                    let ty = LetterType::Member(members);
+                    w.letters.insert(name.clone(), ty.clone());
+                    statements.push(Binder::Letter {
+                        name: super::names::letter(&name),
+                        page: name,
+                        ty,
+                        general: false,
+                    });
+                }
+            }
+            // A map from numbers into things, a walk's e : {1, …, n} → E,
+            // takes the numbers' type and gives the things', as a theorem's
+            // `let` of one does (`statement::introduces_in_set`).
+            for typed in typed {
+                if let Some((name, ty)) = map_into_things(&w, &typed.tree) {
+                    w.letters.insert(name.clone(), ty.clone());
+                    statements.push(Binder::Letter {
+                        name: super::names::letter(&name),
+                        page: name,
+                        ty,
+                        general: false,
+                    });
+                }
             }
             // A map the item has, `f : D → E`, maps the one set into the
             // other, which its groups leave out as they leave out its type.

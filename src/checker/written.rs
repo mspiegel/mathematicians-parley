@@ -17,10 +17,66 @@ use crate::formula::{Grammar, Node};
 
 /// A phrase a define gives, `c is a counting ahead through k`: its slots
 /// and what it means, from the definition record the define stands for,
-/// whose statement is the phrase, `↔`, and the meaning.
+/// whose statement is the phrase, `↔`, and the meaning. A definition of a
+/// graph's notion, deg(x) or "v and e form a walk of n edges", is one too,
+/// its statement the notion, `=` or `↔`, and what it is: a graph is no
+/// structure a backend can name its notions on (`docs/LEAN.md`, "Graphs").
 pub struct Phrase {
     slots: Vec<crate::formula::symbol::Symbol>,
     meaning: Node,
+    /// The graph the definition's `let` line names, whose letters in the
+    /// meaning, the E of deg(x) = |{a ∈ E : x is incident with a}|, are the
+    /// page's own graph's where it is written out.
+    graph: Option<GraphLetters>,
+}
+
+/// The letters a `let` line names a graph and its parts by: `let G be an
+/// undirected multigraph with vertices V and edges E`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GraphLetters {
+    pub graph: String,
+    pub vertices: String,
+    pub edges: String,
+}
+
+/// The graph a theorem's or a record's `let` lines name; None where none
+/// does.
+pub fn graph_letters(
+    hypotheses: &[crate::corpus::proof::Hypothesis],
+    path: &str,
+) -> Option<GraphLetters> {
+    use crate::sorts::introduction::{Form, Introduction};
+    hypotheses
+        .iter()
+        .filter(|h| h.kind == crate::corpus::proof::Intro::Let)
+        .find_map(|h| match Introduction::read(h.body(path)).form {
+            Form::Graph(line) | Form::GraphListed(line) => Some(GraphLetters {
+                graph: line.graph,
+                vertices: line.vertices,
+                edges: line.edges,
+            }),
+            _ => None,
+        })
+}
+
+/// Whether a record's statement is written out where it is used: a phrase
+/// a define gives, or a definition of a graph's notion.
+fn written_where_used(r: &crate::corpus::Record) -> bool {
+    r.kind == crate::corpus::RecordKind::Definition
+        && (r.phrase.is_some() || graph_letters(&r.hypotheses, &r.path).is_some())
+}
+
+/// The graph letters of each record that names a graph, by its full name.
+pub fn record_graphs(
+    records: &[crate::corpus::Record],
+) -> IndexMap<String, GraphLetters> {
+    records
+        .iter()
+        .filter_map(|r| {
+            graph_letters(&r.hypotheses, &r.path)
+                .map(|g| (format!("{}/{}", r.module(), r.name), g))
+        })
+        .collect()
 }
 
 /// Where a fact is supplied, with `out` applied to what each line it names
@@ -82,10 +138,19 @@ pub fn written_out(
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Option<CheckedTheorem> {
+    // The file's functions, and the header's of more than one argument,
+    // c(j, y), which a backend has no letter of one type for: each written
+    // out where it is applied.
+    let several = |d: &crate::matching::Defined| matches!(d, crate::matching::Defined::Rule(r) if r.params.len() > 1);
     let rules: crate::matching::Definitions = rec
         .outside
         .iter()
         .filter(|(_, d)| matches!(d, crate::matching::Defined::Rule(_)))
+        .chain(
+            rec.statement_definitions
+                .iter()
+                .filter(|(n, d)| several(d) && !rec.outside.contains_key(*n)),
+        )
         .map(|(n, d)| (n.clone(), d.clone()))
         .collect();
     let phrases = phrase_meanings(checked, rec);
@@ -97,9 +162,10 @@ pub fn written_out(
     if rules.is_empty() && !written_page {
         return None;
     }
+    let graph = graph_letters(&thm.hypotheses, &thm.path);
     let out = |n: &Node| {
         let n = crate::matching::expand(n, &rules);
-        phrases_written(&n, &phrases, &checked.grammar, 8)
+        phrases_written(&n, &phrases, &checked.grammar, graph.as_ref(), 8)
     };
     let binding = |b: &crate::matching::Binding| -> crate::matching::Binding {
         b.iter().map(|(k, v)| (*k, out(v))).collect()
@@ -338,11 +404,75 @@ pub fn written_out(
     // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
     // is one the page as read does not bind.
     written.said_finite = super::finite_of(ctx, thm, &written);
+    // What the lines in scope at each step make finite, the same facts with
+    // the sets and the lines they are read from written out, as the page
+    // here writes them: deg(x) as the count it stands for.
+    written.finite_at = rec
+        .finite_at
+        .iter()
+        .map(|sets| {
+            sets.iter()
+                .map(|(set, why)| {
+                    (written_key(set, &out), finite_by_written(why, &out))
+                })
+                .collect()
+        })
+        .collect();
     written.finite_under = super::formulas::finite_under(&written.page);
     written.set_systems = super::set_systems_of(&written);
     written.element_systems = super::element_systems_of(&written);
     written.function_systems = super::function_systems_of(&written);
     Some(written)
+}
+
+/// A tree keyed by its shape, written out.
+fn written_key(
+    key: &crate::formula::node::ByShape,
+    out: &impl Fn(&Node) -> Node,
+) -> crate::formula::node::ByShape {
+    crate::formula::node::ByShape(out(&key.0))
+}
+
+/// Why a set is finite, each line and set it names written out.
+fn finite_by_written(
+    why: &crate::citing::finite::FiniteBy,
+    out: &impl Fn(&Node) -> Node,
+) -> crate::citing::finite::FiniteBy {
+    use crate::citing::finite::{FiniteBy, Making};
+    let boxed = |w: &FiniteBy| Box::new(finite_by_written(w, out));
+    match why {
+        FiniteBy::Said(line) => FiniteBy::Said(written_key(line, out)),
+        FiniteBy::Counted { line, at_least_one } => FiniteBy::Counted {
+            line: written_key(line, out),
+            at_least_one: *at_least_one,
+        },
+        FiniteBy::Covered { line, over } => FiniteBy::Covered {
+            line: written_key(line, out),
+            over: boxed(over),
+        },
+        FiniteBy::Part { line, whole } => FiniteBy::Part {
+            line: written_key(line, out),
+            whole: boxed(whole),
+        },
+        FiniteBy::Define(name) => FiniteBy::Define(name.clone()),
+        FiniteBy::Bound(name) => FiniteBy::Bound(name.clone()),
+        FiniteBy::MemberOf(w) => FiniteBy::MemberOf(boxed(w)),
+        FiniteBy::Made(made) => FiniteBy::Made(match made {
+            Making::Empty => Making::Empty,
+            Making::Listed => Making::Listed,
+            Making::Range => Making::Range,
+            Making::Minus(w) => Making::Minus(boxed(w)),
+            Making::Inter(w) => Making::Inter(boxed(w)),
+            Making::Union(a, b) => Making::Union(boxed(a), boxed(b)),
+            Making::Powerset(w) => Making::Powerset(boxed(w)),
+            Making::Builder(w) => Making::Builder(boxed(w)),
+            Making::Image(w) => Making::Image(boxed(w)),
+            Making::Coset(w) => Making::Coset(boxed(w)),
+            Making::Applied(name) => Making::Applied(name.clone()),
+            Making::Functions(a, b) => Making::Functions(boxed(a), boxed(b)),
+            Making::Product(a, b) => Making::Product(boxed(a), boxed(b)),
+        }),
+    }
 }
 
 /// Each item's groups, by its full name (`LibraryReading::groups`).
@@ -355,16 +485,14 @@ pub fn library_phrases(
     groups: &Groups,
 ) -> IndexMap<NotationId, Phrase> {
     let mut out = IndexMap::new();
-    let made = records.iter().filter(|r| {
-        r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-    });
-    for r in made {
+    for r in records.iter().filter(|r| written_where_used(r)) {
         let full = format!("{}/{}", r.module(), r.name);
         let Some(Some(groups)) = groups.get(&full) else {
             continue;
         };
+        let graph = graph_letters(&r.hypotheses, &r.path);
         for read in groups.iter().flat_map(|g| &g.gives) {
-            if let Some((notation, phrase)) = phrase_of(read) {
+            if let Some((notation, phrase)) = phrase_of(read, graph.clone()) {
                 out.insert(notation, phrase);
             }
         }
@@ -373,13 +501,15 @@ pub fn library_phrases(
 }
 
 /// An item's group with each phrase in it written out as its meaning, as a
-/// theorem's page is (`written_out`).
+/// theorem's page is (`written_out`); `graph` is the graph the item's own
+/// `let` line names.
 pub fn group_written(
     group: &crate::citing::Group,
     phrases: &IndexMap<NotationId, Phrase>,
     grammar: &Grammar,
+    graph: Option<&GraphLetters>,
 ) -> crate::citing::Group {
-    let out = |n: &Node| phrases_written(n, phrases, grammar, 8);
+    let out = |n: &Node| phrases_written(n, phrases, grammar, graph, 8);
     crate::citing::Group {
         wants: group
             .wants
@@ -404,12 +534,14 @@ pub fn item_facts(
     grammar: &Grammar,
     ctx: &crate::matching::Context,
     function_types: &IndexMap<String, Vec<crate::citing::Want>>,
+    graphs: &IndexMap<String, GraphLetters>,
 ) -> IndexMap<String, Vec<super::record::GroupFacts>> {
     let mut out = IndexMap::new();
     for (full, read) in groups {
         let Some(read) = read else {
             continue;
         };
+        let graph = graphs.get(full);
         let typed: Vec<Node> = function_types
             .get(full)
             .into_iter()
@@ -418,7 +550,9 @@ pub fn item_facts(
             .collect();
         let facts = read
             .iter()
-            .map(|g| group_facts(&group_written(g, phrases, grammar), &typed, ctx))
+            .map(|g| {
+                group_facts(&group_written(g, phrases, grammar, graph), &typed, ctx)
+            })
             .collect();
         out.insert(full.clone(), facts);
     }
@@ -479,10 +613,13 @@ fn phrase_meanings(
     rec: &CheckedTheorem,
 ) -> IndexMap<NotationId, Phrase> {
     let mut out = IndexMap::new();
-    let made = checked.corpus.records.iter().filter(|r| {
-        r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-    });
-    for r in made {
+    for r in checked
+        .corpus
+        .records
+        .iter()
+        .filter(|r| written_where_used(r))
+    {
+        let graph = graph_letters(&r.hypotheses, &r.path);
         for written in r.stated() {
             let Ok(sentence) = written.formula() else {
                 continue;
@@ -490,7 +627,7 @@ fn phrase_meanings(
             let Some(Ok(read)) = rec.items.get(&sentence) else {
                 continue;
             };
-            if let Some((notation, phrase)) = phrase_of(read) {
+            if let Some((notation, phrase)) = phrase_of(read, graph.clone()) {
                 out.insert(notation, phrase);
             }
         }
@@ -499,15 +636,16 @@ fn phrase_meanings(
 }
 
 /// The phrase a definition's statement gives, `P(c, k) ↔ meaning` of a
-/// phrase whose slots are letters, by its notation; None for any other
-/// statement.
-fn phrase_of(read: &Node) -> Option<(NotationId, Phrase)> {
+/// phrase whose slots are letters, or `deg(x) = term` of a graph's notion,
+/// by its notation; None for any other statement. `graph` is the graph the
+/// definition's `let` line names.
+fn phrase_of(read: &Node, graph: Option<GraphLetters>) -> Option<(NotationId, Phrase)> {
     let [phrase, meaning] = read.children.as_slice() else {
         return None;
     };
-    if read.notation() != crate::notations::BICONDITIONAL
-        || !phrase.children.iter().all(Node::is_name)
-    {
+    let defines = read.notation() == crate::notations::BICONDITIONAL
+        || (graph.is_some() && read.spelling() == crate::notations::EQUALS);
+    if !defines || phrase.is_name() || !phrase.children.iter().all(Node::is_name) {
         return None;
     }
     Some((
@@ -515,35 +653,43 @@ fn phrase_of(read: &Node) -> Option<(NotationId, Phrase)> {
         Phrase {
             slots: phrase.children.iter().map(|c| c.text).collect(),
             meaning: meaning.clone(),
+            graph,
         },
     ))
 }
 
 /// The tree with each phrase written out as its meaning at what fills its
-/// slots, the meaning's own letters kept apart from what is put in.
+/// slots, the meaning's own letters kept apart from what is put in. A
+/// graph's notion is written out only where `graph`, the page's own, is
+/// there for the letters of the definition's graph to be.
 fn phrases_written(
     node: &Node,
     phrases: &IndexMap<NotationId, Phrase>,
     grammar: &Grammar,
+    graph: Option<&GraphLetters>,
     depth: usize,
 ) -> Node {
     if depth == 0 {
         return node.clone();
     }
     if let Some(p) = phrases.get(&node.notation()) {
-        if p.slots.len() == node.children.len() {
-            let put: crate::matching::Binding = p
-                .slots
-                .iter()
-                .copied()
-                .zip(node.children.iter().cloned())
-                .collect();
+        let put = match (&p.graph, graph) {
+            (None, _) => Some(Binding::new()),
+            (Some(theirs), Some(ours)) => Some(graph_put(&p.meaning, theirs, ours)),
+            (Some(_), None) => None,
+        };
+        if let Some(mut put) = put.filter(|_| p.slots.len() == node.children.len()) {
+            for (slot, value) in
+                p.slots.iter().copied().zip(node.children.iter().cloned())
+            {
+                put.insert(slot, value);
+            }
             let at = crate::matching::substitute_apart_by(
                 &p.meaning,
                 &put,
                 &grammar.binders(),
             );
-            return phrases_written(&at, phrases, grammar, depth - 1);
+            return phrases_written(&at, phrases, grammar, graph, depth - 1);
         }
     }
     if node.children.is_empty() {
@@ -552,7 +698,27 @@ fn phrases_written(
     node.with_children(
         node.children
             .iter()
-            .map(|c| phrases_written(c, phrases, grammar, depth))
+            .map(|c| phrases_written(c, phrases, grammar, graph, depth))
             .collect(),
     )
+}
+
+use crate::matching::Binding;
+
+/// The definition's graph letters the meaning uses, each put as the page's
+/// own graph letter of the same part.
+fn graph_put(meaning: &Node, theirs: &GraphLetters, ours: &GraphLetters) -> Binding {
+    let pairs = [
+        (&theirs.graph, &ours.graph),
+        (&theirs.vertices, &ours.vertices),
+        (&theirs.edges, &ours.edges),
+    ];
+    let walked = meaning.walk();
+    let mut put = Binding::new();
+    for (from, to) in pairs {
+        if let Some(n) = walked.iter().find(|n| n.is_name() && *n.text == **from) {
+            put.insert(n.text, Node::name(n.sort.clone(), to));
+        }
+    }
+    put
 }

@@ -311,6 +311,12 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   are false. Inside a proof, where the goal's "for all" puts the letter in a
   range, its bounds are named beside it, `have hK1_bounds :=
   Finset.mem_Icc.mp hK1`, for linear arithmetic.
+- An exponent that a phrase define's meaning puts in ℕ, ℕ₀ or ℤ, the n of
+  "z is an n-th root of w means n ∈ ℕ and z^n = w", is `(n : ℤ)` for the
+  same reason: of any other n the meaning is false. A letter put in ℕ that
+  is no exponent may be cited at a real, and keeps ℂ.
+- A count is in ℤ, or in any wider number system, exactly where it is some
+  natural number. So `|S| ∈ ℤ` is written as `|S| ∈ ℕ₀` is.
 - Each formula is computed in the least of ℤ, ℚ, ℝ and ℂ that holds every
   letter and operation in it, never in ℕ. The two sides of a relation share
   one type, and a narrower letter is cast up. `7 divides 4a` is `7 ∣ 4 * a`;
@@ -504,6 +510,43 @@ and `ℕ exists` is said of the page's ℕ, the positive integers. Sets of reals
 and complex numbers are not yet among ZF's sets, so a page that says one
 exists is left out.
 
+f(x, y) of a function on pairs is `f (x, y)`, each coordinate at the type
+f's domain gives it. Σ(d ∈ ℕ : d divides n) d is the sum over the set the
+condition makes, `∑ᶠ d ∈ {d : ℤ | 0 < d ∧ d ∣ n}, d`.
+
+## Graphs
+
+`let G be an undirected multigraph with vertices V and edges E` is three
+letters and a class: `(V : Set α) (E : Set β) (G : β → Sym2 α)
+[LeanBridges.Graphs.Multigraph V E G]`. G is the function sending each edge
+to its two ends, as set.mm's iEdg is. The class says each edge's ends are
+among V, and that no edge has one vertex for both ends. α and β are the
+checker's thing types of V and E. A graph given in full also names each
+vertex and edge, `(A : α)`, `(b₁ : β)`, and states what its line asserts:
+`V = {A, B, C, D}`, the names different from each other, and `G b₁ =
+Sym2.mk A B` for each edge.
+
+"a joins u and w" is `G a = Sym2.mk u w`, and "x is incident with a" is
+`x ∈ G a`. Every other notion of a graph (deg, walk, Euler path,
+traversable) is written out as its definition says (`checker::written`).
+deg(x) is the count `{a ∈ E | x ∈ G a}`, ncard where the lines show it
+finite and encard where they don't, as every count is. The definitions are
+then true as they stand, `Iff.rfl` and `rfl`. The small lemmas are bridges
+in `corpus/lean-bridges/Graphs.lean`.
+
+A set every member of which is e(i) for some i in a range of integers, "for
+all a ∈ E, there is i ∈ {1, …, n} with a = e(i)", is finite
+(`LeanBridges.Sets.finite_of_covered_by_range`). The edges of an Euler path
+are such a set.
+
+`inspection` over a graph given in full is handed the line's facts: its
+sets' equations, the joins, and each "different" fact both ways round. A set
+taken by a property from a listed set is written member by member, as the
+checker recorded which members are kept (`Inspection::Taken { kept }`). Each
+member gets `LeanBridges.Sets.sep_insert_of` or `sep_insert_of_not`, with
+its property stated of that member and proved from the facts. A count of the
+members kept is then worked out by `norm_num`.
+
 ## Defines and recursions
 
 A define in a proof is Lean's `set`: `let m = (a + b)/2` is
@@ -531,6 +574,10 @@ step citing the define, or a calculation row citing it, rewrites with that
 hypothesis; a step citing F(k + 1) by the recursion is its step at k. A
 theorem that cites another theorem over the same recursion gives it its own F
 and G.
+
+A function the header lets of more than one argument, `let c(j, y) = …, for
+j ∈ ℕ₀, y ∈ V`, is written out where it is applied, as a file's defines are.
+It has no letter or hypothesis of its own.
 
 ## Analysis
 
@@ -626,7 +673,7 @@ No proof is left to a general search tactic.
 | restate | the line the checker found the claim in (`CheckedTheorem::restated`), a "for all" read at a block's letter with its `let` line as the guard (`ReadAt::opened_by`) |
 | join | each part of the claim the line the checker found it in (`joined`), in `⟨…⟩` as the sentence joins them; a part Lean's types make true, `trivial`; a line Lean states under the claim's binders read at them |
 | membership | a membership Lean's types give, `trivial`; one of ℕ₀ or ℕ, its bound by the said-once walk's reason, or beside a cited equation, the other side's bound carried along it (`le_of_le_of_eq`); a define's value, `rw [hD1]` and the value's bound; a function's value, its type applied to the point's membership; the other side of an equation put in ℕ₀ by the closure table, `Int.emod_nonneg` or `Nat.cast_nonneg`; an integer the cited lines give, as a witness |
-| inspection | by the case recorded (`inspected`): one of a range, its bounds worked out (`norm_num … at h; norm_cast at h; omega`); one of a listed set, its members' equations and `tauto`; nothing in ∅, `Set.notMem_empty`; a listed set's membership or size, `simp`; a set taken by a property from a listed set, `ext x; simp only […]; omega`, and its size, `rw [Set.ncard_eq_toFinset_card']; decide`; a prime, `norm_num` |
+| inspection | by the case recorded (`inspected`): one of a range, its bounds worked out (`norm_num … at h; norm_cast at h; omega`); one of a listed set, its members' equations and `tauto`; nothing in ∅, `Set.notMem_empty`; a listed set's membership or size, `simp`; a set taken by a property from a listed set, `ext x; simp only […]; omega`, and its size, `rw [Set.ncard_eq_toFinset_card']; decide`; a set of things taken by a property from a listed set, member by member, as recorded, with `sep_insert_of` and `sep_insert_of_not`; a prime, `norm_num` |
 | substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; rows one at a time |
 | calculation | `calc`, each link by its reason; a link citing a line met as a cited hypothesis is (`said_proof`): turned, across casts, a congruence with its modulus; sides Lean writes alike, `rfl`; numerals alone, the line put in the goal and worked out; a chain worked in a wider type than its claim moves the goal there first, `qify` or `rify`, unless the claim is stated there already or the chain's counts are taken to integers after it |
 | proof | `intro` |

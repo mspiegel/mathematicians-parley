@@ -392,6 +392,10 @@ theorem mun_prime_coprime (p : ℤ) (h1 : 0 < p) (h2 : Nat.Prime p.toNat) (a : �
     (Int.gcd p a : ℤ) = 1 :=
   LeanBridges.Divisibility.prime_coprime p h1 h2 a h4
 
+theorem def_sigma (n : ℤ) (h1 : 0 < n) :
+    (ArithmeticFunction.sigma 1 n.toNat : ℤ) = (∑ᶠ d ∈ {d : ℤ | 0 < d ∧ d ∣ n}, (d : ℤ)) :=
+  by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; have hS : {d : ℤ | 0 < d ∧ d ∣ (n : ℤ)} = ((n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) : Set ℤ) := (by ext d; simp only [Set.mem_ofPred_eq, Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Nat.mem_divisors]; constructor; (rintro ⟨hp, hdv⟩; refine ⟨d.natAbs, ⟨?_, (by omega)⟩, (by omega)⟩; have := Int.natAbs_dvd_natAbs.mpr hdv; simpa using this); (rintro ⟨i, ⟨hi, hn⟩, rfl⟩; exact ⟨(by exact_mod_cast Nat.pos_of_dvd_of_pos hi (by omega)), Int.natCast_dvd_natCast.mpr hi⟩)); rw [hS, finsum_mem_coe_finset, Finset.sum_map, ArithmeticFunction.sigma_one_apply]; push_cast; rfl
+
 theorem def_perfect (n : ℤ) (h1 : 0 < n) :
     ArithmeticFunction.sigma 1 n.toNat = 2 * n.toNat ↔ (ArithmeticFunction.sigma 1 n.toNat : ℤ) = 2 * n :=
   by omega

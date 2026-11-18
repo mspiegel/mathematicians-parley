@@ -613,6 +613,20 @@ impl<'a> Proof<'a> {
             .max()
     }
 
+    /// Whether a define's value at its argument, an integer, is a thing, a
+    /// member of a set of things: e(i) of `e : {1, …, n} → E`.
+    fn thing_valued(&self, param: &str, body: &Node) -> bool {
+        let mut letters = self.writer.letters.clone();
+        letters.insert(
+            param.to_string(),
+            LetterType::Number(super::super::templates::Num::Int),
+        );
+        matches!(
+            self.writer.with_letters(letters).member_kind(body),
+            Some(super::super::expr::Members::Things(_))
+        )
+    }
+
     /// A define of a function of one number in a proof, `let S(m) =
     /// Σ(j = 1 to m) 3^j, for m ∈ ℕ`: Lean's `set` of a function from the
     /// type of the set its argument runs over to the least type holding its
@@ -634,10 +648,12 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
         // A function whose values are sets, I(k) = {|x| : x ∈ 𝒫{1, …, k}},
-        // or pairs, f(i) = (L(i), M(i)): a map from its domain's members to
-        // sets of the value's members, or to pairs.
+        // or pairs, f(i) = (L(i), M(i)), or things, g(i) = e(i) of a walk's
+        // edges: a map from its domain's members to sets of the value's
+        // members, to pairs, or to things.
         if set_valued(self.rec, &def.name)
             || super::terms::pair_valued(self.rec, &def.name)
+            || self.thing_valued(&param.name, &body)
         {
             let from = match (
                 super::super::expr::system_of(&domain),
@@ -2325,6 +2341,19 @@ impl<'a> Proof<'a> {
         self.proof_of_finite(&why, set)
     }
 
+    /// Whether `says` counts `set` itself in ℕ∞, `S.encard`, and not only
+    /// some set inside it.
+    fn counts_extended_of(&self, says: &Printed, set: &Node) -> bool {
+        let Route::Built(written) = self.writer.set_term(set) else {
+            return false;
+        };
+        says.walk().iter().any(|t| {
+            matches!(&t.kind, super::super::doc::TermKind::Count { set: s, form }
+                if *form == super::super::doc::CountForm::Extended
+                    && s.untyped() == written.untyped())
+        })
+    }
+
     /// `finite_proof` of `set` for the reason `why`.
     pub(super) fn proof_of_finite(
         &self,
@@ -2375,9 +2404,9 @@ impl<'a> Proof<'a> {
             // the number.
             FiniteBy::Counted { line, .. }
                 if self.line_sentence(line).is_some_and(|said| {
-                    said.says.as_ref().is_some_and(|s| {
-                        s.has_count(super::super::doc::CountForm::Extended)
-                    })
+                    said.says
+                        .as_ref()
+                        .is_some_and(|s| self.counts_extended_of(s, set))
                 }) =>
             {
                 Some(Printed::applied(
@@ -2473,6 +2502,26 @@ impl<'a> Proof<'a> {
                     "Set.finite_of_encard_eq_coe",
                     super::super::doc::Source::Mathlib,
                     vec![said.proof.clone()],
+                    super::super::doc::LeanType::Prop,
+                ))
+            }
+            // Each member some e(i) of a range of integers: the range's
+            // image covers it (`LeanBridges.Sets.finite_of_covered_by_range`).
+            FiniteBy::Covered { line, .. } => {
+                let said = self.line_node(line)?;
+                let [_, _, body] = said.children.as_slice() else {
+                    return None;
+                };
+                let over = body.children.get(1)?;
+                if over.notation() != crate::notations::INTEGER_RANGE {
+                    return None;
+                }
+                Some(Printed::applied(
+                    "LeanBridges.Sets.finite_of_covered_by_range",
+                    super::super::doc::Source::Bridge(
+                        super::super::doc::bridges::BridgeModule::Sets,
+                    ),
+                    vec![hole(), hole(), hole(), self.line_saying(line)?],
                     super::super::doc::LeanType::Prop,
                 ))
             }

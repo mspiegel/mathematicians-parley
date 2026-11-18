@@ -695,6 +695,17 @@ pub(super) fn to_nat_read(term: &Printed) -> Printed {
     }
 }
 
+/// Whether a relation is between terms of ℕ∞, counts of sets not known
+/// finite.
+pub(super) fn in_extended(relation: &Printed) -> bool {
+    match &unparenthesized(relation).kind {
+        super::super::doc::TermKind::Infix { lhs, rhs, .. } => [lhs, rhs]
+            .iter()
+            .any(|s| s.ty == Some(super::super::doc::LeanType::ENat)),
+        _ => false,
+    }
+}
+
 /// `linear_combination proof` of a claim stated `wanted` from a line stated
 /// `says`, each first brought to the atoms `ring1` reads alike
 /// (`same_ring_atoms`): its `toNat`s of sums, products and numerals taken

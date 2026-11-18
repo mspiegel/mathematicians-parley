@@ -231,7 +231,19 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let facings = facings(&groups, taken, &parts.claims, known, library);
     let meetings = meetings(&groups, taken, &parts.claims, known, library);
     let within = parts_within(&groups, taken, &parts.claims, known, library);
-    let unfolded = unfolded(step, &groups[taken.group], taken, &item, known, library);
+    let sought = Sought {
+        refs: &step.just.refs,
+        requires: None,
+    };
+    let unfolded = unfolded(
+        step,
+        sought,
+        &groups[taken.group],
+        taken,
+        &item,
+        known,
+        library,
+    );
     let mut out = Cited {
         item,
         group: taken.group,
@@ -259,6 +271,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
 /// lines in scope (`Cited::unfolded`); None for one read otherwise.
 pub(super) fn unfolded(
     step: &Step,
+    sought: Sought<'_>,
     group: &Group,
     taken: &Taken,
     item: &str,
@@ -288,10 +301,19 @@ pub(super) fn unfolded(
             let witnesses = Binding::new();
             let bound = bound_renamed(right, &at, &taken.bound);
             Some(unfolded_parts(
-                step, &at, &bound, &witnesses, item, known, library,
+                step, sought, &at, &bound, &witnesses, item, known, library,
             ))
         })
         .collect()
+}
+
+/// Where a citation's facts are sought: the lines it names, the step's or
+/// a requires line's, and that requires line where it is one
+/// (`supplied_at`).
+#[derive(Clone, Copy)]
+pub(super) struct Sought<'a> {
+    pub refs: &'a [String],
+    pub requires: Option<usize>,
 }
 
 /// The witnesses `bound` gives the "there is" letters of `right`, given as
@@ -326,8 +348,10 @@ fn bound_renamed(right: &Node, at: &Node, bound: &Binding) -> Binding {
 /// the "there is"es around `node`, put in each fact as it is recorded and
 /// not in `node` first, where putting a witness that names a letter of an
 /// inner "there is" would rename that letter apart from its witness.
+#[allow(clippy::too_many_arguments)]
 pub(super) fn unfolded_parts(
     step: &Step,
+    sought: Sought<'_>,
     node: &Node,
     bound: &Binding,
     outer: &Binding,
@@ -335,15 +359,16 @@ pub(super) fn unfolded_parts(
     known: &Known,
     library: &Library,
 ) -> Vec<Unfolded> {
-    // Each fact is sought as the step's lines are read, with the defines
-    // the step cites written out (`Known::read_citing`): g(s) as f(s).
-    let defined = known.citing_step(step);
+    // Each fact is sought as the citing lines are read, with the defines
+    // the citation cites written out (`Known::read_citing`): g(s) as f(s).
+    // A requires line cites its own lines, not the step's.
+    let defined = known.citing_item(sought.refs, Some(item));
     let fact = |fact: Node, at: &Binding| {
         let fact = substitute_apart(&fact, at, &library.ctx);
         let read = standard(&expand(&fact, &defined), &library.ctx);
         let by = supplied_at(
             step,
-            &step.just.refs,
+            sought.refs,
             Some(item),
             vec![Supplying {
                 want: fact.clone(),
@@ -351,7 +376,7 @@ pub(super) fn unfolded_parts(
                 at: None,
             }],
             &Binding::new(),
-            None,
+            sought.requires,
             known,
             library,
         )
@@ -378,7 +403,7 @@ pub(super) fn unfolded_parts(
             let member = bound_in(Bound::Member, letter, domain, library.env.g);
             let member = fact(member, &inner);
             let body = body.map_or_else(Vec::new, |b| {
-                unfolded_parts(step, b, bound, &inner, item, known, library)
+                unfolded_parts(step, sought, b, bound, &inner, item, known, library)
             });
             Unfolded::Witness {
                 value,
@@ -761,7 +786,19 @@ pub fn cited_requires(
     let facings = facings(&groups, &taken, &parts.claims, known, library);
     let meetings = meetings(&groups, &taken, &parts.claims, known, library);
     let within = parts_within(&groups, &taken, &parts.claims, known, library);
-    let unfolded = unfolded(step, &groups[taken.group], &taken, &item, known, library);
+    let sought = Sought {
+        refs: req.lines(),
+        requires: Some(req.line),
+    };
+    let unfolded = unfolded(
+        step,
+        sought,
+        &groups[taken.group],
+        &taken,
+        &item,
+        known,
+        library,
+    );
     let mut out = Cited {
         item,
         group: taken.group,

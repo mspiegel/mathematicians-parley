@@ -526,6 +526,17 @@ pub(super) fn fields(term: Printed, path: &[&str]) -> Printed {
     })
 }
 
+/// The letters that tell the parts of one line apart, by the part's place
+/// from 0: a, …, z, then aa, ab, …, as a graph given in full asserts more
+/// than twenty-six facts in one line.
+pub(super) fn part_suffix(k: usize) -> String {
+    let letter = |i: usize| (b'a' + (i % 26) as u8) as char;
+    match k < 26 {
+        true => letter(k).to_string(),
+        false => format!("{}{}", part_suffix(k / 26 - 1), letter(k)),
+    }
+}
+
 /// Each `let` and `assume` line of a theorem, by its label, with each of
 /// its sentences and the Lean name of the hypothesis it is: the label, or
 /// `H3a`, `H3b` for a line of several sentences.
@@ -564,7 +575,7 @@ pub(super) fn hypothesis_sentences(
                 let name = if n == 1 {
                     base.clone()
                 } else {
-                    format!("{base}{}", (b'a' + k as u8) as char)
+                    format!("{base}{}", part_suffix(k))
                 };
                 LineSentence::named(at, node, name)
             })
@@ -1042,9 +1053,10 @@ pub(super) fn recursion_arithmetic(
         let r = match crate::corpus::define_parts(&d.text) {
             Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
             // A function the header lets by its value: the value, which its
-            // hypothesis states (`header_function`).
+            // hypothesis states (`header_function`). One of several
+            // arguments is written out, and has no hypothesis.
             Route::Built(crate::corpus::DefineParts::One(one))
-                if !one.params.is_empty() =>
+                if one.params.len() == 1 =>
             {
                 let values: Vec<Node> = rec
                     .page
@@ -1117,6 +1129,13 @@ pub(super) fn header_recursions(
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
         let r = match crate::corpus::define_parts(&d.text) {
             Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
+            // A function of more than one argument is written out where it is
+            // applied (`checker::written`), and has no binder.
+            Route::Built(crate::corpus::DefineParts::One(one))
+                if one.params.len() > 1 =>
+            {
+                continue
+            }
             // A function the header lets by its value, f(x) = 2x + 1, for x
             // ∈ ℝ: a function letter, and that equation for every x.
             Route::Built(crate::corpus::DefineParts::One(one))

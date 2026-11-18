@@ -222,6 +222,29 @@ impl<'a> Proof<'a> {
         let found = self.line_part(at).built()?;
         let (proof, says) = self.line_says(at).built()?;
         let op = super::super::doc::Op::of(relation)?;
+        // A row of a chain in ℕ∞, each side an integer the page says is a
+        // whole number cast up, `((c.toNat : ℕ) : ℕ∞) = (((m + m).toNat : ℕ)
+        // : ℕ∞)`, of a line in ℤ that equates the two, `c = m + m`: that
+        // line carried across, `congrArg (fun t : ℤ => ((t.toNat : ℕ) :
+        // ℕ∞)) h`.
+        if let (Some(a), Some(b), "=") = (
+            whole_in_extended(&printed[k]),
+            whole_in_extended(&printed[k + 1]),
+            relation,
+        ) {
+            if let super::super::doc::TermKind::Infix { lhs, rhs, .. } =
+                &unparenthesized(&says).kind
+            {
+                if lhs.untyped() == a.untyped() && rhs.untyped() == b.untyped() {
+                    return Some(super::super::doc::Proof::Term(Printed::applied(
+                        "congrArg",
+                        super::super::doc::Source::Core,
+                        vec![whole_cast_up(), proof],
+                        super::super::doc::LeanType::Prop,
+                    )));
+                }
+            }
+        }
         let row = Printed::infix(
             op,
             printed[k].clone(),
@@ -822,6 +845,23 @@ impl<'a> Proof<'a> {
                         }
                         None => wanted,
                     };
+                    // A property given as what it says applied at a value,
+                    // `¬ (fun i => x = v i) 0`, is that, `¬ x = v 0`, as the
+                    // line that supplies it says it (`forms::beta_reduced`).
+                    // Only where the hypothesis applies one of the item's
+                    // properties: a function given as `fun n => …` is left
+                    // as the item takes it.
+                    let applies_property = says.walk().iter().any(|t| {
+                        matches!(&t.kind, super::super::doc::TermKind::App { head, .. }
+                            if matches!(&head.kind, super::super::doc::TermKind::Letter(l)
+                                if sentence.binders.iter().any(|b| matches!(b,
+                                    Binder::Letter { name, ty: LetterType::Property(_), .. }
+                                        if name == l))))
+                    });
+                    let wanted = match applies_property {
+                        true => super::super::doc::forms::beta_reduced(&wanted),
+                        false => wanted,
+                    };
                     let proof = lean_truth(&wanted).or_else(|| match at {
                         Some(StatedAt::Hypothesis(at)) => cited
                             .supplied
@@ -1331,6 +1371,12 @@ impl<'a> Proof<'a> {
         page: &str,
         ty: &LetterType,
     ) -> Route<Printed> {
+        // A cited item's graph, its vertices or its edges, which no line
+        // writes as a term to bind: the citing theorem's own, a page having
+        // one graph as set.mm's reading does.
+        if let Some(ours) = self.graph_part_given(asked.sentence, page) {
+            return ours;
+        }
         Route::Built(
             match (ty, self.given_domain(asked.sentence, name, asked.binding)) {
                 (LetterType::Set(_), Some(Route::Built(d))) => d,
@@ -1358,6 +1404,53 @@ impl<'a> Proof<'a> {
                 ),
             },
         )
+    }
+
+    /// Of a cited item's letter that is its graph, or the graph's vertices
+    /// or edges, the citing theorem's graph, vertices or edges, by its Lean
+    /// name; None for any other letter. Declined where the citing theorem
+    /// lets no graph, or more than one.
+    fn graph_part_given(
+        &self,
+        sentence: &Sentence,
+        page: &str,
+    ) -> Option<Route<Printed>> {
+        let theirs = sentence.binders.iter().find_map(|b| match b {
+            Binder::Letter {
+                page: graph,
+                ty:
+                    LetterType::Graph {
+                        vertices, edges, ..
+                    },
+                ..
+            } => Some([graph.as_str(), vertices.as_str(), edges.as_str()]),
+            _ => None,
+        })?;
+        let part = theirs.iter().position(|l| *l == page)?;
+        let mut ours = self
+            .writer
+            .letters
+            .iter()
+            .filter_map(|(name, ty)| match ty {
+                LetterType::Graph {
+                    vertices, edges, ..
+                } => Some([name, vertices, edges]),
+                _ => None,
+            });
+        let ours = match (ours.next(), ours.next()) {
+            (Some(g), None) => g,
+            _ => {
+                return Some(Route::no(
+                    "a graph cited where the theorem lets no one graph",
+                ))
+            }
+        };
+        let name = ours[part];
+        let ty = self.writer.letters.get(name.as_str())?.lean_type();
+        Some(Route::Built(super::super::expr::Printed::letter(
+            super::super::names::letter(name),
+            ty,
+        )))
     }
 
     /// What a citation gives a cited item's letter of things, a set of
@@ -1528,9 +1621,14 @@ impl<'a> Proof<'a> {
             // A group given for a group, or a subgroup for a
             // subgroup: its Lean name, the type or the
             // `Subgroup G` itself, not the set it stands for.
-            (LetterType::Group | LetterType::Subgroup(_), _) => Route::Built(
-                super::super::tactics::hyp(&super::super::names::letter(&value.text)),
-            ),
+            // A graph given for a graph: its function from edges to ends,
+            // by its Lean name.
+            (
+                LetterType::Group | LetterType::Subgroup(_) | LetterType::Graph { .. },
+                _,
+            ) => Route::Built(super::super::tactics::hyp(
+                &super::super::names::letter(&value.text),
+            )),
             // The identity is no binder: `1` of the group.
             (LetterType::Identity(_), _) => {
                 Route::no("an identity given as a letter of an item")
@@ -2274,6 +2372,26 @@ impl<'a> Proof<'a> {
             .filter(|d| d.param.is_some())
             .chain(headers.iter().map(|h| &h.define))
             .fold(node.clone(), |n, d| self.put_define(&n, d));
+        // A claim whose two sides are one term once every define is put in,
+        // deg(x) = |T| of T = {a ∈ E : x is incident with a}, is closed by
+        // writing them out in it, which leaves `a = a`, as an algebra step's
+        // is: the item, a definition written out as itself, adds nothing.
+        let all_put = defines
+            .iter()
+            .fold(node.clone(), |n, d| self.put_define(&n, d));
+        let same_sides = all_put.notation() == crate::notations::EQUALITY
+            && matches!(all_put.children.as_slice(), [l, r] if l.spelt_alike(r));
+        if same_sides && headers.is_empty() && !all_put.spelt_alike(node) {
+            let goal = RewriteAt {
+                at: super::super::doc::Location::Goal,
+                said: vec![node.clone()],
+                stated: self.writer.formula(node).built().into_iter().collect(),
+            };
+            self.defines_in_goal.replace(outer_in_goal);
+            return Route::Built(super::super::doc::Proof::By(Tactic::Seq(
+                written_out_as(&defines, &[goal], &self.writer, false),
+            )));
+        }
         let (closing_node, claim_lean) = if written_node.spelt_alike(node) {
             (node, claim_lean)
         } else {
@@ -2644,16 +2762,32 @@ impl<'a> Proof<'a> {
         known: &mut Vec<Tactic>,
     ) -> Option<Printed> {
         let wanted = lean_conjuncts(lean);
-        while parts.len() > wanted {
+        let size =
+            |ps: &[&Unfolded]| ps.iter().map(|p| self.part_conjuncts(p)).sum::<usize>();
+        while size(&parts) > wanted {
             let at = parts.iter().position(|p| type_membership(p))?;
             parts.remove(at);
         }
-        if parts.len() != wanted {
+        if size(&parts) != wanted {
             return None;
         }
-        let mut parts = parts.into_iter();
+        let mut parts = parts.into_iter().peekable();
         let proof = self.unfolded_tree(lean, &mut parts, known)?;
         parts.next().is_none().then_some(proof)
+    }
+
+    /// How many of Lean's conjuncts a part of a definition's right side
+    /// states: one, or of a fact the record writes out as an "and", a walk
+    /// of n edges as each of its parts, as many as Lean writes it in.
+    fn part_conjuncts(&self, part: &Unfolded) -> usize {
+        match part {
+            Unfolded::Fact { fact, .. } => self
+                .writer
+                .formula(fact)
+                .built()
+                .map_or(1, |f| lean_conjuncts(&f)),
+            Unfolded::Witness { .. } => 1,
+        }
     }
 
     /// The proof of `lean`, its statements joined by "and" each proved by the
@@ -2662,15 +2796,21 @@ impl<'a> Proof<'a> {
     /// writes one, an integer's of ℕ or ℕ₀ or a member's of a set, and its
     /// body at the witness (`unfolded_proof`), the membership the first of
     /// the body's parts where Lean writes it there.
-    pub(super) fn unfolded_tree<'u>(
+    pub(super) fn unfolded_tree<'u, I: Iterator<Item = &'u Unfolded>>(
         &self,
         lean: &Printed,
-        parts: &mut impl Iterator<Item = &'u Unfolded>,
+        parts: &mut std::iter::Peekable<I>,
         known: &mut Vec<Tactic>,
     ) -> Option<Printed> {
         let lean = super::super::doc::forms::beta_reduced(&unparenthesized(lean));
         if let super::super::doc::TermKind::Infix { op, lhs, rhs } = &lean.kind {
-            if op.symbol == "∧" {
+            // A part that states this whole "and", a phrase the record
+            // writes out, is proved whole.
+            let whole = parts.peek().is_some_and(|p| {
+                matches!(p, Unfolded::Fact { .. })
+                    && self.part_conjuncts(p) == lean_conjuncts(&lean)
+            });
+            if op.symbol == "∧" && !whole {
                 let left = self.unfolded_tree(lhs, parts, known)?;
                 let right = self.unfolded_tree(rhs, parts, known)?;
                 return Some(joined(vec![left], right));
@@ -3107,4 +3247,42 @@ impl<'a> Proof<'a> {
             lean,
         })
     }
+}
+
+/// The integer t of `((t.toNat : ℕ) : ℕ∞)`, a whole number the page says
+/// is one, cast up to ℕ∞; None for any other term.
+fn whole_in_extended(term: &Printed) -> Option<Printed> {
+    use super::super::doc::{LeanType, TermKind};
+    let TermKind::Cast {
+        inner,
+        to: LeanType::ENat,
+    } = &unparenthesized(term).kind
+    else {
+        return None;
+    };
+    let mut at = &**inner;
+    while let TermKind::Cast { inner, .. } | TermKind::Paren(inner) = &at.kind {
+        at = inner;
+    }
+    match &at.kind {
+        TermKind::ToNat(t) => Some((**t).clone()),
+        _ => None,
+    }
+}
+
+/// `fun t : ℤ => ((t.toNat : ℕ) : ℕ∞)`: an integer as the whole number it
+/// is, in ℕ∞ (`whole_in_extended`).
+fn whole_cast_up() -> Printed {
+    use super::super::doc::{LeanType, TermKind};
+    use super::super::templates::Num;
+    let t = Printed::letter("t", LeanType::Num(Num::Int));
+    let to_nat = Printed::of(TermKind::ToNat(Box::new(t)), LeanType::Num(Num::Nat));
+    lambda(
+        "t",
+        LeanType::Num(Num::Int),
+        Printed::cast(
+            Printed::cast(to_nat, LeanType::Num(Num::Nat)),
+            LeanType::ENat,
+        ),
+    )
 }

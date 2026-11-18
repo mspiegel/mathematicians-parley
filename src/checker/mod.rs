@@ -318,6 +318,7 @@ fn library_reading(c: &Checking<'_>, records: &[Record]) -> LibraryReading {
         c.env.g,
         &c.library.ctx,
         &function_types,
+        &written::record_graphs(records),
     );
     LibraryReading {
         record_sorts: c.record_sorts.clone(),
@@ -325,7 +326,46 @@ fn library_reading(c: &Checking<'_>, records: &[Record]) -> LibraryReading {
         groups,
         function_types,
         item_facts,
+        property_domains: property_domains(c, records),
     }
+}
+
+/// The set each property a record's `let` lines name is of, read, by the
+/// record's full name and the property's letter
+/// (`LibraryReading::property_domains`).
+fn property_domains(
+    c: &Checking<'_>,
+    records: &[Record],
+) -> IndexMap<String, IndexMap<String, Node>> {
+    use crate::sorts::introduction::{Form, Introduction};
+    let mut out = IndexMap::new();
+    for (i, r) in records.iter().enumerate() {
+        let Some(sorts) = c.record_sorts.get(&i) else {
+            continue;
+        };
+        let mut domains = IndexMap::new();
+        for h in r
+            .hypotheses
+            .iter()
+            .filter(|h| h.kind == crate::corpus::proof::Intro::Let)
+        {
+            let introduced = Introduction::read(h.body(&r.path));
+            let Form::Property { name, domain } = &introduced.form else {
+                continue;
+            };
+            let Ok(part) = introduced.part(domain).formula() else {
+                continue; // check_introductions says so
+            };
+            let Ok(tree) = part.read(c.env.g, sorts) else {
+                continue; // check_introductions says so
+            };
+            domains.insert(name.clone(), tree);
+        }
+        if !domains.is_empty() {
+            out.insert(format!("{}/{}", r.module(), r.name), domains);
+        }
+    }
+    out
 }
 
 /// The run's corpus, its records, each written out as the page reads with
@@ -454,6 +494,25 @@ fn finite_defines<'r>(
 /// holds them written out (`CheckedTheorem::outside`). A backend that
 /// writes the page otherwise, a define of its file written out where
 /// applied, reads it again of the page it writes.
+/// The sets the lines in scope at each step make finite
+/// (`CheckedTheorem::finite_at`), each step's lines read with the letters
+/// and bounds the record has there.
+pub fn finite_at_lines(
+    in_scope: &[Vec<Node>],
+    record: &CheckedTheorem,
+    ctx: &crate::matching::Context,
+) -> Vec<crate::citing::finite::FiniteSets> {
+    in_scope
+        .iter()
+        .zip(&record.introduced)
+        .zip(&record.bounds)
+        .map(|((lines, letters), said)| {
+            let positive = bounds::positive_by(letters, said, ctx);
+            crate::citing::finite::finite_sets(lines, &positive)
+        })
+        .collect()
+}
+
 pub fn finite_of(
     ctx: &crate::matching::Context,
     thm: &Theorem,
@@ -529,7 +588,15 @@ pub fn thing_types_of(
             given.push((letter.to_string(), value));
         }
     }
-    crate::citing::things::ThingTypes::read_given(&lines, &given, Some(&record.sorts))
+    let sets: Vec<String> = written::graph_letters(&thm.hypotheses, &thm.path)
+        .map(|g| vec![g.vertices, g.edges])
+        .unwrap_or_default();
+    crate::citing::things::ThingTypes::read_given(
+        &sets,
+        &lines,
+        &given,
+        Some(&record.sorts),
+    )
 }
 
 /// The number system each letter the page's lines put in sets of numbers
@@ -879,15 +946,7 @@ fn theorem_record(
         .zip(&record.introduced)
         .map(|(lines, letters)| bounds::said_by(lines, letters, ctx))
         .collect();
-    record.finite_at = in_scope
-        .iter()
-        .zip(&record.introduced)
-        .zip(&record.bounds)
-        .map(|((lines, letters), said)| {
-            let positive = bounds::positive_by(letters, said, ctx);
-            crate::citing::finite::finite_sets(lines, &positive)
-        })
-        .collect();
+    record.finite_at = finite_at_lines(&in_scope, &record, ctx);
     record.read_at = thm
         .steps
         .iter()

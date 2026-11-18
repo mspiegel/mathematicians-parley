@@ -33,6 +33,9 @@ pub enum LeanType {
     Within(Box<Term>),
     /// Pairs of a member of the one type and one of the other, `ℤ × ℝ`.
     Prod(Box<LeanType>, Box<LeanType>),
+    /// Unordered pairs of members of a type, `Sym2 α`: the two ends of a
+    /// graph's edge.
+    Sym2(Box<LeanType>),
 }
 
 impl LeanType {
@@ -42,7 +45,7 @@ impl LeanType {
     pub fn open(&self) -> bool {
         match self {
             LeanType::Things(_) | LeanType::General => true,
-            LeanType::Set(inner) => inner.open(),
+            LeanType::Set(inner) | LeanType::Sym2(inner) => inner.open(),
             LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
                 a.open() || b.open()
             }
@@ -56,7 +59,7 @@ impl LeanType {
     pub fn contains(&self, ty: &LeanType) -> bool {
         self == ty
             || match self {
-                LeanType::Set(inner) => inner.contains(ty),
+                LeanType::Set(inner) | LeanType::Sym2(inner) => inner.contains(ty),
                 LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
                     a.contains(ty) || b.contains(ty)
                 }
@@ -69,7 +72,7 @@ impl LeanType {
     pub fn fixed(&self) -> bool {
         match self {
             LeanType::Num(_) | LeanType::ENat | LeanType::Prop => true,
-            LeanType::Set(inner) => inner.fixed(),
+            LeanType::Set(inner) | LeanType::Sym2(inner) => inner.fixed(),
             LeanType::Fun { from: a, to: b } | LeanType::Prod(a, b) => {
                 a.fixed() && b.fixed()
             }

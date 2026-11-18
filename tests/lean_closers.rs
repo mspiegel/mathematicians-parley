@@ -940,6 +940,34 @@ const SITES: &[Site] = &[
         list: false,
         why: "a power below 0: its value times the power above 0 is 1 (`reals::power_law`)",
     },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/Inspection/ListedProperty.lean",
+        step: "1",
+        holds: "LeanBridges.Sets.sep_insert_of (p := (fun x : β => A ∈ G x)) (show A ∈ G b₁ by",
+        list: false,
+        why: "a set of things taken by a property from a listed set: each member kept or left out as the checker recorded (`Inspection::Taken { kept }`), its property stated of it",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/Inspection/ListedNonmember.lean",
+        step: "1",
+        holds: "hH1c, Ne.symm hH1c",
+        list: false,
+        why: "a denial of membership in a listed set: each cited 'different' fact given both ways round",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Konigsberg/OddVertices.lean",
+        step: "7",
+        holds: "only [LeanBridges.Counting.some_count_iff]",
+        list: false,
+        why: "a closing whose statement counts a set as some natural number where the step counts it, finite: the property opened (`some_counts_opened`)",
+    },
+    Site {
+        file: "lean/Parley/Tests/Notations/Pairs/AFunctionOnPairs.lean",
+        step: "1",
+        holds: "f ((1 : ℝ), (2 : ℝ)) = 1 + 2",
+        list: false,
+        why: "a function on pairs applied to a pair: the pair at the types f's domain gives",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next

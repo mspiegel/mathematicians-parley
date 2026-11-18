@@ -248,7 +248,8 @@ impl Writer<'_> {
                     | LetterType::Group
                     | LetterType::Identity(_)
                     | LetterType::Subgroup(_)
-                    | LetterType::Property(_),
+                    | LetterType::Property(_)
+                    | LetterType::Graph { .. },
                 ) => Route::no(format!("{} is no number", node.text)),
                 None => Route::no(format!("{} has no Lean type", node.text)),
             },
@@ -257,7 +258,9 @@ impl Writer<'_> {
             } else {
                 Num::Int
             }),
-            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+                if self.library_function(node).is_none() =>
+            {
                 match self.applied(node) {
                     Route::Built(a) => Route::Built(a.gives.max(Num::Int)),
                     Route::Declined(d) => Route::Declined(d),
@@ -591,7 +594,9 @@ impl Writer<'_> {
             {
                 true
             }
-            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+                if self.library_function(node).is_none() =>
+            {
                 true
             }
             _ => match self.template(node) {
@@ -630,7 +635,9 @@ impl Writer<'_> {
                 Some(LetterType::Number(Num::Nat))
             ),
             NUMERAL => !node.text.contains('.'),
-            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+                if self.library_function(node).is_none() =>
+            {
                 matches!(
                     self.applied(node),
                     Route::Built(Applied {
@@ -671,6 +678,11 @@ impl Writer<'_> {
             {
                 (index, Over::Set(set), term)
             }
+            (None, [index, set, condition, term])
+                if node.notation() == crate::notations::SUM_OVER_CONDITION =>
+            {
+                (index, Over::Where { set, condition }, term)
+            }
             (None, [index, from, to, term]) => (index, Over::Range { from, to }, term),
             (None, _) => return Route::no("a sum of other than four parts"),
         };
@@ -691,10 +703,21 @@ impl Writer<'_> {
                 Some(m) => m.letter(),
                 None => return Route::no("a sum over a set with no Lean type"),
             },
+            Over::Where { set, .. } => match self.set_members(set) {
+                Some(m) => m.letter(),
+                None => return Route::no("a sum over a set with no Lean type"),
+            },
         };
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(index.text.to_string(), ty);
         inner.wholes.shift_remove(&*index.text);
+        // An index running over ℕ or ℕ₀ with a condition is in that
+        // system, as the set-builder's letter is.
+        if let Over::Where { set, .. } = &over {
+            if let Some(s @ (System::Positive | System::NonNegative)) = system_of(set) {
+                inner.introduce(&index.text, s)
+            }
+        }
         // An index from 0 or 1 is said once in ℕ₀ or ℕ by where it starts
         // (`citing::index_system`), so x^k of Σ(k = 0 to n) x^k is a
         // natural power.
@@ -711,7 +734,7 @@ impl Writer<'_> {
         }
         let range = match &over {
             Over::Range { from, to } => Some((*from, *to)),
-            Over::Set(_) => None,
+            Over::Set(_) | Over::Where { .. } => None,
         };
         inner.bounds = bounds::inside_sum(self, index, range);
         Route::Built(Summed {

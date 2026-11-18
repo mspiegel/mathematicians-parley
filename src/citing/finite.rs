@@ -35,6 +35,10 @@ pub enum FiniteBy {
     /// A part of a finite set, B of `B ⊆ A` or of `B ∈ 𝒫A`: that line's
     /// sentence, and why the whole is finite.
     Part { line: ByShape, whole: Box<FiniteBy> },
+    /// A set a line says is within the image of a finite one, "for all a ∈
+    /// E, there is i ∈ {1, …, n} with a = e(i)": that line's sentence, and
+    /// why the one it is the image of is finite.
+    Covered { line: ByShape, over: Box<FiniteBy> },
     /// The name a define gives a finite set.
     Define(String),
     /// A letter the theorem binds only over sets of finite sets.
@@ -204,6 +208,7 @@ fn sets_read<'n>(
     let mut said = SaidOfSets {
         finite: Vec::new(),
         subsets: Vec::new(),
+        covers: Vec::new(),
         positive,
     };
     for line in lines {
@@ -221,6 +226,7 @@ fn sets_read<'n>(
         };
         out.entry(key(s.set)).or_insert(why);
     }
+    with_covers(&said.covers, &mut out);
     with_parts(&said.subsets, &mut out);
     if maybe_zero {
         for s in said.finite.iter().filter(|s| s.counted == Some(false)) {
@@ -232,6 +238,25 @@ fn sets_read<'n>(
         with_parts(&said.subsets, &mut out);
     }
     out
+}
+
+/// Adds to `out` each set a line `covers` says is within the image of a
+/// finite set (`FiniteBy::Covered`).
+fn with_covers(covers: &[Subset<'_>], out: &mut FiniteSets) {
+    for c in covers {
+        if out.contains_key(&key(c.part)) {
+            continue;
+        }
+        if let Some(over) = finite_by(out, c.whole) {
+            out.insert(
+                key(c.part),
+                FiniteBy::Covered {
+                    line: key(c.line),
+                    over: Box::new(over),
+                },
+            );
+        }
+    }
 }
 
 /// Adds to `out` each part of a finite set by the lines `subsets`, and each
@@ -268,6 +293,9 @@ struct SaidOfSets<'n, 'p> {
     finite: Vec<SaidSet<'n>>,
     /// `B ⊆ A`, each.
     subsets: Vec<Subset<'n>>,
+    /// "for all a ∈ A, there is i ∈ {m, …, n} with a = f(i)", each: A within
+    /// the image of the range, the part A and the whole the range.
+    covers: Vec<Subset<'n>>,
     /// Whether the number a count is given as is at least 1.
     positive: &'p dyn Fn(&Node) -> bool,
 }
@@ -328,6 +356,30 @@ impl<'n> SaidOfSets<'n, '_> {
                             set,
                             line,
                             counted: Some((self.positive)(value)),
+                        });
+                    }
+                }
+            }
+            // for all a ∈ A, there is i ∈ {m, …, n} with a = f(i): each
+            // member of A is f of one of the range's, so A is finite, the
+            // edges of a walk that crosses every edge. Of a range only: the
+            // image of a finite set read so would hold every "onto" line.
+            (_, crate::notations::FOR_ALL, [a, set, body]) => {
+                if let (crate::notations::THERE_IS, [i, over, equation]) =
+                    (body.notation(), body.children.as_slice())
+                {
+                    if over.notation() != crate::notations::INTEGER_RANGE {
+                        return;
+                    }
+                    let covered = equation.notation() == crate::notations::EQUALITY
+                        && matches!(equation.children.as_slice(),
+                            [l, r] if l.is_name() && *l.text == *a.text
+                                && r.children.iter().any(|c| c.is_name() && *c.text == *i.text));
+                    if covered {
+                        self.covers.push(Subset {
+                            part: set,
+                            whole: over,
+                            line,
                         });
                     }
                 }

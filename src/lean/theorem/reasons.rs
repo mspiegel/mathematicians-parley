@@ -3,6 +3,21 @@
 use super::*;
 use crate::notations::{BY_CASES, CARDINALITY};
 
+/// A set of things taken by a property from one a cited equation lists in
+/// full, {x ∈ E : P(x)} of E = {b₁, b₂} (`things_listed`).
+struct ThingsListed {
+    /// x, the letter the property is said of.
+    letter: Node,
+    /// P(x).
+    property: Node,
+    /// What E holds.
+    members: super::super::expr::Members,
+    /// The cited equation's proof, `hE`.
+    listing: Printed,
+    /// E's members as the equation lists them, b₁ and b₂.
+    listed: Vec<Node>,
+}
+
 impl<'a> Proof<'a> {
     /// Whether the define of that label gives its value by cases, as the
     /// page reads its line (the `by-cases` notation).
@@ -973,7 +988,7 @@ impl<'a> Proof<'a> {
             // The lines the checker found each part of the claim in
             // (`joined`), put together.
             Method::Join => return self.join_proof(just.line, k, node, writer),
-            Method::Inspection => match self.inspection_proof(just) {
+            Method::Inspection => match self.inspection_proof(just, node) {
                 Some(proof) => proof,
                 None => return Route::no("an inspection the record names no case of"),
             },
@@ -1005,18 +1020,49 @@ impl<'a> Proof<'a> {
     pub(super) fn inspection_proof(
         &self,
         just: &Justification,
+        node: &Node,
     ) -> Option<super::super::doc::Proof> {
         use super::super::doc::Proof;
         use super::super::tactics as t;
         use crate::checker::record::Inspection;
-        // The cited lines that are equations, which give a set or a value.
-        let equations: Vec<super::super::doc::Rule> = self
-            .cited_parts(&just.refs)
-            .into_iter()
-            .filter(|c| c.node.notation() == crate::notations::EQUALITY)
-            .map(|c| t::forwards(c.proof))
-            .collect();
-        Some(match self.rec.inspected.get(&just.line)? {
+        // The cited lines that are equations, which give a set or a value,
+        // or an edge's ends, which its "joins" gives; and two terms said to
+        // differ, each way round, so that a denial reads whichever side it
+        // meets first.
+        let cited = self.cited_parts(&just.refs);
+        let mut equations: Vec<super::super::doc::Rule> = Vec::new();
+        for c in &cited {
+            match (c.node.notation(), c.node.children.as_slice()) {
+                (crate::notations::EQUALITY | crate::notations::JOINS, _) => {
+                    equations.push(t::forwards(c.proof.clone()))
+                }
+                (crate::notations::LOGICAL_NOT, [inner])
+                    if inner.notation() == crate::notations::EQUALITY =>
+                {
+                    equations.push(t::forwards(c.proof.clone()));
+                    equations.push(t::forwards(Printed::applied(
+                        "Ne.symm",
+                        super::super::doc::Source::Core,
+                        vec![c.proof.clone()],
+                        super::super::doc::LeanType::Prop,
+                    )));
+                }
+                _ => {}
+            }
+        }
+        let inspected = self.rec.inspected.get(&just.line)?;
+        // A set of things taken by a property from one a cited equation
+        // lists, {x ∈ E : A is incident with x} of E = {b₁, b₂}: kept or
+        // left out member by member, as the checker found each.
+        if let (
+            Inspection::Taken { kept } | Inspection::TakenSize { kept },
+            Some(listed),
+        ) = (inspected, self.things_listed(node, &cited))
+        {
+            let size = matches!(inspected, Inspection::TakenSize { .. });
+            return self.taken_things(node, size, kept, &listed, &cited, equations);
+        }
+        Some(match inspected {
             Inspection::OneOf { from, range } => {
                 let member =
                     self.cited_parts(std::slice::from_ref(from))
@@ -1071,7 +1117,7 @@ impl<'a> Proof<'a> {
             }
             Inspection::Prime => simp_call("norm_num", equations),
             // The set listed as Lean's finite set and counted.
-            Inspection::TakenSize => Proof::By(Tactic::Seq(vec![
+            Inspection::TakenSize { .. } => Proof::By(Tactic::Seq(vec![
                 t::call(
                     "rw",
                     vec![TacticArg::Rules(lemma_rules(&[
@@ -1082,7 +1128,7 @@ impl<'a> Proof<'a> {
             ])),
             // Member by member: each side's members' equations, and the
             // property, odd or even, by the remainder `omega` reads.
-            Inspection::Taken => Proof::By(Tactic::Seq(vec![
+            Inspection::Taken { .. } => Proof::By(Tactic::Seq(vec![
                 t::call("ext", vec![TacticArg::Term(t::hyp("x"))]),
                 t::simp_only(
                     false,
@@ -1100,6 +1146,256 @@ impl<'a> Proof<'a> {
             ])),
             Inspection::Other => return None,
         })
+    }
+
+    /// Of a claim about a set of things taken by a property, {x ∈ E : P(x)},
+    /// what it takes and the cited equation that lists E, `E = {b₁, b₂}`;
+    /// None where the claim takes no set of things, or nothing cited lists
+    /// it.
+    fn things_listed(
+        &self,
+        node: &Node,
+        cited: &[super::super::algebra::Cited],
+    ) -> Option<ThingsListed> {
+        let (letter, over, property, members) =
+            node.walk().into_iter().find_map(|n| {
+                match (n.notation(), n.children.as_slice()) {
+                    (crate::notations::SET_BUILDER, [letter, over, property]) => {
+                        match self.writer.set_members(over) {
+                            Some(m @ super::super::expr::Members::Things(_)) => Some((
+                                letter.clone(),
+                                over.clone(),
+                                property.clone(),
+                                m,
+                            )),
+                            _ => None,
+                        }
+                    }
+                    _ => None,
+                }
+            })?;
+        cited.iter().find_map(|c| match c.node.children.as_slice() {
+            [set, list]
+                if c.node.notation() == crate::notations::EQUALITY
+                    && set.spelt_alike(&over) =>
+            {
+                Some(ThingsListed {
+                    letter: letter.clone(),
+                    property: property.clone(),
+                    members: members.clone(),
+                    listing: c.proof.clone(),
+                    listed: list.children.clone(),
+                })
+            }
+            _ => None,
+        })
+    }
+
+    /// {x ∈ E : P(x)} of E listed, said equal to the members it keeps, or
+    /// counted (`size`): E written as its list, `rw [hE]`, then each listed
+    /// member kept or left out as the checker found (`kept`), by
+    /// `LeanBridges.Sets.sep_insert_of` or `sep_insert_of_not` (the last by
+    /// the singleton's), each with P stated of that member or denied and
+    /// proved from the cited facts, the vertices of an edge read by
+    /// `Sym2.mem_iff`; then the members kept counted in the claim's count
+    /// form, each different from the others by the facts. None where the
+    /// checker's list and the cited one are of different lengths.
+    fn taken_things(
+        &self,
+        claim: &Node,
+        size: bool,
+        kept: &[bool],
+        listed: &ThingsListed,
+        cited: &[super::super::algebra::Cited],
+        facts: Vec<super::super::doc::Rule>,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        if kept.len() != listed.listed.len() {
+            return None;
+        }
+        // How each member's P is settled, by what P says. A P that counts a
+        // set, deg(x) is odd, is settled by the cited lines that count it,
+        // each in ℕ∞ as P counts (`counts_extended`), and the number then
+        // worked out: `simp only [hS, ENat.coe_inj, exists_eq_left']; decide`.
+        // Any other P, an edge's ends, by the cited facts and `simp`.
+        let counts = listed
+            .property
+            .walk()
+            .iter()
+            .any(|n| n.notation() == CARDINALITY);
+        let settle = match counts {
+            true => {
+                let mut rules = self.counts_extended(cited)?;
+                rules.extend(lemma_rules(&["ENat.natCast_inj", "exists_eq_left'"]));
+                Tactic::Seq(vec![
+                    t::simp_only(false, None, rules, None),
+                    t::call("decide", vec![]),
+                ])
+            }
+            false => {
+                let mut decide = facts.clone();
+                if self
+                    .writer
+                    .letters
+                    .values()
+                    .any(|ty| matches!(ty, LetterType::Graph { .. }))
+                {
+                    decide.extend(lemma_rules(&["Sym2.mem_iff"]));
+                }
+                t::call("simp", vec![TacticArg::Rules(decide)])
+            }
+        };
+        // P as a function of its letter, `fun x => A ∈ G x`, which Lean
+        // cannot read back from P of one member.
+        let mut inner = self.writer.with_letters(self.writer.letters.clone());
+        inner
+            .letters
+            .insert(listed.letter.text.to_string(), listed.members.letter());
+        let body = inner.formula(&listed.property).built()?;
+        let p = lambda(
+            &super::super::names::letter(&listed.letter.text),
+            listed.members.member_type(),
+            body,
+        );
+        let binders = self.writer.grammar.binders();
+        let mut rules = Vec::new();
+        for (i, (member, holds)) in listed.listed.iter().zip(kept).enumerate() {
+            let put: crate::matching::Binding =
+                std::iter::once((listed.letter.text, member.clone())).collect();
+            let at =
+                crate::matching::substitute_apart_by(&listed.property, &put, &binders);
+            let says = self.writer.formula(&at).built()?;
+            let says = match holds {
+                true => says,
+                false => Printed::of(
+                    super::super::doc::TermKind::Not(Box::new(says)),
+                    super::super::doc::LeanType::Prop,
+                ),
+            };
+            let shown = Printed::of(
+                super::super::doc::TermKind::Show {
+                    says: Box::new(says),
+                    proof: Box::new(t::by_term(super::super::doc::Proof::By(
+                        settle.clone(),
+                    ))),
+                },
+                super::super::doc::LeanType::Prop,
+            );
+            let last = i + 1 == listed.listed.len();
+            let lemma = match (last, holds) {
+                (false, true) => "LeanBridges.Sets.sep_insert_of",
+                (false, false) => "LeanBridges.Sets.sep_insert_of_not",
+                (true, true) => "LeanBridges.Sets.sep_singleton_of",
+                (true, false) => "LeanBridges.Sets.sep_singleton_of_not",
+            };
+            rules.push(t::forwards(Printed::of(
+                super::super::doc::TermKind::App {
+                    head: Box::new(t::bridge_lemma(
+                        lemma,
+                        super::super::doc::bridges::BridgeModule::Sets,
+                    )),
+                    args: vec![
+                        super::super::doc::Arg::Named {
+                            name: "p".to_string(),
+                            value: p.clone(),
+                        },
+                        super::super::doc::Arg::Explicit(shown),
+                    ],
+                    explicit: false,
+                },
+                super::super::doc::LeanType::Prop,
+            )));
+        }
+        let mut steps = vec![
+            t::call(
+                "rw",
+                vec![TacticArg::Rules(vec![t::forwards(listed.listing.clone())])],
+            ),
+            t::simp_only(false, None, rules, None),
+        ];
+        if size {
+            let natural =
+                self.writer.formula(claim).built().is_some_and(|c| {
+                    c.has_count(super::super::doc::CountForm::Natural)
+                });
+            let mut count = match natural {
+                true => {
+                    lemma_rules(&["Set.ncard_insert_of_notMem", "Set.ncard_singleton"])
+                }
+                false => lemma_rules(&[
+                    "Set.encard_insert_of_notMem",
+                    "Set.encard_singleton",
+                ]),
+            };
+            count.extend(facts);
+            steps.push(t::call("norm_num", vec![TacticArg::Rules(count)]));
+        }
+        Some(super::super::doc::Proof::By(Tactic::Seq(steps)))
+    }
+
+    /// Each cited line that counts a set as a numeral at least 1 in ℕ,
+    /// `(S.ncard : ℤ) = 2`, as the count in ℕ∞ it gives, `(show S.encard =
+    /// ((2 : ℕ) : ℕ∞) by rw [← Set.Finite.cast_ncard_eq p]; exact_mod_cast
+    /// h)`, S finite by that line. None where such a line's set has no Lean
+    /// form or its finiteness no proof.
+    fn counts_extended(
+        &self,
+        cited: &[super::super::algebra::Cited],
+    ) -> Option<Vec<super::super::doc::Rule>> {
+        use super::super::doc::{CountForm, LeanType};
+        use super::super::tactics as t;
+        let mut out = Vec::new();
+        for c in cited {
+            let (crate::notations::EQUALITY, [count, value]) =
+                (c.node.notation(), c.node.children.as_slice())
+            else {
+                continue;
+            };
+            let (CARDINALITY, [set], crate::notations::NUMERAL) = (
+                count.notation(),
+                count.children.as_slice(),
+                value.notation(),
+            ) else {
+                continue;
+            };
+            let by_line = crate::citing::finite::FiniteBy::Counted {
+                line: crate::citing::finite::key(&c.node),
+                at_least_one: true,
+            };
+            let shown = ShownFinite {
+                set: self.writer.set_term(set).built()?,
+                proof: self.proof_of_finite(&by_line, set)?,
+            };
+            // `((2 : ℕ) : ℕ∞)`, a natural number cast up, as a count Lean
+            // states in ℕ∞ writes its number (`Writer::count_term`), which
+            // `ENat.natCast_inj` takes back to ℕ.
+            let nat = LeanType::Num(super::super::templates::Num::Nat);
+            let number = Printed::cast(
+                Printed::cast(Printed::numeral(&*value.text, nat.clone()), nat),
+                LeanType::ENat,
+            );
+            let says = super::super::expr::relation_of(
+                "=",
+                super::super::sets::count_of(shown.set.clone(), CountForm::Extended),
+                number,
+            )
+            .built()?;
+            let proof = Tactic::Seq(vec![
+                t::call(
+                    "rw",
+                    vec![TacticArg::Rules(vec![t::backwards(cast_ncard_eq(&shown))])],
+                ),
+                t::exact_mod_cast(c.proof.clone()),
+            ]);
+            out.push(t::forwards(Printed::of(
+                super::super::doc::TermKind::Show {
+                    says: Box::new(says),
+                    proof: Box::new(t::by_term(super::super::doc::Proof::By(proof))),
+                },
+                LeanType::Prop,
+            )));
+        }
+        Some(out)
     }
 
     /// A recursion a proof lets, `let N(0) = 0, N(k + 1) = 10·N(k) + d(k +
@@ -1568,7 +1864,54 @@ impl<'a> Proof<'a> {
                 // which what is owed counts in ℕ∞, |H| of a theorem that does
                 // not assume H finite, is taken across (`counts_converted`).
                 let line = super::super::tactics::hyp(name);
-                if let Some(converted) = self.counts_converted(line, says, owe, node) {
+                // What is owed writes a count of a set the statement does not
+                // know finite as some natural number inside a set's property,
+                // `{x ∈ V | ∃ m : ℕ, S x.encard = m ∧ Odd m}`, where the step
+                // writes its count, each such set finite here: the property
+                // opened (`some_counts_opened`), and the counts that are left
+                // taken across.
+                if says.untyped() != owe.untyped()
+                    && owe.has_count(super::super::doc::CountForm::Extended)
+                {
+                    if let Some(opened) = self.some_counts_opened(node) {
+                        let mut finite = Vec::new();
+                        for set in self.counted_sets(&[node]) {
+                            if self.writer.set_term(&set).built().is_none() {
+                                continue;
+                            }
+                            match self.shown_finite(&set) {
+                                Some(f) => finite.push(f),
+                                None => {
+                                    return Route::no(
+                                        "a closing that counts a set not finite here",
+                                    )
+                                }
+                            }
+                        }
+                        let across = super::conversions::forms_converted(
+                            &line,
+                            &super::conversions::Conversion {
+                                finite: &finite,
+                                whole: &[],
+                                bound: &[],
+                                cast_powers: false,
+                                identities: &[],
+                                numeral_to_nat: false,
+                            },
+                            false,
+                        );
+                        let shown = super::super::tactics::call(
+                            "show",
+                            vec![super::super::doc::TacticArg::Term(owe.clone())],
+                        );
+                        return Route::Built(Closing::Tactic(Box::new(Tactic::Seq(
+                            vec![shown, opened, tactic_of(&across)],
+                        ))));
+                    }
+                }
+                if let Some(converted) =
+                    self.counts_converted(line, says, owe, node, false)
+                {
                     // The goal shown as the statement writes it first: a
                     // define's `set` writes its name for its value in the
                     // goal, `t '' H` for gH, which the count's rewrite does
@@ -1622,7 +1965,7 @@ impl<'a> Proof<'a> {
                         true => turned_proof(proof.clone(), says),
                         false => proof.clone(),
                     };
-                    self.counts_converted(faced, &facing, owe, node)
+                    self.counts_converted(faced, &facing, owe, node, true)
                 }
                 _ => None,
             };
@@ -1696,16 +2039,42 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
         node: &Node,
+        vouched: bool,
     ) -> Option<Printed> {
         let apart = self.counted_apart(says, wanted);
         if apart.is_empty() {
             return None;
         }
+        // What is finite here; and where the line is a `have` of its own
+        // (`vouched`), a part of the last step's "and", what it says of
+        // itself, a count it gives as a number at least 1, as that `have`
+        // was written (`claimed_all`). A last step of one sentence is the
+        // goal's own proof, written in the goal's form, and vouches nothing.
+        let positive = |n: &Node| {
+            crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
+        };
+        let mut known = self.writer.finite.clone();
+        if vouched {
+            for (set, why) in
+                crate::citing::finite::finite_sets_vouched([node], &positive)
+            {
+                known.entry(set).or_insert(why);
+            }
+        }
         let mut finite = Vec::new();
         for set in self.counted_sets(&[node]) {
-            let written = self.writer.set_term(&set).built()?;
+            // A set counted inside another's condition, of a letter that
+            // set binds, {a ∈ E : x is incident with a} of {x ∈ V : …}, has
+            // no term of its own here and is not one the two count apart.
+            let Route::Built(written) = self.writer.set_term(&set) else {
+                continue;
+            };
             if apart.iter().any(|a| a.untyped() == written.untyped()) {
-                finite.push(self.shown_finite(&set)?);
+                let why = crate::citing::finite::finite_by(&known, &set)?;
+                finite.push(ShownFinite {
+                    set: written,
+                    proof: self.proof_of_finite(&why, &set)?,
+                });
             }
         }
         if finite.len() != apart.len() {

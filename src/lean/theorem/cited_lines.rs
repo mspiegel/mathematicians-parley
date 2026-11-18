@@ -1057,6 +1057,13 @@ impl<'a> Proof<'a> {
                         false => reduced.clone(),
                         true => super::super::doc::forms::turned_statement(&reduced),
                     };
+                    // Counts in ℕ∞, which is no ring for `linear_combination`
+                    // to work in, differ only by casts: `exact_mod_cast`.
+                    if in_extended(claim) {
+                        return Route::Built(super::super::doc::Proof::By(
+                            super::super::tactics::exact_mod_cast(facing),
+                        ));
+                    }
                     return Route::Built(super::super::doc::Proof::By(
                         ring_combination(&facing, &says, claim),
                     ));

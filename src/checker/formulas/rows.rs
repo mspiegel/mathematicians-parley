@@ -1198,8 +1198,8 @@ pub(super) fn inspection_case(
             Case::Empty => Inspection::Empty,
             Case::Member => Inspection::Member,
             Case::Size => Inspection::Size,
-            Case::TakenSize => Inspection::TakenSize,
-            Case::Taken => Inspection::Taken,
+            Case::TakenSize { kept } => Inspection::TakenSize { kept },
+            Case::Taken { kept } => Inspection::Taken { kept },
             Case::Other => Inspection::Other,
         },
     )

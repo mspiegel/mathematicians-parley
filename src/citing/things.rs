@@ -77,19 +77,30 @@ pub struct ThingTypes {
 
 impl ThingTypes {
     /// Read from the lines in order.
-    pub fn read(lines: &[&Node], sorts: Option<&crate::formula::Sorts>) -> ThingTypes {
-        ThingTypes::read_given(lines, &[], sorts)
+    pub fn read(
+        sets: &[String],
+        lines: &[&Node],
+        sorts: Option<&crate::formula::Sorts>,
+    ) -> ThingTypes {
+        ThingTypes::read_given(sets, lines, &[], sorts)
     }
 
     /// Read from the lines in order, and from the values the page gives its
     /// own letters, each letter of one type with its value: X and A of
-    /// `instantiate X := A in line 1`.
+    /// `instantiate X := A in line 1`. `sets` are letters a line lets as sets
+    /// without a formula, a graph's vertices and edges: each holds things
+    /// of a type of its own where nothing joins it to another's, in the
+    /// order given.
     pub fn read_given(
+        sets: &[String],
         lines: &[&Node],
         given: &[(String, Node)],
         sorts: Option<&crate::formula::Sorts>,
     ) -> ThingTypes {
         let mut out = ThingTypes::default();
+        for set in sets {
+            out.meet(&ThingKey::Letter(set.clone()));
+        }
         for line in lines {
             out.class(line, sorts);
         }
@@ -207,6 +218,21 @@ impl ThingTypes {
         let name = node.notation();
         let kids = node.children.as_slice();
         match (name, kids) {
+            // An edge joins two vertices: the vertices are things of one
+            // type, the edge of its own, as a graph's vertices and edges
+            // are two sets.
+            (crate::notations::JOINS, [a, u, w]) => {
+                self.class(a, sorts);
+                let (u, w) = (self.class(u, sorts), self.class(w, sorts));
+                self.join(u, w);
+                None
+            }
+            // A vertex incident with an edge: nothing joins the two.
+            (crate::notations::INCIDENT, [x, a]) => {
+                self.class(x, sorts);
+                self.class(a, sorts);
+                None
+            }
             // There is f : X → Y with …, or {f ∈ the functions from X to Y :
             // …}: f a map from X's things to Y's, what the body says of it
             // read as of a map letter.

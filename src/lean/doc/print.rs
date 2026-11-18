@@ -20,6 +20,7 @@ impl LeanType {
             LeanType::ENat => "ℕ∞".to_string(),
             LeanType::Prop => "Prop".to_string(),
             LeanType::Set(m) => format!("Set {}", bracketed(&m.text())),
+            LeanType::Sym2(m) => format!("Sym2 {}", bracketed(&m.text())),
             LeanType::Things(var) => things_name(*var),
             LeanType::Elements(g) => crate::lean::names::letter(g),
             LeanType::Fun { from, to } => format!("{} → {}", from.text(), to.text()),

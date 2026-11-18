@@ -29,7 +29,9 @@ impl<'a> Suppliers<'a> {
         known: &'a Known<'a>,
         library: &'a Library<'a>,
     ) -> Suppliers<'a> {
-        let defined = known.citing_step(step);
+        // The lines read with the defines the citation cites written out:
+        // the step's own, or a requires line's (`unfolded_parts`).
+        let defined = known.citing_item(refs, item);
         let read = |r: &Requires| -> Vec<Node> {
             r.fact
                 .sentences()

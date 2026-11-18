@@ -171,6 +171,13 @@ fn named_in(text: &str) -> BTreeSet<String> {
 /// only the files that use it.
 fn modules_of(decl: &Declaration) -> BTreeSet<String> {
     let mut out = decl.verbatim_modules();
+    // A binder the writer gives as Lean text, a graph's class beside it,
+    // names its bridge module in that text.
+    for b in &decl.binders {
+        if let crate::lean::doc::file::Binder::Typed { text, .. } = b {
+            out.extend(named_in(text));
+        }
+    }
     for t in &decl.parts().terms {
         let TermKind::Const(c) = &t.kind else {
             continue;

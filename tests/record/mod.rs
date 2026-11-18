@@ -318,6 +318,11 @@ fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
             g.print(&line.0),
             finite_why(whole, g)
         ),
+        FiniteBy::Covered { line, over } => format!(
+            "Covered {{ line: {:?}, over: {} }}",
+            g.print(&line.0),
+            finite_why(over, g)
+        ),
         FiniteBy::Define(name) => format!("Define({name:?})"),
         FiniteBy::Bound(name) => format!("Bound({name:?})"),
         FiniteBy::MemberOf(whole) => format!("MemberOf({})", finite_why(whole, g)),

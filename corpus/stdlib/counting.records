@@ -314,14 +314,14 @@ mundane theorem count-nat0
   then        |{i ∈ {1, …, k} : P(i)}| ∈ ℕ₀
   metamath-proof metamath-bridges/counts/gcntcl
   note        A count of numbers among the first k is a whole number.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-nat0
 
 mundane theorem count-empty-range
   let P be a property of the elements of ℕ                            (H1)
   then        |{i ∈ {1, …, 0} : P(i)}| = 0
   metamath-proof metamath-bridges/counts/gcnt0
   note        Nothing is counted among the numbers from 1 to 0.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-empty-range
 
 mundane theorem count-step-holds
   let P be a property of the elements of ℕ                            (H1)
@@ -330,7 +330,7 @@ mundane theorem count-step-holds
   then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}| + 1
   metamath-proof metamath-bridges/counts/gcntsuc
   note        One more number, which has the property, counts once more.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-step-holds
 
 mundane theorem count-step-fails
   let P be a property of the elements of ℕ                            (H1)
@@ -339,7 +339,7 @@ mundane theorem count-step-fails
   then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}|
   metamath-proof metamath-bridges/counts/gcntsucn
   note        One more number, which lacks the property, adds nothing.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-step-fails
 
 mundane theorem count-same
   let P be a property of the elements of ℤ                            (H1)
@@ -349,7 +349,7 @@ mundane theorem count-same
   then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n} : Q(i)}|
   metamath-proof metamath-bridges/counts/gcntsame
   note        Two properties that hold of the same numbers count the same.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-same
 
 mundane theorem count-either
   let P be a property of the elements of ℤ                            (H1)
@@ -361,7 +361,7 @@ mundane theorem count-either
   note        The numbers with one property or the other, never both, are
               those with the first and those with the second, counted
               apart.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-either
 
 mundane theorem count-shift
   let P be a property of the elements of ℤ                            (H1)
@@ -370,7 +370,7 @@ mundane theorem count-shift
   metamath-proof metamath-bridges/counts/gcntshift
   note        Counting i with P(i − 1) for i from 1 to n is counting j with
               P(j) for j from 0 to n − 1: each i is j + 1.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-shift
 
 mundane theorem count-first-fails
   let P be a property of the elements of ℤ                            (H1)
@@ -379,7 +379,7 @@ mundane theorem count-first-fails
   then        |{i ∈ {0, …, m} : P(i)}| = |{i ∈ {1, …, m} : P(i)}|
   metamath-proof metamath-bridges/counts/gcntfirst
   note        A first number without the property adds nothing.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-first-fails
 
 mundane theorem count-last-fails
   let P be a property of the elements of ℤ                            (H1)
@@ -388,7 +388,7 @@ mundane theorem count-last-fails
   then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n − 1} : P(i)}|
   metamath-proof metamath-bridges/counts/gcntlast
   note        A last number without the property adds nothing.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/count-last-fails
 
 mundane theorem card-pair
   let u be an element                                                 (H1)

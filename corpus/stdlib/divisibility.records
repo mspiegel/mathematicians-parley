@@ -541,7 +541,7 @@ definition σ
   metamath-proof metamath-bridges/divisors/g1sgmval
   note        set.mm's sigma takes a power first, A sigma n being the sum of
               the A-th powers of the divisors of n, and σ is 1 sigma n.
-  lean-proof  not yet implemented
+  lean-proof  by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; have hS : {d : ℤ | 0 < d ∧ d ∣ (n : ℤ)} = ((n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) : Set ℤ) := (by ext d; simp only [Set.mem_ofPred_eq, Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Nat.mem_divisors]; constructor; (rintro ⟨hp, hdv⟩; refine ⟨d.natAbs, ⟨?_, (by omega)⟩, (by omega)⟩; have := Int.natAbs_dvd_natAbs.mpr hdv; simpa using this); (rintro ⟨i, ⟨hi, hn⟩, rfl⟩; exact ⟨(by exact_mod_cast Nat.pos_of_dvd_of_pos hi (by omega)), Int.natCast_dvd_natCast.mpr hi⟩)); rw [hS, finsum_mem_coe_finset, Finset.sum_map, ArithmeticFunction.sigma_one_apply]; push_cast; rfl
 
 definition perfect
   let n ∈ ℕ                                                           (H1)

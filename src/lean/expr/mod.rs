@@ -23,6 +23,7 @@ use crate::outcome::Route;
 
 mod arguments;
 mod formulas;
+mod graphs;
 mod operators;
 
 pub use formulas::{pair_coordinates, pair_type};
@@ -52,6 +53,17 @@ pub enum LetterType {
     Subgroup(String),
     /// A property of members of these, `P : α → Prop`; P(t) is `P t`.
     Property(Members),
+    /// An undirected multigraph, the function sending each edge to its two
+    /// ends, `G : β → Sym2 α`, as set.mm's iEdg does, with the bridge's
+    /// `LeanBridges.Graphs.Multigraph V E G` beside it. `vertices` and
+    /// `edges` are the page's letters of its parts; `vertex` and `edge`
+    /// what each holds.
+    Graph {
+        vertices: String,
+        edges: String,
+        vertex: Members,
+        edge: Members,
+    },
 }
 
 /// What the members of a set are in Lean: things of a type variable, as
@@ -95,6 +107,11 @@ pub const DEGREE: &str = "LeanBridges.Polynomials.degree";
 /// The functions a polynomial with integer coefficients gives, set.mm's
 /// Poly ℤ (`corpus/lean-bridges/Polynomials.lean`).
 pub const INTEGER_POLYNOMIALS: &str = "LeanBridges.Polynomials.integerPolynomials";
+
+/// That a function from edges to their ends is an undirected multigraph on
+/// its vertices and edges, set.mm's UMGraph (`corpus/lean-bridges/
+/// Graphs.lean`).
+pub const GRAPH_CLASS: &str = "LeanBridges.Graphs.Multigraph";
 
 /// That a thing is one of ZF's sets, what "X exists" says
 /// (`corpus/lean-bridges/ZF.lean`).
@@ -253,6 +270,10 @@ impl LetterType {
             LetterType::Identity(g) => LeanType::Elements(g.clone()),
             LetterType::Subgroup(g) => LeanType::Subgroup(g.clone()),
             LetterType::Property(m) => fun(m.member_type(), LeanType::Prop),
+            LetterType::Graph { vertex, edge, .. } => fun(
+                edge.member_type(),
+                LeanType::Sym2(Box::new(vertex.member_type())),
+            ),
         }
     }
 
@@ -263,7 +284,12 @@ impl LetterType {
             LetterType::Set(m) | LetterType::Member(m) | LetterType::Property(m) => {
                 m.things_vars()
             }
-            LetterType::Map { from, to } => {
+            LetterType::Map { from, to }
+            | LetterType::Graph {
+                vertex: from,
+                edge: to,
+                ..
+            } => {
                 let mut out = from.things_vars();
                 out.extend(to.things_vars());
                 out
@@ -416,6 +442,9 @@ enum Over<'n> {
     Range { from: &'n Node, to: &'n Node },
     /// The members of a set, Σ(x ∈ S) t.
     Set(&'n Node),
+    /// The members of a set that meet a condition, Σ(d ∈ ℕ : d divides n)
+    /// d: the sum over the set {d ∈ ℕ : d divides n}.
+    Where { set: &'n Node, condition: &'n Node },
 }
 
 /// How Lean writes a term where a natural number is wanted, a power's
@@ -463,7 +492,10 @@ fn is_big_operator(node: &Node) -> bool {
     matches!(
         node.notation(),
         crate::notations::SUM | crate::notations::PRODUCT
-    ) || matches!(node.notation(), SUM_OVER | PRODUCT_OVER)
+    ) || matches!(
+        node.notation(),
+        SUM_OVER | PRODUCT_OVER | crate::notations::SUM_OVER_CONDITION
+    )
 }
 
 /// A sum or product over a set that is a range, Σ(k ∈ {a, …, b}) t: its

@@ -773,7 +773,7 @@ pub(super) fn things_of_type(ty: &super::super::doc::LeanType) -> Vec<usize> {
     use super::super::doc::LeanType;
     match ty {
         LeanType::Things(n) => vec![*n],
-        LeanType::Set(inner) => things_of_type(inner),
+        LeanType::Set(inner) | LeanType::Sym2(inner) => things_of_type(inner),
         LeanType::Fun { from, to } | LeanType::Prod(from, to) => {
             let mut out = things_of_type(from);
             out.extend(things_of_type(to));

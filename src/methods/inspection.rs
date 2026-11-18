@@ -155,7 +155,16 @@ impl Facts {
                 if s.label() == Some("chash") && listing(set))
         };
         // A set taken by a property from a set listed in full, and its size.
-        let taken = |t: &Term| matches!((t.label(), t.children()), (Some("crab"), [_, _, over]) if listing(over));
+        // The set it is taken from is listed where it stands, or by a cited
+        // equation naming it, E of `E = {b₁, b₂}`.
+        let listed_over = |over: &Term| {
+            listing(over)
+                || self
+                    .listed
+                    .iter()
+                    .any(|l| same(&l.term, over) && listing(&l.is))
+        };
+        let taken = |t: &Term| matches!((t.label(), t.children()), (Some("crab"), [_, _, over]) if listed_over(over));
         let taken_size = |t: &Term| {
             matches!((t.label(), t.children()), (Some("cfv"), [set, s])
                 if s.label() == Some("chash") && taken(set))
@@ -168,11 +177,57 @@ impl Facts {
             (Some("wcel"), _) => Case::Member,
             (Some("wceq"), [a, b]) if !negated && (size(a) || size(b)) => Case::Size,
             (Some("wceq"), [a, b]) if !negated && (taken_size(a) || taken_size(b)) => {
-                Case::TakenSize
+                let counted = if taken_size(a) { a } else { b };
+                Case::TakenSize {
+                    kept: self.kept(counted.children().first()?)?,
+                }
             }
-            (Some("wceq"), [a, b]) if !negated && (taken(a) || taken(b)) => Case::Taken,
+            // A term a cited "for all" gives as such a size, deg(A) of "for
+            // all x ∈ V, deg(x) = |{s ∈ E : x is incident with s}|".
+            (Some("wceq"), [a, b])
+                if !negated
+                    && (self.given_size(a, &taken_size).is_some()
+                        || self.given_size(b, &taken_size).is_some()) =>
+            {
+                let counted = self
+                    .given_size(a, &taken_size)
+                    .or_else(|| self.given_size(b, &taken_size))?;
+                Case::TakenSize {
+                    kept: self.kept(counted.children().first()?)?,
+                }
+            }
+            (Some("wceq"), [a, b]) if !negated && (taken(a) || taken(b)) => {
+                Case::Taken {
+                    kept: self.kept(if taken(a) { a } else { b })?,
+                }
+            }
             _ => Case::Other,
         })
+    }
+
+    /// The size of a taken set a cited "for all" gives `term` as; None
+    /// where none does.
+    fn given_size(
+        &self,
+        term: &Term,
+        taken_size: &dyn Fn(&Term) -> bool,
+    ) -> Option<Term> {
+        self.given(term, DEPTH).filter(|g| taken_size(g))
+    }
+
+    /// Of a set taken by a property from one listed in full, whether the
+    /// property holds of each listed member, in the order the list writes
+    /// them; None where the facts settle one of them no way.
+    fn kept(&self, taken: &Term) -> Option<Vec<bool>> {
+        let (Some("crab"), [property, letter, over]) =
+            (taken.label(), taken.children())
+        else {
+            return None;
+        };
+        self.elements(over, DEPTH)?
+            .iter()
+            .map(|e| self.holds(&put(property, letter, e), DEPTH))
+            .collect()
     }
 
     /// The cited `t ∈ S` a line of equations joined by "or", or one equation
@@ -492,7 +547,7 @@ const PRIMES_SETTLED: u32 = 841;
 pub const RANGE_LISTED: u32 = 64;
 
 /// Which case of the method decides a claim that holds (`Facts::case`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Case {
     /// A line of "or"s saying what a term is, one equation for each element
     /// of the set listed in full a cited membership puts it in: the cited
@@ -508,11 +563,13 @@ pub enum Case {
     /// The size of a set listed in full.
     Size,
     /// The size of a set taken by a property from a set listed in full,
-    /// `|{x ∈ {2, 3, 7, 8} : x is odd}| = 2`.
-    TakenSize,
+    /// `|{x ∈ {2, 3, 7, 8} : x is odd}| = 2`; `kept` says of each listed
+    /// member, in the list's order, whether the property holds of it.
+    TakenSize { kept: Vec<bool> },
     /// A set taken by a property from a set listed in full, said equal to
-    /// the members it keeps, `{x ∈ {−3, −2, 0, 5} : x is odd} = {−3, 5}`.
-    Taken,
+    /// the members it keeps, `{x ∈ {−3, −2, 0, 5} : x is odd} = {−3, 5}`;
+    /// `kept` as of `TakenSize`.
+    Taken { kept: Vec<bool> },
     /// Any other: a cited sentence, an equation of sets or of numbers, a
     /// property worked out at the values the facts give.
     Other,

@@ -11,6 +11,103 @@ impl<'a> Proof<'a> {
         self.line_sentence(line).map(|s| &s.node)
     }
 
+    /// Of a claim whose sets' properties count a set of a letter they bind
+    /// (`closing`),
+    /// {a ∈ E : x is incident with a} inside {x ∈ V : …}, each a part of a
+    /// set finite here: `simp (disch := exact hE.subset (Set.sep_subset _
+    /// _)) only [LeanBridges.Counting.some_count_iff]`, which writes the
+    /// statement's `∃ m : ℕ, S.encard = m ∧ P m` as `P S.ncard`. None where
+    /// there is no such count, or they are parts of more than one set.
+    pub(super) fn some_counts_opened(&self, node: &Node) -> Option<Tactic> {
+        use super::super::tactics as t;
+        let mut wholes: Vec<Printed> = Vec::new();
+        for set in self.counted_sets(&[node]) {
+            if self.writer.set_term(&set).built().is_some() {
+                continue;
+            }
+            let [_, over, _] = set.children.as_slice() else {
+                return None;
+            };
+            if set.notation() != crate::notations::SET_BUILDER {
+                return None;
+            }
+            let whole = self.finite_proof(over)?;
+            if !wholes.iter().any(|w| w.untyped() == whole.untyped()) {
+                wholes.push(whole);
+            }
+        }
+        let [whole] = wholes.as_slice() else {
+            return None;
+        };
+        let part = Printed::applied(
+            "Set.sep_subset",
+            super::super::doc::Source::Mathlib,
+            vec![super::terms::elided_term(), super::terms::elided_term()],
+            super::super::doc::LeanType::Prop,
+        );
+        let finite = Printed::applied(
+            "Set.Finite.subset",
+            super::super::doc::Source::Mathlib,
+            vec![whole.clone(), part],
+            super::super::doc::LeanType::Prop,
+        );
+        Some(t::simp_only(
+            false,
+            Some(Tactic::Exact(finite)),
+            vec![t::forwards(t::bridge_lemma(
+                "LeanBridges.Counting.some_count_iff",
+                super::super::doc::bridges::BridgeModule::Counting,
+            ))],
+            None,
+        ))
+    }
+
+    /// A link of counts in ℕ∞ stated again of their counts in ℕ, each set
+    /// finite here (`chain_composed`); None where one is not, or the link
+    /// so stated is of no number type.
+    fn counts_taken_down(
+        &self,
+        f: &OrderFactTerm,
+        w: &Writer,
+    ) -> Option<OrderFactTerm> {
+        let says = w.formula(&f.node).built()?;
+        number_type(&says)?;
+        let mut finite = Vec::new();
+        for set in self.counted_sets(&[&f.node]) {
+            // A set counted inside another's condition, of a letter that
+            // set binds, has no term of its own here (`counts_converted`).
+            if self.writer.set_term(&set).built().is_none() {
+                continue;
+            }
+            finite.push(self.shown_finite(&set)?);
+        }
+        let proof = Printed::of(
+            super::super::doc::TermKind::Show {
+                says: Box::new(says.clone()),
+                proof: Box::new(super::super::tactics::by_term(forms_converted(
+                    &f.proof,
+                    &Conversion {
+                        finite: &finite,
+                        whole: &[],
+                        bound: &[],
+                        cast_powers: false,
+                        identities: &[],
+                        numeral_to_nat: false,
+                    },
+                    false,
+                ))),
+            },
+            super::super::doc::LeanType::Prop,
+        );
+        Some(OrderFactTerm {
+            proof,
+            says,
+            node: f.node.clone(),
+            widens: f.widens,
+            define: f.define,
+        })
+    }
+
     /// The proof of the sentence of a line in scope that is `line`, by its
     /// tree: its name, or the projection that takes it.
     pub(super) fn line_saying(
@@ -80,8 +177,22 @@ impl<'a> Proof<'a> {
             .iter()
             .filter(|f| number_type(&f.says).is_some())
             .count();
-        if numbers != 0 && numbers != facts.len() {
-            return Route::no("a chain's links of numbers and of other things");
+        // A link Lean states of counts in ℕ∞, `A.encard ≤ B.encard` of
+        // card-subset, beside links of numbers: where each set it counts is
+        // finite here, it is the same relation of their counts in ℕ, as the
+        // step's writer states it, met by `Set.Finite.cast_ncard_eq`.
+        let taken_down = numbers != 0 && numbers != facts.len();
+        if taken_down {
+            for f in facts.iter_mut().filter(|f| number_type(&f.says).is_none()) {
+                match self.counts_taken_down(f, w) {
+                    Some(down) => *f = down,
+                    None => {
+                        return Route::no(
+                            "a chain's links of numbers and of other things",
+                        )
+                    }
+                }
+            }
         }
         for f in &facts {
             if let (Some(t), w) = (number_type(&f.says), widest) {
@@ -211,7 +322,16 @@ impl<'a> Proof<'a> {
                 };
             }
         }
-        let tactic = match number_type(&claim) == widest {
+        // A claim the statement counts in ℕ∞, its sets' properties counting
+        // sets the statement does not know finite as some natural number,
+        // `{x ∈ V | ∃ m : ℕ, S x.encard = m ∧ Odd m}.encard ≤ 2`, of a chain
+        // the step writes of their counts in ℕ, each finite here: the
+        // claim's properties opened (`some_counts_opened`), then its counts
+        // taken across by `Set.Finite.cast_ncard_eq`.
+        // A link taken down from ℕ∞ (`counts_taken_down`) holds its counts'
+        // casts where the step writer puts them, which may not be where the
+        // claim does: `exact_mod_cast` meets the two.
+        let tactic = match number_type(&claim) == widest && !taken_down {
             true => Tactic::Exact(proof),
             false => super::super::tactics::exact_mod_cast(proof),
         };
@@ -967,6 +1087,15 @@ impl<'a> Proof<'a> {
         let Some(at) = parts.next() else {
             return Route::no("a join recorded with fewer parts than its claim");
         };
+        // The part as the step's line states it, a count it gives as a
+        // number at least 1 vouching for its own set (`claimed_all`).
+        let positive =
+            |n: &Node| crate::citing::bounds::least(w, n).is_some_and(|l| l >= 1);
+        let mut w = w.with_letters(w.letters.clone());
+        for (set, why) in crate::citing::finite::finite_sets_vouched([node], &positive)
+        {
+            w.finite.entry(set).or_insert(why);
+        }
         let wanted = match w.formula(node) {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
@@ -987,9 +1116,46 @@ impl<'a> Proof<'a> {
         let (proof, says) = read_at_intros(&proof, &says, &self.intros_now.borrow())
             .unwrap_or((proof, says));
         if super::super::doc::forms::relation_types_apart(&says, &wanted) {
-            return Route::no(
-                "a part of a join Lean states in another type than its line",
-            );
+            // A line that counts a set in ℕ∞, of a part this step counts in
+            // ℕ, each set finite here: bridged by `Set.Finite.cast_ncard_eq`.
+            let counted: Option<Vec<ShownFinite>> = node
+                .walk()
+                .iter()
+                .filter(|n| n.notation() == crate::notations::CARDINALITY)
+                .filter_map(|n| n.children.first())
+                .filter(|set| self.writer.set_term(set).built().is_some())
+                .map(|set| {
+                    let why = crate::citing::finite::finite_by(&w.finite, set)?;
+                    Some(ShownFinite {
+                        set: self.writer.set_term(set).built()?,
+                        proof: self.proof_of_finite(&why, set)?,
+                    })
+                })
+                .collect();
+            let across = counted.filter(|c| {
+                !c.is_empty()
+                    && says.has_count(super::super::doc::CountForm::Extended)
+                    && wanted.has_count(super::super::doc::CountForm::Natural)
+            });
+            return match across {
+                Some(finite) => {
+                    Route::Built(super::super::tactics::by_term(forms_converted(
+                        &proof,
+                        &Conversion {
+                            finite: &finite,
+                            whole: &[],
+                            bound: &[],
+                            cast_powers: false,
+                            identities: &[],
+                            numeral_to_nat: false,
+                        },
+                        false,
+                    )))
+                }
+                None => Route::no(
+                    "a part of a join Lean states in another type than its line",
+                ),
+            };
         }
         Route::Built(proof)
     }

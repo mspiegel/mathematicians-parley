@@ -339,4 +339,136 @@ theorem builder_count_spelt {α : Type*} (Y : Set α) (hY : Y.Finite) (j : ℤ) 
   · rintro ⟨hS, h⟩
     exact ⟨hS, S.ncard, ((hY.subset hS).cast_ncard_eq).symm, h⟩
 
+/-- A count a statement writes as some natural number, `∃ m : ℕ, S.encard =
+m ∧ P m`, where S is not known finite there, is P of S's count where it is
+finite: deg(x) is odd of a finite graph. -/
+theorem some_count_iff {α : Type*} {S : Set α} {P : ℕ → Prop} (h : S.Finite) :
+    (∃ m : ℕ, S.encard = (m : ℕ∞) ∧ P m) ↔ P S.ncard :=
+  ⟨fun ⟨m, hm, hp⟩ => by
+      have : S.ncard = m := by
+        have := h.cast_ncard_eq; rw [hm] at this; exact_mod_cast this
+      rw [this]; exact hp,
+    fun hp => ⟨S.ncard, h.cast_ncard_eq.symm, hp⟩⟩
+
+/-! Counts of the integers in a range that have a property: what a walk's
+places count in `proofs/wiedijk/konigsberg.proof`. -/
+
+/-- The integers in a range that have a property are finitely many. -/
+theorem sep_Icc_finite (P : ℤ → Prop) (a b : ℤ) : {i ∈ (Set.Icc a b : Set ℤ) | P i}.Finite :=
+  (Set.finite_Icc a b).subset (fun _ h => h.1)
+
+/-- `mun:stdlib/counting/count-nat0`. -/
+theorem count_nat0 (P : ℤ → Prop) (k : ℤ) :
+    0 ≤ ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) :=
+  Int.natCast_nonneg _
+
+/-- `mun:stdlib/counting/count-empty-range`. -/
+theorem count_empty_range (P : ℤ → Prop) :
+    ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | P i}.ncard : ℤ) = 0 := by
+  have : {i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | P i} = ∅ := by
+    ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc, Set.mem_empty_iff_false, iff_false]; omega
+  rw [this]; simp
+
+/-- `mun:stdlib/counting/count-step-holds`. -/
+theorem count_step_holds (P : ℤ → Prop) (k : ℤ) (_h1 : 0 ≤ k) (h2 : P (k + 1)) :
+    ({i ∈ (Set.Icc (1 : ℤ) (k + 1) : Set ℤ) | P i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) + 1 := by
+  have e : {i ∈ (Set.Icc (1 : ℤ) (k + 1) : Set ℤ) | P i} =
+      insert (k + 1) {i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i} := by
+    ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc, Set.mem_insert_iff]
+    constructor
+    · rintro ⟨⟨h3, h4⟩, hp⟩
+      rcases lt_or_eq_of_le h4 with h5 | h5
+      · exact Or.inr ⟨⟨h3, by omega⟩, hp⟩
+      · exact Or.inl h5
+    · rintro (rfl | ⟨⟨h3, h4⟩, hp⟩)
+      · exact ⟨⟨by omega, le_refl _⟩, h2⟩
+      · exact ⟨⟨h3, by omega⟩, hp⟩
+  rw [e, Set.ncard_insert_of_notMem (by simp only [Set.mem_ofPred_eq, Set.mem_Icc]; omega)
+    (sep_Icc_finite P 1 k)]
+  push_cast; ring
+
+/-- `mun:stdlib/counting/count-step-fails`. -/
+theorem count_step_fails (P : ℤ → Prop) (k : ℤ) (_h1 : 0 ≤ k) (h2 : ¬ P (k + 1)) :
+    ({i ∈ (Set.Icc (1 : ℤ) (k + 1) : Set ℤ) | P i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) k : Set ℤ) | P i}.ncard : ℤ) := by
+  congr 2
+  ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc]
+  constructor
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    rcases lt_or_eq_of_le h4 with h5 | h5
+    · exact ⟨⟨h3, by omega⟩, hp⟩
+    · exact absurd (h5 ▸ hp) h2
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    exact ⟨⟨h3, by omega⟩, hp⟩
+
+/-- `mun:stdlib/counting/count-same`. -/
+theorem count_same (P : ℤ → Prop) (Q : ℤ → Prop) (n : ℤ)
+    (h2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → (P i ↔ Q i)) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i}.ncard : ℤ) := by
+  congr 2
+  ext i; simp only [Set.mem_ofPred_eq]
+  exact ⟨fun ⟨h, hp⟩ => ⟨h, (h2 i (Finset.mem_Icc.mpr h)).mp hp⟩,
+    fun ⟨h, hq⟩ => ⟨h, (h2 i (Finset.mem_Icc.mpr h)).mpr hq⟩⟩
+
+/-- `mun:stdlib/counting/count-either`. -/
+theorem count_either (P : ℤ → Prop) (Q : ℤ → Prop) (n : ℤ)
+    (h2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → ¬ (P i ∧ Q i)) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i ∨ Q i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) +
+        ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i}.ncard : ℤ) := by
+  have e : {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i ∨ Q i} =
+      {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i} ∪ {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i} := by
+    ext i; simp only [Set.mem_ofPred_eq, Set.mem_union]; tauto
+  have d : Disjoint {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}
+      {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | Q i} := by
+    rw [Set.disjoint_left]
+    rintro i ⟨h, hp⟩ ⟨_, hq⟩
+    exact h2 i (Finset.mem_Icc.mpr h) ⟨hp, hq⟩
+  rw [e, Set.ncard_union_eq d (sep_Icc_finite P 1 n) (sep_Icc_finite Q 1 n)]
+  push_cast; ring
+
+/-- `mun:stdlib/counting/count-shift`. -/
+theorem count_shift (P : ℤ → Prop) (n : ℤ) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P (i - 1)}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) | P i}.ncard : ℤ) := by
+  have e : {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P (i - 1)} =
+      (fun j => j + 1) '' {i ∈ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) | P i} := by
+    ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc, Set.mem_image]
+    constructor
+    · rintro ⟨⟨h3, h4⟩, hp⟩
+      exact ⟨i - 1, ⟨⟨by omega, by omega⟩, hp⟩, by ring⟩
+    · rintro ⟨j, ⟨⟨h3, h4⟩, hp⟩, rfl⟩
+      exact ⟨⟨by omega, by omega⟩, by simpa using hp⟩
+  rw [e, Set.ncard_image_of_injective _ (add_left_injective 1)]
+
+/-- `mun:stdlib/counting/count-first-fails`. -/
+theorem count_first_fails (P : ℤ → Prop) (m : ℤ) (h2 : ¬ P (0 : ℤ)) :
+    ({i ∈ (Set.Icc (0 : ℤ) m : Set ℤ) | P i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) m : Set ℤ) | P i}.ncard : ℤ) := by
+  congr 2
+  ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc]
+  constructor
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    rcases lt_or_eq_of_le h3 with h5 | h5
+    · exact ⟨⟨by omega, h4⟩, hp⟩
+    · exact absurd (h5 ▸ hp) h2
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    exact ⟨⟨by omega, h4⟩, hp⟩
+
+/-- `mun:stdlib/counting/count-last-fails`. -/
+theorem count_last_fails (P : ℤ → Prop) (n : ℤ) (h2 : ¬ P n) :
+    ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | P i}.ncard : ℤ) =
+      ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | P i}.ncard : ℤ) := by
+  congr 2
+  ext i; simp only [Set.mem_ofPred_eq, Set.mem_Icc]
+  constructor
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    rcases lt_or_eq_of_le h4 with h5 | h5
+    · exact ⟨⟨h3, by omega⟩, hp⟩
+    · exact absurd (h5 ▸ hp) h2
+  · rintro ⟨⟨h3, h4⟩, hp⟩
+    exact ⟨⟨h3, by omega⟩, hp⟩
+
 end LeanBridges.Counting

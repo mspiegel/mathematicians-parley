@@ -188,7 +188,7 @@ impl<'a> Proof<'a> {
             return vec![base];
         }
         (0..count)
-            .map(|i| format!("{base}{}", (b'a' + i as u8) as char))
+            .map(|i| format!("{base}{}", part_suffix(i)))
             .collect()
     }
 
@@ -378,11 +378,26 @@ impl<'a> Proof<'a> {
         // A requires line is the step's, and the citation on one reads the
         // step's requires lines above it by the step's names.
         self.step_now.set(Some(i));
+        let mut above: Vec<Node> = Vec::new();
         for (k, r) in step.requires.iter().enumerate() {
             let node = match self.tree(&r.fact) {
                 Route::Built(n) => n,
                 Route::Declined(d) => return Route::Declined(d),
             };
+            // What the requires lines above make finite, "X is finite" of
+            // the set this one counts, it counts as a natural number, as the
+            // check reads them (`Step::requires_above`).
+            let positive = |n: &Node| {
+                crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
+            };
+            let made: Vec<_> =
+                crate::citing::finite::finite_sets(above.iter(), &positive)
+                    .into_iter()
+                    .collect();
+            for (set, why) in made {
+                self.writer.finite.entry(set).or_insert(why);
+            }
+            above.push(node.clone());
             // A requires line of a letter the claim says "for all" of, x²
             // ≥ 0 of every x ∈ [0, 1], is said under the claim's binders and
             // proved with its letters given.
@@ -767,7 +782,17 @@ impl<'a> Proof<'a> {
             haves.push(tactic_of(&proof));
             return Route::Built(Proof::Block(haves));
         }
-        let claimed = self.leaf_wides(node);
+        // A count in ℕ∞ of a set not known finite is no whole number a line
+        // names: the claim says it is some natural number, `∃ m : ℕ,
+        // S.encard = m ∧ …`, and is proved as it states it.
+        let claimed: Vec<WideTerm> = self
+            .leaf_wides(node)
+            .into_iter()
+            .filter(|w| {
+                !(w.term.notation() == crate::notations::CARDINALITY
+                    && self.writer.counts(&w.term))
+            })
+            .collect();
         // A term the cited item itself puts in a whole-number slot,
         // gcd(a/k, b/k) of gcd(a/gcd(a, b), b/gcd(a, b)) = 1, is one its
         // statement names as a whole number: the item's witness is the
@@ -2118,8 +2143,10 @@ impl<'a> Proof<'a> {
             .iter()
             .find(|d| d.label == label && d.line < self.thm.conclusion_line)?;
         match crate::corpus::define_parts(&d.text) {
+            // One of several arguments is written out where it is applied
+            // (`checker::written`), and has no hypothesis to name.
             Route::Built(crate::corpus::DefineParts::One(one))
-                if !one.params.is_empty() =>
+                if one.params.len() == 1 =>
             {
                 Some(line_name(&d.label))
             }
