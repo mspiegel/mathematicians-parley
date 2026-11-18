@@ -439,11 +439,6 @@ pub struct CheckedTheorem {
     /// (`formulas::check_place_systems`), by the step's index: so that a
     /// backend proves the membership as the check found it.
     pub places_shown: Vec<Vec<PlaceShown>>,
-    /// The letters the reason under a function's define that says a kind of
-    /// number is read with, by the define's label: the step's below it, and
-    /// the define's argument in the set it runs over, as the check reads
-    /// the reason, a step said of every member (`check_kinds`).
-    pub kind_letters: IndexMap<String, crate::citing::Introduced>,
     /// Each claim the `membership` method proves, by the line its reason
     /// is on, whose term is in its system beside an equation a line it
     /// names says (`ShownBy::Beside`): a^(p − 1) ∈ ℤ from a^(p − 1) =
@@ -511,6 +506,13 @@ pub struct CheckedTheorem {
     /// numbers, f of `f : D → ℝ`, with the systems of the domain and the
     /// codomain (`citing::number_sets::function_systems`).
     pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
+    /// The steps that say which numbers a define's values, or a defined
+    /// set's members, are among, by the define's name, in page order: `f :
+    /// ℕ → ℚ`, `for all x ∈ ℚ, g(x) ∈ ℕ`, `S ⊆ ℚ` (`SYNTAX.md`, a define's
+    /// numbers). The define says none itself. A backend whose numbers are
+    /// typed builds the define in the widest, and takes a narrower one
+    /// from the step that says it.
+    pub define_values: IndexMap<String, Vec<ValuesSaid>>,
     /// The record with what the theorem's file defines outside it written
     /// out, and each phrase as its meaning, read again of the page as
     /// written (`checker::written`); None where the file defines nothing
@@ -610,6 +612,22 @@ pub enum Inspection {
     Taken,
     /// Any other the method decides.
     Other,
+}
+
+/// A step saying which numbers a define's values are among, or a defined
+/// set's members (`CheckedTheorem::define_values`).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ValuesSaid {
+    /// The step's index.
+    pub step: usize,
+    /// The numbers it says: ℕ of `for all x ∈ ℚ, g(x) ∈ ℕ`, ℚ of `f : ℕ →
+    /// ℚ`.
+    pub system: crate::rules::System,
+    /// Whether the step gives the function's type, `f : ℕ → ℚ`, which a
+    /// backend whose functions are typed gives the function; or says its
+    /// values at every member, or a set's members, a fact of numbers that
+    /// may be wider than the define's.
+    pub typed: bool,
 }
 
 /// How a step shows a term is in a number system.

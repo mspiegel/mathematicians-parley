@@ -507,8 +507,17 @@ impl<'a> Proof<'a> {
                     self.trees.keys().cloned().collect();
                 let written = self.block(i, m, &claim, &names, depth);
                 self.trees.retain(|k, _| visible.contains(k));
+                self.narrowings_ended(depth);
                 if let (Some(n), Some(said)) = (own, claimed) {
                     self.store(n, said);
+                }
+                if let Route::Built(()) = written {
+                    let said: Vec<(String, Printed)> = names
+                        .iter()
+                        .cloned()
+                        .zip(claim.iter().map(|(_, prop)| prop.clone()))
+                        .collect();
+                    self.narrow_at_step(i, &said, step.line, depth);
                 }
                 return written;
             }
@@ -556,6 +565,14 @@ impl<'a> Proof<'a> {
                 spot.clone(),
             );
         }
+        // A define's function whose values this step puts among narrower
+        // numbers, declared of those from here (`narrow_at_step`).
+        let said: Vec<(String, Printed)> = names
+            .iter()
+            .cloned()
+            .zip(claim.iter().map(|(_, prop)| prop.clone()))
+            .collect();
+        self.narrow_at_step(i, &said, step.line, depth);
         if step.impossible {
             // A line of roots or of π, ln, exp, sin or cos, √2 − 1 = 0, is
             // shown false by real arithmetic; any other by `norm_num`.

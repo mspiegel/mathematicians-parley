@@ -334,7 +334,7 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
         step: "5.15.1",
-        holds: "exact (s5_5 (f a) (s5_13 a hK9))",
+        holds: "(f a) (s5_13 a hK9))",
         list: false,
         why: "an instantiation's value put in its domain by a \"for all\" line the step names, read at the block's letter (Instantiated::guards)",
     },
@@ -493,9 +493,9 @@ const SITES: &[Site] = &[
         why: "a definition unfolded at a define's name, g : L → U, not its rule, and each part sought as lines are read (`unfolded`)",
     },
     Site {
-        file: "lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean",
-        step: "2.3",
-        holds: "(by exact_mod_cast s2_2)",
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.5.3",
+        holds: "(by exact_mod_cast s5_5_2)",
         list: false,
         why: "a cited line the step's proof puts in terms of a named number before the citation, read as rewritten (`line_put_in_numbers`)",
     },
@@ -750,13 +750,6 @@ const SITES: &[Site] = &[
         holds: "(Rat.cast_lt (K := ℝ)).mpr s2",
         list: false,
         why: "an order of ℚ widened to the equation's ℝ before the putting (`widened_to`, `rat_to_real`)",
-    },
-    Site {
-        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
-        step: "5.5.5",
-        holds: "obtain ⟨m, hm, hk⟩ := s5_5_3; rw [← Int.cast_injective (hm.trans s5_5_4.symm)]; exact hk",
-        list: false,
-        why: "a line of the whole number a term is, put into where the equation puts an integer: m is that integer by the cast being one to one",
     },
     Site {
         file: "lean/Parley/Proofs/Identities/LnAboveOneIsPositive/LnAboveOneIsPositive.lean",

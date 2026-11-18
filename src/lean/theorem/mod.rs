@@ -314,19 +314,18 @@ struct Proof<'a> {
     /// row citing a line in the page's forms is put in terms of.
     named_specs: Vec<Printed>,
     /// The labels of the defines that name the number their reason shows,
-    /// `let e = p/d, a positive integer` (`kinded_witness`): their equation
-    /// is a line about an obtained number, cited as any line is, not a
-    /// `set` written out.
+    /// `let e = p/d, a positive integer` (`kinded_witness`), or whose
+    /// function a step has narrowed (`narrowed_function`): their equation
+    /// is a line about an obtained number or function, cited as any line
+    /// is, not a `set` written out.
     witnessed: std::collections::BTreeSet<String>,
+    /// The narrowings written in the blocks open at the step being
+    /// written, innermost last, each put back where its block ends.
+    narrowings: Vec<NarrowingUndo>,
     /// Each such define's value, m/p, and the letter that names the number,
     /// r: a citation given the value, as the checker reads one from the
     /// define's fact `m/p ∈ ℕ`, is given the letter.
     witness_letters: Vec<WitnessLetter>,
-    /// Each define of a function whose kind bounds its values, `g(x) …, a
-    /// positive integer`, by its page label, with the `have` that says the
-    /// bound at every point (`hD3_pos : ∀ x, 0 < g x`): what the kind's
-    /// type `g : ℚ → ℕ` gives at a point.
-    kind_bounds: IndexMap<String, KindBound>,
     /// Each name a define gives a finite set, U of `let U = {c ∈ G(m, n) :
     /// …}`, with the `have` that says it is (`hD3_finite`), which proves it
     /// finite for the reason the record gives a define's name
@@ -535,12 +534,34 @@ struct NumberRule {
     rule: super::doc::Rule,
 }
 
-/// What a define's kind says of its function's values (`kind_bounds`).
-struct KindBound {
-    /// The function's name on the page, g.
+/// A function a step narrows, for `narrowed_function`: the define's name,
+/// the types of its arguments and of the narrower values, and the step's
+/// `have` that says the narrowing.
+struct Narrowing {
     function: String,
-    /// The `have` that bounds its values at every point, `hD3_pos`.
-    bound: String,
+    from: super::templates::Num,
+    to: super::templates::Num,
+    hyp: String,
+}
+
+/// A define's equation said at every member of its domain, by the define's
+/// label, for `narrowed_function`.
+struct DefineEquation {
+    label: String,
+    said: Node,
+}
+
+/// What a narrowing changed, put back where the block it stands in ends:
+/// the function's type and what the define's label names.
+struct NarrowingUndo {
+    /// The depth the narrowing was written at.
+    depth: usize,
+    function: String,
+    letter: Option<LetterType>,
+    label: String,
+    tree: Option<Vec<LineSentence>>,
+    named: Option<Vec<String>>,
+    witnessed: bool,
 }
 
 /// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`; of ℕ and ℕ₀
@@ -677,7 +698,7 @@ pub fn theorem(
         named_specs: Vec::new(),
         witnessed: std::collections::BTreeSet::new(),
         witness_letters: Vec::new(),
-        kind_bounds: IndexMap::new(),
+        narrowings: Vec::new(),
         finite_defined: IndexMap::new(),
         named_now: std::cell::RefCell::new(None),
         held_now: std::cell::RefCell::new(Vec::new()),

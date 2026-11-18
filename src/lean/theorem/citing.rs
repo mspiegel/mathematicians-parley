@@ -1941,8 +1941,25 @@ impl<'a> Proof<'a> {
             Way::Forward => consequent(&instance.statement),
             Way::Backward => None,
         };
+        // The claim as the step closes it: a function a cited define gives
+        // written out at its argument (`put_define`), f(x) as F(x), as the
+        // goal is before the citation closes it. A function a step has
+        // narrowed keeps its name, its equation being in the wider type.
+        let narrowed: Vec<String> =
+            self.narrowings.iter().map(|n| n.function.clone()).collect();
+        let written = self
+            .cited_defines(&reason.just.refs)
+            .iter()
+            .filter(|d| {
+                d.param.is_some() && !narrowed.contains(&d.name.text.to_string())
+            })
+            .fold(node.clone(), |n, d| self.put_define(&n, d));
+        let stated = match written.spelt_alike(node) {
+            true => self.claim_as_stated(reason.just.line, node),
+            false => self.writer.formula(&written).built(),
+        };
         if let Some(compared) = compared {
-            if let Some(claim) = self.claim_as_stated(reason.just.line, node) {
+            if let Some(claim) = stated {
                 let templates = self.writer.templates;
                 let widen = |head: &str, at| templates.same_function_at(head, at);
                 use super::super::doc::forms;
@@ -2208,20 +2225,12 @@ impl<'a> Proof<'a> {
         };
         // A define the step cites is written out first, as for algebra.
         let mut defines = self.cited_defines(&reason.just.refs);
-        // A function a define names with its kind has its equation in the
-        // wider type, `↑(f x) = F ↑x`, which meets the goal only where Lean
-        // writes f applied and cast up: in a goal of f's own type it is left
-        // out.
-        let kinded: Vec<String> = {
-            let members = &self.sources.checked.grammar.members;
-            self.thm
-                .defines
-                .iter()
-                .filter_map(|d| d.kinded(&self.thm.path, members).ok().flatten())
-                .filter(|k| k.domain.is_some())
-                .map(|k| k.name)
-                .collect()
-        };
+        // A function a step has narrowed has its define's equation in the
+        // wider type, `↑(f x) = F ↑x` (`narrowed_function`), which meets the
+        // goal only where Lean writes f applied and cast up: in a goal of
+        // f's own type it is left out.
+        let narrowed: Vec<String> =
+            self.narrowings.iter().map(|n| n.function.clone()).collect();
         let cast_up_in_goal = |name: &str| {
             claim_lean.as_ref().is_some_and(|c| {
                 c.walk().iter().any(|n| {
@@ -2238,7 +2247,8 @@ impl<'a> Proof<'a> {
             })
         };
         defines.retain(|d| {
-            !kinded.iter().any(|k| *k == *d.name.text) || cast_up_in_goal(&d.name.text)
+            !narrowed.iter().any(|k| *k == *d.name.text)
+                || cast_up_in_goal(&d.name.text)
         });
         let in_goal: Vec<String> = defines
             .iter()
@@ -2917,8 +2927,12 @@ impl<'a> Proof<'a> {
             self.held(&checked, asked),
             Some(crate::checker::record::LinesHold::Stated { .. })
         );
-        // The latest such line the step names, or part of an "and".
+        // The latest such line the step names, or part of an "and"; a "for
+        // all" line read at the block's letter the check read it at, f(a) ∈
+        // {0, …, p − 1} of every a read at the block's a
+        // (`at_recorded_letter`).
         let named = self.named_now.borrow();
+        let letters = value.names();
         let mut parts = Vec::new();
         for (key, lines) in &self.trees {
             if !named.as_ref().is_some_and(|n| n.contains(key)) {
@@ -2932,6 +2946,15 @@ impl<'a> Proof<'a> {
                     &mut parts,
                     &self.writer,
                 );
+                if let Some(read) = self.at_recorded_letter(&s.cited(), &letters) {
+                    conjuncts(
+                        &read.node,
+                        read.proof,
+                        read.says,
+                        &mut parts,
+                        &self.writer,
+                    );
+                }
             }
         }
         parts.iter().rev().find_map(|c| {

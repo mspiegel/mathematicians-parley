@@ -18,7 +18,6 @@ public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
-public import Mathlib.Data.Int.Cast.Defs
 public import Mathlib.Data.Int.Cast.Lemmas
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -55,6 +54,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
@@ -76,6 +76,7 @@ namespace Parley.Proofs.Wiedijk.Wilson.Wilson
 
 theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     (LeanBridges.Counting.factorial (p - 1) : ℤ) ≡ (-1 : ℤ) [ZMOD p] := by
+  set f : ℤ → ℝ := fun a : ℤ => LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) with hD1
   -- 1. def:prime, from H2
   have s1 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) hH1)).mp hH2).1
   -- 2. mun:integer-step m := 1, n := p, from 1
@@ -96,24 +97,20 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have e_arith : (2 + 1 : ℤ) = 3 := by norm_num
       exact Eq.subst (motive := (fun t : ℤ => t ≤ p)) e_arith s5_1
     -- 5.3. mun:pos-int-nat m := p − 2
-    have r321_1 : 0 < p - 2 := by linarith only [s5_2]
-    have s5_3 : 0 < p - 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p - 2) r321_1)
-    have hD1_kind : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ)) := by intro a h_a; exact (by
-      have whole1 : ((a : ℝ) : ℝ) ^ (p - 2).toNat = (a : ℝ) ^ (p - 2) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s5_3)]
-      exact ⟨((a ^ (p - 2).toNat) % p), by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [whole1]))⟩)
-    obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (g a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := ⟨fun a => if h : a ∈ Finset.Icc 2 (p - 2) then (hD1_kind a h).choose else 0, fun a h => by simp only [h, ↓reduceDIte]; exact (hD1_kind a h).choose_spec⟩
+    have r324_1 : 0 < p - 2 := by linarith only [s5_2]
+    have s5_3 : 0 < p - 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p - 2) r324_1)
     -- 5.4. proof
     have s5_4 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (Int.gcd a p : ℤ) = 1 := by
       intro a hK1
       have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 5.4.1. mun:pos-int-nat m := a
-      have r333_1 : 0 < a := by linarith only [(Finset.mem_Icc.mp hK1).1]
-      have s5_4_1 : 0 < a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) r333_1)
+      have r332_1 : 0 < a := by linarith only [(Finset.mem_Icc.mp hK1).1]
+      have s5_4_1 : 0 < a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) r332_1)
       -- 5.4.2. thm:coprime-below-prime, from H2, 5.4.1
-      have r337_1 : a < p := by linarith only [(Finset.mem_Icc.mp hK1).2]
-      exact (Parley.Proofs.Wiedijk.Wilson.CoprimeBelowPrime.coprime_below_prime (p := p) hH1 hH2 (a := a) s5_4_1 r337_1)
+      have r336_1 : a < p := by linarith only [(Finset.mem_Icc.mp hK1).2]
+      exact (Parley.Proofs.Wiedijk.Wilson.CoprimeBelowPrime.coprime_below_prime (p := p) hH1 hH2 (a := a) s5_4_1 r336_1)
     -- 5.5. proof
-    have s5_5 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) := by
+    have s5_5 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (∃ m : ℤ, (m : ℝ) = f a ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1)) := by
       intro a hK2
       have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 5.5.1. mun:power-integer m := p − 2, from 5.3
@@ -123,17 +120,23 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.5.2. mun:mod-less, from 5.5.1
       have s5_5_2 : LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) < (p : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s5_5_1); push_cast at h; exact h : ((Classical.choose s5_5_1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 2))]; rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s5_5_1)) (b := p) hH1))
       -- 5.5.3. mun:range-from-bounds, from 5.5.2
-      have r351_1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by
+      have r350_1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by
         have whole1 : ∃ m : ℤ, (m : ℝ) = (a : ℝ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_5_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩
         refine ⟨((Classical.choose whole1 : ℤ) % p), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]))⟩
         (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := p) hH1))
-      have s5_5_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1) := by rw [← (Classical.choose_spec r351_1).2]; have := (Classical.choose_spec r351_1).1; rw [← (Classical.choose_spec r351_1).2] at s5_5_2; norm_cast at s5_5_2; (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (Classical.choose r351_1)) (Classical.choose_spec r351_1).1 (by exact_mod_cast s5_5_2))⟩)
+      have s5_5_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1) := by rw [← (Classical.choose_spec r350_1).2]; have := (Classical.choose_spec r350_1).1; rw [← (Classical.choose_spec r350_1).2] at s5_5_2; norm_cast at s5_5_2; (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (Classical.choose r350_1)) (Classical.choose_spec r350_1).1 (by exact_mod_cast s5_5_2))⟩)
       -- 5.5.4. D1, from K2
-      have s5_5_4 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
+      have s5_5_4 : f a = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
       -- 5.5.5. substitute f(a) = (a^(p − 2)) mod p (line 5.5.4) into line 5.5.3
-      obtain ⟨m, hm, hk⟩ := s5_5_3; rw [← Int.cast_injective (hm.trans s5_5_4.symm)]; exact hk
+      exact Eq.subst (motive := (fun t : ℝ => ∃ m : ℤ, (m : ℝ) = t ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1))) s5_5_4.symm s5_5_3
     -- 5.6. proof
-    -- what this block shows, Lean's types give
+    have s5_6 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (∃ m : ℤ, (m : ℝ) = f a) := by
+      intro a hK3
+      have hK3_bounds := Finset.mem_Icc.mp hK3
+      -- 5.6.1. mun:range-integer, from 5.5
+      exact ⟨Classical.choose (s5_5 a hK3), (Classical.choose_spec (s5_5 a hK3)).1⟩
+    obtain ⟨f, s5_6_eq⟩ : ∃ f' : ℤ → ℤ, ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (f' a : ℝ) = f a := ⟨fun a => if h : a ∈ Finset.Icc 2 (p - 2) then (s5_6 a h).choose else 0, fun a h => by simp only [h, ↓reduceDIte]; exact (s5_6 a h).choose_spec⟩
+    have hD1_f : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := fun a h => (s5_6_eq a h).trans (by simp only [hD1])
     -- 5.7. proof
     have s5_7 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → a * f a ≡ (1 : ℤ) [ZMOD p] := by
       intro a hK4
@@ -141,9 +144,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.7.1. thm:euler n := p, from 5.4
       have s5_7_1 : a ^ Nat.totient p.toNat ≡ (1 : ℤ) [ZMOD p] := by exact (Parley.Proofs.Wiedijk.Euler.Euler.euler (n := p) hH1 (a := a) (s5_4 a hK4))
       -- 5.7.2. substitute
-      have r376_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
+      have r375_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
       have s5_7_2 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) ∧ m ≡ (1 : ℤ) [ZMOD p] := by
-        have whole1 : ((a : ℚ) : ℚ) ^ (p - 1).toNat = (a : ℚ) ^ (p - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg r376_1]
+        have whole1 : ((a : ℚ) : ℚ) ^ (p - 1).toNat = (a : ℚ) ^ (p - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg r375_1]
         refine ⟨(a ^ (p - 1).toNat), by (push_cast; simp only [whole1]), ?_⟩
         exact (by
           have c1 : (Nat.totient p.toNat : ℤ) = p - 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_phi_prime (p := p) hH1 hH2)
@@ -168,13 +171,13 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
         (exact (Parley.Items.Stdlib.Divisibility.mun_mod_congruent (x := (Classical.choose whole1 : ℤ)) (n := p) hH1))
       -- 5.7.7. D1, from K4
-      have s5_7_7 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
+      have s5_7_7 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1_f]
       -- 5.7.8. substitute f(a) = (a^(p − 2)) mod p (line 5.7.7) into line 5.7.6
-      have r399_1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by
+      have r398_1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by
         have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_7_5; exact ⟨m, by exact_mod_cast hm⟩
         exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1])⟩
       have s5_7_8 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) ∧ m ≡ f a [ZMOD p] := by
-        have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := r399_1; exact ⟨m, by exact_mod_cast hm⟩
+        have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := r398_1; exact ⟨m, by exact_mod_cast hm⟩
         have s5_7_6 := parley_witness_at s5_7_6 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]))
         rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 2))] at s5_7_7
         rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_7
@@ -188,14 +191,14 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         refine ⟨((Classical.choose whole1 : ℤ) * a), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
         (exact (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := f a) (b := (Classical.choose whole1 : ℤ)) (c := a) (n := p) hH1 s5_7_8.symm))
       -- 5.7.10. substitute a^(p − 1) = a^(p − 2)·a (line 5.7.4) into line 5.7.9
-      have r406_2 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by
+      have r405_2 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by
         have other : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
           have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_7_5; exact ⟨m, by exact_mod_cast hm⟩
           exact ⟨((Classical.choose whole1 : ℤ) * a), by (push_cast; simp only [Classical.choose_spec whole1])⟩
         rw [s5_7_4]
         exact other
       have s5_7_10 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) ∧ f a * a ≡ m [ZMOD p] := by
-        have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by obtain ⟨m, hm⟩ := r406_2; exact ⟨m, by exact_mod_cast hm⟩
+        have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by obtain ⟨m, hm⟩ := r405_2; exact ⟨m, by exact_mod_cast hm⟩
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
         (exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ f a * a ≡ m [ZMOD p])) s5_7_4.symm s5_7_9) (Classical.choose whole1 : ℤ) (by push_cast; simp only [Classical.choose_spec whole1]))
       -- 5.7.11. algebra, from 5.6
@@ -208,10 +211,10 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         rw [s5_7_4]
         exact other
       -- 5.7.13. calculation
-      have r417_2 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by
+      have r416_2 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by
         have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by obtain ⟨m, hm⟩ := s5_7_12; exact ⟨m, by exact_mod_cast hm⟩
         exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1])⟩
-      have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by obtain ⟨m, hm⟩ := r417_2; exact ⟨m, by exact_mod_cast hm⟩
+      have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by obtain ⟨m, hm⟩ := r416_2; exact ⟨m, by exact_mod_cast hm⟩
       have s5_7_10 := parley_witness_at s5_7_10 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]))
       have s5_7_2 := parley_witness_at s5_7_2 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]))
       calc a * f a = f a * a := s5_7_11
@@ -222,29 +225,29 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       intro a hK5
       have hK5_bounds := Finset.mem_Icc.mp hK5
       -- 5.8.1. mun:pos-int-nat m := a − 1
-      have r429_1 : 0 < a - 1 := by linarith only [(Finset.mem_Icc.mp hK5).1]
-      have s5_8_1 : 0 < a - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a - 1) r429_1)
+      have r428_1 : 0 < a - 1 := by linarith only [(Finset.mem_Icc.mp hK5).1]
+      have s5_8_1 : 0 < a - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a - 1) r428_1)
       -- 5.8.2. mun:below-not-divisible n := p, x := a − 1, from 5.8.1
-      have r433_1 : a - 1 < p := by linarith only [(Finset.mem_Icc.mp hK5).2]
-      exact (Parley.Items.Stdlib.Divisibility.mun_below_not_divisible (n := p) hH1 (x := a - 1) s5_8_1 r433_1)
+      have r432_1 : a - 1 < p := by linarith only [(Finset.mem_Icc.mp hK5).2]
+      exact (Parley.Items.Stdlib.Divisibility.mun_below_not_divisible (n := p) hH1 (x := a - 1) s5_8_1 r432_1)
     -- 5.9. proof
     have s5_9 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → ¬ p ∣ a + 1 := by
       intro a hK6
       have hK6_bounds := Finset.mem_Icc.mp hK6
       -- 5.9.1. mun:pos-int-nat m := a + 1
-      have r441_1 : 0 < a + 1 := by linarith only [(Finset.mem_Icc.mp hK6).1]
-      have s5_9_1 : 0 < a + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a + 1) r441_1)
+      have r440_1 : 0 < a + 1 := by linarith only [(Finset.mem_Icc.mp hK6).1]
+      have s5_9_1 : 0 < a + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a + 1) r440_1)
       -- 5.9.2. mun:below-not-divisible n := p, x := a + 1, from 5.9.1
-      have r445_1 : a + 1 < p := by linarith only [(Finset.mem_Icc.mp hK6).2]
-      exact (Parley.Items.Stdlib.Divisibility.mun_below_not_divisible (n := p) hH1 (x := a + 1) s5_9_1 r445_1)
+      have r444_1 : a + 1 < p := by linarith only [(Finset.mem_Icc.mp hK6).2]
+      exact (Parley.Items.Stdlib.Divisibility.mun_below_not_divisible (n := p) hH1 (x := a + 1) s5_9_1 r444_1)
     -- 5.10. mun:range-from-bounds m := p, x := 0, from H1
     have s5_10 : (0 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (0 : ℤ)) (by norm_num) hH1)
     -- 5.11. mun:range-from-bounds m := p, x := 1, from 1
     have s5_11 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (1 : ℤ)) (by norm_num) s1)
     -- 5.12. mun:range-inside
-    have r455_1 : (0 : ℤ) ≤ 2 := by norm_num
-    have r455_2 : p - 2 ≤ p - 1 := by linarith
-    have s5_12 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.Icc (0 : ℤ) (p - 1) : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_inside (a := (2 : ℤ)) (b := p - 2) (c := (0 : ℤ)) (d := p - 1) (by norm_num) r455_2)
+    have r454_1 : (0 : ℤ) ≤ 2 := by norm_num
+    have r454_2 : p - 2 ≤ p - 1 := by linarith
+    have s5_12 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.Icc (0 : ℤ) (p - 1) : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_inside (a := (2 : ℤ)) (b := p - 2) (c := (0 : ℤ)) (d := p - 1) (by norm_num) r454_2)
     -- 5.13. proof
     have s5_13 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (2 : ℤ) (p - 2) := by
       intro a hK7
@@ -286,8 +289,8 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         -- 5.13.4.2. def:congruent-mod, from 5.13.4.1
         have s5_13_4_2 : p ∣ a * (p - 1) - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := p) (a := a * (p - 1)) (b := (1 : ℤ)))).mp s5_13_4_1
         -- 5.13.4.3. mun:divides-multiple e := p, a := p, x := a
-        have r511_1 : p ∣ p := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := p))
-        have s5_13_4_3 : p ∣ p * a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := p) (x := a) r511_1)
+        have r510_1 : p ∣ p := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := p))
+        have s5_13_4_3 : p ∣ p * a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := p) (x := a) r510_1)
         -- 5.13.4.4. mun:divides-difference, from 5.13.4.2, 5.13.4.3
         have s5_13_4_4 : p ∣ p * a - (a * (p - 1) - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := p) (a := p * a) (b := a * (p - 1) - 1) s5_13_4_3 s5_13_4_2)
         -- 5.13.4.5. substitute
@@ -299,7 +302,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have s5_13_4_6 : ¬ p ∣ a + 1 := by exact (s5_9 a hK7)
         exact s5_13_4_6 s5_13_4_5
       -- 5.13.5. inequalities, from 5.5, 5.6, 5.13.2
-      have s5_13_5 : 0 < f a := Or.elim (Ne.lt_or_gt s5_13_2) (fun h1 => by linarith only [(Finset.mem_Icc.mp (s5_5 a hK7)).1, h1]) (fun h1 => by linarith only [(Finset.mem_Icc.mp (s5_5 a hK7)).1, h1])
+      have s5_13_5 : 0 < f a := Or.elim (Ne.lt_or_gt s5_13_2) (fun h1 => by linarith only [(Finset.mem_Icc.mp ((show ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) by have h := s5_5; simp +contextual only [← s5_6_eq, Int.cast_inj, exists_eq_left] at h; exact_mod_cast h) a hK7)).1, h1]) (fun h1 => by linarith only [(Finset.mem_Icc.mp ((show ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) by have h := s5_5; simp +contextual only [← s5_6_eq, Int.cast_inj, exists_eq_left] at h; exact_mod_cast h) a hK7)).1, h1])
       -- 5.13.6. mun:pos-int-nat m := f(a), from 5.6, 5.13.5
       have s5_13_6 : 0 < f a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := f a) s5_13_5)
       -- 5.13.7. inequalities, from 5.13.3, 5.13.6
@@ -311,7 +314,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have e_arith : (1 + 1 : ℤ) = 2 := by norm_num
         exact Eq.subst (motive := (fun t : ℤ => t ≤ f a)) e_arith s5_13_8
       -- 5.13.10. inequalities, from 5.5, 5.13.4
-      have s5_13_10 : f a < p - 1 := Or.elim (Ne.lt_or_gt s5_13_4) (fun h1 => by linarith only [(Finset.mem_Icc.mp (s5_5 a hK7)).2, h1]) (fun h1 => by linarith only [(Finset.mem_Icc.mp (s5_5 a hK7)).2, h1])
+      have s5_13_10 : f a < p - 1 := Or.elim (Ne.lt_or_gt s5_13_4) (fun h1 => by linarith only [(Finset.mem_Icc.mp ((show ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) by have h := s5_5; simp +contextual only [← s5_6_eq, Int.cast_inj, exists_eq_left] at h; exact_mod_cast h) a hK7)).2, h1]) (fun h1 => by linarith only [(Finset.mem_Icc.mp ((show ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) by have h := s5_5; simp +contextual only [← s5_6_eq, Int.cast_inj, exists_eq_left] at h; exact_mod_cast h) a hK7)).2, h1])
       -- 5.13.11. mun:integer-step m := f(a), n := p − 1, from 5.6, 5.13.10
       have s5_13_11 : f a + 1 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := f a) (n := p - 1) s5_13_10)
       -- 5.13.12. inequalities
@@ -344,7 +347,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       intro a hK9
       have hK9_bounds := Finset.mem_Icc.mp hK9
       -- 5.15.1. instantiate a := f(a) in line 5.5, from 5.13
-      have s5_15_1 : f (f a) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (s5_5 (f a) (s5_13 a hK9))
+      have s5_15_1 : f (f a) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact ((show ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (0 : ℤ) (p - 1) by have h := s5_5; simp +contextual only [← s5_6_eq, Int.cast_inj, exists_eq_left] at h; exact_mod_cast h) (f a) (s5_13 a hK9))
       -- 5.15.2. mun:range-integer, from 5.15.1
       -- 5.15.3. algebra, from 5.6, 5.15.2
       have s5_15_3 : f (f a) * f a = f a * f (f a) := by ring1
@@ -370,25 +373,25 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.18. mun:range-in-integers
     have s5_18 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := p - 2))
     -- 5.19. thm:paired-product, from 5.7, 5.14, 5.15, 5.17, 5.18
-    have r628_1 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact s5_16
+    have r627_1 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact s5_16
     have s5_19 : (∏ a ∈ Finset.Icc (2 : ℤ) (p - 2), (a : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by
-      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by (have h := ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) s5_18 s5_17 (n := p) hH1 (f := f) r628_1 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7))); simp only [LeanBridges.Sums.finprod_Icc] at h; exact h)
+      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by (have h := ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) s5_18 s5_17 (n := p) hH1 (f := f) r627_1 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7))); simp only [LeanBridges.Sums.finprod_Icc] at h; exact h)
       exact hI
     -- 5.20. mun:nat-minus-one n := p
     have s5_20 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
     -- 5.21. mun:factorial-product n := p − 1, from 5.20
     have s5_21 : (LeanBridges.Counting.factorial (p - 1) : ℤ) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_product (n := p - 1) s5_20)
     -- 5.22. mun:product-extended a := 1, n := p − 2
-    have r638_1 : p - 2 ≥ 1 := by linarith only [s5_2]
-    have s5_22 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2 + 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := p - 2) r638_1)
+    have r637_1 : p - 2 ≥ 1 := by linarith only [s5_2]
+    have s5_22 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2 + 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := p - 2) r637_1)
     -- 5.23. substitute
     have s5_23 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by
       have c1 : p - 2 + 1 = p - 1 := by ring1
       have row1 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := Eq.subst (motive := (fun t : ℤ => (∏ k ∈ Finset.Icc (1 : ℤ) t, (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * t)) c1 s5_22
       exact row1
     -- 5.24. mun:product-first a := 1, b := p − 2
-    have r647_1 : 1 ≤ p - 2 := by linarith only [s5_2]
-    have s5_24 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = 1 * (∏ k ∈ Finset.Icc (1 + 1 : ℤ) (p - 2), (k : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_first (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (b := p - 2) r647_1)
+    have r646_1 : 1 ≤ p - 2 := by linarith only [s5_2]
+    have s5_24 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = 1 * (∏ k ∈ Finset.Icc (1 + 1 : ℤ) (p - 2), (k : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_first (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (b := p - 2) r646_1)
     -- 5.25. mun:product-integer, from 5.17, 5.18
     -- 5.26. substitute 1 + 1 = 2 (arithmetic) into line 5.24
     have s5_26 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) := by
@@ -408,7 +411,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.30. arithmetic
     have s5_30 : (LeanBridges.Counting.factorial (2 - 1 : ℤ) : ℤ) ≡ (-1 : ℤ) [ZMOD (2 : ℤ)] := by norm_num [Nat.factorial]
     -- 5.31. substitute 2 = p (C2) into line 5.30
-    have r680_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
+    have r679_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
     exact Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (t - 1) : ℤ) ≡ (-1 : ℤ) [ZMOD t])) hC2 s5_30
 
 end Parley.Proofs.Wiedijk.Wilson.Wilson

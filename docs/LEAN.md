@@ -374,18 +374,22 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   reports the term. How such a term is shown is the checker's
   (`places_shown`, `members_shown`), and the writer proves it that way: a
   term beside an equation is named by the other side's number, the equation
-  turning one into the other. A function's define that says its values are
-  among narrower numbers than its rule computes in, integers of a rational
-  value or reals of a complex one, is a function to the kind's numbers whose
-  values are its kind's witnesses, `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈
-  X, ↑(g a) = v`, or over all of ℝ `∃ g : ℝ → ℝ, ∀ x, ↑(g x) = F ↑x`, its
-  equation said at each member.
+  turning one into the other.
 
-  Where the kind also bounds the values, `a positive integer`, the bound is
-  kept beside the equation: `obtain ⟨g, hD3_pos, hD3⟩ : ∃ g : ℚ → ℤ, (∀ x,
-  0 < g x) ∧ ∀ x, ↑(g x) = v`. A membership the kind's type gives at a
-  point is then `hD3_pos x`. A kind wider than the rule's numbers makes the
-  function the kind's: `f n = (n : ℚ)` of `f(n) = n, a rational number`.
+  A function a define gives is built in the numbers its rule computes in, or
+  in the widest numbers a line of the page gives it as its type, `f n = (n :
+  ℚ)` of `let f(n) = n` beside `f : ℕ → ℚ` (`define_values`). A line saying
+  its values are among narrower numbers than Lean computes them in, `for all
+  x ∈ ℚ, g(x) ∈ ℕ` of a rule in ℚ, narrows it there: the function chosen
+  from the line's witnesses takes the define's name from that line on,
+  `obtain ⟨g, s5_pos, s5_eq⟩ : ∃ g' : ℚ → ℤ, (∀ x, 0 < g' x) ∧ ∀ x, ↑(g' x)
+  = g x`, the bound the line says kept beside its equation, and the define's
+  equation is said again of it, `hD3_g : ∀ x, ↑(g x) = v`, which a step
+  citing the define reads. Every line from there writes the narrowed
+  function. A line above it that names the function is read through the
+  equation where a later step cites it, `simp only [← s5_eq] at h`, with
+  `+contextual` where the equation holds on a set. Outside the block the
+  narrowing stands in, the function is the define's again.
 - `t ∈ ℤ` for a rational t is `∃ m : ℤ, (m : ℚ) = t`; a membership the
   letter's type already gives says nothing and is left out.
 

@@ -213,12 +213,14 @@ pub(super) fn cases() -> Vec<Case> {
             ],
             "a define says no kind of number",
         ),
+        // A function's define says no kind: a line below it says which
+        // numbers its values are among (`SYNTAX.md`).
         case(
-            "a let's function whose kind its reason does not show",
+            "say what kind of number a function's values are at its define",
             vec![
-                edit("proofs/wiedijk/wilson.proof", Some("membership, from 5.3\n        reads the inverse of a modulo p".to_string()), "membership\n        reads the inverse of a modulo p".to_string()),
+                edit("proofs/wiedijk/wilson.proof", Some("let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D1)\n    reads".to_string()), "let f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}       (D1)\n    membership\n    reads".to_string()),
             ],
-            "the reason under let D1 does not show",
+            "let D1 says a kind of number of a function; a function's define says none",
         ),
         case(
             "give a let's name with :=",
@@ -422,24 +424,6 @@ pub(super) fn cases() -> Vec<Case> {
             ],
             "names k, which has no value at 0",
         ),
-        // A define's kind says its function's type once (`SYNTAX.md`): a
-        // requires line saying it again does no work.
-        case(
-            "say a kinded define's type again on a requires line",
-            vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D3)\n       reads".to_string()), "let F(x) = f(x) + g(x), a real number, for x ∈ [a, b]                 (D3)\n    membership, from D2, H4\n    reads".to_string()),
-            ],
-            "the requires line of step 12 says F : [a, b] → ℝ, and neither thm:continuous-sum nor the step's other lines ask for it",
-        ),
-        // A kinded define's values are in its kind by name: a membership
-        // built from f(x) asks for f(x), not for the rule f stands for.
-        case(
-            "give a define built from a kinded one no reason",
-            vec![
-                edit("proofs/wiedijk/liouville.proof", Some("    reads F on the real line\n".to_string()), "    reads F on the real line\n\nlet k(x) = f(x) + 1, a real number, for x ∈ ℝ                         (D9)\n    membership\n    reads f raised by 1\n".to_string()),
-            ],
-            "is not built from what let D9 cites: nothing says f(x) ∈ ℝ, which it needs",
-        ),
         // A define's reason is the define's own, and the message names the
         // define, not the step below it.
         case(
@@ -448,15 +432,6 @@ pub(super) fn cases() -> Vec<Case> {
                 edit("proofs/setmm/rounding-error.proof", Some("    membership, from 1\n    reads the error".to_string()), "    membership\n    reads the error".to_string()),
             ],
             "⌊A + 1/2⌋ − A ∈ ℝ is not built from what let D1 cites",
-        ),
-        // A rule by cases is said in a message on one line, as a sentence
-        // writes it.
-        case(
-            "give a define by cases a kind its cases are not in",
-            vec![
-                edit("proofs/wiedijk/rationals-countable.proof", Some("           1    otherwise,  for x ∈ ℚ                                 (D2)\n       reads".to_string()), "           1    otherwise,  a positive integer, for x ∈ ℚ             (D2)\n    membership\n    reads".to_string()),
-            ],
-            "for all x ∈ ℚ, 0 if numer(x) ≥ 0, 1 otherwise ∈ ℕ is not built from what let D2 cites",
         ),
         case(
             "give a first value in terms of a sequence",
@@ -883,24 +858,18 @@ pub(super) fn cases() -> Vec<Case> {
             )],
             "step 1.16.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),
-        // A define's values are in the number system it gives them where it
-        // is made: Lean fixes a function's type there, so a later line that
-        // puts them in a narrower one is refused and the define says it.
+        // A define's values are among the numbers a line below it says,
+        // where a step cites that line: wilson's f(a) is an integer by line
+        // 5.6, and a citation asking it of f(a) without that line has
+        // nothing saying it.
         case(
-            "a later line narrowing a define's values to ℝ",
-            vec![
-                edit(
-                    "proofs/wiedijk/liouville.proof",
-                    Some("let f(x) = F(x), a real number, for x ∈ ℝ                             (D1)\n    from 1\n".to_string()),
-                    "let f = (x ∈ ℝ ↦ F(x))                                                (D1)\n".to_string(),
-                ),
-                edit(
-                    "proofs/wiedijk/liouville.proof",
-                    Some("2.  For all x ∈ ℝ, f(x) = F(x).\n    D1".to_string()),
-                    "2.  f : ℝ → ℝ\n    mun:function-into, from D1, 1".to_string(),
-                ),
-            ],
-            "step 2 puts f's values in ℝ, which its define does not; the define says it, as its kind",
+            "cite an item asking a define's value whole without the line that says it",
+            vec![edit(
+                "proofs/wiedijk/wilson.proof",
+                Some("thm:congruent-times c := a, from 5.6, 5.7.5, 5.7.8".to_string()),
+                "thm:congruent-times c := a, from 5.7.5, 5.7.8".to_string(),
+            )],
+            "step 5.7.9 cites thm:congruent-times, which asks for f(a) ∈ ℤ, and what it cites does not supply it",
         ),
     ]
 }

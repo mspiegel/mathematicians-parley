@@ -91,197 +91,6 @@ pub fn check_defined_types(
     }
 }
 
-/// A define's values are in the number system its rule gives them, or the
-/// narrower one its kind says (`SYNTAX.md`, a function's define and its
-/// kind): a later line that puts them in a narrower one, `f : ℝ → ℝ` of a
-/// define `f = (x ∈ ℝ ↦ F(x))` with F into ℂ, is reported, and the define
-/// says it instead. Narrowing to a set within the same numbers, `g : L →
-/// U` or into ℕ of integer values, is a fact a line may still give. The
-/// rule's system is what the page says once of it at a member of the
-/// define's domain, a function applied giving what the type in scope says
-/// it gives.
-pub fn check_define_systems(report: &mut Report, thm: &Theorem, known: &Known) {
-    let rules: Vec<SystemRule> = thm
-        .defines
-        .iter()
-        .filter_map(|d| SystemRule::of(d, thm, known))
-        .collect();
-    if rules.is_empty() {
-        return;
-    }
-    for step in &thm.steps {
-        let letters = super::super::library::introduced(known, step);
-        let typed = super::super::library::typed_in_scope(known, step);
-        // The claim as the page writes it, the define's name standing.
-        let claims: Vec<Node> = step
-            .claim
-            .sentences()
-            .iter()
-            .filter_map(|s| known.parse(s).ok())
-            .collect();
-        for claim in &claims {
-            for node in claim.walk() {
-                let (FUNCTION_TYPE, [g, _, codomain]) =
-                    (node.notation(), node.children.as_slice())
-                else {
-                    continue;
-                };
-                let Some(rule) =
-                    rules.iter().find(|r| g.is_name() && *g.text == r.name)
-                else {
-                    continue;
-                };
-                let Some(into) = crate::citing::set_system(codomain, &letters) else {
-                    continue;
-                };
-                let Some(own) = rule.values_system(&letters, &typed) else {
-                    continue;
-                };
-                if numbers_of(own).within(numbers_of(into)) {
-                    continue;
-                }
-                let kind = known
-                    .env
-                    .g
-                    .members
-                    .iter()
-                    .find(|(_, set)| System::of_sign(set) == Some(numbers_of(into)))
-                    .map(|(wording, _)| wording.clone())
-                    .unwrap_or_default();
-                report.say(
-                    &thm.path,
-                    step.just.line,
-                    format!(
-                        "{} puts {}'s values in {}, which its define does not; the define says it, as its kind: let {}({}) = {}, {kind}, for {} ∈ {}",
-                        step.called(),
-                        rule.name,
-                        known.print(codomain),
-                        rule.name,
-                        rule.letter,
-                        known.print(&rule.rule),
-                        rule.letter,
-                        known.print(&rule.domain),
-                    ),
-                );
-            }
-        }
-    }
-}
-
-/// The numbers a system's members are among for this rule: ℕ and ℕ₀ are
-/// sets of integers, which a line may put integer values in.
-fn numbers_of(system: System) -> System {
-    match system {
-        System::N | System::N0 => System::Z,
-        other => other,
-    }
-}
-
-/// A function a define gives of one argument, its parameter's or a map's,
-/// with the system its kind says, for `check_define_systems`.
-struct SystemRule {
-    name: String,
-    letter: String,
-    domain: Node,
-    rule: Node,
-    kind: Option<System>,
-}
-
-impl SystemRule {
-    /// The define read so; None for a define of anything else, or one that
-    /// does not read, which is said where it is written.
-    fn of(
-        d: &crate::corpus::DefineLine,
-        thm: &Theorem,
-        known: &Known,
-    ) -> Option<SystemRule> {
-        let Built(DefineParts::One(one)) = define_parts(&d.text) else {
-            return None;
-        };
-        let kind = d
-            .kinded(&thm.path, &known.env.g.members)
-            .ok()
-            .flatten()
-            .and_then(|k| System::of_sign(&k.set));
-        if let [param] = one.params.as_slice() {
-            let local = crate::sorts::define_sorts(
-                &one,
-                &known.sorts,
-                known.env.g,
-                &d.path,
-                d.line,
-            )
-            .ok()?;
-            let rule = d
-                .rule(&one.body)
-                .formula()
-                .ok()?
-                .read(known.env.g, &local)
-                .ok()?;
-            let domain = known.parse(&d.domain(param).formula().ok()?).ok()?;
-            return Some(SystemRule {
-                name: one.name.clone(),
-                letter: param.name.clone(),
-                domain,
-                rule,
-                kind,
-            });
-        }
-        if !one.params.is_empty() {
-            return None;
-        }
-        // A map, `f = (x ∈ ℝ ↦ F(x))`: its letter, set and rule.
-        let map = known.parse(&d.rule(&one.body).formula().ok()?).ok()?;
-        let (MAP, [letter, domain, rule]) = (map.notation(), map.children.as_slice())
-        else {
-            return None;
-        };
-        Some(SystemRule {
-            name: one.name.clone(),
-            letter: letter.text.to_string(),
-            domain: domain.clone(),
-            rule: rule.clone(),
-            kind,
-        })
-    }
-
-    /// The narrowest of ℤ, ℚ, ℝ and ℂ the define puts its values in: its
-    /// kind's, or the one its rule is in at a member of its domain by what
-    /// the page says once, a function applied giving what its type in scope,
-    /// `typed`, says. None where neither says.
-    fn values_system(&self, letters: &Introduced, typed: &[Node]) -> Option<System> {
-        if let Some(kind) = self.kind {
-            return Some(numbers_of(kind));
-        }
-        let inside = crate::citing::set_system(&self.domain, letters)?;
-        let mut letters = letters.clone();
-        letters.insert(self.letter.clone(), inside);
-        let applied = |t: &Node, s: System| {
-            let (APPLICATION, [f, _]) = (t.notation(), t.children.as_slice()) else {
-                return false;
-            };
-            typed.iter().any(|ty| match ty.children.as_slice() {
-                [g, _, to] if g.text == f.text => {
-                    crate::citing::set_system(to, &letters)
-                        .is_some_and(|gives| gives.within(s))
-                }
-                _ => false,
-            })
-        };
-        [System::Z, System::Q, System::R, System::C]
-            .into_iter()
-            .find(|s| {
-                crate::citing::within(
-                    &self.rule,
-                    *s,
-                    &letters,
-                    &|d| crate::citing::nonzero_said_once(d, &letters),
-                    &applied,
-                )
-            })
-    }
-}
-
 /// A function a define gives of one argument, read: `t(j) = j + 1, for j ∈
 /// ℕ` is t with letter j, domain ℕ and rule j + 1.
 pub(super) struct DefinedRule {
@@ -289,9 +98,6 @@ pub(super) struct DefinedRule {
     pub(super) letter: String,
     pub(super) domain: Node,
     pub(super) rule: Node,
-    /// The system its kind puts its values in, `let F(x) = …, a real
-    /// number, for x ∈ D`; None where it says no kind.
-    pub(super) kind: Option<System>,
 }
 
 impl DefinedRule {
@@ -317,26 +123,19 @@ impl DefinedRule {
         )?;
         let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
         let domain = known.parse(&d.domain(param).formula()?)?;
-        // A kind no record names is reported where the lets are checked.
-        let kind = d
-            .kinded(&d.path, &known.env.g.members)
-            .ok()
-            .flatten()
-            .and_then(|k| System::of_sign(&k.set));
         Ok(Some(DefinedRule {
             name: one.name.clone(),
             letter: param.name.clone(),
             domain,
             rule,
-            kind,
         }))
     }
 
     /// Whether the type `f : D → E` asked of this function is said once
     /// (`SYNTAX.md`, "A define with a parameter also states what its
-    /// function is on"): its domain holds D, and its kind, or its rule at a
-    /// point of D by what the page says once, with `letters` the step's,
-    /// puts its values in E. A kind says the type as `let f : D → ℝ` would.
+    /// function is on"): its domain holds D, and its rule at a point of D
+    /// by what the page says once, with `letters` the step's, puts its
+    /// values in E.
     pub(super) fn typed_once(
         &self,
         domain: &Node,
@@ -360,9 +159,6 @@ impl DefinedRule {
                 && System::of_sign(&self.domain.text)
                     .zip(inside)
                     .is_some_and(|(own, asked)| asked.within(own)));
-        if holds && self.kind.is_some_and(|kind| kind.within(into)) {
-            return true;
-        }
         let Some(inside) = inside.filter(|_| holds) else {
             return false;
         };

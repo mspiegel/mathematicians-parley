@@ -293,6 +293,9 @@ theorem wilson
   assume p is prime                                                   (H2)
   then (p − 1)! ≡ −1 (mod p)
 
+let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D1)
+    reads the inverse of a modulo p
+
 1.  p > 1
     def:prime, from H2
 
@@ -321,10 +324,6 @@ theorem wilson
     5.3.  p − 2 ∈ ℕ
           mun:pos-int-nat m := p − 2
           requires 0 < p − 2: inequalities, from 5.2
-
-    let f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}   (D1)
-        membership, from 5.3
-        reads the inverse of a modulo p
 
     5.4.  For all a ∈ {2, …, p − 2}, gcd(a, p) = 1.
           proof

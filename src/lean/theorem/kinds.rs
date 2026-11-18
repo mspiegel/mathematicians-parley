@@ -153,45 +153,34 @@ impl<'a> Proof<'a> {
         Route::Built(())
     }
 
-    /// A define of a function whose kind says its values are whole, `let
-    /// f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}`, of a
-    /// value Lean computes wider: the kind's fact proved by its reason, a
-    /// witness at every member, `∀ a ∈ X, ∃ m : ℤ, ↑m = v`, and the function
-    /// the choice of each, `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a)
-    /// = v`. Its values are then integers, as the kind says and as the
-    /// elaborator types the function (`kind_of_values`), and the define's
-    /// equation is said at each member, in the value's type, as a line a
-    /// step reads at its letter.
-    /// `to` is the type of the kind's numbers: ℤ of `an integer`, ℝ of `a
-    /// real number`, `∃ g : ℝ → ℝ, ∀ x, ↑(g x) = F ↑x`. A fact over all of a
-    /// number type has no guard, `∀ x : ℝ, …`, and each value is its witness
-    /// there.
-    pub(super) fn kinded_function(
+    /// The function a step narrows, of values Lean computes wider than the
+    /// step says they are, `for all x ∈ ℚ, g(x) ∈ ℕ` of `g : ℚ → ℚ`
+    /// (`CheckedTheorem::define_values`): the choice of the witness the
+    /// step's fact gives at each member, under the define's own name, `obtain
+    /// ⟨g, s5_pos, s5_eq⟩ : ∃ h : ℚ → ℤ, (∀ x, 0 < h x) ∧ ∀ x, ↑(h x) = g
+    /// x`. Every line from here writes the narrowed function, as a line
+    /// saying a term is an integer makes every later line write that integer
+    /// (`SaidInteger`); the define's equation is said again of it, `∀ x,
+    /// ↑(g x) = v`, so that a step citing the define reads the function it
+    /// writes. `says` is the step's fact as Lean states it, `∀ x ∈ X, ∃ m :
+    /// ℤ, ↑m = g x`, by the step's name `hyp`; a fact over all of a number
+    /// type has no guard. None where the fact is not of that form, a type `g
+    /// : ℚ → ℕ`, which narrows nothing Lean can choose from.
+    pub(super) fn narrowed_function(
         &mut self,
-        d: usize,
-        def: &crate::corpus::Define,
-        from: super::super::templates::Num,
-        to: super::super::templates::Num,
-        read: FunctionRead,
+        narrowing: Narrowing,
+        says: &Printed,
+        at: usize,
         depth: usize,
-    ) -> Route<()> {
-        use super::super::doc::{Proof, Quant, TermKind};
-        let FunctionRead { domain, body } = read;
+    ) -> Option<()> {
+        use super::super::doc::{Quant, TermKind};
         use super::super::tactics as t;
-        let Some(param) = def.params.first() else {
-            return Route::no("a kinded function of no argument");
-        };
-        let (fact, says) = match self.kind_fact(d) {
-            Route::Built(f) => f,
-            Route::Declined(why) => return Route::Declined(why),
-        };
-        let proof = match self.kind_by_witness(d, param, &fact) {
-            Some(p) => p,
-            None => match self.kind_proof(d, &fact) {
-                Route::Built(p) => p,
-                Route::Declined(why) => return Route::Declined(why),
-            },
-        };
+        let Narrowing {
+            function,
+            from,
+            to,
+            ref hyp,
+        } = narrowing;
         // ∀ a ∈ X, ∃ m : ℤ, ↑m = v: the guard, and the value in its type.
         let TermKind::Quantified {
             quant: Quant::ForAll,
@@ -202,10 +191,10 @@ impl<'a> Proof<'a> {
             ..
         } = &says.kind
         else {
-            return Route::no("a kinded function whose fact Lean states as no for all");
+            return None;
         };
-        // The witness's bound, where the kind gives one, the guard `0 < m` of
-        // `∃ m : ℤ, 0 < m ∧ ↑m = v`, and its equation.
+        // The witness's bound, where the step gives one, the guard `0 < m`
+        // of `∃ m : ℤ, 0 < m ∧ ↑m = v`, and its equation.
         let TermKind::Quantified {
             quant: Quant::Exists,
             letter: witness_letter,
@@ -214,22 +203,28 @@ impl<'a> Proof<'a> {
             ..
         } = &each.kind
         else {
-            return Route::no(
-                "a kinded function whose values Lean states as no witness",
-            );
+            return None;
         };
         let TermKind::Infix { rhs: value, .. } = &witness.kind else {
-            return Route::no("a kinded function whose witness is no equation");
+            return None;
         };
-        let line = &self.thm.defines[d];
-        let (at, page_label) = (line.line, line.label.clone());
-        let label = line_name(&line.label);
-        let kind = format!("{label}_kind");
-        let function = LetterType::Function { from, to }.lean_type();
+        // The value is the function's, g x, and no other sentence's term.
+        let TermKind::App { head, .. } = &super::terms::bare_term(value).kind else {
+            return None;
+        };
+        let own = super::super::names::letter(&function);
+        if !matches!(&head.kind, TermKind::Letter(l) if *l == own) {
+            return None;
+        }
+        let function_ty = LetterType::Function { from, to }.lean_type();
         let a = || t::hyp(letter);
         let h = || t::hyp("h");
         // ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a) = v.
-        let g_a = applied_to(t::hyp("g"), a());
+        // The chosen function's binder, apart from the define's own name,
+        // which the statement says it equals: `∃ g' : ℚ → ℤ, ∀ x, ↑(g' x) =
+        // g x`.
+        let chosen_name = format!("{own}'");
+        let g_a = applied_to(t::hyp(&chosen_name), a());
         let equal = Printed::infix(
             super::super::doc::Op::EQUALS,
             Printed::cast(
@@ -273,7 +268,7 @@ impl<'a> Proof<'a> {
             None => every(equal),
         };
         let chosen =
-            super::super::expr::witnessed("g".to_string(), function, None, said);
+            super::super::expr::witnessed(chosen_name.clone(), function_ty, None, said);
         // Each part of the witness's spec, by its projection: the whole of
         // it, or its bound and its equation apart.
         let parts: Vec<Vec<&str>> = match bounded {
@@ -281,11 +276,10 @@ impl<'a> Proof<'a> {
             None => vec![vec!["choose_spec"]],
         };
         let made = match guard {
-            // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a
-            // h => by simp only [h, ↓reduceDIte]; exact (hD1_kind a
-            // h).choose_spec⟩.
+            // ⟨fun a => if h : a ∈ X then (s5 a h).choose else 0, fun a h =>
+            // by simp only [h, ↓reduceDIte]; exact (s5 a h).choose_spec⟩.
             Some(guard) => {
-                let at_member = || applied_to(applied_to(t::hyp(&kind), a()), h());
+                let at_member = || applied_to(applied_to(t::hyp(hyp), a()), h());
                 let pick = Printed::of(
                     TermKind::DependentIf {
                         proof: "h".to_string(),
@@ -301,7 +295,7 @@ impl<'a> Proof<'a> {
                 // The function applied is reduced and its `if` taken by h
                 // together, as `rw` does not reach under the application.
                 let spec = |path: &[&str]| {
-                    t::by_term(Proof::By(Tactic::Seq(vec![
+                    t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
                         t::simp_only(
                             false,
                             None,
@@ -322,9 +316,9 @@ impl<'a> Proof<'a> {
                 );
                 super::super::expr::anonymous(out)
             }
-            // ⟨fun x => (hD1_kind x).choose, fun x => (hD1_kind x).choose_spec⟩.
+            // ⟨fun x => (s5 x).choose, fun x => (s5 x).choose_spec⟩.
             None => {
-                let at_member = || applied_to(t::hyp(&kind), a());
+                let at_member = || applied_to(t::hyp(hyp), a());
                 let mut out = vec![untyped_lambda(
                     &[letter.as_str()],
                     projected(at_member(), &["choose"]),
@@ -336,33 +330,29 @@ impl<'a> Proof<'a> {
             }
         };
         let ordered = parts.len() > 1;
-        self.push_at(
+        let equation = format!("{hyp}_eq");
+        let names = match ordered {
+            true => vec![own.clone(), format!("{hyp}_pos"), equation.clone()],
+            false => vec![own.clone(), equation.clone()],
+        };
+        // The define's equation, said of the narrowed function at every
+        // member, `∀ x, ↑(g x) = v`: read before the function's type
+        // changes, and proved after, from the step's equation and the
+        // define's `set`.
+        let restated = self.define_restated(&function)?;
+        self.narrowings.push(NarrowingUndo {
             depth,
-            Tactic::Have {
-                name: kind.clone(),
-                says,
-                proof: Box::new(proof),
-            },
-            at,
-            Spot::Statement,
-        );
-        let f = super::super::names::letter(&def.name);
-        if ordered {
-            self.kind_bounds.insert(
-                page_label.clone(),
-                super::KindBound {
-                    function: def.name.clone(),
-                    bound: format!("{label}_pos"),
-                },
-            );
-        }
+            function: function.clone(),
+            letter: self.writer.letters.get(&function).cloned(),
+            label: restated.label.clone(),
+            tree: self.trees.get(&restated.label).cloned(),
+            named: self.named.get(&restated.label).cloned(),
+            witnessed: self.witnessed.contains(&restated.label),
+        });
         self.push_at(
             depth,
             Tactic::Obtain {
-                names: match ordered {
-                    true => vec![f, format!("{label}_pos"), label.clone()],
-                    false => vec![f, label.clone()],
-                },
+                names,
                 says: Some(chosen),
                 from: made,
             },
@@ -371,8 +361,139 @@ impl<'a> Proof<'a> {
         );
         self.writer
             .letters
-            .insert(def.name.clone(), LetterType::Function { from, to });
-        // The define says its equation at every member: ∀ a ∈ X, f(a) = v.
+            .insert(function.clone(), LetterType::Function { from, to });
+        // The step's own sentence, read from here of the narrowed function:
+        // `∀ x, 0 < g x` of ℕ, the bound beside its equation, and of ℤ what
+        // Lean's type gives.
+        let mut lambda = vec![letter.as_str()];
+        if guard.is_some() {
+            lambda.push("_");
+        }
+        let given = match ordered {
+            true => t::hyp(&format!("{hyp}_pos")),
+            false => untyped_lambda(&lambda, t::lemma("trivial")),
+        };
+        // A line above it that names the function is read from here of the
+        // narrowed one, through the step's equation, where a step cites it:
+        // `∀ x, f✝ x = F ↑x` as `∀ x, ↑(f x) = F ↑x`, by `simp only [←
+        // s2_eq] at h`. A line that put a value of the function in a set
+        // stated it by a witness, `∃ m : ℤ, ↑m = f✝ a ∧ m ∈ R`, which the
+        // narrowed function's value is: the cast taken off the witness's
+        // equation and the witness put for (`exists_eq_left`).
+        let cast_inj = match to {
+            super::super::templates::Num::Rat => "Rat.cast_inj",
+            super::super::templates::Num::Real => "Complex.ofReal_inj",
+            _ => "Int.cast_inj",
+        };
+        let carried = |old: &Printed, says: Option<Printed>, witnessed: bool| {
+            let mut rules = vec![t::backwards(t::hyp(&equation))];
+            if witnessed {
+                rules.push(t::forwards(t::lemma(cast_inj)));
+                rules.push(t::forwards(t::lemma("exists_eq_left")));
+            }
+            // Of a narrowing over a set, `∀ a ∈ X, ↑(f a) = f✝ a`, the
+            // equation holds under the line's own guard, which `simp`
+            // takes from where it rewrites (`+contextual`).
+            let proof = super::super::doc::Proof::By(Tactic::Seq(vec![
+                t::name_h(old),
+                t::simp_only(guard.is_some(), None, rules, Some(t::at_h(false))),
+                t::exact_mod_cast(t::hyp("h")),
+            ]));
+            match says {
+                Some(says) => super::conversions::shown(says, proof),
+                None => t::by_term(proof),
+            }
+        };
+        let in_a_set = |node: &Node| {
+            node.walk().iter().any(|n| {
+                matches!((n.notation(), n.children.as_slice()),
+                    (crate::notations::MEMBERSHIP, [value, _])
+                        if value.notation() == crate::notations::APPLICATION
+                            && value.children.first().is_some_and(|g| *g.text == *function))
+            })
+        };
+        for said in self.trees.values_mut() {
+            for sentence in said.iter_mut() {
+                if sentence.name.as_deref() == Some(hyp.as_str()) {
+                    sentence.says = self.writer.formula(&sentence.node).built();
+                    sentence.proof = given.clone();
+                    sentence.name = None;
+                    continue;
+                }
+                let names_it = sentence
+                    .node
+                    .walk()
+                    .iter()
+                    .any(|n| n.is_name() && *n.text == *function);
+                if !names_it {
+                    continue;
+                }
+                sentence.says = self.writer.formula(&sentence.node).built();
+                let witnessed = in_a_set(&sentence.node);
+                sentence.proof =
+                    carried(&sentence.proof, sentence.says.clone(), witnessed);
+                sentence.name = None;
+            }
+        }
+        let says = self.writer.formula(&restated.said).built()?;
+        let define_hyp = line_name(&restated.label);
+        let name = format!("{define_hyp}_{}", own);
+        // fun x h => (s5_eq x h).trans (by simp only [hD3])
+        let mut at_member = applied_to(t::hyp(&equation), a());
+        let mut bound = vec![letter.as_str()];
+        if guard.is_some() {
+            at_member = applied_to(at_member, h());
+            bound.push("h");
+        }
+        let unfolded = t::by_term(super::super::doc::Proof::By(t::simp_only(
+            false,
+            None,
+            vec![t::forwards(t::hyp(&define_hyp))],
+            None,
+        )));
+        let proof = super::super::doc::Proof::Term(untyped_lambda(
+            &bound,
+            applied_to(projected(at_member, &["trans"]), unfolded),
+        ));
+        self.push_at(
+            depth,
+            Tactic::Have {
+                name: name.clone(),
+                says,
+                proof: Box::new(proof),
+            },
+            at,
+            Spot::Statement,
+        );
+        self.named
+            .insert(restated.label.clone(), vec![name.clone()]);
+        self.witnessed.insert(restated.label.clone());
+        self.trees.insert(
+            restated.label,
+            vec![LineSentence::only(restated.said, name)],
+        );
+        Some(())
+    }
+
+    /// The define of `function`, its label and its equation said at every
+    /// member of its domain, `for all x ∈ ℚ, g(x) = 2^|numer(x)|·…`, as a
+    /// tree, for `narrowed_function`. None for a function no define of the
+    /// theorem gives by one argument.
+    fn define_restated(&self, function: &str) -> Option<DefineEquation> {
+        let line = self.thm.defines.iter().find(|d| {
+            matches!(crate::corpus::define_parts(&d.text),
+                Route::Built(crate::corpus::DefineParts::One(def)) if def.name == function)
+        })?;
+        let Route::Built(crate::corpus::DefineParts::One(def)) =
+            crate::corpus::define_parts(&line.text)
+        else {
+            return None;
+        };
+        let [param] = def.params.as_slice() else {
+            return None;
+        };
+        let FunctionRead { domain, body } =
+            self.function_read(line.line, &param.name).built()?;
         let g = &self.sources.checked.grammar;
         let a_node = Node::name(
             domain
@@ -381,72 +502,115 @@ impl<'a> Proof<'a> {
                 .unwrap_or_else(crate::formula::Sort::none),
             &param.name,
         );
-        let f_node = Node::name(crate::formula::Sort::of("function"), &def.name);
-        let Some(f_a) =
-            crate::formula::page::made_as(g, "_(_)", vec![f_node, a_node.clone()])
-        else {
-            return Route::no("the database declares no _(_)");
-        };
+        let f_node = Node::name(crate::formula::Sort::of("function"), function);
+        let f_a =
+            crate::formula::page::made_as(g, "_(_)", vec![f_node, a_node.clone()])?;
         let equation = Node::of(
             crate::notations::EQUALS,
             crate::formula::Sort::of("formula"),
             vec![f_a, body],
         );
-        let Some(said) = crate::formula::page::made_as(
+        let said = crate::formula::page::made_as(
             g,
             "for all _ ∈ _, _",
             vec![a_node, domain, equation],
-        ) else {
-            return Route::no("the database declares no for all _ ∈ _, _");
-        };
-        self.named.insert(page_label.clone(), vec![label.clone()]);
-        self.witnessed.insert(page_label.clone());
-        self.trees
-            .insert(page_label, vec![LineSentence::only(said, label)]);
-        Route::Built(())
+        )?;
+        Some(DefineEquation {
+            label: line.label.clone(),
+            said,
+        })
     }
 
-    /// The proof of a function's kind, `∀ a ∈ X, ∃ m : ℤ, ↑m = v`, as a
-    /// step proves a wide term whole: at a member, `intro a h_a`, the whole
-    /// number v is named from the lines its reason cites, read with the
-    /// letters the checker read the reason with (`kind_letters`). None
-    /// where those lines name no such number.
-    pub(super) fn kind_by_witness(
+    /// The functions step `i` narrows, each a define's whose values a
+    /// sentence of the step puts among numbers narrower than Lean computes
+    /// them in (`CheckedTheorem::define_values`), declared after the step
+    /// from the sentence that says so (`narrowed_function`). `said` is each
+    /// sentence's `have`, by its name. A function already of those numbers
+    /// is not narrowed again.
+    pub(super) fn narrow_at_step(
         &mut self,
-        d: usize,
-        param: &crate::corpus::define::Param,
-        fact: &Node,
-    ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        let line = &self.thm.defines[d];
-        let letters = self.rec.kind_letters.get(&line.label)?.clone();
-        let members = &self.sources.checked.grammar.members;
-        let kinded = line.kinded(&self.thm.path, members).ok()??;
-        let just = kinded.shown.by.as_ref().ok()?;
-        let facts = self.cited_parts(&just.refs);
-        *self.held_now.borrow_mut() = self.held_at(just.line);
-        let [_, _, member] = fact.children.as_slice() else {
-            return None;
-        };
-        let [term, _] = member.children.as_slice() else {
-            return None;
-        };
-        let int = super::super::templates::Num::Int;
-        let before = self
-            .writer
-            .letters
-            .insert(param.name.clone(), LetterType::Number(int));
-        let shown = self.whole_witness(term, &letters, &facts);
-        match before {
-            Some(ty) => self.writer.letters.insert(param.name.clone(), ty),
-            None => self.writer.letters.shift_remove(&param.name),
-        };
-        let letter = super::super::names::letter(&param.name);
-        let intro = Tactic::Intro(vec![letter.clone(), format!("h_{letter}")]);
-        Some(Proof::By(Tactic::Seq(vec![
-            intro,
-            tactic_of(&shown.built()?),
-        ])))
+        i: usize,
+        said: &[(String, Printed)],
+        at: usize,
+        depth: usize,
+    ) {
+        let narrowing: Vec<(String, super::super::templates::Num)> = self
+            .rec
+            .define_values
+            .iter()
+            .flat_map(|(name, values)| {
+                values.iter().filter(|v| v.step == i).map(|v| {
+                    let narrow = super::super::expr::recorded_set_type(v.system);
+                    (name.clone(), narrow)
+                })
+            })
+            .collect();
+        for (name, narrow) in narrowing {
+            let Some(LetterType::Function { from, to }) =
+                self.writer.letters.get(&name).cloned()
+            else {
+                continue;
+            };
+            if narrow >= to {
+                continue;
+            }
+            for (hyp, says) in said {
+                let narrowing = Narrowing {
+                    function: name.clone(),
+                    from,
+                    to: narrow,
+                    hyp: hyp.clone(),
+                };
+                if self.narrowed_function(narrowing, says, at, depth).is_some() {
+                    break;
+                }
+            }
+        }
+    }
+
+    /// Put back what each narrowing written deeper than `depth` changed,
+    /// where the block it stands in ends: outside it the function is the
+    /// define's again.
+    pub(super) fn narrowings_ended(&mut self, depth: usize) {
+        while self.narrowings.last().is_some_and(|n| n.depth > depth) {
+            let Some(undo) = self.narrowings.pop() else {
+                return;
+            };
+            match undo.letter {
+                Some(ty) => self.writer.letters.insert(undo.function, ty),
+                None => self.writer.letters.shift_remove(&undo.function),
+            };
+            match undo.tree {
+                Some(tree) => self.trees.insert(undo.label.clone(), tree),
+                None => self.trees.shift_remove(&undo.label),
+            };
+            match undo.named {
+                Some(named) => self.named.insert(undo.label.clone(), named),
+                None => self.named.shift_remove(&undo.label),
+            };
+            if !undo.witnessed {
+                self.witnessed.remove(&undo.label);
+            }
+        }
+    }
+
+    /// The widest numbers a line of the page gives a define's function as
+    /// its type, as Lean types them (`CheckedTheorem::define_values`): ℚ of
+    /// `f : ℕ → ℚ`, where Lean needs the function itself of those numbers.
+    /// A line saying its values are among wider numbers, `L(k) ∈ ℝ` of
+    /// rational values, is a fact of them, which a cast reaches. None where
+    /// no line gives a type.
+    pub(super) fn values_said_widest(
+        &self,
+        name: &str,
+    ) -> Option<super::super::templates::Num> {
+        self.rec
+            .define_values
+            .get(name)?
+            .iter()
+            .filter(|said| said.typed)
+            .map(|said| super::super::expr::recorded_set_type(said.system))
+            .max()
     }
 
     /// A define of a function of one number in a proof, `let S(m) =
@@ -543,24 +707,20 @@ impl<'a> Proof<'a> {
         if let Some(s) = system {
             self.writer.introduce(&param.name, s);
         }
-        // The numbers the define's kind says its values are among.
-        let kind = line
-            .kinded(&self.thm.path, &self.sources.checked.grammar.members)
-            .ok()
-            .flatten()
-            .and_then(|k| crate::rules::System::of_sign(&k.set))
-            .map(super::super::expr::recorded_set_type);
+        // The widest numbers a line of the page puts the values among
+        // (`CheckedTheorem::define_values`).
+        let widest = self.values_said_widest(&def.name);
         // Of a real or complex argument, values of that type at least, as a
-        // header function's are (`header_function`); of a kind wider than
-        // the rule's numbers, values of the kind's, `fun n => (n : ℚ)` of
-        // `f(n) = n, a rational number`.
+        // header function's are (`header_function`); of wider numbers a line
+        // says, values of those, `fun n => (n : ℚ)` of `f(n) = n` and `f : ℕ
+        // → ℚ`.
         let value = match self.writer.carrier(body) {
             Route::Built(to) => {
                 let to = match from >= super::super::templates::Num::Real {
                     true => to.max(from),
                     false => to,
                 };
-                let to = kind.map_or(to, |k| to.max(k));
+                let to = widest.map_or(to, |w| to.max(w));
                 self.writer.number_fixed(body, to).map(|v| (to, v))
             }
             Route::Declined(why) => Route::Declined(why),
@@ -577,16 +737,6 @@ impl<'a> Proof<'a> {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
         };
-        // A function whose kind says its values are among narrower numbers
-        // than Lean computes them in, whole numbers of a rational value or
-        // reals of a complex one: its values are the kind's witnesses.
-        if let Some(kind) = kind.filter(|k| to > *k) {
-            let read = FunctionRead {
-                domain: domain.clone(),
-                body: body.clone(),
-            };
-            return self.kinded_function(d, def, from, kind, read, depth);
-        }
         let name = super::super::names::letter(&def.name);
         let label = line_name(&line.label);
         let function = LetterType::Function { from, to }.lean_type();

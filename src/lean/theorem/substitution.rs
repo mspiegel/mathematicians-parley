@@ -686,8 +686,13 @@ impl<'a> Proof<'a> {
         // A range member Lean computes wider, said as the integer that
         // is it (`wide_range_member`), made from a line that the
         // integer the equation puts for is in the range, at that
-        // member alone: that integer, the equation and the line.
-        if wide_range_member(&self.writer, claim) && rec.put.places == [vec![0]] {
+        // member alone: that integer, the equation and the line. A
+        // line of a wider member too is said by a witness, which the
+        // motive carries as any line.
+        if wide_range_member(&self.writer, claim)
+            && !wide_range_member(&self.writer, &rec.start)
+            && rec.put.places == [vec![0]]
+        {
             return Route::Built(haves_then(
                 haves,
                 Proof::By(Tactic::Exact(range_member_made(equation, into.proof))),
@@ -1952,27 +1957,6 @@ impl<'a> Proof<'a> {
             // of X, which a set-builder or `Set.univ` holds as its bound.
             ShownBy::Typed { map, at } => {
                 let ctx = self.sources.ctx;
-                // The type a cited define's kind gives its function, `g : ℚ
-                // → ℕ` of `g(x) = …, a positive integer`: its bound at the
-                // point, `hD3_pos x`.
-                let function = map.children.first()?;
-                let kinded = just
-                    .refs
-                    .iter()
-                    .filter_map(|r| self.kind_bounds.get(r))
-                    .find(|k| k.function == *function.text);
-                // The point is the claim's own letter, `for all x ∈ ℚ`, or a
-                // term of the step's letters.
-                if let Some(kinded) = kinded {
-                    let point = match at.is_name() {
-                        true => t::hyp(&super::super::names::letter(&at.text)),
-                        false => {
-                            let carrier = self.writer.carrier(at).built()?;
-                            self.writer.number(at, carrier).built()?
-                        }
-                    };
-                    return Some(applied_to(t::hyp(&kinded.bound), point));
-                }
                 let typed = self
                     .cited_parts(&just.refs)
                     .into_iter()
@@ -2147,6 +2131,54 @@ impl<'a> Proof<'a> {
         ))
     }
 
+    /// A membership `g(x) ∈ ℕ` the checker found shown as the value of a
+    /// define the step cites (`ShownBy::Define`), of a value Lean computes
+    /// wider than ℤ, `2^|numer(x)|·3^denom(x)·5^s(x)` in ℚ: the define's
+    /// equation put in, `rw [hD3]`, and the value's own membership, its
+    /// witness (`member_by_natural_powers`). None for any other.
+    fn member_by_define_value(
+        &self,
+        just: &Justification,
+        node: &Node,
+        writer: &Writer,
+    ) -> Option<super::super::doc::Proof> {
+        use super::super::tactics as t;
+        use crate::checker::record::ShownBy;
+        let Some(ShownBy::Define { value }) =
+            self.rec.members_shown.get(&just.line).map(|s| &s.by)
+        else {
+            return None;
+        };
+        let [_, set] = node.children.as_slice() else {
+            return None;
+        };
+        let wide = writer
+            .carrier(value)
+            .built()
+            .is_some_and(|c| c > super::super::templates::Num::Int);
+        if !wide {
+            return None;
+        }
+        let define = just
+            .refs
+            .iter()
+            .filter(|r| self.thm.defines.iter().any(|d| d.label == **r))
+            .find_map(|r| self.named.get(r).and_then(|n| n.first()))?;
+        let member = node.with_children(vec![value.clone(), set.clone()]);
+        let super::super::doc::Proof::Term(shown) =
+            self.member_by_natural_powers(just, &member, writer)?
+        else {
+            return None;
+        };
+        Some(super::super::doc::Proof::By(Tactic::Seq(vec![
+            t::call(
+                "rw",
+                vec![TacticArg::Rules(vec![t::forwards(t::hyp(define))])],
+            ),
+            Tactic::Exact(shown),
+        ])))
+    }
+
     /// `membership`. A term of a wider type said to be in a number system,
     /// an integer or a real, is one by a cited equation (`member_by_equation`).
     /// Any other membership is what the lines and the letters' types give.
@@ -2165,6 +2197,9 @@ impl<'a> Proof<'a> {
             return Route::Built(proof);
         }
         if let Some(proof) = self.member_by_natural_powers(just, node, writer) {
+            return Route::Built(proof);
+        }
+        if let Some(proof) = self.member_by_define_value(just, node, writer) {
             return Route::Built(proof);
         }
         match self.member_bound(just, node) {

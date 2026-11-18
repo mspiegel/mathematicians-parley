@@ -480,9 +480,9 @@ pub(super) fn cases() -> Vec<Case> {
         case(
             "cite an unknown item in a requires line under a let's reason",
             vec![edit(
-                "proofs/wiedijk/liouville.proof",
-                Some("    from 1\n    reads F on the real line\n".to_string()),
-                "    from 1\n    requires x ∈ ℝ: mun:no-such-record\n    reads F on the real line\n"
+                "proofs/setmm/rounding-error.proof",
+                Some("    membership, from 1\n    reads the error".to_string()),
+                "    membership, from 1\n    requires A ∈ ℝ: mun:no-such-record\n    reads the error"
                     .to_string(),
             )],
             "mun:no-such-record is neither imported nor a theorem of this file",

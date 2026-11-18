@@ -349,9 +349,6 @@ line's own. A list holds one entry for each step, in the proof's order.
   of `d > 0`); it is numerals; or it is a positive integer by what the page
   says once (`Positive`). Lean writes a fact for each and clears the
   divisions by `field`.
-- `kind_letters`: the letters the reason under a function's define that says
-  a kind of number is read with, the step's below the define and the define's
-  argument in its domain. Lean proves the kind with them.
 - `held_by_lines`: the parts of the terms each reason writes, and of the
   lines it names, that those lines put in a number system, by the line the
   reason is on: a step's, a requires line's, or the reason under a define
@@ -385,6 +382,12 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `function_systems`: the function letters a line types between sets of
   numbers, f of `f : ℤ → ℝ`, with the systems of the domain and the
   codomain.
+- `define_values`: the steps that say which numbers a define's values are
+  among, by the define's name: a type, `f : ℕ → ℚ`, or the values at every
+  member, `for all x ∈ ℚ, g(x) ∈ ℕ`, each marked by which it is. The define
+  says none itself (`SYNTAX.md`). Lean builds a function in the widest
+  numbers a type gives it, and narrows it at a step saying its values are
+  among narrower numbers than Lean computes them in.
 - `written`: the record with what the theorem's file defines outside it
   written out, T(k + 1) of `define T(k) := k(k + 1)/2` as (k + 1)(k + 2)/2,
   and each phrase as its meaning, its facts read again of the page as

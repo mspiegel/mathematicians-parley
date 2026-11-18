@@ -564,6 +564,94 @@ pub fn function_systems_of(
     crate::citing::number_sets::function_systems(&lines, &letters, &record.set_systems)
 }
 
+/// The steps that say which numbers each of the theorem's defines gives
+/// (`CheckedTheorem::define_values`), read from the record's page with the
+/// letters in scope at each step: a function's type `f : A → S`, its values
+/// at every member `for all x ∈ D, f(x) ∈ S`, and of a set `S ⊆ X` or
+/// another line `set_letter_systems` reads.
+pub fn define_values_of(
+    thm: &Theorem,
+    record: &CheckedTheorem,
+) -> IndexMap<String, Vec<record::ValuesSaid>> {
+    let names: Vec<String> = thm
+        .defines
+        .iter()
+        .filter_map(|d| match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::One(def)) => Some(def.name),
+            _ => None,
+        })
+        .collect();
+    let mut out: IndexMap<String, Vec<record::ValuesSaid>> = IndexMap::new();
+    for (i, step) in thm.steps.iter().enumerate() {
+        let letters = record.introduced.get(i).cloned().unwrap_or_default();
+        let lines: Vec<&Node> = step
+            .claim
+            .sentences()
+            .iter()
+            .filter_map(|s| record.page.get(s))
+            .collect();
+        let system_of = |set: &Node| match crate::citing::set_system(set, &letters) {
+            Some(s) => Some(s),
+            None if set.is_name() => record.set_systems.get(&*set.text).copied(),
+            None => None,
+        };
+        let mut said: Vec<(String, crate::rules::System, bool)> = Vec::new();
+        for node in lines.iter().flat_map(|l| l.walk()) {
+            if let Some((name, system)) = values_said(&node, &system_of) {
+                let typed = node.notation() == crate::notations::FUNCTION_TYPE;
+                said.push((name, system, typed));
+            }
+        }
+        let sets = crate::citing::number_sets::set_letter_systems(&lines, &letters);
+        said.extend(sets.into_iter().map(|(name, system)| (name, system, false)));
+        for (name, system, typed) in said {
+            if !names.contains(&name) {
+                continue;
+            }
+            let entry = out.entry(name).or_default();
+            let found = record::ValuesSaid {
+                step: i,
+                system,
+                typed,
+            };
+            if !entry.contains(&found) {
+                entry.push(found);
+            }
+        }
+    }
+    out
+}
+
+/// The function and numbers a sentence says its values are among: f and S
+/// of `f : A → S`, or of `for all x ∈ D, f(x) ∈ S` at its own letter.
+fn values_said(
+    node: &Node,
+    system_of: &dyn Fn(&Node) -> Option<crate::rules::System>,
+) -> Option<(String, crate::rules::System)> {
+    use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
+    match (node.notation(), node.children.as_slice()) {
+        (FUNCTION_TYPE, [f, _, to]) if f.is_name() => {
+            Some((f.text.to_string(), system_of(to)?))
+        }
+        (FOR_ALL, [letter, _, body]) => {
+            let (MEMBERSHIP, [value, set]) =
+                (body.notation(), body.children.as_slice())
+            else {
+                return None;
+            };
+            let (APPLICATION, [f, at]) = (value.notation(), value.children.as_slice())
+            else {
+                return None;
+            };
+            if !f.is_name() || !at.is_name() || at.text != letter.text {
+                return None;
+            }
+            Some((f.text.to_string(), system_of(set)?))
+        }
+        _ => None,
+    }
+}
+
 /// A define, as its name and the term the page reads it to name: a
 /// function's, its body; None for a recursion.
 fn define_named<'r>(
@@ -773,7 +861,6 @@ fn theorem_record(
         .iter()
         .map(|step| formulas::places_at(step, &c.known[i], c.library).shown)
         .collect();
-    record.kind_letters = library::kind_letters(&c.known[i]);
     record.members_shown =
         formulas::members_shown(thm, &c.known[i], &c.library.targets);
     record.inspected = formulas::inspected(thm, &c.known[i], &c.library.targets);
@@ -864,6 +951,7 @@ fn theorem_record(
     record.thing_types = thing_types_of(thm, &record, &c.known[i]);
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);
+    record.define_values = define_values_of(thm, &record);
     record.items = std::sync::Arc::clone(items);
     record.statement_definitions = statement_definitions(thm, c.env, &c.known[i].sorts);
     record
@@ -2241,7 +2329,6 @@ fn check_passes(
     formulas::check_kind_methods(report, thm, k, &library.targets);
     citations::check_surplus(report, thm, library, k, scopes);
     citations::check_defined_types(report, thm, library, k, scopes);
-    citations::check_define_systems(report, thm, k);
     // After the surplus of what a requires line cites, which says more of
     // the line than that its term is not the step's.
     formulas::check_requires_combined(report, thm, k, targets);

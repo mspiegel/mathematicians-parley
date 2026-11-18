@@ -1,7 +1,7 @@
 //! What the checker records of the whole numbers a step puts where a
 //! notation asks one, and how it shows each is whole (`docs/CHECKER.md`,
-//! `places_shown`, `members_shown`, `kind_letters`), as the Lean writer
-//! reads it.
+//! `places_shown`, `members_shown`), and of the numbers the lines give a
+//! define (`define_values`), as the Lean writer reads it.
 //!
 //! The places come from the definitions (`Library::place_systems`): a
 //! congruence and "is even" let their numbers in ℤ, so the terms a step puts
@@ -15,6 +15,7 @@ use parley::checker::{checked_where, CheckedCorpus};
 use parley::source::Disk;
 
 const WILSON: &str = "proofs/wiedijk/wilson/wilson";
+const RATIONALS: &str = "proofs/wiedijk/rationals-countable/rationals-countable";
 const FIBONACCI: &str =
     "proofs/hammack/fibonacci-even-iff-three-divides/fibonacci-even-iff-three-divides";
 const WITNESS: &str =
@@ -82,14 +83,26 @@ fn a_congruence_asks_its_sides_whole_and_says_how() {
 }
 
 #[test]
-fn a_function_saying_its_kind_reads_its_reason_at_its_argument() {
-    let read = read(&[WILSON]);
-    let record = &read.theorems[WILSON];
-    // D1, f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}: its
-    // reason is read with a in ℤ, as a member of its range, beside p.
-    let letters = &record.kind_letters["D1"];
-    assert_eq!(letters.get("a").map(|s| s.sign()), Some("ℤ"));
-    assert_eq!(letters.get("p").map(|s| s.sign()), Some("ℕ"));
+fn a_define_takes_its_numbers_from_the_lines_that_say_them() {
+    let read = read(&[RATIONALS]);
+    let record = &read.theorems[RATIONALS];
+    let said = |name: &str| -> Vec<(String, bool)> {
+        record.define_values[name]
+            .iter()
+            .map(|v| (v.system.sign().to_string(), v.typed))
+            .collect()
+    };
+    // f(n) = n, for n ∈ ℕ: line 1, f : ℕ → ℚ, gives f its type, wider than
+    // its rule's integers.
+    assert_eq!(said("f"), vec![("ℚ".to_string(), true)]);
+    // g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ: line 5 says its
+    // values are natural numbers, and line 6 gives it the type.
+    assert_eq!(
+        said("g"),
+        vec![("ℕ".to_string(), false), ("ℕ".to_string(), true)]
+    );
+    // s, by cases of numerals, is given no numbers by any line.
+    assert!(!record.define_values.contains_key("s"));
 }
 
 #[test]

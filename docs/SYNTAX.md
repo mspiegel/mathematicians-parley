@@ -859,52 +859,32 @@ cites the let has it as a line the let says, as `inequalities, from D1`
 reads m ≥ 1 off it (`READERS.md`). A naming line that says no kind of number
 has no reason line.
 
-A function's define may say which numbers its values are among, in the same
-words, after its rule and before `for`:
+A function's define says no kind of number. Its values are among the
+numbers its rule gives them, and a line below it says any other numbers they
+are among, wider or narrower, as a step with its own reason:
 
 ```proof
-let f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}     (D1)
-    membership, from 5.3
+let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D1)
     reads the inverse of a modulo p
 ```
 
-It says f(a) is an integer for every a the define runs over, as `let f :
-{2, …, p − 2} → ℤ` would. A step that needs a value's membership cites the
-label with the line putting the argument in the domain, as it cites a
-function's type (`READERS.md`, a function's type is cited for its values).
-The line under it gives the reason the rule's value is in that system, read
-at a member of the domain: the argument is a letter in the set after `for`,
-and what the reason cites stands above the define.
-
-The kind is the function's type said once. A step that cites an item asking
-for `f : {2, …, p − 2} → ℤ` has it from the define, and no requires line
-says it again. A membership built from f's values, `f(a) + 1 ∈ ℤ`, cites
-the define for `f(a) ∈ ℤ` and reads f(a) by its name, not by its rule.
-
-**A define's values are among the numbers its rule gives them, and no later
-line narrows those.** `let f(x) = F(x), for x ∈ ℝ` of an F into ℂ is a
-function into ℂ, though each F(x) is real. A later line saying `f : ℝ → ℝ`
-is refused, and the define says it as its kind instead, its reason the line
-showing each value real:
-
-```proof
-1.  For all x ∈ ℝ, F(x) ∈ ℝ.
-    mun:integer-polynomial-real, from H2
-
-let f(x) = F(x), a real number, for x ∈ ℝ                             (D1)
-    from 1
-    reads F on the real line
-```
+Wilson's theorem then says `For all a ∈ {2, …, p − 2}, f(a) ∈ ℤ` at line
+5.6, by a block of its own. A line saying the values are among narrower numbers, `for all a ∈ {2, …,
+p − 2}, f(a) ∈ ℤ` or `g : ℚ → ℕ`, is a fact from that line on, and a step
+that needs a value's membership cites that line, as it cites a function's
+type (`READERS.md`, a function's type is cited for its values). A line giving
+the function a type into wider numbers, `f : ℕ → ℚ` of `let f(n) = n, for n
+∈ ℕ`, makes it a function into those, as Schröder–Bernstein needs it to be,
+though each f(n) is a natural number. A line saying only that each value is
+in wider numbers, `L(k) ∈ ℝ` of rational values, is a fact of the values and
+gives the function no type.
 
 The numbers here are the integers, the rationals, the reals and the complex
-numbers; ℕ and ℕ₀ are sets of integers. A later line may still put the
-values in a set among the define's numbers, as `t : H → gH` does, or a
-function of integers into ℕ. The same holds of a map a define names, `let f
-= (x ∈ ℝ ↦ F(x))`. Lean fixes what a function maps into where the function
-is made, so both backends read the define's numbers from the define itself.
-A kind may also say wider numbers than the rule gives. `let f(n) = n, a
-rational number, for n ∈ ℕ` is a function into ℚ, as Schröder–Bernstein
-needs it to be, though each f(n) is a natural number.
+numbers; ℕ and ℕ₀ are sets of integers. The same holds of a map a define
+names, `let f = (x ∈ ℝ ↦ F(x))`. The checker reads every line of the page and
+records what each says of a define's numbers (`CHECKER.md`, `define_values`),
+so the define is written as a textbook writes it, and each fact is said where
+the proof needs it.
 
 A naming line in a theorem's statement, between its hypotheses and `then`,
 says no kind of number: the statement is what the theorem assumes, and a

@@ -175,6 +175,23 @@ impl<'a> Proof<'a> {
         if node.notation() != crate::notations::MEMBERSHIP || wide <= ty {
             return None;
         }
+        // The whole term put in a range by a line the step names, f(a) ∈
+        // {0, …, p − 1}: the range's integer is the claim's witness, with its
+        // equation, `⟨Classical.choose h, (Classical.choose_spec h).1⟩`. A
+        // line saying the term is in the claim's own system is the claim.
+        if claimed == ty {
+            if let Some(said) = self
+                .integer_line(term, ty)
+                .filter(|s| matches!(s.beside, Beside::Range))
+            {
+                return Some(super::super::doc::Proof::Term(
+                    super::super::expr::anonymous(vec![
+                        said.chosen(ty),
+                        said.equation(),
+                    ]),
+                ));
+            }
+        }
         let mut writer = self.writer.with_letters(self.writer.letters.clone());
         let mut lines = Vec::new();
         // The parts within the term: the term itself is what the step
@@ -438,8 +455,7 @@ impl<'a> Proof<'a> {
                                     _ => false,
                                 },
                                 Route::Declined(_) => false,
-                            } || self
-                                .kinded_at_compound(&reason.just.refs, node);
+                            };
                             let alone = met.as_ref().is_some_and(unfolds_alone);
                             return Route::Built(Proof::By(unfolded_by(
                                 &unfold,
@@ -1653,29 +1669,6 @@ impl<'a> Proof<'a> {
                 assembled.into_iter().map(Proved::term).collect(),
             )),
         })))
-    }
-
-    /// Whether the claim applies a function a cited define names with its
-    /// kind, at an argument that is no single letter, f(p/q) of `let f(x) =
-    /// F(x), a real number`. Its equation is stated in the wider type,
-    /// `↑(f x) = F ↑x`, so put in there it leaves the argument cast whole,
-    /// `↑(p/q)`, which the claim writes pushed in, `↑p/↑q`.
-    pub(super) fn kinded_at_compound(&self, refs: &[String], claim: &Node) -> bool {
-        let members = &self.sources.checked.grammar.members;
-        let names: Vec<String> = self
-            .thm
-            .defines
-            .iter()
-            .filter(|d| refs.contains(&d.label))
-            .filter_map(|d| d.kinded(&self.thm.path, members).ok().flatten())
-            .filter(|k| k.domain.is_some())
-            .map(|k| k.name)
-            .collect();
-        claim.walk().iter().any(|n| {
-            matches!((n.notation(), n.children.as_slice()),
-                (crate::notations::APPLICATION, [f, at])
-                    if f.is_name() && names.iter().any(|m| *m == *f.text) && !at.is_name())
-        })
     }
 
     /// The sets the two count in two forms, `ncard` in one and `encard` in

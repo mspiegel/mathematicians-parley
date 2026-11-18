@@ -736,11 +736,6 @@ substitution in the corpus comes close.
                   <newline> <reason>
                   { <newline> <requires> }
                   `reads` <words>
-                | `let` <name> `(` <name> `)` `=` <rule> `,` <kind> `,`
-                  `for` <name> `∈` <term> `(` <label> `)`
-                  <newline> <reason>
-                  { <newline> <requires> }
-                  `reads` <words>
                 | `let` <recursion> `,` `for` <name> `∈` `ℕ₀`
                   `(` <label> `)` `reads` <words>
 <recursion>   ::= <name> `(` `0` `)` `=` <rule>
@@ -778,6 +773,9 @@ reason's, so the reason rests on them as a requires line rests on those above
 it. They cite nothing below the let either. Citing the let's label then gives
 the membership beside the equation. A naming `let` in a theorem's statement, before `then`,
 says no kind.
+
+A naming `let` of a function, one with a parameter, says no kind; a line
+below it says which numbers its values are among (`SYNTAX.md`).
 
 A define whose first rule is said at 0 defines sequences by recursion. Each
 name it gives has exactly one rule at `0` and one at the index `+ 1`, where
