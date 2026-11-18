@@ -1072,6 +1072,10 @@ public import Parley.Tests.Elaborator.PrimesAndBrackets.PrimeName
 public import Parley.Tests.Elaborator.PrimesAndBrackets.DerivativeNames
 public import Parley.Tests.Elaborator.PrimesAndBrackets.OrderApart
 public import Parley.Tests.Elaborator.PrimesAndBrackets.BracketedFormula
+public import Parley.Tests.Elaborator.ProductsOfTwoTypes.APairOfTwoNumberTypes
+public import Parley.Tests.Elaborator.ProductsOfTwoTypes.APairOfAMemberAndAPart
+public import Parley.Tests.Elaborator.ProductsOfTwoTypes.ASetOfPairs
+public import Parley.Tests.Elaborator.ProductsOfTwoTypes.AProductOfTwoNumberTypesCounted
 public import Parley.Tests.Elaborator.Rationals.AValueInTheRationals
 public import Parley.Tests.Elaborator.Rationals.AQuotientInTheRationals
 public import Parley.Tests.Elaborator.Rationals.APowerInTheRationals

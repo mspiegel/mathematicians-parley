@@ -122,13 +122,18 @@ impl Members {
         }
     }
 
-    /// Members of this sort, things of the first type variable.
+    /// Members of this sort, things of the first type variable: a pair's
+    /// places each of its own, which `with_things_of` gives.
     pub fn of(sort: &crate::formula::node::Whole) -> Option<Members> {
         match sort {
             crate::formula::node::Whole::Open => Some(Members::Things(0)),
             crate::formula::node::Whole::Set(inner) => {
                 Members::of(inner).map(|m| Members::Sets(Box::new(m)))
             }
+            crate::formula::node::Whole::Pair(first, second) => Some(Members::Pairs {
+                first: Box::new(Members::of(first)?),
+                second: Box::new(Members::of(second)?),
+            }),
             _ => None,
         }
     }
@@ -166,19 +171,24 @@ impl Members {
         }
     }
 
-    /// The type variable of the things they are, or are sets of, so that
-    /// a statement takes `{α : Type*}`; None for numbers or a group's.
-    fn things_var(&self) -> Option<usize> {
+    /// The type variables of the things they are, are sets of or are
+    /// pairs of, so that a statement takes `{α β : Type*}`; none for
+    /// numbers or a group's.
+    fn things_vars(&self) -> Vec<usize> {
         match self {
-            Members::Things(var) => Some(*var),
-            Members::Sets(m) => m.things_var(),
+            Members::Things(var) => vec![*var],
+            Members::Sets(m) => m.things_vars(),
             Members::Maps { from, to, .. } => {
-                from.things_var().or_else(|| to.things_var())
+                let mut out = from.things_vars();
+                out.extend(to.things_vars());
+                out
             }
             Members::Pairs { first, second } => {
-                first.things_var().or_else(|| second.things_var())
+                let mut out = first.things_vars();
+                out.extend(second.things_vars());
+                out
             }
-            Members::Numbers(_) | Members::Elements(_) => None,
+            Members::Numbers(_) | Members::Elements(_) => Vec::new(),
         }
     }
 
@@ -188,6 +198,22 @@ impl Members {
             Members::Things(_) => Members::Things(var),
             Members::Sets(m) => Members::Sets(Box::new(m.with_things(var))),
             other => other.clone(),
+        }
+    }
+
+    /// The same members, things of the type variables a letter's things
+    /// take (`ThingTypes::things_of_letter`): pairs place by place, `α ×
+    /// β` of S ⊆ X × Y.
+    pub fn with_things_of(&self, things: &crate::citing::things::Things) -> Members {
+        use crate::citing::things::Things;
+        match (self, things) {
+            (Members::Pairs { first, second }, Things::Pairs(a, b)) => Members::Pairs {
+                first: Box::new(first.with_things_of(a)),
+                second: Box::new(second.with_things_of(b)),
+            },
+            (Members::Sets(m), _) => Members::Sets(Box::new(m.with_things_of(things))),
+            (_, Things::Var(var)) => self.with_things(*var),
+            (other, Things::Pairs(..)) => other.clone(),
         }
     }
 }
@@ -235,13 +261,13 @@ impl LetterType {
     pub fn things_vars(&self) -> Vec<usize> {
         match self {
             LetterType::Set(m) | LetterType::Member(m) | LetterType::Property(m) => {
-                m.things_var().into_iter().collect()
+                m.things_vars()
             }
-            LetterType::Map { from, to } => from
-                .things_var()
-                .into_iter()
-                .chain(to.things_var())
-                .collect(),
+            LetterType::Map { from, to } => {
+                let mut out = from.things_vars();
+                out.extend(to.things_vars());
+                out
+            }
             _ => Vec::new(),
         }
     }

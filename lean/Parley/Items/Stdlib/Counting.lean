@@ -259,7 +259,7 @@ theorem mun_card_add_one {α : Type*} [Nonempty α] (X : Set α) (a : α) (h1 : 
     ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
   by rw [Set.union_singleton, Set.ncard_insert_of_notMem h2 h1]; push_cast; ring
 
-theorem mun_card_product {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y.Finite) :
+theorem mun_card_product {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : Y.Finite) :
     ((X ×ˢ Y).ncard : ℤ) = (X.ncard : ℤ) * (Y.ncard : ℤ) :=
   by rw [Set.ncard_prod, Nat.cast_mul]
 

@@ -136,7 +136,7 @@ theorem mun_pair_parts_equal (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) :
     ((a, b) : ℂ × ℂ) = (c, d) ↔ a = c ∧ b = d :=
   Prod.mk_inj
 
-theorem mun_pair_in_product {α : Type*} [Nonempty α] (X : Set α) (Y : Set α) (a : α) (b : α) :
+theorem mun_pair_in_product {α β : Type*} [Nonempty α] [Nonempty β] (X : Set α) (Y : Set β) (a : α) (b : β) :
     (a, b) ∈ X ×ˢ Y ↔ a ∈ X ∧ b ∈ Y :=
   Set.mem_prod
 

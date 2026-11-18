@@ -1,0 +1,56 @@
+import mundane theorem    stdlib/counting/card-product
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/pair-in-product
+import definition         stdlib/sets/powerset
+
+theorem a-pair-of-two-number-types
+  note        A pair of an integer and a rational is in ℤ × ℚ: the item's two sides are given two types.
+  let n ∈ ℤ                                                           (H1)
+  let q ∈ ℚ                                                           (H2)
+  then (n, q) ∈ ℤ × ℚ
+
+1.  (n, q) ∈ ℤ × ℚ
+    mun:pair-in-product
+
+theorem a-pair-of-a-member-and-a-part
+  note        A member of X and a part of X make a pair in X × 𝒫X: the first side holds X's things, the second sets of them.
+  let X be a set                                                      (H1)
+  let a be an element                                                 (H2)
+  let B be a set                                                      (H3)
+  assume a ∈ X                                                        (H4)
+  assume B ⊆ X                                                        (H5)
+  then (a, B) ∈ X × 𝒫X
+
+1.  B ∈ 𝒫X
+    def:powerset S := B, A := X, from H5
+
+2.  (a, B) ∈ X × 𝒫X
+    mun:pair-in-product, from H4, 1
+
+theorem a-set-of-pairs
+  note        A set of pairs of X's things and Y's holds a pair whose first part is in X: the set's things are pairs of two types.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  let S be a set                                                      (H3)
+  let a be an element                                                 (H4)
+  let b be an element                                                 (H5)
+  assume S ⊆ X × Y                                                    (H6)
+  assume (a, b) ∈ S                                                   (H7)
+  then a ∈ X and b ∈ Y
+
+1.  (a, b) ∈ X × Y
+    mun:in-subset, from H6, H7
+
+2.  a ∈ X and b ∈ Y
+    mun:pair-in-product, from 1
+
+theorem a-product-of-two-number-types-counted
+  note        The count of a product of a set of integers and a set of rationals is the product of their counts.
+  let X ⊆ ℤ                                                           (H1)
+  let Y ⊆ ℚ                                                           (H2)
+  assume X is finite                                                  (H3)
+  assume Y is finite                                                  (H4)
+  then |X × Y| = |X|·|Y|
+
+1.  |X × Y| = |X|·|Y|
+    mun:card-product, from H3, H4

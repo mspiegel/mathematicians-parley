@@ -413,7 +413,11 @@ between sets of numbers `(f : ℝ → ℝ)` with the same. A theorem's or an ite
 sets hold things of one type where something it says makes them one, `C ⊆ A`,
 `x ∈ A ∩ B`, f(x) ∈ B, and things of two types where nothing does: f takes
 A's things to B's, so schroeder-bernstein is stated over `{α β : Type*}`, and
-a citation may give it integers and take rationals. The checker records which
+a citation may give it integers and take rationals. A product `X × Y` holds
+pairs of X's things and Y's, `X ×ˢ Y : Set (α × β)`, and a pair `(a, b)` is of
+a's type and b's. The two places are of two types where nothing joins them, as
+a map's sides are, so pair-in-product and card-product are stated over `{α β :
+Type*}`, and a set of pairs, S of `S ⊆ X × Y`, is a `Set (α × β)`. The checker records which
 sets share a type (`thing_types`), and the type variables follow the order
 the sets are let. Each type variable is `[Nonempty α]`: it stands for set.mm's
 universe of sets, which holds ∅, so a function from A to B exists whatever A

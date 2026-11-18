@@ -116,12 +116,14 @@ pub fn set_type_in(
             from: from.with_things(things.var(&ThingKey::From(name.to_string()))),
             to: to.with_things(things.var(&ThingKey::To(name.to_string()))),
         },
-        LetterType::Set(m) => LetterType::Set(m.with_things(things.of_letter(name))),
+        LetterType::Set(m) => {
+            LetterType::Set(m.with_things_of(&things.things_of_letter(name)))
+        }
         LetterType::Member(m) => {
-            LetterType::Member(m.with_things(things.of_letter(name)))
+            LetterType::Member(m.with_things_of(&things.things_of_letter(name)))
         }
         LetterType::Property(m) => {
-            LetterType::Property(m.with_things(things.of_letter(name)))
+            LetterType::Property(m.with_things_of(&things.things_of_letter(name)))
         }
         other => other,
     })

@@ -312,7 +312,9 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `thing_types`: which of the theorem's sets, members and maps' sides hold
   things of one type (`citing::things::ThingTypes`), read over its
   hypotheses and then every line of its page: A and B of `f : A → B` apart,
-  C of `C ⊆ A` with A. The same rule reads an item's sentences. Lean gives
+  X and Y of `X × Y` and a and b of `(a, b)` apart, C of `C ⊆ A` with A, and
+  the places of two products or pairs a line joins, place by place: a with X
+  and b with Y of `(a, b) ∈ X × Y`. The same rule reads an item's sentences. Lean gives
   each type its own type variable.
 - `typed`: the function types the lines in scope at each step say, which a
   citation of an item over a function is read with. Lean reads it.

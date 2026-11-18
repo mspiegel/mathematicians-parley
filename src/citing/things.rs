@@ -1,7 +1,9 @@
 //! Which of a statement's sets hold things of one type: things two of its
 //! terms compare, join or are members of are of one type, and a map takes
 //! the things of its domain to those of the set it maps into, which are of
-//! another where nothing the statement says makes them one.
+//! another where nothing the statement says makes them one. A pair, and a
+//! product of sets, is made of things of two types the same way: X × Y
+//! holds pairs of X's things and Y's.
 //!
 //! A backend whose sets are typed gives each type its own type variable:
 //! the Lean writer reads it of an item's sentences, and of a theorem's
@@ -10,7 +12,8 @@
 use crate::formula::Node;
 use crate::notations::{
     APPLICATION, BIJECTION, COMPOSITION, FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, IMAGE,
-    INVERSE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, SET_BUILDER, SET_IMAGE, THERE_IS,
+    INVERSE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, PAIR, PRODUCT_SET, SET_BUILDER,
+    SET_IMAGE, THERE_IS,
 };
 
 /// Whether the node is a letter the sorts make a map.
@@ -34,15 +37,36 @@ pub enum ThingKey {
     From(String),
     /// What a map letter gives.
     To(String),
+    /// The pairs a product or a pair term is or holds, by the order the
+    /// lines meet such terms: X × Y and (a, b) each make one.
+    Pairs(usize),
+    /// What those pairs' first places hold.
+    First(usize),
+    /// What those pairs' second places hold.
+    Second(usize),
+}
+
+/// What a letter's things are: of one type variable, or pairs of the
+/// things of two (`ThingTypes::things_of_letter`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Things {
+    Var(usize),
+    Pairs(Box<Things>, Box<Things>),
 }
 
 /// The type variable a statement's things take, by what they are of. Of
 /// `E : Y → Z` and `u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)`, Y
-/// and s are α, Z and u are β; of `f : X → X`, all are α. Variables are
-/// numbered in the order the lines first name their things.
+/// and s are α, Z and u are β; of `f : X → X`, all are α; of `(a, b) ∈ X ×
+/// Y`, a and X are α, b and Y are β. Variables are numbered in the order
+/// the lines first name their things.
 #[derive(Clone, Debug, Default)]
 pub struct ThingTypes {
     parent: std::collections::BTreeMap<ThingKey, ThingKey>,
+    /// Of each class of pairs, by its root, the keys of its two places: two
+    /// classes of pairs joined join their places, place by place.
+    places: std::collections::BTreeMap<ThingKey, (ThingKey, ThingKey)>,
+    /// How many product or pair terms the lines have met.
+    pair_terms: usize,
     /// Each key, in the order first met.
     met: Vec<ThingKey>,
     vars: std::collections::BTreeMap<ThingKey, usize>,
@@ -84,6 +108,8 @@ impl ThingTypes {
             .collect();
         let mut order: Vec<ThingKey> = out.met.clone();
         order.sort_by_key(|k| !lettered.contains(&out.root(k)));
+        // A class of pairs takes no variable of its own: its places do.
+        order.retain(|k| !out.places.contains_key(&out.root(k)));
         let mut roots: Vec<ThingKey> = Vec::new();
         for key in order {
             let root = out.root(&key);
@@ -110,6 +136,22 @@ impl ThingTypes {
         self.var(&ThingKey::Letter(name.to_string()))
     }
 
+    /// What a set, element or property letter's things are: of one type
+    /// variable, or pairs, S of `S ⊆ X × Y` pairs of X's things and Y's.
+    pub fn things_of_letter(&self, name: &str) -> Things {
+        self.things_of(&ThingKey::Letter(name.to_string()))
+    }
+
+    fn things_of(&self, key: &ThingKey) -> Things {
+        match self.places.get(&self.root(key)) {
+            Some((first, second)) => Things::Pairs(
+                Box::new(self.things_of(first)),
+                Box::new(self.things_of(second)),
+            ),
+            None => Things::Var(self.var(key)),
+        }
+    }
+
     fn root(&self, key: &ThingKey) -> ThingKey {
         let mut at = key.clone();
         while let Some(up) = self.parent.get(&at) {
@@ -124,7 +166,9 @@ impl ThingTypes {
         }
     }
 
-    /// The things of the two are of one type.
+    /// The things of the two are of one type. Two classes of pairs joined
+    /// join their first places and their second places; a class of pairs
+    /// joined with any other makes its things pairs.
     fn join(&mut self, a: Option<ThingKey>, b: Option<ThingKey>) {
         let (Some(a), Some(b)) = (a, b) else {
             return;
@@ -132,8 +176,19 @@ impl ThingTypes {
         self.meet(&a);
         self.meet(&b);
         let (ra, rb) = (self.root(&a), self.root(&b));
-        if ra != rb {
-            self.parent.insert(rb, ra);
+        if ra == rb {
+            return;
+        }
+        self.parent.insert(rb.clone(), ra.clone());
+        match (self.places.remove(&rb), self.places.get(&ra).cloned()) {
+            (Some((f2, s2)), Some((f1, s1))) => {
+                self.join(Some(f1), Some(f2));
+                self.join(Some(s1), Some(s2));
+            }
+            (Some(places), None) => {
+                self.places.insert(ra, places);
+            }
+            (None, _) => {}
         }
     }
 
@@ -213,6 +268,21 @@ impl ThingTypes {
                 self.class(from, sorts);
                 self.class(to, sorts);
                 None
+            }
+            // X × Y holds pairs whose first places hold X's things and second
+            // places Y's; (a, b) is a pair of a's things and b's. The two
+            // places are of two types where nothing joins them, as a map's
+            // sides are.
+            (PRODUCT_SET | PAIR, [first, second]) => {
+                let (a, b) = (self.class(first, sorts), self.class(second, sorts));
+                let n = self.pair_terms;
+                self.pair_terms += 1;
+                let pairs = ThingKey::Pairs(n);
+                self.places
+                    .insert(pairs.clone(), (ThingKey::First(n), ThingKey::Second(n)));
+                self.join(Some(ThingKey::First(n)), a);
+                self.join(Some(ThingKey::Second(n)), b);
+                Some(pairs)
             }
             // {E(s) : s ∈ Y}: s is of Y's things, and the set holds E(s)'s.
             (SET_IMAGE, [term, letter, set]) => {
