@@ -48,12 +48,13 @@
 #
 # Formatting is checked first; it takes a moment and needs no build. A line
 # says when each step starts and how it ends, with how long it took. Each
-# lane's full output is kept in a log and printed once every lane is done.
+# lane's full output is kept in a log and printed when the lane ends. The
+# first failure stops the run: a later lane does not start.
 #
 # The tests read the built files, and parley build rewrites any that are out
 # of date. A file it changes is one the commit would leave out, so that is
-# reported as a failure: rebuilt artifacts are to be committed, and the
-# script run again.
+# reported as a failure before the tests run: rebuilt artifacts are to be
+# committed, and the script run again.
 #
 # Usage:  scripts/precommit.sh [--branch]   (from anywhere in the working tree)
 # Exits non-zero when anything fails.
@@ -158,32 +159,43 @@ test_lane() {
     fi
 }
 
-failed=""
-debug_lane >"$logs/debug.log" 2>&1 || failed="$failed debug-lane"
-release_lane >"$logs/release.log" 2>&1 || failed="$failed release-lane"
-test_lane >"$logs/test.log" 2>&1 || failed="$failed test-lane"
+# Stop at the first failure: what failed is reported, and nothing after it
+# runs.
+not_ready() {
+    echo
+    echo "NOT READY: $1"
+    exit 1
+}
 
-cat "$logs/debug.log"
-cat "$logs/release.log"
-cat "$logs/test.log"
+# Run one lane, its log printed once it ends; a lane that fails stops the
+# run.
+run_lane() {
+    local name=$1 lane=$2
+    "$lane" >"$logs/$name.log" 2>&1
+    local status=$?
+    cat "$logs/$name.log"
+    [ $status -eq 0 ] || not_ready "$name"
+}
 
-# A build that changed files ran while the tests were reading them.
+run_lane debug-lane debug_lane
+run_lane release-lane release_lane
+
+# A build that changed files leaves out of the commit what the tests would
+# read: stop before the tests.
 if [ -f "$logs/build.out" ] && ! grep -q " 0 changed$" "$logs/build.out"; then
-    failed="$failed artifacts-changed"
     echo
     echo "parley build rewrote artifacts: commit them and run this again"
+    not_ready "artifacts-changed"
 fi
 if [ -f "$logs/build-lean.out" ] && ! grep -q " 0 changed," "$logs/build-lean.out"; then
-    failed="$failed lean-files-changed"
     echo
     echo "parley build lean rewrote Lean files: commit them and run this again"
+    not_ready "lean-files-changed"
 fi
 
+run_lane test-lane test_lane
+
 echo
-if [ -n "$failed" ]; then
-    echo "NOT READY:$failed"
-    exit 1
-fi
 if [ -n "$branch" ]; then
     echo "ready to commit to a branch; run scripts/precommit.sh before merging to main"
 else
