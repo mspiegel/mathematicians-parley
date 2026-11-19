@@ -1,5 +1,10 @@
 //! Renaming statements, naming parts and renumbering.
 
+use std::cmp::Reverse;
+
+use parley::corpus::Step;
+use parley::sorts;
+
 use super::*;
 
 /// The lines a step's citation is written on, from 0: its justification and
@@ -106,8 +111,7 @@ pub fn statements_renamed(
             let mut map = BTreeMap::new();
             let mut taken: BTreeSet<String> = BTreeSet::new();
             for h in thm.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
-                let Some(letter) =
-                    let_letter(&parley::sorts::body_of(h.text.trim(), "let"))
+                let Some(letter) = let_letter(&sorts::body_of(h.text.trim(), "let"))
                 else {
                     continue;
                 };
@@ -203,7 +207,7 @@ pub fn statements_renamed(
                 for &l in &citation.lines {
                     let mut c = chars(&lines[l]);
                     let mut spans = assigned_names(&c);
-                    spans.sort_by_key(|s| std::cmp::Reverse(s.0));
+                    spans.sort_by_key(|s| Reverse(s.0));
                     for (from, to) in spans {
                         let name: String = c[from..to].iter().collect();
                         if let Some(new) = map.get(&name) {
@@ -444,7 +448,7 @@ pub fn parts_named(ctx: &Context, path: &str, text: &str) -> Rewritten {
             changed.insert(l);
         }
         let mut inserts: Vec<&Named> = chosen.iter().collect();
-        inserts.sort_by_key(|c| std::cmp::Reverse(c.at));
+        inserts.sort_by_key(|c| Reverse(c.at));
         for c in inserts {
             let head = format!("let {} = {}", c.name, c.part);
             let pad = 70usize.saturating_sub(head.chars().count()).max(1);
@@ -482,7 +486,7 @@ pub(super) fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String
         .hypotheses
         .iter()
         .filter(|h| h.kind == Intro::Let)
-        .filter_map(|h| let_letter(&parley::sorts::body_of(h.text.trim(), "let")))
+        .filter_map(|h| let_letter(&sorts::body_of(h.text.trim(), "let")))
         .collect();
     let blocked: BTreeSet<String> = introduced(thm)
         .into_iter()
@@ -846,7 +850,7 @@ pub(super) fn renumbered_line(
 /// names the step it is the hypothesis of, `assume step 2 is true for m`.
 /// The lines changed.
 pub(super) fn renumbered_hypothesis(
-    step: &parley::corpus::Step,
+    step: &Step,
     lines: &mut [String],
     map: &BTreeMap<String, String>,
 ) -> usize {
@@ -892,7 +896,7 @@ pub(super) fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> Str
 /// The lines (1-based) of a step that end on a reason citing lines: each
 /// chain line, each row of a bare `substitute`, and the first row of an
 /// inequalities step, whose later rows name manipulations, `adding 1`.
-pub(super) fn reasoned_lines(step: &parley::corpus::Step) -> Vec<usize> {
+pub(super) fn reasoned_lines(step: &Step) -> Vec<usize> {
     let rows = if step.just.head == Head::Method(Method::Substitute) {
         &step.just.rows[..]
     } else {

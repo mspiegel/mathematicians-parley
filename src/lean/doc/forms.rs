@@ -7,8 +7,14 @@
 //! another. Any other parting, a sentence the item says otherwise than the
 //! line, is no question of form and is not reported.
 
-use super::term::Op;
-use super::term::{Arg, BoundForm, CountForm, LeanType, Term, TermKind};
+use std::collections::{BTreeMap, BTreeSet};
+use std::mem;
+
+use indexmap::IndexMap;
+
+use super::term::{Arg, BoundForm, CountForm, LeanType, Op, Term, TermKind};
+use crate::lean::casts;
+use crate::lean::casts::NUMERAL_CASTS;
 use crate::lean::templates::Num;
 
 /// One place two statements write a term in different forms.
@@ -375,7 +381,7 @@ pub fn cast_unit_lemmas(term: &Term) -> Vec<&'static str> {
             let Some(LeanType::Num(from)) = inner.ty.as_ref() else {
                 return None;
             };
-            crate::lean::casts::NUMERAL_CASTS
+            NUMERAL_CASTS
                 .iter()
                 .find(|(n, d, _)| n == from && d == digits)
                 .map(|(_, _, lemma)| *lemma)
@@ -522,8 +528,7 @@ fn pushed(term: &Term, widen: &Widen) -> Term {
                 },
                 [Arg::Explicit(a)],
             ) => {
-                let given =
-                    std::collections::BTreeMap::from([(letter.clone(), a.clone())]);
+                let given = BTreeMap::from([(letter.clone(), a.clone())]);
                 return pushed(&body.substituted(&given), widen);
             }
             _ => term.clone(),
@@ -801,7 +806,7 @@ pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
         }
         _ => {}
     }
-    let mut used = std::collections::BTreeSet::new();
+    let mut used = BTreeSet::new();
     let (dropped_given, dropped_line) = (
         identities_dropped(&given, &mut used),
         identities_dropped(&line, &mut used),
@@ -828,7 +833,7 @@ pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
     let ((given_whole, given_changed), (line_whole, line_changed)) =
         (whole(&given), whole(&line));
     if given_changed || line_changed {
-        let mut used = std::collections::BTreeSet::new();
+        let mut used = BTreeSet::new();
         if identities_dropped(&given_whole, &mut used)
             == identities_dropped(&line_whole, &mut used)
         {
@@ -921,7 +926,7 @@ fn universe_rules(
     given: &Term,
     line: &Term,
     values: &Values,
-    identities: std::collections::BTreeSet<&'static str>,
+    identities: BTreeSet<&'static str>,
 ) -> Vec<&'static str> {
     let mut rules = Vec::new();
     let mut add = |rule: &'static str| {
@@ -968,7 +973,7 @@ fn universe_rules(
 /// The `set` equations of the letters of `values` that `given` or `line`
 /// names.
 fn equations_named(given: &Term, line: &Term, values: &Values) -> Vec<String> {
-    let named: std::collections::BTreeSet<&str> = [given, line]
+    let named: BTreeSet<&str> = [given, line]
         .iter()
         .flat_map(|t| t.walk())
         .filter_map(|t| match &t.kind {
@@ -1032,7 +1037,7 @@ pub fn beta_reduced(term: &Term) -> Term {
 /// out as `simp` reads it, and the equations of those maps. None where it
 /// applies no such map.
 pub fn maps_opened(term: &Term, values: &Values) -> Option<MapsOpened> {
-    let applied: std::collections::BTreeSet<String> = term
+    let applied: BTreeSet<String> = term
         .walk()
         .into_iter()
         .filter_map(|n| match &n.kind {
@@ -1266,7 +1271,7 @@ pub struct Value {
 }
 
 /// The letters a proof names by `set`, by their Lean names.
-pub type Values = indexmap::IndexMap<String, Value>;
+pub type Values = IndexMap<String, Value>;
 
 /// The term with each letter of `values` put as its value, to `depth`
 /// levels of values naming other letters.
@@ -1289,8 +1294,8 @@ fn with_values(term: &Term, values: &Values, depth: usize) -> Term {
 /// What `simp only` must be told to work out the numerals the writer takes
 /// to ℕ in `term`, `(0 + 1).toNat`: `Int.reduceToNat` and each operation's
 /// own procedure, which it uses only where named.
-pub fn to_nat_rules(term: &Term) -> std::collections::BTreeSet<&'static str> {
-    let mut used = std::collections::BTreeSet::new();
+pub fn to_nat_rules(term: &Term) -> BTreeSet<&'static str> {
+    let mut used = BTreeSet::new();
     for t in term.walk() {
         let TermKind::ToNat(inner) = &t.kind else {
             continue;
@@ -1341,7 +1346,7 @@ pub fn casts_differ(given: &Term, line: &Term, values: &Values) -> Option<CastsA
         return None;
     };
     let named_in = |t: &Term| -> Vec<String> {
-        let names: std::collections::BTreeSet<String> = t
+        let names: BTreeSet<String> = t
             .walk()
             .into_iter()
             .filter_map(|n| match &n.kind {
@@ -1451,7 +1456,7 @@ fn naturals_read(term: &Term) -> Term {
         *c = naturals_read(c);
     }
     let natural = match &out.kind {
-        TermKind::ToNat(inner) => crate::lean::casts::as_natural(inner),
+        TermKind::ToNat(inner) => casts::as_natural(inner),
         _ => None,
     };
     natural.unwrap_or(out)
@@ -1482,10 +1487,7 @@ pub fn denies_equation(term: &Term) -> bool {
         if matches!(&inner.kind, TermKind::Infix { op, .. } if op.symbol == "="))
 }
 
-fn identities_dropped(
-    term: &Term,
-    used: &mut std::collections::BTreeSet<&'static str>,
-) -> Term {
+fn identities_dropped(term: &Term, used: &mut BTreeSet<&'static str>) -> Term {
     let mut out = term.clone();
     for c in out.children_mut() {
         *c = identities_dropped(c, used);
@@ -1610,17 +1612,11 @@ fn substituted_free(term: &Term, letter: &str, value: &Term) -> Term {
 /// puts a citation's arguments into the cited statement: a value is not
 /// itself put into again. A binder whose letter a value names is renamed
 /// first (`Term::binders_clear_of`).
-pub fn substituted_all(
-    term: &Term,
-    values: &std::collections::BTreeMap<String, Term>,
-) -> Term {
+pub fn substituted_all(term: &Term, values: &BTreeMap<String, Term>) -> Term {
     all_substituted_free(&term.binders_clear_of(values.values()), values)
 }
 
-fn all_substituted_free(
-    term: &Term,
-    values: &std::collections::BTreeMap<String, Term>,
-) -> Term {
+fn all_substituted_free(term: &Term, values: &BTreeMap<String, Term>) -> Term {
     match &term.kind {
         TermKind::Letter(l) => {
             if let Some(v) = values.get(l) {
@@ -1750,10 +1746,7 @@ pub fn unfolded(term: &Term) -> Term {
                     body,
                     ..
                 } => {
-                    let given = std::collections::BTreeMap::from([(
-                        letter.clone(),
-                        (**lhs).clone(),
-                    )]);
+                    let given = BTreeMap::from([(letter.clone(), (**lhs).clone())]);
                     return unfolded(&body.substituted(&given));
                 }
                 // Mathlib defines a member of `{t ∈ S | P t}` as `x ∈ S ∧
@@ -1764,10 +1757,7 @@ pub fn unfolded(term: &Term) -> Term {
                     body,
                     ..
                 } => {
-                    let given = std::collections::BTreeMap::from([(
-                        letter.clone(),
-                        (**lhs).clone(),
-                    )]);
+                    let given = BTreeMap::from([(letter.clone(), (**lhs).clone())]);
                     let member = Term {
                         kind: TermKind::Infix {
                             op: *op,
@@ -1875,7 +1865,7 @@ fn is_to_nat_of(x: &Term, natural: &Term) -> bool {
     if natural.ty != Some(LeanType::Num(Num::Nat)) {
         return false;
     }
-    crate::lean::casts::as_natural(x).is_some_and(|n| {
+    casts::as_natural(x).is_some_and(|n| {
         let mut parts = Vec::new();
         compare(&n, natural, &mut parts);
         parts.is_empty() && alike(&n, natural)
@@ -1946,8 +1936,7 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
             compare(item, b, out);
         }
         _ => {
-            if std::mem::discriminant(&item.kind) != std::mem::discriminant(&line.kind)
-            {
+            if mem::discriminant(&item.kind) != mem::discriminant(&line.kind) {
                 return;
             }
             let (a, b) = (children(item), children(line));
@@ -1981,7 +1970,7 @@ pub fn alike(a: &Term, b: &Term) -> bool {
         (TermKind::Const(x), TermKind::Const(y)) => x == y,
         (TermKind::Infix { op: x, .. }, TermKind::Infix { op: y, .. }) => x == y,
         (TermKind::Count { .. }, TermKind::Count { .. }) => true,
-        (x, y) => std::mem::discriminant(x) == std::mem::discriminant(y),
+        (x, y) => mem::discriminant(x) == mem::discriminant(y),
     };
     let (xs, ys) = (children(&a), children(&b));
     leaves_agree
@@ -2005,6 +1994,8 @@ fn children(term: &Term) -> Vec<&Term> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
     use super::super::term::Op;
     use super::*;
 
@@ -2236,7 +2227,7 @@ mod tests {
             substituted(&sum_over_k(), "k", &n).text(),
             "∑ k ∈ Finset.Icc 1 n, f k"
         );
-        let mut values = std::collections::BTreeMap::new();
+        let mut values = BTreeMap::new();
         values.insert("k".to_string(), n);
         assert_eq!(
             substituted_all(&sum_over_k(), &values).text(),
@@ -2309,7 +2300,7 @@ mod tests {
         let renamed = "∃ m' : ℤ, 0 ≤ m' ∧ m' = m";
         let put = substituted(&some_natural_is_n(), "n", &m);
         assert_eq!(put.text(), renamed);
-        let mut values = std::collections::BTreeMap::new();
+        let mut values = BTreeMap::new();
         values.insert("n".to_string(), m);
         assert_eq!(
             substituted_all(&some_natural_is_n(), &values).text(),

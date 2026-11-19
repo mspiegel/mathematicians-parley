@@ -25,6 +25,7 @@ use crate::notations::{
     NUMBER_SYSTEMS, NUMERAL, POWER, SUM, SUPERSCRIPT, UNARY_MINUS,
 };
 use crate::rules::{self, System};
+use crate::{citing, matching};
 
 /// What a membership is decided from: the facts the step cites and its
 /// requires lines above it say, each part of them and what each membership
@@ -76,7 +77,7 @@ pub fn holds(term: &Node, system: System, facts: &Facts) -> bool {
 /// its identity elements dropped (`SYNTAX.md`, an identity element goes
 /// without saying), so 2^(d·1) is the power to the letter d.
 pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
-    let term = &crate::matching::bare(term, facts.ctx);
+    let term = &matching::bare(term, facts.ctx);
     let nonzero = |d: &Node| nonzero(d, facts);
     let stated = |t: &Node, s: System| {
         sum_said_once(t, s, &facts.letters, facts.in_sums, facts.ctx)
@@ -352,7 +353,7 @@ pub fn nonzero_how<'f>(
 /// How the page says a divisor is not zero once, or which fact says it;
 /// None where neither does (`said_nonzero`).
 fn said_nonzero_how<'f>(divisor: &Node, facts: &'f Facts) -> Option<NonzeroHow<'f>> {
-    if crate::citing::closed_nonzero(divisor) {
+    if citing::closed_nonzero(divisor) {
         return Some(NonzeroHow::Numerals);
     }
     if nonzero_said_once(divisor, &facts.letters) {

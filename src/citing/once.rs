@@ -18,7 +18,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_rational::BigRational;
-use num_traits::{One, Signed, ToPrimitive, Zero};
+use num_traits::{pow, One, Signed, ToPrimitive, Zero};
 
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::template;
@@ -36,7 +36,11 @@ use crate::sorts::types_a_function;
 
 use super::library::Library;
 use super::parts::{bound_in, function_values, Bound, Parts, SaidOnceFact};
+use crate::formula::page;
+use crate::matching;
+use crate::matching::Context;
 use crate::methods::reals::{trig_value, Trig};
+use crate::methods::{reals, surds};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -312,9 +316,7 @@ fn maps_on_domains(parts: &Parts, seeded: &[Node], library: &Library) -> Vec<Nod
             continue;
         }
         let on = vec![node.clone(), domain.clone()];
-        if let Some(made) =
-            crate::formula::page::made_as(library.env.g, "_ is a function on _", on)
-        {
+        if let Some(made) = page::made_as(library.env.g, "_ is a function on _", on) {
             out.push(made);
         }
     }
@@ -382,14 +384,14 @@ struct Given<'a> {
     atoms: &'a [(Node, System)],
     letters: &'a Introduced,
     typed: &'a [Node],
-    ctx: &'a crate::matching::Context,
+    ctx: &'a Context,
 }
 
 impl Given<'_> {
     fn says(&self, term: &Node, system: System) -> Option<OnceReason> {
         let none = IndexMap::new();
         let stated = self.atoms.iter().any(|(a, s)| {
-            s.within(system) && crate::matching::alike(a, term, self.ctx, &none, &none)
+            s.within(system) && matching::alike(a, term, self.ctx, &none, &none)
         });
         if stated {
             return Some(OnceReason::Stated);
@@ -407,7 +409,7 @@ pub fn a_number_said_once(
     term: &Node,
     facts: &[Node],
     bound: &Introduced,
-    ctx: &crate::matching::Context,
+    ctx: &Context,
 ) -> bool {
     let mut letters = bound.clone();
     // A term a fact puts in a number system is a number there as a letter
@@ -434,7 +436,7 @@ pub fn a_number_said_once(
     let nonzero = |d: &Node| nonzero_said_once(d, &positive);
     let said = |t: &Node, system: System| {
         atoms.iter().any(|(a, s)| {
-            crate::matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
+            matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
                 && s.within(system)
         })
     };
@@ -690,13 +692,13 @@ pub fn reason<A: OnceAsk>(
 /// Whether `real arithmetic` takes the square root of a rational: one of at
 /// least 0, within its limits (`methods::surds::root_of`).
 pub fn root_taken(value: &BigRational) -> bool {
-    crate::methods::surds::root_of(value).is_ok()
+    surds::root_of(value).is_ok()
 }
 
 /// Whether `real arithmetic` takes the logarithm of a rational: a positive
 /// one, within its limits (`methods::reals::factored`).
 pub fn log_taken(value: &BigRational) -> bool {
-    value.is_positive() && crate::methods::reals::factored(value).is_ok()
+    value.is_positive() && reals::factored(value).is_ok()
 }
 
 /// Whether `real arithmetic` takes the sine and cosine of q·π: q's
@@ -871,7 +873,7 @@ pub fn sum_said_once(
     system: System,
     letters: &Introduced,
     typed: &[Node],
-    ctx: &crate::matching::Context,
+    ctx: &Context,
 ) -> bool {
     let (SUM, [index, start, end, body]) = (term.notation(), term.children.as_slice())
     else {
@@ -909,7 +911,7 @@ struct SumIndex<'a> {
     end: &'a Node,
     letters: &'a Introduced,
     typed: &'a [Node],
-    ctx: &'a crate::matching::Context,
+    ctx: &'a Context,
 }
 
 impl SumIndex<'_> {
@@ -941,7 +943,7 @@ impl SumIndex<'_> {
     /// once in a number system the domain holds.
     fn in_domain(&self, x: &Node, domain: &Node) -> bool {
         let same = |a: &Node, b: &Node| {
-            crate::matching::alike(a, b, self.ctx, &IndexMap::new(), &IndexMap::new())
+            matching::alike(a, b, self.ctx, &IndexMap::new(), &IndexMap::new())
         };
         if domain.notation() == INTEGER_RANGE {
             return x.is_name()
@@ -1037,7 +1039,7 @@ fn value(term: &Node) -> Option<BigRational> {
             // Past a few hundred the number is not one a page writes, and
             // working it out is not the point.
             let base = value(a)?;
-            (k <= 512).then(|| num_traits::pow(base, k as usize))
+            (k <= 512).then(|| pow(base, k as usize))
         }
         // The operations whose records say `decided arithmetic`, worked out
         // where `arithmetic` works them out (`methods::field::closed_value`):
@@ -1073,6 +1075,6 @@ fn numeral(said: &str) -> Option<BigRational> {
         return None;
     }
     let digits: BigInt = format!("{whole}{part}").parse().ok()?;
-    let scale = num_traits::pow(BigInt::from(10), part.len());
+    let scale = pow(BigInt::from(10), part.len());
     Some(BigRational::new(digits, scale))
 }

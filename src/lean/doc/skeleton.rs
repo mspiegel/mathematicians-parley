@@ -7,6 +7,8 @@
 //! congruence, a set listed by its members `{a, b}`, `@` before a name given
 //! every argument, and `_`.
 
+use std::mem;
+
 use super::bridges::BridgeModule;
 use super::term::{Arg, ConstRef, LeanType, Op, Source, Term, TermKind};
 use crate::lean::templates::Num;
@@ -31,7 +33,7 @@ fn tokens(text: &str) -> Vec<String> {
         );
         if c.is_whitespace() || mark {
             if !word.is_empty() {
-                out.push(std::mem::take(&mut word));
+                out.push(mem::take(&mut word));
             }
             if mark {
                 out.push(c.to_string());

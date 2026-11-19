@@ -22,9 +22,10 @@ use indexmap::IndexSet;
 use crate::corpus::{cited_items, corpus};
 use crate::said::Said;
 use crate::source::Source;
+use crate::Problem;
 
 /// The items nothing cites, by full name.
-pub fn untested(source: &dyn Source) -> Result<Vec<String>, crate::Problem> {
+pub fn untested(source: &dyn Source) -> Result<Vec<String>, Problem> {
     let c = corpus(source)?;
     let cited: IndexSet<String> = c
         .theorems

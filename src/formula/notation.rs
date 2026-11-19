@@ -1,13 +1,16 @@
 //! Notation as data: patterns and precedence, read from the records.
 
 use indexmap::{IndexMap, IndexSet};
+use rustc_hash::FxBuildHasher;
 
 use super::node::Node;
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use super::token::is_letter;
 use crate::corpus::{Record, RecordKind};
+use crate::notations::LOGICAL_NOT;
 use crate::outcome::{Built, Checked, Problem};
-use crate::regex;
+use crate::sorts::infer;
+use crate::{regex, text};
 
 /// What a pattern writes for a numeral written raised, as `_ⁿ` writes a
 /// power: the n of xⁿ, standing for whatever raised digits follow.
@@ -227,8 +230,8 @@ fn instead_of(r: &Record) -> Checked<bool> {
         format!(
             "notation {}: `instead` says {}, and it may say only {}",
             r.name,
-            crate::text::repr(said),
-            crate::text::repr(INSTEAD)
+            text::repr(said),
+            text::repr(INSTEAD)
         ),
     ))
 }
@@ -462,9 +465,7 @@ pub fn categories_of(r: &Record) -> (Vec<String>, String) {
 /// then take any term and it yields any term, so that the rest of the
 /// corpus is still read and every other defect still reported.
 fn categories(r: &Record, raw: &str, binds: Option<&Binds>) -> (Vec<String>, String) {
-    let said = r
-        .field("sort")
-        .map(|k| crate::sorts::infer::signature(str::trim(k)));
+    let said = r.field("sort").map(|k| infer::signature(str::trim(k)));
     let (mut holes, yields) = match said {
         Some(Built(sig)) => {
             let (holes, yields) = sig.categories();
@@ -548,7 +549,7 @@ fn there_is_none(n: &Notation) -> Option<Notation> {
     Some(Notation {
         pattern: format!("{}{rest}", o.denied.join(" ")),
         parts,
-        folds: Some(crate::notations::LOGICAL_NOT.name().to_string()),
+        folds: Some(LOGICAL_NOT.name().to_string()),
         ..n.clone()
     })
 }
@@ -908,7 +909,7 @@ pub enum Tighter {
 
 /// Whether a nests inside b.
 pub fn binds_tighter(
-    tighter: &IndexMap<String, IndexSet<String>, rustc_hash::FxBuildHasher>,
+    tighter: &IndexMap<String, IndexSet<String>, FxBuildHasher>,
     a: &str,
     b: &str,
 ) -> Tighter {

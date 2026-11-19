@@ -1,6 +1,10 @@
 //! Requires lines, kinds and the families they ask.
 
+use std::slice;
+
 use super::*;
+use crate::corpus::proof;
+use crate::methods::membership;
 
 /// A requires line needs what the item it cites concludes.
 ///
@@ -107,11 +111,7 @@ pub fn check_kinds(
 /// membership, from 2` rests on `requires |S| ∈ ℕ₀` where line 2 says deg(x)
 /// = |S|. Such a line is asked for as surely as an item's hypothesis is
 /// (`SYNTAX.md`: a requires line rests on the lines above it).
-pub(super) fn built_on(
-    req: &crate::corpus::Requires,
-    step: &Step,
-    known: &Known,
-) -> bool {
+pub(super) fn built_on(req: &Requires, step: &Step, known: &Known) -> bool {
     const ASKING: [Method; 3] =
         [Method::Membership, Method::Inequalities, Method::Algebra];
     let Some(said) = known.whole(step, &req.fact) else {
@@ -304,7 +304,7 @@ impl AskedType {
         if let Some(inside) = inside {
             letters.insert(letter.to_string(), inside);
         }
-        crate::methods::membership::divides_by(term, letter, &letters)
+        membership::divides_by(term, letter, &letters)
     }
 
     /// The sums inside the term the type asks at every point whose own
@@ -323,7 +323,7 @@ impl AskedType {
                     if let Some(inside) = index_system(s.start) {
                         letters.insert(s.index.to_string(), inside);
                     }
-                    crate::methods::membership::divides_by(s.body, s.index, &letters)
+                    membership::divides_by(s.body, s.index, &letters)
                 })
             })
             .collect()
@@ -344,9 +344,8 @@ impl AskedType {
             return false;
         };
         self.inner_sums(letters).iter().any(|sum| {
-            crate::methods::membership::Summed::of(sum).is_some_and(|s| {
-                crate::methods::membership::said_pointwise(node, &s, system, ctx)
-            })
+            crate::methods::membership::Summed::of(sum)
+                .is_some_and(|s| membership::said_pointwise(node, &s, system, ctx))
         })
     }
 
@@ -561,9 +560,9 @@ impl FamilyAsks {
     /// asks it on, `for all k ∈ {1, …, j}, a(k) ∈ ℝ` for `a : {1, …, j} → ℝ`
     /// (`values_said`).
     pub(super) fn states_values(&self, node: &Node, library: &Library) -> bool {
-        self.types.iter().any(|t| {
-            t.filled && values_said(&t.asked, std::slice::from_ref(node), library)
-        })
+        self.types
+            .iter()
+            .any(|t| t.filled && values_said(&t.asked, slice::from_ref(node), library))
     }
 
     /// Whether one requires line's fact is a membership the item's function
@@ -648,7 +647,7 @@ pub(in crate::checker) fn domains_asked(
     scopes: &[FileScope],
     known: &Known,
 ) -> FxIndexSet<ByShape> {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return FxIndexSet::default(); // `check_formulas` says it does not read
     };

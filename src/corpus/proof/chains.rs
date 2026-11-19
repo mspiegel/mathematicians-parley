@@ -1,5 +1,7 @@
 //! Imports, header words, calculation chains and substitute rows.
 
+use std::iter;
+
 use super::*;
 
 pub(super) enum Imported {
@@ -299,7 +301,7 @@ impl Chain {
         if !self.lines.iter().any(|l| down(&l.relation).is_some()) {
             return self.clone();
         }
-        let terms: Vec<&Written> = std::iter::once(&self.start)
+        let terms: Vec<&Written> = iter::once(&self.start)
             .chain(self.lines.iter().map(|l| &l.term))
             .collect();
         let lines = (0..self.lines.len())

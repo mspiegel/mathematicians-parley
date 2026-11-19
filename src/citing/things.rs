@@ -9,21 +9,23 @@
 //! the Lean writer reads it of an item's sentences, and of a theorem's
 //! page from the checker's record (`CheckedTheorem::thing_types`).
 
-use crate::formula::Node;
+use std::collections::{BTreeMap, BTreeSet};
+
+use crate::formula::{Node, Sorts, Whole};
 use crate::notations::{
     APPLICATION, BIJECTION, COMPOSITION, FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, IMAGE,
-    INVERSE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, PAIR, PRODUCT_SET, SET_BUILDER,
-    SET_IMAGE, THERE_IS,
+    INCIDENT, INVERSE, JOINS, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, PAIR, PRODUCT_SET,
+    SET_BUILDER, SET_IMAGE, THERE_IS,
 };
 
 /// Whether the node is a letter the sorts make a map.
-pub fn map_letter(node: &Node, sorts: Option<&crate::formula::Sorts>) -> bool {
+pub fn map_letter(node: &Node, sorts: Option<&Sorts>) -> bool {
     node.is_name()
         && matches!(
             sorts
                 .and_then(|s| s.get(node.text.as_str()))
                 .and_then(|s| s.full()),
-            Some(crate::formula::Whole::Function(..))
+            Some(Whole::Function(..))
         )
 }
 
@@ -61,27 +63,23 @@ pub enum Things {
 /// the lines first name their things.
 #[derive(Clone, Debug, Default)]
 pub struct ThingTypes {
-    parent: std::collections::BTreeMap<ThingKey, ThingKey>,
+    parent: BTreeMap<ThingKey, ThingKey>,
     /// Of each class of pairs, by its root, the keys of its two places: two
     /// classes of pairs joined join their places, place by place.
-    places: std::collections::BTreeMap<ThingKey, (ThingKey, ThingKey)>,
+    places: BTreeMap<ThingKey, (ThingKey, ThingKey)>,
     /// How many product or pair terms the lines have met.
     pair_terms: usize,
     /// Each key, in the order first met.
     met: Vec<ThingKey>,
-    vars: std::collections::BTreeMap<ThingKey, usize>,
+    vars: BTreeMap<ThingKey, usize>,
     /// The letters a "there is f : X → Y" binds, maps as a map letter of
     /// the sorts is.
-    bound_maps: std::collections::BTreeSet<String>,
+    bound_maps: BTreeSet<String>,
 }
 
 impl ThingTypes {
     /// Read from the lines in order.
-    pub fn read(
-        sets: &[String],
-        lines: &[&Node],
-        sorts: Option<&crate::formula::Sorts>,
-    ) -> ThingTypes {
+    pub fn read(sets: &[String], lines: &[&Node], sorts: Option<&Sorts>) -> ThingTypes {
         ThingTypes::read_given(sets, lines, &[], sorts)
     }
 
@@ -95,7 +93,7 @@ impl ThingTypes {
         sets: &[String],
         lines: &[&Node],
         given: &[(String, Node)],
-        sorts: Option<&crate::formula::Sorts>,
+        sorts: Option<&Sorts>,
     ) -> ThingTypes {
         let mut out = ThingTypes::default();
         for set in sets {
@@ -111,7 +109,7 @@ impl ThingTypes {
         // Things a letter is or holds are numbered first: a map's side that
         // no letter is of, the numbers of `v : {0, …, n} → V`, takes no
         // type variable before V's.
-        let lettered: std::collections::BTreeSet<ThingKey> = out
+        let lettered: BTreeSet<ThingKey> = out
             .met
             .iter()
             .filter(|k| matches!(k, ThingKey::Letter(_)))
@@ -206,11 +204,7 @@ impl ThingTypes {
     /// The key of the things a term is, holds or is made of, joining what
     /// the term says are of one type; None for a statement, a number or a
     /// map.
-    fn class(
-        &mut self,
-        node: &Node,
-        sorts: Option<&crate::formula::Sorts>,
-    ) -> Option<ThingKey> {
+    fn class(&mut self, node: &Node, sorts: Option<&Sorts>) -> Option<ThingKey> {
         let bound = self.bound_maps.clone();
         let is_map = |n: &Node| {
             map_letter(n, sorts) || (n.is_name() && bound.contains(&*n.text))
@@ -221,14 +215,14 @@ impl ThingTypes {
             // An edge joins two vertices: the vertices are things of one
             // type, the edge of its own, as a graph's vertices and edges
             // are two sets.
-            (crate::notations::JOINS, [a, u, w]) => {
+            (JOINS, [a, u, w]) => {
                 self.class(a, sorts);
                 let (u, w) = (self.class(u, sorts), self.class(w, sorts));
                 self.join(u, w);
                 None
             }
             // A vertex incident with an edge: nothing joins the two.
-            (crate::notations::INCIDENT, [x, a]) => {
+            (INCIDENT, [x, a]) => {
                 self.class(x, sorts);
                 self.class(a, sorts);
                 None
@@ -336,7 +330,7 @@ impl ThingTypes {
     fn sides(
         &mut self,
         f: &Node,
-        sorts: Option<&crate::formula::Sorts>,
+        sorts: Option<&Sorts>,
     ) -> Option<(ThingKey, ThingKey)> {
         if map_letter(f, sorts) || (f.is_name() && self.bound_maps.contains(&*f.text)) {
             let (from, to) = (

@@ -2,6 +2,11 @@
 
 use super::super::record::{PlaceShown, ShownBy};
 use super::*;
+use std::iter;
+
+use crate::citing::PlaceSystems;
+use crate::corpus;
+use crate::matching::Context;
 use methods_membership::Held;
 
 /// What one part of a block owes: the part, as its steps are numbered, the
@@ -301,10 +306,7 @@ pub(super) fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> 
 /// owes there (`endings`), by the line of its justification: one meeting for
 /// each part of its "and" in order, as the check paired them. A step whose parts do not
 /// all meet what they owe has none, and the check reports it.
-pub fn ended_meetings(
-    thm: &Theorem,
-    known: &Known,
-) -> IndexMap<usize, Vec<crate::matching::Meeting>> {
+pub fn ended_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Vec<Meeting>> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let ends = endings(thm, step, known);
@@ -891,8 +893,8 @@ pub(super) fn terms_defined_in_scope(step: &Step, known: &Known) -> Vec<String> 
         .enumerate()
         .filter(|(i, _)| known.shape().define_in_scope(thm, *i, step))
         .filter(|(_, d)| {
-            matches!(crate::corpus::define_parts(&d.text),
-                Built(crate::corpus::DefineParts::One(one))
+            matches!(corpus::define_parts(&d.text),
+                Built(DefineParts::One(one))
                     if one.params.is_empty() && one.kind.is_none())
         })
         .map(|(_, d)| d.label.clone())
@@ -914,8 +916,8 @@ pub(super) struct PlaceAsked {
 pub(super) fn places_asked(
     claim: &Node,
     at_member: bool,
-    places: &crate::citing::PlaceSystems,
-    ctx: &crate::matching::Context,
+    places: &PlaceSystems,
+    ctx: &Context,
     out: &mut Vec<PlaceAsked>,
 ) {
     let body = match (at_member, claim.notation(), claim.children.as_slice()) {
@@ -1520,7 +1522,7 @@ pub(super) fn algebra_holds(
         return false;
     };
     let labels = FloatLabels::new(IndexMap::new());
-    let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
+    let shown: Vec<&Node> = iter::once(&read.claimed).chain(&read.lines).collect();
     let render = |t: &Term| printed(t, &shown, known, targets, &labels);
     let step = at.step.called();
     if let Some(said) =

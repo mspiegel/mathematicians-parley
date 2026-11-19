@@ -8,6 +8,10 @@
 //! that shape and builds the proof from it. Nothing here searches: what a
 //! table has no entry for is declined, and left to what is tried after.
 
+mod implied;
+mod introduced;
+mod writing;
+
 use std::cell::OnceCell;
 use std::collections::BTreeSet;
 
@@ -16,26 +20,24 @@ use num_traits::{ToPrimitive, Zero};
 
 use super::calculators::Revalued;
 use super::field::{self, Value};
-use super::linear;
 use super::matcher::ChainLink;
 use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
-use super::{Facts, Lines, Written};
-use crate::binds;
-use crate::citing::{said_otherwise, CodomainAsk, CodomainReason, OnceReason, Shape};
+use super::{linear, Facts, Lines, Written};
+use crate::citing::{
+    said_otherwise, CodomainAsk, CodomainReason, OnceAsk, OnceReason, Shape,
+};
 use crate::corpus::Step;
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
+use crate::methods::reals::Trig;
+use crate::methods::{reals, surds};
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
-use crate::outcome::{Built, Checked, Declined, Route};
+use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup, numeral_label, System};
-use crate::{pf, t, take};
-
-mod implied;
-mod introduced;
-mod writing;
+use crate::{binds, citing, pf, t, take};
 
 /// Why `built` takes a term no further: it is no operation the closure
 /// tables walk, and so an atom of the walk.
@@ -141,7 +143,7 @@ struct BuildOnce<'m, 'a> {
     me: &'m mut Elaborator<'a>,
     scope: &'m Rpn,
     facts: &'m Facts,
-    problem: Option<crate::outcome::Problem>,
+    problem: Option<Problem>,
 }
 
 impl BuildOnce<'_, '_> {
@@ -173,13 +175,11 @@ impl BuildOnce<'_, '_> {
     }
 }
 
-impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
+impl OnceAsk for BuildOnce<'_, '_> {
     type T = Term;
 
     fn shape<'t>(&self, term: &'t Term) -> Shape<'t, Term> {
-        if let Built(crate::methods::field::Value::Exact(v)) =
-            crate::methods::field::closed_value(term)
-        {
+        if let Built(Value::Exact(v)) = field::closed_value(term) {
             return Shape::Value(v);
         }
         if term.variable().is_some()
@@ -240,33 +240,19 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
             (Some("cfv"), 2) if self.me.rpn(&kids[1]).alone() == Some("cfa") => {
                 Shape::Factorial(&kids[0])
             }
-            _ if crate::methods::surds::is_root(term) => {
-                match crate::methods::field::closed_value(&kids[0]) {
-                    Built(crate::methods::field::Value::Exact(v))
-                        if crate::citing::root_taken(&v) =>
-                    {
-                        Shape::Real
-                    }
-                    _ => Shape::Other,
-                }
-            }
-            _ if crate::methods::reals::Trig::of(term).is_some() => {
-                match crate::methods::reals::closed_value(term) {
-                    Built(crate::methods::reals::Value::Exact(_)) => Shape::Real,
-                    _ => Shape::Applied(&kids[0]),
-                }
-            }
-            _ if crate::methods::surds::applies(term, "ce") => Shape::Applied(&kids[0]),
-            _ if crate::methods::reals::applies(term, "clog") => {
-                match crate::methods::field::closed_value(&kids[0]) {
-                    Built(crate::methods::field::Value::Exact(v))
-                        if crate::citing::log_taken(&v) =>
-                    {
-                        Shape::Real
-                    }
-                    _ => Shape::Other,
-                }
-            }
+            _ if surds::is_root(term) => match field::closed_value(&kids[0]) {
+                Built(Value::Exact(v)) if citing::root_taken(&v) => Shape::Real,
+                _ => Shape::Other,
+            },
+            _ if Trig::of(term).is_some() => match reals::closed_value(term) {
+                Built(reals::Value::Exact(_)) => Shape::Real,
+                _ => Shape::Applied(&kids[0]),
+            },
+            _ if surds::applies(term, "ce") => Shape::Applied(&kids[0]),
+            _ if reals::applies(term, "clog") => match field::closed_value(&kids[0]) {
+                Built(Value::Exact(v)) if citing::log_taken(&v) => Shape::Real,
+                _ => Shape::Other,
+            },
             _ => Shape::Other,
         }
     }

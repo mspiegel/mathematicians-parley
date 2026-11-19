@@ -1,5 +1,7 @@
 //! What is known, held and settled.
 
+use std::mem;
+
 use super::*;
 
 impl<'a> Elaborator<'a> {
@@ -14,7 +16,7 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.fact_keys.get(claim) {
             return found.clone();
         }
-        let kept = std::mem::take(&mut self.binding);
+        let kept = mem::take(&mut self.binding);
         let term = self.to_term(claim);
         let written = self.written_form(&term);
         self.binding = kept;

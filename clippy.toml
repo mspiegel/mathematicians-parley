@@ -1,3 +1,23 @@
+# `std::mem::take` and `crate::spell::seq` are written `mem::take` and
+# `spell::seq` under a `use` at the top of the file: a path from a crate root
+# (`std::`, `crate::`, a dependency) may have one segment only.
+absolute-paths-max-segments = 1
+
+# Only the items of a module are ordered, and only by group: modules, then
+# imports, then everything else, in any order within each group. Enum
+# variants, struct fields and impl and trait items keep the order written.
+source-item-ordering = ["module"]
+module-items-ordered-within-groupings = "none"
+module-item-order-groupings = [
+    ["modules", ["extern_crate", "mod", "foreign_mod"]],
+    ["use", ["use"]],
+    ["everything_else", [
+        "macro", "global_asm", "static", "const",
+        "ty_alias", "enum", "struct", "union",
+        "trait", "trait_alias", "impl", "fn",
+    ]],
+]
+
 # Output is compared byte for byte, and a search that takes the first lemma
 # that fits takes a different one when a map iterates in a different order.
 # A std hash map iterates in an order that changes from run to run, so none is

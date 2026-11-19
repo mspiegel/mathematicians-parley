@@ -26,13 +26,17 @@ use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
+use rustc_hash::FxHashMap;
 
 use super::kernel::{FloatLabels, Syntax};
 use super::library::{Kind, Layered, Signature};
 use super::rpn::{Rpn, Spell};
 use crate::formula::symbol::Symbol;
 use crate::matching::FxIndexMap;
+use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use std::rc::Weak;
+use std::{iter, slice};
 
 /// One label applied to the steps it takes, and what kind of thing that
 /// builds: a `wff`, a `class`, a `setvar`, or a proof (`|-`).
@@ -276,9 +280,9 @@ pub struct Builder {
     /// until the elaborator takes it (`fault`).
     faults: RefCell<Vec<String>>,
     /// Each token's print, worked out once (`Print::token`).
-    prints: RefCell<rustc_hash::FxHashMap<Symbol, Print>>,
+    prints: RefCell<FxHashMap<Symbol, Print>>,
     /// Each step that builds a term, by its label and its parts (`shared`).
-    terms: RefCell<rustc_hash::FxHashMap<TermKey, StepRef>>,
+    terms: RefCell<FxHashMap<TermKey, StepRef>>,
 }
 
 /// A term step's label and the address of each part. The parts are
@@ -290,7 +294,7 @@ type TermKey = (Symbol, Box<[usize]>);
 /// held weakly, so a step dropped and its address reused is not taken for
 /// another.
 struct Said {
-    step: std::rc::Weak<Step>,
+    step: Weak<Step>,
     /// The expression after its typecode, or None where it rests on a label
     /// whose statement the builder does not have.
     says: Option<Print>,
@@ -338,7 +342,7 @@ impl Print {
     fn token(text: &str) -> Print {
         let mut hash = [0; 2];
         for (n, h) in hash.iter_mut().enumerate() {
-            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            let mut hasher = DefaultHasher::new();
             (n, text).hash(&mut hasher);
             *h = hasher.finish() % MODULUS;
         }
@@ -380,8 +384,8 @@ impl Builder {
             token_steps: RefCell::new(FxIndexMap::default()),
             said: RefCell::new(FxIndexMap::default()),
             faults: RefCell::new(Vec::new()),
-            prints: RefCell::new(rustc_hash::FxHashMap::default()),
-            terms: RefCell::new(rustc_hash::FxHashMap::default()),
+            prints: RefCell::new(FxHashMap::default()),
+            terms: RefCell::new(FxHashMap::default()),
         }
     }
 
@@ -807,7 +811,7 @@ impl Builder {
                             "{label} takes a {kind} in place {} and is handed a {}: …{}",
                             n + 1,
                             kid.typecode,
-                            tail(&spelt(std::slice::from_ref(kid)), 60)
+                            tail(&spelt(slice::from_ref(kid)), 60)
                         );
                     }
                 }
@@ -854,10 +858,7 @@ impl Builder {
             Some(sig) => {
                 let mut kinds: Vec<Symbol> =
                     sig.floats.iter().map(|&(t, _)| t).collect();
-                kinds.extend(std::iter::repeat_n(
-                    Symbol::of("|-"),
-                    sig.essentials.len(),
-                ));
+                kinds.extend(iter::repeat_n(Symbol::of("|-"), sig.essentials.len()));
                 Taking {
                     label: sig.label,
                     takes: kinds.len(),

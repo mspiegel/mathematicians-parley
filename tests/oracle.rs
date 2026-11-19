@@ -33,10 +33,39 @@
 //! cargo test --release --test oracle -- --ignored --nocapture
 //! ```
 
-use std::collections::BTreeSet;
-use std::path::Path;
-use std::sync::Arc;
+#[path = "oracle/algebra.rs"]
+mod algebra;
+#[path = "oracle/atoms.rs"]
+mod atoms;
+#[path = "oracle/gen.rs"]
+mod gen;
+#[path = "oracle/inspect.rs"]
+mod inspect;
+#[path = "oracle/judge.rs"]
+mod judge;
+#[path = "oracle/member.rs"]
+mod member;
+#[path = "oracle/order.rs"]
+mod order;
+#[path = "oracle/real.rs"]
+mod real;
+#[path = "oracle/rows.rs"]
+mod rows;
+#[path = "oracle/said.rs"]
+mod said;
+#[path = "shared/mod.rs"]
+mod shared;
 
+use std::collections::BTreeSet;
+use std::panic::AssertUnwindSafe;
+use std::path::Path;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::{env, panic};
+
+use gen::Drawn;
+use judge::Verdict;
+use parley::checker;
 use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::elab::Library;
@@ -44,49 +73,13 @@ use parley::formula::grammar::Grammar;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
+use parley::tools::build::{library, Libraries, Loaded};
+use parley::tools::{path_of, verify};
+use shared::{included, Random};
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).
 const SLOTS: usize = 8;
-use parley::tools::build::{library, Libraries, Loaded};
-use parley::tools::{path_of, verify};
-
-#[path = "shared/mod.rs"]
-mod shared;
-
-#[path = "oracle/gen.rs"]
-mod gen;
-
-#[path = "oracle/judge.rs"]
-mod judge;
-
-#[path = "oracle/algebra.rs"]
-mod algebra;
-
-#[path = "oracle/order.rs"]
-mod order;
-
-#[path = "oracle/member.rs"]
-mod member;
-
-#[path = "oracle/inspect.rs"]
-mod inspect;
-
-#[path = "oracle/said.rs"]
-mod said;
-
-#[path = "oracle/rows.rs"]
-mod rows;
-
-#[path = "oracle/real.rs"]
-mod real;
-
-#[path = "oracle/atoms.rs"]
-mod atoms;
-
-use gen::Drawn;
-use judge::Verdict;
-use shared::{included, Random};
 
 /// The seed claims are drawn from where `ORACLE_SEED` does not say another.
 const SEED: u64 = 20_261_012;
@@ -234,8 +227,8 @@ enum Answer {
     Built { verified: bool, said: String },
 }
 
-fn env_number<T: std::str::FromStr>(name: &str) -> Option<T> {
-    std::env::var(name).ok().map(|s| {
+fn env_number<T: FromStr>(name: &str) -> Option<T> {
+    env::var(name).ok().map(|s| {
         s.parse::<T>()
             .unwrap_or_else(|_| panic!("{name} is a number"))
     })
@@ -263,7 +256,7 @@ fn a_decision_method_answers_as_its_oracle() {
         .expect("the grammar loads");
     let seed = env_number("ORACLE_SEED").unwrap_or(SEED);
     let count = env_number("ORACLE_COUNT").unwrap_or(COUNT);
-    let only = std::env::var("ORACLE_ONLY").ok();
+    let only = env::var("ORACLE_ONLY").ok();
     let methods: Vec<Method> = methods()
         .into_iter()
         .filter(|m| only.as_ref().is_none_or(|o| m.name.contains(o.as_str())))
@@ -295,7 +288,7 @@ fn a_decision_method_answers_as_its_oracle() {
     let tree = Memory::copy(&tree, &["corpus", "proofs", "tests"]).unwrap();
 
     // What the checker says of each, by the lines of its theorem.
-    let checked = parley::checker::run(&tree).printed;
+    let checked = checker::run(&tree).printed;
     let reported = |a: &Asked| -> Vec<String> {
         checked
             .lines()
@@ -318,7 +311,7 @@ fn a_decision_method_answers_as_its_oracle() {
         &asked,
         || (Library::new(Arc::clone(&read)), None::<Loaded>),
         |(lib, loaded): &mut (Library, Option<Loaded>), a| {
-            let run = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let run = panic::catch_unwind(AssertUnwindSafe(|| {
                 let loaded = loaded.get_or_insert_with(|| {
                     Loaded::new(&tree).expect("the tree with the claims reads")
                 });

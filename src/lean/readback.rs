@@ -11,14 +11,16 @@
 //! (`export::unfaithful`). A membership the letter's type already gives is
 //! no statement in Lean, and its arithmetic is not counted.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::expr::Writer;
 use crate::formula::Node;
 use crate::notations::{
-    COSET, DIVIDED, FOR_ALL, FUNCTION_LIMIT, GROUP_OPERATION, MEMBERSHIP, MINUS, PLUS,
-    POWER, SUPERSCRIPT, THERE_IS, TIMES, UNARY_MINUS,
+    CONDITIONAL, COSET, DIVIDED, FOR_ALL, FUNCTION_LIMIT, FUNCTION_TYPE,
+    GROUP_OPERATION, IMPLICATION, MEMBERSHIP, MINUS, PLUS, POWER, REAL_POWER,
+    SUPERSCRIPT, THERE_IS, TIMES, UNARY_MINUS,
 };
+use crate::outcome::Route;
 
 /// The arithmetic the page writes in these sentences, by the name
 /// `export::operation` gives each kind.
@@ -61,12 +63,12 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
     // A function between number systems or on a range, t : {1, …, n + 1}
     // → ℝ, is a Lean function on ℤ, so its statement writes no arithmetic
     // of the range's ends.
-    if node.notation() == crate::notations::FUNCTION_TYPE {
+    if node.notation() == FUNCTION_TYPE {
         return;
     }
     // A membership or a quantifier Lean states as nothing says nothing.
     if matches!(node.notation(), MEMBERSHIP | FOR_ALL | THERE_IS) {
-        if let crate::outcome::Route::Built(p) = writer.formula(node) {
+        if let Route::Built(p) = writer.formula(node) {
             if p.text() == "True" {
                 return;
             }
@@ -96,10 +98,7 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
         Some("multiplication")
     } else if spelling == DIVIDED {
         Some("division")
-    } else if matches!(
-        node.notation(),
-        POWER | SUPERSCRIPT | crate::notations::REAL_POWER
-    ) {
+    } else if matches!(node.notation(), POWER | SUPERSCRIPT | REAL_POWER) {
         Some("power")
     } else if node.notation() == UNARY_MINUS {
         Some("negation")
@@ -108,7 +107,7 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
     };
     if let Some(op) = op {
         *out.entry(op.to_string()).or_insert(0) += 1;
-    } else if let crate::outcome::Route::Built(t) = writer.template(node) {
+    } else if let Route::Built(t) = writer.template(node) {
         // A notation that is no operation but whose Lean form does some, n
         // is perfect as `σ 1 n = 2 * n`: the page's word says that
         // arithmetic, which Lean's statement does.
@@ -143,11 +142,8 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
             return;
         }
     }
-    let guarded = writer.is_and(node)
-        || matches!(
-            node.notation(),
-            crate::notations::IMPLICATION | crate::notations::CONDITIONAL
-        );
+    let guarded =
+        writer.is_and(node) || matches!(node.notation(), IMPLICATION | CONDITIONAL);
     for (i, c) in node.children.iter().enumerate() {
         match guarded && i > 0 {
             true => count(&writer.knowing(&node.children[..i]), c, out),
@@ -170,7 +166,7 @@ pub fn differences(
             out.push(why);
         }
     }
-    let ops: std::collections::BTreeSet<&str> = page
+    let ops: BTreeSet<&str> = page
         .keys()
         .map(String::as_str)
         .chain(lean_counts.keys().copied())

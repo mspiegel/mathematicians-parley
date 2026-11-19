@@ -5,12 +5,11 @@
 
 use super::state::Elaborator;
 use super::Facts;
-use crate::binds;
 use crate::methods::pairs::{Coordinate, PairRelation};
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::Checked;
-use crate::t;
+use crate::{binds, t};
 
 /// ( scope -> x ∈ class ) for one of the left pair's coordinates: what
 /// `opthg` asks of each before it reads two pairs by their parts.

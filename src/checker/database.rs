@@ -4,21 +4,26 @@
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
+use unicode_names2::name as character_name;
 
 use super::library::Known;
 use super::Report;
-use crate::corpus::records::allowed_fields;
+use crate::corpus::records::{
+    allowed_fields, Provided, LEAN_PROOF, METAMATH_PROOF, NOTHING_TO_PROVE, NOT_YET,
+};
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{
     categories_of, holes_in, patterns_of, Grammar, Node, Sorts, TERM_SORTS,
 };
-use crate::regex;
-use crate::sorts::infer;
+use crate::notations::FUNCTION_TYPE;
+use crate::outcome::{Built, Declined};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::sorts::{settled, unlabel, Env};
+use crate::sorts::{infer, settled, unlabel, Env};
+use crate::targets::Commutes;
 use crate::text::{prefix, repr};
+use crate::{regex, targets};
 
 pub fn check_characters(
     report: &mut Report,
@@ -31,7 +36,7 @@ pub fn check_characters(
             if (ch as u32) < 128 || allowed.contains(&ch) {
                 continue;
             }
-            let name = unicode_names2::name(ch)
+            let name = character_name(ch)
                 .map(|n| n.to_string())
                 .unwrap_or_else(|| "unnamed".to_string());
             report.say(
@@ -114,10 +119,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             // Each build says how it proves the item: the library's own
             // statement, a Parley proof, a bridge, `none` where it has
             // nothing to prove, or `not yet implemented`.
-            for (field, build) in [
-                (crate::corpus::records::METAMATH_PROOF, "Metamath"),
-                (crate::corpus::records::LEAN_PROOF, "Lean"),
-            ] {
+            for (field, build) in [(METAMATH_PROOF, "Metamath"), (LEAN_PROOF, "Lean")] {
                 let Some(value) = r.fields.get(field) else {
                     report.say(
                         &r.path,
@@ -132,10 +134,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                 // `none` and `not yet implemented` are the whole value, so
                 // a paragraph that runs on after one, as a note's second
                 // paragraph does, is not read as a proof.
-                for keyword in [
-                    crate::corpus::records::NOTHING_TO_PROVE,
-                    crate::corpus::records::NOT_YET,
-                ] {
+                for keyword in [NOTHING_TO_PROVE, NOT_YET] {
                     let more = value
                         .trim()
                         .strip_prefix(keyword)
@@ -160,10 +159,8 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             // where set.mm has no minimum of its own. A word the readable
             // layer cannot yet state, collinear, states nothing, and its
             // `metamath-proof` says so with `none`.
-            let states_nothing = matches!(
-                r.metamath_provided(),
-                Some(crate::corpus::records::Provided::Nothing)
-            );
+            let states_nothing =
+                matches!(r.metamath_provided(), Some(Provided::Nothing));
             if r.conclusions.is_empty()
                 && !states_nothing
                 && !r.fields.contains_key("defines")
@@ -233,12 +230,12 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                 ),
             ),
             Some(said) => match infer::signature(said) {
-                crate::outcome::Declined(d) => report.say(
+                Declined(d) => report.say(
                     &r.path,
                     r.line,
                     format!("notation {}: sort {}", r.name, d.reason()),
                 ),
-                crate::outcome::Built(made) => want = made.holes(),
+                Built(made) => want = made.holes(),
             },
         }
 
@@ -322,7 +319,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
         // stand in another order: one of the field's three words, or two of
         // the pattern's holes named.
         if r.fields.contains_key("commutes") {
-            let said = crate::targets::commutes_said(r);
+            let said = targets::commutes_said(r);
             if said.len() != patterns.len() {
                 report.say(
                     &r.path,
@@ -347,7 +344,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                 );
             }
             for (p, entry) in patterns.iter().zip(&said) {
-                let Some(crate::targets::Commutes::AnyOrderOf(i, j)) = entry else {
+                let Some(Commutes::AnyOrderOf(i, j)) = entry else {
                     continue;
                 };
                 if i.max(j) >= &holes_in(p) {
@@ -784,7 +781,7 @@ pub fn introduction_problem(
     // for.
     if let Form::Function = introduced.form {
         if let Ok(node) = read(introduction) {
-            if node.notation() != crate::notations::FUNCTION_TYPE {
+            if node.notation() != FUNCTION_TYPE {
                 return Some(format!(
                     "`let {}` says more than a function's type; a property of it follows `be`, as `let f : A → B be one-to-one`",
                     prefix(body, 40)

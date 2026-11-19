@@ -1,11 +1,22 @@
 //! Proof methods: obtaining, blocks and inductions.
 
+use std::collections::BTreeSet;
+use std::mem;
+
 use super::super::doc::forms::Meets;
 use super::super::doc::{forms, LeanType};
 use super::super::tactics as t;
 use super::super::templates::Num;
 use super::*;
-use crate::notations::{POWERSET, SUBSET, THERE_IS_SOME};
+use crate::checker::record::{Block, ObtainedPart};
+use crate::corpus::Opener;
+use crate::formula::symbol::Symbol;
+use crate::matching;
+use crate::matching::Binding;
+use crate::notations::{
+    DISJUNCTION, FOR_ALL, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP, POWERSET, SUBSET,
+    THERE_IS, THERE_IS_SOME,
+};
 use crate::sorts::introduction::{Form, Introduction};
 
 impl<'a> Proof<'a> {
@@ -15,7 +26,7 @@ impl<'a> Proof<'a> {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let used = std::mem::take(&mut *self.said_used.borrow_mut());
+        let used = mem::take(&mut *self.said_used.borrow_mut());
         let step = &self.thm.steps[i];
         self.introduce(step);
         let claimed = match self.claimed(step) {
@@ -47,8 +58,7 @@ impl<'a> Proof<'a> {
             // {1, …, N}.
             let in_set = match node.children.as_slice() {
                 [x, set]
-                    if (node.notation() == crate::notations::MEMBERSHIP
-                        || node.notation() == SUBSET)
+                    if (node.notation() == MEMBERSHIP || node.notation() == SUBSET)
                         && x.is_name()
                         && self.writer.set_members(set).is_some() =>
                 {
@@ -59,10 +69,7 @@ impl<'a> Proof<'a> {
             // A function's fact of mapping one set into another, g : A → B,
             // the `Set.MapsTo` a "there is g : A → B" gives beside g.
             let maps = match node.children.as_slice() {
-                [g, _, _]
-                    if node.notation() == crate::notations::FUNCTION_TYPE
-                        && g.is_name() =>
-                {
+                [g, _, _] if node.notation() == FUNCTION_TYPE && g.is_name() => {
                     Some(g.text.to_string())
                 }
                 _ => None,
@@ -110,28 +117,28 @@ impl<'a> Proof<'a> {
         // A "there is" the sentence says after an "and", u ∈ X and (there
         // are m, n with …): what comes before it, unnamed, and then it.
         while let Some((_, right)) = self.writer.and_sides(said) {
-            if right.notation() != crate::notations::THERE_IS {
+            if right.notation() != THERE_IS {
                 break;
             }
             pattern.push("_".to_string());
             said = right;
         }
         // Each letter the item's "there is" binds, as the step names it.
-        let mut renamed = crate::matching::Binding::new();
+        let mut renamed = Binding::new();
         for obtained in &step.just.obtained {
             let [bound, set, inner] = said.children.as_slice() else {
                 return Route::no(
                     "an obtain of more letters than its \"there is\" binds",
                 );
             };
-            if said.notation() != crate::notations::THERE_IS {
+            if said.notation() != THERE_IS {
                 return Route::no(
                     "an obtain of more letters than its \"there is\" binds",
                 );
             }
             pattern.push(super::super::names::letter(obtained));
             renamed.insert(
-                crate::formula::symbol::Symbol::of(&bound.text),
+                Symbol::of(&bound.text),
                 Node::name(bound.sort.clone(), obtained),
             );
             // Lean writes "there is s ∈ S" with the membership beside s
@@ -149,7 +156,7 @@ impl<'a> Proof<'a> {
                         | super::super::expr::System::NonNegative
                 )
             );
-            let guarded = set.notation() == crate::notations::INTEGER_RANGE
+            let guarded = set.notation() == INTEGER_RANGE
                 || whole
                 || super::super::expr::system_of(set).is_none();
             if guarded {
@@ -179,7 +186,7 @@ impl<'a> Proof<'a> {
                     "an obtain whose sentences are not the parts of its \"there is\"",
                 );
             }
-            let said = crate::matching::substitute_apart_by(
+            let said = matching::substitute_apart_by(
                 said,
                 &renamed,
                 &self.sources.checked.grammar.binders(),
@@ -202,7 +209,7 @@ impl<'a> Proof<'a> {
                 // The part of the "there is" the checker found the sentence
                 // to be (`ObtainedPart::owed`), as Lean states it.
                 let owed = at.and_then(|((place, _, _), _)| {
-                    let found: Vec<&crate::checker::record::ObtainedPart> = self
+                    let found: Vec<&ObtainedPart> = self
                         .rec
                         .obtained_parts
                         .get(&step.just.line)
@@ -581,7 +588,7 @@ impl<'a> Proof<'a> {
                 // says "or".
                 // A "for all" line is read at the letters the cases assume,
                 // as the checker reads it.
-                let mut letters = std::collections::BTreeSet::new();
+                let mut letters = BTreeSet::new();
                 for o in &step.openers {
                     for s in o.body(&self.thm.path).sentences() {
                         if let Some(n) = self.rec.page.get(&s) {
@@ -593,7 +600,7 @@ impl<'a> Proof<'a> {
                     .cited_parts(&step.just.from)
                     .into_iter()
                     .map(|c| self.at_recorded_letter(&c, &letters).unwrap_or(c))
-                    .find(|c| c.node.notation() == crate::notations::DISJUNCTION)
+                    .find(|c| c.node.notation() == DISJUNCTION)
                 else {
                     return Route::no("cases from no line that says \"or\"");
                 };
@@ -691,7 +698,7 @@ impl<'a> Proof<'a> {
                     );
                     // The lines after the case's `by` line open its method's
                     // block: a supposition, or a proof block's lets.
-                    let inner: Vec<crate::corpus::Opener> =
+                    let inner: Vec<Opener> =
                         step.opening(*part).inner.into_iter().cloned().collect();
                     if let Route::Declined(d) = self.open_lines(step, &inner, depth + 2)
                     {
@@ -832,7 +839,7 @@ impl<'a> Proof<'a> {
     pub(super) fn induction(
         &mut self,
         step: &Step,
-        block: &crate::checker::record::Block,
+        block: &Block,
         claimed: &Node,
         parts: &[Option<usize>],
         depth: usize,
@@ -841,7 +848,7 @@ impl<'a> Proof<'a> {
         let [letter, set, body] = claimed.children.as_slice() else {
             return Route::no("an induction whose claim says no \"for all\"");
         };
-        if claimed.notation() != crate::notations::FOR_ALL || !letter.is_name() {
+        if claimed.notation() != FOR_ALL || !letter.is_name() {
             return Route::no("an induction whose claim says no \"for all\"");
         }
         let name = super::super::names::letter(&letter.text);
@@ -909,7 +916,7 @@ impl<'a> Proof<'a> {
                 .and_then(|k| step.parts.get(k))
                 .map(|(m, _)| m.as_str())
                 .unwrap_or("");
-            let openers: Vec<&crate::corpus::Opener> =
+            let openers: Vec<&Opener> =
                 step.openers.iter().filter(|o| o.part == *part).collect();
             match marker {
                 "base" => {
@@ -984,7 +991,7 @@ impl<'a> Proof<'a> {
             // A case proved by its own `proof` block: its lines, other than
             // the induction's letter and hypothesis, are opened as a
             // `proof` block's are.
-            let own: Vec<crate::corpus::Opener> = openers
+            let own: Vec<Opener> = openers
                 .iter()
                 .filter(|o| !o.is_hypothesis)
                 .filter(|o| !self.introduces_letter(o, &letter.text))
@@ -1062,13 +1069,13 @@ impl<'a> Proof<'a> {
     pub(super) fn subset_induction(
         &mut self,
         step: &Step,
-        block: &crate::checker::record::Block,
+        block: &Block,
         claimed: &Node,
         parts: &[Option<usize>],
         depth: usize,
     ) -> Route<()> {
         let spot = Self::step_spot(step);
-        let ([letter, set, body], crate::notations::FOR_ALL) =
+        let ([letter, set, body], FOR_ALL) =
             (claimed.children.as_slice(), claimed.notation())
         else {
             return Route::no("an induction on a set whose claim says no \"for all\"");
@@ -1114,7 +1121,7 @@ impl<'a> Proof<'a> {
                 .and_then(|k| step.parts.get(k))
                 .map(|(m, _)| m.as_str())
                 .unwrap_or("");
-            let openers: Vec<crate::corpus::Opener> = step
+            let openers: Vec<Opener> = step
                 .openers
                 .iter()
                 .filter(|o| o.part == *part)
@@ -1155,7 +1162,7 @@ impl<'a> Proof<'a> {
                 step.line,
                 spot.clone(),
             );
-            let own: Vec<crate::corpus::Opener> = openers
+            let own: Vec<Opener> = openers
                 .into_iter()
                 .filter(|o| !o.is_hypothesis && !self.lets_part_letter(o, &letter.text))
                 .collect();
@@ -1193,11 +1200,7 @@ impl<'a> Proof<'a> {
 
     /// Whether an opening line lets the letter of an induction on parts,
     /// `Y ⊆ X`.
-    pub(super) fn lets_part_letter(
-        &self,
-        o: &crate::corpus::Opener,
-        letter: &str,
-    ) -> bool {
+    pub(super) fn lets_part_letter(&self, o: &Opener, letter: &str) -> bool {
         !o.is_hypothesis
             && self.opener_node(o).is_some_and(|n| {
                 n.notation() == SUBSET
@@ -1242,7 +1245,7 @@ impl<'a> Proof<'a> {
     }
 
     /// What an opening line says, as the checker read it.
-    pub(super) fn opener_node(&self, o: &crate::corpus::Opener) -> Option<Node> {
+    pub(super) fn opener_node(&self, o: &Opener) -> Option<Node> {
         o.body(&self.thm.path)
             .sentences()
             .first()
@@ -1251,11 +1254,7 @@ impl<'a> Proof<'a> {
     }
 
     /// Whether an opening line is the `let` of a letter, the induction's.
-    pub(super) fn introduces_letter(
-        &self,
-        o: &crate::corpus::Opener,
-        letter: &str,
-    ) -> bool {
+    pub(super) fn introduces_letter(&self, o: &Opener, letter: &str) -> bool {
         o.kind == Intro::Let
             && o.body(&self.thm.path)
                 .sentences()
@@ -1273,7 +1272,7 @@ impl<'a> Proof<'a> {
         part: Option<usize>,
         depth: usize,
     ) -> Route<()> {
-        let openers: Vec<crate::corpus::Opener> = step
+        let openers: Vec<Opener> = step
             .openers
             .iter()
             .filter(|o| o.part == part)
@@ -1286,7 +1285,7 @@ impl<'a> Proof<'a> {
     pub(super) fn open_lines(
         &mut self,
         step: &Step,
-        openers: &[crate::corpus::Opener],
+        openers: &[Opener],
         depth: usize,
     ) -> Route<()> {
         let spot = Self::step_spot(step);
@@ -1412,7 +1411,7 @@ impl<'a> Proof<'a> {
                         // `let f : X → Y` between sets: the map and the fact
                         // that it maps X into Y, as "for all f : X → Y" gives
                         // them (`quantified_over_functions`).
-                        if let (crate::notations::FUNCTION_TYPE, [f, from, to]) =
+                        if let (FUNCTION_TYPE, [f, from, to]) =
                             (node.notation(), node.children.as_slice())
                         {
                             if let (true, Some(ty)) =
@@ -1442,9 +1441,7 @@ impl<'a> Proof<'a> {
                         // that it is one, as "for all t ∈ S" gives them.
                         // `let X ⊆ A` likewise gives a set and the fact.
                         if let [t, set] = node.children.as_slice() {
-                            let member = node.notation()
-                                == crate::notations::MEMBERSHIP
-                                && t.is_name();
+                            let member = node.notation() == MEMBERSHIP && t.is_name();
                             let part = node.notation() == SUBSET && t.is_name();
                             let ty = match (member, part) {
                                 (true, _) => {

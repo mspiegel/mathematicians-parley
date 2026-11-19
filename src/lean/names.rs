@@ -10,6 +10,9 @@
 //! is ever one Mathlib's notation reaches for, `abs` or `exp`.
 
 /// One segment, `seven-divides-four-times`, in UpperCamelCase.
+use crate::outcome::Route;
+use crate::text;
+
 fn camel(segment: &str) -> String {
     let mut out = String::new();
     for word in segment.split(['-', '_']) {
@@ -39,19 +42,15 @@ pub const LEAN_BRIDGES: &str = "lean-bridges/";
 /// choose-outside` is `LeanBridges.Counting.choose_outside`, declared in
 /// `corpus/lean-bridges/Counting.lean`. Declines a name that is not a
 /// subject and a lemma under `lean-bridges/`.
-pub fn bridge_of(full: &str) -> crate::outcome::Route<String> {
+pub fn bridge_of(full: &str) -> Route<String> {
     let parts: Option<Vec<&str>> = full
         .strip_prefix(LEAN_BRIDGES)
         .map(|rest| rest.split('/').collect());
     match parts.as_deref() {
         Some([subject, lemma]) if !subject.is_empty() && !lemma.is_empty() => {
-            crate::outcome::Route::Built(format!(
-                "LeanBridges.{}.{}",
-                camel(subject),
-                snake(lemma)
-            ))
+            Route::Built(format!("LeanBridges.{}.{}", camel(subject), snake(lemma)))
         }
-        _ => crate::outcome::Route::no(format!(
+        _ => Route::no(format!(
             "{full} is not a Lean bridge's full name, lean-bridges/<subject>/<lemma>"
         )),
     }
@@ -67,7 +66,7 @@ pub fn path_of_module(module: &str) -> String {
 /// letter is spelt by its English name, as a Metamath label is: φ is
 /// `phi`.
 pub fn snake(name: &str) -> String {
-    let mut out: String = crate::text::spelt_in_ascii(name)
+    let mut out: String = text::spelt_in_ascii(name)
         .chars()
         .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
         .collect();

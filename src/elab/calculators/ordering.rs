@@ -1,5 +1,7 @@
 //! Fractions and inequalities.
 
+use std::mem;
+
 use super::*;
 
 impl<'a> Elaborator<'a> {
@@ -711,7 +713,7 @@ impl<'a> Elaborator<'a> {
         // the step writes that; offered to the membership lookup and to
         // nothing else.
         let known = self.supplied(Some(step), scope, facts)?;
-        let kept = std::mem::replace(&mut self.adding_only, plain);
+        let kept = mem::replace(&mut self.adding_only, plain);
         let found = self.writing(scope, &known, false, |me| {
             let rewritten = me.algebra_rows(step, refs, scope, facts_out, lines_out)?;
             let skip = if plain {

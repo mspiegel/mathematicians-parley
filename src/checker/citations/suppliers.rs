@@ -1,6 +1,11 @@
 //! What supplies an item's hypotheses, and the hypotheses and conclusion checks.
 
+use std::sync::Arc;
+
 use super::*;
+use crate::matching::Meeting;
+use crate::notations::FUNCTIONS_FROM;
+use crate::{citing, matching};
 
 /// Where a fact a citation needs stands, searched in one order for an
 /// item's hypothesis (`Cited::supplied`) and for the side a definition is
@@ -72,7 +77,7 @@ impl<'a> Suppliers<'a> {
         fact: &Node,
         by: &SuppliedBy,
         narrowed: Option<&Narrowed>,
-    ) -> Option<crate::matching::Meeting> {
+    ) -> Option<Meeting> {
         let ctx = &self.library.ctx;
         let none = IndexMap::new();
         let written = match by {
@@ -147,7 +152,7 @@ impl<'a> Suppliers<'a> {
         // A function's membership of the functions from X to Y, which a line
         // says as its type, `g : X → Y` (`supply::typed_into`).
         if let (MEMBERSHIP, [f, set]) = (fact.notation(), fact.children.as_slice()) {
-            if let (crate::notations::FUNCTIONS_FROM, [from, to]) =
+            if let (FUNCTIONS_FROM, [from, to]) =
                 (set.notation(), set.children.as_slice())
             {
                 let typed = page::made_as(
@@ -511,7 +516,7 @@ pub fn searched(
     let parts = known.parts(step, library);
     let key = (
         Rc::as_ptr(&parts) as usize,
-        std::sync::Arc::as_ptr(&groups) as usize,
+        Arc::as_ptr(&groups) as usize,
         how,
     );
     if let Some(found) = known.searches.borrow().get(&key) {
@@ -809,7 +814,7 @@ pub(super) fn maps_applied(
     library: &Library,
     out: &mut Vec<Node>,
 ) {
-    for (at, domain) in crate::matching::map_arguments(node) {
+    for (at, domain) in matching::map_arguments(node) {
         if at.names().iter().all(|n| !bound.iter().any(|b| b == n)) {
             out.push(page::made(library.env.g, IN, vec![at, domain]));
         }
@@ -856,7 +861,7 @@ pub(super) fn map_types_unsaid(
         return Vec::new();
     }
     let parts = known.parts(step, library);
-    let stands = crate::citing::stood_for(&parts, &name, library);
+    let stands = citing::stood_for(&parts, &name, library);
     // A map, or a derivative f′ or f^(n): a function with no type of its
     // own in scope. A rule a binder's letter fills is read otherwise.
     let typeless = |v: &Node| {

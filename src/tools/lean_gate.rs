@@ -15,25 +15,31 @@ use std::path::Path;
 use std::process::Command;
 
 use super::build::lean::{make, Made};
+use crate::checker;
 use crate::lean::export::{Export, STANDARD_AXIOMS};
+use crate::lean::modules::{ModuleTable, TABLE};
 use crate::lean::readback::differences;
 use crate::lean::theorem::Spot;
+use crate::outcome::Problem;
 use crate::said::Said;
 use crate::source::{Disk, Source};
+use std::collections::BTreeSet;
 use std::io::Write;
+use std::process::Stdio;
+use std::sync::{Mutex, PoisonError};
 
 /// The Lean project, under the root of the tree.
 const PROJECT: &str = "lean";
 
 /// One `lake` at a time in the project: two at once contend for the git
 /// lock of its packages, and one fails.
-static LAKE: std::sync::Mutex<()> = std::sync::Mutex::new(());
+static LAKE: Mutex<()> = Mutex::new(());
 
 /// lean4export, as Lake builds it, from the Lean project.
 const EXPORTER: &str = ".lake/packages/lean4export/.lake/build/bin/lean4export";
 
 /// A problem that stops the build, as the gate says it.
-fn refused(problem: crate::outcome::Problem) -> Said {
+fn refused(problem: Problem) -> Said {
     Said {
         printed: String::new(),
         complained: format!("{problem}\n"),
@@ -48,19 +54,15 @@ fn made(source: &dyn Source) -> Result<Made, Said> {
     // the files a fresh build writes.
     match unanswered(&made) {
         None => Ok(made),
-        Some(why) => Err(refused(crate::outcome::Problem::new(
-            crate::lean::modules::TABLE,
-            1,
-            why,
-        ))),
+        Some(why) => Err(refused(Problem::new(TABLE, 1, why))),
     }
 }
 
 /// What the Lean build makes of the tree with the table as it stands,
 /// whether or not the table answers every lookup.
 fn made_as_far_as_the_table(source: &dyn Source) -> Result<Made, Said> {
-    let checked = crate::checker::checked(source)?;
-    let table = crate::lean::modules::ModuleTable::read(source).map_err(refused)?;
+    let checked = checker::checked(source)?;
+    let table = ModuleTable::read(source).map_err(refused)?;
     make(&checked, &table).map_err(refused)
 }
 
@@ -93,7 +95,7 @@ pub fn fresh_in(source: &dyn Source) -> Said {
     // A lookup the table does not answer is a file a fresh build writes
     // otherwise, as one that differs is: said with the rest.
     if let Some(why) = unanswered(&made) {
-        said.complained += &format!("{}:1  {why}\n", crate::lean::modules::TABLE);
+        said.complained += &format!("{}:1  {why}\n", TABLE);
     }
     for (path, text) in &made.files {
         match source.read_text(path) {
@@ -261,15 +263,13 @@ pub fn accepted_edited(source: &dyn Source, edited: &[String]) -> Said {
             said.status = 1;
             continue;
         };
-        let _one = LAKE
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let _one = LAKE.lock().unwrap_or_else(PoisonError::into_inner);
         let checked = Command::new("lake")
             .args(["env", "lean", "--stdin"])
             .current_dir(&project)
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
             .spawn()
             .and_then(|mut child| {
                 if let Some(mut stdin) = child.stdin.take() {
@@ -338,10 +338,7 @@ fn as_built_by_lake(output: &str, file: &str) -> String {
 
 /// The modules refused, with every module that imports one of them, which
 /// Lean could not build either.
-fn with_dependents(
-    mut failed: std::collections::BTreeSet<String>,
-    made: &Made,
-) -> std::collections::BTreeSet<String> {
+fn with_dependents(mut failed: BTreeSet<String>, made: &Made) -> BTreeSet<String> {
     // Each file's module, and the modules the build gave it to import.
     let imports: Vec<(String, Vec<String>)> = made
         .imports
@@ -469,8 +466,7 @@ fn read_back(
         }
     }
     // Each module of a declaration read back, and then the declarations.
-    let modules: std::collections::BTreeSet<&str> =
-        decls.iter().map(|d| module_of_decl(d)).collect();
+    let modules: BTreeSet<&str> = decls.iter().map(|d| module_of_decl(d)).collect();
     // lake runs in the project, so the program is named from there.
     let mut args: Vec<String> = vec!["env".to_string(), EXPORTER.to_string()];
     args.extend(modules.iter().map(|m| m.to_string()));

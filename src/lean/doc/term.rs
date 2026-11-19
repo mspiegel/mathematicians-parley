@@ -1,5 +1,8 @@
 //! Lean terms and propositions as trees.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::mem;
+
 use super::file::Lookup;
 use super::tactic::{Proof, Tactic, TacticRef};
 use crate::lean::templates::Num;
@@ -837,10 +840,7 @@ impl Term {
     /// inside the term is left as it is where a quantifier binds it, and a
     /// binder whose letter a value names is renamed first
     /// (`binders_clear_of`).
-    pub fn substituted(
-        &self,
-        given: &std::collections::BTreeMap<String, Term>,
-    ) -> Term {
+    pub fn substituted(&self, given: &BTreeMap<String, Term>) -> Term {
         let mut out = self.binders_clear_of(given.values());
         out.substitute(given);
         out
@@ -854,7 +854,7 @@ impl Term {
         &self,
         values: impl IntoIterator<Item = &'a Term>,
     ) -> Term {
-        let mut named = std::collections::BTreeSet::new();
+        let mut named = BTreeSet::new();
         for v in values {
             v.free_letters_into(&mut Vec::new(), &mut named);
         }
@@ -870,11 +870,7 @@ impl Term {
 
     /// The letters free in the term: those no binder inside it binds where
     /// they stand, `bound` naming the binders already passed.
-    fn free_letters_into(
-        &self,
-        bound: &mut Vec<String>,
-        out: &mut std::collections::BTreeSet<String>,
-    ) {
+    fn free_letters_into(&self, bound: &mut Vec<String>, out: &mut BTreeSet<String>) {
         let enter = |bound: &mut Vec<String>, letters: &[&String]| {
             bound.extend(letters.iter().map(|l| (*l).clone()));
             letters.len()
@@ -927,7 +923,7 @@ impl Term {
     }
 
     /// Every letter the term names, free or bound.
-    fn letters_into(&self, out: &mut std::collections::BTreeSet<String>) {
+    fn letters_into(&self, out: &mut BTreeSet<String>) {
         for t in self.walk() {
             match &t.kind {
                 TermKind::Letter(l)
@@ -942,11 +938,7 @@ impl Term {
         }
     }
 
-    fn clear_binders(
-        &mut self,
-        named: &std::collections::BTreeSet<String>,
-        used: &mut std::collections::BTreeSet<String>,
-    ) {
+    fn clear_binders(&mut self, named: &BTreeSet<String>, used: &mut BTreeSet<String>) {
         match &mut self.kind {
             TermKind::Quantified {
                 letter,
@@ -1018,7 +1010,7 @@ impl Term {
         }
     }
 
-    fn substitute(&mut self, given: &std::collections::BTreeMap<String, Term>) {
+    fn substitute(&mut self, given: &BTreeMap<String, Term>) {
         if let TermKind::Letter(name) = &self.kind {
             if let Some(value) = given.get(name) {
                 *self = value.clone();
@@ -1074,10 +1066,7 @@ impl Term {
         self.substitute_children(given);
     }
 
-    fn substitute_children(
-        &mut self,
-        given: &std::collections::BTreeMap<String, Term>,
-    ) {
+    fn substitute_children(&mut self, given: &BTreeMap<String, Term>) {
         match &mut self.kind {
             TermKind::By(_)
             | TermKind::Letter(_)
@@ -1206,7 +1195,7 @@ impl Term {
                         if matches!(&head.kind, TermKind::Const(c) if c.name == "Complex.im"))
                 };
                 if imaginary(lhs) && imaginary(rhs) && lhs.text() > rhs.text() {
-                    std::mem::swap(lhs, rhs);
+                    mem::swap(lhs, rhs);
                 }
             }
             _ => {}
@@ -1532,7 +1521,7 @@ impl Term {
 
 /// A letter not among `used`, made from `letter` by priming it, as Lean
 /// writes a renamed bound variable; it joins `used`.
-fn fresh_letter(letter: &str, used: &mut std::collections::BTreeSet<String>) -> String {
+fn fresh_letter(letter: &str, used: &mut BTreeSet<String>) -> String {
     let mut new = format!("{letter}'");
     while used.contains(&new) {
         new.push('\'');

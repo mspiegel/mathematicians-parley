@@ -10,6 +10,7 @@
 //! This reads set.mm, and fails if set.mm cannot be found: a test that
 //! skipped would say green about a thing it had not looked at.
 
+use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -87,7 +88,7 @@ fn numerals_of_any_length_are_computed_with() {
     for (at, (says, proof)) in facts.iter().enumerate() {
         text += &format!("numeral-fact-{at} $p |- {says} $= {} $.\n", proof.text());
     }
-    let setmm_text = std::fs::read_to_string(&setmm).unwrap();
+    let setmm_text = fs::read_to_string(&setmm).unwrap();
     let problems = Verifier::of(&setmm_text).verified(&setmm_text, &text);
     assert!(
         problems.is_empty(),

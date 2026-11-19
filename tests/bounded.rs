@@ -2,6 +2,7 @@
 //! the tree its long form builds, so a line written one way meets an item
 //! written the other.
 
+use std::fs;
 use std::path::Path;
 use std::rc::Rc;
 
@@ -17,7 +18,7 @@ fn read(text: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
 
 fn grammar() -> Rc<Grammar> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
-    let text = std::fs::read_to_string(&path).unwrap();
+    let text = fs::read_to_string(&path).unwrap();
     let records = parse_database("corpus/db/notation.records", &text).unwrap();
     Grammar::load(&records).unwrap()
 }

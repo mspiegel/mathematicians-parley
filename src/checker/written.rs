@@ -7,13 +7,25 @@
 //! written, a letter a define written out binds being one the page as read
 //! does not.
 
+use std::sync::Arc;
+use std::{iter, slice};
+
 use indexmap::IndexMap;
 
-use super::record::CheckedTheorem;
+use super::record::{CheckedTheorem, LinesHold, ShownBy, SuppliedBy, Unfolded};
 use super::CheckedCorpus;
-use crate::corpus::Theorem;
+use crate::citing::finite::{FiniteBy, Making};
+use crate::citing::{finite, number_sets, Group, Introduced, Want};
+use crate::corpus::proof::{Hypothesis, Intro};
+use crate::corpus::{Record, RecordKind, Theorem};
+use crate::formula::node::ByShape;
 use crate::formula::notation_id::NotationId;
+use crate::formula::symbol::Symbol;
 use crate::formula::{Grammar, Node};
+use crate::matching::{Binding, Context, Defined, Definitions, SubstitutionPlaces};
+use crate::notations::{BICONDITIONAL, EQUALS};
+use crate::sorts::introduction::{Form, Introduction};
+use crate::{citing, matching};
 
 /// A phrase a define gives, `c is a counting ahead through k`: its slots
 /// and what it means, from the definition record the define stands for,
@@ -22,7 +34,7 @@ use crate::formula::{Grammar, Node};
 /// its statement the notion, `=` or `↔`, and what it is: a graph is no
 /// structure a backend can name its notions on (`docs/LEAN.md`, "Graphs").
 pub struct Phrase {
-    slots: Vec<crate::formula::symbol::Symbol>,
+    slots: Vec<Symbol>,
     meaning: Node,
     /// The graph the definition's `let` line names, whose letters in the
     /// meaning, the E of deg(x) = |{a ∈ E : x is incident with a}|, are the
@@ -41,13 +53,10 @@ pub struct GraphLetters {
 
 /// The graph a theorem's or a record's `let` lines name; None where none
 /// does.
-pub fn graph_letters(
-    hypotheses: &[crate::corpus::proof::Hypothesis],
-    path: &str,
-) -> Option<GraphLetters> {
+pub fn graph_letters(hypotheses: &[Hypothesis], path: &str) -> Option<GraphLetters> {
     hypotheses
         .iter()
-        .filter(|h| h.kind == crate::corpus::proof::Intro::Let)
+        .filter(|h| h.kind == Intro::Let)
         .find_map(|h| match Introduction::read(h.body(path)).form {
             Form::Graph(line) | Form::GraphListed(line) => Some(GraphLetters {
                 graph: line.graph,
@@ -60,15 +69,13 @@ pub fn graph_letters(
 
 /// Whether a record's statement is written out where it is used: a phrase
 /// a define gives, or a definition of a graph's notion.
-fn written_where_used(r: &crate::corpus::Record) -> bool {
-    r.kind == crate::corpus::RecordKind::Definition
+fn written_where_used(r: &Record) -> bool {
+    r.kind == RecordKind::Definition
         && (r.phrase.is_some() || graph_letters(&r.hypotheses, &r.path).is_some())
 }
 
 /// The graph letters of each record that names a graph, by its full name.
-pub fn record_graphs(
-    records: &[crate::corpus::Record],
-) -> IndexMap<String, GraphLetters> {
+pub fn record_graphs(records: &[Record]) -> IndexMap<String, GraphLetters> {
     records
         .iter()
         .filter_map(|r| {
@@ -120,7 +127,7 @@ fn unfolded_written(
                 body,
             } => {
                 *value = out(value);
-                unfolded_written(std::slice::from_mut(member.as_mut()), out);
+                unfolded_written(slice::from_mut(member.as_mut()), out);
                 unfolded_written(body, out);
             }
         }
@@ -131,18 +138,18 @@ fn unfolded_written(
 /// None where it has none of either, and the record stands as read.
 pub fn written_out(
     checked: &CheckedCorpus,
-    ctx: &crate::matching::Context,
+    ctx: &Context,
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Option<CheckedTheorem> {
     // The file's functions, and the header's of more than one argument,
     // c(j, y), which a backend has no letter of one type for: each written
     // out where it is applied.
-    let several = |d: &crate::matching::Defined| matches!(d, crate::matching::Defined::Rule(r) if r.params.len() > 1);
-    let rules: crate::matching::Definitions = rec
+    let several = |d: &Defined| matches!(d, Defined::Rule(r) if r.params.len() > 1);
+    let rules: Definitions = rec
         .outside
         .iter()
-        .filter(|(_, d)| matches!(d, crate::matching::Defined::Rule(_)))
+        .filter(|(_, d)| matches!(d, Defined::Rule(_)))
         .chain(
             rec.statement_definitions
                 .iter()
@@ -161,12 +168,11 @@ pub fn written_out(
     }
     let graph = graph_letters(&thm.hypotheses, &thm.path);
     let out = |n: &Node| {
-        let n = crate::matching::expand(n, &rules);
+        let n = matching::expand(n, &rules);
         phrases_written(&n, &phrases, &checked.grammar, graph.as_ref(), 8)
     };
-    let binding = |b: &crate::matching::Binding| -> crate::matching::Binding {
-        b.iter().map(|(k, v)| (*k, out(v))).collect()
-    };
+    let binding =
+        |b: &Binding| -> Binding { b.iter().map(|(k, v)| (*k, out(v))).collect() };
     let mut written = rec.clone();
     written.page = super::record::PageReading::new(
         rec.page
@@ -183,7 +189,7 @@ pub fn written_out(
     // m + n}, with the phrases in their terms written as their meanings,
     // as the page's lines are.
     for d in written.statement_definitions.values_mut() {
-        if let crate::matching::Defined::Term(t) = d {
+        if let Defined::Term(t) = d {
             *t = out(t);
         }
     }
@@ -318,20 +324,17 @@ pub fn written_out(
             false => right,
             true => left,
         };
-        let made = crate::matching::put_at_places(&s.start, &s.put.places, now);
+        let made = matching::put_at_places(&s.start, &s.put.places, now);
         let (start, made) = (out(&s.start), out(&made));
         let (left, right) = (out(left), out(right));
-        let put =
-            match crate::matching::substitution_places(&start, &made, &left, &right) {
-                Some(put) => put,
-                None if crate::matching::alike_top(&start, &made, ctx) => {
-                    crate::matching::SubstitutionPlaces {
-                        turned: s.put.turned,
-                        places: Vec::new(),
-                    }
-                }
-                None => return false,
-            };
+        let put = match matching::substitution_places(&start, &made, &left, &right) {
+            Some(put) => put,
+            None if matching::alike_top(&start, &made, ctx) => SubstitutionPlaces {
+                turned: s.put.turned,
+                places: Vec::new(),
+            },
+            None => return false,
+        };
         s.equation = out(&s.equation);
         s.start = start;
         s.put = put;
@@ -421,18 +424,12 @@ pub fn written_out(
 }
 
 /// A tree keyed by its shape, written out.
-fn written_key(
-    key: &crate::formula::node::ByShape,
-    out: &impl Fn(&Node) -> Node,
-) -> crate::formula::node::ByShape {
-    crate::formula::node::ByShape(out(&key.0))
+fn written_key(key: &ByShape, out: &impl Fn(&Node) -> Node) -> ByShape {
+    ByShape(out(&key.0))
 }
 
 /// Why a set is finite, each line and set it names written out.
-fn finite_by_written(
-    why: &crate::citing::finite::FiniteBy,
-    out: &impl Fn(&Node) -> Node,
-) -> crate::citing::finite::FiniteBy {
+fn finite_by_written(why: &FiniteBy, out: &impl Fn(&Node) -> Node) -> FiniteBy {
     let boxed = |w: &FiniteBy| Box::new(finite_by_written(w, out));
     match why {
         FiniteBy::Said(line) => FiniteBy::Said(written_key(line, out)),
@@ -470,12 +467,12 @@ fn finite_by_written(
 }
 
 /// Each item's groups, by its full name (`LibraryReading::groups`).
-pub type Groups = IndexMap<String, Option<std::sync::Arc<Vec<crate::citing::Group>>>>;
+pub type Groups = IndexMap<String, Option<Arc<Vec<Group>>>>;
 
 /// Each phrase the library's phrase defines give, by its notation, read
 /// from the definition records' own groups, for the items that state one.
 pub fn library_phrases(
-    records: &[crate::corpus::Record],
+    records: &[Record],
     groups: &Groups,
 ) -> IndexMap<NotationId, Phrase> {
     let mut out = IndexMap::new();
@@ -498,17 +495,17 @@ pub fn library_phrases(
 /// theorem's page is (`written_out`); `graph` is the graph the item's own
 /// `let` line names.
 pub fn group_written(
-    group: &crate::citing::Group,
+    group: &Group,
     phrases: &IndexMap<NotationId, Phrase>,
     grammar: &Grammar,
     graph: Option<&GraphLetters>,
-) -> crate::citing::Group {
+) -> Group {
     let out = |n: &Node| phrases_written(n, phrases, grammar, graph, 8);
-    crate::citing::Group {
+    Group {
         wants: group
             .wants
             .iter()
-            .map(|w| crate::citing::Want {
+            .map(|w| Want {
                 tree: out(&w.tree),
                 ..w.clone()
             })
@@ -526,8 +523,8 @@ pub fn item_facts(
     groups: &Groups,
     phrases: &IndexMap<NotationId, Phrase>,
     grammar: &Grammar,
-    ctx: &crate::matching::Context,
-    function_types: &IndexMap<String, Vec<crate::citing::Want>>,
+    ctx: &Context,
+    function_types: &IndexMap<String, Vec<Want>>,
     graphs: &IndexMap<String, GraphLetters>,
 ) -> IndexMap<String, Vec<super::record::GroupFacts>> {
     let mut out = IndexMap::new();
@@ -560,38 +557,35 @@ pub fn item_facts(
 /// hypotheses and that sentence; and the systems of the function letters
 /// its function-type lines, `typed`, and hypotheses give a type.
 fn group_facts(
-    group: &crate::citing::Group,
+    group: &Group,
     typed: &[Node],
-    ctx: &crate::matching::Context,
+    ctx: &Context,
 ) -> super::record::GroupFacts {
     let wants: Vec<Node> = group.asked().cloned().collect();
-    let none = crate::citing::Introduced::new();
+    let none = Introduced::new();
     let set_systems = group
         .gives
         .iter()
         .map(|says| {
-            let said: Vec<&Node> = wants.iter().chain(std::iter::once(says)).collect();
-            crate::citing::number_sets::set_letter_systems(&said, &none)
+            let said: Vec<&Node> = wants.iter().chain(iter::once(says)).collect();
+            number_sets::set_letter_systems(&said, &none)
         })
         .collect();
     // A count is at least 1 by the number systems the item's own hypotheses
     // put its letters in, k + 1 of a k ∈ ℕ₀ (`citing::introduction`), and
     // what they bound.
-    let mut letters = crate::citing::Introduced::new();
+    let mut letters = Introduced::new();
     for want in &wants {
-        if let Some((letter, system)) = crate::citing::introduction(want, &letters) {
+        if let Some((letter, system)) = citing::introduction(want, &letters) {
             letters.insert(letter, system);
         }
     }
     let bounds = super::bounds::said_by(&wants, &none, ctx);
     let positive = super::bounds::positive_by(&letters, &bounds, ctx);
-    let finite = crate::citing::finite::said_finite(&wants, &[], &[], &positive);
+    let finite = finite::said_finite(&wants, &[], &[], &positive);
     let lines: Vec<&Node> = typed.iter().chain(&wants).collect();
-    let function_systems = crate::citing::number_sets::function_systems(
-        &lines,
-        &letters,
-        &IndexMap::new(),
-    );
+    let function_systems =
+        number_sets::function_systems(&lines, &letters, &IndexMap::new());
     super::record::GroupFacts {
         bounds,
         finite,
@@ -637,8 +631,8 @@ fn phrase_of(read: &Node, graph: Option<GraphLetters>) -> Option<(NotationId, Ph
     let [phrase, meaning] = read.children.as_slice() else {
         return None;
     };
-    let defines = read.notation() == crate::notations::BICONDITIONAL
-        || (graph.is_some() && read.spelling() == crate::notations::EQUALS);
+    let defines = read.notation() == BICONDITIONAL
+        || (graph.is_some() && read.spelling() == EQUALS);
     if !defines || phrase.is_name() || !phrase.children.iter().all(Node::is_name) {
         return None;
     }
@@ -678,11 +672,8 @@ fn phrases_written(
             {
                 put.insert(slot, value);
             }
-            let at = crate::matching::substitute_apart_by(
-                &p.meaning,
-                &put,
-                &grammar.binders(),
-            );
+            let at =
+                matching::substitute_apart_by(&p.meaning, &put, &grammar.binders());
             return phrases_written(&at, phrases, grammar, graph, depth - 1);
         }
     }
@@ -696,11 +687,6 @@ fn phrases_written(
             .collect(),
     )
 }
-
-use super::record::{LinesHold, ShownBy, SuppliedBy, Unfolded};
-use crate::citing::finite::{FiniteBy, Making};
-use crate::matching::Binding;
-use crate::sorts::introduction::{Form, Introduction};
 
 /// The definition's graph letters the meaning uses, each put as the page's
 /// own graph letter of the same part.

@@ -14,6 +14,7 @@ use super::node::Node;
 use super::notation::{binds_tighter, Notation, Part, Tighter, RAISED_HOLE};
 use super::notation_id::Spelling;
 use super::token::raised;
+use crate::notations::LOGICAL_NOT;
 
 impl Grammar {
     /// The node as page text.
@@ -22,8 +23,7 @@ impl Grammar {
             return node.text.to_string();
         }
         // A negation its record spells as one pattern: `a ≠ b`.
-        if node.notation() == crate::notations::LOGICAL_NOT && node.children.len() == 1
-        {
+        if node.notation() == LOGICAL_NOT && node.children.len() == 1 {
             let inner = &node.children[0];
             if let Some(n) = self.notations.iter().find(|n| {
                 n.folds.is_some() && n.writes(inner) && holes(n) == inner.children.len()

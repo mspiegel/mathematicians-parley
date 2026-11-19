@@ -1,12 +1,20 @@
 //! Terms, orders and rational casts of Lean statements.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use super::super::doc::{
     Arg, BoundForm, LeanType, Op, Quant, Source, Tactic, TacticArg, TermKind,
 };
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::notations::{INTEGER_RANGE, NUMBER_SYSTEMS};
+use crate::checker::record::Narrowed;
+use crate::formula::Whole;
+use crate::matching::{Context, Dropped, Flip, Meeting};
+use crate::methods::terms::Targets;
+use crate::notations::{INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL};
+use crate::rules;
+use crate::rules::{RangeWithin, RANGE_WITHIN};
 
 /// Lean's statement of a "for all" line once each of its leading letters is
 /// given its value (`lean_instance`).
@@ -37,7 +45,7 @@ pub(super) fn lean_instance(
         _ => None,
     };
     let mut at = line.clone();
-    let mut values = std::collections::BTreeMap::new();
+    let mut values = BTreeMap::new();
     for (value, guarded) in given {
         let TermKind::Quantified {
             letter,
@@ -283,7 +291,7 @@ pub(super) fn facing_of_turned(turned: bool) -> Facing {
 /// Mathlib's rewrite that drops an identity element the checker dropped
 /// (`matching::Dropped`): `add_zero` of x + 0, `zero_add` of 0 + x, and so
 /// for the other operations; None for one it has no rewrite of.
-pub(super) fn identity_lemma(d: &crate::matching::Dropped) -> Option<&'static str> {
+pub(super) fn identity_lemma(d: &Dropped) -> Option<&'static str> {
     Some(match (d.literal.as_str(), d.hole) {
         ("+", 0) => "zero_add",
         ("+", 1) => "add_zero",
@@ -493,7 +501,7 @@ pub(super) enum Toward<'s> {
 /// flip's notation has no lemma, or its term does not print.
 pub(super) fn flip_rewrites(
     writer: &super::super::expr::Writer,
-    flips: &[crate::matching::Flip],
+    flips: &[Flip],
     toward: Toward<'_>,
 ) -> Option<Vec<Printed>> {
     let applied = |lemma: &str, args: Vec<Arg>| Printed {
@@ -684,7 +692,7 @@ pub(super) fn turned_to(proof: Printed, from: &Printed, to: &Printed) -> Printed
 /// no swap lemma, a listed set, whose members the writer takes in the
 /// claim's order (`reordered`); a meeting of any other is turned by its
 /// notation's lemmas (`met_proof`).
-pub(super) fn permuted_only_listed(met: &crate::matching::Meeting) -> bool {
+pub(super) fn permuted_only_listed(met: &Meeting) -> bool {
     met.flips.iter().all(|f| !turns_notation(&f.notation))
 }
 
@@ -768,13 +776,13 @@ pub struct Sources<'a> {
     pub templates: &'a Templates,
     /// What each notation is to the methods' decisions, which `algebra`
     /// asks for its multipliers.
-    pub targets: &'a crate::methods::terms::Targets,
+    pub targets: &'a Targets,
     /// Every item a citation may name that has a Lean form, by full name:
     /// the library's records and the corpus's theorems.
     pub items: &'a IndexMap<String, Item>,
     /// What the checker matches terms with, its identity elements among
     /// them, so that a step is read as the checker decided it.
-    pub ctx: &'a crate::matching::Context,
+    pub ctx: &'a Context,
 }
 
 /// The terms a theorem puts in a hole of type ℝ, the A/B of ⌊A/B⌋ (set.mm's
@@ -808,8 +816,8 @@ pub const SET_VALUED: &str = "a function a proof defines whose values are sets";
 pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
     matches!(
         rec.sorts.get(name).and_then(|s| s.full()),
-        Some(crate::formula::Whole::Function(_, to))
-            if matches!(**to, crate::formula::Whole::Set(_))
+        Some(Whole::Function(_, to))
+            if matches!(**to, Whole::Set(_))
     )
 }
 
@@ -818,8 +826,8 @@ pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
 pub fn pair_valued(rec: &CheckedTheorem, name: &str) -> bool {
     matches!(
         rec.sorts.get(name).and_then(|s| s.full()),
-        Some(crate::formula::Whole::Function(_, to))
-            if matches!(**to, crate::formula::Whole::Pair(_, _))
+        Some(Whole::Function(_, to))
+            if matches!(**to, Whole::Pair(_, _))
     )
 }
 
@@ -1142,7 +1150,7 @@ pub(super) fn rat_cast_lemmas(says: &Printed) -> Vec<super::super::doc::Rule> {
         "Rat.cast_intCast",
         "Rat.cast_natCast",
     ];
-    let mut used = std::collections::BTreeSet::new();
+    let mut used = BTreeSet::new();
     for t in says.walk() {
         let lemma = match &t.kind {
             TermKind::Infix { op, rhs, .. } => match op.symbol {
@@ -1688,15 +1696,15 @@ pub(super) fn natural_cast_bounded(statement: &Printed) -> bool {
 /// The row of `rules::RANGE_WITHIN` putting a range that starts at `start`
 /// inside `system`; None where no row does.
 pub(super) fn range_row(
-    system: Option<crate::rules::System>,
+    system: Option<rules::System>,
     start: &Node,
-) -> Option<&'static crate::rules::RangeWithin> {
-    let first = (start.notation() == crate::notations::NUMERAL)
+) -> Option<&'static RangeWithin> {
+    let first = (start.notation() == NUMERAL)
         .then(|| start.text.parse::<u32>().ok())
         .flatten()
-        .and_then(crate::rules::numeral_label);
-    crate::rules::RANGE_WITHIN.iter().find(|row| {
-        crate::rules::System::of_label(row.system) == system
+        .and_then(rules::numeral_label);
+    RANGE_WITHIN.iter().find(|row| {
+        rules::System::of_label(row.system) == system
             && (row.first.is_none() || row.first == first)
     })
 }
@@ -1735,7 +1743,7 @@ pub(super) fn range_bound(
 /// Lean's type gives the membership. None where the range starts at no
 /// numeral, or no row relates the two sets.
 pub(super) fn narrowed_proof(
-    n: &crate::checker::record::Narrowed,
+    n: &Narrowed,
     proof: Printed,
     wanted: &Printed,
 ) -> Option<Printed> {
@@ -1755,7 +1763,7 @@ pub(super) fn narrowed_proof(
     ) else {
         return None;
     };
-    let row = range_row(crate::rules::System::of_sign(&n.from.text), start)?;
+    let row = range_row(rules::System::of_sign(&n.from.text), start)?;
     let h = format!("h_{letter}");
     let at = applied_to(proof, Printed::letter(letter, letter_ty.clone()));
     let (letters, body) = match row.lean {
@@ -1843,10 +1851,7 @@ pub(super) fn number_member(statement: &Printed) -> Option<Witnessed> {
     }
     let number = bare_term(rhs).clone();
     Some(Witnessed {
-        asked: asked.substituted(&std::collections::BTreeMap::from([(
-            letter.clone(),
-            number.clone(),
-        )])),
+        asked: asked.substituted(&BTreeMap::from([(letter.clone(), number.clone())])),
         witness: number,
     })
 }
@@ -1873,10 +1878,7 @@ pub(super) fn member_named(wanted: &Printed, says: &Printed) -> Option<Witnessed
     }
     let witness = bare_term(lhs).clone();
     Some(Witnessed {
-        asked: guard.substituted(&std::collections::BTreeMap::from([(
-            letter.clone(),
-            witness.clone(),
-        )])),
+        asked: guard.substituted(&BTreeMap::from([(letter.clone(), witness.clone())])),
         witness,
     })
 }

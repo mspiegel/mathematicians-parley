@@ -8,6 +8,12 @@
 //! constructors in `mm::spell`, and each file is written to
 //! `corpus/elaboration/<name>.mm`.
 
+pub(crate) mod abs_bounds;
+pub(crate) mod algebra;
+pub(crate) mod parity;
+pub(crate) mod sqrt2;
+pub(crate) mod sum_formula;
+
 use crate::mm::Spell;
 
 /// What a hand-written step is put together from: a label, a constant, or
@@ -15,12 +21,6 @@ use crate::mm::Spell;
 pub trait Part: Spell + Copy {}
 
 impl<T: Spell + Copy> Part for T {}
-
-pub(crate) mod abs_bounds;
-pub(crate) mod algebra;
-pub(crate) mod parity;
-pub(crate) mod sqrt2;
-pub(crate) mod sum_formula;
 
 /// One comparison file: the name it is written under, and its text.
 pub struct Comparison {

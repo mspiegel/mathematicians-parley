@@ -15,15 +15,17 @@ use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
+use rustc_hash::FxBuildHasher;
 
-use crate::corpus::{Record, RecordKind};
+use crate::corpus::{Param, Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Binds, ByShape, Node, NodeId, Notation};
 use crate::notations::{
-    APPLICATION, APPLICATION_TO_TWO, MAP, MAP_OF_TWO, NUMERAL, PROPERTY_OF,
+    APPLICATION, APPLICATION_TO_TWO, MAP, MAP_OF_TWO, NAME, NUMERAL, PROPERTY_OF,
 };
-use crate::regex;
+use crate::targets::Commutes;
+use crate::{regex, targets};
 
 /// Split on the commas outside brackets.
 pub fn split_commas(text: &str) -> Vec<&str> {
@@ -93,8 +95,8 @@ pub struct Context {
 /// The maps every match and comparison looks a notation up in, at each
 /// node: hashed by `FxHash`, for short keys the program makes itself and no
 /// one chooses to collide, where the default hasher guards against that.
-pub type FxIndexMap<K, V> = IndexMap<K, V, rustc_hash::FxBuildHasher>;
-pub type FxIndexSet<K> = IndexSet<K, rustc_hash::FxBuildHasher>;
+pub type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
+pub type FxIndexSet<K> = IndexSet<K, FxBuildHasher>;
 
 /// The notations of these names, as ids.
 /// The notations whose holes stand in no order (`commutes any order`), by
@@ -137,12 +139,12 @@ fn identities(
         };
         let patterns: Vec<&Notation> =
             notations.iter().filter(|n| n.name == r.name).collect();
-        let says = crate::targets::split_entries(says);
+        let says = targets::split_entries(says);
         if says.len() != patterns.len() {
             continue;
         }
         for (pattern, said) in patterns.iter().zip(says) {
-            let Some((element, holes)) = crate::targets::identity_said(said) else {
+            let Some((element, holes)) = targets::identity_said(said) else {
                 continue;
             };
             out.insert(
@@ -164,10 +166,7 @@ fn unordered(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| r.kind == RecordKind::Notation)
-        .filter(|r| {
-            crate::targets::commutes_said(r)
-                .contains(&Some(crate::targets::Commutes::AnyOrder))
-        })
+        .filter(|r| targets::commutes_said(r).contains(&Some(Commutes::AnyOrder)))
         .map(|r| r.name.clone())
         .collect()
 }
@@ -178,12 +177,10 @@ fn unordered(records: &[Record]) -> IndexSet<String> {
 fn unordered_pairs(records: &[Record]) -> FxIndexMap<NotationId, (usize, usize)> {
     let mut out = FxIndexMap::default();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
-        let pair = crate::targets::commutes_said(r)
-            .into_iter()
-            .find_map(|c| match c {
-                Some(crate::targets::Commutes::AnyOrderOf(i, j)) => Some((i, j)),
-                _ => None,
-            });
+        let pair = targets::commutes_said(r).into_iter().find_map(|c| match c {
+            Some(Commutes::AnyOrderOf(i, j)) => Some((i, j)),
+            _ => None,
+        });
         if let Some(pair) = pair {
             out.insert(NotationId::of(&r.name), pair);
         }
@@ -2316,7 +2313,7 @@ fn family(
 pub struct Rule {
     /// The arguments, in the order the name takes them, each with its
     /// domain.
-    pub params: Vec<crate::corpus::Param>,
+    pub params: Vec<Param>,
     /// The same arguments read where the define is written: each name with
     /// the sort its domain gives it, and the domain.
     pub read: Vec<ParamRead>,
@@ -2508,7 +2505,7 @@ pub fn substitute_apart_by(
     binding: &Binding,
     binders: &FxIndexMap<NotationId, Binds>,
 ) -> Node {
-    if node.notation() == crate::notations::NAME || node.notation() == NUMERAL {
+    if node.notation() == NAME || node.notation() == NUMERAL {
         return binding
             .get(&node.text)
             .cloned()

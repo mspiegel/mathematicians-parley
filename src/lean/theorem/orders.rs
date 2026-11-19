@@ -1,17 +1,30 @@
 //! Proof methods: chains, orders and instantiation.
 
+use std::collections::BTreeMap;
+use std::{cmp, iter, ptr};
+
 use super::super::doc::{forms, CountForm, LeanType, Source, TermKind};
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::{OrderFact, Weakened};
+use crate::checker::record::{
+    AppliedDomain, DomainSaid, Instantiated, OrderFact, OrderPart, Weakened,
+};
+use crate::citing::{bounds, finite, Implication};
+use crate::corpus::{DefineParts, RuleText};
+use crate::formula::node::ByShape;
+use crate::formula::symbol::Symbol;
+use crate::formula::{page, Sort};
+use crate::matching::Binding;
+use crate::notations::{
+    APPLICATION, CARDINALITY, EQUALS, FOR_ALL, FOR_ALL_SETS, FUNCTIONS_FROM,
+    INTEGER_RANGE, SET_BUILDER,
+};
+use crate::{corpus, matching};
 
 impl<'a> Proof<'a> {
     /// The sentence of a line in scope that is `line`, by its tree.
-    pub(super) fn line_node(
-        &self,
-        line: &crate::formula::node::ByShape,
-    ) -> Option<&Node> {
+    pub(super) fn line_node(&self, line: &ByShape) -> Option<&Node> {
         self.line_sentence(line).map(|s| &s.node)
     }
 
@@ -31,7 +44,7 @@ impl<'a> Proof<'a> {
             let [_, over, _] = set.children.as_slice() else {
                 return None;
             };
-            if set.notation() != crate::notations::SET_BUILDER {
+            if set.notation() != SET_BUILDER {
                 return None;
             }
             let whole = self.finite_proof(over)?;
@@ -113,18 +126,12 @@ impl<'a> Proof<'a> {
 
     /// The proof of the sentence of a line in scope that is `line`, by its
     /// tree: its name, or the projection that takes it.
-    pub(super) fn line_saying(
-        &self,
-        line: &crate::formula::node::ByShape,
-    ) -> Option<Printed> {
+    pub(super) fn line_saying(&self, line: &ByShape) -> Option<Printed> {
         self.line_sentence(line).map(|s| s.proof.clone())
     }
 
     /// The sentence of a line in scope that is `line`, by its tree.
-    pub(super) fn line_sentence(
-        &self,
-        line: &crate::formula::node::ByShape,
-    ) -> Option<&LineSentence> {
+    pub(super) fn line_sentence(&self, line: &ByShape) -> Option<&LineSentence> {
         self.trees
             .values()
             .flatten()
@@ -199,7 +206,7 @@ impl<'a> Proof<'a> {
         }
         for f in &facts {
             if let (Some(t), w) = (number_type(&f.says), widest) {
-                widest = Some(w.map_or(t, |w| std::cmp::max(t, w)));
+                widest = Some(w.map_or(t, |w| cmp::max(t, w)));
             }
         }
         // A chain the checker met only with identity elements dropped, `n·1`
@@ -420,7 +427,7 @@ impl<'a> Proof<'a> {
     pub(super) fn order_joined<'p>(
         &self,
         node: &Node,
-        parts: &mut impl Iterator<Item = &'p crate::checker::record::OrderPart>,
+        parts: &mut impl Iterator<Item = &'p OrderPart>,
         w: &Writer,
     ) -> Route<super::super::doc::Proof> {
         let Some((left, right)) = w.and_sides(node) else {
@@ -455,7 +462,7 @@ impl<'a> Proof<'a> {
     /// taken down by `exact_mod_cast`.
     pub(super) fn order_part(
         &self,
-        part: &crate::checker::record::OrderPart,
+        part: &OrderPart,
         node: &Node,
         w: &Writer,
     ) -> Route<super::super::doc::Proof> {
@@ -567,7 +574,7 @@ impl<'a> Proof<'a> {
             }
         }
         let widened = |f: OrderFactTerm| self.fact_in_type(f, widest, w);
-        let stated: Vec<&Printed> = std::iter::once(&wanted)
+        let stated: Vec<&Printed> = iter::once(&wanted)
             .chain(facts.iter().chain(&split).map(|f| &f.says))
             .collect();
         let ties = reciprocals(&stated);
@@ -672,7 +679,7 @@ impl<'a> Proof<'a> {
     /// (`OrderFact`): the term that proves it, and what Lean states it as.
     pub(super) fn order_fact(
         &self,
-        fact: &crate::checker::record::OrderFact,
+        fact: &OrderFact,
         w: &Writer,
     ) -> Route<OrderFactTerm> {
         let (proof, says, node) = match fact {
@@ -772,7 +779,7 @@ impl<'a> Proof<'a> {
                         "a member's fact where the claim opens no one member",
                     );
                 };
-                let crate::citing::Implication::SystemFact { lemma } = implied else {
+                let Implication::SystemFact { lemma } = implied else {
                     return Route::no("a member's fact other than its system's bound");
                 };
                 let proof = match system_fact_field(lemma) {
@@ -823,7 +830,7 @@ impl<'a> Proof<'a> {
         let Some(step) = self.step_now.get().map(|i| &self.thm.steps[i]) else {
             return Route::no("a define an order step adds outside a step");
         };
-        let at: Vec<&crate::checker::record::AppliedDomain> = self
+        let at: Vec<&AppliedDomain> = self
             .rec
             .applied_domains
             .get(&step.just.line)
@@ -863,8 +870,7 @@ impl<'a> Proof<'a> {
         };
         // The body past the guard, `q a = a + 1`: the quantifier holds the
         // guard apart from it.
-        let statement = body
-            .substituted(&std::collections::BTreeMap::from([(letter.clone(), arg)]));
+        let statement = body.substituted(&BTreeMap::from([(letter.clone(), arg)]));
         let domain = match self.domain_proof(&applied.said, None) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
@@ -907,7 +913,7 @@ impl<'a> Proof<'a> {
             let Some(hyp) = self.header_function_named(label) else {
                 continue;
             };
-            let at: Vec<&crate::checker::record::AppliedDomain> = self
+            let at: Vec<&AppliedDomain> = self
                 .rec
                 .applied_domains
                 .get(&just.line)
@@ -926,7 +932,7 @@ impl<'a> Proof<'a> {
                 // the equation at its index, whose range the record found
                 // inside the domain, `Finset.sum_congr rfl (by intro k h;
                 // exact hD1 k (…))`, k's fact from its place in the range.
-                if let crate::checker::record::DomainSaid::SumRange = applied.said {
+                if let DomainSaid::SumRange = applied.said {
                     out.push(HeaderApplied {
                         define: define.clone(),
                         equation: sum_term_by_term(&hyp, &applied.arg.text),
@@ -954,15 +960,13 @@ impl<'a> Proof<'a> {
     /// reads them, its equation the binder `hyp`.
     fn header_define(&self, label: &str, hyp: &str) -> Option<CitedDefine> {
         let d = self.thm.defines.iter().find(|d| d.label == label)?;
-        let Route::Built(crate::corpus::DefineParts::One(def)) =
-            crate::corpus::define_parts(&d.text)
-        else {
+        let Route::Built(DefineParts::One(def)) = corpus::define_parts(&d.text) else {
             return None;
         };
         let [param] = def.params.as_slice() else {
             return None;
         };
-        let crate::corpus::RuleText::Term(body_text) = &def.body else {
+        let RuleText::Term(body_text) = &def.body else {
             return None;
         };
         let body = self
@@ -972,7 +976,7 @@ impl<'a> Proof<'a> {
             .find(|(key, _)| key.line == d.line && key.text == *body_text)
             .map(|(_, node)| node)?;
         Some(CitedDefine {
-            name: Node::name(crate::formula::Sort::none(), &def.name),
+            name: Node::name(Sort::none(), &def.name),
             value: body.clone(),
             proof: hyp.to_string(),
             param: Some(param.name.clone()),
@@ -985,15 +989,13 @@ impl<'a> Proof<'a> {
     /// where the define or the application reads on no line of the page.
     fn header_equation_node(&self, label: &str, arg: &Node) -> Option<Node> {
         let d = self.thm.defines.iter().find(|d| d.label == label)?;
-        let Route::Built(crate::corpus::DefineParts::One(def)) =
-            crate::corpus::define_parts(&d.text)
-        else {
+        let Route::Built(DefineParts::One(def)) = corpus::define_parts(&d.text) else {
             return None;
         };
         let [param] = def.params.as_slice() else {
             return None;
         };
-        let crate::corpus::RuleText::Term(body_text) = &def.body else {
+        let RuleText::Term(body_text) = &def.body else {
             return None;
         };
         let body = self
@@ -1006,23 +1008,20 @@ impl<'a> Proof<'a> {
             node.walk().into_iter().find(|n| {
                 matches!(
                     (n.notation(), n.children.as_slice()),
-                    (crate::notations::APPLICATION, [f, a])
+                    (APPLICATION, [f, a])
                         if f.is_name() && *f.text == def.name && a.spelt_alike(arg)
                 )
             })
         })?;
-        let put = crate::matching::Binding::from([(
-            crate::formula::symbol::Symbol::of(&param.name),
-            arg.clone(),
-        )]);
-        let rule = crate::matching::substitute_apart_by(
+        let put = Binding::from([(Symbol::of(&param.name), arg.clone())]);
+        let rule = matching::substitute_apart_by(
             body,
             &put,
             &self.sources.checked.grammar.binders(),
         );
-        Some(crate::formula::page::made(
+        Some(page::made(
             self.writer.grammar,
-            crate::notations::EQUALS,
+            EQUALS,
             vec![application.clone(), rule],
         ))
     }
@@ -1073,7 +1072,7 @@ impl<'a> Proof<'a> {
         }
         // a = b = c: its links, each a part, as the checker reads a chain
         // (`page::chain_links`) and the writer joins them.
-        if let Some(links) = crate::formula::page::chain_links(w.grammar, node) {
+        if let Some(links) = page::chain_links(w.grammar, node) {
             let mut items = Vec::new();
             for link in &links {
                 match self.joined_term(link, parts, w) {
@@ -1088,11 +1087,9 @@ impl<'a> Proof<'a> {
         };
         // The part as the step's line states it, a count it gives as a
         // number at least 1 vouching for its own set (`claimed_all`).
-        let positive =
-            |n: &Node| crate::citing::bounds::least(w, n).is_some_and(|l| l >= 1);
+        let positive = |n: &Node| bounds::least(w, n).is_some_and(|l| l >= 1);
         let mut w = w.with_letters(w.letters.clone());
-        for (set, why) in crate::citing::finite::finite_sets_vouched([node], &positive)
-        {
+        for (set, why) in finite::finite_sets_vouched([node], &positive) {
             w.finite.entry(set).or_insert(why);
         }
         let wanted = match w.formula(node) {
@@ -1120,11 +1117,11 @@ impl<'a> Proof<'a> {
             let counted: Option<Vec<ShownFinite>> = node
                 .walk()
                 .iter()
-                .filter(|n| n.notation() == crate::notations::CARDINALITY)
+                .filter(|n| n.notation() == CARDINALITY)
                 .filter_map(|n| n.children.first())
                 .filter(|set| self.writer.set_term(set).built().is_some())
                 .map(|set| {
-                    let why = crate::citing::finite::finite_by(&w.finite, set)?;
+                    let why = finite::finite_by(&w.finite, set)?;
                     Some(ShownFinite {
                         set: self.writer.set_term(set).built()?,
                         proof: self.proof_of_finite(&why, set)?,
@@ -1258,12 +1255,9 @@ impl<'a> Proof<'a> {
         let mut given: Vec<(Printed, bool)> = Vec::new();
         let mut args: Vec<Printed> = Vec::new();
         // The values as the page gives them, each to its letter.
-        let mut binding = crate::matching::Binding::new();
+        let mut binding = Binding::new();
         let mut body = line;
-        while matches!(
-            body.notation(),
-            crate::notations::FOR_ALL | crate::notations::FOR_ALL_SETS
-        ) {
+        while matches!(body.notation(), FOR_ALL | FOR_ALL_SETS) {
             // For all sets X: the set given it, `∀ X : Set α` taking no
             // guard after it.
             if let [letter, inner] = body.children.as_slice() {
@@ -1283,7 +1277,7 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                binding.insert(crate::formula::symbol::Symbol::of(&letter.text), value);
+                binding.insert(Symbol::of(&letter.text), value);
                 body = inner;
                 continue;
             }
@@ -1301,12 +1295,12 @@ impl<'a> Proof<'a> {
                 None => {
                     // The names the line writes free: a letter it binds
                     // itself, as the block's may be named, is not one.
-                    let own = crate::matching::free_names(
+                    let own = matching::free_names(
                         line,
                         &self.sources.checked.grammar.binders(),
                     );
                     // A range's letter is an integer.
-                    let ty = if set.notation() == crate::notations::INTEGER_RANGE {
+                    let ty = if set.notation() == INTEGER_RANGE {
                         Some(super::super::templates::Num::Int)
                     } else {
                         super::super::expr::system_of(set)
@@ -1337,7 +1331,7 @@ impl<'a> Proof<'a> {
                     // A claim that is itself a "for all" keeps the letters
                     // given no value: the line is read at those given.
                     let [at] = at.as_slice() else {
-                        if node.notation() == crate::notations::FOR_ALL {
+                        if node.notation() == FOR_ALL {
                             break;
                         }
                         return Route::no(format!("no value for {}", letter.text));
@@ -1345,10 +1339,7 @@ impl<'a> Proof<'a> {
                     Node::name(letter.sort.clone(), at)
                 }
             };
-            binding.insert(
-                crate::formula::symbol::Symbol::of(&letter.text),
-                value.clone(),
-            );
+            binding.insert(Symbol::of(&letter.text), value.clone());
             // A member of a set: the value, and that it is in the set.
             if let Some(members) = writer.members_of(set) {
                 match writer.element_term(&value, &members) {
@@ -1368,7 +1359,7 @@ impl<'a> Proof<'a> {
             }
             // A function or map between sets: it, and that it maps the one
             // into the other.
-            if let (crate::notations::FUNCTIONS_FROM, [from, to]) =
+            if let (FUNCTIONS_FROM, [from, to]) =
                 (set.notation(), set.children.as_slice())
             {
                 match self.function_given(writer, &value, from, to) {
@@ -1386,7 +1377,7 @@ impl<'a> Proof<'a> {
                 body = inner;
                 continue;
             }
-            let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
+            let (ty, guarded) = if set.notation() == INTEGER_RANGE {
                 (super::super::templates::Num::Int, true)
             } else {
                 match super::super::expr::system_of(set) {
@@ -1535,7 +1526,7 @@ impl<'a> Proof<'a> {
         instance: Route<Printed>,
         written: Option<Printed>,
         page: Option<&Node>,
-        recorded: &crate::checker::record::Instantiated,
+        recorded: &Instantiated,
     ) -> Route<super::super::doc::Proof> {
         let lean = match (&instance, claim.clone()) {
             (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
@@ -2005,7 +1996,7 @@ impl<'a> Proof<'a> {
         let bodies: Vec<&Node> = read
             .iter()
             .copied()
-            .filter(|n| !std::ptr::eq(*n, domain) && !argument(n))
+            .filter(|n| !ptr::eq(*n, domain) && !argument(n))
             .collect();
         // A value that is the argument itself, f(n) = n, is read once with it.
         let identity = read.iter().copied().find(|n| argument(n));
@@ -2042,8 +2033,7 @@ impl<'a> Proof<'a> {
             .defines
             .iter()
             .find(|d| d.label == label && d.line > self.thm.conclusion_line)?;
-        let Route::Built(crate::corpus::DefineParts::One(def)) =
-            crate::corpus::define_parts(&line.text)
+        let Route::Built(DefineParts::One(def)) = corpus::define_parts(&line.text)
         else {
             return None;
         };
@@ -2053,7 +2043,7 @@ impl<'a> Proof<'a> {
         let body = self.function_read(line.line, &param.name).built()?.body;
         let proof = self.named.get(label)?.first()?.clone();
         Some(CitedDefine {
-            name: Node::name(crate::formula::Sort::none(), &def.name),
+            name: Node::name(Sort::none(), &def.name),
             value: body,
             proof,
             param: Some(param.name.clone()),
@@ -2066,16 +2056,11 @@ impl<'a> Proof<'a> {
         let Some(param) = &d.param else {
             return put_for(node, &d.name, &d.value);
         };
-        if let (crate::notations::APPLICATION, [f, a]) =
-            (node.notation(), node.children.as_slice())
-        {
+        if let (APPLICATION, [f, a]) = (node.notation(), node.children.as_slice()) {
             if f.is_name() && f.text == d.name.text {
                 let a = self.put_define(a, d);
-                let put = crate::matching::Binding::from([(
-                    crate::formula::symbol::Symbol::of(param),
-                    a,
-                )]);
-                return crate::matching::substitute_apart_by(
+                let put = Binding::from([(Symbol::of(param), a)]);
+                return matching::substitute_apart_by(
                     &d.value,
                     &put,
                     &self.sources.checked.grammar.binders(),

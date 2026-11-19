@@ -29,7 +29,7 @@ use std::time::Instant;
 use annotate_snippets::Renderer;
 use metamath_rs::database::DbOptions;
 use metamath_rs::Database;
-use regex::Regex;
+use regex::{escape, Regex};
 
 use crate::said::Said;
 use crate::source::Source;
@@ -310,8 +310,7 @@ fn joined(texts: &[(String, String)], roots: &[String]) -> Joined {
 /// the margin of the text it quotes.
 fn placed(problem: &str, starts: &[(usize, String)]) -> String {
     static AT: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(&format!(r"{}:(\d+)", regex::escape(JOINED)))
-            .expect("a valid pattern")
+        Regex::new(&format!(r"{}:(\d+)", escape(JOINED))).expect("a valid pattern")
     });
     static MARGIN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?m)^(\s*)(\d+)( \|)").expect("a valid pattern"));

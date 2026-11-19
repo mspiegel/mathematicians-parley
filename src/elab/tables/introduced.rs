@@ -1,6 +1,7 @@
 //! Introduced memberships, intervals and function values.
 
 use super::*;
+use crate::citing;
 
 impl<'a> Elaborator<'a> {
     /// `said ∈ system` as the page says it once (`READERS.md`, membership said
@@ -39,7 +40,7 @@ impl<'a> Elaborator<'a> {
             facts,
             problem: None,
         };
-        let reason = crate::citing::reason(&mut ask, &term, within);
+        let reason = citing::reason(&mut ask, &term, within);
         if let Some(problem) = ask.problem {
             return Err(problem);
         }
@@ -258,8 +259,7 @@ impl<'a> Elaborator<'a> {
         }
         for given in declared {
             let ask = KernelCodomains { parts: &parts };
-            let Some(reason) = crate::citing::codomain_reason(&ask, &given, &codomain)
-            else {
+            let Some(reason) = citing::codomain_reason(&ask, &given, &codomain) else {
                 continue;
             };
             let Some(typed) =

@@ -16,6 +16,15 @@
 //! What is not expanded is stated at the head of the file it writes: a
 //! closure method, or an item the database gives no target for.
 
+mod chains;
+mod cited_items;
+mod cites;
+mod corpus;
+mod defines;
+mod library;
+mod running;
+mod unfolds;
+
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -24,7 +33,6 @@ use std::sync::Arc;
 use indexmap::IndexMap;
 
 use super::field::{self, Verdict};
-use super::linear;
 use super::matcher::{conjuncts_of, ChainLink};
 use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
@@ -34,8 +42,7 @@ use super::state::{
     PartEnd, ProvedClaim, Vars,
 };
 use super::tables::Leaf;
-use super::{Facts, Line, Lines};
-use crate::binds;
+use super::{linear, Facts, Line, Lines};
 use crate::checker::record::{
     CheckedTheorem, Cited, FirstAt, LibraryReading, SuppliedBy,
 };
@@ -43,10 +50,9 @@ use crate::citing::{self, filled};
 use crate::corpus::proof::{
     chain, requires_as_step, substitute_rows, ChainLine, Head, Justification, Requires,
 };
-use crate::corpus::Method;
 use crate::corpus::{
-    define_parts, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step, Theorem,
-    Value,
+    define_parts, Corpus, DefineParts, Hypothesis, Intro, Item, Method, Record, Step,
+    Theorem, Value,
 };
 use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
@@ -57,8 +63,7 @@ use crate::mm::compress::{compressed, labels as compress_labels, shapes_of};
 use crate::mm::kernel::{Syntax, Term};
 use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
-use crate::mm::Rpn;
-use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
+use crate::mm::{Kind, Layered, Lookup, Rpn, Signature, Signatures};
 use crate::notations::{
     COMMA_CONJUNCTION, CONJUNCTION, EQUAL_CHAIN, EXISTS, FUNCTION_TYPE, IS_A_POINT,
     MEMBERSHIP,
@@ -66,21 +71,13 @@ use crate::notations::{
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
-use crate::targets;
 use crate::text::repr;
-use crate::{pf, t, take};
-
-mod chains;
-mod cited_items;
-mod cites;
-mod corpus;
-mod defines;
-mod library;
-mod running;
-mod unfolds;
+use crate::{binds, pf, t, take, targets};
 
 use self::library::*;
 pub use self::library::{Elaborated, Library, Options, ReadLibrary};
+use crate::corpus::proof;
+use crate::text;
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
@@ -157,7 +154,7 @@ pub fn label_of(
     path: &str,
     line: usize,
 ) -> Checked<String> {
-    let label = crate::text::spelt_in_ascii(&name.replace('/', "."));
+    let label = text::spelt_in_ascii(&name.replace('/', "."));
     let allowed = |c: char| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.');
     if !label.chars().all(allowed) {
         return Err(Problem::new(
@@ -298,7 +295,7 @@ fn rested_first(cited: &[String], corpus: &Corpus) -> Vec<String> {
             return;
         }
         if let Some(thm) = corpus.theorems.iter().find(|t| t.qualified() == name) {
-            for (other, _) in crate::corpus::proof::cited_items(thm) {
+            for (other, _) in proof::cited_items(thm) {
                 visit(&other, cited, corpus, seen, out);
             }
         }
@@ -374,7 +371,7 @@ pub fn elaborate(
     let mut out = String::new();
     out.push_str(&format!(
         "$( {}, elaborated from {} by parley build.\n",
-        crate::text::spelt_in_ascii(&thm.qualified()),
+        text::spelt_in_ascii(&thm.qualified()),
         thm.path
     ));
     // A line no route builds stops the build, so every file says this.
@@ -400,10 +397,7 @@ pub fn elaborate(
     // rejects the proof ("Step used before definition"), so each comes after
     // the cited theorems it rests on, however it reaches them.
     for name in rested_first(&work.cited, corpus) {
-        out.push_str(&format!(
-            "$[ {}.mm $]\n",
-            crate::text::spelt_in_ascii(&name)
-        ));
+        out.push_str(&format!("$[ {}.mm $]\n", text::spelt_in_ascii(&name)));
     }
     if work.cited.is_empty() && !wants {
         out.push_str("$[ stdlib/definitions.mm $]\n");

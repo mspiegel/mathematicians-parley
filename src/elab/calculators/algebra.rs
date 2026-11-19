@@ -1,6 +1,9 @@
 //! Algebra, fields and what is apart from zero.
 
+use std::mem;
+
 use super::*;
+use crate::methods::algebra::apart_at;
 
 impl<'a> Elaborator<'a> {
     pub(super) fn ask<'s>(&'s mut self, spec: &'s Spec) -> Ask<'s, 'a> {
@@ -45,7 +48,7 @@ impl<'a> Elaborator<'a> {
             // well as from the ones handed down, a membership of an atom
             // among them, so the bare lines stand there while they are
             // decided.
-            let kept = std::mem::replace(&mut self.lines, bare.lines.clone());
+            let kept = mem::replace(&mut self.lines, bare.lines.clone());
             let decided = self.field_either_way(
                 step,
                 &bare.term,
@@ -109,7 +112,7 @@ impl<'a> Elaborator<'a> {
             .filter_map(|r| self.line_written(r, lines).map(|l| self.to_term(&l.claim)))
             .collect();
         let labels = self.b.flabel.clone();
-        let Some(at) = crate::methods::algebra::apart_at(pairs, &cited, &labels) else {
+        let Some(at) = apart_at(pairs, &cited, &labels) else {
             return Ok(Route::no(
                 "no coordinate's difference is a disequality the step cites, rescaled",
             ));
@@ -215,7 +218,7 @@ impl<'a> Elaborator<'a> {
         } else {
             None
         };
-        let kept = std::mem::replace(&mut self.sum_letter, letter);
+        let kept = mem::replace(&mut self.sum_letter, letter);
         let out = field::reading_sums(linear, || {
             self.field_proved(step, term, scope, facts, lines)
         });

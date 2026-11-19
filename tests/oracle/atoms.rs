@@ -17,6 +17,7 @@ use num_bigint::BigInt;
 use num_rational::BigRational;
 use num_traits::{One, Signed, Zero};
 
+use num_integer::Integer;
 use parley::formula::grammar::Grammar;
 use parley::formula::node::Node;
 use parley::formula::page::numeral;
@@ -332,9 +333,10 @@ fn above_zero(gap: &Poly) -> Option<bool> {
         return Some(q.is_positive());
     }
     let sign = if gap.logarithms_only() {
-        let scale = gap.0.values().fold(BigInt::one(), |d, q| {
-            num_integer::Integer::lcm(&d, q.denom())
-        });
+        let scale = gap
+            .0
+            .values()
+            .fold(BigInt::one(), |d, q| Integer::lcm(&d, q.denom()));
         let (mut over, mut under) = (BigInt::one(), BigInt::one());
         for (m, q) in &gap.0 {
             let (Atom::Ln(p), _) = m.iter().next().expect("one logarithm") else {

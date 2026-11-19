@@ -7,12 +7,15 @@
 //! typed: Lean's `Set ℤ` or `Set ℝ`. Metamath's sets are untyped, so it
 //! needs none of this.
 
+use std::collections::BTreeSet;
+
 use indexmap::IndexMap;
 
 use crate::formula::{Node, Whole};
 use crate::rules::System;
 
 use super::once::{set_system, Introduced};
+use crate::notations::{APPLICATION, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP};
 
 /// The number system each letter is in by the lines putting it in sets of
 /// numbers, A of `A ∈ ℝ ∖ ℚ`: the widest of those sets' systems, a set
@@ -28,7 +31,7 @@ pub fn element_systems(
         let [x, set] = node.children.as_slice() else {
             continue;
         };
-        if node.notation() != crate::notations::MEMBERSHIP || !x.is_name() {
+        if node.notation() != MEMBERSHIP || !x.is_name() {
             continue;
         }
         let system = match set_system(set, letters) {
@@ -69,7 +72,7 @@ pub fn function_systems(
         let [f, from, to] = node.children.as_slice() else {
             continue;
         };
-        if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+        if node.notation() != FUNCTION_TYPE || !f.is_name() {
             continue;
         }
         if let (Some(from), Some(to)) = (system(from), system(to)) {
@@ -210,7 +213,7 @@ pub fn domain_at_integers(set: &str, functions: &[Node], said: &[&Node]) -> bool
     let mut applied = said
         .iter()
         .flat_map(|n| n.walk())
-        .filter(|n| n.notation() == crate::notations::APPLICATION)
+        .filter(|n| n.notation() == APPLICATION)
         .filter(
             |n| matches!(n.children.first(), Some(f) if maps_from.contains(&&*f.text)),
         )
@@ -218,11 +221,11 @@ pub fn domain_at_integers(set: &str, functions: &[Node], said: &[&Node]) -> bool
     if applied.peek().is_none() {
         return false;
     }
-    let range_letters: std::collections::BTreeSet<String> = said
+    let range_letters: BTreeSet<String> = said
         .iter()
         .flat_map(|n| n.walk())
         .filter_map(|n| match n.children.as_slice() {
-            [k, range, _] if range.notation() == crate::notations::INTEGER_RANGE => {
+            [k, range, _] if range.notation() == INTEGER_RANGE => {
                 k.is_name().then(|| k.text.to_string())
             }
             _ => None,

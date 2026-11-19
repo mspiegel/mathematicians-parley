@@ -1,9 +1,21 @@
 //! What an obtain takes, widening and the proof's small helpers.
 
+use std::collections::BTreeSet;
+use std::slice::Iter;
+
 use super::super::doc::{BoundForm, Brackets, Op, Pattern, Quant, TermKind};
 use super::super::expr::NaturalForm;
 use super::super::{doc, tactics as t};
 use super::*;
+use crate::checker::record::Substituted;
+use crate::corpus::proof;
+use crate::corpus::proof::ChainLine;
+use crate::formula::Grammar;
+use crate::matching;
+use crate::matching::{Binding, Context};
+use crate::notations::{
+    APPLICATION, DISJUNCTION, INTEGER_RANGE, MEMBERSHIP, NUMBER_SYSTEMS, POWER,
+};
 
 /// What an `obtain` takes its witnesses from: the Lean term that proves the
 /// "there is", and the "there is" itself.
@@ -12,7 +24,7 @@ pub(super) struct Obtained {
     pub(super) says: Node,
     /// What the cited item's letters stand for, the Y of "there is s ∈ Y"
     /// given ℕ; empty for a line of the proof, which writes its own sets.
-    pub(super) binding: crate::matching::Binding,
+    pub(super) binding: Binding,
     /// The "there is" as Lean states it at the item's values, which the
     /// `obtain` takes apart; None of a line of the proof, which the writer
     /// states itself.
@@ -93,8 +105,7 @@ pub(super) fn place_is_exponent(start: &Node, path: &[usize]) -> bool {
     let Some((&last, up)) = path.split_last() else {
         return false;
     };
-    last == 1
-        && at_path(start, up).is_some_and(|n| n.notation() == crate::notations::POWER)
+    last == 1 && at_path(start, up).is_some_and(|n| n.notation() == POWER)
 }
 
 /// Whether a line as the page writes it applies a function to numerals
@@ -102,7 +113,7 @@ pub(super) fn place_is_exponent(start: &Node, path: &[usize]) -> bool {
 /// F(1) or F(2) until the numerals are worked out.
 pub(super) fn numerals_in_an_argument(node: &Node) -> bool {
     node.walk().iter().any(|n| {
-        n.notation() == crate::notations::APPLICATION
+        n.notation() == APPLICATION
             && n.children.iter().skip(1).any(|a| {
                 !a.children.is_empty() && !a.walk().iter().any(|p| p.is_name())
             })
@@ -296,7 +307,7 @@ pub(super) struct CitationClosing<'c> {
     /// The claim's sentence the citation proves.
     pub(super) k: usize,
     /// What the checker met the citation with.
-    pub(super) cited: &'c crate::checker::record::Cited,
+    pub(super) cited: &'c Cited,
     /// The item's sentence.
     pub(super) sentence: &'c Sentence,
     /// Which way the sentence is read.
@@ -322,7 +333,7 @@ pub(super) struct Projection<'p> {
     /// claim with.
     pub(super) part: Option<usize>,
     /// What the checker met the citation with.
-    pub(super) cited: &'p crate::checker::record::Cited,
+    pub(super) cited: &'p Cited,
     /// The claim's sentence the citation proves.
     pub(super) k: usize,
 }
@@ -363,7 +374,7 @@ pub(super) struct Backwards<'b> {
     /// The claim.
     pub(super) node: &'b Node,
     /// What the checker met the citation with.
-    pub(super) cited: &'b crate::checker::record::Cited,
+    pub(super) cited: &'b Cited,
     /// The item's sentence the definition is read from.
     pub(super) sentence: &'b Sentence,
     /// What the item's sentence says at the citation's values.
@@ -419,7 +430,7 @@ pub(super) struct InstanceAsked<'c> {
     /// The item's sentence.
     pub(super) sentence: &'c Sentence,
     /// What the citation gives each of the item's letters.
-    pub(super) binding: &'c crate::matching::Binding,
+    pub(super) binding: &'c Binding,
     /// The step's claim, where it has one.
     pub(super) claim: Option<&'c Node>,
     /// The types the item's things are taken at.
@@ -508,7 +519,7 @@ pub(super) struct CalcRow<'c> {
     /// `terms[index + 1]`.
     pub(super) index: usize,
     /// The chain line the row is.
-    pub(super) line: &'c crate::corpus::proof::ChainLine,
+    pub(super) line: &'c ChainLine,
     /// The relation the row joins its terms by.
     pub(super) relation: &'c str,
     /// The modulus of a congruence, as Lean writes it.
@@ -550,7 +561,7 @@ pub(super) struct PuttingEquation {
 /// places are written in (`Proof::substituted_as_written`).
 pub(super) struct Putting<'r, 'w> {
     /// The checker's record of the substitution.
-    pub(super) rec: &'r crate::checker::record::Substituted,
+    pub(super) rec: &'r Substituted,
     /// The row whose change is the equation, where the step is a row.
     pub(super) row: Option<&'r GivenEquation>,
     /// The page line of the step.
@@ -701,13 +712,13 @@ pub(super) fn member_by_equation(
     equation: &Node,
     name: &Printed,
     claim: &Node,
-    ctx: &crate::matching::Context,
+    ctx: &Context,
 ) -> Option<super::super::doc::Proof> {
     let [term, set] = claim.children.as_slice() else {
         return None;
     };
-    if claim.notation() != crate::notations::MEMBERSHIP
-        || set.notation() != crate::notations::NUMBER_SYSTEMS
+    if claim.notation() != MEMBERSHIP
+        || set.notation() != NUMBER_SYSTEMS
         || equation.notation() != EQUALITY
     {
         return None;
@@ -723,7 +734,7 @@ pub(super) fn member_by_equation(
     if !equation
         .children
         .iter()
-        .any(|side| crate::matching::alike_top(side, term, ctx))
+        .any(|side| matching::alike_top(side, term, ctx))
     {
         return None;
     }
@@ -831,9 +842,7 @@ pub(super) fn nonzero_turned(proof: &Printed, says: &Printed) -> Option<Printed>
 /// Whether a line puts a term of a type wider than ℤ in ℕ, x ∈ ℕ of a real
 /// x, which Lean states by its witness, `∃ m : ℤ, 0 < m ∧ (m : ℝ) = x`.
 pub(super) fn natural_witnessed(line: &Node, writer: &Writer) -> bool {
-    let (crate::notations::MEMBERSHIP, [x, set]) =
-        (line.notation(), line.children.as_slice())
-    else {
+    let (MEMBERSHIP, [x, set]) = (line.notation(), line.children.as_slice()) else {
         return false;
     };
     matches!(
@@ -867,17 +876,14 @@ pub(super) fn unwitnessed_nonzero(proof: &Printed) -> Printed {
 /// Whether a term is a number system or a range of integers, which a
 /// function's define may run its argument over.
 pub(super) fn system_or_range(n: &Node) -> bool {
-    matches!(
-        n.notation(),
-        crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
-    )
+    matches!(n.notation(), NUMBER_SYSTEMS | INTEGER_RANGE)
 }
 
 /// The functions a term applies, f of f(x).
 pub(super) fn applied_names(node: &Node) -> Vec<String> {
     node.walk()
         .iter()
-        .filter(|n| n.notation() == crate::notations::APPLICATION)
+        .filter(|n| n.notation() == APPLICATION)
         .filter_map(|n| n.children.first())
         .filter(|f| f.is_name())
         .map(|f| f.text.to_string())
@@ -1044,11 +1050,7 @@ pub(super) fn written_out_as(
 /// the grammar prints them.
 /// Whether putting one side of `equation` for the other in the left side of
 /// `claim`, an equation, gives its right side.
-pub(super) fn makes_claim(
-    equation: &Node,
-    claim: &Node,
-    grammar: &crate::formula::Grammar,
-) -> bool {
+pub(super) fn makes_claim(equation: &Node, claim: &Node, grammar: &Grammar) -> bool {
     let (Some([from, to]), Some([left, right])) = (
         equation.children.as_slice().first_chunk::<2>(),
         claim.children.as_slice().first_chunk::<2>(),
@@ -1061,12 +1063,7 @@ pub(super) fn makes_claim(
         .any(|(a, b)| grammar.print(&put_term(left, a, b, grammar)) == want)
 }
 
-pub(super) fn put_term(
-    node: &Node,
-    from: &Node,
-    to: &Node,
-    grammar: &crate::formula::Grammar,
-) -> Node {
+pub(super) fn put_term(node: &Node, from: &Node, to: &Node, grammar: &Grammar) -> Node {
     if grammar.print(node) == grammar.print(from) {
         return to.clone();
     }
@@ -1099,7 +1096,7 @@ pub(super) fn put_for(node: &Node, name: &Node, value: &Node) -> Node {
 
 /// How many statements an "or" joins, however it groups them.
 pub(super) fn disjuncts(node: &Node) -> usize {
-    if node.notation() == crate::notations::DISJUNCTION {
+    if node.notation() == DISJUNCTION {
         node.children.iter().map(disjuncts).sum()
     } else {
         1
@@ -1110,11 +1107,9 @@ pub(super) fn disjuncts(node: &Node) -> usize {
 /// named in turn from `names`: `(C1 | C2) | C3` for (a ∨ b) ∨ c.
 pub(super) fn or_pattern(
     node: &Node,
-    names: &mut std::slice::Iter<'_, String>,
+    names: &mut Iter<'_, String>,
 ) -> super::super::doc::Pattern {
-    if let ([left, right], crate::notations::DISJUNCTION) =
-        (node.children.as_slice(), node.notation())
-    {
+    if let ([left, right], DISJUNCTION) = (node.children.as_slice(), node.notation()) {
         let l = or_pattern(left, names);
         let r = or_pattern(right, names);
         return Pattern::Or(Box::new(l), Box::new(r));
@@ -1151,11 +1146,11 @@ pub(super) fn cases_pattern(names: &[String]) -> super::super::doc::Pattern {
 /// The lines a step cites anywhere in its reason: its own references, the
 /// line it substitutes into, and those its calculation's rows cite, by a
 /// reason of their own or alone.
-pub(super) fn step_cited_refs(step: &crate::corpus::Step, path: &str) -> Vec<String> {
+pub(super) fn step_cited_refs(step: &Step, path: &str) -> Vec<String> {
     let mut out: Vec<String> = step.just.refs.clone();
     let into = |j: &Justification| j.into.as_ref().map(|p| p.named().to_string());
     out.extend(into(&step.just));
-    if let Some(Ok(chain)) = crate::corpus::proof::chain(&step.just, path) {
+    if let Some(Ok(chain)) = proof::chain(&step.just, path) {
         for line in &chain.lines {
             match &line.reason {
                 Some(r) => {
@@ -1165,14 +1160,14 @@ pub(super) fn step_cited_refs(step: &crate::corpus::Step, path: &str) -> Vec<Str
                     }
                 }
                 None => {
-                    if let Some(cited) = crate::corpus::proof::chain_cited(&line.cite) {
+                    if let Some(cited) = proof::chain_cited(&line.cite) {
                         out.push(cited);
                     }
                 }
             }
         }
     }
-    let mut seen = std::collections::BTreeSet::new();
+    let mut seen = BTreeSet::new();
     out.retain(|r| seen.insert(r.clone()));
     out
 }

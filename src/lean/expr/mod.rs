@@ -8,6 +8,15 @@
 //! is computed there, and a term that does not fit it is declined rather
 //! than cast down (`LEAN.md`, "Number types").
 
+mod arguments;
+mod formulas;
+mod graphs;
+mod operators;
+
+use std::cell::RefCell;
+use std::iter;
+use std::rc::Rc;
+
 use indexmap::IndexMap;
 
 use super::doc::LeanType;
@@ -21,15 +30,18 @@ use crate::notations::{
 };
 use crate::outcome::Route;
 
-mod arguments;
-mod formulas;
-mod graphs;
-mod operators;
-
-use crate::citing::things::Things;
-use crate::rules;
+use crate::citing::finite::FiniteSets;
+use crate::citing::number_sets::Between;
+use crate::citing::things::{ThingTypes, Things};
+use crate::citing::Introduced;
+use crate::formula::node::{ByShape, Whole};
+use crate::formula::notation_id::NotationId;
+use crate::matching::FxIndexSet;
+use crate::notations::{PRODUCT, REAL_POWER, SQUARE_ROOT, SUM, SUM_OVER_CONDITION};
 use crate::rules::System as S;
+use crate::{citing, rules};
 pub use formulas::{pair_coordinates, pair_type};
+use indexmap::IndexSet;
 
 /// What a letter is in Lean.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -135,22 +147,20 @@ pub fn things_name(var: usize) -> String {
 impl Members {
     /// The members a set of this sort has; None for a sort no Lean type is
     /// written for yet, numbers among them.
-    pub fn of_set(sort: &crate::formula::node::Whole) -> Option<Members> {
+    pub fn of_set(sort: &Whole) -> Option<Members> {
         match sort {
-            crate::formula::node::Whole::Set(inner) => Members::of(inner),
+            Whole::Set(inner) => Members::of(inner),
             _ => None,
         }
     }
 
     /// Members of this sort, things of the first type variable: a pair's
     /// places each of its own, which `with_things_of` gives.
-    pub fn of(sort: &crate::formula::node::Whole) -> Option<Members> {
+    pub fn of(sort: &Whole) -> Option<Members> {
         match sort {
-            crate::formula::node::Whole::Open => Some(Members::Things(0)),
-            crate::formula::node::Whole::Set(inner) => {
-                Members::of(inner).map(|m| Members::Sets(Box::new(m)))
-            }
-            crate::formula::node::Whole::Pair(first, second) => Some(Members::Pairs {
+            Whole::Open => Some(Members::Things(0)),
+            Whole::Set(inner) => Members::of(inner).map(|m| Members::Sets(Box::new(m))),
+            Whole::Pair(first, second) => Some(Members::Pairs {
                 first: Box::new(Members::of(first)?),
                 second: Box::new(Members::of(second)?),
             }),
@@ -223,7 +233,7 @@ impl Members {
     /// The same members, things of the type variables a letter's things
     /// take (`ThingTypes::things_of_letter`): pairs place by place, `α ×
     /// β` of S ⊆ X × Y.
-    pub fn with_things_of(&self, things: &crate::citing::things::Things) -> Members {
+    pub fn with_things_of(&self, things: &Things) -> Members {
         match (self, things) {
             (Members::Pairs { first, second }, Things::Pairs(a, b)) => Members::Pairs {
                 first: Box::new(first.with_things_of(a)),
@@ -318,7 +328,7 @@ pub struct Writer<'a> {
     /// The notations the reading takes as "and", `A and B` and `A, and B`
     /// (`matching::Context::conjunctions`), which every question of whether
     /// a tree is an "and" asks (`is_and`).
-    pub ands: &'a crate::matching::FxIndexSet<crate::formula::notation_id::NotationId>,
+    pub ands: &'a FxIndexSet<NotationId>,
     pub letters: Letters,
     /// The letters the page puts in ℕ or ℕ₀, each a Lean integer with its
     /// fact 0 < n or 0 ≤ n beside it, as set.mm's n ∈ ℕ is a fact about a
@@ -342,19 +352,14 @@ pub struct Writer<'a> {
     /// from them as `citing::finite::is_finite` says, is a natural number,
     /// `A.ncard`, and of any other set in ℕ∞ (`sets::count_term`). Each
     /// with why it is finite (`citing::finite::FiniteBy`).
-    pub finite: crate::citing::finite::FiniteSets,
+    pub finite: FiniteSets,
     /// For each hypothesis that makes a set finite and may not vouch for
     /// itself, as printed, the sets only it does (`Writer::without_line`).
-    pub finite_only_by: IndexMap<
-        crate::formula::node::ByShape,
-        indexmap::IndexSet<crate::formula::node::ByShape>,
-    >,
+    pub finite_only_by: IndexMap<ByShape, IndexSet<ByShape>>,
     /// Of each "if P then Q", the sets P makes finite within Q, by the
     /// sentence as a tree, as the checker records them
     /// (`CheckedTheorem::finite_under`): Q is written with them finite.
-    pub finite_under: std::rc::Rc<
-        IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets>,
-    >,
+    pub finite_under: Rc<IndexMap<ByShape, FiniteSets>>,
     /// What ∅ holds where nothing in it says, as a count compared with the
     /// count of a set of those, |S| = |∅| (`relation_from`); None where it
     /// is a set of the theorem's things.
@@ -374,22 +379,21 @@ pub struct Writer<'a> {
     /// base the page shows at least 0 anywhere is Mathlib's real one in
     /// every line, so that it is written one way throughout the theorem. It
     /// chooses the form alone; a step proves nothing from it.
-    pub page_bounds: std::rc::Rc<SaidBounds>,
+    pub page_bounds: Rc<SaidBounds>,
     /// Each real power or square root written so far in a theorem, by the
     /// page's print of it, with the forms it was written in: Mathlib's real
     /// one, the principal one in ℂ, or both, which the theorem's writer
     /// reports (`Writer::roots_written_both_ways`). Shared by every writer
     /// made from this one.
-    pub root_forms: std::rc::Rc<std::cell::RefCell<IndexMap<String, (bool, bool)>>>,
+    pub root_forms: Rc<RefCell<IndexMap<String, (bool, bool)>>>,
     /// The systems of each function letter a line types between sets of
     /// numbers, as the checker records them (`CheckedTheorem::
     /// function_systems`, `GroupFacts::function_systems`).
-    pub function_systems:
-        std::rc::Rc<IndexMap<String, crate::citing::number_sets::Between>>,
+    pub function_systems: Rc<IndexMap<String, Between>>,
     /// Which sets hold things of one type, by letter: a theorem's as the
     /// checker records them (`CheckedTheorem::thing_types`), an item's read
     /// of its sentences. A set letter's things take its type variable.
-    pub things: std::rc::Rc<crate::citing::things::ThingTypes>,
+    pub things: Rc<ThingTypes>,
 }
 
 /// The writer's view for the shared rule of what terms are at least
@@ -495,13 +499,11 @@ pub struct SaidInteger {
 /// ∏(k = a to b) t, which the writer reads alike; or one over a set that is
 /// a range, ∏(k ∈ {1, …, n}) t, which is the same product.
 fn is_big_operator(node: &Node) -> bool {
-    matches!(
-        node.notation(),
-        crate::notations::SUM | crate::notations::PRODUCT
-    ) || matches!(
-        node.notation(),
-        SUM_OVER | PRODUCT_OVER | crate::notations::SUM_OVER_CONDITION
-    )
+    matches!(node.notation(), SUM | PRODUCT)
+        || matches!(
+            node.notation(),
+            SUM_OVER | PRODUCT_OVER | SUM_OVER_CONDITION
+        )
 }
 
 /// A sum or product over a set that is a range, Σ(k ∈ {a, …, b}) t: its
@@ -555,7 +557,7 @@ pub(super) fn put_for(node: &Node, from: &Node, to: &Node) -> Node {
 
 /// Whether a big operator is a product, ∏(k = a to b) or ∏(k ∈ {a, …, b}).
 fn is_product(node: &Node) -> bool {
-    node.notation() == crate::notations::PRODUCT || node.notation() == PRODUCT_OVER
+    node.notation() == PRODUCT || node.notation() == PRODUCT_OVER
 }
 
 /// The type variable an item's general letters range over.
@@ -606,7 +608,7 @@ impl<'a> Writer<'a> {
     pub fn new(
         grammar: &'a Grammar,
         templates: &'a Templates,
-        ands: &'a crate::matching::FxIndexSet<crate::formula::notation_id::NotationId>,
+        ands: &'a FxIndexSet<NotationId>,
     ) -> Writer<'a> {
         Writer {
             grammar,
@@ -618,9 +620,9 @@ impl<'a> Writer<'a> {
             integers: Vec::new(),
             domains: IndexMap::new(),
             reals: Vec::new(),
-            finite: crate::citing::finite::FiniteSets::new(),
+            finite: FiniteSets::new(),
             finite_only_by: IndexMap::new(),
-            finite_under: std::rc::Rc::default(),
+            finite_under: Rc::default(),
             empty_of: None,
             bounds: SaidBounds::default(),
             whole_bounds: SaidBounds::default(),
@@ -673,7 +675,7 @@ impl<'a> Writer<'a> {
     /// The number system each number letter in scope is in, as the
     /// said-once rule reads them: a letter of `wholes` in ℕ or ℕ₀, any
     /// other in its type's.
-    pub fn page_systems(&self) -> crate::citing::Introduced {
+    pub fn page_systems(&self) -> Introduced {
         self.letters
             .iter()
             .filter_map(|(name, ty)| {
@@ -699,15 +701,13 @@ impl<'a> Writer<'a> {
     /// number as `(t).toNat`, and a power to it is a natural power.
     pub fn said_whole(&self, node: &Node) -> bool {
         let letters = self.page_systems();
-        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
+        let nonzero = |d: &Node| citing::nonzero_said_once(d, &letters);
         // An integer by its letters and its build that a hypothesis of the
         // theorem says is at least 0, `p − 1` beside `p ≥ 1`, as the check
         // read the hypotheses (`whole_bounds`), is a whole number as surely
         // as one its build makes so, in every step alike.
         let integer = |t: &Node| {
-            crate::citing::within(t, rules::System::Z, &letters, &nonzero, &|_, _| {
-                false
-            })
+            citing::within(t, rules::System::Z, &letters, &nonzero, &|_, _| false)
         };
         let bounded = |t: &Node, s: rules::System| {
             let least = match s {
@@ -720,7 +720,7 @@ impl<'a> Writer<'a> {
                     b.least >= least && bounds::BoundsAsk::same(self, &b.term, t)
                 })
         };
-        crate::citing::within(node, rules::System::N0, &letters, &nonzero, &bounded)
+        citing::within(node, rules::System::N0, &letters, &nonzero, &bounded)
     }
 
     /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.
@@ -828,10 +828,7 @@ impl<'a> Writer<'a> {
     /// a type is only asked of it, before the lines its step stands on are
     /// in scope.
     fn note_root_form(&self, node: &Node) {
-        if !matches!(
-            node.notation(),
-            crate::notations::REAL_POWER | crate::notations::SQUARE_ROOT
-        ) {
+        if !matches!(node.notation(), REAL_POWER | SQUARE_ROOT) {
             return;
         }
         let real = self.principal_is_real(node);
@@ -1007,7 +1004,7 @@ pub fn witness_letter(x: &Node) -> String {
         .map(|n| super::names::letter(&n.text))
         .collect();
     let subscripts = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
-    std::iter::once("m".to_string())
+    iter::once("m".to_string())
         .chain(subscripts.iter().map(|s| format!("m{s}")))
         .chain((10..).map(|i| format!("m_{i}")))
         .find(|l| !used.contains(l))
@@ -1086,9 +1083,9 @@ pub fn index_letter_system(node: &Node, letter: &str) -> Option<System> {
         if !index.is_name() || &*index.text != letter {
             return None;
         }
-        Some(match crate::citing::index_system(&from) {
-            Some(crate::rules::System::N) => System::Positive,
-            Some(crate::rules::System::N0) => System::NonNegative,
+        Some(match citing::index_system(&from) {
+            Some(rules::System::N) => System::Positive,
+            Some(rules::System::N0) => System::NonNegative,
             _ => System::Type(Num::Int),
         })
     })
@@ -1097,9 +1094,9 @@ pub fn index_letter_system(node: &Node, letter: &str) -> Option<System> {
 /// The system a letter running over a range is in, said once by the range
 /// (`citing::range_system`): ℕ from 1, ℕ₀ from 0, ℤ from any other start.
 pub fn range_letter_system(range: &Node) -> System {
-    match crate::citing::range_system(range) {
-        Some(crate::rules::System::N) => System::Positive,
-        Some(crate::rules::System::N0) => System::NonNegative,
+    match citing::range_system(range) {
+        Some(rules::System::N) => System::Positive,
+        Some(rules::System::N0) => System::NonNegative,
         _ => System::Type(Num::Int),
     }
 }
@@ -1107,14 +1104,12 @@ pub fn range_letter_system(range: &Node) -> System {
 /// The Lean type of the members of a set of numbers in a system the checker
 /// records (`CheckedTheorem::set_systems`): integers for ℕ, ℕ₀ and ℤ, as
 /// `set_type` gives them.
-pub fn recorded_set_type(system: crate::rules::System) -> Num {
+pub fn recorded_set_type(system: rules::System) -> Num {
     match system {
-        crate::rules::System::N
-        | crate::rules::System::N0
-        | crate::rules::System::Z => Num::Int,
-        crate::rules::System::Q => Num::Rat,
-        crate::rules::System::R => Num::Real,
-        crate::rules::System::C => Num::Complex,
+        rules::System::N | rules::System::N0 | rules::System::Z => Num::Int,
+        rules::System::Q => Num::Rat,
+        rules::System::R => Num::Real,
+        rules::System::C => Num::Complex,
     }
 }
 
@@ -1139,6 +1134,8 @@ pub fn set_type(system: System) -> Num {
 
 #[cfg(test)]
 mod tests {
+    use std::slice;
+
     use super::*;
 
     /// `a + b` of two letters, integers.
@@ -1173,7 +1170,7 @@ mod tests {
             Printed::numeral("1", LeanType::Num(Num::Nat)),
             LeanType::Num(Num::Nat),
         );
-        let Route::Built(applied) = fill(&factorial, std::slice::from_ref(&n1)) else {
+        let Route::Built(applied) = fill(&factorial, slice::from_ref(&n1)) else {
             panic!("the template fills");
         };
         assert_eq!(applied.text(), "Nat.factorial (n + 1)");

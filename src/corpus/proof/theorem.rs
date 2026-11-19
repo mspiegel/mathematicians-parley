@@ -1,5 +1,7 @@
 //! A theorem and what it cites: scopes, references and items.
 
+use std::borrow::Cow;
+
 use super::*;
 
 /// Which file's scope a theorem is read in.
@@ -142,7 +144,7 @@ pub struct InScope<'s> {
     pub define: &'s DefineLine,
     /// The define read into its parts: once, for the file's and the
     /// imported (`FileScope::visible`), and here for the theorem's own.
-    pub parts: std::borrow::Cow<'s, DefineParts>,
+    pub parts: Cow<'s, DefineParts>,
     /// Imported from another file, where it is read.
     pub imported: bool,
 }
@@ -161,7 +163,7 @@ pub fn in_scope<'s>(thm: &'s Theorem, scopes: &'s [FileScope]) -> Vec<InScope<'s
                     name,
                     label: Some(d.label.clone()),
                     define: d,
-                    parts: std::borrow::Cow::Owned(parts),
+                    parts: Cow::Owned(parts),
                     imported: false,
                 })
             }
@@ -177,7 +179,7 @@ pub fn in_scope<'s>(thm: &'s Theorem, scopes: &'s [FileScope]) -> Vec<InScope<'s
                 false => Some(v.define.label.clone()),
             },
             define: &v.define,
-            parts: std::borrow::Cow::Borrowed(&v.parts),
+            parts: Cow::Borrowed(&v.parts),
             imported: v.imported,
         });
     own.chain(outside).collect()

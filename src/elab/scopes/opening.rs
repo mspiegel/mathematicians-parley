@@ -1,6 +1,8 @@
 //! Opening the outermost scope, blocks and cases.
 
 use super::*;
+use crate::elab;
+use crate::notations::MEMBERSHIP;
 
 impl<'a> Elaborator<'a> {
     /// The first frame: the theorem's hypotheses, and what they say.
@@ -255,10 +257,10 @@ impl<'a> Elaborator<'a> {
             }
         }
         let parts: Vec<Rpn> = wanted.children().iter().map(|c| self.rpn(c)).collect();
-        let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
-        all.extend(parts.iter().map(|p| crate::elab::part(p)));
-        all.extend(proofs.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(join));
+        let mut all: Vec<crate::mm::spell::Part> = vec![elab::part(scope)];
+        all.extend(parts.iter().map(|p| elab::part(p)));
+        all.extend(proofs.iter().map(|p| elab::part(p)));
+        all.push(elab::part(join));
         Ok(Some(Built(self.b.proof(&all))))
     }
 
@@ -616,14 +618,14 @@ impl<'a> Elaborator<'a> {
             // and is kept as this line gives it for a step naming this one.
             let latest = latest && !self.holds(facts, part);
             let mut all: Vec<crate::mm::spell::Part> = vec![
-                crate::elab::part(scope),
-                crate::elab::part(term),
-                crate::elab::part(part),
-                crate::elab::part(proof),
+                elab::part(scope),
+                elab::part(term),
+                elab::part(part),
+                elab::part(proof),
             ];
-            all.extend(kids.iter().map(|k| crate::elab::part(k)));
-            all.push(crate::elab::part(*pick));
-            all.push(crate::elab::part("syl"));
+            all.extend(kids.iter().map(|k| elab::part(k)));
+            all.push(elab::part(*pick));
+            all.push(elab::part("syl"));
             let made = self.b.proof(&all);
             if latest {
                 self.know(facts, part.clone(), made.clone());
@@ -709,7 +711,7 @@ impl<'a> Elaborator<'a> {
                         block.variable = Some(var);
                         // `let X be a set` fixes a name over nothing, so
                         // there is no set to record.
-                        if node.notation() == crate::notations::MEMBERSHIP {
+                        if node.notation() == MEMBERSHIP {
                             let set = self.term(&node.children[1])?;
                             self.sets.insert(name, set);
                         }
@@ -722,11 +724,7 @@ impl<'a> Elaborator<'a> {
                     // membership, as an obtained function's is (`elmapi`).
                     let function =
                         match (o.kind, node.notation(), node.children.as_slice()) {
-                            (
-                                Intro::Let,
-                                crate::notations::FUNCTION_TYPE,
-                                [f, from, to],
-                            ) => {
+                            (Intro::Let, FUNCTION_TYPE, [f, from, to]) => {
                                 let set = FunctionSet {
                                     domain: self.term(from)?,
                                     codomain: self.term(to)?,
@@ -874,10 +872,7 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A claim of one sentence, read; a defect where it is several.
-    pub(super) fn claim_node(
-        &mut self,
-        claim: &Written,
-    ) -> Checked<crate::formula::Node> {
+    pub(super) fn claim_node(&mut self, claim: &Written) -> Checked<Node> {
         self.read_one(claim)
     }
 

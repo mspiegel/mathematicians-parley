@@ -1,5 +1,7 @@
 //! The whole corpus, read from the working tree.
 
+use std::mem;
+
 use indexmap::IndexMap;
 
 use super::proof::{
@@ -7,6 +9,7 @@ use super::proof::{
 };
 use super::records::{parse_database, Record, RecordKind};
 use crate::outcome::{Checked, Problem};
+use crate::sorts;
 use crate::source::Source;
 use crate::text::check_encoding;
 
@@ -58,7 +61,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
     // them, as the checker's reading makes it, so that every reader of the
     // corpus reads a phrase alike.
     super::phrases::add_phrase_records(&mut out.records, &out.scopes);
-    crate::sorts::settle_phrases(&mut out.records, &out.scopes);
+    sorts::settle_phrases(&mut out.records, &out.scopes);
     let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
     super::proof::read_visible(&mut out.scopes);
@@ -81,7 +84,7 @@ pub fn link_functions(
         .collect();
     let mut problems = Vec::new();
     for scope in scopes.iter_mut() {
-        let (named, items): (Vec<_>, Vec<_>) = std::mem::take(&mut scope.items)
+        let (named, items): (Vec<_>, Vec<_>) = mem::take(&mut scope.items)
             .into_iter()
             .partition(|i| functions.contains_key(&i.full()));
         scope.items = items;

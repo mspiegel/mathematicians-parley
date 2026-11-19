@@ -10,7 +10,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use indexmap::IndexMap;
-use serde_json::Value;
+use serde_json::{from_str, Value};
 
 /// An expression, by the numbers of its parts.
 #[derive(Clone, Debug)]
@@ -93,7 +93,7 @@ impl Export {
             if line.is_empty() {
                 continue;
             }
-            let v: Value = serde_json::from_str(line).map_err(|e| {
+            let v: Value = from_str(line).map_err(|e| {
                 format!("line {} of the export does not read: {e}", n + 1)
             })?;
             if let Some(id) = num(&v, "in") {

@@ -1,6 +1,9 @@
 //! Citing a claim's reasons.
 
 use super::*;
+use crate::formula::{page, Sort};
+use crate::matching;
+use crate::notations::PROPERTY_OF;
 
 impl<'a> Elaborator<'a> {
     /// An existence claim shown by naming something that answers it: the
@@ -192,9 +195,9 @@ impl<'a> Elaborator<'a> {
         // A letter the citation makes a rule, E := n ↦ 2n in set-image, has
         // no term of its own: the right side is read with the rule applied
         // where it applies the letter (`citing::filled`).
-        let mut rules = crate::matching::Binding::new();
+        let mut rules = matching::Binding::new();
         for (name, node) in self.matched_here(step, cited)? {
-            if node.notation() == crate::notations::PROPERTY_OF {
+            if node.notation() == PROPERTY_OF {
                 rules.insert(name, node);
             } else {
                 matched.push((name, self.term(&node)?));
@@ -224,11 +227,8 @@ impl<'a> Elaborator<'a> {
                     me.read_one(&item.stated()[0])
                 })?;
                 let left = node.children[0].clone();
-                let right = crate::citing::filled(
-                    &node.children[1],
-                    &rules,
-                    &me.item_library().ctx,
-                );
+                let right =
+                    citing::filled(&node.children[1], &rules, &me.item_library().ctx);
                 me.names
                     .insert(left.leftmost().text.to_string(), subject.clone());
                 // Each name the right side binds is a letter nothing in the
@@ -517,7 +517,7 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 if !library.ctx.equations.contains(&said.notation())
-                    || !crate::matching::alike(left, right, &library.ctx, &none, &none)
+                    || !matching::alike(left, right, &library.ctx, &none, &none)
                 {
                     continue;
                 }
@@ -863,7 +863,7 @@ impl<'a> Elaborator<'a> {
         other: &'a Theorem,
     ) -> Checked<IndexMap<String, Rpn>> {
         let mut out = IndexMap::new();
-        let obtain = step.just.head.is(crate::corpus::Method::Obtain);
+        let obtain = step.just.head.is(Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
         // A name the citation writes a value for takes that value, and a
         // name the match gives itself, as a library function's C in C(m, k)
@@ -888,7 +888,7 @@ impl<'a> Elaborator<'a> {
             // for the map the rule is over the letter's domain, as a
             // function a define gives by a rule is read where it is written
             // alone.
-            if node.notation() == crate::notations::PROPERTY_OF {
+            if node.notation() == PROPERTY_OF {
                 if let Some(map) =
                     self.rule_as_map(other, name, node, &taken.binding)?
                 {
@@ -920,7 +920,7 @@ impl<'a> Elaborator<'a> {
             let typed = self.in_its_names(Item::Theorem(other), |me| {
                 me.hypothesis_node(Intro::Let, &h.body(&other.path))
             })?;
-            let (crate::notations::FUNCTION_TYPE, [f, domain, _]) =
+            let (FUNCTION_TYPE, [f, domain, _]) =
                 (typed.notation(), typed.children.as_slice())
             else {
                 continue;
@@ -928,11 +928,8 @@ impl<'a> Elaborator<'a> {
             if !(f.is_name() && f.text == name) {
                 continue;
             }
-            let domain = crate::matching::substitute_apart_by(
-                domain,
-                binding,
-                &self.g.binders(),
-            );
+            let domain =
+                matching::substitute_apart_by(domain, binding, &self.g.binders());
             // The map binds a letter of its own, apart from every letter the
             // step holds, the domain and the body write: where the map is
             // applied at the bound letter of a sum or product over the
@@ -952,13 +949,12 @@ impl<'a> Elaborator<'a> {
                 .find(|n| n.is_name() && n.text == rule.text)
                 .map(|n| n.sort.clone())
                 .or_else(|| domain.sort.held())
-                .unwrap_or_else(crate::formula::Sort::unknown);
+                .unwrap_or_else(Sort::unknown);
             let letter = Node::name(sort, fresh);
             let mut put = NodeBinding::new();
             put.insert(rule.text, letter.clone());
-            let body =
-                crate::matching::substitute_apart_by(body, &put, &self.g.binders());
-            return Ok(crate::formula::page::made_as(
+            let body = matching::substitute_apart_by(body, &put, &self.g.binders());
+            return Ok(page::made_as(
                 self.g,
                 "the map sending _ ∈ _ to _",
                 vec![letter, domain, body],

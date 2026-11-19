@@ -12,6 +12,7 @@ use std::path::Path;
 
 use parley::corpus::Method;
 use parley::elab::elaborate::Options;
+use parley::notations::EQUALITY;
 use parley::source::{Disk, Memory};
 use parley::tools::build::{checked_in, library, Loaded};
 
@@ -48,7 +49,7 @@ fn the_elaborator_takes_the_instance_the_checker_recorded() {
             t.page
                 .entries()
                 .map(|(_, node)| node)
-                .find(|node| node.notation() == parley::notations::EQUALITY)
+                .find(|node| node.notation() == EQUALITY)
                 .cloned()
         })
         .expect("the page writes an equation");

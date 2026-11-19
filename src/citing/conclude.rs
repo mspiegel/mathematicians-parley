@@ -1,6 +1,7 @@
 //! Whether a citation's claim is what the item it cites concludes.
 
 use std::collections::BTreeSet;
+use std::slice;
 
 use crate::formula::page::conjoined;
 use crate::formula::{walk, ByShape, Node};
@@ -20,6 +21,8 @@ use super::parts::{bound_in, Bound};
 use super::supply::{
     body_reading, search, supplier, supply, unwitnessed, Sites, Unwitnessed, Ways,
 };
+use crate::matching;
+use crate::notations::NUMBER_SYSTEMS;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
 /// those readings ask for is then supplied by the facts: the binding they
@@ -65,7 +68,7 @@ fn take(
         // the claim decides it, and the requirement is supplied after, a
         // "there is" from a line saying its body at a value as any is.
         let holds = |x: &[Node]| walk(x).iter().any(|y| sites.contains(&y.id()));
-        let starts: Vec<Start> = if holds(first) && !holds(std::slice::from_ref(cand)) {
+        let starts: Vec<Start> = if holds(first) && !holds(slice::from_ref(cand)) {
             supplied_first(first, given, binding, variables, library, sites)
         } else {
             vec![Start {
@@ -268,7 +271,7 @@ pub fn not_numbers(
                 && !given.iter().any(|f| {
                     library.members.contains(&f.notation())
                         && matches!(f.children.as_slice(), [term, set]
-                            if set.notation() == crate::notations::NUMBER_SYSTEMS
+                            if set.notation() == NUMBER_SYSTEMS
                                 && alike(term, left, ctx, &IndexMap::new(), &IndexMap::new()))
                 })
         })
@@ -294,7 +297,7 @@ pub fn substitution_unsaid(
     let ctx = &library.ctx;
     // Each read in the standard spelling, as whether the substitution holds
     // was decided (`Known::substituted`): ε > |x| is |x| < ε.
-    let s = |n: &Node| crate::matching::standard(n, ctx);
+    let s = |n: &Node| matching::standard(n, ctx);
     let (aim, left, right) = (&s(aim), &s(left), &s(right));
     let starts: Vec<Node> = starts.iter().map(s).collect();
     // What dropping an element leaves is asked first, wherever in the term
@@ -334,7 +337,7 @@ fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
     if start.spelt_alike(was) {
         return false;
     }
-    let inside = |c: &Node| crate::matching::put_places(c, was, was, ctx).is_some();
+    let inside = |c: &Node| matching::put_places(c, was, was, ctx).is_some();
     if start.children.iter().any(inside) {
         return start.children.iter().any(|c| dropped_at_sites(c, was, ctx));
     }

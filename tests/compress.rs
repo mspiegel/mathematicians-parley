@@ -17,14 +17,19 @@
 //! skipped would say green about a thing it had not looked at.
 
 use std::collections::BTreeSet;
-use std::path::Path;
+use std::iter;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
 use std::sync::Arc;
 
+use indexmap::IndexMap;
 use parley::formula::symbol::Symbol;
 use parley::mm::compress::{
     compress, compressed, expand, expand_steps, shapes, shapes_of,
 };
-use parley::mm::{read, where_set_mm, Builder, Kind, Layered, Signature, StepRef};
+use parley::mm::{
+    read, where_set_mm, Builder, Kind, Layered, Signature, Step, StepRef,
+};
 use parley::source::{Disk, Source};
 
 /// The most labels a proof is also written out in normal format at.
@@ -33,11 +38,10 @@ const STEPPED: usize = 1_000_000;
 /// How many labels the steps come to written out, counted without writing
 /// them: each step's length once, however often it is used.
 fn written_length(items: &[StepRef]) -> usize {
-    let mut length: indexmap::IndexMap<*const parley::mm::Step, usize> =
-        indexmap::IndexMap::new();
+    let mut length: IndexMap<*const Step, usize> = IndexMap::new();
     let mut work: Vec<(&StepRef, bool)> = items.iter().map(|s| (s, false)).collect();
     while let Some((step, done)) = work.pop() {
-        let id = std::rc::Rc::as_ptr(step);
+        let id = Rc::as_ptr(step);
         if length.contains_key(&id) {
             continue;
         }
@@ -49,11 +53,11 @@ fn written_length(items: &[StepRef]) -> usize {
         let n = 1 + step
             .kids
             .iter()
-            .map(|k| length[&std::rc::Rc::as_ptr(k)])
+            .map(|k| length[&Rc::as_ptr(k)])
             .sum::<usize>();
         length.insert(id, n);
     }
-    items.iter().map(|s| length[&std::rc::Rc::as_ptr(s)]).sum()
+    items.iter().map(|s| length[&Rc::as_ptr(s)]).sum()
 }
 
 parley::regex!(PROVED, r"(?ms)^\s*(\S+)\s+\$p\s+(.*?)\$=(.*?)\$\.");
@@ -70,7 +74,7 @@ fn every_compressed_proof_survives_a_round_trip() {
         .into_iter()
         .filter(|p| p.starts_with("corpus/elaboration/"))
         .collect();
-    let mut paths: Vec<std::path::PathBuf> = vec![setmm];
+    let mut paths: Vec<PathBuf> = vec![setmm];
     paths.extend(built.iter().map(|p| root.join(p)));
     let refs: Vec<&Path> = paths.iter().map(|p| p.as_path()).collect();
     // Read once and shared: each proof layers its own hypotheses over it.
@@ -116,7 +120,7 @@ fn every_compressed_proof_survives_a_round_trip() {
                 );
             }
             // The same reckoning the elaborator makes when it writes one.
-            let words: Vec<&str> = std::iter::once(says)
+            let words: Vec<&str> = iter::once(says)
                 .chain(hyps.iter().map(|(_, s)| s.as_str()))
                 .flat_map(|s| s.split_whitespace())
                 .collect();

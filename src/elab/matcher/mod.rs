@@ -17,6 +17,16 @@
 //! or eliminated (`witnessed`, `introduced`, `through_existential`), and a
 //! conjunct projected (`as_conjunct`).
 
+mod applying;
+mod classes;
+mod closing;
+mod facts;
+mod lemmas;
+mod pieces;
+mod renaming;
+mod rewriting;
+mod standard;
+
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -29,7 +39,6 @@ use super::state::{
 };
 use super::tables::{Leaf, Row};
 use super::{Facts, Lines, WrittenFact};
-use crate::binds;
 use crate::corpus::Step;
 use crate::formula::notation_id::NotationId;
 use crate::formula::symbol::Symbol;
@@ -39,17 +48,7 @@ use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};
 use crate::outcome::{Built, Checked, Decline, Declined, Route};
 use crate::rules::{self, discharge, lookup, Join, Side};
-use crate::{pf, t, take};
-
-mod applying;
-mod classes;
-mod closing;
-mod facts;
-mod lemmas;
-mod pieces;
-mod renaming;
-mod rewriting;
-mod standard;
+use crate::{binds, pf, t, take};
 
 use self::pieces::*;
 pub use self::pieces::{as_class, conjuncts_of, sethood};

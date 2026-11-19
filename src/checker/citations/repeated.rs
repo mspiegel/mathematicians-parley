@@ -1,6 +1,11 @@
 //! Repeated facts, lines given and what is surplus.
 
+use std::slice;
+
 use super::*;
+use crate::citing;
+use crate::corpus::proof;
+use crate::methods::membership;
 
 /// A requires line says something the step's other lines do not.
 ///
@@ -108,7 +113,7 @@ pub fn check_from_lines(
 ) {
     // The defines a line may name: the theorem's own, its file's and those
     // its file imports.
-    let defines: BTreeSet<String> = crate::corpus::proof::in_scope(thm, scopes)
+    let defines: BTreeSet<String> = proof::in_scope(thm, scopes)
         .into_iter()
         .filter_map(|d| d.label)
         .collect();
@@ -122,7 +127,7 @@ pub fn check_from_lines(
         .chain(under.iter().map(|u| {
             (
                 &u.step,
-                u.step.requires.last().map_or(&[][..], std::slice::from_ref),
+                u.step.requires.last().map_or(&[][..], slice::from_ref),
             )
         }));
     for (step, reqs) in lines {
@@ -174,7 +179,7 @@ pub fn check_from_lines(
                                 step,
                                 known,
                                 library,
-                                crate::methods::membership::holds,
+                                membership::holds,
                             )
                         })
                     });
@@ -206,7 +211,7 @@ pub fn check_from_lines(
                                     step,
                                     known,
                                     library,
-                                    crate::methods::membership::read_off,
+                                    membership::read_off,
                                 )
                             })
                         },
@@ -293,8 +298,7 @@ pub(super) fn from_lines_give(
             (claim.notation(), claim.children.as_slice())
         {
             let put = Binding::from([(bound.text, letter.clone())]);
-            return (known.alike(inner, over)
-                || crate::citing::set_within(inner, over))
+            return (known.alike(inner, over) || citing::set_within(inner, over))
                 && known.alike(&substitute_apart(body, &put, known.ctx), said);
         }
         // At a member: the claim is the body, or one part of it, there.
@@ -343,17 +347,17 @@ pub(in crate::checker) fn membership_said_once(
 pub(super) fn member_in(
     member: &Node,
     set: &Node,
-    letters: &crate::citing::Introduced,
+    letters: &Introduced,
     step: &Step,
     known: &Known,
 ) -> bool {
     let said_once = set.notation() == NUMBER_SYSTEMS
         && System::of_sign(&set.text).is_some_and(|system| {
-            crate::citing::within(
+            citing::within(
                 member,
                 system,
                 letters,
-                &|d| crate::citing::nonzero_said_once(d, letters),
+                &|d| citing::nonzero_said_once(d, letters),
                 &|_, _| false,
             )
         });
@@ -369,7 +373,7 @@ pub(super) fn member_in(
             if bound.is_name()
                 && member.is_name()
                 && bound.text == member.text
-                && (known.alike(over, set) || crate::citing::set_within(over, set))
+                && (known.alike(over, set) || citing::set_within(over, set))
     )
 }
 
@@ -506,7 +510,7 @@ pub fn check_surplus(
 ) {
     let defines: BTreeSet<&str> =
         thm.defines.iter().map(|d| d.label.as_str()).collect();
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
 
     // A step holds where its item is supplied and concluded, and every
     // define it cites has its arguments in their domains: a line saying one

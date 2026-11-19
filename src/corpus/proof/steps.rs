@@ -1,6 +1,7 @@
 //! The lines of a proof: introductions, reasons, methods and steps.
 
 use super::*;
+use crate::sorts;
 
 /// How a line introduces what it introduces.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -72,7 +73,7 @@ pub(super) fn body_text(kind: Intro, text: &str) -> String {
         Some(rest) if rest.starts_with(char::is_whitespace) => rest,
         _ => text,
     };
-    str::trim(&crate::sorts::unlabel(rest)).to_string()
+    str::trim(&sorts::unlabel(rest)).to_string()
 }
 
 /// A statement's `ε, δ range over ℝ`: the set each of those letters belongs
@@ -592,7 +593,7 @@ impl StepNo {
     /// Parsed from a reference such as `3.1`; None where `text` is not a
     /// step number (`skeleton::is_number`).
     pub fn parse(text: &str) -> Option<StepNo> {
-        if !crate::corpus::skeleton::is_number(text) {
+        if !skeleton::is_number(text) {
             return None;
         }
         let parts: Option<Vec<u32>> = text.split('.').map(|x| x.parse().ok()).collect();

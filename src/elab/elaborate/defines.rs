@@ -1,6 +1,10 @@
 //! Defines, recursion values and indexed values.
 
+use std::mem;
+
 use super::*;
+use crate::mm::spell::Binds;
+use crate::outcome::Decline;
 
 impl<'a> Elaborator<'a> {
     /// The proof of one link of a chain, from what it cites.
@@ -308,7 +312,7 @@ impl<'a> Elaborator<'a> {
     /// `define_value` reads.
     pub(super) fn names_define_at_head(&mut self, one: &Term) -> bool {
         let letters = self.letters_bound(one);
-        let kept = std::mem::replace(&mut self.binding, letters);
+        let kept = mem::replace(&mut self.binding, letters);
         let head = self.standard_step(one);
         self.binding = kept;
         head.is_some_and(|(h, _)| {
@@ -331,7 +335,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         held: &Facts,
     ) -> Checked<Route<Proof>> {
-        let mut why: Option<crate::outcome::Decline> = None;
+        let mut why: Option<Decline> = None;
         for (one, other, turned) in [(a, b, false), (b, a, true)] {
             let reached = self.define_value(one, scope, held)?;
             let (value, mut proof) = match reached {
@@ -446,7 +450,7 @@ impl<'a> Elaborator<'a> {
         held: &Facts,
     ) -> Checked<Route<(Term, Proof)>> {
         let letters = self.letters_bound(one);
-        let kept = std::mem::replace(&mut self.binding, letters);
+        let kept = mem::replace(&mut self.binding, letters);
         let head = self.standard_step(one);
         self.binding = kept;
         let Some((how, value)) = head.filter(|(h, _)| {
@@ -1040,7 +1044,7 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let sig = self.sig(label);
-        let binds: crate::mm::spell::Binds = sig
+        let binds: Binds = sig
             .floats
             .iter()
             .zip(term.children())

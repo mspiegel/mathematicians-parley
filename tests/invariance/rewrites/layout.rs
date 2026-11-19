@@ -1,5 +1,11 @@
 //! Reading a proof's layout: regions, claims and letters.
 
+use std::cmp::Reverse;
+
+use parley::corpus::define;
+use parley::corpus::proof::Range;
+use parley::sorts;
+
 use super::*;
 
 /// Characters `from..to` of a line, which hold a formula.
@@ -209,7 +215,7 @@ pub(super) fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             checked.insert(i);
         }
         // `ε, δ range over ℝ`: the letters it names are the theorem's.
-        if parley::corpus::proof::Range::read(rest.trim(), 0).is_some() {
+        if Range::read(rest.trim(), 0).is_some() {
             let to = char_find(&c, start, " range").unwrap_or(start);
             push(&mut regions, i, Some((start, to)));
             checked.insert(i);
@@ -219,8 +225,7 @@ pub(super) fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
     for d in &thm.defines {
         let l = at(d.line);
         let c = chars(&lines[l]);
-        let word = parley::corpus::define::naming(lines[l].trim())
-            .map_or("define", |w| w.word());
+        let word = define::naming(lines[l].trim()).map_or("define", |w| w.word());
         let from = first_text(&c) + word.chars().count() + 1;
         let mut to = trimmed_end(&c);
         if let Some(cut) = char_rfind(&c, &format!("({})", d.label)) {
@@ -591,7 +596,7 @@ pub(super) fn rename(
     }
     let mut changed = 0;
     for (l, mut regions) in by_line {
-        regions.sort_by_key(|r| std::cmp::Reverse(r.from));
+        regions.sort_by_key(|r| Reverse(r.from));
         let mut c = chars(&lines[l]);
         let before = lines[l].clone();
         for r in regions {
@@ -645,13 +650,13 @@ pub(super) fn introduced(thm: &Theorem) -> Vec<String> {
     };
     for h in &thm.hypotheses {
         if h.kind == Intro::Let {
-            add(let_letter(&parley::sorts::body_of(h.text.trim(), "let")));
+            add(let_letter(&sorts::body_of(h.text.trim(), "let")));
         }
     }
     for step in &thm.steps {
         for o in &step.openers {
             if o.kind == Intro::Let && !o.is_hypothesis {
-                add(let_letter(&parley::sorts::body_of(o.text.trim(), "let")));
+                add(let_letter(&sorts::body_of(o.text.trim(), "let")));
             }
         }
         if let Some(m) = re(r"^obtain\s+(.+?)(?::|\s+from\b)").captures(&step.just.text)
@@ -699,9 +704,7 @@ pub(super) fn held_own(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
                     if h.kind != Intro::Let {
                         continue;
                     }
-                    if let Some(l) =
-                        let_letter(&parley::sorts::body_of(h.text.trim(), "let"))
-                    {
+                    if let Some(l) = let_letter(&sorts::body_of(h.text.trim(), "let")) {
                         if !named.contains(&l) {
                             out.insert(l);
                         }

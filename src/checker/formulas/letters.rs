@@ -1,6 +1,10 @@
 //! Letters introduced, suppositions and contradictions.
 
+use std::iter;
+
 use super::*;
+use crate::matching::Definitions;
+use crate::targets::{GRAPH_PARTS, GROUP_PARTS};
 
 /// Each letter a step's claim or requires line writes free is one the step
 /// may use (`letters_in_scope`). A `for all` binds its letter to the end of
@@ -157,8 +161,8 @@ pub fn check_structure_parts(
     let mut given: BTreeSet<&str> = BTreeSet::new();
     for body in lets {
         let parts = match Introduction::read(body).form {
-            Form::Graph(_) | Form::GraphListed(_) => crate::targets::GRAPH_PARTS,
-            Form::Group { .. } => crate::targets::GROUP_PARTS,
+            Form::Graph(_) | Form::GraphListed(_) => GRAPH_PARTS,
+            Form::Group { .. } => GROUP_PARTS,
             _ => continue,
         };
         given.extend(parts.iter().map(|(name, _)| *name));
@@ -183,14 +187,12 @@ pub fn check_structure_parts(
                     {
                         continue;
                     }
-                    let structure = if crate::targets::GRAPH_PARTS
-                        .iter()
-                        .any(|(name, _)| *name == context)
-                    {
-                        "a graph"
-                    } else {
-                        "a group"
-                    };
+                    let structure =
+                        if GRAPH_PARTS.iter().any(|(name, _)| *name == context) {
+                            "a graph"
+                        } else {
+                            "a group"
+                        };
                     report.say(
                         &thm.path,
                         w.line(),
@@ -236,8 +238,7 @@ pub fn check_statement_names(
         .map(|h| (h.body(&thm.path), h.line));
     let stated = Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
     let mut named: BTreeSet<String> = BTreeSet::new();
-    for (written, line) in assumed.chain(std::iter::once((stated, thm.conclusion_line)))
-    {
+    for (written, line) in assumed.chain(iter::once((stated, thm.conclusion_line))) {
         for sentence in written.sentences() {
             let Ok(node) = known.parse(&sentence) else {
                 continue;
@@ -280,7 +281,7 @@ pub(super) fn negates_how(
     b: Option<&Node>,
     wrappers: &FxIndexSet<NotationId>,
     known: &Known,
-) -> Option<crate::matching::Meeting> {
+) -> Option<Meeting> {
     let (a, b) = (a?, b?);
     if a.children.is_empty() || !wrappers.contains(&a.notation()) {
         return None;
@@ -320,7 +321,7 @@ impl SupposedReading {
         &self,
         wrappers: &FxIndexSet<NotationId>,
         known: &Known,
-    ) -> Option<(Supposed, crate::matching::Meeting)> {
+    ) -> Option<(Supposed, Meeting)> {
         let (supposed, claimed) = (self.supposed.as_ref(), self.claimed.as_ref());
         if let Some(met) = negates_how(supposed, claimed, wrappers, known) {
             return Some((Supposed::ClaimDenied, met));
@@ -357,7 +358,7 @@ pub(super) fn part_supposition(
     part: Option<usize>,
     owed: &[Owed],
     written: &[Owed],
-    outside: &crate::matching::Definitions,
+    outside: &Definitions,
     known: &Known,
 ) -> Option<SupposedReading> {
     let opening = owner.opening(part);

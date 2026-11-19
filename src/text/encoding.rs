@@ -5,13 +5,16 @@
 //! than normalised: an editor that normalised differently would otherwise
 //! change the archive without anyone editing it.
 
+use std::str;
+use std::str::Utf8Error;
+
 use unicode_normalization::UnicodeNormalization;
 
 use crate::outcome::{Checked, Problem};
 
 /// The text of a file that is UTF-8 in Form C.
 pub fn check_encoding(path: &str, raw: &[u8]) -> Checked<String> {
-    let text = match std::str::from_utf8(raw) {
+    let text = match str::from_utf8(raw) {
         Ok(text) => text,
         Err(e) => {
             return Err(Problem::new(
@@ -36,7 +39,7 @@ pub fn check_encoding(path: &str, raw: &[u8]) -> Checked<String> {
 }
 
 /// A decoding failure, said the way Python's codec says it.
-fn utf8_error(raw: &[u8], e: &std::str::Utf8Error) -> String {
+fn utf8_error(raw: &[u8], e: &Utf8Error) -> String {
     let at = e.valid_up_to();
     match e.error_len() {
         Some(len) => {

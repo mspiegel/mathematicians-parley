@@ -13,7 +13,12 @@
 //! so many words where a question is about the text and not the sort: which
 //! names a theorem introduces, and what a `define`'s domain holds.
 
+pub(crate) mod infer;
+pub mod introduction;
+pub mod powers;
+
 use std::collections::BTreeSet;
+use std::iter;
 use std::sync::Arc;
 
 use crate::corpus::proof::{chain, visible};
@@ -21,10 +26,8 @@ use crate::corpus::{
     define_parts, Define, DefineLine, DefineParts, FileScope, Intro, Record,
     RecordKind, ScopeId, Theorem,
 };
-pub(crate) mod infer;
-pub mod introduction;
-pub mod powers;
 
+use crate::corpus::{phrases, skeleton};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{tokens, Written};
 use crate::formula::token::{Token, TokenKind};
@@ -32,6 +35,7 @@ use crate::formula::{holds, Grammar, Node, Sort, Sorts, Whole};
 use crate::matching::{expand, Defined, Definitions, ParamRead, Rule};
 use crate::notations::{FUNCTION_TYPE, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO};
 use crate::outcome::{Built, Checked, Declined};
+use indexmap::IndexMap;
 pub use introduction::graph_line;
 use introduction::Introduction;
 
@@ -97,7 +101,7 @@ pub struct Joined {
 
 /// A line without the label it closes on (`skeleton::without_label`).
 pub fn unlabel(text: &str) -> String {
-    crate::corpus::skeleton::without_label(text).to_string()
+    skeleton::without_label(text).to_string()
 }
 
 /// The tokens of every part of a theorem that is formula text: those of
@@ -188,10 +192,10 @@ pub fn record_formulas(r: &Record) -> Vec<Written> {
 /// recursion's rules and the set its index runs over.
 pub fn define_formulas(d: &DefineLine) -> Vec<Written> {
     match define_parts(&d.text) {
-        Built(DefineParts::One(one)) => std::iter::once(d.rule(&one.body))
+        Built(DefineParts::One(one)) => iter::once(d.rule(&one.body))
             .chain(one.params.iter().map(|p| d.domain(p)))
             .collect(),
-        Built(DefineParts::Recursion(r)) => std::iter::once(d.formula(&r.domain))
+        Built(DefineParts::Recursion(r)) => iter::once(d.formula(&r.domain))
             .chain(r.start.values().chain(r.step.values()).map(|v| d.rule(v)))
             .collect(),
         Built(DefineParts::Phrase(p)) => vec![d.formula(&p.meaning)],
@@ -336,12 +340,12 @@ pub struct OutsideDefines {
     /// out (`file_definitions`).
     pub outside: Definitions,
     /// The label a citation names each by.
-    pub labels: indexmap::IndexMap<String, String>,
+    pub labels: IndexMap<String, String>,
 }
 
 impl OutsideDefines {
     pub fn of(thm: &Theorem, env: Env) -> OutsideDefines {
-        let mut labels = indexmap::IndexMap::new();
+        let mut labels = IndexMap::new();
         for v in visible(env.scopes, thm.scope, thm.line) {
             let name = v.name.clone();
             let label = if v.scope == thm.scope {
@@ -575,7 +579,7 @@ pub fn element_sort(domain: &str, sorts: &Sorts) -> Sort {
 /// where its domain is (`Sorts::reals`). The define is the one at `line` of
 /// `path`, where a domain that does not read is a defect.
 pub fn define_sorts(
-    said: &crate::corpus::Define,
+    said: &Define,
     sorts: &Sorts,
     g: &Grammar,
     path: &str,
@@ -610,7 +614,7 @@ pub fn define_sorts(
 /// `structure::check_phrases`'s to report. A grammar that does not build
 /// is the checker's to report, and leaves the sorts as they are.
 pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
-    let defines = crate::corpus::phrases::phrase_defines(scopes);
+    let defines = phrases::phrase_defines(scopes);
     for _ in 0..=defines.len() {
         let Ok(g) = Grammar::load(records) else {
             return;
@@ -627,7 +631,7 @@ pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
                 continue;
             };
             let slots = infer::sort_lines_of_record(made, env, &p.said.slots());
-            let name = crate::corpus::phrases::notation_name(p.line, &p.said);
+            let name = phrases::notation_name(p.line, &p.said);
             settled_now.push((name, format!("{} → formula", slots.join(", "))));
         }
         let mut changed = false;
@@ -663,10 +667,7 @@ pub fn sorts_of_record(record: &Record, env: Env) -> Sorts {
 
 /// `sorts_of_record` of every item record, by its place in `records`: read
 /// once for a build, since every theorem cites from the same records.
-pub fn sorts_of_records(
-    records: &[Record],
-    env: Env,
-) -> indexmap::IndexMap<usize, Sorts> {
+pub fn sorts_of_records(records: &[Record], env: Env) -> IndexMap<usize, Sorts> {
     records
         .iter()
         .enumerate()

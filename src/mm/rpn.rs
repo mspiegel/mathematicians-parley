@@ -8,6 +8,7 @@
 //! sorts below every character a token holds.
 
 use std::borrow::Cow;
+use std::cell::Cell;
 use std::fmt;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -94,12 +95,12 @@ pub trait Spell {
 thread_local! {
     /// The tokens a term is put together in before it is shared, kept from
     /// one term to the next so that a term is one allocation.
-    static BUILDING: std::cell::Cell<Vec<Symbol>> = const { std::cell::Cell::new(Vec::new()) };
+    static BUILDING: Cell<Vec<Symbol>> = const { Cell::new(Vec::new()) };
 }
 
 /// The tokens `fill` puts down, shared.
 fn built(fill: impl FnOnce(&mut Vec<Symbol>)) -> Rpn {
-    let mut out = BUILDING.with(std::cell::Cell::take);
+    let mut out = BUILDING.with(Cell::take);
     out.clear();
     fill(&mut out);
     let made = Rpn(Arc::from(&out[..]));

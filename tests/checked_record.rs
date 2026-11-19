@@ -23,12 +23,13 @@
 //! adds: a disequality taken both ways, an antisymmetry's two lines, a
 //! requires line weakened to a disequality, and rows from a line.
 
-use std::path::Path;
+mod record;
+
+use std::path::{Path, PathBuf};
+use std::{env, fs};
 
 use parley::checker::{checked, CheckedCorpus};
 use parley::source::Disk;
-
-mod record;
 
 /// The theorems whose records are kept, by full name.
 const KEPT: [&str; 22] = [
@@ -120,7 +121,7 @@ fn meetings_printed(read: &CheckedCorpus, name: &str) -> String {
 }
 
 /// Where a theorem's kept record is.
-fn kept_at(root: &Path, name: &str) -> std::path::PathBuf {
+fn kept_at(root: &Path, name: &str) -> PathBuf {
     root.join("tests/records")
         .join(format!("{}.txt", name.replace('/', "--")))
 }
@@ -132,7 +133,7 @@ fn the_record_the_build_is_handed_is_the_one_kept() {
         Ok(read) => read,
         Err(out) => panic!("the corpus does not check: {}", out.printed),
     };
-    let write = std::env::var("PARLEY_RECORD_WRITE").is_ok();
+    let write = env::var("PARLEY_RECORD_WRITE").is_ok();
     let mut differ = Vec::new();
     for name in KEPT {
         let untouched = record::RequiresRewrite {
@@ -144,11 +145,11 @@ fn the_record_the_build_is_handed_is_the_one_kept() {
             + &meetings_printed(&read, name);
         let at = kept_at(root, name);
         if write {
-            std::fs::create_dir_all(at.parent().unwrap()).unwrap();
-            std::fs::write(&at, &now).unwrap();
+            fs::create_dir_all(at.parent().unwrap()).unwrap();
+            fs::write(&at, &now).unwrap();
             continue;
         }
-        let kept = std::fs::read_to_string(&at).unwrap_or_default();
+        let kept = fs::read_to_string(&at).unwrap_or_default();
         if kept != now {
             differ.push(format!(
                 "{name}: the record differs from {}\n--- kept\n{kept}--- now\n{now}",

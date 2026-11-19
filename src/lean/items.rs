@@ -6,7 +6,12 @@
 //! and `lake build` checks each mapped record against Mathlib, as a
 //! citation's test checks it against set.mm in the Metamath build.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+use std::{iter, ptr};
+
 use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
 
 use super::doc::file::{Binder as Doc, DeclProof, Declaration};
 use super::expr::{LetterType, Writer, GENERAL};
@@ -14,19 +19,21 @@ use super::names::{module_of, snake};
 use super::sets::set_type_in;
 use super::statement::{binders, Asked, Binder, StatedAt};
 use super::templates::Num;
-use crate::checker::CheckedCorpus;
+use crate::checker::{written, CheckedCorpus};
 use crate::citing::things::ThingTypes;
+use crate::citing::{finite, number_sets, Group, Want};
 use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::NotationId;
-use crate::formula::Node;
+use crate::formula::{Binds, Node, Sort, Sorts, Whole};
 use crate::notations::{
     ABSOLUTE_VALUE, ADDITIVE, APPLICATION, BICONDITIONAL, CARDINALITY,
-    COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION, EMPTY_SET, EQUALITY,
-    FINITE, FLOOR, FOR_ALL, FUNCTION_TYPE, IMPLICATION, INTEGER_RANGE, INTEGRAL,
-    LISTED_FOUR, LISTED_THREE, LISTED_TWO, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
-    NAME, NUMBER_SYSTEMS, NUMERAL, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, ORDER, POWER,
-    POWERSET, PRODUCT, PRODUCT_OVER, SET_OPERATIONS, SINGLETON, SUBSET, SUM, SUM_OVER,
-    SUPERSCRIPT, THERE_ARE, THERE_ARE_TWO, THERE_IS, UNARY_MINUS,
+    COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION, DIVIDED, EMPTY_SET,
+    EQUALITY, FINITE, FLOOR, FOR_ALL, FUNCTION_TYPE, IMPLICATION, INCIDENT,
+    INTEGER_RANGE, INTEGRAL, JOINS, LISTED_FOUR, LISTED_THREE, LISTED_TWO, LOGICAL_NOT,
+    MEMBERSHIP, MULTIPLICATIVE, NAME, NUMBER_SYSTEMS, NUMERAL, ONE_TO_ONE,
+    ONE_TO_ONE_ONTO, ONTO, ORDER, POWER, POWERSET, PRODUCT, PRODUCT_OVER,
+    SET_OPERATIONS, SINGLETON, SUBSET, SUM, SUM_OVER, SUPERSCRIPT, THERE_ARE,
+    THERE_ARE_TWO, THERE_IS, UNARY_MINUS,
 };
 use crate::outcome::Route;
 use crate::sorts::introduction::{Form, Introduction};
@@ -48,7 +55,7 @@ pub struct Sentence {
     /// The arithmetic the page writes in the whole of the declaration's
     /// statement, what it asks included, which the gate's read-back
     /// compares with what Lean elaborated (`readback`).
-    pub arithmetic: std::collections::BTreeMap<String, usize>,
+    pub arithmetic: BTreeMap<String, usize>,
     /// What its general letters range over; None where it has none.
     pub general: Option<General>,
     /// The domain each of its maps is on, by the map's letter: the X of `f
@@ -173,7 +180,7 @@ const ALGEBRAIC: &[NotationId] = &[
 /// citation then applies it in the citing claim's own type.
 fn general_kind(
     w: &Writer,
-    group: &crate::citing::Group,
+    group: &Group,
     says: &Node,
     functions: &[Node],
     free: &[FreeLetter],
@@ -182,7 +189,7 @@ fn general_kind(
     if free.iter().any(|f| f.fixed) {
         return None;
     }
-    let nodes: Vec<&Node> = group.asked().chain(std::iter::once(says)).collect();
+    let nodes: Vec<&Node> = group.asked().chain(iter::once(says)).collect();
     // What the letters are numbers of, and what its functions give: a sum's
     // term t : {a, …, b} → ℝ is a function into any ring of the kind.
     let given = functions
@@ -254,11 +261,11 @@ fn general_kind(
         )
         .collect();
     let integer_power = |p: &Node| {
-        p.notation() == crate::notations::POWER
+        p.notation() == POWER
             && p.children.get(1).is_some_and(|e| {
                 e.walk().iter().any(|n| {
                     integers.iter().any(|i| n.is_name() && *i == *n.text)
-                        || n.notation() == crate::notations::UNARY_MINUS
+                        || n.notation() == UNARY_MINUS
                 })
             })
     };
@@ -266,21 +273,20 @@ fn general_kind(
     // to have characteristic 0; a cast from ℚ asks a field.
     let systems_named: Vec<&Node> = parts
         .iter()
-        .filter(|p| p.notation() == crate::notations::NUMBER_SYSTEMS)
+        .filter(|p| p.notation() == NUMBER_SYSTEMS)
         .collect();
     let cast = !systems_named.is_empty();
     let field = parts
         .iter()
-        .any(|p| p.spelling() == crate::notations::DIVIDED || integer_power(p))
+        .any(|p| p.spelling() == DIVIDED || integer_power(p))
         || systems_named.iter().any(|s| &*s.text == "ℚ");
     let floor = parts.iter().any(|p| p.notation() == FLOOR);
     // An order between integers, b + 1 ≥ a of a range's ends, is an order
     // of ℤ and asks nothing of the ring.
     let ordered = floor
         || parts.iter().any(|p| {
-            p.notation() == crate::notations::ABSOLUTE_VALUE
-                || (p.notation() == crate::notations::ORDER
-                    && !order_of_integers(p, &integers))
+            p.notation() == ABSOLUTE_VALUE
+                || (p.notation() == ORDER && !order_of_integers(p, &integers))
         });
     if num == Num::Complex && ordered {
         return None;
@@ -337,10 +343,10 @@ fn graph_word_letters(
     for n in said.iter().flat_map(|n| n.walk()) {
         let places: Vec<(&Node, &super::expr::Members)> =
             match (n.notation(), n.children.as_slice()) {
-                (crate::notations::JOINS, [a, u, w]) => {
+                (JOINS, [a, u, w]) => {
                     vec![(a, edge), (u, vertex), (w, vertex)]
                 }
-                (crate::notations::INCIDENT, [x, a]) => vec![(x, vertex), (a, edge)],
+                (INCIDENT, [x, a]) => vec![(x, vertex), (a, edge)],
                 _ => Vec::new(),
             };
         for (letter, members) in places {
@@ -390,7 +396,7 @@ fn function_gives(w: &Writer, node: &Node) -> Option<(String, Num)> {
     };
     match super::expr::system_of(to) {
         Some(super::expr::System::Type(n))
-            if node.notation() == crate::notations::FUNCTION_TYPE && f.is_name() =>
+            if node.notation() == FUNCTION_TYPE && f.is_name() =>
         {
             Some((f.text.to_string(), n))
         }
@@ -422,27 +428,23 @@ pub struct FreeLetter {
 /// The group's letters no fact it asks and no function type of the item's
 /// introduces, and what each is a number of.
 fn free_letters(
-    group: &crate::citing::Group,
+    group: &Group,
     says: &Node,
     functions: &[Node],
     points: &[String],
     w: &Writer,
-    binders: &IndexMap<
-        crate::formula::notation_id::NotationId,
-        crate::formula::Binds,
-        rustc_hash::FxBuildHasher,
-    >,
+    binders: &IndexMap<NotationId, Binds, FxBuildHasher>,
 ) -> Vec<FreeLetter> {
     let stated: Vec<Node> = group
         .asked()
         .cloned()
-        .chain(std::iter::once(says.clone()))
+        .chain(iter::once(says.clone()))
         .collect();
     let statements = statement_letters(&stated, w);
-    let ordered: std::collections::BTreeSet<String> = stated
+    let ordered: BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
-        .filter(|n| n.notation() == crate::notations::ORDER)
+        .filter(|n| n.notation() == ORDER)
         .flat_map(|n| n.names())
         .collect();
     // A range's member is an integer, and so is a letter that stands as a
@@ -450,27 +452,22 @@ fn free_letters(
     // A letter a count is compared with, n of "n ≤ |W|", is a natural
     // number: a count is one, or ∞ (`sets::count_term`), and Lean compares
     // the two in ℕ∞, which holds the naturals.
-    let beside_count: std::collections::BTreeSet<String> = stated
+    let beside_count: BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
-        .filter(|n| {
-            matches!(
-                n.notation(),
-                crate::notations::EQUALITY | crate::notations::ORDER
-            )
-        })
+        .filter(|n| matches!(n.notation(), EQUALITY | ORDER))
         .flat_map(|n| match n.children.as_slice() {
             [a, b] if w.counts(b) && a.is_name() => vec![a.text.to_string()],
             [a, b] if w.counts(a) && b.is_name() => vec![b.text.to_string()],
             _ => Vec::new(),
         })
         .collect();
-    let in_range: std::collections::BTreeSet<String> = stated
+    let in_range: BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
         .flat_map(|n| {
             let ends: Vec<String> = match n.notation() {
-                crate::notations::INTEGER_RANGE => n
+                INTEGER_RANGE => n
                     .children
                     .iter()
                     .filter(|c| c.is_name())
@@ -485,7 +482,7 @@ fn free_letters(
     // and z^n = w", is an integer: Lean raises to integers only, and of any
     // other n the statement is false. A letter put in ℕ that is no exponent,
     // the n of a triangular number, may be cited at a real, and keeps ℂ.
-    let said_integer: std::collections::BTreeSet<String> = stated
+    let said_integer: BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
         .filter_map(|n| super::statement::introduces(&n))
@@ -499,10 +496,10 @@ fn free_letters(
         })
         .map(|(letter, _)| letter)
         .collect();
-    let exponents: std::collections::BTreeSet<String> = stated
+    let exponents: BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
-        .filter(|n| n.notation() == crate::notations::POWER)
+        .filter(|n| n.notation() == POWER)
         .filter_map(|n| {
             n.children
                 .get(1)
@@ -510,7 +507,7 @@ fn free_letters(
                 .map(|e| e.text.to_string())
         })
         .collect();
-    let mut fixed = std::collections::BTreeSet::new();
+    let mut fixed = BTreeSet::new();
     for n in stated.iter().flat_map(|n| n.walk()) {
         let Route::Built(t) = w.template(&n) else {
             continue;
@@ -604,7 +601,7 @@ fn function_into_numbers(
 fn type_named_set(
     w: &mut Writer,
     statements: &mut Vec<Binder>,
-    sorts: Option<&crate::formula::Sorts>,
+    sorts: Option<&Sorts>,
     things: &ThingTypes,
     set: &Node,
 ) {
@@ -626,11 +623,8 @@ fn type_named_set(
 /// The letters that stand where a statement stands: a whole sentence, or a
 /// part an "and", "or", "not", "if" or "↔" joins, the P and Q of a rule of
 /// reasoning.
-fn statement_letters(
-    sentences: &[Node],
-    w: &Writer,
-) -> std::collections::BTreeSet<String> {
-    let mut out = std::collections::BTreeSet::new();
+fn statement_letters(sentences: &[Node], w: &Writer) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
     for s in sentences {
         if s.is_name() {
             out.insert(s.text.to_string());
@@ -742,23 +736,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let points = point_letters(record);
     // A phrase a define gives is written out as its meaning, as a theorem's
     // page is (`checker::written`).
-    let phrases = crate::checker::written::library_phrases(
-        &checked.corpus.records,
-        &checked.library.groups,
-    );
+    let phrases =
+        written::library_phrases(&checked.corpus.records, &checked.library.groups);
     let facts = checked.library.item_facts.get(&full);
-    let graph =
-        crate::checker::written::graph_letters(&record.hypotheses, &record.path);
-    let groups: Vec<crate::citing::Group> = groups
+    let graph = written::graph_letters(&record.hypotheses, &record.path);
+    let groups: Vec<Group> = groups
         .iter()
-        .map(|g| {
-            crate::checker::written::group_written(
-                g,
-                &phrases,
-                writer.grammar,
-                graph.as_ref(),
-            )
-        })
+        .map(|g| written::group_written(g, &phrases, writer.grammar, graph.as_ref()))
         .collect();
     for (gi, group) in groups.iter().enumerate() {
         // What the checker read the group's lines to say of its terms
@@ -774,8 +758,8 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
             }
             w.bounds = read.bounds.clone();
-            w.function_systems = std::rc::Rc::new(read.function_systems.clone());
-            let typed: &[crate::citing::Want] = checked
+            w.function_systems = Rc::new(read.function_systems.clone());
+            let typed: &[Want] = checked
                 .library
                 .function_types
                 .get(&full)
@@ -798,19 +782,19 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .corpus
                 .records
                 .iter()
-                .position(|r| std::ptr::eq(r, record))
+                .position(|r| ptr::eq(r, record))
                 .and_then(|i| checked.library.record_sorts.get(&i));
             let lines: Vec<&Node> = functions
                 .iter()
                 .chain(group.asked())
-                .chain(std::iter::once(says))
+                .chain(iter::once(says))
                 .collect();
             let graph_sets: Vec<String> = graph
                 .iter()
                 .flat_map(|g| [g.vertices.clone(), g.edges.clone()])
                 .collect();
             let things = ThingTypes::read(&graph_sets, &lines, sorts);
-            w.things = std::rc::Rc::new(things.clone());
+            w.things = Rc::new(things.clone());
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
@@ -818,9 +802,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // Within the "then" of an "if" in the item, the sets its "if"
             // makes finite, as the checker records them of a theorem's own
             // sentences (`citing::finite::finite_under`).
-            w.finite_under = std::rc::Rc::new(crate::citing::finite::finite_under(
-                lines.iter().copied(),
-            ));
+            w.finite_under = Rc::new(finite::finite_under(lines.iter().copied()));
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
@@ -848,7 +830,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             // A letter the sorts leave out that stands as a member of a set,
             // the u of "u ∈ Y ∖ Z", is a member of that set's kind.
-            let said: Vec<&Node> = group.asked().chain(std::iter::once(says)).collect();
+            let said: Vec<&Node> = group.asked().chain(iter::once(says)).collect();
             // A set of numbers, which its sort does not say the type of, is
             // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
             // Or of the numbers of a set it is joined with or taken from:
@@ -880,12 +862,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // numbers by order or integrates over reals, and of complex
             // numbers where it does neither, as its number letters are
             // (`free_letters`).
-            let ordered = said.iter().flat_map(|n| n.walk()).any(|n| {
-                n.notation() == crate::notations::ORDER || n.notation() == INTEGRAL
-            });
-            let of_numbers = |s: &crate::formula::Sort| {
-                matches!(s.full(), Some(crate::formula::Whole::Set(m))
-                    if matches!(**m, crate::formula::Whole::Number))
+            let ordered = said
+                .iter()
+                .flat_map(|n| n.walk())
+                .any(|n| n.notation() == ORDER || n.notation() == INTEGRAL);
+            let of_numbers = |s: &Sort| {
+                matches!(s.full(), Some(Whole::Set(m))
+                    if matches!(**m, Whole::Number))
             };
             // A set named only in a function's type, the X of `f : X → ℝ`,
             // is one of them too.
@@ -907,9 +890,8 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 // The set a function maps from, where the item applies the
                 // function only at members of a range, t(k) of k ∈ {a, …,
                 // b}, is a set of integers.
-                let at_integers = crate::citing::number_sets::domain_at_integers(
-                    &name, functions, &said,
-                );
+                let at_integers =
+                    number_sets::domain_at_integers(&name, functions, &said);
                 let num = match (at_integers, ordered) {
                     (true, _) => Num::Int,
                     (false, true) => Num::Real,
@@ -923,14 +905,14 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // `where a is a function from numbers to numbers`: of reals
             // where the item orders numbers, as its sets of numbers are, and
             // of complex numbers where it does not.
-            let of_function = |s: &crate::formula::Sort| {
-                matches!(s.full(), Some(crate::formula::Whole::Function(from, to))
-                    if matches!(**from, crate::formula::Whole::Number)
-                        && matches!(**to, crate::formula::Whole::Number))
+            let of_function = |s: &Sort| {
+                matches!(s.full(), Some(Whole::Function(from, to))
+                    if matches!(**from, Whole::Number)
+                        && matches!(**to, Whole::Number))
             };
             let typed_by_line = |name: &str| {
                 functions.iter().chain(said.iter().copied()).any(|n| {
-                    n.notation() == crate::notations::FUNCTION_TYPE
+                    n.notation() == FUNCTION_TYPE
                         && n.children.first().is_some_and(|f| *f.text == *name)
                 })
             };
@@ -982,7 +964,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 let [x, set] = n.children.as_slice() else {
                     continue;
                 };
-                let member = n.notation() == crate::notations::MEMBERSHIP
+                let member = n.notation() == MEMBERSHIP
                     && x.is_name()
                     && free.iter().any(|f| *f.name == *x.text)
                     && !sets.iter().any(|(s, _)| *s == *x.text);
@@ -998,9 +980,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // the lines that let them, `H is a subgroup of G`, `a ∈ G`.
             let of_group = |name: &str| {
                 let sort = sorts.and_then(|s| s.get(name)).and_then(|s| s.full());
-                matches!(sort, Some(crate::formula::Whole::GroupElement))
-                    || matches!(sort, Some(crate::formula::Whole::Set(m))
-                        if matches!(**m, crate::formula::Whole::GroupElement))
+                matches!(sort, Some(Whole::GroupElement))
+                    || matches!(sort, Some(Whole::Set(m))
+                        if matches!(**m, Whole::GroupElement))
             };
             let free: Vec<FreeLetter> = free
                 .into_iter()
@@ -1036,7 +1018,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             let stated: Vec<Node> = group
                 .asked()
                 .cloned()
-                .chain(std::iter::once(says.clone()))
+                .chain(iter::once(says.clone()))
                 .collect();
             let said = statement_letters(&stated, writer);
             for name in group.free_names(&writer.grammar.binders()) {
@@ -1148,7 +1130,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // other, which its groups leave out as they leave out its type.
             // The fact is written once every letter has its type, after the
             // binders, since D may be made of letters a line lets, [a, b].
-            let mut maps: Vec<&crate::citing::Want> = Vec::new();
+            let mut maps: Vec<&Want> = Vec::new();
             for typed in typed {
                 let node = &typed.tree;
                 let [f, from, to] = node.children.as_slice() else {
@@ -1329,7 +1311,7 @@ fn proof_of(entry: &str, sentence: &Sentence) -> Route<String> {
 pub fn declaration(
     sentence: &Sentence,
     proof: &str,
-    modules: std::collections::BTreeSet<String>,
+    modules: BTreeSet<String>,
 ) -> super::doc::file::Declaration {
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
     let mut binders: Vec<Doc> = sentence

@@ -7,6 +7,7 @@
 //! the grammar, the database, set.mm — is borrowed; what belongs to this
 //! theorem is owned, and goes when the theorem is written.
 
+use std::borrow::Cow;
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -17,7 +18,7 @@ use super::{Facts, Lines, Written};
 use crate::checker::record::CheckedTheorem;
 use crate::checker::LibraryReading;
 use crate::citing;
-use crate::corpus::{written_text, FileScope, Item, Record, Step, Theorem};
+use crate::corpus::{proof, written_text, FileScope, Item, Record, Step, Theorem};
 use crate::formula::notation_id::{LiteralId, NotationId, Spelling};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Grammar, Node, Sorts};
@@ -637,19 +638,19 @@ impl<'a> Elaborator<'a> {
             // matches as it matches a record: each with the sorts the
             // checker read its statement with (`cited_statement`).
             let mut proved = IndexMap::new();
-            for (name, _) in crate::corpus::proof::cited_items(self.thm) {
+            for (name, _) in proof::cited_items(self.thm) {
                 if let (Some(Item::Theorem(t)), Some(cited)) =
                     (self.items.get(&name), self.library_read.cited.get(&name))
                 {
                     proved.entry(name).or_insert_with(|| citing::Proved {
                         thm: t,
-                        sorts: std::borrow::Cow::Borrowed(&cited.sorts),
+                        sorts: Cow::Borrowed(&cited.sorts),
                     });
                 }
             }
             Rc::new(citing::Library::read_by_checker(
                 self.records,
-                std::borrow::Cow::Borrowed(&self.library_read.record_sorts),
+                Cow::Borrowed(&self.library_read.record_sorts),
                 proved,
                 env,
                 &self.library_read.groups,
@@ -676,7 +677,7 @@ impl<'a> Elaborator<'a> {
     /// words are put together only if something reads them.
     pub fn no<T>(
         &self,
-        shape: impl Into<std::borrow::Cow<'static, str>>,
+        shape: impl Into<Cow<'static, str>>,
         terms: &[&Rpn],
     ) -> Route<T> {
         Route::Declined(Decline::shaped(

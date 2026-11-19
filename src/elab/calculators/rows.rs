@@ -1,6 +1,9 @@
 //! Algebra rows, orders and memberships.
 
+use std::mem;
+
 use super::*;
+use crate::methods::inequalities;
 
 impl<'a> Elaborator<'a> {
     /// What an inequalities step with rows is proved from: the lines it
@@ -358,9 +361,9 @@ impl<'a> Elaborator<'a> {
             }
         }
         let goal = self.to_term(term);
-        let Some(used) = crate::methods::inequalities::combined(
-            &goal, &cited, &line_of, &implied, &labels,
-        ) else {
+        let Some(used) =
+            inequalities::combined(&goal, &cited, &line_of, &implied, &labels)
+        else {
             return Err(self.unreached(
                 self.at,
                 "the checker took this step as adding its facts, and no combination of them adds to its claim",
@@ -587,7 +590,7 @@ impl<'a> Elaborator<'a> {
                 kinded.insert(d.label.clone());
             }
         }
-        let kept = std::mem::replace(&mut self.kept_named, kinded);
+        let kept = mem::replace(&mut self.kept_named, kinded);
         let made = self.member_of(&claim, scope, &known, Some(step));
         self.kept_named = kept;
         match made? {
@@ -667,7 +670,7 @@ impl<'a> Elaborator<'a> {
         known: &Facts,
         step: Option<&Step>,
     ) -> Checked<Facts> {
-        let kept = std::mem::replace(&mut self.reading_facts, true);
+        let kept = mem::replace(&mut self.reading_facts, true);
         let out = self.memberships_read(scope, known, step);
         self.reading_facts = kept;
         out

@@ -1,5 +1,7 @@
 //! What a `define` line says.
 
+use std::iter;
+
 use indexmap::IndexMap;
 
 use crate::formula::page::{Case, Written};
@@ -440,7 +442,7 @@ struct RuleHead<'t> {
 /// its head to the next.
 fn rule_heads(body: &str) -> Vec<RuleHead<'_>> {
     let mut out: Vec<RuleHead> = Vec::new();
-    let starts = std::iter::once(0).chain(body.match_indices(',').map(|(i, _)| i));
+    let starts = iter::once(0).chain(body.match_indices(',').map(|(i, _)| i));
     for start in starts {
         if out.last().is_some_and(|h| start < h.end) {
             continue;
@@ -651,7 +653,7 @@ fn by_cases(lines: &[&str]) -> Route<RuleText> {
     let written = cases
         .iter()
         .map(|c| format!("{} if {}", c.value, c.condition))
-        .chain(std::iter::once(format!("{last} otherwise")))
+        .chain(iter::once(format!("{last} otherwise")))
         .collect::<Vec<_>>()
         .join(", ");
     Built(RuleText::Cases(Cases {

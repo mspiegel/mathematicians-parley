@@ -1,5 +1,10 @@
 //! Proof skeletons: the `.proof` files.
 
+mod chains;
+mod parse;
+mod steps;
+mod theorem;
+
 use std::fmt;
 use std::sync::Arc;
 
@@ -16,11 +21,6 @@ use super::{cited_name, in_stdlib, module_of};
 use crate::formula::page::Written;
 use crate::outcome::{Built, Checked, Problem, Route};
 use crate::text::{prefix, repr};
-
-mod chains;
-mod parse;
-mod steps;
-mod theorem;
 
 use self::chains::*;
 pub use self::chains::{

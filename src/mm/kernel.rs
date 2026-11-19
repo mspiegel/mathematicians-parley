@@ -19,7 +19,10 @@
 
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -67,8 +70,8 @@ struct TermData {
 #[derive(Clone)]
 pub struct Term(Rc<TermData>);
 
-impl std::fmt::Debug for Term {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Debug for Term {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match (&self.0.variable, &self.0.label) {
             (Some(v), _) => write!(f, "{v}"),
             (None, None) => write!(f, "(neither a variable nor labelled)"),
@@ -97,11 +100,11 @@ pub struct FloatLabels {
     map: IndexMap<Symbol, Symbol>,
 }
 
-static NEXT_LABELS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static NEXT_LABELS: AtomicU64 = AtomicU64::new(0);
 
 impl FloatLabels {
     pub fn new(map: IndexMap<Symbol, Symbol>) -> FloatLabels {
-        let id = NEXT_LABELS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let id = NEXT_LABELS.fetch_add(1, Ordering::Relaxed);
         FloatLabels { id, map }
     }
 

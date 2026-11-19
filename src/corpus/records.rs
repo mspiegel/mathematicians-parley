@@ -1,5 +1,8 @@
 //! Records of `corpus/db/*.records` and `corpus/stdlib/*.records`.
 
+use std::fmt;
+use std::fmt::{Display, Formatter};
+
 use indexmap::IndexMap;
 
 use super::lines::read_lines;
@@ -76,8 +79,8 @@ impl RecordKind {
     }
 }
 
-impl std::fmt::Display for RecordKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for RecordKind {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }

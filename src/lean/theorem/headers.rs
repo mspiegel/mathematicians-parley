@@ -1,11 +1,21 @@
 //! A theorem's header, recursions and given things.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::slice;
+
 use super::super::doc::CountForm::{Extended, Natural};
 use super::super::doc::{Arg, Brackets, LeanType, Op, Quant, TermKind};
 use super::super::expr::Members;
 use super::super::tactics as t;
 use super::super::templates::Num;
 use super::*;
+use crate::citing::HypothesisAt;
+use crate::corpus::{Define, DefineLine, DefineParts, Recursion, RuleText};
+use crate::formula::symbol::Symbol;
+use crate::formula::Sort;
+use crate::matching::{Binding, Context, Defined};
+use crate::notations::{IN, INTEGER_RANGE, MEMBERSHIP, NUMBER_SYSTEMS};
+use crate::{corpus, matching};
 
 /// A statement with the numbers a step names as an integer's `toNat` put
 /// back as the integers (`put_back`).
@@ -96,7 +106,7 @@ pub(super) fn part_written(
     says: Option<Printed>,
     written: &Node,
     w: &Writer,
-    ctx: &crate::matching::Context,
+    ctx: &Context,
 ) -> Option<super::super::algebra::Cited> {
     if read_alike(node, written, ctx) {
         return Some(super::super::algebra::Cited {
@@ -123,14 +133,10 @@ pub(super) fn part_written(
 
 /// Whether a line's tree and a node the record holds are one, each read in
 /// the standard spelling as the checker reads them: `n²` is `n^2`.
-pub(super) fn read_alike(
-    line: &Node,
-    recorded: &Node,
-    ctx: &crate::matching::Context,
-) -> bool {
-    crate::matching::alike_top(
-        &crate::matching::standard(line, ctx),
-        &crate::matching::standard(recorded, ctx),
+pub(super) fn read_alike(line: &Node, recorded: &Node, ctx: &Context) -> bool {
+    matching::alike_top(
+        &matching::standard(line, ctx),
+        &matching::standard(recorded, ctx),
         ctx,
     )
 }
@@ -447,7 +453,7 @@ pub(super) fn type_membership(part: &Unfolded) -> bool {
         return false;
     };
     match (fact.notation(), fact.children.as_slice()) {
-        (crate::notations::MEMBERSHIP, [_, set]) => matches!(
+        (MEMBERSHIP, [_, set]) => matches!(
             super::super::expr::system_of(set),
             Some(super::super::expr::System::Type(_))
         ),
@@ -584,14 +590,12 @@ pub(super) fn hypothesis_sentences(
 /// gives written out as the term it names, as the checker reads the
 /// statement (`CheckedTheorem::statement_definitions`).
 pub(super) fn defined_out(node: &Node, rec: &CheckedTheorem, writer: &Writer) -> Node {
-    let put: crate::matching::Binding = rec
+    let put: Binding = rec
         .statement_definitions
         .iter()
         .filter_map(|(name, d)| match d {
-            crate::matching::Defined::Term(t) => {
-                Some((crate::formula::symbol::Symbol::of(name), t.clone()))
-            }
-            crate::matching::Defined::Rule(_) => None,
+            Defined::Term(t) => Some((Symbol::of(name), t.clone())),
+            Defined::Rule(_) => None,
         })
         .collect();
     if put.is_empty() {
@@ -602,16 +606,16 @@ pub(super) fn defined_out(node: &Node, rec: &CheckedTheorem, writer: &Writer) ->
     // tree, once for each define at most.
     let binders = writer.grammar.binders();
     let named = |n: &Node| {
-        crate::matching::free_names(n, &binders)
+        matching::free_names(n, &binders)
             .iter()
-            .any(|name| put.contains_key(&crate::formula::symbol::Symbol::of(name)))
+            .any(|name| put.contains_key(&Symbol::of(name)))
     };
     let mut out = node.clone();
     for _ in 0..put.len() {
         if !named(&out) {
             break;
         }
-        out = crate::matching::substitute_apart_by(&out, &put, &binders);
+        out = matching::substitute_apart_by(&out, &put, &binders);
     }
     out
 }
@@ -622,8 +626,8 @@ pub(super) fn statement_terms(rec: &CheckedTheorem) -> Vec<(String, Node)> {
     rec.statement_definitions
         .iter()
         .filter_map(|(name, d)| match d {
-            crate::matching::Defined::Term(t) => Some((name.clone(), t.clone())),
-            crate::matching::Defined::Rule(_) => None,
+            Defined::Term(t) => Some((name.clone(), t.clone())),
+            Defined::Rule(_) => None,
         })
         .collect()
 }
@@ -633,14 +637,14 @@ pub(super) fn statement_terms(rec: &CheckedTheorem) -> Vec<(String, Node)> {
 pub(super) struct ThingsGiven {
     /// The least type that holds the numbers given each type variable's
     /// things, by the variable.
-    pub(super) at: std::collections::BTreeMap<usize, super::super::templates::Num>,
+    pub(super) at: BTreeMap<usize, super::super::templates::Num>,
     /// The type variables whose sets are given sets of numbers, X := {2n :
     /// n ∈ ℤ}.
-    pub(super) numbers: std::collections::BTreeSet<usize>,
+    pub(super) numbers: BTreeSet<usize>,
     /// What the members are of a set given for each type variable's set
     /// where they are not numbers, sets of integers of X := {e ⊆ {1, …, m}
     /// : |e| = m}.
-    pub(super) others: std::collections::BTreeMap<usize, super::super::expr::Members>,
+    pub(super) others: BTreeMap<usize, super::super::expr::Members>,
 }
 
 impl ThingsGiven {
@@ -734,8 +738,8 @@ pub(super) struct HeaderReading {
 /// read-back counts the arithmetic of alike.
 pub(super) fn header_reading(
     writer: &Writer,
-    d: &crate::corpus::DefineLine,
-    def: &crate::corpus::Define,
+    d: &DefineLine,
+    def: &Define,
     rec: &CheckedTheorem,
 ) -> Route<HeaderReading> {
     let sets = set_valued(rec, &def.name);
@@ -804,7 +808,7 @@ pub(super) fn header_reading(
         Some(system) => super::super::expr::Members::Numbers(
             super::super::expr::letter_type(system).max(Num::Int),
         ),
-        None if domain.notation() == crate::notations::INTEGER_RANGE => {
+        None if domain.notation() == INTEGER_RANGE => {
             super::super::expr::Members::Numbers(Num::Int)
         }
         None => match writer.set_members(&domain) {
@@ -816,12 +820,8 @@ pub(super) fn header_reading(
             }
         },
     };
-    let x = Node::name(crate::formula::Sort::none(), &param.name);
-    let member = Node::of(
-        crate::notations::IN,
-        crate::formula::Sort::none(),
-        vec![x, domain.clone()],
-    );
+    let x = Node::name(Sort::none(), &param.name);
+    let member = Node::of(IN, Sort::none(), vec![x, domain.clone()]);
     Route::Built(HeaderReading {
         domain,
         body: body.clone(),
@@ -837,14 +837,14 @@ impl HeaderReading {
     pub(super) fn inside<'a>(&self, writer: &Writer<'a>, param: &str) -> Writer<'a> {
         let mut w = writer.with_letters(writer.letters.clone());
         w.letters.insert(param.to_string(), self.takes.letter());
-        w.knowing(std::slice::from_ref(&self.member))
+        w.knowing(slice::from_ref(&self.member))
     }
 }
 
 pub(super) fn header_function(
     writer: &mut Writer,
-    d: &crate::corpus::DefineLine,
-    def: &crate::corpus::Define,
+    d: &DefineLine,
+    def: &Define,
     rec: &CheckedTheorem,
 ) -> Route<Vec<Binder>> {
     let HeaderReading {
@@ -873,7 +873,7 @@ pub(super) fn header_function(
     };
     // The value is read where x is in the domain: √x of x ∈ {y ∈ ℝ : y >
     // 0} the real square root.
-    let inside = writer.knowing(std::slice::from_ref(&member));
+    let inside = writer.knowing(slice::from_ref(&member));
     // A function of a real or complex argument gives values of at least
     // that type, as continuity and derivatives read it: a step of 0 and 1
     // on [0, 1] is a function into ℝ.
@@ -1001,8 +1001,8 @@ pub(super) struct RecursionRule<'r> {
 
 /// Each function's rules of a recursion, as the checker read them.
 pub(super) fn recursion_rules<'r>(
-    r: &'r crate::corpus::Recursion,
-    d: &crate::corpus::DefineLine,
+    r: &'r Recursion,
+    d: &DefineLine,
     rec: &CheckedTheorem,
 ) -> Route<Vec<RecursionRule<'r>>> {
     let mut out = Vec::new();
@@ -1022,8 +1022,8 @@ pub(super) fn recursion_rules<'r>(
 
 /// A rule of a recursion as the checker read it; None where it read none.
 pub(super) fn rule_tree(
-    rule: &crate::corpus::RuleText,
-    d: &crate::corpus::DefineLine,
+    rule: &RuleText,
+    d: &DefineLine,
     rec: &CheckedTheorem,
 ) -> Option<Node> {
     match rule.written(&d.path, d.line).sentences().as_slice() {
@@ -1039,29 +1039,21 @@ pub(super) fn recursion_arithmetic(
     writer: &Writer,
     thm: &Theorem,
     rec: &CheckedTheorem,
-) -> std::collections::BTreeMap<String, usize> {
-    let mut out = std::collections::BTreeMap::new();
+) -> BTreeMap<String, usize> {
+    let mut out = BTreeMap::new();
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        let r = match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
+        let r = match corpus::define_parts(&d.text) {
+            Route::Built(DefineParts::Recursion(r)) => r,
             // A function the header lets by its value: the value, which its
             // hypothesis states (`header_function`). One of several
             // arguments is written out, and has no hypothesis.
-            Route::Built(crate::corpus::DefineParts::One(one))
-                if one.params.len() == 1 =>
-            {
+            Route::Built(DefineParts::One(one)) if one.params.len() == 1 => {
                 let values: Vec<Node> = rec
                     .page
                     .entries()
                     .filter(|(key, _)| key.line == d.line)
                     .map(|(_, n)| n.clone())
-                    .filter(|n| {
-                        !matches!(
-                            n.notation(),
-                            crate::notations::NUMBER_SYSTEMS
-                                | crate::notations::INTEGER_RANGE
-                        )
-                    })
+                    .filter(|n| !matches!(n.notation(), NUMBER_SYSTEMS | INTEGER_RANGE))
                     .filter(|n| !n.is_name())
                     .collect();
                 // The value as `header_function` reads it, knowing its
@@ -1118,20 +1110,14 @@ pub(super) fn header_recursions(
 ) -> Route<Vec<Binder>> {
     let mut out = Vec::new();
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        let r = match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
+        let r = match corpus::define_parts(&d.text) {
+            Route::Built(DefineParts::Recursion(r)) => r,
             // A function of more than one argument is written out where it is
             // applied (`checker::written`), and has no binder.
-            Route::Built(crate::corpus::DefineParts::One(one))
-                if one.params.len() > 1 =>
-            {
-                continue
-            }
+            Route::Built(DefineParts::One(one)) if one.params.len() > 1 => continue,
             // A function the header lets by its value, f(x) = 2x + 1, for x
             // ∈ ℝ: a function letter, and that equation for every x.
-            Route::Built(crate::corpus::DefineParts::One(one))
-                if !one.params.is_empty() =>
-            {
+            Route::Built(DefineParts::One(one)) if !one.params.is_empty() => {
                 match header_function(writer, d, &one, rec) {
                     Route::Built(b) => {
                         out.extend(b);
@@ -1235,7 +1221,7 @@ pub(super) struct StatedHypothesis {
     pub(super) node: Node,
     /// Its Lean name.
     pub(super) name: String,
-    pub(super) at: crate::citing::HypothesisAt,
+    pub(super) at: HypothesisAt,
 }
 
 pub(super) fn asked_of(written: &[StatedHypothesis]) -> Vec<Asked<'_>> {

@@ -15,8 +15,7 @@
 //! `fail_if_success` where it says it does not, so `lake build` fails when
 //! an entry is wrong or a Mathlib upgrade changes one.
 
-use super::doc::Term;
-use super::doc::{Arg, LeanType, Op, TermKind};
+use super::doc::{Arg, LeanType, Op, Term, TermKind};
 use super::templates::Num;
 
 /// An operation the writer writes, as the cast table knows it.

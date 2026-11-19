@@ -1,7 +1,11 @@
 //! Sums, series, integrals, limits and numbers.
 
 use super::*;
-use crate::notations::{DERIVATIVE, INTEGRAL};
+use crate::citing;
+use crate::notations::{
+    APPLICATION, APPLICATION_TO_PAIR, CONDITIONAL, DERIVATIVE, IMPLICATION, INTEGRAL,
+    MINUS,
+};
 
 impl Writer<'_> {
     /// Σ(k = a to b) t, `∑ k ∈ Finset.Icc a b, t`, and ∏ alike, its index ranging over
@@ -112,9 +116,9 @@ impl Writer<'_> {
             );
         };
         let mut inner = self.with_letters(self.letters.clone());
-        let system = match crate::citing::index_system(from) {
-            Some(crate::rules::System::N) => System::Positive,
-            Some(crate::rules::System::N0) => System::NonNegative,
+        let system = match citing::index_system(from) {
+            Some(rules::System::N) => System::Positive,
+            Some(rules::System::N0) => System::NonNegative,
             _ => System::Type(Num::Int),
         };
         inner.introduce(&index.text, system);
@@ -679,7 +683,7 @@ impl Writer<'_> {
                 _ => Route::no(format!("{} has no Lean number type", node.text)),
             },
             NUMERAL => Route::Built(Printed::numeral(&*node.text, self.num_type(at))),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+            APPLICATION | APPLICATION_TO_PAIR
                 if self.library_function(node).is_none() =>
             {
                 let applied = match self.applied(node) {
@@ -690,7 +694,7 @@ impl Writer<'_> {
                 // (x, y), each part in what f's domain holds there.
                 let arg = match (&node.children[1..], &applied.takes) {
                     ([x, y], Members::Pairs { first, second })
-                        if node.notation() == crate::notations::APPLICATION_TO_PAIR =>
+                        if node.notation() == APPLICATION_TO_PAIR =>
                     {
                         self.pair_term([x, y], &[(**first).clone(), (**second).clone()])
                     }
@@ -755,7 +759,7 @@ impl Writer<'_> {
                 // the page's only where the page says the difference is at
                 // least 0, whatever its parts are: a − b of a, b ∈ ℕ is not.
                 if here == Num::Nat
-                    && node.spelling() == crate::notations::MINUS
+                    && node.spelling() == MINUS
                     && !self.said_whole(node)
                 {
                     return Route::no(format!(
@@ -844,11 +848,8 @@ impl Writer<'_> {
                 .any(|(c, s)| matches!(s, Slot::Alpha(_)) && self.pinned(c));
         // The later part of "P and Q" or "if P then Q" is read where P holds,
         // √x of "x > 0 and x² < √x" the square root of a number at least 0.
-        let guarded = self.is_and(node)
-            || matches!(
-                node.notation(),
-                crate::notations::IMPLICATION | crate::notations::CONDITIONAL
-            );
+        let guarded =
+            self.is_and(node) || matches!(node.notation(), IMPLICATION | CONDITIONAL);
         let mut out = Vec::new();
         for (i, (child, slot)) in args.iter().zip(&template.holes).enumerate() {
             let printed = match slot {

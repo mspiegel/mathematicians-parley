@@ -1,8 +1,15 @@
 //! Closure claims, real arithmetic, links and recursions.
 
+use std::slice;
+
 use super::*;
-use crate::methods::pairs;
+use crate::checker::library;
+use crate::checker::record::{Facing, PassedCondition, TakenCase};
+use crate::corpus::proof;
+use crate::matching;
+use crate::methods::pairs::Coordinate;
 use crate::methods::surds::Verdict as Surd;
+use crate::methods::{field, pairs};
 
 /// A claim a closure method is asked of: a step's own, or a requires line's
 /// read as the step it would be, with the requires lines above it among what
@@ -13,11 +20,11 @@ pub(super) struct ClosureClaim<'s> {
     pub(super) claim: &'s Written,
     pub(super) refs: &'s [String],
     /// The requires lines above a requires line, whose facts it rests on.
-    pub(super) above: Vec<&'s crate::corpus::proof::Requires>,
+    pub(super) above: Vec<&'s Requires>,
     /// Where a refusal is said.
     pub(super) line: usize,
     /// The requires line, where the claim is one.
-    pub(super) requires: Option<&'s crate::corpus::proof::Requires>,
+    pub(super) requires: Option<&'s Requires>,
 }
 
 /// A closure claim and what it cites, read.
@@ -91,20 +98,14 @@ impl<'s> ClosureClaim<'s> {
     /// (`ChainLine::reason`), with every requires line of its step: the
     /// step's requires lines stand under its rows, and a row's reason is
     /// read with them (`CHECKER.md`).
-    pub(super) fn row(
-        step: &'s Step,
-        req: &'s crate::corpus::proof::Requires,
-    ) -> ClosureClaim<'s> {
+    pub(super) fn row(step: &'s Step, req: &'s Requires) -> ClosureClaim<'s> {
         ClosureClaim {
             above: step.requires.iter().collect(),
             ..ClosureClaim::requires(step, req)
         }
     }
 
-    pub(super) fn requires(
-        step: &'s Step,
-        req: &'s crate::corpus::proof::Requires,
-    ) -> ClosureClaim<'s> {
+    pub(super) fn requires(step: &'s Step, req: &'s Requires) -> ClosureClaim<'s> {
         ClosureClaim {
             step,
             claim: &req.fact,
@@ -139,15 +140,12 @@ impl<'s> ClosureClaim<'s> {
         // name standing (`SYNTAX.md`: a step that needs a value's
         // membership cites the label); any other method reads its rule.
         let kinded: Vec<String> = match self.membership() {
-            true => crate::checker::library::kinded_above(
-                known.thm,
-                known.shape(),
-                self.step,
-                known.env,
-            )
-            .into_iter()
-            .map(|k| k.label)
-            .collect(),
+            true => {
+                library::kinded_above(known.thm, known.shape(), self.step, known.env)
+                    .into_iter()
+                    .map(|k| k.label)
+                    .collect()
+            }
             false => Vec::new(),
         };
         let written_out: Vec<String> = self
@@ -205,7 +203,7 @@ impl<'s> ClosureClaim<'s> {
             Some(req) => req.by.as_ref().ok(),
             None => Some(&self.step.just),
         };
-        just.is_some_and(|j| j.head.is(crate::corpus::Method::Membership))
+        just.is_some_and(|j| j.head.is(Method::Membership))
     }
 
     /// A refusal as it is said here: of the requires line, where the claim
@@ -249,7 +247,7 @@ pub fn pairs_apart(
     thm: &Theorem,
     known: &Known,
     targets: &Targets,
-) -> IndexMap<usize, crate::methods::pairs::Coordinate> {
+) -> IndexMap<usize, Coordinate> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let at = ClosureClaim::step(step);
@@ -276,7 +274,7 @@ fn pair_apart_at(
     method: Option<Method>,
     known: &Known,
     targets: &Targets,
-) -> Option<crate::methods::pairs::Coordinate> {
+) -> Option<Coordinate> {
     // The claim's one fact, as the method reads it.
     let one = || {
         let facts: Vec<Node> = at
@@ -295,7 +293,7 @@ fn pair_apart_at(
     match method? {
         Method::Arithmetic => {
             let term = term_of_node(&written_out(&one()?, known), targets);
-            crate::methods::field::pairs_apart_at(&apart(&term)?)
+            field::pairs_apart_at(&apart(&term)?)
         }
         Method::RealArithmetic => {
             let term = real_term(&one()?, known, targets);
@@ -662,7 +660,7 @@ pub(super) fn written_out(node: &Node, known: &Known) -> Node {
     let g = known.env.g;
     let at = |k: u64| {
         let put = Binding::from([(index.text, numeral(&k.to_string()))]);
-        crate::matching::substitute_apart(body, &put, known.ctx)
+        matching::substitute_apart(body, &put, known.ctx)
     };
     (from + 1..=to).fold(at(from), |acc, k| made(g, joined, vec![acc, at(k)]))
 }
@@ -833,7 +831,7 @@ pub(super) fn membership_claim_refused(step: &Step, known: &Known) -> Option<Str
 /// The labels of the defines a theorem's links may cite: its own, its
 /// file's and those its file imports.
 pub(super) fn define_labels(thm: &Theorem, scopes: &[FileScope]) -> BTreeSet<String> {
-    crate::corpus::proof::in_scope(thm, scopes)
+    proof::in_scope(thm, scopes)
         .into_iter()
         .filter_map(|d| d.label)
         .collect()
@@ -848,7 +846,7 @@ pub(super) fn define_link_meeting(
 ) -> Option<Option<Meeting>> {
     let claim = link.claim(known)?;
     let cite = &link.line.cite;
-    let written = known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
+    let written = known.as_cited(&claim, &known.citing(slice::from_ref(cite)));
     let (one, other) = equation_sides(&written)?;
     Some(known.alike_how(one, other))
 }
@@ -962,10 +960,10 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
 /// faces it, by the link's line (`link_places`).
 #[derive(Default)]
 pub struct LinkPlaces {
-    pub places: IndexMap<usize, crate::checker::record::FirstAt>,
-    pub facings: IndexMap<usize, crate::checker::record::Facing>,
+    pub places: IndexMap<usize, FirstAt>,
+    pub facings: IndexMap<usize, Facing>,
     /// How the line met the link, where not as written.
-    pub meetings: IndexMap<usize, crate::matching::Meeting>,
+    pub meetings: IndexMap<usize, Meeting>,
 }
 
 /// A calculation link read against the line it cites: what the line says
@@ -1099,7 +1097,7 @@ pub(super) fn define_named(
     scopes: &[FileScope],
 ) -> Option<String> {
     // A recursion gives no one name.
-    crate::corpus::proof::in_scope(thm, scopes)
+    proof::in_scope(thm, scopes)
         .into_iter()
         .find(|d| d.label.as_deref() == Some(label))
         .and_then(|d| d.parts.name().map(|_| d.name))
@@ -1395,7 +1393,7 @@ pub fn check_recursions(report: &mut Report, thm: &Theorem, known: &Known) {
                         && node.children[0].is_name()
                         && said.names.iter().any(|n| *n == node.children[0].text)
                 };
-                let nodes = walk(std::slice::from_ref(&tree));
+                let nodes = walk(slice::from_ref(&tree));
                 let at_k: BTreeSet<usize> = nodes
                     .iter()
                     .filter(|n| applied(n))
@@ -1462,7 +1460,7 @@ pub fn check_define_citation(
     let wrappers = wrappers(env);
     for step in &thm.steps {
         let just = &step.just;
-        if just.head != crate::corpus::Head::Define {
+        if just.head != Head::Define {
             continue;
         }
         let label = just.defined.clone().unwrap_or_default();
@@ -1570,7 +1568,7 @@ pub fn define_cases(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-) -> IndexMap<usize, crate::checker::record::TakenCase> {
+) -> IndexMap<usize, TakenCase> {
     let wrappers = wrappers(library.env);
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
@@ -1599,15 +1597,12 @@ pub fn define_cases(
         }
         let passed = passed
             .iter()
-            .map(|p| crate::checker::record::PassedCondition {
+            .map(|p| PassedCondition {
                 holds: p.holds,
                 said_by: fact_placed(step, &p.fact, known),
             })
             .collect();
-        out.insert(
-            step.just.line,
-            crate::checker::record::TakenCase { passed, meeting },
-        );
+        out.insert(step.just.line, TakenCase { passed, meeting });
     }
     out
 }
@@ -1619,7 +1614,7 @@ pub(in crate::checker) fn fact_placed(
     step: &Step,
     fact: &Node,
     known: &Known,
-) -> Option<crate::checker::record::FirstAt> {
+) -> Option<FirstAt> {
     let scope = known.scope(step);
     let defined = known.citing_step(step);
     step.just.refs.iter().find_map(|r| {

@@ -1,11 +1,24 @@
 //! Proof methods: a recorded substitution written out.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::{iter, mem};
+
 use super::super::doc::{Arg, LeanType, Location, Op, TacticArg, TermKind};
 use super::super::expr::NaturalForm;
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::{ShownBy, SubstitutedInto};
+use crate::checker::record::{Besides, ShownBy, Substituted, SubstitutedInto};
+use crate::citing::bounds::Bound;
+use crate::citing::finite;
+use crate::corpus::proof;
+use crate::corpus::skeleton::Source;
+use crate::matching;
+use crate::matching::Binding;
+use crate::notations::{
+    BY_CASES, CARDINALITY, FOR_ALL, LOGICAL_NOT, MEMBERSHIP, MOD, NUMBER_SYSTEMS,
+    NUMERAL,
+};
 use crate::rules::System;
 
 impl<'a> Proof<'a> {
@@ -51,8 +64,8 @@ impl<'a> Proof<'a> {
                 // v j`, which `symm` does not take, is turned by `Ne.symm`.
                 let denial = matches!(
                     (claim.notation(), claim.children.as_slice()),
-                    (crate::notations::LOGICAL_NOT, [inner])
-                        if inner.notation() == crate::notations::EQUALITY
+                    (LOGICAL_NOT, [inner])
+                        if inner.notation() == EQUALITY
                 );
                 let turn = match denial {
                     true => super::super::tactics::call(
@@ -78,7 +91,7 @@ impl<'a> Proof<'a> {
     /// number is put for a letter written by its `toNat`.
     pub(super) fn put_closing(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         [was, now]: [&Node; 2],
         (line, claim): (usize, &Node),
         cast_to_nat: bool,
@@ -95,35 +108,33 @@ impl<'a> Proof<'a> {
         if (m.permuted && !turnable) || m.renamed {
             return Route::no("a putting that meets the claim other than as written");
         }
-        let turn = match turnable {
-            true => {
-                let put =
-                    crate::matching::put_at_places(&rec.start, &rec.put.places, now);
-                // A line put into is a formula; a side of the claim, a
-                // number in the type it is computed in.
-                let made = self.writer.formula(&put).built().or_else(|| {
-                    let at = self.writer.carrier(&put).built()?;
-                    self.writer.number(&put, at).built()
-                });
-                // The checker met what the putting makes, first, with the
-                // claim (`Substituted::meeting`).
-                match made.and_then(|_| {
-                    super::terms::flip_rewrites(
-                        &self.writer,
-                        &m.flips,
-                        super::terms::Toward::FromFirst,
-                    )
-                }) {
-                    Some(rewrites) => rewrites,
-                    None => {
-                        return Route::no(
-                            "a putting that meets the claim in an order no lemma turns",
+        let turn =
+            match turnable {
+                true => {
+                    let put = matching::put_at_places(&rec.start, &rec.put.places, now);
+                    // A line put into is a formula; a side of the claim, a
+                    // number in the type it is computed in.
+                    let made = self.writer.formula(&put).built().or_else(|| {
+                        let at = self.writer.carrier(&put).built()?;
+                        self.writer.number(&put, at).built()
+                    });
+                    // The checker met what the putting makes, first, with the
+                    // claim (`Substituted::meeting`).
+                    match made.and_then(|_| {
+                        super::terms::flip_rewrites(
+                            &self.writer,
+                            &m.flips,
+                            super::terms::Toward::FromFirst,
                         )
+                    }) {
+                        Some(rewrites) => rewrites,
+                        None => return Route::no(
+                            "a putting that meets the claim in an order no lemma turns",
+                        ),
                     }
                 }
-            }
-            false => Vec::new(),
-        };
+                false => Vec::new(),
+            };
         // The identity elements the putting leaves and the claim drops, as
         // the record names them, `1·x` as `x` by `one_mul`.
         let dropped: Option<Vec<&'static str>> =
@@ -163,7 +174,7 @@ impl<'a> Proof<'a> {
     /// what the step's lines bound.
     pub(super) fn put_exponents(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         [left, right]: [&Node; 2],
         [was, now]: [&Node; 2],
         writer: &Writer,
@@ -224,11 +235,9 @@ impl<'a> Proof<'a> {
         // `powers_converted_at`), each exponent's fact from the record. A
         // difference put for a whole letter, p − 1 for k, leaves it an
         // integer.
-        let natural_put = form(now) == NaturalForm::AsItIs
-            && now.notation() != crate::notations::NUMERAL;
-        let now_to_nat = form(now) == NaturalForm::ToNat
-            || now.notation() == crate::notations::NUMERAL
-            || natural_put;
+        let natural_put = form(now) == NaturalForm::AsItIs && now.notation() != NUMERAL;
+        let now_to_nat =
+            form(now) == NaturalForm::ToNat || now.notation() == NUMERAL || natural_put;
         let whole_was = exponent
             && !natural_exponent
             && form(was) == NaturalForm::ToNat
@@ -247,7 +256,7 @@ impl<'a> Proof<'a> {
     /// (`Substituted::put`).
     fn put_at_no_place(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         line: usize,
         claim: &Node,
     ) -> Route<super::super::doc::Proof> {
@@ -275,7 +284,7 @@ impl<'a> Proof<'a> {
     /// writes it.
     pub(super) fn putting_equation(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         row: Option<&GivenEquation>,
     ) -> Route<PuttingEquation> {
         // Which way the equation's proof is used: as the record puts it, the
@@ -524,7 +533,7 @@ impl<'a> Proof<'a> {
                         doc::Proof::By(tactic) => vec![tactic],
                         doc::Proof::Block(tactics) => tactics,
                     };
-                    doc::Proof::Block(std::iter::once(rw).chain(rest).collect())
+                    doc::Proof::Block(iter::once(rw).chain(rest).collect())
                 })
             }
         }
@@ -586,8 +595,7 @@ impl<'a> Proof<'a> {
         let into = match rec.place_flips.is_empty() {
             true => into,
             false => {
-                let toward =
-                    crate::matching::put_at_places(&rec.start, &rec.put.places, was);
+                let toward = matching::put_at_places(&rec.start, &rec.put.places, was);
                 let Route::Built(want) = self.writer.formula(&toward) else {
                     return Route::no("a line put into that the writer does not state");
                 };
@@ -618,9 +626,7 @@ impl<'a> Proof<'a> {
         // `∃ m : ℤ, (m : ℚ) = 2^(r!)·s(r)` of `2^(r!)·s(r) ∈ ℤ`, has its
         // arithmetic in that term's type.
         let member = match (rec.start.notation(), rec.start.children.as_slice()) {
-            (crate::notations::MEMBERSHIP, [term, set])
-                if set.notation() == crate::notations::NUMBER_SYSTEMS =>
-            {
+            (MEMBERSHIP, [term, set]) if set.notation() == NUMBER_SYSTEMS => {
                 Some(term.clone())
             }
             _ => self.writer.wide_in_slot(&rec.start).map(|(term, _)| term),
@@ -660,12 +666,7 @@ impl<'a> Proof<'a> {
             let mut at = &rec.start;
             for &k in path {
                 let connective = at.sort.is("formula")
-                    && !matches!(
-                        at.notation(),
-                        crate::notations::EQUALITY
-                            | crate::notations::ORDER
-                            | crate::notations::MEMBERSHIP
-                    );
+                    && !matches!(at.notation(), EQUALITY | ORDER | MEMBERSHIP);
                 if !connective {
                     break;
                 }
@@ -692,7 +693,7 @@ impl<'a> Proof<'a> {
         };
         // Each place's type: the line's for one in its arithmetic,
         // its own for any other; places of one type take one motive.
-        let types: std::collections::BTreeSet<super::super::templates::Num> = rec
+        let types: BTreeSet<super::super::templates::Num> = rec
             .put
             .places
             .iter()
@@ -737,7 +738,7 @@ impl<'a> Proof<'a> {
                     Route::Built(m) => m,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let between = crate::matching::put_at_places(&rec.start, &own, now);
+                let between = matching::put_at_places(&rec.start, &own, now);
                 let second_motive = match stage(&between, &arith, wide) {
                     Route::Built(m) => m,
                     Route::Declined(d) => return Route::Declined(d),
@@ -838,7 +839,7 @@ impl<'a> Proof<'a> {
         let line_said = self.line_statement(&into).built();
         let in_form = |said: &Option<Printed>| {
             said.as_ref().is_some_and(|c| {
-                std::mem::discriminant(&c.kind) == std::mem::discriminant(&body.kind)
+                mem::discriminant(&c.kind) == mem::discriminant(&body.kind)
             })
         };
         // A line of the whole number a term is, `∃ m : ℤ, (m : ℚ) =
@@ -902,7 +903,7 @@ impl<'a> Proof<'a> {
                     Route::Built(w) => w,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let restated = body.substituted(&std::collections::BTreeMap::from([(
+                let restated = body.substituted(&BTreeMap::from([(
                     super::super::names::letter(letter),
                     was_at,
                 )]));
@@ -997,7 +998,7 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let given = std::collections::BTreeMap::from([(
+                let given = BTreeMap::from([(
                     super::super::names::letter(letter),
                     now_written,
                 )]);
@@ -1077,7 +1078,7 @@ impl<'a> Proof<'a> {
             return Route::no("a substitution into an exponent of no term said whole");
         };
         let at_value = |v: Printed| {
-            body.substituted(&std::collections::BTreeMap::from([(
+            body.substituted(&BTreeMap::from([(
                 super::super::names::letter(letter),
                 v,
             )]))
@@ -1248,12 +1249,11 @@ impl<'a> Proof<'a> {
         was: &Node,
         now: &Node,
     ) {
-        if let Some(why) = crate::citing::finite::finite_by(&self.writer.finite, was) {
-            w.finite
-                .insert(crate::citing::finite::name_key(letter), why);
+        if let Some(why) = finite::finite_by(&self.writer.finite, was) {
+            w.finite.insert(finite::name_key(letter), why);
         }
         if let (Some(a), Some(b)) = (self.writer.least(was), self.writer.least(now)) {
-            w.bounds.terms.push(crate::citing::bounds::Bound {
+            w.bounds.terms.push(Bound {
                 term: Node::name(was.sort.clone(), letter),
                 least: a.min(b),
                 said_by: None,
@@ -1301,7 +1301,7 @@ impl<'a> Proof<'a> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn substituted_members(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         letter_ty: LetterType,
         put: PutTerms,
         equation: Printed,
@@ -1410,11 +1410,8 @@ impl<'a> Proof<'a> {
                     let Some(wanted) = self.claim_as_stated(line, claim) else {
                         return Route::no("a claim Lean states no form of");
                     };
-                    let put_in = crate::matching::put_at_places(
-                        &rec.start,
-                        &rec.put.places,
-                        now,
-                    );
+                    let put_in =
+                        matching::put_at_places(&rec.start, &rec.put.places, now);
                     match self.counted_between(
                         &made,
                         &says,
@@ -1433,7 +1430,7 @@ impl<'a> Proof<'a> {
             false => Route::Built(doc::Proof::Term(made)),
             true => Route::Built(doc::Proof::By(reordered(
                 &made,
-                rec.start.notation() == crate::notations::EQUALITY,
+                rec.start.notation() == EQUALITY,
             ))),
         }
     }
@@ -1466,7 +1463,7 @@ impl<'a> Proof<'a> {
         }
         // Substituting from a function the header lets by its value: its
         // equation for every x, put in where f is applied.
-        if let Some(crate::corpus::skeleton::Source::At(place)) = &just.source {
+        if let Some(Source::At(place)) = &just.source {
             if let Some(hyp) = self.header_function_named(place.named()) {
                 let everywhere =
                     TacticArg::At(vec![super::super::doc::Location::Everywhere]);
@@ -1485,7 +1482,7 @@ impl<'a> Proof<'a> {
         // The equation put in, as a tree.
         let mut put: Option<Node> = None;
         let equation = match (&just.source, &just.equation) {
-            (Some(crate::corpus::skeleton::Source::At(place)), written) => {
+            (Some(Source::At(place)), written) => {
                 // Of a line saying several things, the equation the step
                 // writes, as Lean writes both; else the one that turns the
                 // claim's left side into its right, as a calculation's row
@@ -1521,20 +1518,17 @@ impl<'a> Proof<'a> {
                                         == wanted
                             })
                             .or_else(|| {
-                                (claim.notation() == crate::notations::EQUALITY)
+                                (claim.notation() == EQUALITY)
                                     .then(|| {
                                         parts.iter().find(|c| {
-                                            c.node.notation()
-                                                == crate::notations::EQUALITY
+                                            c.node.notation() == EQUALITY
                                                 && makes_claim(&c.node, claim, grammar)
                                         })
                                     })
                                     .flatten()
                             })
                             .or_else(|| {
-                                parts.iter().find(|c| {
-                                    c.node.notation() == crate::notations::EQUALITY
-                                })
+                                parts.iter().find(|c| c.node.notation() == EQUALITY)
                             })
                             .or(parts.first())
                     })
@@ -1577,10 +1571,7 @@ impl<'a> Proof<'a> {
                 };
                 // An equation shown by real arithmetic where it is put, ln(8)
                 // = 3·ln(2) (real arithmetic), is the real arithmetic's.
-                if !matches!(
-                    just.source,
-                    Some(crate::corpus::skeleton::Source::RealArithmetic)
-                ) {
+                if !matches!(just.source, Some(Source::RealArithmetic)) {
                     return Route::no("an equation put in that no line states");
                 }
                 // Of numerals alone, cos(0) = 1, it is said in the type the
@@ -1662,9 +1653,7 @@ impl<'a> Proof<'a> {
         let recorded_into = self.rec.substituted.get(&just.line).and_then(|r| match &r
             .into
         {
-            crate::checker::record::SubstitutedInto::Line(at) => {
-                self.line_part(at).built()
-            }
+            SubstitutedInto::Line(at) => self.line_part(at).built(),
             _ => None,
         });
         let unrecorded = || {
@@ -1770,7 +1759,7 @@ impl<'a> Proof<'a> {
                 &claim.names(),
             );
             let mut parts = Vec::new();
-            let read = read.filter(|_| line.notation() == crate::notations::FOR_ALL);
+            let read = read.filter(|_| line.notation() == FOR_ALL);
             if let Some(at) = &read {
                 conjuncts(
                     &at.node,
@@ -1836,12 +1825,12 @@ impl<'a> Proof<'a> {
     pub(super) fn at_recorded_letter(
         &self,
         cited: &super::super::algebra::Cited,
-        names: &std::collections::BTreeSet<String>,
+        names: &BTreeSet<String>,
     ) -> Option<super::super::algebra::Cited> {
         let [letter, set, body] = cited.node.children.as_slice() else {
             return None;
         };
-        if cited.node.notation() != crate::notations::FOR_ALL || !letter.is_name() {
+        if cited.node.notation() != FOR_ALL || !letter.is_name() {
             return None;
         }
         // A guarded "for all", over ℕ or ℕ₀, asks a proof besides the
@@ -1857,7 +1846,7 @@ impl<'a> Proof<'a> {
         // The block's letter the check read the line at (`read_at`), where
         // the claim names it.
         let ctx = self.sources.ctx;
-        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let standard = |n: &Node| matching::standard(n, ctx);
         let said = standard(&cited.node);
         let i = self.step_now.get()?;
         let read_at = self
@@ -1865,17 +1854,14 @@ impl<'a> Proof<'a> {
             .read_at
             .get(i)?
             .iter()
-            .find(|r| crate::matching::alike_top(&standard(&r.said), &said, ctx))?;
+            .find(|r| matching::alike_top(&standard(&r.said), &said, ctx))?;
         let at = read_at.letter.text.to_string();
         if !names.contains(&at) || self.writer.letters.get(at.as_str()) != Some(&ty) {
             return None;
         }
         let at = &at;
-        let put = crate::matching::Binding::from([(
-            letter.text,
-            Node::name(letter.sort.clone(), at),
-        )]);
-        let read = crate::matching::substitute_apart_by(
+        let put = Binding::from([(letter.text, Node::name(letter.sort.clone(), at))]);
+        let read = matching::substitute_apart_by(
             body,
             &put,
             &self.sources.checked.grammar.binders(),
@@ -1938,7 +1924,7 @@ impl<'a> Proof<'a> {
     /// not among `cited`, or Lean writes the other side wider than n.
     fn witness_beside(
         &self,
-        beside: &crate::checker::record::Besides,
+        beside: &Besides,
         n: super::super::templates::Num,
         node: &Node,
         writer: &Writer,
@@ -2009,8 +1995,8 @@ impl<'a> Proof<'a> {
     /// `cited`, or no proof is written for u's bound.
     fn bound_beside(
         &self,
-        beside: &crate::checker::record::Besides,
-        system: crate::rules::System,
+        beside: &Besides,
+        system: System,
         just: &Justification,
         cited: &[super::super::algebra::Cited],
     ) -> Option<Printed> {
@@ -2028,7 +2014,7 @@ impl<'a> Proof<'a> {
             (Some(stated), _, _) => {
                 match cited.iter().find(|c| read_alike(&c.node, stated, ctx)) {
                     Some(c) => c.proof.clone(),
-                    None => self.line_saying(&crate::citing::finite::key(stated))?,
+                    None => self.line_saying(&finite::key(stated))?,
                 }
             }
             (None, Some(row), _) => whole_nonneg(&row.op, || {
@@ -2068,12 +2054,11 @@ impl<'a> Proof<'a> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
-        if set.notation() != crate::notations::NUMBER_SYSTEMS {
+        if set.notation() != NUMBER_SYSTEMS {
             return None;
         }
         // A count in ℤ is one in ℕ₀, as Lean states both (`count_in_system`).
-        let counted = term.notation() == crate::notations::CARDINALITY
-            && self.writer.counts(term);
+        let counted = term.notation() == CARDINALITY && self.writer.counts(term);
         let system = match System::of_sign(&set.text)? {
             System::Z if counted => System::N0,
             s => s,
@@ -2092,17 +2077,14 @@ impl<'a> Proof<'a> {
                 // an equation with the count of one that is: that count is the
                 // whole number it is, `⟨B.ncard, h.symm⟩` of `A.encard =
                 // ↑B.ncard`.
-                if term.notation() == crate::notations::CARDINALITY
-                    && self.writer.counts(term)
-                {
+                if term.notation() == CARDINALITY && self.writer.counts(term) {
                     if let (System::N0, Some(Route::Built(whole))) =
                         (system, self.writer.finite_count(&beside.other))
                     {
                         // The equation by its tree among the lines in scope,
                         // a requires line of the step's among them.
-                        let equation = self.line_saying(
-                            &crate::citing::finite::key(&beside.equation),
-                        )?;
+                        let equation =
+                            self.line_saying(&finite::key(&beside.equation))?;
                         let to_term = match beside.facing {
                             Facing::Straight => t::symm(t::bracket(equation)),
                             Facing::Turned => equation,
@@ -2125,7 +2107,7 @@ impl<'a> Proof<'a> {
                 let [_, domain, _] = map.children.as_slice() else {
                     return None;
                 };
-                if domain.notation() != crate::notations::NUMBER_SYSTEMS {
+                if domain.notation() != NUMBER_SYSTEMS {
                     return None;
                 }
                 let point = match System::of_sign(&domain.text)? {
@@ -2154,20 +2136,17 @@ impl<'a> Proof<'a> {
                 // A value by cases, 0 if numer(x) ≥ 0 and 1 otherwise, is in
                 // the system where each case's is: of numerals, each case
                 // taken in turn, `split`, and worked out, `norm_num`.
-                if value.notation() == crate::notations::BY_CASES {
+                if value.notation() == BY_CASES {
                     let mut cases = Vec::new();
                     let mut rest = value;
-                    while let (crate::notations::BY_CASES, [first, _, other]) =
+                    while let (BY_CASES, [first, _, other]) =
                         (rest.notation(), rest.children.as_slice())
                     {
                         cases.push(first);
                         rest = other;
                     }
                     cases.push(rest);
-                    if !cases
-                        .iter()
-                        .all(|c| c.notation() == crate::notations::NUMERAL)
-                    {
+                    if !cases.iter().all(|c| c.notation() == NUMERAL) {
                         return None;
                     }
                     // `simp only`, which reduces the function written out
@@ -2215,9 +2194,7 @@ impl<'a> Proof<'a> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
-        if node.notation() != crate::notations::MEMBERSHIP
-            || set.notation() != crate::notations::NUMBER_SYSTEMS
-        {
+        if node.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
             return None;
         }
         let system = System::of_sign(&set.text)?;
@@ -2372,9 +2349,7 @@ impl<'a> Proof<'a> {
         just: &Justification,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        let Some(Ok(rows)) =
-            crate::corpus::proof::substitute_rows(just, &self.thm.path)
-        else {
+        let Some(Ok(rows)) = proof::substitute_rows(just, &self.thm.path) else {
             return Route::no("substitute rows that do not cut");
         };
         let Some(first) = rows.first() else {
@@ -2419,7 +2394,7 @@ impl<'a> Proof<'a> {
                             floor = floor.max(n);
                         }
                     }
-                    if row_node.notation() == crate::notations::ORDER {
+                    if row_node.notation() == ORDER {
                         floor = floor.min(Num::Real);
                     }
                     writer.closed_formula(&row_node, floor)
@@ -2464,10 +2439,8 @@ impl<'a> Proof<'a> {
             // term: its lines and it taken to one order first, as a
             // calculation's row is (`with_commuted`).
             let proof = match by.head {
-                crate::corpus::Head::Method(
-                    crate::corpus::Method::Algebra
-                    | crate::corpus::Method::Inequalities
-                    | crate::corpus::Method::Transitivity,
+                Head::Method(
+                    Method::Algebra | Method::Inequalities | Method::Transitivity,
                 ) => self.with_commuted(
                     by.line,
                     &self.cited_parts(&by.refs),
@@ -2551,7 +2524,7 @@ impl<'a> Proof<'a> {
                 .collect()
         };
         let sides = numbers(line);
-        if line.notation() != crate::notations::EQUALITY || sides.len() != 2 {
+        if line.notation() != EQUALITY || sides.len() != 2 {
             return same();
         }
         // The line's type as it was written: the least that holds its sides.
@@ -2593,8 +2566,8 @@ impl<'a> Proof<'a> {
             .filter(|c| writer.is_number(c))
             .cloned()
             .collect();
-        let equation = line.notation() == crate::notations::EQUALITY;
-        let order = line.notation() == crate::notations::ORDER;
+        let equation = line.notation() == EQUALITY;
+        let order = line.notation() == ORDER;
         if !(equation || order) || sides.len() != 2 {
             return Route::no("a line widened that is no relation of two numbers");
         }
@@ -2678,7 +2651,7 @@ impl<'a> Proof<'a> {
         line: usize,
         sentence: Option<usize>,
         row_above: bool,
-    ) -> Option<&crate::checker::record::Substituted> {
+    ) -> Option<&Substituted> {
         match (row_above, sentence) {
             (true, _) => self.rec.substituted_rows.get(&line),
             (false, Some(k)) => self
@@ -2730,8 +2703,7 @@ impl<'a> Proof<'a> {
                         Route::Built(super::super::templates::Num::Int)
                     ))
         };
-        if node.notation() == crate::notations::MOD && node.children.iter().all(integer)
-        {
+        if node.notation() == MOD && node.children.iter().all(integer) {
             return true;
         }
         node.children
@@ -2831,10 +2803,7 @@ impl<'a> Proof<'a> {
             let (up, last) = (&path[..depth], path[depth]);
             at_path(start, up).is_some_and(|parent| {
                 let formula = parent.sort.is("formula")
-                    && !matches!(
-                        parent.notation(),
-                        crate::notations::EQUALITY | crate::notations::ORDER
-                    );
+                    && !matches!(parent.notation(), EQUALITY | ORDER);
                 // A square root or real power of a base not shown at least
                 // 0 is the principal value, written in ℂ with its base
                 // (`Writer::principal_is_real`): a term of ℂ's arithmetic.
@@ -2941,7 +2910,7 @@ impl<'a> Proof<'a> {
     /// proof `equation` in `from` (`widening_have`).
     pub(super) fn equation_widened(
         &self,
-        rec: &crate::checker::record::Substituted,
+        rec: &Substituted,
         was: &Node,
         now: &Node,
         from: super::super::templates::Num,

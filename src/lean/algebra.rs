@@ -12,24 +12,28 @@
 //! (`CheckedTheorem::divided_by`). With no line cited the claim is an
 //! identity: `ring1`'s, or `field`'s where it divides.
 
+use std::{iter, slice};
+
 use indexmap::IndexMap;
 use num_traits::{One, Signed};
 
 use super::doc::forms::casts_dropped;
-use super::doc::Source;
-use super::doc::{Arg, LeanType, Location, Op, Proof, Tactic, TacticArg, TermKind};
+use super::doc::{
+    Arg, LeanType, Location, Op, Proof, Source, Tactic, TacticArg, TermKind,
+};
 use super::expr::{Printed, Writer};
 use super::tactics as t;
 use super::templates::Num;
 use crate::formula::Node;
+use crate::methods::algebra;
 use crate::methods::algebra::{combination, denominators, readings};
 use crate::methods::field::{self, Poly, Q};
 use crate::methods::terms::{term_of_node, Targets};
 use crate::mm::kernel::FloatLabels;
 use crate::mm::Rpn;
 use crate::notations::{
-    DIVIDED, JUXTAPOSITION, MINUS, MULTIPLICATIVE, NUMERAL, PLUS, POWER, SUM,
-    SUPERSCRIPT, UNARY_MINUS,
+    DIVIDED, EQUALITY, JUXTAPOSITION, LOGICAL_NOT, MINUS, MULTIPLICATIVE, NUMERAL,
+    PLUS, POWER, SUM, SUPERSCRIPT, UNARY_MINUS,
 };
 use crate::outcome::Route;
 
@@ -401,11 +405,7 @@ fn nonzero_parts(term: &Node, proof: Printed, out: &mut Vec<NonzeroPart>) {
 /// The equation a `≠` says is false, `s − 1 = 0` of `s − 1 ≠ 0`.
 fn denied(node: &Node) -> Option<&Node> {
     match (node.notation(), node.children.as_slice()) {
-        (crate::notations::LOGICAL_NOT, [inner])
-            if inner.notation() == crate::notations::EQUALITY =>
-        {
-            Some(inner)
-        }
+        (LOGICAL_NOT, [inner]) if inner.notation() == EQUALITY => Some(inner),
         _ => None,
     }
 }
@@ -436,7 +436,7 @@ fn unequal(
             writer,
             targets,
             wanted,
-            std::slice::from_ref(&given),
+            slice::from_ref(&given),
             AlgebraReading {
                 inside_terms,
                 divisors: &[],
@@ -532,8 +532,7 @@ pub fn algebra(
     // claim joins a sum to a factor or to another sum, each side is
     // gathered into one sum over the range, the factors free of the letter
     // taken inside, and the summands compared index by index.
-    let linear = crate::methods::field::says_something_linear(&claimed, &labels)
-        && sums_joined(claim);
+    let linear = field::says_something_linear(&claimed, &labels) && sums_joined(claim);
     let identity = || match (divides, linear) {
         (true, _) => {
             let mut steps = identity_haves.clone();
@@ -586,7 +585,7 @@ pub fn algebra(
             continue;
         };
         collect_atoms(&c.node, targets, &labels, &mut atoms);
-        let read = crate::methods::algebra::claim_says(&term, one, &labels);
+        let read = algebra::claim_says(&term, one, &labels);
         let under = denominators(&term, &labels);
         divided |= divides_by_term(&c.node);
         unders.push(field::exactly(&under, &read.taken));
@@ -616,7 +615,7 @@ pub fn algebra(
     // claim's, or a cited line's where it is wider, as of a closed claim.
     let mut at = own;
     for c in cited {
-        if c.node.notation() == crate::notations::EQUALITY {
+        if c.node.notation() == EQUALITY {
             if let Route::Built(n) = carrier_of(writer, &c.node) {
                 at = at.max(n);
             }
@@ -661,10 +660,10 @@ pub fn algebra(
     // the cited lines divide by, the terms the record names, and the parts
     // of them that a fact says are not 0.
     let mut written: Vec<(Poly, Node)> = Vec::new();
-    let page_divisors = std::iter::once(claim)
+    let page_divisors = iter::once(claim)
         .chain(cited.iter().map(|c| &c.node))
         .flat_map(|n| n.walk())
-        .filter(|n| n.spelling() == crate::notations::DIVIDED)
+        .filter(|n| n.spelling() == DIVIDED)
         .filter_map(|n| n.children.get(1).cloned())
         .chain(divisors.iter().map(|d| d.term.clone()))
         .chain(parts.iter().map(|p| p.term.clone()));
@@ -890,7 +889,7 @@ fn carrier_of(writer: &Writer, claim: &Node) -> Route<Num> {
 /// division only knowing the term is not 0.
 fn divides_by_term(node: &Node) -> bool {
     node.walk().iter().any(|n| {
-        n.spelling() == crate::notations::DIVIDED
+        n.spelling() == DIVIDED
             && n.children.get(1).is_some_and(|d| !numeral_arithmetic(d))
     })
 }

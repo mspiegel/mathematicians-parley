@@ -1,5 +1,7 @@
 //! Calculations, chains and congruences.
 
+use std::mem;
+
 use super::*;
 
 impl<'a> Elaborator<'a> {
@@ -464,7 +466,7 @@ impl<'a> Elaborator<'a> {
             if run.relation.is_none() && !meets(&run.right) && meets(&run.left) {
                 run.proof =
                     self.turned_equation(scope, &run.left, &run.right, &run.proof);
-                std::mem::swap(&mut run.left, &mut run.right);
+                mem::swap(&mut run.left, &mut run.right);
             }
             if link.relation.is_none()
                 && link.left != run.right
@@ -472,7 +474,7 @@ impl<'a> Elaborator<'a> {
             {
                 link.proof =
                     self.turned_equation(scope, &link.left, &link.right, &link.proof);
-                std::mem::swap(&mut link.left, &mut link.right);
+                mem::swap(&mut link.left, &mut link.right);
             }
             if link.left != run.right {
                 return Ok(None);
@@ -531,12 +533,12 @@ impl<'a> Elaborator<'a> {
             if turn_run {
                 run.proof =
                     self.turned_equation(scope, &run.left, &run.right, &run.proof);
-                std::mem::swap(&mut run.left, &mut run.right);
+                mem::swap(&mut run.left, &mut run.right);
             }
             if turn_link {
                 link.proof =
                     self.turned_equation(scope, &link.left, &link.right, &link.proof);
-                std::mem::swap(&mut link.left, &mut link.right);
+                mem::swap(&mut link.left, &mut link.right);
             }
             return Ok(Some(bridge));
         }

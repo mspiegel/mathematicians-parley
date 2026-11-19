@@ -17,20 +17,23 @@
 //! not zero is a hypothesis the text writes as a `requires` line, and is not
 //! decided here.
 
+use std::cell::Cell;
 use std::cmp::Reverse;
+use std::iter;
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_integer::Integer;
 use num_rational::BigRational;
-use num_traits::{One, Signed, ToPrimitive, Zero};
+use num_traits::{pow, One, Signed, ToPrimitive, Zero};
 
+use crate::corpus::Record;
 use crate::formula::symbol::Symbol;
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::Rpn;
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{digit_of, System};
-use crate::t;
+use crate::{t, targets};
 
 pub const ADD: &str = "caddc";
 pub const SUB: &str = "cmin";
@@ -60,19 +63,17 @@ pub const NATIVE_OPERATIONS: [&str; 9] = [
 /// Whether `arithmetic` works out the operations a notation record's
 /// target applies: one of its own nature, or one its record names in a
 /// `decided` field.
-pub fn worked_out(record: &crate::corpus::Record) -> bool {
+pub fn worked_out(record: &Record) -> bool {
     NATIVE_OPERATIONS.contains(&record.name.as_str()) || decides(record, "arithmetic")
 }
 
 /// Whether a record names `method` in its `decided` field (`DATABASE.md`):
 /// a word or an operation the method works out where it is said of
 /// numerals.
-pub fn decides(record: &crate::corpus::Record, method: &str) -> bool {
-    record.field("decided").is_some_and(|v| {
-        crate::targets::split_entries(v)
-            .iter()
-            .any(|m| m.trim() == method)
-    })
+pub fn decides(record: &Record, method: &str) -> bool {
+    record
+        .field("decided")
+        .is_some_and(|v| targets::split_entries(v).iter().any(|m| m.trim() == method))
 }
 
 /// An operation of the field a term `( A op B )` applies, by the label set.mm
@@ -581,7 +582,7 @@ pub fn linear_sum(term: &Term, labels: &FloatLabels) -> Option<LinearSum> {
 }
 
 thread_local! {
-    static LINEAR: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    static LINEAR: Cell<bool> = const { Cell::new(false) };
 }
 
 /// Run `f` with finite sums read as linear, or as atoms, by `read`. Which a
@@ -777,7 +778,7 @@ pub fn follows(given: &[Poly], claim: &Poly) -> Option<Vec<Taken>> {
     if claim.zero() {
         return Some(Vec::new());
     }
-    let atoms = atoms_of(given.iter().chain(std::iter::once(claim)));
+    let atoms = atoms_of(given.iter().chain(iter::once(claim)));
     for (k, held) in given.iter().enumerate() {
         if held.zero() {
             continue;
@@ -914,7 +915,7 @@ fn divided(p: &Poly, by: &Poly, atoms: &[Rpn]) -> Divided {
 /// None where there are none. Where several do, a number free to be anything
 /// is nought.
 fn solved(columns: &[Poly], wanted: &Poly) -> Option<Vec<Q>> {
-    let every: Vec<&Poly> = columns.iter().chain(std::iter::once(wanted)).collect();
+    let every: Vec<&Poly> = columns.iter().chain(iter::once(wanted)).collect();
     let mut monomials: Vec<&Monomial> =
         every.iter().flat_map(|p| p.terms.keys()).collect();
     monomials.sort();
@@ -1073,7 +1074,7 @@ pub fn closed_value(term: &Term) -> Route<Value> {
                 if bits.saturating_mul(magnitude) > BITS {
                     return Built(Value::Unworked(TOO_LARGE));
                 }
-                let raised = num_traits::pow(left.clone(), magnitude as usize);
+                let raised = pow(left.clone(), magnitude as usize);
                 if power.is_negative() {
                     raised.recip()
                 } else {

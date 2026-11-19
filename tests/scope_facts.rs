@@ -6,6 +6,8 @@ use std::path::Path;
 
 use parley::checker::record::CheckedTheorem;
 use parley::checker::{checked_where, CheckedCorpus};
+use parley::citing::bounds::SaidBounds;
+use parley::citing::finite;
 use parley::source::Disk;
 
 const PRODUCT_CONSTANT: &str = "stdlib/sums/product-constant";
@@ -39,10 +41,7 @@ fn step_index(read: &CheckedCorpus, name: &str, number: &str) -> usize {
 }
 
 /// Each term the bounds say is at least a number, as printed, with it.
-fn bounded(
-    read: &CheckedCorpus,
-    said: &parley::citing::bounds::SaidBounds,
-) -> Vec<(String, i64)> {
+fn bounded(read: &CheckedCorpus, said: &SaidBounds) -> Vec<(String, i64)> {
     said.terms
         .iter()
         .map(|b| (read.grammar.print(&b.term), b.least))
@@ -68,7 +67,7 @@ fn a_part_of_a_finite_set_is_finite_in_the_steps_it_is_in_scope() {
     // Inside the induction's step part, `let Y ⊆ X` with X finite (H2):
     // Y is finite at 1.5.
     let i = step_index(&read, PRODUCT_CONSTANT, "1.5");
-    let y = parley::citing::finite::name_key("Y");
+    let y = finite::name_key("Y");
     assert!(
         record.finite_at[i].contains_key(&y),
         "{:?}",
@@ -96,10 +95,9 @@ fn an_items_hypotheses_make_its_sets_finite_and_bound_its_terms() {
     // finite-part asks X is finite.
     let facts = &read.library.item_facts["stdlib/counting/finite-part"];
     assert!(
-        facts.iter().any(|g| g
-            .finite
-            .sets
-            .contains_key(&parley::citing::finite::name_key("X"))),
+        facts
+            .iter()
+            .any(|g| g.finite.sets.contains_key(&finite::name_key("X"))),
         "{:?}",
         facts.iter().map(|g| &g.finite.sets).collect::<Vec<_>>()
     );

@@ -1,6 +1,9 @@
 //! Citing items and substituting.
 
+use std::collections::VecDeque;
+
 use super::*;
+use crate::corpus::Source;
 
 impl<'a> Elaborator<'a> {
     /// What an item states, however the database says it is supplied.
@@ -257,7 +260,7 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         item: &'a Record,
     ) -> Checked<Vec<Rpn>> {
-        if step.just.head.is(crate::corpus::Method::Obtain) {
+        if step.just.head.is(Method::Obtain) {
             return Ok(Vec::new());
         }
         let taken = self.cited_here(step, &item.qualified())?;
@@ -872,7 +875,7 @@ impl<'a> Elaborator<'a> {
         // Which way the equation faces in the kernel is the lemma's choice,
         // not the text's, so either is accepted and turned if it has to be.
         let mut facing = self.held(facts, &t!(old, new, "wceq"), scope)?;
-        if *source == crate::corpus::Source::Arithmetic {
+        if *source == Source::Arithmetic {
             let what = format!("step {} substitutes {written}", step.number);
             facing = Some(self.closed_fact(
                 &t!(old, new, "wceq"),
@@ -882,7 +885,7 @@ impl<'a> Elaborator<'a> {
                 Some(step),
             )?);
         }
-        if *source == crate::corpus::Source::RealArithmetic {
+        if *source == Source::RealArithmetic {
             let what = format!("step {} substitutes {written}", step.number);
             facing =
                 Some(self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?);
@@ -938,8 +941,7 @@ impl<'a> Elaborator<'a> {
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
         let mut offered = Vec::new();
-        let mut work: std::collections::VecDeque<Node> =
-            sentences.into_iter().collect();
+        let mut work: VecDeque<Node> = sentences.into_iter().collect();
         while let Some(one) = work.pop_front() {
             offered.push(one.clone());
             if !one.children.is_empty() {

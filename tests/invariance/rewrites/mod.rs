@@ -8,6 +8,12 @@
 //! formula is read, a formula that does not read, declines the theorem and
 //! says why; it never guesses.
 
+mod layout;
+mod letters;
+mod lifting;
+mod obtains;
+mod statements;
+
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
@@ -28,16 +34,10 @@ use parley::formula::node::Node;
 use parley::formula::page::{conjoined, made_as, Written};
 use parley::formula::token::{is_letter, is_mark, tokenise, Token, TokenKind};
 use parley::matching::free_names;
-use parley::outcome::{Built, Route};
+use parley::outcome::{Built, Checked, Route};
 use parley::sorts::introduction::Introduction;
 use parley::sorts::{sorts_in_scope, Env};
 use regex::Regex;
-
-mod layout;
-mod letters;
-mod lifting;
-mod obtains;
-mod statements;
 
 use self::layout::*;
 use self::letters::*;
@@ -104,11 +104,7 @@ pub struct Rewritten {
 }
 
 /// One sentence, read by the front end every tool reads by.
-fn read_one(
-    sentence: &str,
-    g: &Grammar,
-    sorts: &Sorts,
-) -> parley::outcome::Checked<Node> {
+fn read_one(sentence: &str, g: &Grammar, sorts: &Sorts) -> Checked<Node> {
     Written::new(sentence, "rewritten", 0)
         .formula()?
         .read(g, sorts)

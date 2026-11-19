@@ -22,10 +22,12 @@
 //! does, by building every artifact and comparing it with the committed file.
 
 use std::collections::BTreeSet;
+use std::fs;
 use std::path::Path;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, OnceLock};
 
+use allocation_counter::measure;
 use indexmap::IndexMap;
 
 use crate::checker::{CheckedCorpus, CheckedTheorem, LibraryReading};
@@ -42,8 +44,12 @@ use crate::said::Said;
 use crate::source::{Disk, Source};
 
 use super::{waves, write_changed, Written};
+use crate::corpus::Record;
+use crate::proofs::stdlib;
+use crate::proofs::stdlib::WORKSHEETS;
 use crate::tools::path_of;
 use crate::tools::verify::Verifier;
+use crate::{checker, text, threads};
 
 /// The library's definitions, which everything reads.
 pub const DEFINITIONS: &str = "stdlib/definitions";
@@ -147,7 +153,7 @@ pub fn reached_by<'a>(every: &'a [Artifact], edited: &[String]) -> Vec<&'a Artif
     for path in edited {
         if let Some(artifact) = every.iter().find(|a| a.path() == *path) {
             wanted.insert(&artifact.name);
-        } else if path.starts_with(crate::proofs::stdlib::WORKSHEETS) {
+        } else if path.starts_with(WORKSHEETS) {
             wanted.insert(PROVED);
         } else {
             return every.iter().collect();
@@ -197,7 +203,7 @@ pub struct Libraries {
 impl Libraries {
     /// set.mm read from `path`.
     pub fn read(path: &Path) -> Checked<Libraries> {
-        let setmm = std::fs::read_to_string(path).map_err(|e| {
+        let setmm = fs::read_to_string(path).map_err(|e| {
             Problem::new(
                 path.display().to_string(),
                 0,
@@ -325,7 +331,7 @@ impl<'a> Maker<'a> {
             items: index_built(
                 &found.records,
                 &found.theorems,
-                crate::corpus::Record::metamath_provided,
+                Record::metamath_provided,
             ),
             libraries: shared.libraries,
             library: None,
@@ -364,7 +370,7 @@ impl<'a> Maker<'a> {
                     )
                 })?;
                 let source = self.source;
-                crate::proofs::stdlib::proved(
+                stdlib::proved(
                     read_texts(&[&self.libraries.setmm, &definitions]),
                     &|path| source.read_text(path).ok(),
                 )?
@@ -460,7 +466,7 @@ pub fn made_in_waves<'w>(
                 None => ready.push(artifact),
             }
         }
-        let results = crate::threads::in_order(
+        let results = threads::in_order(
             &ready,
             || Maker::on_thread(shared, made_so_far.clone()),
             |maker, artifact| made_measured(maker, artifact),
@@ -496,7 +502,7 @@ fn made_measured(
         Err(problem) => return (Err(problem.clone()), 0),
     };
     let mut made = None;
-    let held = allocation_counter::measure(|| made = Some(maker.make(artifact)));
+    let held = measure(|| made = Some(maker.make(artifact)));
     let made = made.expect("measure runs what it is given");
     (made, held.bytes_max)
 }
@@ -526,7 +532,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
         let names: Vec<&str> = every.iter().map(|a| a.name.as_str()).collect();
         said.printed += &format!(
             "no artifact {}; there are: {}\n",
-            crate::text::repr(asked.unwrap_or_default()),
+            text::repr(asked.unwrap_or_default()),
             names.join(", ")
         );
         said.status = 2;
@@ -636,7 +642,7 @@ fn remove_old(root: &Path, artifact: &Artifact, said: &mut Said) {
     if !path.exists() {
         return;
     }
-    if let Err(e) = std::fs::remove_file(&path) {
+    if let Err(e) = fs::remove_file(&path) {
         said.complained += &format!("{}: {e}\n", artifact.path());
     }
 }
@@ -700,11 +706,8 @@ impl<'s> Loaded<'s> {
             let text = self.source.read_text(&path_of(cited)).ok()?;
             statement_of(&text)
         };
-        let items = index_built(
-            &found.records,
-            &found.theorems,
-            crate::corpus::Record::metamath_provided,
-        );
+        let items =
+            index_built(&found.records, &found.theorems, Record::metamath_provided);
         let Some(checked) = self.checked.theorems.get(name) else {
             return Err(Problem::new(
                 name,
@@ -733,7 +736,7 @@ pub fn checked_in(
     source: &dyn Source,
     wanted: impl Fn(&str) -> bool + Sync,
 ) -> Checked<CheckedCorpus> {
-    crate::checker::checked_where(source, wanted).map_err(|out| {
+    checker::checked_where(source, wanted).map_err(|out| {
         Problem::new(
             source.root().display().to_string(),
             0,

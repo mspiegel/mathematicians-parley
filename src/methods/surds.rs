@@ -19,9 +19,11 @@ use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::field::{self, q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
+use crate::corpus::Record;
 use crate::mm::kernel::Term;
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::System;
+pub use field::TOO_LARGE;
 
 /// A radicand whose numerator times denominator is longer than this many
 /// bits is not worked out: its squarefree part is found by trial division,
@@ -57,8 +59,6 @@ pub const BELOW_ZERO: &str =
 pub const NOT_RATIONAL: &str =
     "takes the square root of a number that is not rational, and real arithmetic takes roots of rationals only";
 
-pub use field::TOO_LARGE;
-
 /// Why a membership of ℕ, ℕ₀, ℤ or ℚ is not decided.
 pub const MEMBERSHIP_UNDECIDED: &str =
     "is a membership of a number that is not rational, which is a theorem to cite";
@@ -66,7 +66,7 @@ pub const MEMBERSHIP_UNDECIDED: &str =
 /// Whether `real arithmetic` works out the operations a notation record's
 /// target applies: one `arithmetic` works out, or one whose record names
 /// `real arithmetic` in its `decided` field, as `square-root` does.
-pub fn worked_out(record: &crate::corpus::Record) -> bool {
+pub fn worked_out(record: &Record) -> bool {
     field::worked_out(record) || field::decides(record, "real arithmetic")
 }
 
@@ -789,6 +789,7 @@ pub(crate) fn power_cost(base: &Surd, k: i64) -> Result<u64, &'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::methods::numerals;
 
     fn unit() -> Surd {
         Surd::rational(Q::one())
@@ -870,9 +871,8 @@ mod tests {
     /// A value as a term, its parts added: what a claim states it equals.
     fn canon_term(value: &Surd) -> Term {
         let n = |d: &str| Term::apply(d, vec![]);
-        let numeral = |v: &Q| {
-            crate::methods::numerals::numeral_term(&v.to_integer().magnitude().clone())
-        };
+        let numeral =
+            |v: &Q| numerals::numeral_term(&v.to_integer().magnitude().clone());
         value
             .parts
             .iter()

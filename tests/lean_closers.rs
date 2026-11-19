@@ -7,6 +7,7 @@
 //! reads it, shows here by name and not only as a proof that still passes
 //! by another way.
 
+use std::fs;
 use std::path::Path;
 
 /// One step of a generated Lean file, and what its proof is.
@@ -997,7 +998,7 @@ fn each_closer_rule_decides_where_its_fact_holds() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut wrong = Vec::new();
     for site in SITES {
-        let text = std::fs::read_to_string(root.join(site.file))
+        let text = fs::read_to_string(root.join(site.file))
             .unwrap_or_else(|_| panic!("{} is written", site.file));
         let Some(lines) = step_lines(&text, site.step) else {
             wrong.push(format!("{} has no step {}", site.file, site.step));

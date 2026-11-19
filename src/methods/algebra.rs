@@ -4,6 +4,8 @@
 //! cites rescaled. The polynomials are `field`'s; the proof the build writes
 //! of what is decided here is `crate::elab::calculators`.
 
+use std::cmp::Reverse;
+
 use num_traits::Zero;
 
 use crate::mm::kernel::{FloatLabels, Term};
@@ -411,7 +413,7 @@ pub fn readings(claimed: &Term, want: Poly, labels: &FloatLabels) -> Vec<ClaimSa
             })
             .collect();
     }
-    choices.sort_by_key(|c| std::cmp::Reverse(c.iter().sum::<usize>()));
+    choices.sort_by_key(|c| Reverse(c.iter().sum::<usize>()));
     let mut out = Vec::new();
     for choice in choices {
         let mut taken = field::one();

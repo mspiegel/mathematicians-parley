@@ -1,7 +1,17 @@
 //! Raising requires and defines, lifting blocks.
 
 use super::*;
+use std::cmp::Reverse;
+use std::iter;
+
+use parley::corpus::proof::{DefineLine, Step};
+use parley::corpus::{define, Hypothesis};
+use parley::notations::{
+    FUNCTION_TYPE, IS_A_POLYNOMIAL, MEMBERSHIP, NUMBER_SYSTEMS, PLANE, POLYNOMIALS,
+};
+use parley::outcome;
 use parley::sorts::introduction::Form;
+use regex::escape;
 
 /// The methods a requires line may name as its one citation, as a step may.
 pub(super) const REQUIRES_METHODS: [Method; 4] = [
@@ -261,13 +271,13 @@ pub fn defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten {
     let mut count = 0;
     let mut theorems = Vec::new();
     for (thm, _) in theorems_of(ctx, path, lines.len()) {
-        let mut defines: Vec<&parley::corpus::proof::DefineLine> = thm
+        let mut defines: Vec<&DefineLine> = thm
             .defines
             .iter()
             .filter(|d| d.line > thm.conclusion_line)
             .collect();
         // From the bottom, so each define's lines are where they were read.
-        defines.sort_by_key(|d| std::cmp::Reverse(d.line));
+        defines.sort_by_key(|d| Reverse(d.line));
         let mut changed = false;
         for d in defines {
             if let Some(n) = define_raised(thm, d, &mut lines) {
@@ -291,13 +301,12 @@ pub fn defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten {
 /// or None where it stays.
 pub(super) fn define_raised(
     thm: &Theorem,
-    d: &parley::corpus::proof::DefineLine,
+    d: &DefineLine,
     lines: &mut Vec<String>,
 ) -> Option<usize> {
     // One name, read as the tools read it; sequences by recursion stay.
-    let parts = parley::corpus::define::define_parts(&d.text);
-    let parley::outcome::Built(parley::corpus::define::DefineParts::One(one)) = parts
-    else {
+    let parts = define::define_parts(&d.text);
+    let Built(DefineParts::One(one)) = parts else {
         return None;
     };
     let name = one.name;
@@ -307,7 +316,7 @@ pub(super) fn define_raised(
     }
     let next = thm.steps.iter().find(|s| s.line > d.line)?;
     let parent = next.number.parent();
-    let run: Vec<&parley::corpus::proof::Step> = thm
+    let run: Vec<&Step> = thm
         .steps
         .iter()
         .filter(|s| {
@@ -319,7 +328,7 @@ pub(super) fn define_raised(
             if name.chars().count() == 1 {
                 loose_letters(l).contains(&name)
             } else {
-                re(&format!(r"\b{}\b", regex::escape(&name))).is_match(l)
+                re(&format!(r"\b{}\b", escape(&name))).is_match(l)
             }
         })
     };
@@ -442,16 +451,13 @@ pub(super) fn dull_step_moved(
             .requires
             .iter()
             .map(|r| format!("requires {}: {}", r.fact, r.how))
-            .chain(std::iter::once(format!(
-                "requires {claim}: {}",
-                step.just.text
-            )))
+            .chain(iter::once(format!("requires {claim}: {}", step.just.text)))
             .collect();
         let carried_facts: BTreeSet<&str> = step
             .requires
             .iter()
             .map(|r| r.fact.text())
-            .chain(std::iter::once(claim.as_str()))
+            .chain(iter::once(claim.as_str()))
             .collect();
         // Each citing line said again, or taken out where it only restated
         // the step.
@@ -581,7 +587,7 @@ pub(super) fn dull_step_moved(
             changed += carried.len();
         }
         edits.extend(gone.iter().map(|&l| LineEdit::Remove(l)));
-        let last = std::iter::once(step.just.line)
+        let last = iter::once(step.just.line)
             .chain(step.requires.iter().map(|r| r.line))
             .max()?
             - 1;
@@ -597,7 +603,7 @@ pub(super) fn dull_step_moved(
             LineEdit::Insert(l, _) => (*l, 0),
             LineEdit::Remove(l) => (*l, 1),
         };
-        edits.sort_by_key(|e| std::cmp::Reverse(place(e)));
+        edits.sort_by_key(|e| Reverse(place(e)));
         for e in edits {
             match e {
                 LineEdit::Insert(l, new) => {
@@ -688,15 +694,13 @@ pub(super) fn lifted(
     lines: &[String],
     end: usize,
 ) -> Result<Option<Lifted>, String> {
-    let tops: Vec<&parley::corpus::Step> =
-        thm.steps.iter().filter(|s| s.number.depth() == 1).collect();
-    let has_block = |s: &parley::corpus::Step| {
+    let tops: Vec<&Step> = thm.steps.iter().filter(|s| s.number.depth() == 1).collect();
+    let has_block = |s: &Step| {
         thm.steps
             .iter()
             .any(|o| o.number.depth() > 1 && s.number.contains(&o.number))
     };
-    let blocks: Vec<&parley::corpus::Step> =
-        tops.iter().copied().filter(|s| has_block(s)).collect();
+    let blocks: Vec<&Step> = tops.iter().copied().filter(|s| has_block(s)).collect();
     if blocks.is_empty() {
         return Ok(None);
     }
@@ -750,7 +754,7 @@ pub(super) fn names_given(thm: &Theorem) -> BTreeSet<String> {
         .iter()
         .filter_map(|d| match define_parts(&d.text) {
             Built(parts) => Some(parts.names()),
-            parley::outcome::Declined(_) => None,
+            outcome::Declined(_) => None,
         })
         .flatten()
         .collect()
@@ -780,7 +784,7 @@ pub(super) fn read_all(
 /// formula of its own.
 pub(super) fn formulas_written(
     thm: &Theorem,
-    step: &parley::corpus::Step,
+    step: &Step,
 ) -> Result<Vec<Written>, String> {
     let path = &thm.path;
     let mut written: Vec<Written> = vec![step.claim.clone()];
@@ -832,7 +836,7 @@ pub(super) fn hypothesis_read(
     ctx: &Context,
     sorts: &Sorts,
     thm: &Theorem,
-    h: &parley::corpus::Hypothesis,
+    h: &Hypothesis,
 ) -> Result<Vec<Node>, String> {
     let body = h.body(&thm.path);
     let parts = match h.kind {
@@ -871,10 +875,10 @@ pub(super) fn let_asked(
         | Form::Graph(_) => false,
         // A membership is said once where its set is a number system.
         Form::Member => !read_all(ctx, sorts, &written)?.iter().all(|m| {
-            m.notation() == parley::notations::MEMBERSHIP
-                && m.children.get(1).is_some_and(|set| {
-                    set.notation() == parley::notations::NUMBER_SYSTEMS
-                })
+            m.notation() == MEMBERSHIP
+                && m.children
+                    .get(1)
+                    .is_some_and(|set| set.notation() == NUMBER_SYSTEMS)
         }),
         _ => true,
     })
@@ -886,12 +890,12 @@ pub(super) fn lemma_of(
     thm: &Theorem,
     lines: &[String],
     end: usize,
-    step: &parley::corpus::Step,
-    tops: &[&parley::corpus::Step],
+    step: &Step,
+    tops: &[&Step],
     named: &BTreeSet<String>,
     sorts: &Sorts,
 ) -> Result<Lemma, String> {
-    let inner: Vec<&parley::corpus::Step> = thm
+    let inner: Vec<&Step> = thm
         .steps
         .iter()
         .filter(|o| step.number.contains(&o.number))
@@ -937,8 +941,8 @@ pub(super) fn lemma_of(
         block_trees.extend(read_all(ctx, sorts, w)?);
     }
     for s in &inner {
-        let values = std::iter::once(&s.just.values)
-            .chain(s.requires.iter().map(|r| r.values()));
+        let values =
+            iter::once(&s.just.values).chain(s.requires.iter().map(|r| r.values()));
         for v in values {
             let read = v.read(&ctx.g, sorts).map_err(|p| {
                 format!("step {}'s values do not read: {}", s.number, p.message)
@@ -1038,21 +1042,20 @@ pub(super) fn lemma_of(
             else {
                 continue;
             };
-            let polynomial = said.notation() == parley::notations::IS_A_POLYNOMIAL
-                || said.children.get(1).is_some_and(|set| {
-                    set.notation() == parley::notations::POLYNOMIALS
-                });
-            let point = said.notation() == parley::notations::MEMBERSHIP
+            let polynomial = said.notation() == IS_A_POLYNOMIAL
+                || said
+                    .children
+                    .get(1)
+                    .is_some_and(|set| set.notation() == POLYNOMIALS);
+            let point = said.notation() == MEMBERSHIP
                 && said
                     .children
                     .get(1)
-                    .is_some_and(|set| set.notation() == parley::notations::PLANE);
+                    .is_some_and(|set| set.notation() == PLANE);
             let introduced = match said.notation() {
                 _ if polynomial => format!("{} be a polynomial", name.text),
                 _ if point => format!("{} be a point", name.text),
-                parley::notations::MEMBERSHIP | parley::notations::FUNCTION_TYPE => {
-                    ctx.g.print(&said)
-                }
+                MEMBERSHIP | FUNCTION_TYPE => ctx.g.print(&said),
                 _ => continue,
             };
             asks |= let_asked(ctx, sorts, &thm.path, &introduced)?;
@@ -1068,11 +1071,11 @@ pub(super) fn lemma_of(
         // number system), and then citing it does no work.
         let only_memberships = !said_all.is_empty()
             && said_all.iter().all(|s| {
-                s.notation() == parley::notations::MEMBERSHIP
+                s.notation() == MEMBERSHIP
                     && s.children.first().is_some_and(|t| !t.is_name())
-                    && s.children.get(1).is_some_and(|set| {
-                        set.notation() == parley::notations::NUMBER_SYSTEMS
-                    })
+                    && s.children
+                        .get(1)
+                        .is_some_and(|set| set.notation() == NUMBER_SYSTEMS)
             });
         if is_cited && only_memberships {
             return Err(format!(

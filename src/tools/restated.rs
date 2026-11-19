@@ -20,18 +20,25 @@ use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
 
+use super::build::metamath::{
+    artifacts, Artifact, Libraries, Maker, DEFINITIONS, PROVED,
+};
+use super::{path_of, verify};
+use crate::checker::PairsAsked;
 use crate::corpus::{
     corpus, link_functions, parse_proof, Corpus, Hypothesis, Intro, ItemKind, Record,
+    Theorem,
 };
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{made_as, Sentence, Written};
 use crate::formula::{Grammar, Node, Sorts};
-use crate::regex;
+use crate::notations::{FUNCTIONS_FROM, MEMBERSHIP, NUMBER_SYSTEMS};
+use crate::outcome::Built;
 use crate::said::Said;
 use crate::sorts::infer;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::source::{Memory, Overlay, Source};
-use crate::Checked;
+use crate::{checker, regex, sorts, targets, Checked};
 
 /// The shapes a restatement asks about, read off a sentence's tree by what
 /// the notation at its root builds in the kernel — `wb`, `wi`, `wrex` —
@@ -46,7 +53,7 @@ struct Shapes<'a> {
 impl<'a> Shapes<'a> {
     fn new(records: &[Record], g: &'a Grammar) -> Shapes<'a> {
         let mut builds = IndexMap::new();
-        for (name, entries) in crate::targets::terms(records) {
+        for (name, entries) in targets::terms(records) {
             if let Some(head) = entries
                 .iter()
                 .flatten()
@@ -123,8 +130,7 @@ impl<'a> Shapes<'a> {
                     && n.binds.is_some()
             })?;
             let binds = n.binds.as_ref()?;
-            let crate::outcome::Built(sig) = infer::signature(n.sort.as_deref()?)
-            else {
+            let Built(sig) = infer::signature(n.sort.as_deref()?) else {
                 return None;
             };
             let members = sig.members();
@@ -182,7 +188,7 @@ impl<'a> Shapes<'a> {
     /// The sentence saying a name a "there is" introduces is in its set:
     /// `k ∈ ℤ`, or for a function `f : X → Y`, as `let` says it.
     fn membership(&self, name: &Node, set: &Node) -> Node {
-        let made = if set.notation() == crate::notations::FUNCTIONS_FROM {
+        let made = if set.notation() == FUNCTIONS_FROM {
             let mut held = vec![name.clone()];
             held.extend(set.children.iter().cloned());
             made_as(self.g, "_ : _ → _", held)
@@ -229,11 +235,6 @@ fn obtaining(number: usize, there: &Witnessed, how: &str) -> String {
         named.join(", ")
     )
 }
-
-use super::build::metamath::{
-    artifacts, Artifact, Libraries, Maker, DEFINITIONS, PROVED,
-};
-use super::{path_of, verify};
 
 /// Where the restatements stand, as if they were proof files of the tree.
 pub const RESTATED: &str = "tests/restated";
@@ -311,8 +312,7 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
         };
         let text = files.entry(key).or_default();
         let prefix = kind.prefix();
-        let sorts =
-            crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
+        let sorts = sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
         // The item's assumptions, and what its `let` lines claim, are what
         // the step cites it from, as a proof citing it names the lines that
         // say them, but for a membership in a number system, which is said
@@ -482,7 +482,7 @@ fn let_names(r: &Record) -> Vec<String> {
 fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
     // Applied: the name written with a bracket after it, as the front end
     // lexes the record's formulas.
-    let tokens = crate::sorts::written_tokens(&crate::sorts::record_formulas(r), g);
+    let tokens = sorts::written_tokens(&sorts::record_formulas(r), g);
     g.functions
         .keys()
         .filter(|name| {
@@ -529,7 +529,7 @@ fn free_names(r: &Record, g: &Grammar) -> Checked<Vec<String>> {
 /// What a record's lines say, read: what each `let` line asserts, each
 /// other hypothesis, and each conclusion.
 fn record_trees(r: &Record, g: &Grammar) -> Checked<Vec<Node>> {
-    let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
+    let sorts = sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
     let mut trees: Vec<Node> = Vec::new();
     for h in &r.hypotheses {
         let body = h.body(&r.path);
@@ -590,17 +590,17 @@ fn unasked(r: &Record, h: &Hypothesis, g: &Grammar, sorts: &Sorts) -> Checked<bo
     let [said] = asserted.as_slice() else {
         return Ok(false);
     };
-    Ok(said.notation() == crate::notations::MEMBERSHIP
+    Ok(said.notation() == MEMBERSHIP
         && said
             .children
             .get(1)
-            .is_some_and(|set| set.notation() == crate::notations::NUMBER_SYSTEMS))
+            .is_some_and(|set| set.notation() == NUMBER_SYSTEMS))
 }
 
 /// Whether a record's line claims something: any but a thing named of a
 /// sort, a set, a point, an element, a group, a graph or a property.
 fn is_claim(text: &str) -> bool {
-    let body = crate::sorts::unlabel(text);
+    let body = sorts::unlabel(text);
     let named = Introduction::read(Written::new(str::trim(&body), "", 0)).form;
     !matches!(
         named,
@@ -661,12 +661,12 @@ fn built_and_verified(
         }
         // A restatement gives every letter its value on purpose, so no pair
         // is asked whether it does work (`checker::PairsAsked`).
-        let all = |_: &crate::corpus::Theorem| true;
+        let all = |_: &Theorem| true;
         let ask = crate::checker::Ask {
             wanted: &all,
-            pairs: crate::checker::PairsAsked::No,
+            pairs: PairsAsked::No,
         };
-        let checked = match crate::checker::front(&read, &ask) {
+        let checked = match checker::front(&read, &ask) {
             Ok(front) => front.checked,
             Err(out) => return out,
         };

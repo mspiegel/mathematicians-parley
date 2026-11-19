@@ -18,7 +18,10 @@ pub mod written;
 
 use std::borrow::Cow;
 use std::collections::BTreeSet;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
+use std::thread;
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -31,18 +34,34 @@ use crate::corpus::{
 };
 use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
-use crate::formula::Grammar;
-use crate::formula::Node;
-use crate::formula::Sorts;
+use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::Context;
 use crate::outcome::{At, Checked, Problem, Route};
-use crate::sorts::infer;
 use crate::sorts::{
-    cited_statement, settled, statement_definitions, CitedStatement, Env,
+    cited_statement, infer, settled, statement_definitions, CitedStatement, Env,
 };
 use crate::source::Source;
 use crate::text::check_encoding;
 
+use crate::citing::bounds::SaidBounds;
+use crate::citing::finite::{FiniteSets, Named, SaidFinite};
+use crate::citing::number_sets::Between;
+use crate::citing::things::ThingTypes;
+use crate::citing::{finite, number_sets, Introduced};
+use crate::corpus::proof::CHAIN_RELATIONS;
+use crate::corpus::{
+    phrases, proof, DefineLine, DefineParts, Justification, Requires, RuleText,
+};
+use crate::formula::notation_id::NotationId;
+use crate::formula::token::RAISED;
+use crate::formula::{Whole, RAISED_HOLE};
+use crate::matching::{Defined, Definitions};
+use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
+use crate::rules::System;
+/// What the check printed, and the status it exits with.
+pub use crate::said::Said as Outcome;
+use crate::sorts::introduction::{Form, Introduction};
+use crate::{citing, corpus, matching, sorts, text, threads};
 pub use library::{statements_in_scope, Known, SaidFrom};
 pub use record::{CheckedTheorem, LibraryReading};
 pub use structure::{cited_in_order, out_of_reach, unresolved};
@@ -53,7 +72,7 @@ const IDENTIFIER_CHARACTERS: &str =
     "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ₀₁₂₃₄₅₆₇₈₉′";
 
 /// The relations a calculation's lines join by, as the skeleton cuts them.
-const RELATIONS: [&str; 6] = crate::corpus::proof::CHAIN_RELATIONS;
+const RELATIONS: [&str; 6] = CHAIN_RELATIONS;
 
 /// What a run found: every defect.
 #[derive(Clone, Default)]
@@ -69,12 +88,7 @@ impl Report {
     /// A step resting on `method` that its decider settles neither way: the
     /// checker examines every closure step (`methods`), so a claim the
     /// method cannot decide is one the step may not rest on it for.
-    pub fn undecided(
-        &mut self,
-        path: &str,
-        method: Method,
-        step: &crate::corpus::Step,
-    ) {
+    pub fn undecided(&mut self, path: &str, method: Method, step: &Step) {
         self.say(
             path,
             step.just.line,
@@ -93,8 +107,8 @@ impl Report {
         &mut self,
         path: &str,
         method: Method,
-        step: &crate::corpus::Step,
-        req: &crate::corpus::Requires,
+        step: &Step,
+        req: &Requires,
     ) {
         self.say(
             path,
@@ -108,12 +122,6 @@ impl Report {
         );
     }
 }
-
-use crate::matching::Defined;
-use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
-/// What the check printed, and the status it exits with.
-pub use crate::said::Said as Outcome;
-use crate::sorts::introduction::{Form, Introduction};
 
 /// Check the corpus under the source's root.
 pub fn run(source: &dyn Source) -> Outcome {
@@ -142,10 +150,7 @@ pub fn run_named(source: &dyn Source, name: Option<&str>) -> Outcome {
     match name {
         Some(name) if front.asked == 0 => Outcome {
             printed: String::new(),
-            complained: format!(
-                "no theorem or proof file {}\n",
-                crate::text::repr(name)
-            ),
+            complained: format!("no theorem or proof file {}\n", text::repr(name)),
             status: 2,
         },
         Some(_) => summary(
@@ -225,8 +230,8 @@ pub fn front(source: &dyn Source, ask: &Ask<'_>) -> Result<Front, Outcome> {
         return Err(summary(read.report, counts));
     }
     let next = AtomicUsize::new(0);
-    let workers = crate::threads::threads();
-    let done = std::thread::scope(|scope| {
+    let workers = threads::threads();
+    let done = thread::scope(|scope| {
         let running: Vec<_> = (0..workers)
             .map(|w| {
                 let next = &next;
@@ -285,7 +290,7 @@ fn taken(
     mut next: impl FnMut() -> Option<usize>,
 ) -> Vec<Taken> {
     let theorems = c.theorems;
-    let items = std::sync::Arc::new(c.library.item_readings());
+    let items = Arc::new(c.library.item_readings());
     let mut out = Vec::new();
     while let Some(at) = next() {
         let Some(thm) = theorems.get(at) else {
@@ -346,11 +351,7 @@ fn property_domains(
             continue;
         };
         let mut domains = IndexMap::new();
-        for h in r
-            .hypotheses
-            .iter()
-            .filter(|h| h.kind == crate::corpus::proof::Intro::Let)
-        {
+        for h in r.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
             let introduced = Introduction::read(h.body(&r.path));
             let Form::Property { name, domain } = &introduced.form else {
                 continue;
@@ -398,10 +399,7 @@ fn finished(
         theorems,
         library,
     };
-    let ctx = crate::matching::Context::new(
-        &checked.grammar.notations,
-        &checked.corpus.records,
-    );
+    let ctx = Context::new(&checked.grammar.notations, &checked.corpus.records);
     let written: Vec<(String, Box<CheckedTheorem>)> = checked
         .corpus
         .theorems
@@ -438,7 +436,7 @@ pub fn checked(source: &dyn Source) -> Result<CheckedCorpus, Outcome> {
 pub struct CheckedCorpus {
     pub corpus: Corpus,
     /// The grammar the corpus's records declare, which the checker read with.
-    pub grammar: std::rc::Rc<Grammar>,
+    pub grammar: Rc<Grammar>,
     pub theorems: IndexMap<String, CheckedTheorem>,
     /// Every item a citation may name, as the checker read it.
     pub library: LibraryReading,
@@ -469,10 +467,7 @@ pub fn hypothesis_lines(thm: &Theorem, record: &CheckedTheorem) -> Vec<Node> {
 /// `citing::finite::finite_names` reads them: those its file writes above
 /// it or imports first, as the record holds them written out, since the
 /// theorem's own may be made from them, then its own, read from its page.
-fn finite_defines<'r>(
-    thm: &Theorem,
-    record: &'r CheckedTheorem,
-) -> Vec<crate::citing::finite::Named<'r>> {
+fn finite_defines<'r>(thm: &Theorem, record: &'r CheckedTheorem) -> Vec<Named<'r>> {
     let outside = record
         .outside
         .iter()
@@ -501,11 +496,8 @@ fn finite_defines<'r>(
 /// it. A term that names a define of the header is
 /// there as well with the define written out, as the statement is read
 /// (`statement_definitions`), `(a + b + c)/2·(…)` beside `s·(…)`.
-fn page_bounds(
-    record: &CheckedTheorem,
-    requires: &crate::citing::bounds::SaidBounds,
-) -> crate::citing::bounds::SaidBounds {
-    let mut out = crate::citing::bounds::SaidBounds {
+fn page_bounds(record: &CheckedTheorem, requires: &SaidBounds) -> SaidBounds {
+    let mut out = SaidBounds {
         terms: Vec::new(),
         over_ranges: record.statement_bounds.over_ranges.clone(),
     };
@@ -516,8 +508,7 @@ fn page_bounds(
         .chain(record.bounds.iter().flat_map(|said| said.terms.iter()))
         .chain(requires.terms.iter());
     for b in all {
-        let written_out =
-            crate::matching::expand(&b.term, &record.statement_definitions);
+        let written_out = matching::expand(&b.term, &record.statement_definitions);
         let mut ways = vec![b.clone()];
         if written_out.shape() != b.term.shape() {
             let mut out_b = b.clone();
@@ -552,61 +543,50 @@ fn page_bounds(
 pub fn finite_at_lines(
     in_scope: &[Vec<Node>],
     record: &CheckedTheorem,
-    ctx: &crate::matching::Context,
-) -> Vec<crate::citing::finite::FiniteSets> {
+    ctx: &Context,
+) -> Vec<FiniteSets> {
     in_scope
         .iter()
         .zip(&record.introduced)
         .zip(&record.bounds)
         .map(|((lines, letters), said)| {
             let positive = bounds::positive_by(letters, said, ctx);
-            crate::citing::finite::finite_sets(lines, &positive)
+            finite::finite_sets(lines, &positive)
         })
         .collect()
 }
 
-pub fn finite_of(
-    ctx: &crate::matching::Context,
-    thm: &Theorem,
-    record: &CheckedTheorem,
-) -> crate::citing::finite::SaidFinite {
+pub fn finite_of(ctx: &Context, thm: &Theorem, record: &CheckedTheorem) -> SaidFinite {
     let defines = finite_defines(thm, record);
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
     // A count is at least 1 by the letters the statement's header introduces
     // and what its hypotheses bound.
     let header = record.introduced.first().cloned().unwrap_or_default();
     let positive = bounds::positive_by(&header, &record.statement_bounds, ctx);
-    crate::citing::finite::said_finite(
-        &hypothesis_lines(thm, record),
-        &defines,
-        &lines,
-        &positive,
-    )
+    finite::said_finite(&hypothesis_lines(thm, record), &defines, &lines, &positive)
 }
 
 /// The number system each set letter of numbers holds, read from the
 /// record's page with the letters its steps introduce
 /// (`citing::number_sets::set_letter_systems`). A backend that writes the
 /// page otherwise reads it again of the page it writes, as `finite_of`.
-pub fn set_systems_of(
-    record: &CheckedTheorem,
-) -> IndexMap<String, crate::rules::System> {
-    let mut letters = crate::citing::Introduced::new();
+pub fn set_systems_of(record: &CheckedTheorem) -> IndexMap<String, System> {
+    let mut letters = Introduced::new();
     for step in &record.introduced {
         for (name, system) in step {
             letters.entry(name.clone()).or_insert(*system);
         }
     }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    let mut out = crate::citing::number_sets::set_letter_systems(&lines, &letters);
+    let mut out = number_sets::set_letter_systems(&lines, &letters);
     // A set of numbers no line places among narrower ones, `let A be a set`
     // with 3 ∈ A, holds complex numbers, set.mm's numbers: the page says no
     // narrower system of it.
     for (name, sort) in record.sorts.iter() {
-        let of_numbers = matches!(sort.full(), Some(crate::formula::Whole::Set(m))
-            if matches!(**m, crate::formula::Whole::Number));
+        let of_numbers = matches!(sort.full(), Some(Whole::Set(m))
+            if matches!(**m, Whole::Number));
         if of_numbers {
-            out.entry(name.clone()).or_insert(crate::rules::System::C);
+            out.entry(name.clone()).or_insert(System::C);
         }
     }
     out
@@ -622,7 +602,7 @@ pub fn thing_types_of(
     thm: &Theorem,
     record: &CheckedTheorem,
     known: &Known,
-) -> crate::citing::things::ThingTypes {
+) -> ThingTypes {
     let hypotheses = hypothesis_lines(thm, record);
     let mut entries: Vec<(&record::PartKey, &Node)> = record.page.entries().collect();
     entries.sort_by(|a, b| (a.0.line, &a.0.text).cmp(&(b.0.line, &b.0.text)));
@@ -630,7 +610,7 @@ pub fn thing_types_of(
         .iter()
         .chain(entries.into_iter().map(|(_, node)| node))
         .collect();
-    let none = crate::matching::Definitions::new();
+    let none = Definitions::new();
     let mut given: Vec<(String, Node)> = Vec::new();
     for step in &thm.steps {
         if !step.just.head.is(Method::Instantiate) {
@@ -643,44 +623,35 @@ pub fn thing_types_of(
     let sets: Vec<String> = written::graph_letters(&thm.hypotheses, &thm.path)
         .map(|g| vec![g.vertices, g.edges])
         .unwrap_or_default();
-    crate::citing::things::ThingTypes::read_given(
-        &sets,
-        &lines,
-        &given,
-        Some(&record.sorts),
-    )
+    ThingTypes::read_given(&sets, &lines, &given, Some(&record.sorts))
 }
 
 /// The number system each letter the page's lines put in sets of numbers
 /// is in, the widest of them, A of `A ∈ ℝ ∖ ℚ` (`CheckedTheorem::
 /// element_systems`), read from the record's page as `set_systems_of`.
-pub fn element_systems_of(
-    record: &CheckedTheorem,
-) -> IndexMap<String, crate::rules::System> {
-    let mut letters = crate::citing::Introduced::new();
+pub fn element_systems_of(record: &CheckedTheorem) -> IndexMap<String, System> {
+    let mut letters = Introduced::new();
     for step in &record.introduced {
         for (name, system) in step {
             letters.entry(name.clone()).or_insert(*system);
         }
     }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    crate::citing::number_sets::element_systems(&lines, &letters, &record.set_systems)
+    number_sets::element_systems(&lines, &letters, &record.set_systems)
 }
 
 /// The function letters the page's lines give a type between sets of
 /// numbers, with their systems (`CheckedTheorem::function_systems`), read
 /// from the record's page as `set_systems_of`.
-pub fn function_systems_of(
-    record: &CheckedTheorem,
-) -> IndexMap<String, crate::citing::number_sets::Between> {
-    let mut letters = crate::citing::Introduced::new();
+pub fn function_systems_of(record: &CheckedTheorem) -> IndexMap<String, Between> {
+    let mut letters = Introduced::new();
     for step in &record.introduced {
         for (name, system) in step {
             letters.entry(name.clone()).or_insert(*system);
         }
     }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    crate::citing::number_sets::function_systems(&lines, &letters, &record.set_systems)
+    number_sets::function_systems(&lines, &letters, &record.set_systems)
 }
 
 /// The steps that say which numbers each of the theorem's defines gives
@@ -695,8 +666,8 @@ pub fn define_values_of(
     let names: Vec<String> = thm
         .defines
         .iter()
-        .filter_map(|d| match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::One(def)) => Some(def.name),
+        .filter_map(|d| match corpus::define_parts(&d.text) {
+            Route::Built(DefineParts::One(def)) => Some(def.name),
             _ => None,
         })
         .collect();
@@ -709,19 +680,19 @@ pub fn define_values_of(
             .iter()
             .filter_map(|s| record.page.get(s))
             .collect();
-        let system_of = |set: &Node| match crate::citing::set_system(set, &letters) {
+        let system_of = |set: &Node| match citing::set_system(set, &letters) {
             Some(s) => Some(s),
             None if set.is_name() => record.set_systems.get(&*set.text).copied(),
             None => None,
         };
-        let mut said: Vec<(String, crate::rules::System, bool)> = Vec::new();
+        let mut said: Vec<(String, System, bool)> = Vec::new();
         for node in lines.iter().flat_map(|l| l.walk()) {
             if let Some((name, system)) = values_said(&node, &system_of) {
-                let typed = node.notation() == crate::notations::FUNCTION_TYPE;
+                let typed = node.notation() == FUNCTION_TYPE;
                 said.push((name, system, typed));
             }
         }
-        let sets = crate::citing::number_sets::set_letter_systems(&lines, &letters);
+        let sets = number_sets::set_letter_systems(&lines, &letters);
         said.extend(sets.into_iter().map(|(name, system)| (name, system, false)));
         for (name, system, typed) in said {
             if !names.contains(&name) {
@@ -745,8 +716,8 @@ pub fn define_values_of(
 /// of `f : A → S`, or of `for all x ∈ D, f(x) ∈ S` at its own letter.
 fn values_said(
     node: &Node,
-    system_of: &dyn Fn(&Node) -> Option<crate::rules::System>,
-) -> Option<(String, crate::rules::System)> {
+    system_of: &dyn Fn(&Node) -> Option<System>,
+) -> Option<(String, System)> {
     match (node.notation(), node.children.as_slice()) {
         (FUNCTION_TYPE, [f, _, to]) if f.is_name() => {
             Some((f.text.to_string(), system_of(to)?))
@@ -772,19 +743,14 @@ fn values_said(
 
 /// A define, as its name and the term the page reads it to name: a
 /// function's, its body; None for a recursion.
-fn define_named<'r>(
-    d: &crate::corpus::DefineLine,
-    record: &'r CheckedTheorem,
-) -> Option<crate::citing::finite::Named<'r>> {
-    let Route::Built(crate::corpus::DefineParts::One(def)) =
-        crate::corpus::define_parts(&d.text)
-    else {
+fn define_named<'r>(d: &DefineLine, record: &'r CheckedTheorem) -> Option<Named<'r>> {
+    let Route::Built(DefineParts::One(def)) = corpus::define_parts(&d.text) else {
         return None;
     };
     // The line's sentence that is the define's body: a function's line
     // holds its domains too, {1, …, N} of `for k ∈ {1, …, N}`. A body by
     // cases names no one set.
-    let crate::corpus::RuleText::Term(body) = &def.body else {
+    let RuleText::Term(body) = &def.body else {
         return None;
     };
     let value = record
@@ -915,7 +881,7 @@ fn edited_run(read: Read, kept: Option<Kept<'_>>, edited: &[String]) -> Outcome 
 fn theorem_record(
     c: &Checking<'_>,
     i: usize,
-    items: &std::sync::Arc<record::ItemReading>,
+    items: &Arc<record::ItemReading>,
     own: Report,
 ) -> CheckedTheorem {
     let thm = &c.theorems[i];
@@ -1054,7 +1020,7 @@ fn theorem_record(
         let defines = finite_defines(thm, &record);
         let mut at = record.finite_at.clone();
         for sets in &mut at {
-            crate::citing::finite::finite_defines(sets, &defines);
+            finite::finite_defines(sets, &defines);
         }
         at
     };
@@ -1064,7 +1030,7 @@ fn theorem_record(
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);
     record.define_values = define_values_of(thm, &record);
-    record.items = std::sync::Arc::clone(items);
+    record.items = Arc::clone(items);
     record.statement_definitions = statement_definitions(thm, c.env, &c.known[i].sorts);
     let requires_said =
         bounds::said_by(&requires_lines(thm, &c.known[i]), &header, &c.library.ctx);
@@ -1180,10 +1146,10 @@ pub struct Checking<'a> {
     /// Each definition's word, and the methods its record says decide it.
     defined: &'a IndexMap<Spelling, formulas::DefinedWord>,
     /// Each operation a notation declares, and whether arithmetic works it out.
-    operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
+    operations: &'a IndexMap<NotationId, bool>,
     /// The same, by whether real arithmetic works it out, constants with
     /// them.
-    real_operations: &'a IndexMap<crate::formula::notation_id::NotationId, bool>,
+    real_operations: &'a IndexMap<NotationId, bool>,
     /// Each library function, and whether real arithmetic works it out.
     real_functions: &'a IndexMap<String, bool>,
     methods: &'a IndexMap<String, &'a Record>,
@@ -1672,10 +1638,8 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
             allowed.extend(value.chars());
         }
         // A pattern writing a raised numeral takes every raised digit.
-        if r.field("pattern")
-            .is_some_and(|p| p.contains(crate::formula::RAISED_HOLE))
-        {
-            allowed.extend(crate::formula::token::RAISED);
+        if r.field("pattern").is_some_and(|p| p.contains(RAISED_HOLE)) {
+            allowed.extend(RAISED);
         }
     }
     allowed.extend(IDENTIFIER_CHARACTERS.chars());
@@ -1711,8 +1675,8 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
     // They are made on the database, and not where a records file did not
     // read: the phrase would then read where nothing around it does.
     if records_whole {
-        crate::corpus::phrases::add_phrase_records(&mut records, &scopes);
-        crate::sorts::settle_phrases(&mut records, &scopes);
+        phrases::add_phrase_records(&mut records, &scopes);
+        sorts::settle_phrases(&mut records, &scopes);
     }
     for (path, no, message) in link_functions(&records, &mut scopes)
         .into_iter()
@@ -1720,7 +1684,7 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
     {
         report.say(&path, no, message);
     }
-    crate::corpus::proof::read_visible(&mut scopes);
+    proof::read_visible(&mut scopes);
     Ok(Read {
         corpus: Corpus {
             records,
@@ -1874,13 +1838,13 @@ fn prepared_in<T>(
             .filter(|h| h.kind == Intro::Let)
             .map(|h| h.body(&r.path))
             .collect();
-        let parts = crate::sorts::record_formulas(r);
+        let parts = sorts::record_formulas(r);
         structure::check_ranges(
             &mut report,
             &r.path,
             &r.ranges,
             &lets,
-            &crate::sorts::written_tokens(&parts, &grammar),
+            &sorts::written_tokens(&parts, &grammar),
             env,
             &record_sorts[&i],
         );
@@ -1993,7 +1957,7 @@ fn check_proofs_named(report: &mut Report, records: &[Record], theorems: &[Theor
     }
     for thm in theorems {
         let name = thm.qualified();
-        if crate::corpus::in_stdlib(&name) && !named.contains(name.as_str()) {
+        if corpus::in_stdlib(&name) && !named.contains(name.as_str()) {
             report.say(
                 &thm.path,
                 thm.line,
@@ -2275,10 +2239,7 @@ fn check_pairs_needed(
 
 /// The letters a citation gives as their own values, `f := f`: each pair
 /// whose value reads as the very letter it is given for.
-fn pairs_for_themselves(
-    just: &crate::corpus::Justification,
-    k: &Known<'_>,
-) -> Vec<String> {
+fn pairs_for_themselves(just: &Justification, k: &Known<'_>) -> Vec<String> {
     just.values
         .pairs()
         .filter(|(name, value)| {
@@ -2499,7 +2460,7 @@ fn check_passes(
         &thm.path,
         &thm.ranges,
         &lets,
-        &crate::sorts::theorem_tokens(thm, env.g),
+        &sorts::theorem_tokens(thm, env.g),
         env,
         &k.sorts,
     );

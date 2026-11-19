@@ -2,6 +2,16 @@
 
 use super::super::record::{NonzeroBy, NotZero};
 use super::*;
+use std::{iter, slice};
+
+use crate::checker::record::PageReading;
+use crate::citing::finite::FiniteSets;
+use crate::citing::{finite, Implication};
+use crate::formula::node::ByShape;
+use crate::matching::Defined;
+use crate::methods::pairs::Coordinate;
+use crate::methods::{field, pairs};
+use crate::{citing, matching};
 use methods_membership::NonzeroHow;
 
 /// An `algebra` claim as the method decides it: the claim and its lines
@@ -14,7 +24,7 @@ pub(super) struct AlgebraDecided {
     pub(super) verdict: algebra::Verdict,
     /// Of a claim that two pairs differ, the coordinate a cited difference
     /// shows them apart at (`algebra::apart_at`).
-    pub(super) pair_apart: Option<crate::methods::pairs::Coordinate>,
+    pub(super) pair_apart: Option<Coordinate>,
 }
 
 /// The `algebra` decision of one claim; None where the claim does not read.
@@ -35,18 +45,17 @@ pub(super) fn algebra_decided(
     let facts: Vec<Node> = read.lines.iter().flat_map(conjuncts).collect();
     let cited: Vec<Term> = facts
         .iter()
-        .map(|n| term_of_node(&crate::matching::bare(n, ctx), targets))
+        .map(|n| term_of_node(&matching::bare(n, ctx), targets))
         .collect();
-    let claimed = term_of_node(&crate::matching::bare(&read.claimed, ctx), targets);
+    let claimed = term_of_node(&matching::bare(&read.claimed, ctx), targets);
     // Sums are read as linear where some term of the step is linear in
     // something, as the build reads them (`field::says_something_linear`).
-    let linear = std::iter::once(&claimed)
+    let linear = iter::once(&claimed)
         .chain(&cited)
-        .any(|t| crate::methods::field::says_something_linear(t, &labels));
-    let verdict = crate::methods::field::reading_sums(linear, || {
-        algebra::decide(&claimed, &cited, &labels)
-    });
-    let pair_apart = crate::methods::pairs::relation(&claimed)
+        .any(|t| field::says_something_linear(t, &labels));
+    let verdict =
+        field::reading_sums(linear, || algebra::decide(&claimed, &cited, &labels));
+    let pair_apart = pairs::relation(&claimed)
         .filter(|p| p.apart)
         .and_then(|p| algebra::apart_at(&p, &cited, &labels));
     Some(AlgebraDecided {
@@ -77,11 +86,10 @@ pub fn divided_by(
                 out.insert(step.just.line, parts);
             }
         }
-        let rows: Vec<crate::corpus::proof::Requires> =
-            chain_links(&step.just, &thm.path)
-                .into_iter()
-                .filter_map(|link| link.line.reason)
-                .collect();
+        let rows: Vec<Requires> = chain_links(&step.just, &thm.path)
+            .into_iter()
+            .filter_map(|link| link.line.reason)
+            .collect();
         let claims = step
             .requires
             .iter()
@@ -597,10 +605,10 @@ pub fn check_define_names(
         let Some(name) = define_named(thm, &d.label, scopes) else {
             continue;
         };
-        let defined = known.citing(std::slice::from_ref(&d.label));
+        let defined = known.citing(slice::from_ref(&d.label));
         // A function's value is a thing as the name is: Q(x) = x < 1 is a
         // statement of x, and no function.
-        if let Some(crate::matching::Defined::Rule(rule)) = defined.get(&name) {
+        if let Some(Defined::Rule(rule)) = defined.get(&name) {
             if rule.body.sort.is("formula") {
                 report.say(
                     &thm.path,
@@ -613,7 +621,7 @@ pub fn check_define_names(
                 );
             }
         }
-        if let Some(crate::matching::Defined::Term(term)) = defined.get(&name) {
+        if let Some(Defined::Term(term)) = defined.get(&name) {
             if term.sort.is("formula") {
                 report.say(
                     &thm.path,
@@ -641,7 +649,7 @@ pub(in crate::checker) fn define_equation(
 ) -> Option<Node> {
     let name = define_named(thm, r, known.env.scopes)?;
     let defined = known.citing(&[r.to_string()]);
-    let Some(crate::matching::Defined::Term(term)) = defined.get(&name) else {
+    let Some(Defined::Term(term)) = defined.get(&name) else {
         return None;
     };
     let named = Written::new(&name, &thm.path, step.just.line)
@@ -685,7 +693,7 @@ pub(super) fn define_applied(
     };
     let before = terms_of(at.checked_sub(1), |c| c.left.clone());
     let after = terms_of(Some(at + 1), |c| c.right.clone());
-    let defined = known.citing(std::slice::from_ref(&r.to_string()));
+    let defined = known.citing(slice::from_ref(&r.to_string()));
     let mut out = Vec::new();
     for one in &before {
         for other in &after {
@@ -960,7 +968,7 @@ pub fn order_steps(
 /// place; None for the member a claim said of every member is read at.
 pub(super) struct ImpliedFact {
     pub(super) node: Node,
-    pub(super) rule: crate::citing::Implication,
+    pub(super) rule: Implication,
     pub(super) from: Option<usize>,
 }
 
@@ -986,7 +994,7 @@ pub(super) fn combined_order(
     }
     let mut implied: Vec<ImpliedFact> = Vec::new();
     for (i, part) in facts.iter().enumerate() {
-        for (node, rule) in crate::citing::implied_by(part, known.env, &known.sorts) {
+        for (node, rule) in citing::implied_by(part, known.env, &known.sorts) {
             implied.push(ImpliedFact {
                 node,
                 rule,
@@ -995,7 +1003,7 @@ pub(super) fn combined_order(
         }
     }
     if let Some(member) = &read.member {
-        for (node, rule) in crate::citing::implied_by(member, known.env, &known.sorts) {
+        for (node, rule) in citing::implied_by(member, known.env, &known.sorts) {
             implied.push(ImpliedFact {
                 node,
                 rule,
@@ -1254,7 +1262,7 @@ pub(super) fn order_line(
     let said = standard(said, &library.ctx);
     super::super::citations::fact_at(
         step,
-        std::slice::from_ref(&r),
+        slice::from_ref(&r),
         None,
         &said,
         known,
@@ -1309,7 +1317,7 @@ pub fn antisymmetries(
                 }
                 super::super::citations::fact_at(
                     step,
-                    std::slice::from_ref(r),
+                    slice::from_ref(r),
                     None,
                     &standard(&link.said, &library.ctx),
                     known,
@@ -1497,10 +1505,8 @@ pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Know
 
 /// Of each "if P then Q" the page writes, the sets P makes finite within Q
 /// (`citing::finite::finite_under`).
-pub fn finite_under(
-    page: &crate::checker::record::PageReading,
-) -> IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets> {
-    crate::citing::finite::finite_under(page.entries().map(|(_, node)| node))
+pub fn finite_under(page: &PageReading) -> IndexMap<ByShape, FiniteSets> {
+    finite::finite_under(page.entries().map(|(_, node)| node))
 }
 
 /// How each calculation's ends meet the step's claim, by the line of its
@@ -1579,7 +1585,7 @@ pub fn check_substitute_rows(report: &mut Report, thm: &Theorem, known: &Known) 
         // The last row may write the claim in its other form, which says
         // the claim (`rules::OTHER_FORMS`).
         let other = said_otherwise(&ends, known.env, &known.sorts);
-        let ends_on_claim = std::iter::once(&ends)
+        let ends_on_claim = iter::once(&ends)
             .chain(other.as_ref())
             .any(|e| known.alike(e, &claim));
         if !ends_on_claim {

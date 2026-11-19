@@ -21,8 +21,7 @@ use indexmap::IndexMap;
 use crate::corpus::{define_parts, DefineParts, Intro, Record, Step, Theorem};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
-use crate::formula::Node;
-use crate::formula::Sorts;
+use crate::formula::{Node, Sorts};
 use crate::matching::{alike_top, Context};
 use crate::notations::{
     COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, EQUALITY, IMPLICATION, LOGICAL_NOT,

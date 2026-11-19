@@ -1,11 +1,12 @@
 //! What a citation supplies and claims, as the search reads them.
 
+use indexmap::IndexMap;
+
 use crate::corpus::{Head, Step};
 use crate::formula::grammar::Grammar;
 use crate::formula::notation_id::NotationId;
-use crate::formula::page;
 use crate::formula::symbol::Symbol;
-use crate::formula::{Node, Sort, Sorts, Whole};
+use crate::formula::{page, Node, Sort, Sorts, Whole};
 use crate::matching::{standard, substitute_apart_by, Binding};
 use crate::notations::{
     FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, INTEGER_RANGE, MEMBERSHIP,
@@ -17,6 +18,7 @@ use crate::sorts::{types_a_function, Env, TYPING};
 
 use super::conclude::taken;
 use super::library::{with_parts, Library};
+use crate::matching;
 
 /// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which
 /// the step then has as a fact, and P, which it then claims (`SYNTAX.md`, a
@@ -110,12 +112,12 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
             // nothing of the set.
             let elsewhere = concluded(&letter.text)
                 && stands.get(&letter.text).is_some_and(|s| {
-                    !crate::matching::alike(
+                    !matching::alike(
                         s,
                         set,
                         &library.ctx,
-                        &indexmap::IndexMap::new(),
-                        &indexmap::IndexMap::new(),
+                        &IndexMap::new(),
+                        &IndexMap::new(),
                     )
                 });
             if letter.is_name() && !parts.seed.contains_key(&letter.text) && !elsewhere

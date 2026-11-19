@@ -18,7 +18,9 @@
 //! was a defect after all.
 
 use std::borrow::Cow;
+use std::error::Error;
 use std::fmt;
+pub use Route::{Built, Declined};
 
 /// A defect found while reading or elaborating, with where it was found.
 ///
@@ -125,7 +127,7 @@ impl fmt::Display for Problem {
     }
 }
 
-impl std::error::Error for Problem {}
+impl Error for Problem {}
 
 /// What can go wrong, as the error type of everything that can find a defect.
 pub type Checked<T> = Result<T, Problem>;
@@ -205,8 +207,6 @@ pub enum Route<T> {
     Built(T),
     Declined(Decline),
 }
-
-pub use Route::{Built, Declined};
 
 impl<T> Route<T> {
     /// A route that declines for the reason given.

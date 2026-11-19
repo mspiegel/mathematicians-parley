@@ -1,6 +1,9 @@
 //! Exhibits, instantiations and the values they write.
 
+use std::{iter, slice};
+
 use super::*;
+use crate::matching::Meeting;
 
 /// An exhibit's lines say every part of its body at one value.
 ///
@@ -92,7 +95,7 @@ pub(super) fn shows_value(
                 // The line itself says the part at the value, and not only
                 // an equation true of itself there, n = n of q = n.
                 supply(
-                    std::slice::from_ref(w),
+                    slice::from_ref(w),
                     &said,
                     &Binding::new(),
                     &letters,
@@ -299,7 +302,7 @@ pub(super) fn most_said_value(
         .chain(wants.iter().filter(|w| bare(w)))
     {
         let Some(at) = supply(
-            std::slice::from_ref(w),
+            slice::from_ref(w),
             facts,
             &Binding::new(),
             letters,
@@ -782,7 +785,7 @@ pub fn instantiations(
                 let by = req.by.as_ref().ok()?;
                 Some(reason_as_step(step, &req, by))
             });
-        for at in std::iter::once(step.clone()).chain(rows) {
+        for at in iter::once(step.clone()).chain(rows) {
             let Some(read) = instance_reading(&at, library, known) else {
                 continue;
             };
@@ -856,17 +859,14 @@ pub(super) fn instance_reading(
         }
         // The instance reaching the claim, and each condition met on the way
         // among what the step names; one it does not supply is said.
-        let reached: Vec<(
-            &super::super::library::Said,
-            Vec<Node>,
-            crate::matching::Meeting,
-        )> = instances
-            .iter()
-            .filter_map(|(said, i)| {
-                let (conditions, met) = concludes_claim(i, &claim, known)?;
-                Some((*said, conditions, met))
-            })
-            .collect();
+        let reached: Vec<(&super::super::library::Said, Vec<Node>, Meeting)> =
+            instances
+                .iter()
+                .filter_map(|(said, i)| {
+                    let (conditions, met) = concludes_claim(i, &claim, known)?;
+                    Some((*said, conditions, met))
+                })
+                .collect();
         if let Some((said, conditions, meeting)) =
             reached.iter().min_by_key(|(_, c, _)| c.len())
         {
@@ -986,7 +986,7 @@ pub(super) fn concludes_claim(
     instance: &Node,
     claim: &Node,
     known: &Known,
-) -> Option<(Vec<Node>, crate::matching::Meeting)> {
+) -> Option<(Vec<Node>, Meeting)> {
     let mut at = instance.clone();
     let mut asked = Vec::new();
     loop {

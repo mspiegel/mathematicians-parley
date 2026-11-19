@@ -12,6 +12,14 @@
 //! What a method decides but cannot write is a defect at its line: nothing is
 //! taken as stated in its place.
 
+mod algebra;
+mod bounds;
+mod ordering;
+mod polynomials;
+mod rows;
+mod sums;
+mod values;
+
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 
@@ -23,10 +31,8 @@ use super::elaborate::Sides;
 use super::field::{self, numeral as n, q, Poly, Value, Verdict, DIV, Q, SUB};
 use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
-use super::numerals;
 use super::state::{Elaborator, ProvedClaim, Vars};
-use super::{Facts, Line, Lines};
-use crate::binds;
+use super::{numerals, Facts, Line, Lines};
 use crate::corpus::proof::{rows, RowReason};
 use crate::corpus::{Item, Method, RecordKind, Step};
 use crate::formula::symbol::Symbol;
@@ -40,15 +46,7 @@ use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
-use crate::{pf, t, take};
-
-mod algebra;
-mod bounds;
-mod ordering;
-mod polynomials;
-mod rows;
-mod sums;
-mod values;
+use crate::{binds, pf, t, take};
 
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being

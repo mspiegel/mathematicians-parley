@@ -11,6 +11,8 @@ use crate::mm::kernel::{FloatLabels, Term};
 use super::algebra::parts;
 use super::field::q;
 use super::linear::{self, How};
+use crate::rules;
+use crate::rules::SPLIT;
 
 /// Whether a plain `inequalities` step's claim follows from `cited`, the
 /// lines the step cites, each read with its parts (`algebra::parts`), and
@@ -414,7 +416,7 @@ fn restated_apart(
 /// (`rules::SPLIT`).
 fn conjoined(term: &Term) -> bool {
     term.label()
-        .is_some_and(|l| crate::rules::lookup(crate::rules::SPLIT, l).is_some())
+        .is_some_and(|l| rules::lookup(SPLIT, l).is_some())
 }
 
 /// What a plain step `decide` refuses is told, its claim `shown` and the

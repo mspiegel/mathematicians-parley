@@ -7,6 +7,8 @@
 //! proof the build writes of what is decided here is `crate::elab::
 //! inspection`.
 
+use std::cell::RefCell;
+
 use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, Zero};
 
@@ -31,7 +33,7 @@ pub struct Facts {
     /// Every sentence cited, which settles a property it says or denies.
     said: Vec<Term>,
     /// Why a claim was past what the method settles, where one was.
-    past: std::cell::RefCell<Option<String>>,
+    past: RefCell<Option<String>>,
 }
 
 /// One side of a cited sentence and what it says of it.
@@ -57,7 +59,7 @@ impl Facts {
             worth: Vec::new(),
             every: Vec::new(),
             said: cited.to_vec(),
-            past: std::cell::RefCell::new(None),
+            past: RefCell::new(None),
         };
         for fact in cited {
             match (fact.label(), fact.children()) {

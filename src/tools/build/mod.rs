@@ -6,13 +6,19 @@
 //! artifacts it waits on, the order they are made in, and writing a file
 //! only where its text changed.
 
-use std::collections::BTreeSet;
-use std::path::Path;
-
-use crate::outcome::{Checked, Problem};
-
 pub mod lean;
 pub mod metamath;
+
+use std::collections::BTreeSet;
+use std::fs;
+use std::path::Path;
+
+use crate::checker;
+use crate::checker::{CheckedCorpus, PairsAsked};
+use crate::corpus::Theorem;
+use crate::outcome::{Checked, Problem};
+use crate::said::Said;
+use crate::source::Source;
 
 pub use metamath::*;
 
@@ -23,15 +29,13 @@ pub use metamath::*;
 /// the status is the check's. A problem outside every theorem has every
 /// theorem depending on it, so the build ends with the check, and that is
 /// the outcome.
-pub fn checked_first(
-    source: &dyn crate::source::Source,
-) -> Result<(crate::said::Said, crate::checker::CheckedCorpus), crate::said::Said> {
-    let all = |_: &crate::corpus::Theorem| true;
+pub fn checked_first(source: &dyn Source) -> Result<(Said, CheckedCorpus), Said> {
+    let all = |_: &Theorem| true;
     let ask = crate::checker::Ask {
         wanted: &all,
-        pairs: crate::checker::PairsAsked::Yes,
+        pairs: PairsAsked::Yes,
     };
-    let front = crate::checker::front(source, &ask)?;
+    let front = checker::front(source, &ask)?;
     let said = front.said();
     if !front.outside.problems.is_empty() {
         return Err(said);
@@ -98,13 +102,13 @@ pub enum Written {
 /// file already holds that text.
 pub fn write_changed(root: &Path, path: &str, text: &str) -> Checked<Written> {
     let full = root.join(path);
-    let before = std::fs::read_to_string(&full).ok();
+    let before = fs::read_to_string(&full).ok();
     if before.as_deref() == Some(text) {
         return Ok(Written::Same);
     }
     full.parent()
-        .map_or(Ok(()), std::fs::create_dir_all)
-        .and_then(|()| std::fs::write(&full, text))
+        .map_or(Ok(()), fs::create_dir_all)
+        .and_then(|()| fs::write(&full, text))
         .map_err(|e| Problem::new(full.display().to_string(), 0, e.to_string()))?;
     Ok(Written::Changed)
 }

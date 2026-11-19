@@ -4,7 +4,14 @@ use super::super::record::{HeldByLines, Inspection, LinesHold, PlaceShown, Shown
 use super::*;
 use crate::methods::inspection;
 use crate::methods::inspection::{Facts, Inspected};
+use std::iter;
+
+use crate::citing;
+use crate::citing::Introduced;
+use crate::corpus::{proof, DefineLine};
+use crate::formula::{page, ByShape};
 use methods_membership::HeldHow;
+use num_traits::{Signed, Zero};
 
 /// What a calculation's chain gives of its ends.
 pub(super) enum ChainClaim {
@@ -175,11 +182,11 @@ pub(super) fn row_follows(
             else {
                 return false;
             };
-            if num_traits::Zero::is_zero(&value) {
+            if Zero::is_zero(&value) {
                 return false;
             }
             // A negative number turns an order round.
-            let rel = if num_traits::Signed::is_negative(&value) {
+            let rel = if Signed::is_negative(&value) {
                 above.rel.converse()
             } else {
                 above.rel
@@ -563,7 +570,7 @@ pub(super) fn report_unreal(
     known: &Known,
     targets: &Targets,
 ) {
-    let relations: Vec<Node> = std::iter::once(claim.clone())
+    let relations: Vec<Node> = iter::once(claim.clone())
         .chain(links.iter().map(|l| l.said.clone()))
         .collect();
     // A cited line says all it says, not only the relation the chain takes
@@ -803,7 +810,7 @@ pub fn check_kind_methods(
 /// which is how the reason is read (`SYNTAX.md`, a let with a kind). The
 /// reason is the last.
 pub struct UnderLet<'t> {
-    pub define: &'t crate::corpus::DefineLine,
+    pub define: &'t DefineLine,
     pub step: Step,
 }
 
@@ -891,9 +898,8 @@ pub fn check_method_cites_used(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions = super::super::citations::defined_functions(
-        &crate::corpus::proof::in_scope(thm, scopes),
-    );
+    let functions =
+        super::super::citations::defined_functions(&proof::in_scope(thm, scopes));
     for step in &thm.steps {
         let decides: Decides = match step.just.head.method() {
             Some(Method::Algebra) => algebra_holds,
@@ -1263,7 +1269,7 @@ pub fn commuted_by_lines(
         let Some(read) = at.read(known, targets, true) else {
             return Vec::new();
         };
-        let nodes: Vec<Node> = std::iter::once(read.claimed.clone())
+        let nodes: Vec<Node> = iter::once(read.claimed.clone())
             .chain(read.lines.iter().cloned())
             .collect();
         targets.written_in_other_orders(&nodes)
@@ -1278,17 +1284,16 @@ pub fn commuted_by_lines(
         }
         // A calculation's rows and a substitution's, each by the line its
         // reason is on, the change a substitution's row makes its claim.
-        let substituted: Vec<crate::corpus::proof::Requires> =
-            match crate::corpus::proof::substitute_rows(&step.just, &thm.path) {
+        let substituted: Vec<Requires> =
+            match proof::substitute_rows(&step.just, &thm.path) {
                 Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
                 _ => Vec::new(),
             };
-        let rows: Vec<crate::corpus::proof::Requires> =
-            chain_links(&step.just, &thm.path)
-                .into_iter()
-                .filter_map(|link| link.line.reason)
-                .chain(substituted)
-                .collect();
+        let rows: Vec<Requires> = chain_links(&step.just, &thm.path)
+            .into_iter()
+            .filter_map(|link| link.line.reason)
+            .chain(substituted)
+            .collect();
         for req in &rows {
             if let Ok(by) = &req.by {
                 out.insert(by.line, commuted(&ClosureClaim::row(step, req)));
@@ -1322,8 +1327,8 @@ pub(super) fn held_at(
     }
     let given = held.given(targets, known);
     let mut out: Vec<HeldByLines> = Vec::new();
-    let mut seen: FxIndexSet<(crate::formula::ByShape, System)> = FxIndexSet::default();
-    for part in std::iter::once(&read.claimed)
+    let mut seen: FxIndexSet<(ByShape, System)> = FxIndexSet::default();
+    for part in iter::once(&read.claimed)
         .chain(&read.lines)
         .flat_map(|n| n.walk())
     {
@@ -1507,7 +1512,7 @@ pub(super) struct MembershipIn {
     /// The facts the lines state, of which `facts` holds these and what
     /// they imply, `x > 0` of `x ∈ ℕ` (`implied_facts`).
     pub(super) stated: Vec<Node>,
-    pub(super) letters: crate::citing::Introduced,
+    pub(super) letters: Introduced,
     pub(super) ranged: IndexMap<String, methods_membership::Range>,
     pub(super) typed: Vec<Node>,
     /// The function types in scope, which a sum's terms may use.
@@ -1541,11 +1546,9 @@ impl MembershipIn {
         if let (FOR_ALL, [bound, set, _]) =
             (read.claimed.notation(), read.claimed.children.as_slice())
         {
-            if let Some(member) = crate::formula::page::made_as(
-                known.env.g,
-                "_ ∈ _",
-                vec![bound.clone(), set.clone()],
-            ) {
+            if let Some(member) =
+                page::made_as(known.env.g, "_ ∈ _", vec![bound.clone(), set.clone()])
+            {
                 lines.push(member);
             }
         }
@@ -1622,7 +1625,7 @@ impl MembershipIn {
 pub(super) fn member_of(
     bound: &Node,
     set: &Node,
-    letters: &mut crate::citing::Introduced,
+    letters: &mut Introduced,
     ranged: &mut IndexMap<String, methods_membership::Range>,
 ) -> bool {
     if !bound.is_name() {
@@ -1630,8 +1633,8 @@ pub(super) fn member_of(
     }
     let system = match set.notation() {
         NUMBER_SYSTEMS => System::of_sign(&set.text),
-        INTEGER_RANGE => crate::citing::range_system(set),
-        _ => match crate::citing::interval_system(set, letters) {
+        INTEGER_RANGE => citing::range_system(set),
+        _ => match citing::interval_system(set, letters) {
             Some(system) => Some(system),
             None => return true,
         },

@@ -17,12 +17,12 @@
 //! renamed with every citation of it, is the sweep's alone.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::env;
 use std::path::Path;
 use std::sync::Arc;
 
-use parley::corpus::corpus;
-use parley::corpus::module_of;
 use parley::corpus::proof::cited_items;
+use parley::corpus::{corpus, module_of};
 use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
@@ -30,6 +30,8 @@ use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
 
 use super::SLOTS;
+use parley::checker;
+use parley::checker::CheckedCorpus;
 use parley::tools::build::{checked_in, library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -284,7 +286,7 @@ fn breaks(
 /// into `out`; what it builds otherwise than committed is given back.
 fn built_in_order(
     tree: &Overlay,
-    checked: parley::checker::CheckedCorpus,
+    checked: CheckedCorpus,
     names: &[String],
     cites: &BTreeMap<String, Vec<String>>,
     lib: &Library,
@@ -449,7 +451,7 @@ fn told(all: &[Change], seed: u64, clean: &str, broken: &Broken) -> String {
 }
 
 fn number_from(name: &str, otherwise: u64) -> u64 {
-    std::env::var(name)
+    env::var(name)
         .ok()
         .map(|s| {
             s.parse::<u64>()
@@ -467,10 +469,10 @@ fn a_proof_means_what_it_says_in_any_mix_of_spellings() {
     let all = changes();
     let context = Context::new(
         corpus(&clean).expect("the corpus reads"),
-        parley::checker::obtained_there(&clean).expect("the corpus reads"),
-        parley::checker::bound_there(&clean).expect("the corpus reads"),
-        parley::checker::said_once_there(&clean).expect("the corpus reads"),
-        parley::checker::needed_there(&clean).expect("the corpus reads"),
+        checker::obtained_there(&clean).expect("the corpus reads"),
+        checker::bound_there(&clean).expect("the corpus reads"),
+        checker::said_once_there(&clean).expect("the corpus reads"),
+        checker::needed_there(&clean).expect("the corpus reads"),
     );
     // The files in an order shuffled by the seed, and a sequence drawn for
     // each until enough files have one: a file no change fits is passed by.

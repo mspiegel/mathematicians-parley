@@ -13,6 +13,8 @@ use parley::formula::node::Node;
 use parley::formula::page::{made_as, numeral};
 use parley::formula::Sort;
 
+use crate::judge;
+use crate::judge::Verdict;
 use crate::shared::Random;
 
 /// One theorem drawn for a method: the lines of its header, its claim as
@@ -22,7 +24,7 @@ pub struct Drawn {
     pub header: Vec<String>,
     pub written: String,
     pub justification: String,
-    pub verdict: crate::judge::Verdict,
+    pub verdict: Verdict,
     pub shown: String,
 }
 
@@ -193,7 +195,7 @@ pub fn arithmetic(r: &mut Random, g: &Grammar) -> Drawn {
         header: Vec::new(),
         written: written(g, &c),
         justification: "arithmetic".to_string(),
-        verdict: crate::judge::arithmetic(&c),
+        verdict: judge::arithmetic(&c),
         shown: format!("{c:?}"),
     }
 }

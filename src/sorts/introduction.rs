@@ -13,6 +13,7 @@ use crate::formula::{Grammar, Node, Sorts};
 use crate::outcome::Checked;
 
 use super::{GraphLine, GraphListing, Joined};
+use crate::outcome::Problem;
 
 /// What `text` writes after its first `n` words, from the next word on.
 fn after_words(text: &str, n: usize) -> &str {
@@ -475,7 +476,7 @@ impl Introduction {
     fn being(&self, typed: Node, being: &str, g: &Grammar) -> Checked<Node> {
         let pattern = format!("_ : _ → _ is {being}");
         made_as(g, &pattern, typed.children.clone()).ok_or_else(|| {
-            crate::outcome::Problem::new(
+            Problem::new(
                 self.body.path(),
                 self.body.line(),
                 format!("`let … be {being}` says a function is something no notation says one is"),

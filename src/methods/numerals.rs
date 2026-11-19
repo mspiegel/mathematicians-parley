@@ -6,8 +6,11 @@
 //! product of sixty digits is spelt as exactly as a digit is. The closed
 //! facts about them, proved, are the build's (`crate::elab::numerals`).
 
-use num_bigint::BigUint;
+use std::cell::RefCell;
+
+use num_bigint::{BigInt, BigUint, Sign};
 use num_traits::{ToPrimitive, Zero};
+use rustc_hash::FxHashMap;
 
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
@@ -31,10 +34,10 @@ pub fn spell(value: impl Into<BigUint>) -> Rpn {
 }
 
 /// An integer as set.mm spells it: its numeral, negated where it is below 0.
-pub fn spell_integer(value: &num_bigint::BigInt) -> Rpn {
+pub fn spell_integer(value: &BigInt) -> Rpn {
     let numeral = spelt(value.magnitude());
     match value.sign() {
-        num_bigint::Sign::Minus => t!(numeral, "cneg"),
+        Sign::Minus => t!(numeral, "cneg"),
         _ => numeral,
     }
 }
@@ -43,8 +46,8 @@ pub(crate) fn spelt(value: &BigUint) -> Rpn {
     thread_local! {
         /// Each number spelt so far, which a proof about numbers asks for
         /// again at every digit.
-        static SPELT: std::cell::RefCell<rustc_hash::FxHashMap<BigUint, Rpn>> =
-            std::cell::RefCell::new(rustc_hash::FxHashMap::default());
+        static SPELT: RefCell<FxHashMap<BigUint, Rpn>> =
+            RefCell::new(FxHashMap::default());
     }
     if let Some(known) = SPELT.with(|s| s.borrow().get(value).cloned()) {
         return known;
@@ -100,10 +103,10 @@ pub(crate) fn numeral_term(value: &BigUint) -> Term {
 
 /// The integer `value` as a term: its numeral, negated where it is below 0,
 /// as `spell_integer` spells one.
-pub(crate) fn integer_term(value: &num_bigint::BigInt) -> Term {
+pub(crate) fn integer_term(value: &BigInt) -> Term {
     let numeral = numeral_term(value.magnitude());
     match value.sign() {
-        num_bigint::Sign::Minus => Term::apply("cneg", vec![numeral]),
+        Sign::Minus => Term::apply("cneg", vec![numeral]),
         _ => numeral,
     }
 }

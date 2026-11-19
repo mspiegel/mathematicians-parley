@@ -1,5 +1,11 @@
 //! Renaming letters, reversing values and splitting claims.
 
+use std::cmp::Reverse;
+use std::iter;
+
+use parley::corpus::RecordKind;
+use parley::notations::{COMMA_CONJUNCTION, CONJUNCTION};
+
 use super::*;
 
 /// How a renaming rewrite picks its letters: from the theorem, the letters
@@ -81,8 +87,7 @@ pub(super) fn makes_pairs_for_themselves(
     map: &BTreeMap<String, String>,
 ) -> bool {
     let reasons = thm.steps.iter().flat_map(|s| {
-        std::iter::once(&s.just)
-            .chain(s.requires.iter().filter_map(|r| r.by.as_ref().ok()))
+        iter::once(&s.just).chain(s.requires.iter().filter_map(|r| r.by.as_ref().ok()))
     });
     reasons.flat_map(|j| j.values.pairs()).any(|(name, value)| {
         map.get(value.text().trim())
@@ -127,9 +132,12 @@ pub(super) fn subjects_named(
             continue;
         };
         let full = thm.names.full(&m[1]);
-        let Some(record) = ctx.corpus.records.iter().find(|r| {
-            r.qualified() == full && r.kind == parley::corpus::RecordKind::Definition
-        }) else {
+        let Some(record) = ctx
+            .corpus
+            .records
+            .iter()
+            .find(|r| r.qualified() == full && r.kind == RecordKind::Definition)
+        else {
             continue;
         };
         let Some((said, _)) = record.conclusions.first() else {
@@ -570,10 +578,8 @@ pub(super) fn flatten(node: &Node, out: &mut Vec<String>, g: &Grammar) {
 }
 
 pub(super) fn is_conjunction(node: &Node) -> bool {
-    matches!(
-        node.notation(),
-        parley::notations::CONJUNCTION | parley::notations::COMMA_CONJUNCTION
-    ) && node.children.len() == 2
+    matches!(node.notation(), CONJUNCTION | COMMA_CONJUNCTION)
+        && node.children.len() == 2
 }
 
 /// `A and B` as `A. B`: `SYNTAX.md` writes a conjunction as sentences, and
@@ -706,7 +712,7 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
                 }
             }
         }
-        spans.sort_by_key(|r| std::cmp::Reverse((r.line, r.from)));
+        spans.sort_by_key(|r| Reverse((r.line, r.from)));
         let mut changed = false;
         for r in spans {
             let c = chars(&lines[r.line]);

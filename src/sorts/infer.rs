@@ -21,6 +21,7 @@
 //! is a value: the checker reports it, and nothing tries another reading
 //! after it.
 
+use std::mem;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -28,17 +29,19 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::corpus::define::{KindSaid, SlotKind, Thing};
 use crate::corpus::{
-    define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
+    define_parts, phrases, DefineParts, Intro, Method, Range, Record, Recursion,
+    Requires, Step, Theorem,
 };
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
-use crate::formula::{Node, Sort, Sorts, Whole};
+use crate::formula::{Grammar, Node, Sort, Sorts, Whole};
 use crate::matching::{Defined, FxIndexMap, FxIndexSet};
+use crate::notations::{FOR_ALL, FOR_ALL_PART, NUMERAL};
 use crate::outcome::{At, Built, Decline, Declined, Route};
-use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{define_sorts, file_definitions, unlabel, Env};
 use crate::text::repr;
+use crate::{corpus, regex, sorts};
 
 /// A sort that is not a set, property or function of something.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -759,10 +762,8 @@ fn phrases_in(thm: &Theorem, env: Env) -> IndexSet<String> {
         .phrases
         .iter()
         .filter(|d| d.line < thm.line)
-        .filter_map(|d| match crate::corpus::define_parts(&d.text) {
-            Built(crate::corpus::DefineParts::Phrase(p)) => {
-                Some(crate::corpus::phrases::notation_name(d, &p))
-            }
+        .filter_map(|d| match corpus::define_parts(&d.text) {
+            Built(DefineParts::Phrase(p)) => Some(phrases::notation_name(d, &p)),
             _ => None,
         });
     let imported = scope
@@ -780,7 +781,7 @@ fn every_function(env: Env) -> IndexSet<String> {
 }
 
 /// Each letter a statement's range lines name, with the set it belongs to.
-pub fn ranges_of(ranges: &[crate::corpus::Range]) -> IndexMap<String, String> {
+pub fn ranges_of(ranges: &[Range]) -> IndexMap<String, String> {
     let mut out = IndexMap::new();
     for r in ranges {
         for name in &r.names {
@@ -806,7 +807,7 @@ pub struct NotationSorts {
 }
 
 impl NotationSorts {
-    pub fn read(g: &crate::formula::Grammar) -> NotationSorts {
+    pub fn read(g: &Grammar) -> NotationSorts {
         let mut signatures: FxIndexMap<NotationId, Rc<Signature>> =
             FxIndexMap::default();
         let mut bound: FxIndexMap<NotationId, IndexSet<usize>> = FxIndexMap::default();
@@ -876,7 +877,7 @@ impl Reader {
     /// The sort of every name the lines read so far settle: what the next
     /// line is parsed with.
     pub fn sorts(&self, store: &Store) -> Sorts {
-        crate::sorts::settled(self, store)
+        sorts::settled(self, store)
     }
 
     fn of_name(&mut self, name: &str, store: &mut Store) -> SortTerm {
@@ -932,7 +933,7 @@ impl Reader {
         }
         let over = self.sort_of(domain, line.into(), &IndexMap::new(), store);
         match tree.notation() {
-            crate::notations::FOR_ALL => {
+            FOR_ALL => {
                 let one = store.var();
                 if !store
                     .unify(&over, &SortTerm::set(one.clone()))
@@ -941,7 +942,7 @@ impl Reader {
                     out.insert(letter.text.to_string(), one);
                 }
             }
-            crate::notations::FOR_ALL_PART => {
+            FOR_ALL_PART => {
                 out.insert(letter.text.to_string(), over);
             }
             _ => {}
@@ -963,7 +964,7 @@ impl Reader {
             }
             return self.of_name(&node.text, store);
         }
-        if node.notation() == crate::notations::NUMERAL {
+        if node.notation() == NUMERAL {
             return NUMBER;
         }
         let notations = Rc::clone(&self.notations);
@@ -1018,7 +1019,7 @@ impl Reader {
     /// related is related; what they left open is "any sort" from here on,
     /// and a proof that narrows it is proving less than it claims.
     pub fn fix_declared(&mut self, store: &mut Store) {
-        for name in std::mem::take(&mut self.declared) {
+        for name in mem::take(&mut self.declared) {
             if let Some(k) = self.env.get(&name).cloned() {
                 store.make_rigid(&k, &name);
             }
@@ -1344,7 +1345,7 @@ fn curried(taken: Vec<SortTerm>, gives: SortTerm) -> SortTerm {
 /// may name any of the sequences at k.
 fn recursion_sorts(
     reader: &mut Reader,
-    said: &crate::corpus::Recursion,
+    said: &Recursion,
     line: At,
     env: Env,
     store: &mut Store,

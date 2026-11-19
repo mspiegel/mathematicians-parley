@@ -12,23 +12,12 @@
 //! denied here (`clippy.toml`, `disallowed-methods`).
 #![deny(clippy::disallowed_methods)]
 
-use std::cell::RefCell;
-use std::hash::Hash;
-use std::rc::Rc;
-
-use indexmap::IndexMap;
-
-use crate::mm::spell::{Part, Proof};
-use crate::mm::Rpn;
-
 pub(crate) mod calculators;
+mod cited;
 pub(crate) mod definitions;
 pub mod elaborate;
-pub(crate) use crate::methods::field;
-mod cited;
 pub(crate) mod in_hand;
 mod inspection;
-pub(crate) use crate::methods::linear;
 pub(crate) mod matcher;
 pub(crate) mod normal;
 pub mod numerals;
@@ -41,6 +30,18 @@ mod spoken;
 pub(crate) mod state;
 pub(crate) mod tables;
 
+use std::borrow;
+use std::cell::RefCell;
+use std::hash::Hash;
+use std::rc::Rc;
+
+use indexmap::IndexMap;
+
+pub(crate) use crate::methods::{field, linear};
+use crate::mm::spell::{Part, Proof};
+use crate::mm::Rpn;
+
+pub use cited::Line;
 pub use elaborate::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
 
 /// A table that more than one holder may share and change, as the frames of
@@ -83,14 +84,14 @@ impl<K: Clone + Eq + Hash, V: Clone> Table<K, V> {
 
     pub fn get<Q: Hash + Eq + ?Sized>(&self, key: &Q) -> Option<V>
     where
-        K: std::borrow::Borrow<Q>,
+        K: borrow::Borrow<Q>,
     {
         self.0.borrow().get(key).cloned()
     }
 
     pub fn has<Q: Hash + Eq + ?Sized>(&self, key: &Q) -> bool
     where
-        K: std::borrow::Borrow<Q>,
+        K: borrow::Borrow<Q>,
     {
         self.0.borrow().contains_key(key)
     }
@@ -455,8 +456,6 @@ impl Written {
     }
 }
 
-pub use cited::Line;
-
 /// Each proved line of the theorem, by its label or number.
 pub type Lines = Table<String, Line>;
 
@@ -483,7 +482,7 @@ impl PartOf for Rc<str> {
     }
 }
 
-impl PartOf for crate::mm::Rpn {
+impl PartOf for Rpn {
     fn part(&self) -> Part<'_> {
         Part::Tokens(self)
     }

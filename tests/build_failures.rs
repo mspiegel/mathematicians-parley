@@ -10,13 +10,16 @@
 //! Lean build what it makes of the whole corpus held in memory, so that the
 //! module table answers every file and no Lean process is started.
 
+use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
+use std::{env, fs, process};
 
+use parley::checker;
 use parley::lean::doc::file::Lookup;
-use parley::lean::modules::Answer;
+use parley::lean::modules::{Answer, ModuleTable};
 use parley::lean::names::{module_of, path_of_module};
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::tools::build::artifacts;
+use parley::tools::build::{artifacts, lean, metamath};
 
 /// The file whose two theorems the cases use: `successor-at-zero` cites
 /// `successor-sum`.
@@ -44,12 +47,10 @@ const LIBRARY: [&str; 4] = [
 /// files with `edit` made to `CITING`, and set.mm beside them as the build
 /// finds it.
 fn small_tree(name: &str, edit: Option<(&str, &str)>) -> PathBuf {
-    let root = std::env::temp_dir().join(format!(
-        "parley-build-failures-{name}-{}",
-        std::process::id()
-    ));
+    let root =
+        env::temp_dir().join(format!("parley-build-failures-{name}-{}", process::id()));
     if root.exists() {
-        std::fs::remove_dir_all(&root).unwrap();
+        fs::remove_dir_all(&root).unwrap();
     }
     let from = repo();
     for rel in from.files() {
@@ -67,18 +68,17 @@ fn small_tree(name: &str, edit: Option<(&str, &str)>) -> PathBuf {
             text = text.replacen(old, new, 1);
         }
         let path = root.join(&rel);
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-        std::fs::write(path, text).unwrap();
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, text).unwrap();
     }
-    std::os::unix::fs::symlink(from.root().join("set.mm"), root.join("set.mm"))
-        .unwrap();
+    symlink(from.root().join("set.mm"), root.join("set.mm")).unwrap();
     root
 }
 
 /// The path under the tree of the Metamath file the theorem `name` is built
 /// into.
 fn built_file(root: &Path, name: &str) -> PathBuf {
-    let checked = parley::checker::checked(&Disk::new(root.to_path_buf()))
+    let checked = checker::checked(&Disk::new(root.to_path_buf()))
         .unwrap_or_else(|out| panic!("{}{}", out.printed, out.complained));
     let every = artifacts(&checked.corpus);
     let artifact = every.iter().find(|a| a.name == name).unwrap();
@@ -89,7 +89,7 @@ fn built_file(root: &Path, name: &str) -> PathBuf {
 fn a_refused_theorem_and_what_cites_it_are_not_built_and_the_rest_is() {
     let root = small_tree("refused", None);
     // A clean build first, so that each file has an old copy to remove.
-    let clean = parley::tools::build::metamath::run(&root, None);
+    let clean = metamath::run(&root, None);
     assert_eq!(clean.status, 0, "{}{}", clean.printed, clean.complained);
     let (cited, citer, other) = (
         built_file(&root, CITED),
@@ -99,15 +99,15 @@ fn a_refused_theorem_and_what_cites_it_are_not_built_and_the_rest_is() {
     assert!(cited.exists() && citer.exists() && other.exists());
 
     // The line H3 is cited as H9, which no line is.
-    let text = std::fs::read_to_string(root.join(CITING)).unwrap();
-    std::fs::write(
+    let text = fs::read_to_string(root.join(CITING)).unwrap();
+    fs::write(
         root.join(CITING),
         text.replacen("algebra, from H3", "algebra, from H9", 1),
     )
     .unwrap();
-    let check = parley::checker::run(&Disk::new(root.clone()));
+    let check = checker::run(&Disk::new(root.clone()));
     assert_eq!(check.status, 1, "the planted defect is a problem");
-    let built = parley::tools::build::metamath::run(&root, None);
+    let built = metamath::run(&root, None);
 
     assert!(
         built.printed.starts_with(&check.printed),
@@ -130,7 +130,7 @@ fn a_refused_theorem_and_what_cites_it_are_not_built_and_the_rest_is() {
     assert!(!cited.exists(), "the refused theorem's old file is removed");
     assert!(!citer.exists(), "what cites it has its old file removed");
     assert!(other.exists(), "everything else is built");
-    std::fs::remove_dir_all(&root).unwrap();
+    fs::remove_dir_all(&root).unwrap();
 }
 
 #[test]
@@ -144,16 +144,16 @@ fn a_problem_outside_every_theorem_ends_the_build_with_the_check() {
             "theorem successor-sum\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n\ntheorem successor-at-zero",
         )),
     );
-    let check = parley::checker::run(&Disk::new(root.clone()));
+    let check = checker::run(&Disk::new(root.clone()));
     assert_eq!(check.status, 1, "{}", check.printed);
-    let built = parley::tools::build::metamath::run(&root, None);
+    let built = metamath::run(&root, None);
     assert_eq!(built.status, 1);
     assert_eq!(built.printed, check.printed, "the build is the check alone");
     assert!(
         !root.join("corpus/elaboration").exists(),
         "nothing is built"
     );
-    std::fs::remove_dir_all(&root).unwrap();
+    fs::remove_dir_all(&root).unwrap();
 }
 
 /// The corpus in memory, as the Lean build reads it.
@@ -172,12 +172,12 @@ fn every_lean_failure_is_found_in_one_run_and_the_rest_is_built() {
         text.replacen("algebra, from H3", "algebra, from H9", 1)
             .into_bytes(),
     );
-    let checked = parley::checker::checked(&tree)
+    let checked = checker::checked(&tree)
         .unwrap_or_else(|out| panic!("{}{}", out.printed, out.complained));
     // Two library modules Lean is said not to read: the table, as the build
     // has it once Lean has answered, holds an error for each in place of
     // its modules. The file keeps no such answer (`ModuleTable::text`).
-    let mut table = parley::lean::modules::ModuleTable::read(&tree).unwrap();
+    let mut table = ModuleTable::read(&tree).unwrap();
     let mut rejected = Vec::new();
     for (lookup, answer) in table.answers.iter_mut() {
         let Lookup::Command(key) = lookup else {
@@ -195,7 +195,7 @@ fn every_lean_failure_is_found_in_one_run_and_the_rest_is_built() {
         }
     }
     assert_eq!(rejected.len(), 2, "the table has two library modules");
-    let made = parley::tools::build::lean::make(&checked, &table).unwrap();
+    let made = lean::make(&checked, &table).unwrap();
 
     assert_eq!(
         made.failed.get(CITED).map(String::as_str),

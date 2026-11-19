@@ -1,6 +1,10 @@
 //! Obtaining, defines and the frames' facts.
 
+use std::vec::IntoIter;
+
 use super::*;
+use crate::elab;
+use crate::mm::Kind;
 
 impl<'a> Elaborator<'a> {
     /// X, where an induction runs over `over` = 𝒫X, the parts of X; None
@@ -194,7 +198,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         node: &Node,
         term: &Term,
-        proofs: &mut std::vec::IntoIter<Proof>,
+        proofs: &mut IntoIter<Proof>,
         scope: &Rpn,
     ) -> Option<Proof> {
         let count = super::super::elaborate::parts_along(node, term).len();
@@ -207,7 +211,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         term: &Term,
         count: usize,
-        proofs: &mut std::vec::IntoIter<Proof>,
+        proofs: &mut IntoIter<Proof>,
         scope: &Rpn,
     ) -> Option<Proof> {
         if count == 1 {
@@ -278,14 +282,14 @@ impl<'a> Elaborator<'a> {
                 // scope, and the lemma that does it forbids that name in what
                 // the scope already says. So the claim is respelt first, over
                 // names nothing else holds.
-                let standing: std::collections::BTreeSet<String> = scope
+                let standing: BTreeSet<String> = scope
                     .tokens()
                     .iter()
                     .filter(|t| {
                         self.b
                             .sigs
                             .get(t.as_str())
-                            .is_some_and(|s| s.kind == crate::mm::Kind::Float)
+                            .is_some_and(|s| s.kind == Kind::Float)
                     })
                     .map(|t| t.as_str().to_string())
                     .collect();
@@ -837,14 +841,11 @@ impl<'a> Elaborator<'a> {
         if c.layers.len() > 2 {
             return self.discharged_each(c, inner, goal);
         }
-        let mut all: Vec<crate::mm::spell::Part> = vec![
-            crate::elab::part(&c.scope),
-            crate::elab::part(&c.body),
-            crate::elab::part(goal),
-        ];
-        all.extend(c.pushed.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(&inner));
-        all.push(crate::elab::part(c.discharge));
+        let mut all: Vec<crate::mm::spell::Part> =
+            vec![elab::part(&c.scope), elab::part(&c.body), elab::part(goal)];
+        all.extend(c.pushed.iter().map(|p| elab::part(p)));
+        all.push(elab::part(&inner));
+        all.push(elab::part(c.discharge));
         let eliminated = self.b.proof(&all);
         pf!(self.b; c.scope, c.ex, goal, c.p_ex, eliminated, "mpd")
     }
@@ -1442,8 +1443,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|(t, v)| (v.as_str(), t.as_str()))
             .collect();
-        let mut forbidden: std::collections::BTreeSet<String> =
-            std::collections::BTreeSet::new();
+        let mut forbidden: BTreeSet<String> = BTreeSet::new();
         for (a, b) in &sig.disjoint {
             for (one, other) in [(a, b), (b, a)] {
                 if kinds.get(other.as_str()) == Some(&"setvar") {

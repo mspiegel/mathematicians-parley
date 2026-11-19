@@ -14,8 +14,10 @@
 //! an induction hypothesis cites. A number anywhere else, in a formula or a
 //! value, is not touched.
 
+use std::cmp::Reverse;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
+use std::{fs, iter};
 
 use crate::corpus::lines::physical;
 use crate::corpus::proof::{references, Reference, Step, StepNo, StepPlace};
@@ -116,7 +118,7 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
         return refused(format!("no step of {name} is in that run"));
     }
     let file = root.join(&thm.path);
-    let text = match std::fs::read_to_string(&file) {
+    let text = match fs::read_to_string(&file) {
         Ok(text) => text,
         Err(e) => return refused(format!("{}: {e}", thm.path)),
     };
@@ -163,7 +165,7 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
         if text.ends_with('\n') {
             out.push('\n');
         }
-        if let Err(e) = std::fs::write(&file, out) {
+        if let Err(e) = fs::write(&file, out) {
             return refused(format!("{}: {e}", thm.path));
         }
     }
@@ -248,7 +250,7 @@ pub fn lift(root: &Path, name: &str, at: &str, dry: bool) -> Said {
         return refused(format!("{at} is not a step number"));
     };
     let file = root.join(&thm.path);
-    let text = match std::fs::read_to_string(&file) {
+    let text = match fs::read_to_string(&file) {
         Ok(text) => text,
         Err(e) => return refused(format!("{}: {e}", thm.path)),
     };
@@ -277,7 +279,7 @@ pub fn lift(root: &Path, name: &str, at: &str, dry: bool) -> Said {
         if text.ends_with('\n') {
             out.push('\n');
         }
-        if let Err(e) = std::fs::write(&file, out) {
+        if let Err(e) = fs::write(&file, out) {
             return refused(format!("{}: {e}", thm.path));
         }
     }
@@ -494,7 +496,7 @@ pub(crate) fn relaid(
         let at = indent(line);
         // The step this line belongs to: its own, for a step's line;
         // otherwise the nearest above whose claim column it reaches.
-        let owner = std::iter::once(step)
+        let owner = iter::once(step)
             .chain(inside.iter().copied())
             .filter(|s| {
                 s.line - 1 < l || headers.get(&l).is_some_and(|h| h.line == s.line)
@@ -671,7 +673,7 @@ pub(crate) fn renumber(
     for (l, mut cuts) in edits {
         // Cut from the right, so each cut leaves the places of those before
         // it where they were; one place read twice is cut once.
-        cuts.sort_by_key(|c| std::cmp::Reverse(c.from));
+        cuts.sort_by_key(|c| Reverse(c.from));
         cuts.dedup_by(|a, b| a.from == b.from);
         let line = &mut lines[l];
         let header = claims.contains(&l);
@@ -706,15 +708,14 @@ fn quoted_lines(
 ) -> Vec<(String, String)> {
     let mut places: Vec<(String, Vec<String>)> = Vec::new();
     // The planted cases are in a file for each topic, each case whole in one.
-    if let Ok(dir) = std::fs::read_dir(root.join("tests/planted_check")) {
+    if let Ok(dir) = fs::read_dir(root.join("tests/planted_check")) {
         let mut parts: Vec<_> = dir.flatten().map(|e| e.path()).collect();
         parts.sort();
         for path in parts
             .iter()
             .filter(|p| p.extension().is_some_and(|e| e == "rs"))
         {
-            if let (Ok(text), Some(name)) =
-                (std::fs::read_to_string(path), path.file_name())
+            if let (Ok(text), Some(name)) = (fs::read_to_string(path), path.file_name())
             {
                 let shown = format!("tests/planted_check/{}", name.to_string_lossy());
                 places.push((shown, planted_quotes(&text, file)));
@@ -722,11 +723,11 @@ fn quoted_lines(
         }
     }
     let written: BTreeSet<&str> = theorem.iter().map(|l| l.trim()).collect();
-    if let Ok(dir) = std::fs::read_dir(root.join("docs")) {
+    if let Ok(dir) = fs::read_dir(root.join("docs")) {
         for entry in dir.flatten() {
             let path = entry.path();
             if path.extension().is_some_and(|e| e == "md") {
-                if let Ok(text) = std::fs::read_to_string(&path) {
+                if let Ok(text) = fs::read_to_string(&path) {
                     let shown = format!("docs/{}", entry.file_name().to_string_lossy());
                     places.push((shown, document_quotes(&text, &written)));
                 }
@@ -808,6 +809,7 @@ fn document_quotes(text: &str, written: &BTreeSet<&str>) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::corpus::parse_proof;
 
     #[test]
     fn a_run_reads_its_three_forms() {
@@ -907,7 +909,7 @@ mod tests {
             "2.  For all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a.\n",
             "    restate 1\n",
         );
-        let (_, theorems) = crate::corpus::parse_proof("t.proof", text, 0).unwrap();
+        let (_, theorems) = parse_proof("t.proof", text, 0).unwrap();
         let old: Vec<String> = text.lines().map(str::to_string).collect();
         let done =
             lifted_lines(&theorems[0], &StepNo::top(1).child(1), &old, old.len())
@@ -966,7 +968,7 @@ mod tests {
             "           10.2.1. x = 1\n",
             "                   restate H2, contradicting S2\n",
         );
-        let (_, theorems) = crate::corpus::parse_proof("t.proof", &text, 0).unwrap();
+        let (_, theorems) = parse_proof("t.proof", &text, 0).unwrap();
         let old: Vec<String> = text.lines().map(str::to_string).collect();
         let done =
             lifted_lines(&theorems[0], &StepNo::top(10).child(2), &old, old.len())
@@ -994,7 +996,7 @@ mod tests {
             "2.  x = 1\n",
             "    restate 1\n",
         );
-        let (_, theorems) = crate::corpus::parse_proof("t.proof", text, 0).unwrap();
+        let (_, theorems) = parse_proof("t.proof", text, 0).unwrap();
         let thm = &theorems[0];
         let region: Vec<String> = text.lines().map(str::to_string).collect();
         let map = BTreeMap::from([

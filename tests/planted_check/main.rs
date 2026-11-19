@@ -16,12 +16,6 @@
 //! running said nothing, and nothing here noticed. A message put together
 //! elsewhere and handed to the report is not read this way.
 
-use std::path::Path;
-
-use parley::checker::Clean;
-use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order_slots;
-
 mod calculations;
 mod citations;
 mod defines;
@@ -32,6 +26,15 @@ mod methods;
 mod numbers;
 mod reading;
 mod structure;
+
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use parley::checker;
+use parley::checker::Clean;
+use parley::corpus::proof::METHODS;
+use parley::source::{Disk, Memory, Overlay, Source};
+use parley::threads::in_order_slots;
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).
@@ -206,7 +209,7 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
 /// the theorems the edits reach checked (`checker::run_edited`).
 fn checked_planted(case: &Case, tree: &dyn Source) -> String {
     let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
-    parley::checker::run_edited(tree, &edited).printed
+    checker::run_edited(tree, &edited).printed
 }
 
 /// What one case says, whether it missed, and everything the checker
@@ -242,9 +245,9 @@ fn outcome(case: &Case, clean: &Memory, read: &Clean) -> (String, bool, String) 
 
 /// Every `.rs` file under `dir`, in the directories the checker's modules
 /// are cut into as well as beside them.
-fn rust_files(dir: &Path) -> Vec<std::path::PathBuf> {
+fn rust_files(dir: &Path) -> Vec<PathBuf> {
     let mut found = Vec::new();
-    for entry in std::fs::read_dir(dir)
+    for entry in fs::read_dir(dir)
         .unwrap_or_else(|e| panic!("{} reads: {e}", dir.display()))
         .filter_map(|e| e.ok())
     {
@@ -331,7 +334,7 @@ fn messages() -> Vec<Message> {
     files.sort();
     let mut out = Vec::new();
     for file in files {
-        let text = std::fs::read_to_string(&file).expect("a source file reads");
+        let text = fs::read_to_string(&file).expect("a source file reads");
         for (at, _) in text.match_indices(".say(") {
             let Some(said) = first_literal(&text[at + ".say".len()..]) else {
                 continue;
@@ -572,7 +575,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
 /// method has a line, so a check keyed on a method added later is asked too.
 #[test]
 fn a_reason_that_does_not_read_is_told_only_that() {
-    for method in parley::corpus::proof::METHODS {
+    for method in METHODS {
         assert!(
             READ_REASONS.iter().any(|(m, _, _)| *m == method.as_str()),
             "no reason line of {} in READ_REASONS",
@@ -714,8 +717,7 @@ theorem twice
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()])
-            .printed;
+        checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()]).printed;
     assert!(out.contains("step 1.2 is numbered twice"), "{out}");
     assert!(out.contains("\n1 problem(s)\n"), "{out}");
 }
@@ -750,8 +752,7 @@ theorem twice
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()])
-            .printed;
+        checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()]).printed;
     assert!(
         out.contains(
             "step 1 supplies one hypothesis of mun:quotient-positive twice, by H2 and the requires line 0 < M; one of them is enough"
@@ -782,8 +783,7 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
     );
     let tree = plant(&case, &clean).unwrap();
     let out =
-        parley::checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()])
-            .printed;
+        checker::run_edited(&tree, &["proofs/wiedijk/twice.proof".to_string()]).printed;
     assert_eq!(out.matches("works out floor").count(), 1, "{out}");
 }
 
@@ -826,7 +826,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();
-    let base = parley::checker::run(&clean);
+    let base = checker::run(&clean);
     assert!(
         base.printed.contains("\n0 problem(s)\n"),
         "the corpus is not clean, so a planted defect proves nothing:\n{}",
@@ -895,7 +895,7 @@ fn kept_unlike_fresh(case: &Case, clean: &Memory, read: &Clean) -> Option<String
     let tree = plant(case, clean).ok()?;
     let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
     let kept = read.run_edited(&tree, &edited).printed;
-    let fresh = parley::checker::run_edited(&tree, &edited).printed;
+    let fresh = checker::run_edited(&tree, &edited).printed;
     (kept != fresh)
         .then(|| format!("{}\n  kept:\n{kept}\n  fresh:\n{fresh}", case.name))
 }

@@ -10,11 +10,11 @@
 
 use crate::formula::Node;
 use crate::notations::{
-    ABSOLUTE_VALUE, ADDITIVE, AT_LEAST, AT_MOST, CLOSED_INTERVAL, COMMA_CONJUNCTION,
-    CONJUNCTION, EQUALITY, EULER, FACTORIAL, FOR_ALL, GREATER, IN, INTEGER_RANGE,
-    JUXTAPOSITION, LESS, MEMBERSHIP, MINUS, MULTIPLICATIVE, NAME, NATURALS, NATURALS0,
-    NUMBER_SYSTEMS, NUMERAL, OPEN_INTERVAL, ORDER, PI, PLUS, POWER, REAL_POWER,
-    SET_BUILDER, SQUARE_ROOT, SUPERSCRIPT, TIMES,
+    ABSOLUTE_VALUE, ADDITIVE, APPLICATION, AT_LEAST, AT_MOST, CLOSED_INTERVAL,
+    COMMA_CONJUNCTION, CONJUNCTION, EQUALITY, EULER, FACTORIAL, FOR_ALL, GREATER, IN,
+    INTEGER_RANGE, JUXTAPOSITION, LESS, MEMBERSHIP, MINUS, MULTIPLICATIVE, NAME,
+    NATURALS, NATURALS0, NUMBER_SYSTEMS, NUMERAL, OPEN_INTERVAL, ORDER, PI, PLUS,
+    POWER, PRODUCT, REAL_POWER, SET_BUILDER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES,
 };
 
 /// What lines say a term is at least: x ≥ 0 of `x > 0`, p ≥ 1 of `p ∈ ℕ`.
@@ -241,10 +241,8 @@ fn is_even_numeral(node: &Node) -> bool {
 
 /// Whether a term is a sum or a product, over a range or a set.
 fn is_big_operator(node: &Node) -> bool {
-    matches!(
-        node.notation(),
-        crate::notations::SUM | crate::notations::PRODUCT
-    ) || matches!(&*node.notation_name(), "sum-over" | "product-over")
+    matches!(node.notation(), SUM | PRODUCT)
+        || matches!(&*node.notation_name(), "sum-over" | "product-over")
 }
 
 /// What lines bound inside a sum by `index` over the range from `from` to
@@ -318,7 +316,7 @@ pub fn nonnegative<A: BoundsAsk>(ask: &A, node: &Node) -> bool {
         POWER | SUPERSCRIPT | REAL_POWER | SQUARE_ROOT => {
             node.children.first().is_some_and(|b| nonnegative(ask, b))
         }
-        crate::notations::APPLICATION => ask.exponential(node),
+        APPLICATION => ask.exponential(node),
         _ => &*node.notation_name() == "cardinality",
     }
 }

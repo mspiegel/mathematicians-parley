@@ -15,24 +15,28 @@
 //! The build only writes. The gate asks Lean whether the files prove what
 //! they say.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
+use std::{fs, iter};
 
 use indexmap::IndexMap;
 
 use super::{write_changed, Written};
 use crate::checker::CheckedCorpus;
 use crate::corpus::{cited_items, RecordKind};
+use crate::lean::casts;
 use crate::lean::doc::bridges::BridgeModule;
-use crate::lean::doc::file::{DeclProof, Declaration, Lookup};
+use crate::lean::doc::file::{Binder, DeclProof, Declaration, Lookup};
 use crate::lean::doc::{Source, TermKind};
 use crate::lean::expr::Writer;
 use crate::lean::items::{declaration, item, items_module, Item};
-use crate::lean::modules::{Answer, ModuleTable};
+use crate::lean::modules::{Answer, ModuleTable, TABLE};
 use crate::lean::names::{module_of, path_of_module};
 use crate::lean::templates::Templates;
-use crate::lean::theorem::{as_item, theorem, Sources};
-use crate::outcome::Route;
+use crate::lean::theorem::{as_item, theorem, Origin, Sources};
+use crate::matching::Context;
+use crate::methods::terms::Targets;
+use crate::outcome::{Decline, Problem, Route};
 use crate::said::Said;
 use crate::source::Disk;
 
@@ -64,7 +68,7 @@ pub struct Made {
     /// Each declaration written, by its full Lean name, with the arithmetic
     /// the page writes in its statement, which the gate's read-back
     /// compares with what Lean elaborated.
-    pub statements: IndexMap<String, std::collections::BTreeMap<String, usize>>,
+    pub statements: IndexMap<String, BTreeMap<String, usize>>,
     /// Each theorem's file, by its path, with where on the page each of its
     /// lines was written for.
     pub origins: IndexMap<String, Origins>,
@@ -76,7 +80,7 @@ pub struct Made {
 
 impl Made {
     /// What the writer declined of the item or theorem `name`: a gap.
-    fn declined(&mut self, name: String, d: &crate::outcome::Decline) {
+    fn declined(&mut self, name: String, d: &Decline) {
         self.gaps.insert(name, d.reason());
     }
 
@@ -103,7 +107,7 @@ pub struct Origins {
     pub page: String,
     /// Each line of the Lean file, from 1, with the place on the page it
     /// was written for.
-    pub lines: Vec<crate::lean::theorem::Origin>,
+    pub lines: Vec<Origin>,
 }
 
 /// A theorem the build wrote that imports a module it could not write.
@@ -164,7 +168,7 @@ fn modules_of(decl: &Declaration) -> BTreeSet<String> {
     // A binder the writer gives as Lean text, a graph's class beside it,
     // names its bridge module in that text.
     for b in &decl.binders {
-        if let crate::lean::doc::file::Binder::Typed { text, .. } = b {
+        if let Binder::Typed { text, .. } = b {
             out.extend(named_in(text));
         }
     }
@@ -188,7 +192,7 @@ fn mathlib_of(
     lookups: BTreeSet<Lookup>,
     table: &ModuleTable,
     made: &mut Made,
-) -> Result<BTreeSet<String>, crate::outcome::Problem> {
+) -> Result<BTreeSet<String>, Problem> {
     let mut out = BTreeSet::new();
     for lookup in lookups {
         made.looked_up.insert(lookup.clone());
@@ -199,8 +203,8 @@ fn mathlib_of(
                     .cloned(),
             ),
             Some(Answer::Unread(why)) => {
-                return Err(crate::outcome::Problem::new(
-                    crate::lean::modules::TABLE,
+                return Err(Problem::new(
+                    TABLE,
                     1,
                     format!(
                         "Lean does not read the {} `{}` the Lean writer wrote: {why}",
@@ -230,17 +234,10 @@ fn header(imports: &[String], from: &str) -> String {
 }
 
 /// Everything the Lean build makes of the corpus as the checker read it.
-pub fn make(
-    checked: &CheckedCorpus,
-    table: &ModuleTable,
-) -> Result<Made, crate::outcome::Problem> {
+pub fn make(checked: &CheckedCorpus, table: &ModuleTable) -> Result<Made, Problem> {
     let templates = Templates::read(&checked.corpus.records)?;
-    let targets =
-        crate::methods::terms::Targets::of(&checked.grammar, &checked.corpus.records);
-    let ctx = crate::matching::Context::new(
-        &checked.grammar.notations,
-        &checked.corpus.records,
-    );
+    let targets = Targets::of(&checked.grammar, &checked.corpus.records);
+    let ctx = Context::new(&checked.grammar.notations, &checked.corpus.records);
     let mut made = Made::default();
     let writer = Writer::new(&checked.grammar, &templates, &ctx.conjunctions);
 
@@ -459,7 +456,7 @@ pub fn make(
         let origins = file
             .origins
             .into_iter()
-            .map(|o| crate::lean::theorem::Origin {
+            .map(|o| Origin {
                 line: o.line + above,
                 ..o
             })
@@ -538,15 +535,13 @@ pub fn make(
     // (`lean::casts`).
     let cast_table = "Parley.Tests.CastTable";
     let cast_table_path = path_of_module(cast_table);
-    made.files.insert(
-        cast_table_path.clone(),
-        crate::lean::casts::lean_test(cast_table),
-    );
+    made.files
+        .insert(cast_table_path.clone(), casts::lean_test(cast_table));
     made.imports
         .insert(cast_table_path, vec!["Mathlib".to_string()]);
-    let root_imports: Vec<String> = std::iter::once(LIBRARY.to_string())
+    let root_imports: Vec<String> = iter::once(LIBRARY.to_string())
         .chain(written.iter().cloned())
-        .chain(std::iter::once(cast_table.to_string()))
+        .chain(iter::once(cast_table.to_string()))
         .collect();
     let mut root = String::from("module\n\n");
     for m in &root_imports {
@@ -563,7 +558,7 @@ pub fn generated_in_tree(root: &Path) -> Vec<String> {
     let mut out = Vec::new();
     let mut stack = vec![root.join("lean/Parley")];
     while let Some(dir) = stack.pop() {
-        let Ok(entries) = std::fs::read_dir(&dir) else {
+        let Ok(entries) = fs::read_dir(&dir) else {
             continue;
         };
         for e in entries.flatten() {
@@ -590,7 +585,7 @@ fn made_with_modules(
     root: &Path,
     source: &Disk,
     checked: &CheckedCorpus,
-) -> Result<Made, crate::outcome::Problem> {
+) -> Result<Made, Problem> {
     let mut table = ModuleTable::read(source)?;
     let mut made = make(checked, &table)?;
     if !made.unanswered.is_empty() {
@@ -598,15 +593,15 @@ fn made_with_modules(
         made = make(checked, &table)?;
     }
     if let Some(l) = made.unanswered.first() {
-        return Err(crate::outcome::Problem::new(
-            crate::lean::modules::TABLE,
+        return Err(Problem::new(
+            TABLE,
             1,
             format!("Lean gave no answer for the {} `{}`", l.kind(), l.key()),
         ));
     }
     // The table keeps what the files write, and nothing they no longer do.
     table.answers.retain(|l, _| made.looked_up.contains(l));
-    write_changed(root, crate::lean::modules::TABLE, &table.text())?;
+    write_changed(root, TABLE, &table.text())?;
     Ok(made)
 }
 
@@ -656,7 +651,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     }
     for path in generated_in_tree(root) {
         if !made.files.contains_key(&path) {
-            match std::fs::remove_file(root.join(&path)) {
+            match fs::remove_file(root.join(&path)) {
                 Ok(()) => {
                     changed += 1;
                     said.printed += &format!("- {path}\n");

@@ -1,5 +1,13 @@
 //! Relabelling, obtains, header defines and lowering defines.
 
+use std::cmp::Reverse;
+
+use parley::corpus::proof::{DefineLine, Justification};
+use parley::corpus::{define, ScopeId, Step};
+use parley::notations::{FUNCTION_TYPE, IN};
+use parley::outcome;
+use regex::escape;
+
 use super::*;
 
 /// A step's heading with its number said as `map` says it, the claim kept
@@ -225,12 +233,12 @@ pub(super) fn existence_of(
         };
         match (node.notation(), node.spelling(), node.children.as_slice()) {
             // "There is f : X → Y" runs over the functions from X to Y.
-            (parley::notations::FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
+            (FUNCTION_TYPE, _, [f, from, to]) if named(f) => {
                 let functions =
                     made("the functions from _ to _", vec![from.clone(), to.clone()])?;
                 over.insert(f.text.to_string(), (f.clone(), functions));
             }
-            (_, parley::notations::IN, [x, set]) if named(x) => {
+            (_, IN, [x, set]) if named(x) => {
                 over.insert(x.text.to_string(), (x.clone(), set.clone()));
             }
             _ => said.push(node),
@@ -255,7 +263,7 @@ pub(super) fn obtain_claimed(
     thm: &Theorem,
     lines: &mut Vec<String>,
     end: usize,
-    step: &parley::corpus::Step,
+    step: &Step,
 ) -> Result<usize, String> {
     let names = obtained_names(&step.just.text).ok_or("the obtain names nothing")?;
     let original = ctx
@@ -390,10 +398,10 @@ pub(super) struct Movable {
 pub(super) fn movable(
     ctx: &Context,
     sorts: &Sorts,
-    d: &parley::corpus::proof::DefineLine,
+    d: &DefineLine,
     lines: &[String],
 ) -> Result<Movable, String> {
-    let parts = parley::corpus::define::define_parts(&d.text);
+    let parts = define::define_parts(&d.text);
     let Built(DefineParts::One(one)) = parts else {
         return Err(format!("{} is a recursion", d.label));
     };
@@ -462,7 +470,7 @@ pub(super) fn file_names(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
         .iter()
         .filter_map(|d| match define_parts(&d.text) {
             Built(parts) => Some(parts.names()),
-            parley::outcome::Declined(_) => None,
+            outcome::Declined(_) => None,
         })
         .flatten()
         .collect()
@@ -474,7 +482,7 @@ pub(super) fn writes(lines: &[String], name: &str) -> bool {
         if name.chars().count() == 1 {
             loose_letters(l).contains(name)
         } else {
-            re(&format!(r"\b{}\b", regex::escape(name))).is_match(l)
+            re(&format!(r"\b{}\b", escape(name))).is_match(l)
         }
     })
 }
@@ -524,7 +532,7 @@ pub fn header_defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten
                 scopes: &ctx.corpus.scopes,
             },
         );
-        let header: Vec<&parley::corpus::proof::DefineLine> = thm
+        let header: Vec<&DefineLine> = thm
             .defines
             .iter()
             .filter(|d| d.line < thm.conclusion_line)
@@ -607,7 +615,7 @@ pub fn header_defines_raised(ctx: &Context, path: &str, text: &str) -> Rewritten
             let mut line = was.clone();
             for (m, label) in &moved {
                 if *label != m.label && i >= thm.conclusion_line {
-                    line = re(&format!(r"\b{}\b", regex::escape(&m.label)))
+                    line = re(&format!(r"\b{}\b", escape(&m.label)))
                         .replace_all(&line, label.as_str())
                         .into_owned();
                 }
@@ -684,7 +692,7 @@ pub(super) fn in_from_list(line: &str, r: &str) -> bool {
 pub(super) fn reread<'t>(
     path: &str,
     text: &str,
-    scope: parley::corpus::ScopeId,
+    scope: ScopeId,
     thms: &'t mut Vec<Theorem>,
 ) -> Vec<(&'t Theorem, usize)> {
     let (_, read) = parse_proof(path, text, scope).expect("the file reads");
@@ -703,7 +711,7 @@ pub(super) fn reread<'t>(
 pub(super) fn step_on<'t>(
     thms: &[(&'t Theorem, usize)],
     line: usize,
-) -> Option<(&'t Theorem, usize, &'t parley::corpus::Step)> {
+) -> Option<(&'t Theorem, usize, &'t Step)> {
     thms.iter().find_map(|(t, end)| {
         t.steps
             .iter()
@@ -773,7 +781,7 @@ pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten 
             }
         }
     }
-    pending.sort_by_key(|(line, _)| std::cmp::Reverse(*line));
+    pending.sort_by_key(|(line, _)| Reverse(*line));
     for (line, restated) in pending {
         let mut thms = Vec::new();
         let read = reread(path, &text, scope, &mut thms);
@@ -858,7 +866,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
     let lone = |lines: &[String], l: usize| !lines[l].trim_end().ends_with(',');
     // An item whose hypotheses its requires lines state: not a definition,
     // which unfolds the line a step cites rather than asking it.
-    let asks = |just: &parley::corpus::proof::Justification| {
+    let asks = |just: &Justification| {
         just.cited_item().is_some_and(|cited| {
             let full = just.item(&cited);
             !ctx.corpus
@@ -867,7 +875,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
                 .any(|r| r.qualified() == full && r.kind.unfolds())
         })
     };
-    let movable = |thm: &Theorem, x: &parley::corpus::Step, lines: &[String]| {
+    let movable = |thm: &Theorem, x: &Step, lines: &[String]| {
         let opens = thm.steps.iter().any(|o| {
             o.number.depth() > x.number.depth() && x.number.contains(&o.number)
         });
@@ -902,7 +910,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             && lone(lines, x.just.line - 1)
     };
     // The citer of `x`: the one step citing it, later in its run.
-    let citer = |thm: &'_ Theorem, x: &parley::corpus::Step, lines: &[String]| {
+    let citer = |thm: &'_ Theorem, x: &Step, lines: &[String]| {
         let r = x.number.to_string();
         if citations_counted(thm).get(&r) != Some(&1) {
             return None;
@@ -938,8 +946,8 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             // cited step need not (`check_requires_work`), so a step the
             // citer does not need stays a step. Both read the lines as the
             // checker read them, before any step moves.
-            let at = |s: &parley::corpus::Step| (thm.path.clone(), x.line, s.line);
-            let fits = |s: &parley::corpus::Step| {
+            let at = |s: &Step| (thm.path.clone(), x.line, s.line);
+            let fits = |s: &Step| {
                 !ctx.said_once.contains(&at(s)) && ctx.needed.contains(&at(s))
             };
             if movable(thm, x, &lines)
@@ -949,7 +957,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             }
         }
     }
-    pending.sort_by_key(|line| std::cmp::Reverse(*line));
+    pending.sort_by_key(|line| Reverse(*line));
     for line in pending {
         let mut thms = Vec::new();
         let read = reread(path, &text, scope, &mut thms);
@@ -1035,7 +1043,7 @@ pub fn defines_lowered(ctx: &Context, path: &str, text: &str) -> Rewritten {
                 scopes: &ctx.corpus.scopes,
             },
         );
-        let proof: Vec<&parley::corpus::proof::DefineLine> = thm
+        let proof: Vec<&DefineLine> = thm
             .defines
             .iter()
             .filter(|d| d.line > thm.conclusion_line)
@@ -1058,7 +1066,7 @@ pub fn defines_lowered(ctx: &Context, path: &str, text: &str) -> Rewritten {
             .iter()
             .filter_map(|d| match define_parts(&d.text) {
                 Built(parts) => Some(parts.names()),
-                parley::outcome::Declined(_) => None,
+                outcome::Declined(_) => None,
             })
             .flatten()
             .collect();

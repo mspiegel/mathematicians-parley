@@ -19,8 +19,8 @@
 //! same way. Code inside a paragraph is a fragment the prose names, not an
 //! example, and is not read.
 
-use std::fs;
 use std::path::{Path, PathBuf};
+use std::{fs, mem};
 
 const DOCUMENTS: &[&str] = &["docs/SYNTAX.md", "docs/GRAMMAR.md"];
 
@@ -94,7 +94,7 @@ fn runs(lines: &[String]) -> Vec<Vec<String>> {
         }
         if elided(line) {
             if !run.is_empty() {
-                out.push(std::mem::take(&mut run));
+                out.push(mem::take(&mut run));
             }
             continue;
         }

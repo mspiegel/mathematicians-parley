@@ -1,5 +1,14 @@
 //! A citation supplies what the item asks, and claims what it concludes.
 
+mod cited_facts;
+mod defined;
+mod exhibits;
+mod joins;
+mod kinds;
+mod repeated;
+mod substitutes;
+mod suppliers;
+
 use std::cell::OnceCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -47,15 +56,6 @@ use crate::notations::{
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
 use crate::sorts::{types_a_function, TYPING};
-
-mod cited_facts;
-mod defined;
-mod exhibits;
-mod joins;
-mod kinds;
-mod repeated;
-mod substitutes;
-mod suppliers;
 
 use self::cited_facts::*;
 pub use self::cited_facts::{

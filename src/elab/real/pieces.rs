@@ -1,6 +1,8 @@
 //! Surds, powers, logarithms, exponentials and trigonometry.
 
 use super::*;
+use std::collections::BTreeMap;
+
 use reals::Trig::{Cosine, Sine};
 
 impl<'a> Elaborator<'a> {
@@ -570,7 +572,7 @@ impl<'a> Elaborator<'a> {
     /// exponent the exponent times it (`relogexp`).
     pub(super) fn ln_product(
         &mut self,
-        factors: &std::collections::BTreeMap<u64, i64>,
+        factors: &BTreeMap<u64, i64>,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<LoggedProduct>> {

@@ -9,10 +9,11 @@
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
+use std::{env, thread};
 
 /// How many threads work is shared among.
 pub fn threads() -> usize {
-    match std::env::var("PARLEY_THREADS") {
+    match env::var("PARLEY_THREADS") {
         Ok(text) => text
             .parse::<usize>()
             .ok()
@@ -20,7 +21,7 @@ pub fn threads() -> usize {
             .unwrap_or_else(|| {
                 panic!("PARLEY_THREADS is {text:?}, not a number of threads")
             }),
-        Err(_) => std::thread::available_parallelism().map_or(1, |n| n.get()),
+        Err(_) => thread::available_parallelism().map_or(1, |n| n.get()),
     }
 }
 
@@ -74,7 +75,7 @@ fn spread<I: Sync, S, T: Send>(
 ) -> Vec<T> {
     let next = AtomicUsize::new(0);
     let done: Mutex<Vec<Option<T>>> = Mutex::new(items.iter().map(|_| None).collect());
-    std::thread::scope(|scope| {
+    thread::scope(|scope| {
         for _ in 0..n.min(items.len()).max(1) {
             scope.spawn(|| {
                 let mut state = init();

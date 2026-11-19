@@ -19,6 +19,7 @@
 //! `=`, `<_`, `<` and `=/=`, and the last is the one that splits: using it
 //! means solving twice, once each side of the equation, and both must fail.
 
+use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
 use indexmap::{IndexMap, IndexSet};
@@ -27,6 +28,7 @@ use num_traits::{Signed, Zero};
 use super::field::{q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::Rpn;
+use crate::outcome::Built;
 use crate::rules::numeral_label;
 use crate::t;
 
@@ -177,7 +179,7 @@ pub fn numeral(term: &Term, labels: &FloatLabels) -> Option<Q> {
         // A whole power is a number as the closed value of `field` reads
         // it, refused past the same size.
         EXP => match super::field::closed_value(term) {
-            crate::outcome::Built(super::field::Value::Exact(v)) => Some(v),
+            Built(super::field::Value::Exact(v)) => Some(v),
             _ => None,
         },
         _ => None,
@@ -729,7 +731,7 @@ pub fn alike_combinations(facts: &[Fact], line_of: &[Option<usize>]) -> Alike {
                 (0..facts.len())
                     .map(|i| rank(a, i).cmp(&rank(b, i)))
                     .find(|o| o.is_ne())
-                    .unwrap_or(std::cmp::Ordering::Equal)
+                    .unwrap_or(Ordering::Equal)
             })
     });
     Alike { found: kept, whole }

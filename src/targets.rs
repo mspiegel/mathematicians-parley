@@ -14,6 +14,7 @@ use crate::corpus::{Record, RecordKind};
 use crate::formula::symbol::Symbol;
 use crate::mm::{Rpn, Spell};
 use crate::regex;
+use crate::rules::PAIRS_EXCHANGED;
 
 regex!(HOLE, r"_(\d+)");
 regex!(HOLE_WHOLE, r"^_(\d+)$");
@@ -244,9 +245,7 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
             // A target whose two holes a lemma exchanges deeper than one
             // constructor, |PQ| inside a difference, is a pair in no order
             // (`pairs_in_any_order`), not one constructor's two children.
-            let paired = crate::rules::PAIRS_EXCHANGED
-                .iter()
-                .any(|(t, _)| t == pattern);
+            let paired = PAIRS_EXCHANGED.iter().any(|(t, _)| t == pattern);
             if !said.is_some_and(Commutes::exchanges)
                 || *pattern == FOLDED
                 || places.len() != 2
@@ -298,9 +297,7 @@ pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
                 Some(Commutes::AnyOrder) if slots(pattern).len() == 2 => (0, 1),
                 _ => continue,
             };
-            let Some((_, lemma)) = crate::rules::PAIRS_EXCHANGED
-                .iter()
-                .find(|(t, _)| t == pattern)
+            let Some((_, lemma)) = PAIRS_EXCHANGED.iter().find(|(t, _)| t == pattern)
             else {
                 continue;
             };

@@ -2,8 +2,10 @@
 //! sentences however it ends, and a formula a tool makes from trees is the
 //! tree the parser reads for the same text.
 
+use std::fs;
 use std::path::Path;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use parley::corpus::parse_database;
 use parley::formula::page::{conjoined, Written};
@@ -12,7 +14,7 @@ use parley::outcome::Declined;
 
 fn grammar() -> Rc<Grammar> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
-    let text = std::fs::read_to_string(&path).unwrap();
+    let text = fs::read_to_string(&path).unwrap();
     let records = parse_database("corpus/db/notation.records", &text).unwrap();
     Grammar::load(&records).unwrap()
 }
@@ -183,8 +185,8 @@ fn a_bound_letter_takes_its_sort_from_a_set_written_out() {
         .and_then(Sort::whole)
         .unwrap();
     let runs = Whole::Function(
-        std::sync::Arc::new(Whole::read("number").unwrap()),
-        std::sync::Arc::new(Whole::read("set of set of number").unwrap()),
+        Arc::new(Whole::read("number").unwrap()),
+        Arc::new(Whole::read("set of set of number").unwrap()),
     );
     let sorts: Sorts = [
         ("n".to_string(), Sort::of("number")),

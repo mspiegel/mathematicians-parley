@@ -1,9 +1,14 @@
 use std::io::Write;
 use std::path::Path;
 use std::process::ExitCode;
+use std::{env, io};
 
+use parley::checker;
 use parley::said::Said;
 use parley::source::Disk;
+use parley::tools::build::{lean, metamath};
+use parley::tools::renumber::Run;
+use parley::tools::{gate, renumber};
 
 const USAGE: &str = "usage: parley check [name]
        parley build metamath [name]
@@ -21,8 +26,8 @@ fn exit(status: i32) -> ExitCode {
 }
 
 fn say(outcome: Said) -> ExitCode {
-    let _ = std::io::stdout().write_all(outcome.printed.as_bytes());
-    let _ = std::io::stderr().write_all(outcome.complained.as_bytes());
+    let _ = io::stdout().write_all(outcome.printed.as_bytes());
+    let _ = io::stderr().write_all(outcome.complained.as_bytes());
     exit(outcome.status)
 }
 
@@ -48,32 +53,21 @@ fn renumber(rest: &[String]) -> ExitCode {
         if by.as_str() != "^1" {
             return refuse(&format!("{by} is not a lift: ^1 lifts one level"));
         }
-        return say(parley::tools::renumber::lift(
-            Path::new("."),
-            name,
-            steps,
-            dry,
-        ));
+        return say(renumber::lift(Path::new("."), name, steps, dry));
     }
-    let Some(run) = parley::tools::renumber::Run::parse(steps) else {
+    let Some(run) = Run::parse(steps) else {
         return refuse(&format!(
             "{steps} is not a run of steps: 4.2..4.9, 4.2.. or 4.2"
         ));
     };
-    let Some(by) = parley::tools::renumber::shift(by) else {
+    let Some(by) = renumber::shift(by) else {
         return refuse(&format!("{by} is not a shift: +n or -n"));
     };
-    say(parley::tools::renumber::run(
-        Path::new("."),
-        name,
-        &run,
-        by,
-        dry,
-    ))
+    say(renumber::run(Path::new("."), name, &run, by, dry))
 }
 
 fn main() -> ExitCode {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let args: Vec<String> = env::args().skip(1).collect();
     let Some((sub, rest)) = args.split_first() else {
         return refuse("no command given");
     };
@@ -96,23 +90,21 @@ fn main() -> ExitCode {
     // Everything is read from where the command is run.
     let root = Path::new(".");
     match sub.as_str() {
-        "check" => say(parley::checker::run_named(
+        "check" => say(checker::run_named(
             &Disk::new(root.to_path_buf()),
             rest.first().map(String::as_str),
         )),
         "build" => {
             let name = rest.get(1).map(String::as_str);
             match rest.first().map(String::as_str) {
-                Some("metamath") => {
-                    say(parley::tools::build::metamath::run(root, name))
-                }
-                Some("lean") => say(parley::tools::build::lean::run(root, name)),
+                Some("metamath") => say(metamath::run(root, name)),
+                Some("lean") => say(lean::run(root, name)),
                 Some(other) => refuse(&format!(
                     "unknown backend {other}: build takes metamath or lean"
                 )),
                 None => refuse("build takes a backend: metamath or lean"),
             }
         }
-        _ => say(parley::tools::gate::run(root)),
+        _ => say(gate::run(root)),
     }
 }

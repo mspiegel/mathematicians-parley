@@ -3,7 +3,10 @@
 use std::collections::BTreeSet;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::ops::Deref;
 use std::sync::{Arc, OnceLock};
+
+use rustc_hash::FxHasher;
 
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use super::symbol::Symbol;
@@ -383,7 +386,7 @@ pub struct NodeData {
 #[derive(Clone)]
 pub struct Node(Arc<NodeData>);
 
-impl std::ops::Deref for Node {
+impl Deref for Node {
     type Target = NodeData;
     fn deref(&self) -> &NodeData {
         &self.0
@@ -662,7 +665,7 @@ impl Node {
     /// worked out once.
     pub fn shape_hash(&self) -> u64 {
         *self.shape_hash.get_or_init(|| {
-            let mut state = rustc_hash::FxHasher::default();
+            let mut state = FxHasher::default();
             self.notation_id.hash(&mut state);
             self.text.hash(&mut state);
             self.children.len().hash(&mut state);

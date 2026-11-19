@@ -15,14 +15,16 @@ use std::path::Path;
 
 use indexmap::{IndexMap, IndexSet};
 
-use crate::corpus::corpus;
-use crate::mm;
+use crate::corpus::records::{
+    Provided, METAMATH_BUILDS, METAMATH_PROOF, METAMATH_SYNTAX,
+};
+use crate::corpus::{corpus, Record, RecordKind};
 use crate::outcome::{Checked, Problem};
-use crate::regex;
-use crate::rules;
+use crate::proofs::stdlib::{NAMES, WORKSHEETS};
+use crate::proofs::worksheet;
 use crate::said::Said;
 use crate::source::Source;
-use crate::targets;
+use crate::{mm, regex, rules, targets};
 
 // What a set.mm label looks like, strictly enough that no word of a
 // sentence is mistaken for one: lower case, and hyphenated only as `df-`
@@ -48,7 +50,7 @@ struct Naming<'a> {
     line: usize,
     name: &'a str,
     fields: &'a IndexMap<String, String>,
-    kind: crate::corpus::RecordKind,
+    kind: RecordKind,
 }
 
 /// Every label the databases name, with where each was written.
@@ -76,12 +78,10 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
         // template, or an item's lemmas. A method's `metamath-proof` says in
         // words which lemma families its steps expand into, and is read as
         // prose below.
-        let method = r.kind == crate::corpus::RecordKind::Method;
+        let method = r.kind == RecordKind::Method;
         let target = match r.kind {
-            crate::corpus::RecordKind::Notation => {
-                crate::corpus::records::METAMATH_BUILDS
-            }
-            _ => crate::corpus::records::METAMATH_PROOF,
+            RecordKind::Notation => METAMATH_BUILDS,
+            _ => METAMATH_PROOF,
         };
         let read = if method {
             vec!["defines"]
@@ -94,10 +94,10 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
             };
             // Only what the build cites names labels: not `none`, `not yet
             // implemented` or a Parley proof.
-            let cited = field != crate::corpus::records::METAMATH_PROOF
+            let cited = field != METAMATH_PROOF
                 || matches!(
                     crate::corpus::records::Provided::read(value),
-                    crate::corpus::records::Provided::By(_)
+                    Provided::By(_)
                 );
             if !cited {
                 continue;
@@ -124,9 +124,9 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
         // Prose read only as far as it certainly names labels: a method's
         // `metamath-proof` and a notation's `metamath-syntax`.
         let prose = if method {
-            crate::corpus::records::METAMATH_PROOF
+            METAMATH_PROOF
         } else {
-            crate::corpus::records::METAMATH_SYNTAX
+            METAMATH_SYNTAX
         };
         let said = r.fields.get(prose).map_or("", String::as_str);
         for entry in targets::split_entries(said) {
@@ -151,7 +151,7 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
 /// The labels this corpus introduces by a definition, which set.mm will not
 /// have: a definition that carries a `symbol` brings a constant and the
 /// axiom defining it.
-fn symbols(records: &[crate::corpus::Record]) -> IndexSet<String> {
+fn symbols(records: &[Record]) -> IndexSet<String> {
     let mut out = IndexSet::new();
     for r in records {
         if let Some(symbol) = r.field("symbol") {
@@ -166,12 +166,12 @@ fn symbols(records: &[crate::corpus::Record]) -> IndexSet<String> {
 /// Each Metamath bridge's label, with the group whose file holds it.
 fn bridges(source: &dyn Source) -> Checked<IndexMap<String, String>> {
     let mut out = IndexMap::new();
-    for group in crate::proofs::stdlib::NAMES {
-        let path = format!("{}{group}.bridge", crate::proofs::stdlib::WORKSHEETS);
+    for group in NAMES {
+        let path = format!("{}{group}.bridge", WORKSHEETS);
         let text = source
             .read_text(&path)
             .map_err(|e| Problem::new(&path, 0, format!("cannot read it: {e}")))?;
-        for label in crate::proofs::worksheet::labels(&path, &text)? {
+        for label in worksheet::labels(&path, &text)? {
             out.insert(label, group.to_string());
         }
     }

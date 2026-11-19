@@ -20,6 +20,7 @@ use std::sync::{Arc, OnceLock, RwLock};
 use rustc_hash::FxHashMap;
 
 use super::symbol::Symbol;
+use crate::notations::KNOWN;
 
 /// A notation, by its id (`NotationId::of`, `name`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
@@ -64,7 +65,7 @@ impl Registry {
             by_name: FxHashMap::default(),
             literals: Vec::new(),
         };
-        for (at, known) in crate::notations::KNOWN.iter().enumerate() {
+        for (at, known) in KNOWN.iter().enumerate() {
             assert_eq!(
                 usize::from(known.id.0),
                 at,

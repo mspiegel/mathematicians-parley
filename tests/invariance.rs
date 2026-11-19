@@ -22,9 +22,21 @@
 //! them, and its elaborated statement, which they read, is not built again
 //! here.
 
+#[path = "invariance/rewrites/mod.rs"]
+mod rewrites;
+
+#[path = "invariance/sampled.rs"]
+mod sampled;
+
+#[path = "shared/mod.rs"]
+mod shared;
+
+mod record;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::sync::Arc;
+use std::{env, fs};
 
 use parley::checker::{checked, CheckedCorpus};
 use parley::corpus::corpus;
@@ -37,17 +49,8 @@ use parley::threads::in_order_slots;
 use parley::tools::build::{checked_in, library, verified, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
-#[path = "invariance/rewrites/mod.rs"]
-mod rewrites;
-
-#[path = "invariance/sampled.rs"]
-mod sampled;
-
-#[path = "shared/mod.rs"]
-mod shared;
-
-mod record;
-
+use parley::checker;
+use parley::corpus::{skeleton, Head, Theorem};
 use rewrites::{Context, Declined, Rewritten};
 
 /// The breaks there are, each a gap a later change closes.
@@ -213,7 +216,7 @@ fn cited_in_written_order(line: &str) -> String {
                     .all(|c| c.is_alphanumeric() || c == '.' || c == '′')
         })
         .count();
-    let ordered = parley::checker::cited_in_order(&parts[..cited]);
+    let ordered = checker::cited_in_order(&parts[..cited]);
     let tail = &parts[cited..];
     format!(
         "{head}{}",
@@ -300,8 +303,8 @@ fn equation_turned(line: &str) -> Option<String> {
 /// leave it alone (`METHODS.md`, inequalities, Rows).
 fn names_manipulation(reason: &str) -> bool {
     let reason = reason.strip_prefix(": ").unwrap_or(reason);
-    parley::corpus::skeleton::cut_reason(reason, "", 0)
-        .is_ok_and(|slots| matches!(slots.head, parley::corpus::Head::Manipulation(_)))
+    skeleton::cut_reason(reason, "", 0)
+        .is_ok_and(|slots| matches!(slots.head, Head::Manipulation(_)))
 }
 
 /// The corpus with one change made to every proof file.
@@ -415,12 +418,12 @@ fn changed(clean: &Memory, context: &Context, change: &Change) -> Changed {
         if done.lines > 0 && done.text != *text {
             // INVARIANCE_DUMP names a directory to hold each rewritten file,
             // under the change's name, to read a break against.
-            if let Ok(dir) = std::env::var("INVARIANCE_DUMP") {
+            if let Ok(dir) = env::var("INVARIANCE_DUMP") {
                 let out = Path::new(&dir)
                     .join(change.name.replace(' ', "-"))
                     .join(&path);
-                std::fs::create_dir_all(out.parent().unwrap()).unwrap();
-                std::fs::write(&out, &done.text).unwrap();
+                fs::create_dir_all(out.parent().unwrap()).unwrap();
+                fs::write(&out, &done.text).unwrap();
             }
             tree.write(&path, done.text.into_bytes());
             files.push(path);
@@ -451,10 +454,10 @@ fn a_line_spelt_otherwise_leaves_the_record_as_it_was() {
     let before = checked(&clean).unwrap_or_else(|out| panic!("{}", out.printed));
     let context = Context::new(
         corpus(&clean).expect("the corpus reads"),
-        parley::checker::obtained_there(&clean).expect("the corpus reads"),
-        parley::checker::bound_there(&clean).expect("the corpus reads"),
-        parley::checker::said_once_there(&clean).expect("the corpus reads"),
-        parley::checker::needed_there(&clean).expect("the corpus reads"),
+        checker::obtained_there(&clean).expect("the corpus reads"),
+        checker::bound_there(&clean).expect("the corpus reads"),
+        checker::said_once_there(&clean).expect("the corpus reads"),
+        checker::needed_there(&clean).expect("the corpus reads"),
     );
     let mut compared = 0;
     let mut differ = Vec::new();
@@ -509,10 +512,7 @@ fn a_line_spelt_otherwise_leaves_the_record_as_it_was() {
 /// The requires lines of `after` whose fact is written otherwise than in
 /// the same theorem as `before` read it, by their place in their step,
 /// `requires line 1 of step 2`.
-fn rewritten_requires(
-    before: &CheckedCorpus,
-    after: &parley::corpus::Theorem,
-) -> BTreeSet<String> {
+fn rewritten_requires(before: &CheckedCorpus, after: &Theorem) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     let Some(was) = before
         .corpus
@@ -536,7 +536,7 @@ fn rewritten_requires(
 fn a_proof_means_what_it_says_however_it_spells_it() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
-    let base = parley::checker::run(&clean);
+    let base = checker::run(&clean);
     assert!(
         base.printed.contains("\n0 problem(s)\n"),
         "the corpus is not clean, so a change proves nothing:\n{}",
@@ -544,17 +544,17 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     );
     // INVARIANCE_ONLY keeps the changes whose name holds it, to work on one
     // change; the known breaks are then those of the changes kept.
-    let only = std::env::var("INVARIANCE_ONLY").ok();
+    let only = env::var("INVARIANCE_ONLY").ok();
     let changes: Vec<Change> = changes()
         .into_iter()
         .filter(|c| only.as_ref().is_none_or(|o| c.name.contains(o.as_str())))
         .collect();
     let context = Context::new(
         corpus(&clean).expect("the corpus reads"),
-        parley::checker::obtained_there(&clean).expect("the corpus reads"),
-        parley::checker::bound_there(&clean).expect("the corpus reads"),
-        parley::checker::said_once_there(&clean).expect("the corpus reads"),
-        parley::checker::needed_there(&clean).expect("the corpus reads"),
+        checker::obtained_there(&clean).expect("the corpus reads"),
+        checker::bound_there(&clean).expect("the corpus reads"),
+        checker::said_once_there(&clean).expect("the corpus reads"),
+        checker::needed_there(&clean).expect("the corpus reads"),
     );
     let trees: Vec<Changed> = changes
         .iter()
@@ -566,7 +566,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         SLOTS,
         &trees,
         || (),
-        |_, done| parley::checker::run(&done.tree).printed,
+        |_, done| checker::run(&done.tree).printed,
     );
     for ((change, done), said) in changes.iter().zip(&trees).zip(&checked) {
         println!(

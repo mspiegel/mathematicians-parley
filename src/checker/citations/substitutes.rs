@@ -1,7 +1,12 @@
 //! Substitutions and obtained claims.
 
+use std::iter;
+
 use super::*;
 use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
+use crate::corpus::proof;
+use crate::matching;
+use crate::matching::{Meeting, SubstitutionPlaces};
 
 /// A `substitute` claims the line it puts its equation into with one side
 /// put for the other at some of the places it stands, or with no line to
@@ -21,7 +26,7 @@ pub fn check_substitutes(
         .steps
         .iter()
         .flat_map(|step| {
-            std::iter::once(step.clone()).chain(
+            iter::once(step.clone()).chain(
                 step.requires
                     .iter()
                     .filter_map(|req| requires_read_as_step(step, req)),
@@ -44,7 +49,7 @@ pub(super) struct SubstitutionReading {
     /// How the substitution makes the claim as the page writes it; None
     /// where it is found only in the standard order, by the claim's other
     /// form, or not at all.
-    pub(super) found: Option<crate::checker::record::Substituted>,
+    pub(super) found: Option<Substituted>,
 }
 
 /// Something an equation may be put into, and what that must make.
@@ -53,7 +58,7 @@ pub(super) struct PutInto {
     pub(super) start: Node,
     /// Where it stands; None for a fact of the line a backend is not told
     /// where to find.
-    pub(super) into: Option<crate::checker::record::SubstitutedInto>,
+    pub(super) into: Option<SubstitutedInto>,
 }
 
 /// The facts one put may start from, and what it must make: the claim, or
@@ -218,7 +223,7 @@ pub(super) fn substitution_reading(
             // (`rules::OTHER_FORMS`), as a reader puts line HK = line XY into
             // Q ∉ line XY to make Q is not on line HK.
             let other = said_otherwise(&claim, known.env, &known.sorts);
-            std::iter::once((claim.clone(), true))
+            iter::once((claim.clone(), true))
                 .chain(other.map(|o| (o, false)))
                 .map(|(aim, claimed)| PutWay {
                     starts: starts(),
@@ -308,17 +313,16 @@ pub(super) fn substitution_reading(
                 // A place the page writes in another order of the parts of
                 // a notation that stands in no order, |BA| for the side
                 // |AB|, is a place all the same; a backend turns it first.
-                let mut places = crate::matching::places_of(&start.start, was);
+                let mut places = matching::places_of(&start.start, was);
                 if places.is_empty() {
-                    places =
-                        crate::matching::places_alike(&start.start, was, &library.ctx);
+                    places = matching::places_alike(&start.start, was, &library.ctx);
                 }
                 if places.is_empty() {
                     return None;
                 }
-                let made = crate::matching::put_at_places(&start.start, &places, now);
+                let made = matching::put_at_places(&start.start, &places, now);
                 let met = known.alike_how(&made, &way.aim)?;
-                Some((crate::matching::SubstitutionPlaces { turned, places }, met))
+                Some((SubstitutionPlaces { turned, places }, met))
             })
     };
     let define_facing = source
@@ -330,7 +334,7 @@ pub(super) fn substitution_reading(
         .and_then(|at| facing_of(&at.written, equation, known));
     // Each place that writes the side put for in another order of a
     // notation's parts, the side's term first.
-    let place_flips = |start: &Node, put: &crate::matching::SubstitutionPlaces| {
+    let place_flips = |start: &Node, put: &SubstitutionPlaces| {
         let was = match put.turned {
             true => right,
             false => left,
@@ -353,8 +357,8 @@ pub(super) fn substitution_reading(
     // the claim by; the meeting says the claim is respelt.
     let found = match &start.into {
         Some(into) => {
-            crate::matching::substitution_places(&start.start, &way.aim, left, right)
-                .map(|put| (put, crate::matching::Meeting::default()))
+            matching::substitution_places(&start.start, &way.aim, left, right)
+                .map(|put| (put, Meeting::default()))
                 .or_else(met_otherwise)
                 .map(|(put, meeting)| match way.claimed {
                     true => (put, meeting, start.start.clone()),
@@ -390,7 +394,7 @@ pub fn substitutions(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-) -> IndexMap<usize, crate::checker::record::Substituted> {
+) -> IndexMap<usize, Substituted> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         // A row or link stands inside its step, whose requires lines say
@@ -410,7 +414,7 @@ pub fn substitutions(
                     .iter()
                     .filter_map(|req| requires_read_as_step(step, req)),
             );
-        for at in std::iter::once(step.clone()).chain(rows) {
+        for at in iter::once(step.clone()).chain(rows) {
             let Some(reading) = substitution_reading(&at, thm, library, known) else {
                 continue;
             };
@@ -432,8 +436,8 @@ pub fn substitutions(
 pub fn sentence_substitutions(
     thm: &Theorem,
     known: &Known,
-    substituted: &IndexMap<usize, crate::checker::record::Substituted>,
-) -> IndexMap<(usize, usize), crate::checker::record::Substituted> {
+    substituted: &IndexMap<usize, Substituted>,
+) -> IndexMap<(usize, usize), Substituted> {
     let mut out = IndexMap::new();
     for (line, s) in substituted {
         let SubstitutedInto::Line(at) = &s.into else {
@@ -476,13 +480,11 @@ pub fn sentence_substitutions(
         let mut each = Vec::new();
         for ((k, start), claim) in sentences.into_iter().zip(&claims) {
             let put = match start.spelt_alike(claim) {
-                true => Some(crate::matching::SubstitutionPlaces {
+                true => Some(SubstitutionPlaces {
                     turned: s.put.turned,
                     places: Vec::new(),
                 }),
-                false => {
-                    crate::matching::substitution_places(&start, claim, left, right)
-                }
+                false => matching::substitution_places(&start, claim, left, right),
             };
             let Some(put) = put else {
                 each.clear();
@@ -503,7 +505,7 @@ pub fn sentence_substitutions(
                     }),
                     start,
                     put,
-                    meeting: crate::matching::Meeting::default(),
+                    meeting: Meeting::default(),
                     place_flips: Vec::new(),
                     equation_flips: s.equation_flips.clone(),
                     define_facing: s.define_facing,
@@ -520,10 +522,7 @@ pub fn sentence_substitutions(
 /// (`CheckedTheorem::substituted_rows`): the change its reason proves, put
 /// into the row above (`SubstitutedInto::RowAbove`) at the places the
 /// change's left side stands where the row has its right.
-pub fn row_substitutions(
-    thm: &Theorem,
-    known: &Known,
-) -> IndexMap<usize, crate::checker::record::Substituted> {
+pub fn row_substitutions(thm: &Theorem, known: &Known) -> IndexMap<usize, Substituted> {
     thm.steps
         .iter()
         .flat_map(|step| step_row_substitutions(step, thm, known))
@@ -536,13 +535,11 @@ pub(super) fn step_row_substitutions(
     step: &Step,
     thm: &Theorem,
     known: &Known,
-) -> Vec<(usize, crate::checker::record::Substituted)> {
-    let Some(Ok(rows)) = crate::corpus::proof::substitute_rows(&step.just, &thm.path)
-    else {
+) -> Vec<(usize, Substituted)> {
+    let Some(Ok(rows)) = proof::substitute_rows(&step.just, &thm.path) else {
         return Vec::new();
     };
-    let read =
-        |w: &crate::formula::page::Written| known.read_as_written(&w.formula().ok()?);
+    let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
     rows.windows(2)
         .filter_map(|pair| {
             let (above, row) = (&pair[0], &pair[1]);
@@ -555,7 +552,7 @@ pub(super) fn step_row_substitutions(
             let [left, right] = equation.children.as_slice() else {
                 return None;
             };
-            let put = crate::matching::substitution_places(&start, &aim, left, right)?;
+            let put = matching::substitution_places(&start, &aim, left, right)?;
             Some((
                 reason.line,
                 Substituted {
@@ -564,7 +561,7 @@ pub(super) fn step_row_substitutions(
                     into: SubstitutedInto::RowAbove,
                     start,
                     put,
-                    meeting: crate::matching::Meeting::default(),
+                    meeting: Meeting::default(),
                     place_flips: Vec::new(),
                     equation_flips: Vec::new(),
                     define_facing: None,

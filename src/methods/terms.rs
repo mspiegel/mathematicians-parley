@@ -7,6 +7,8 @@
 //! any other label is one atom: the decider treats it as it treats a letter.
 //! `tests/vocabulary.rs` holds the table to set.mm.
 
+use std::sync::Arc;
+
 use indexmap::IndexMap;
 use num_bigint::BigUint;
 
@@ -17,6 +19,11 @@ use crate::mm::kernel::Term;
 use crate::targets;
 
 use super::numerals::numeral_term;
+use crate::corpus::Record;
+use crate::formula::notation::Binds;
+use crate::matching;
+use crate::matching::Binding;
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL};
 
 /// The labels a decider reads, with how many terms each takes.
 pub const VOCABULARY: &[(&str, usize)] = &[
@@ -100,7 +107,7 @@ pub struct Targets {
     unordered: FxIndexSet<NotationId>,
     /// What each binder holds and over what, so that a sum or an integral
     /// is one term whatever letter it binds (`letters_blind`).
-    binders: std::sync::Arc<FxIndexMap<NotationId, crate::formula::notation::Binds>>,
+    binders: Arc<FxIndexMap<NotationId, Binds>>,
 }
 
 /// How a node holds more children than its pattern's holes: the holes the
@@ -119,7 +126,7 @@ pub struct Operation<'n> {
 }
 
 impl Targets {
-    pub fn of(g: &Grammar, records: &[crate::corpus::Record]) -> Targets {
+    pub fn of(g: &Grammar, records: &[Record]) -> Targets {
         let mut literals: FxIndexMap<NotationId, Vec<Spelling>> = FxIndexMap::default();
         for n in &g.notations {
             literals.entry(n.record_id).or_default().push(n.spelling());
@@ -151,7 +158,7 @@ impl Targets {
             literals,
             builds,
             repeats,
-            unordered: crate::matching::unordered_notations(records),
+            unordered: matching::unordered_notations(records),
             binders: g.binders(),
         }
     }
@@ -162,10 +169,7 @@ impl Targets {
     /// The name a function application applies, and its arguments, where
     /// the head is a name, as a library function's value is written: f(x).
     fn library_head<'n>(&self, node: &'n Node) -> Option<(&'n str, &'n [Node])> {
-        let applied = matches!(
-            node.notation(),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
-        );
+        let applied = matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO);
         match node.children.as_slice() {
             [head, args @ ..] if applied && head.is_name() => {
                 Some((head.text.as_str(), args))
@@ -204,7 +208,7 @@ impl Targets {
     pub fn contexts(&self, node: &Node) -> Vec<String> {
         self.pattern(node)
             .map(|p| {
-                crate::targets::contexts(p)
+                targets::contexts(p)
                     .into_iter()
                     .map(str::to_string)
                     .collect()
@@ -240,7 +244,7 @@ pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
 /// binder in `node` holds keeps its spelling.
 fn letters_blind(
     node: &Node,
-    binders: &FxIndexMap<NotationId, crate::formula::notation::Binds>,
+    binders: &FxIndexMap<NotationId, Binds>,
     depth: usize,
 ) -> Node {
     if node.children.is_empty() {
@@ -254,7 +258,7 @@ fn letters_blind(
             .collect();
         return node.with_children(children);
     };
-    let mut put = crate::matching::Binding::new();
+    let mut put = Binding::new();
     let mut children = node.children.clone();
     for (n, &at) in binds.held.iter().enumerate() {
         let Some(letter) = node.children.get(at).filter(|c| c.is_name()) else {
@@ -273,7 +277,7 @@ fn letters_blind(
                 return c.clone();
             }
             let c = if binds.body.contains(&at) && !put.is_empty() {
-                crate::matching::substitute_apart_by(c, &put, binders)
+                matching::substitute_apart_by(c, &put, binders)
             } else {
                 c.clone()
             };
@@ -308,7 +312,7 @@ fn term_under(
     indices: &[&Node],
     library: &dyn Fn(&str) -> bool,
 ) -> Term {
-    if node.notation() == crate::notations::NUMERAL {
+    if node.notation() == NUMERAL {
         if let Ok(value) = node.text.parse::<BigUint>() {
             return numeral_term(&value);
         }

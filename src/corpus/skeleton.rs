@@ -7,6 +7,10 @@
 //! a substitute's destination and never the end of an item's name, as in
 //! `mun:function-into`, and `algebra` is a head where `algebraic` is not.
 
+use std::fmt::{Debug, Formatter};
+use std::ops::Range;
+use std::{fmt, iter};
+
 use super::proof::{Head, ItemKind, Manipulation, Method, StepNo, METHODS};
 use super::values::Given;
 use crate::formula::page::Written;
@@ -159,8 +163,8 @@ impl PartialEq for Origin {
 
 impl Eq for Origin {}
 
-impl std::fmt::Debug for Origin {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Debug for Origin {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str("Origin")
     }
 }
@@ -884,7 +888,7 @@ fn opens_naming(piece: &str) -> bool {
 /// `P := A, B, C are collinear, Q := x = 1` is two namings (`GRAMMAR.md`,
 /// Justifications).
 pub fn naming_pieces(values: &str) -> Vec<&str> {
-    let mut spans: Vec<std::ops::Range<usize>> = Vec::new();
+    let mut spans: Vec<Range<usize>> = Vec::new();
     for piece in split_commas(values) {
         let start = offset_in(values, piece);
         let end = start + piece.len();
@@ -933,7 +937,7 @@ fn from_slot(pieces: &[&str], slots: &mut Slots) {
             return;
         }
     }
-    for entry in std::iter::once(first).chain(rest.iter().copied()) {
+    for entry in iter::once(first).chain(rest.iter().copied()) {
         if is_ref(entry) {
             slots.push_from(entry);
         } else {
@@ -997,7 +1001,7 @@ fn method_slots(
         Method::Instantiate => instantiate(rest, pieces, path, line, slots),
         Method::Join | Method::Restate => {
             let listed = after_word(pieces[0], head).unwrap_or_default();
-            for entry in std::iter::once(listed).chain(pieces[1..].iter().copied()) {
+            for entry in iter::once(listed).chain(pieces[1..].iter().copied()) {
                 if is_ref(entry) {
                     slots.joined.push(entry.to_string());
                     slots.cite(entry);

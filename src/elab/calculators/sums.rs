@@ -1,5 +1,7 @@
 //! Sums and combinations.
 
+use std::iter;
+
 use super::*;
 
 impl<'a> Elaborator<'a> {
@@ -515,7 +517,7 @@ impl<'a> Elaborator<'a> {
             )));
         }
         let whole = field::common_denominator(
-            std::iter::once(spare).chain(parts.iter().map(|p| &p.times)),
+            iter::once(spare).chain(parts.iter().map(|p| &p.times)),
         );
         let whole_q = Q::from_integer(whole.clone());
         // A reciprocal atom's divisor not being zero is the page's to say, in

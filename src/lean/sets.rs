@@ -6,6 +6,8 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
+use std::slice;
+
 use super::doc::bridges::BridgeModule;
 use super::doc::{CountForm, LeanType, Source, TermKind};
 use super::expr::{
@@ -13,18 +15,18 @@ use super::expr::{
     Members, Printed, System, Writer,
 };
 use super::templates::Num;
-use crate::citing::bounds;
-use crate::citing::finite::{is_finite, SaidFinite};
-use crate::citing::things::ThingKey;
-use crate::formula::Node;
-use crate::formula::Whole;
+use crate::citing::finite::{is_finite, FiniteSets, SaidFinite};
+use crate::citing::things::{ThingKey, ThingTypes};
+use crate::citing::{bounds, finite};
+use crate::formula::{Node, Sort, Sorts, Whole};
+use crate::notations;
 use crate::notations::{
     ADDITIVE, APPLICATION, BY_CASES, CARDINALITY, CLOSED_INTERVAL, COMPOSITION, COSET,
-    EMPTY_SET, FINITE, GROUP_INVERSE, GROUP_OPERATION, IMAGE, INDEXED_INTERSECTION,
-    INDEXED_UNION, INTEGER_RANGE, IS_AN_INTEGER_POLYNOMIAL, IS_A_POLYNOMIAL,
-    LISTED_FOUR, LISTED_THREE, LISTED_TWO, MEMBERSHIP, MULTIPLICATIVE, NUMBER_SYSTEMS,
-    OPEN_INTERVAL, POWERSET, SET_BUILDER, SET_IMAGE, SET_OPERATIONS, SINGLETON,
-    SUBGROUP,
+    EMPTY_SET, EQUALITY, FINITE, GROUP_INVERSE, GROUP_OPERATION, IMAGE,
+    INDEXED_INTERSECTION, INDEXED_UNION, INTEGER_RANGE, IS_AN_INTEGER_POLYNOMIAL,
+    IS_A_POLYNOMIAL, LISTED_FOUR, LISTED_THREE, LISTED_TWO, MEMBERSHIP, MULTIPLICATIVE,
+    NUMBER_SYSTEMS, OPEN_INTERVAL, PAIR, POWERSET, PRODUCT_SET, SET_BUILDER, SET_IMAGE,
+    SET_OPERATIONS, SINGLETON, SUBGROUP,
 };
 use crate::outcome::Route;
 
@@ -73,10 +75,7 @@ pub(crate) fn count_of(set: Printed, form: CountForm) -> Printed {
 /// writer takes in ℕ∞. A count is of its own set: what that set's own
 /// definition counts, |S| of {S ∈ 𝒫X : |S| = j}, is of a letter bound
 /// there, which the set's writer counts by its binder.
-pub fn counts_in_extended(
-    finite: &crate::citing::finite::FiniteSets,
-    node: &Node,
-) -> bool {
+pub fn counts_in_extended(finite: &FiniteSets, node: &Node) -> bool {
     if node.notation() == CARDINALITY {
         return node
             .children
@@ -107,8 +106,8 @@ pub fn map_claim_parts(notation: &str) -> Option<&'static [&'static str]> {
 /// a map between sets, its things of the type variable `things` gives it;
 /// None for any other letter.
 pub fn set_type_in(
-    sorts: Option<&crate::formula::Sorts>,
-    things: &crate::citing::things::ThingTypes,
+    sorts: Option<&Sorts>,
+    things: &ThingTypes,
     name: &str,
 ) -> Option<LetterType> {
     let ty = sorts.and_then(|s| s.get(name)).and_then(set_letter_type)?;
@@ -133,7 +132,7 @@ pub fn set_type_in(
 /// The Lean type of a letter of this sort where it is a set, a member of
 /// one or a map between sets, its things of the first type variable; None
 /// for any other sort.
-pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
+pub fn set_letter_type(sort: &Sort) -> Option<LetterType> {
     match sort.full()? {
         Whole::Set(_) => Members::of_set(sort.full()?).map(LetterType::Set),
         Whole::Open => Some(LetterType::Member(Members::Things(0))),
@@ -182,7 +181,7 @@ impl Writer<'_> {
                 .set_members(node.children.first()?)
                 .map(|m| Members::Sets(Box::new(m))),
             // X × Y holds pairs of what X and Y hold.
-            crate::notations::PRODUCT_SET => {
+            PRODUCT_SET => {
                 let [x, y] = node.children.as_slice() else {
                     return None;
                 };
@@ -192,7 +191,7 @@ impl Writer<'_> {
                 })
             }
             // The functions from X to Y hold functions on X itself.
-            crate::notations::FUNCTIONS_FROM => {
+            notations::FUNCTIONS_FROM => {
                 let [from, to] = node.children.as_slice() else {
                     return None;
                 };
@@ -214,7 +213,7 @@ impl Writer<'_> {
                 let term = node.children.first()?;
                 inner
                     .member_kind(term)
-                    .or_else(|| inner.numbers_held(std::slice::from_ref(term)))
+                    .or_else(|| inner.numbers_held(slice::from_ref(term)))
             }
             // [a, b] and (a, b) hold real numbers.
             CLOSED_INTERVAL | OPEN_INTERVAL => Some(Members::Numbers(Num::Real)),
@@ -267,7 +266,7 @@ impl Writer<'_> {
     /// left out of `members_of`, where `x ∈ ℤ` is read as a letter's type.
     pub fn set_members(&self, node: &Node) -> Option<Members> {
         // A range, {a, …, b}, holds integers.
-        if node.notation() == crate::notations::INTEGER_RANGE {
+        if node.notation() == INTEGER_RANGE {
             return Some(Members::Numbers(Num::Int));
         }
         self.members_of(node).or_else(|| {
@@ -655,7 +654,7 @@ impl Writer<'_> {
             }
             // X × Y, the pairs from X and Y: Mathlib's `X ×ˢ Y`, each side
             // bracketed where it is an operation itself.
-            crate::notations::PRODUCT_SET => {
+            PRODUCT_SET => {
                 let p = match parts(2) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
@@ -681,7 +680,7 @@ impl Writer<'_> {
                 })
             }
             // (a, b), a pair: each coordinate of its type (`pair_types`).
-            crate::notations::PAIR => {
+            PAIR => {
                 let Some(pair) = super::expr::pair_coordinates(node) else {
                     return Route::no("a pair of other than two coordinates");
                 };
@@ -843,7 +842,7 @@ impl Writer<'_> {
             }
             SET_IMAGE => self.set_image(node),
             APPLICATION => self.map_applied(node),
-            crate::notations::FUNCTIONS_FROM => self.functions_set(node),
+            notations::FUNCTIONS_FROM => self.functions_set(node),
             other => Route::no(format!("{} as a set", other.name())),
         }
     }
@@ -883,7 +882,7 @@ impl Writer<'_> {
         let [g] = node.children.as_slice() else {
             return None;
         };
-        let inverse = node.notation() == crate::notations::INVERSE
+        let inverse = node.notation() == notations::INVERSE
             && matches!(
                 self.letters.get(g.text.as_str()),
                 Some(LetterType::Map { .. } | LetterType::Function { .. })
@@ -1018,18 +1017,16 @@ impl Writer<'_> {
         // The letter bound here is a set of its own, finite where its
         // binder makes it so, S of {S ∈ 𝒫X : …} of a finite X, as a "for
         // all" over the set binds it (`citing::finite::bound_letter`).
-        let bound = crate::citing::finite::key(letter);
+        let bound = finite::key(letter);
         inner.finite.shift_remove(&bound);
-        if let Some(why) =
-            crate::citing::finite::bound_letter(&self.finite, letter, set)
-        {
+        if let Some(why) = finite::bound_letter(&self.finite, letter, set) {
             inner.finite.insert(bound, why);
         }
         // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
         // letter a line puts there is.
         let system = match super::expr::system_of(set) {
             Some(s) => Some(s),
-            None if set.notation() == crate::notations::INTEGER_RANGE => {
+            None if set.notation() == INTEGER_RANGE => {
                 Some(super::expr::range_letter_system(set))
             }
             None => None,
@@ -1383,9 +1380,7 @@ impl Writer<'_> {
     /// does (`citing::finite::said_in_extended`), its letters in ℕ or ℕ₀
     /// those the page puts there (written `↑m.toNat` there, `count_term`).
     pub fn said_in_extended(&self, node: &Node) -> bool {
-        crate::citing::finite::said_in_extended(node, &|l| {
-            bounds::BoundsAsk::natural_letter(self, l)
-        })
+        finite::said_in_extended(node, &|l| bounds::BoundsAsk::natural_letter(self, l))
     }
 
     /// The sets the checker records finite are the ones this writer counts
@@ -1401,7 +1396,7 @@ impl Writer<'_> {
     /// infinite X too where m is 0; `X.encard = m` says X has m elements.
     /// None where the line vouches for every set it makes finite.
     pub fn without_line(&self, line: &Node) -> Option<Writer<'_>> {
-        let only = self.finite_only_by.get(&crate::citing::finite::key(line))?;
+        let only = self.finite_only_by.get(&finite::key(line))?;
         let mut out = self.with_letters(self.letters.clone());
         out.finite.retain(|s, _| !only.contains(s));
         Some(out)
@@ -1519,8 +1514,8 @@ impl Writer<'_> {
             (false, true) if !self.counts(a) => (b, a, false),
             _ => return None,
         };
-        if node.notation() != crate::notations::EQUALITY
-            || crate::citing::finite::natural_beside_count(number, &|l| {
+        if node.notation() != EQUALITY
+            || finite::natural_beside_count(number, &|l| {
                 bounds::BoundsAsk::natural_letter(self, l)
             })
         {
@@ -1622,9 +1617,7 @@ impl Writer<'_> {
     pub fn polynomial_claim(&self, node: &Node) -> Option<Route<Printed>> {
         let (p, set) = match (node.notation(), node.children.as_slice()) {
             (IS_A_POLYNOMIAL, [p]) => (p, POLYNOMIALS),
-            (MEMBERSHIP, [p, set])
-                if set.notation() == crate::notations::POLYNOMIALS =>
-            {
+            (MEMBERSHIP, [p, set]) if set.notation() == notations::POLYNOMIALS => {
                 (p, POLYNOMIALS)
             }
             (IS_AN_INTEGER_POLYNOMIAL, [p]) => (p, super::expr::INTEGER_POLYNOMIALS),
@@ -1649,7 +1642,7 @@ impl Writer<'_> {
         body: &Node,
         exists: bool,
     ) -> Option<Route<Printed>> {
-        if set.notation() != crate::notations::POLYNOMIALS {
+        if set.notation() != notations::POLYNOMIALS {
             return None;
         }
         let mut inner = self.with_letters(self.letters.clone());
@@ -1779,7 +1772,7 @@ impl Writer<'_> {
             listed
                 .then(|| {
                     self.member_kind(x)
-                        .or_else(|| self.numbers_held(std::slice::from_ref(x)))
+                        .or_else(|| self.numbers_held(slice::from_ref(x)))
                 })
                 .flatten()
         })?;
@@ -1913,9 +1906,7 @@ impl Writer<'_> {
         let ty = LetterType::Set(Members::Things(self.things.of_letter(&letter.text)));
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(letter.text.to_string(), ty.clone());
-        inner
-            .finite
-            .shift_remove(&crate::citing::finite::key(letter));
+        inner.finite.shift_remove(&finite::key(letter));
         let body = match inner.formula(body) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
@@ -1946,9 +1937,7 @@ impl Writer<'_> {
         if empty && self.empty_of.is_none() {
             let held = body.walk().into_iter().find_map(|n| {
                 match (n.notation(), n.children.as_slice()) {
-                    (crate::notations::MEMBERSHIP, [x, s])
-                        if x.is_name() && x.text == letter.text =>
-                    {
+                    (MEMBERSHIP, [x, s]) if x.is_name() && x.text == letter.text => {
                         self.members_of(s)
                     }
                     _ => None,
@@ -1979,11 +1968,9 @@ impl Writer<'_> {
         // The letter bound here is a set of its own, whatever a set of its
         // name outside is: finite where its binder makes it so
         // (`citing::finite::bound_letter`), and not otherwise.
-        let name = crate::citing::finite::key(letter);
+        let name = finite::key(letter);
         inner.finite.shift_remove(&name);
-        if let Some(why) =
-            crate::citing::finite::bound_letter(&self.finite, letter, set)
-        {
+        if let Some(why) = finite::bound_letter(&self.finite, letter, set) {
             inner.finite.insert(name, why);
         }
         let body = match inner.formula(body) {

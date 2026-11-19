@@ -13,6 +13,8 @@
 //! the kernel's spelling whole: half a translation would read as page text
 //! and mean something else.
 
+use std::cmp::Reverse;
+
 use indexmap::IndexMap;
 
 use crate::formula::notation_id::Spelling;
@@ -27,6 +29,9 @@ use crate::sorts::powers::needs_not_be_whole;
 use crate::targets::{is_context, is_hole, repeated};
 
 use super::state::{fit, Binding, Elaborator};
+use crate::formula::Sorts;
+use crate::mm::Kind;
+use crate::notations::{NUMBER_SYSTEMS, WITHOUT};
 
 /// A `metamath-builds` read as a tree: a hole, numbered from 1, a label applied to
 /// what it takes, or a part of a structure a `let` line introduced, which
@@ -50,7 +55,7 @@ struct BoundAs {
 
 /// `sorts` with a bound letter among numbers that need not be whole as its
 /// binder says, over what the lines say of a letter of that name.
-fn said_real(sorts: &mut crate::formula::Sorts, letter: &str, said: &BoundAs) {
+fn said_real(sorts: &mut Sorts, letter: &str, said: &BoundAs) {
     if said.real {
         sorts.reals.insert(letter.to_string());
     } else {
@@ -208,7 +213,7 @@ struct ListAt {
 /// then by where its pattern stands, a list's at fewer elements first.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct ReadingOrder {
-    longer: std::cmp::Reverse<usize>,
+    longer: Reverse<usize>,
     place: usize,
     count: usize,
 }
@@ -216,7 +221,7 @@ struct ReadingOrder {
 impl ReadingOrder {
     fn of(reading: &Reading, place: usize, count: usize) -> ReadingOrder {
         ReadingOrder {
-            longer: std::cmp::Reverse(reading.target.split_whitespace().count()),
+            longer: Reverse(reading.target.split_whitespace().count()),
             place,
             count,
         }
@@ -392,16 +397,15 @@ impl Elaborator<'_> {
     ) -> Option<Sort> {
         // A set with points taken out holds what the set holds: the x of
         // "for all x ∈ ℝ ∖ {0}" is a number, as the page reads it.
-        if let ([from, _], true) = (
-            node.children.as_slice(),
-            node.spelling() == crate::notations::WITHOUT,
-        ) {
+        if let ([from, _], true) =
+            (node.children.as_slice(), node.spelling() == WITHOUT)
+        {
             return self.read_set_holds(from, bound);
         }
         // A number system holds numbers, as the page reader gives a letter
         // bound in one (`grammar`, a binder's letter): the x of "for all
         // x ∈ ℝ" is a number, and |x| its absolute value.
-        if node.notation() == crate::notations::NUMBER_SYSTEMS {
+        if node.notation() == NUMBER_SYSTEMS {
             return Some(Sort::of("number"));
         }
         let mut sorts = self.sorts_now.clone();
@@ -730,7 +734,7 @@ impl Elaborator<'_> {
             // A letter the target binds itself, as `s` in "u is an upper
             // bound of S", is that letter in the term, which reads it as a
             // variable.
-            if sig.kind == crate::mm::Kind::Float {
+            if sig.kind == Kind::Float {
                 stack.push(Pattern::Fixed(Rpn::read(token)));
                 continue;
             }

@@ -8,6 +8,8 @@
 //! read from text was read from what the splitter cut, the same way for
 //! every tool.
 
+use std::fmt;
+use std::fmt::Display;
 use std::sync::Arc;
 
 use super::grammar::{fits, parse, wanted_reading, Grammar, Sorts};
@@ -15,6 +17,8 @@ use super::node::{Node, Sort};
 use super::notation_id::{NotationId, Spelling};
 use super::symbol::Symbol;
 use super::token::Token;
+use crate::matching;
+use crate::matching::Binding;
 use crate::notations::{AND, EQUALS, EQUAL_CHAIN, OR};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 
@@ -290,8 +294,8 @@ impl Written {
     }
 }
 
-impl std::fmt::Display for Written {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Written {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
         f.write_str(&self.text)
     }
 }
@@ -518,8 +522,8 @@ fn made_of(
     }
 }
 
-impl std::fmt::Display for Sentence {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Sentence {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
         f.write_str(&self.text)
     }
 }
@@ -615,17 +619,13 @@ pub fn filled(
     fills: &[(&str, &Node)],
 ) -> Checked<Node> {
     let mut local = sorts.clone();
-    let mut put = crate::matching::Binding::new();
+    let mut put = Binding::new();
     for (letter, node) in fills {
         local.insert(letter.to_string(), node.sort.clone());
         put.insert(Symbol::of(letter), (*node).clone());
     }
     let made = template(text, g, &local)?;
-    Ok(crate::matching::substitute_apart_by(
-        &made,
-        &put,
-        &g.binders(),
-    ))
+    Ok(matching::substitute_apart_by(&made, &put, &g.binders()))
 }
 
 /// `a rel b`, and `a ≡ b (mod n)` for a congruence, as a chain's link

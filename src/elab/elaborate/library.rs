@@ -1,6 +1,12 @@
 //! The library a theorem is elaborated against.
 
 use super::*;
+use std::fs;
+use std::ops::Deref;
+use std::path::Path;
+
+use crate::mm;
+use crate::mm::library::render;
 use sha2::{Digest, Sha256};
 
 /// What reading set.mm and the corpus's `proved.mm` gives. Nothing here
@@ -28,15 +34,12 @@ impl ReadLibrary {
                 .collect()
         };
         let provided: BTreeSet<String> = match proved {
-            Some(p) => crate::mm::read_texts(&[p])
-                .into_keys()
-                .map(String::from)
-                .collect(),
+            Some(p) => mm::read_texts(&[p]).into_keys().map(String::from).collect(),
             None => BTreeSet::new(),
         };
         let mut texts = vec![setmm];
         texts.extend(proved);
-        let sigs = crate::mm::read_texts(&texts);
+        let sigs = mm::read_texts(&texts);
         let size = sigs.len() - provided.len();
         ReadLibrary {
             sigs: Arc::new(sigs),
@@ -67,7 +70,7 @@ pub struct Library {
 /// statements, in the order they are declared.
 pub(super) type Constants = Vec<(Symbol, Vec<Symbol>)>;
 
-impl std::ops::Deref for Library {
+impl Deref for Library {
     type Target = ReadLibrary;
 
     fn deref(&self) -> &ReadLibrary {
@@ -78,11 +81,8 @@ impl std::ops::Deref for Library {
 impl Library {
     /// The library read from set.mm and, where it has been built, the
     /// corpus's `proved.mm`.
-    pub fn read(
-        setmm: &std::path::Path,
-        proved: Option<&std::path::Path>,
-    ) -> Checked<Library> {
-        let text = std::fs::read_to_string(setmm).map_err(|e| {
+    pub fn read(setmm: &Path, proved: Option<&Path>) -> Checked<Library> {
+        let text = fs::read_to_string(setmm).map_err(|e| {
             Problem::new(
                 setmm.display().to_string(),
                 0,
@@ -90,7 +90,7 @@ impl Library {
             )
         })?;
         let proved = match proved {
-            Some(p) => Some(std::fs::read_to_string(p).map_err(|e| {
+            Some(p) => Some(fs::read_to_string(p).map_err(|e| {
                 Problem::new(p.display().to_string(), 0, e.to_string())
             })?),
             None => None,
@@ -144,7 +144,7 @@ impl Library {
 /// than read back from it.
 pub(super) fn declare_constants(sigs: &mut Layered, records: &[Record]) -> Checked<()> {
     for one in super::super::definitions::definitions(records, sigs)? {
-        let rendered = crate::mm::library::render(&one.body, sigs);
+        let rendered = render(&one.body, sigs);
         let class = Symbol::of(&format!("c{}", one.token));
         let token = Symbol::of(&one.token);
         sigs.insert(

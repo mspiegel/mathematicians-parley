@@ -8,6 +8,7 @@
 
 use std::path::Path;
 
+use parley::checker;
 use parley::citing::largest_search;
 use parley::source::Disk;
 
@@ -18,7 +19,7 @@ const LIMIT: usize = 1_000;
 #[test]
 fn no_citation_search_over_the_corpus_grows_large() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let said = parley::checker::run(&Disk::new(root));
+    let said = checker::run(&Disk::new(root));
     assert!(said.green(), "the corpus checks:\n{}", said.printed);
     let largest = largest_search();
     println!("the largest citation search asked {largest} hypotheses");

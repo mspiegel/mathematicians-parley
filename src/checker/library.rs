@@ -3,28 +3,35 @@
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
+use std::{iter, slice};
 
 use indexmap::IndexMap;
+use rustc_hash::FxHashMap;
 
 use super::record::{CheckedTheorem, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
-use crate::citing::implied_by;
 use crate::citing::{
-    self, at_a_member, conjuncts_in, finished, introduction, said_once, subset_members,
-    Introduced, Library, Parts, Taken,
+    self, at_a_member, conjuncts_in, finished, implied_by, introduction, said_once,
+    subset_members, Implication, Introduced, Library, Parts, Taken,
 };
-use crate::corpus::{Intro, Kinded, Method, Step, StepPlace, Theorem, Values};
-use crate::formula::page::{chain_pairs_placed, conjoined, filled, Sentence, Written};
+use crate::corpus::{
+    proof, Intro, Kinded, Method, Opener, Step, StepPlace, Theorem, Values,
+};
+use crate::formula::page::{
+    chain_pairs_placed, conjoined, filled, ChainPair, Sentence, Written,
+};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike_how, expand, standard, standard_how, substitute_apart, substituted_in,
-    Binding, Context, Definitions, FxIndexMap,
+    Binding, Context, Definitions, FxIndexMap, Meeting,
 };
-use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE, POWERSET, SUBSET};
+use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE, POWERSET, SUBSET, SUM};
 use crate::outcome::Route;
+use crate::rules::System;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
+use crate::Checked;
 
 type PartsKey = (StepPlace, String, String, Vec<String>, Vec<String>);
 
@@ -70,7 +77,7 @@ pub struct Said {
 pub struct Implied {
     /// Where in the line the implying fact comes from; never itself implied.
     pub source: SaidFrom,
-    pub rule: crate::citing::Implication,
+    pub rule: Implication,
 }
 
 /// One thing a line says, before it is read as a citation reads it.
@@ -234,12 +241,12 @@ pub struct Known<'a> {
     pub(super) searches: RefCell<FxIndexMap<SearchKey, Rc<Route<Taken>>>>,
     /// The theorem's blocks and where each step stands, made once
     /// (`CheckedTheorem::of`, `Known::shape`).
-    shape: std::cell::OnceCell<CheckedTheorem>,
+    shape: OnceCell<CheckedTheorem>,
     /// Each sentence read, by its text (`Known::parse`).
-    parsed: RefCell<rustc_hash::FxHashMap<String, Node>>,
+    parsed: RefCell<FxHashMap<String, Node>>,
     /// Each sentence of the page read, by where it is written and its text,
     /// for the build (`CheckedTheorem::page`).
-    page: RefCell<rustc_hash::FxHashMap<PartKey, Node>>,
+    page: RefCell<FxHashMap<PartKey, Node>>,
 }
 
 impl<'a> Known<'a> {
@@ -261,9 +268,9 @@ impl<'a> Known<'a> {
             in_scope: RefCell::new(FxIndexMap::default()),
             parts: RefCell::new(FxIndexMap::default()),
             searches: RefCell::new(FxIndexMap::default()),
-            shape: std::cell::OnceCell::new(),
-            parsed: RefCell::new(rustc_hash::FxHashMap::default()),
-            page: RefCell::new(rustc_hash::FxHashMap::default()),
+            shape: OnceCell::new(),
+            parsed: RefCell::new(FxHashMap::default()),
+            page: RefCell::new(FxHashMap::default()),
         }
     }
 
@@ -275,7 +282,7 @@ impl<'a> Known<'a> {
 
     /// What each definition the theorem sees from outside it stands for,
     /// written out (`sorts::file_definitions`).
-    pub fn outside_definitions(&self) -> &crate::matching::Definitions {
+    pub fn outside_definitions(&self) -> &Definitions {
         &self.outside.outside
     }
 
@@ -294,11 +301,7 @@ impl<'a> Known<'a> {
     /// with its argument's sort or its index a number, and kept for the
     /// build in place of any reading with the theorem's sorts, as this is
     /// how the line means it.
-    pub fn keep_read(
-        &self,
-        sentence: &Sentence,
-        sorts: &Sorts,
-    ) -> crate::Checked<Node> {
+    pub fn keep_read(&self, sentence: &Sentence, sorts: &Sorts) -> Checked<Node> {
         let node = sentence.read(self.env.g, sorts)?;
         let key = PartKey::of(sentence);
         self.page.borrow_mut().insert(key, node.clone());
@@ -398,7 +401,7 @@ impl<'a> Known<'a> {
                     .ok()
                     .and_then(|s| self.read_as_written(&s))
                     .and_then(|c| match (c.notation(), c.children.as_slice()) {
-                        (crate::notations::FOR_ALL, [_, _, body]) => Some(body.clone()),
+                        (FOR_ALL, [_, _, body]) => Some(body.clone()),
                         _ => None,
                     });
                 vec![statement.map(cited)]
@@ -441,7 +444,7 @@ impl<'a> Known<'a> {
     /// read. The sorts are the theorem's throughout, so a sentence's text
     /// decides its tree, and each text is parsed once; a reading that fails
     /// is not kept, as its problem says where the sentence is written.
-    pub fn parse(&self, sentence: &Sentence) -> crate::Checked<Node> {
+    pub fn parse(&self, sentence: &Sentence) -> Checked<Node> {
         let Some(text) = sentence.deciding_text() else {
             let node = sentence.read(self.env.g, &self.sorts)?;
             self.keep(sentence, &node);
@@ -473,7 +476,7 @@ impl<'a> Known<'a> {
 
     /// `alike`, with how the two met (`matching::Meeting`): respelt where
     /// they meet only once a side is in the standard spelling.
-    pub fn alike_how(&self, a: &Node, b: &Node) -> Option<crate::matching::Meeting> {
+    pub fn alike_how(&self, a: &Node, b: &Node) -> Option<Meeting> {
         let none = IndexMap::new();
         let (sa, ra) = standard_how(a, self.ctx);
         let (sb, rb) = standard_how(b, self.ctx);
@@ -547,7 +550,7 @@ impl<'a> Known<'a> {
         let defined = self.citing_step(step);
         let [sentence] = step.claim.sentences().try_into().ok()?;
         let whole = self.read_citing(&sentence, &defined)?;
-        crate::citing::claimed_member(&whole, self.env.g).map(|(member, _)| member)
+        citing::claimed_member(&whole, self.env.g).map(|(member, _)| member)
     }
 
     /// A part that is one formula, read with what `defined` writes out;
@@ -619,9 +622,7 @@ impl<'a> Known<'a> {
                 continue;
             };
             self.say_of(sentence, i, SaidFrom::Sentence(i), &mut written);
-            for at in
-                self.at_block_letters(stated, std::slice::from_ref(sentence), None)
-            {
+            for at in self.at_block_letters(stated, slice::from_ref(sentence), None) {
                 let from = SaidFrom::AtLetter {
                     sentence: i,
                     part: None,
@@ -635,8 +636,7 @@ impl<'a> Known<'a> {
             let parts = conjuncts_in(sentence, self.ctx, self.env.g);
             if parts.len() > 1 {
                 for (j, part) in parts.iter().enumerate() {
-                    for at in
-                        self.at_block_letters(stated, std::slice::from_ref(part), None)
+                    for at in self.at_block_letters(stated, slice::from_ref(part), None)
                     {
                         let from = SaidFrom::AtLetter {
                             sentence: i,
@@ -700,7 +700,7 @@ impl<'a> Known<'a> {
                 here.push(Saying::of(part, tag));
             }
         }
-        let pairs: Vec<crate::formula::page::ChainPair> = here
+        let pairs: Vec<ChainPair> = here
             .iter()
             .filter_map(|s| chain_pairs_placed(self.env.g, &s.node))
             .flatten()
@@ -1056,7 +1056,7 @@ pub fn statements_in_scope(
     };
     // An induction hypothesis says what its induction's claim says at the
     // letter.
-    let opened = |owner: &Step, o: &crate::corpus::Opener| match o.is_hypothesis {
+    let opened = |owner: &Step, o: &Opener| match o.is_hypothesis {
         true => Stated::Hypothesis(owner.claim.clone()),
         false => said(o.kind, o.body(&thm.path)),
     };
@@ -1253,9 +1253,7 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             // A step said of every member introduces the member as the same
             // step's block would by its `let`: j of "for all j ∈ {1, …, m}"
             // is in ℕ, the system the range is in (`SYNTAX.md`).
-            if let Some((letter, system)) =
-                crate::citing::introduction(&member, &letters)
-            {
+            if let Some((letter, system)) = citing::introduction(&member, &letters) {
                 letters.insert(letter, system);
             }
             let mut facts = facts;
@@ -1342,7 +1340,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
     let typed = typed_in_scope(known, step);
     let scope = known.scope(step);
     let mut written: Vec<Node> = Vec::new();
-    for w in std::iter::once(&step.claim).chain(step.requires.iter().map(|r| &r.fact)) {
+    for w in iter::once(&step.claim).chain(step.requires.iter().map(|r| &r.fact)) {
         written.extend(
             w.sentences()
                 .iter()
@@ -1351,7 +1349,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
     }
     // The rows of an inequalities step write what it combines, the first a
     // line it cites written out.
-    if let Some(Ok(rows)) = crate::corpus::proof::rows(&step.just, &known.thm.path) {
+    if let Some(Ok(rows)) = proof::rows(&step.just, &known.thm.path) {
         for row in &rows {
             written.extend(
                 row.formula
@@ -1377,7 +1375,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
         let bound: BTreeSet<String> = sum
             .walk()
             .iter()
-            .filter(|n| n.notation() == crate::notations::SUM)
+            .filter(|n| n.notation() == SUM)
             .filter_map(|n| n.children.first().map(|i| i.text.to_string()))
             .collect();
         sum.names().iter().all(|n| {
@@ -1388,13 +1386,7 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
     };
     let mut out: Vec<Node> = Vec::new();
     for node in written.iter().flat_map(|n| n.walk()).filter(in_scope) {
-        let said = citing::sum_said_once(
-            &node,
-            crate::rules::System::C,
-            &letters,
-            &typed,
-            known.ctx,
-        );
+        let said = citing::sum_said_once(&node, System::C, &letters, &typed, known.ctx);
         if said {
             out.push(node);
         }

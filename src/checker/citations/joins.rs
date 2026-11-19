@@ -1,6 +1,11 @@
 //! Recursions cited, joins, function types and codomains.
 
 use super::*;
+use crate::citing;
+use crate::corpus::{proof, DefineLine, Recursion};
+use crate::formula::Sorts;
+use crate::methods::membership;
+use crate::methods::membership::Range;
 
 /// A theorem stated over a sequence it defines by recursion speaks of that
 /// sequence, and a step citing it speaks of its own sequence of the name,
@@ -67,8 +72,8 @@ pub fn check_recursions_cited(
 /// `theirs` gives, with its parts; None where it has none.
 pub(super) fn our_recursion<'t>(
     thm: &'t Theorem,
-    theirs: &crate::corpus::Recursion,
-) -> Option<(&'t crate::corpus::DefineLine, crate::corpus::Recursion)> {
+    theirs: &Recursion,
+) -> Option<(&'t DefineLine, Recursion)> {
     thm.defines
         .iter()
         .find_map(|d| match define_parts(&d.text) {
@@ -124,8 +129,8 @@ pub(super) fn recursions_met(
 pub(super) fn recursion_differs(
     thm: &Theorem,
     other: &Theorem,
-    sorts: &crate::formula::Sorts,
-    (theirs_line, theirs): (usize, &crate::corpus::Recursion),
+    sorts: &Sorts,
+    (theirs_line, theirs): (usize, &Recursion),
     binding: &Binding,
     known: &Known,
 ) -> Option<String> {
@@ -164,7 +169,7 @@ pub(super) fn recursion_differs(
             };
             // A rule that does not read is `check_recursions`'s to report, in
             // the theorem that writes it.
-            let read = |rule: Written, local: &crate::formula::Sorts| {
+            let read = |rule: Written, local: &Sorts| {
                 rule.formula().and_then(|s| s.read(g, local))
             };
             let (Ok(a_tree), Ok(b_tree)) = (
@@ -453,11 +458,10 @@ pub fn check_function_types(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let defines: BTreeSet<String> =
-        defined_functions(&crate::corpus::proof::in_scope(thm, scopes))
-            .into_iter()
-            .map(|f| f.name)
-            .collect();
+    let defines: BTreeSet<String> = defined_functions(&proof::in_scope(thm, scopes))
+        .into_iter()
+        .map(|f| f.name)
+        .collect();
     for step in &thm.steps {
         let Some(item) = step.just.cited_item() else {
             continue;
@@ -817,7 +821,7 @@ pub(super) fn applies_untyped(
     facts: &[Node],
     known: &Known,
 ) -> bool {
-    let defines = crate::corpus::proof::in_scope(thm, known.env.scopes);
+    let defines = proof::in_scope(thm, known.env.scopes);
     let sequences: Vec<String> = defined_functions(&defines)
         .into_iter()
         .filter(|d| d.recursive)
@@ -907,11 +911,11 @@ pub(super) fn said_over_any_set(
                         && system_named(cod).is_some_and(|c| c.within(s)))
             })
     };
-    crate::citing::within(
+    citing::within(
         at.term,
         system,
         &letters,
-        &|d| crate::citing::nonzero_said_once(d, &letters),
+        &|d| citing::nonzero_said_once(d, &letters),
         &value_typed,
     )
 }
@@ -951,7 +955,7 @@ pub(super) fn term_built(
             }
             ranged.insert(
                 letter.to_string(),
-                crate::methods::membership::Range {
+                Range {
                     start: start.clone(),
                     end: end.clone(),
                 },
@@ -970,5 +974,5 @@ pub(super) fn term_built(
         targets: &library.targets,
         ctx: known.ctx,
     };
-    crate::methods::membership::holds(term, system, &given)
+    membership::holds(term, system, &given)
 }

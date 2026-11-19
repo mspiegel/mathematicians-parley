@@ -1,5 +1,7 @@
 //! Applying a lemma, in stages.
 
+use std::mem;
+
 use super::*;
 
 impl<'a> Elaborator<'a> {
@@ -540,7 +542,7 @@ impl<'a> Elaborator<'a> {
         // the scope, and what the claim says is ch.
         let mut under_context = self.in_deduction_form(&sig, &whole);
         let binding = loop {
-            if !std::mem::take(&mut under_context) {
+            if !mem::take(&mut under_context) {
                 if let Some(b) = fit(&reads, goal, &start, &variables) {
                     break b;
                 }

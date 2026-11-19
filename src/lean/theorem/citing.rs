@@ -1,11 +1,24 @@
 //! Proof methods: calculations and cited items.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::iter::Peekable;
+use std::slice;
+
 use super::super::doc::{forms, LeanType, Op, Source, TermKind};
 use super::super::expr::Members;
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::notations::{EMPTY_SET, PROPERTY_OF, THERE_IS_SOME};
+use crate::checker::record::{ChainTerms, LinesHold};
+use crate::corpus::proof::ChainLine;
+use crate::corpus::{proof, RecordKind};
+use crate::formula::page;
+use crate::formula::symbol::Symbol;
+use crate::matching::Binding;
+use crate::notations::{
+    EMPTY_SET, FOR_ALL, MEMBERSHIP, PROPERTY_OF, THERE_IS, THERE_IS_SOME,
+};
+use crate::{matching, rules};
 
 impl<'a> Proof<'a> {
     /// `calculation`: the chain as Lean's `calc`, every term in one type,
@@ -15,7 +28,7 @@ impl<'a> Proof<'a> {
         just: &Justification,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        let Some(Ok(chain)) = crate::corpus::proof::chain(just, &self.thm.path) else {
+        let Some(Ok(chain)) = proof::chain(just, &self.thm.path) else {
             return Route::no("a calculation whose lines do not cut");
         };
         let mut terms = vec![match self.tree(&chain.start) {
@@ -134,13 +147,11 @@ impl<'a> Proof<'a> {
             // lines it cites taken to one order first (`with_commuted`). A
             // row of another reason works on the terms as the page writes
             // them.
-            let reads_as_one = |by: &crate::corpus::Justification| {
+            let reads_as_one = |by: &Justification| {
                 matches!(
                     by.head,
-                    crate::corpus::Head::Method(
-                        crate::corpus::Method::Algebra
-                            | crate::corpus::Method::Inequalities
-                            | crate::corpus::Method::Transitivity
+                    Head::Method(
+                        Method::Algebra | Method::Inequalities | Method::Transitivity
                     )
                 )
             };
@@ -250,9 +261,7 @@ impl<'a> Proof<'a> {
             ]));
         }
         if ends.is_some_and(|m| m.permuted) {
-            let equation = claim_now
-                .as_ref()
-                .is_some_and(|c| c.notation() == crate::notations::EQUALITY);
+            let equation = claim_now.as_ref().is_some_and(|c| c.notation() == EQUALITY);
             let made = super::super::tactics::bracket(super::super::tactics::by_term(
                 super::super::doc::Proof::Block(block),
             ));
@@ -397,7 +406,7 @@ impl<'a> Proof<'a> {
         );
         match (define, met, self.named_specs.is_empty(), to_nat) {
             (Some(h), _, _, _) if alike_set => Some(super::super::doc::Proof::By(
-                unfolded_by(std::slice::from_ref(h), true, false),
+                unfolded_by(slice::from_ref(h), true, false),
             )),
             // A row writing `toNat`, or citing a line that
             // does, whose sides differ only in casts once the
@@ -415,7 +424,7 @@ impl<'a> Proof<'a> {
             {
                 let cast = self.unfolds_to_casts(&printed[k], &printed[k + 1]);
                 Some(super::super::doc::Proof::By(unfolded_by(
-                    std::slice::from_ref(h),
+                    slice::from_ref(h),
                     met.as_ref().is_some_and(unfolds_alone) && !cast,
                     false,
                 )))
@@ -428,7 +437,7 @@ impl<'a> Proof<'a> {
     /// and for a congruence the modulus as Lean writes it.
     fn link_relation(
         &self,
-        line: &crate::corpus::proof::ChainLine,
+        line: &ChainLine,
         writer: &Writer,
     ) -> Route<(String, Option<Printed>)> {
         Route::Built(match line.relation.as_str() {
@@ -506,7 +515,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             },
             // A row the page works out by real arithmetic, = 3·ln(2).
-            None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
+            None if line.cite == Method::RealArithmetic.as_str() => {
                 match super::super::reals::real_link(
                     &self.writer,
                     self.sources.targets,
@@ -567,13 +576,13 @@ impl<'a> Proof<'a> {
             };
             let by_define = self.row_by_define(row, cite, define);
             let mut ways: Vec<Tactic> = match define {
-                Some(h) => unfolded(std::slice::from_ref(h)),
+                Some(h) => unfolded(slice::from_ref(h)),
                 None => Vec::new(),
             };
             // A "for all" line read at the row's letter, as a line
             // cited inside a block is: 5.7's a·f(a) ≡ 1 at the
             // block's a, as it stands or turned round.
-            let names: std::collections::BTreeSet<String> = terms[k]
+            let names: BTreeSet<String> = terms[k]
                 .names()
                 .into_iter()
                 .chain(terms[k + 1].names())
@@ -583,7 +592,7 @@ impl<'a> Proof<'a> {
                 .get(cite)
                 .into_iter()
                 .flatten()
-                .filter(|s| s.node.notation() == crate::notations::FOR_ALL)
+                .filter(|s| s.node.notation() == FOR_ALL)
                 .filter_map(|s| self.at_recorded_letter(&s.cited(), &names))
                 .collect();
             // The one such line, the way the checker found the row
@@ -684,12 +693,9 @@ impl<'a> Proof<'a> {
         let mut out = self.cited_parts(refs);
         for r in refs {
             for s in self.trees.get(r).into_iter().flatten() {
-                let pairs = crate::formula::page::chain_pairs_placed(
-                    self.writer.grammar,
-                    &s.node,
-                );
+                let pairs = page::chain_pairs_placed(self.writer.grammar, &s.node);
                 for p in pairs.into_iter().flatten() {
-                    let terms = crate::checker::record::ChainTerms {
+                    let terms = ChainTerms {
                         from: p.from,
                         to: p.to,
                     };
@@ -711,12 +717,12 @@ impl<'a> Proof<'a> {
         &self,
         sentence: &Sentence,
         name: &str,
-        binding: &crate::matching::Binding,
+        binding: &Binding,
     ) -> Option<Route<super::super::expr::Printed>> {
         let (map, _) = sentence.domains.iter().find(|(_, d)| {
             matches!(&d.kind, super::super::doc::TermKind::Letter(l) if *l == super::super::names::letter(name))
         })?;
-        let given = binding.get(&crate::formula::symbol::Symbol::of(map));
+        let given = binding.get(&Symbol::of(map));
         Some(match given {
             // The domain stands bracketed as an argument does.
             Some(g) if g.is_name() => match self.writer.domain_of(&g.text) {
@@ -751,15 +757,14 @@ impl<'a> Proof<'a> {
     pub(super) fn things_given(
         &self,
         binders: &[Binder],
-        binding: &crate::matching::Binding,
+        binding: &Binding,
     ) -> ThingsGiven {
         let mut given = ThingsGiven::default();
         for b in binders {
             let Binder::Letter { page, ty, .. } = b else {
                 continue;
             };
-            let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page))
-            else {
+            let Some(value) = binding.get(&Symbol::of(page)) else {
                 continue;
             };
             match ty {
@@ -819,7 +824,7 @@ impl<'a> Proof<'a> {
             else {
                 continue;
             };
-            let value = binding.get(&crate::formula::symbol::Symbol::of(page));
+            let value = binding.get(&Symbol::of(page));
             let Some(value) = value.filter(|v| v.notation() == PROPERTY_OF) else {
                 continue;
             };
@@ -847,7 +852,7 @@ impl<'a> Proof<'a> {
         // lines say: the integers of ∏(x ∈ ∅) x in the base of an induction
         // on the parts of a set of integers.
         if let Some(held) = &self.writer.empty_of {
-            let vars: std::collections::BTreeSet<usize> = binders
+            let vars: BTreeSet<usize> = binders
                 .iter()
                 .filter_map(|b| match b {
                     Binder::Letter { ty, .. } => Some(ty.lean_type()),
@@ -881,12 +886,11 @@ impl<'a> Proof<'a> {
     pub(super) fn instance_of(
         &self,
         sentence: &Sentence,
-        binding: &crate::matching::Binding,
+        binding: &Binding,
         claim: Option<&Node>,
-        cited: &crate::checker::record::Cited,
+        cited: &Cited,
     ) -> Route<Instance> {
-        let mut given: std::collections::BTreeMap<String, super::super::expr::Printed> =
-            std::collections::BTreeMap::new();
+        let mut given: BTreeMap<String, super::super::expr::Printed> = BTreeMap::new();
         let things = self.things_given(&sentence.binders, binding);
         let general = match self.general_type(sentence, binding, claim, &things) {
             Route::Built(general) => general,
@@ -994,7 +998,7 @@ impl<'a> Proof<'a> {
         // A type variable the item's sentence holds and none of its letters
         // does, the α of |(∅ : Set α)| = 0, is given by name: no argument
         // tells Lean what it is. It is what ∅ holds where the lines say.
-        let lettered: std::collections::BTreeSet<usize> = sentence
+        let lettered: BTreeSet<usize> = sentence
             .binders
             .iter()
             .filter_map(|b| match b {
@@ -1076,7 +1080,7 @@ impl<'a> Proof<'a> {
                 .unwrap_or(super::super::templates::Num::Nat);
             things.at.get(var).map_or(least, |n| least.max(*n))
         };
-        let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page)) else {
+        let Some(value) = binding.get(&Symbol::of(page)) else {
             return self.letter_unvalued(asked, name, page, ty);
         };
         // The value of a define that names its number, m/p of
@@ -1084,7 +1088,7 @@ impl<'a> Proof<'a> {
         let value = self
             .witness_letters
             .iter()
-            .find(|w| crate::matching::alike_top(&w.value, value, self.sources.ctx))
+            .find(|w| matching::alike_top(&w.value, value, self.sources.ctx))
             .map_or(value, |w| &w.letter);
         match (ty, general.filter(|_| in_general)) {
             // A value of a wider type that a line says is in the letter's
@@ -1235,7 +1239,7 @@ impl<'a> Proof<'a> {
     fn general_type(
         &self,
         sentence: &Sentence,
-        binding: &crate::matching::Binding,
+        binding: &Binding,
         claim: Option<&Node>,
         things: &ThingsGiven,
     ) -> Route<Option<super::super::templates::Num>> {
@@ -1269,7 +1273,7 @@ impl<'a> Proof<'a> {
                     page,
                     general: true,
                     ..
-                } => binding.get(&crate::formula::symbol::Symbol::of(page)),
+                } => binding.get(&Symbol::of(page)),
                 _ => None,
             })
             .collect();
@@ -1286,8 +1290,7 @@ impl<'a> Proof<'a> {
             else {
                 continue;
             };
-            let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page))
-            else {
+            let Some(value) = binding.get(&Symbol::of(page)) else {
                 continue;
             };
             match self.given_type(value, ty, things) {
@@ -1310,9 +1313,7 @@ impl<'a> Proof<'a> {
                 else {
                     return true;
                 };
-                let Some(value) =
-                    binding.get(&crate::formula::symbol::Symbol::of(page))
-                else {
+                let Some(value) = binding.get(&Symbol::of(page)) else {
                     return true;
                 };
                 match self.writer.carrier(value).built() {
@@ -1674,7 +1675,7 @@ impl<'a> Proof<'a> {
             (LetterType::Member(super::super::expr::Members::Things(_)), _)
                 if value.notation() == EMPTY_SET =>
             {
-                match self.writer.sets_of_nothing(std::slice::from_ref(value)) {
+                match self.writer.sets_of_nothing(slice::from_ref(value)) {
                     Some(set) => Route::Built(Printed::cast(
                         Printed::constant(
                             "∅",
@@ -1812,7 +1813,7 @@ impl<'a> Proof<'a> {
     /// in scope first.
     pub(super) fn phrase_proof(
         &self,
-        cited: &crate::checker::record::Cited,
+        cited: &Cited,
         refs: &[String],
         k: usize,
         node: &Node,
@@ -1821,12 +1822,10 @@ impl<'a> Proof<'a> {
         let concluded = cited.concluded.get(k)?;
         // A witness bound by the line cited: that line says the meaning
         // whole (`witness_bound_by_line`).
-        if concluded.way == crate::citing::Way::Backward
-            && self.witness_bound_by_line(cited, refs)
-        {
+        if concluded.way == Way::Backward && self.witness_bound_by_line(cited, refs) {
             return self.first_proof(cited, &wanted);
         }
-        if concluded.way == crate::citing::Way::Backward {
+        if concluded.way == Way::Backward {
             let parts = cited.unfolded.get(k)?.as_ref()?;
             let mut known = Vec::new();
             return self
@@ -2006,7 +2005,7 @@ impl<'a> Proof<'a> {
         found: Vec<super::super::doc::forms::FormDifference>,
         (compared, claim_read): (&Printed, &Printed),
         counted: &[Printed],
-        (cited, sentence, node): (&crate::checker::record::Cited, &Sentence, &Node),
+        (cited, sentence, node): (&Cited, &Sentence, &Node),
     ) -> PowerForms {
         let templates = self.writer.templates;
         let widen = |head: &str, at| templates.same_function_at(head, at);
@@ -2077,7 +2076,7 @@ impl<'a> Proof<'a> {
         &self,
         reason: Reason,
         (k, node): (usize, &Node),
-        cited: &crate::checker::record::Cited,
+        cited: &Cited,
         sentence: &Sentence,
         (way, instance): (Way, &Instance),
     ) -> FormComparison {
@@ -2284,9 +2283,7 @@ impl<'a> Proof<'a> {
         // the claim is what the lines it cites say, in the claim's own
         // words, and the definition, whose two sides are one, adds nothing.
         let phrase = super::super::items::record_of(self.sources.checked, &cited.item)
-            .is_some_and(|r| {
-                r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-            });
+            .is_some_and(|r| r.phrase.is_some() && r.kind == RecordKind::Definition);
         if phrase {
             return match self.phrase_proof(cited, &reason.just.refs, k, node) {
                 Some(p) => Route::Built(doc::Proof::Term(p)),
@@ -2461,7 +2458,7 @@ impl<'a> Proof<'a> {
         let all_put = defines
             .iter()
             .fold(node.clone(), |n, d| self.put_define(&n, d));
-        let same_sides = all_put.notation() == crate::notations::EQUALITY
+        let same_sides = all_put.notation() == EQUALITY
             && matches!(all_put.children.as_slice(), [l, r] if l.spelt_alike(r));
         if same_sides && headers.is_empty() && !all_put.spelt_alike(node) {
             let goal = RewriteAt {
@@ -2797,7 +2794,7 @@ impl<'a> Proof<'a> {
     pub(super) fn witnesses(
         &self,
         statement: &Printed,
-        cited: &crate::checker::record::Cited,
+        cited: &Cited,
         k: usize,
         refs: &[String],
     ) -> Route<Printed> {
@@ -2827,15 +2824,11 @@ impl<'a> Proof<'a> {
     /// Whether a witness the citation gives is a letter bound by a line it
     /// cites, the k of its "there is k": no value in scope, so the line says
     /// the definition's right side whole.
-    pub(super) fn witness_bound_by_line(
-        &self,
-        cited: &crate::checker::record::Cited,
-        refs: &[String],
-    ) -> bool {
-        let bound_here: std::collections::BTreeSet<String> = self
+    pub(super) fn witness_bound_by_line(&self, cited: &Cited, refs: &[String]) -> bool {
+        let bound_here: BTreeSet<String> = self
             .cited_parts(refs)
             .iter()
-            .filter(|c| c.node.notation() == crate::notations::THERE_IS)
+            .filter(|c| c.node.notation() == THERE_IS)
             .filter_map(|c| c.node.children.first())
             .filter(|l| l.is_name())
             .map(|l| l.text.to_string())
@@ -2898,7 +2891,7 @@ impl<'a> Proof<'a> {
     pub(super) fn unfolded_tree<'u, I: Iterator<Item = &'u Unfolded>>(
         &self,
         lean: &Printed,
-        parts: &mut std::iter::Peekable<I>,
+        parts: &mut Peekable<I>,
         known: &mut Vec<Tactic>,
     ) -> Option<Printed> {
         let lean = super::super::doc::forms::beta_reduced(&unparenthesized(lean));
@@ -3152,17 +3145,15 @@ impl<'a> Proof<'a> {
         // no statement of a system, and its integer is Lean's way of
         // writing the line.
         let asked = match ty {
-            super::super::templates::Num::Int => crate::rules::System::Z,
-            super::super::templates::Num::Rat => crate::rules::System::Q,
-            _ => crate::rules::System::R,
+            super::super::templates::Num::Int => rules::System::Z,
+            super::super::templates::Num::Rat => rules::System::Q,
+            _ => rules::System::R,
         };
         // The check reads a step with the defines it names written out, d of
         // `from D3` as its value 2^(r!), and records what it found so.
         let checked = self.with_named_defines(value);
-        let stated = matches!(
-            self.held(&checked, asked),
-            Some(crate::checker::record::LinesHold::Stated { .. })
-        );
+        let stated =
+            matches!(self.held(&checked, asked), Some(LinesHold::Stated { .. }));
         // The latest such line the step names, or part of an "and"; a "for
         // all" line read at the block's letter the check read it at, f(a) ∈
         // {0, …, p − 1} of every a read at the block's a
@@ -3197,7 +3188,7 @@ impl<'a> Proof<'a> {
             let [term, set] = c.node.children.as_slice() else {
                 return None;
             };
-            if c.node.notation() != crate::notations::MEMBERSHIP {
+            if c.node.notation() != MEMBERSHIP {
                 return None;
             }
             // A range of a wider term, k ∈ {1, …, n} of a real k, is its
@@ -3258,7 +3249,7 @@ impl<'a> Proof<'a> {
             // says "there is".
             // A "for all" line is read at the block's letter, as the checker
             // reads it.
-            let mut names = std::collections::BTreeSet::new();
+            let mut names = BTreeSet::new();
             for s in step.claim.sentences() {
                 if let Some(n) = self.rec.page.get(&s) {
                     names.extend(n.names());
@@ -3270,13 +3261,12 @@ impl<'a> Proof<'a> {
                 .into_iter()
                 .map(|c| self.at_recorded_letter(&c, &names).unwrap_or(c))
                 .find(|c| {
-                    c.node.notation() == crate::notations::THERE_IS
-                        || c.node.notation() == THERE_IS_SOME
+                    c.node.notation() == THERE_IS || c.node.notation() == THERE_IS_SOME
                 }) {
                 Some(c) => Route::Built(Obtained {
                     term: c.proof,
                     says: c.node,
-                    binding: crate::matching::Binding::new(),
+                    binding: Binding::new(),
                     lean: None,
                 }),
                 None => Route::no("an obtain from no line that says \"there is\""),

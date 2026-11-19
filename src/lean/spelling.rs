@@ -15,6 +15,8 @@
 //! - where the item is in a wider type, ℂ at reals or ℝ at rationals, its
 //!   casts moved to meet the step's (`exact_mod_cast`).
 
+use std::collections::BTreeSet;
+
 use super::doc::bridges::BridgeModule;
 use super::doc::{forms, Arg, BoundForm, LeanType, Quant, Tactic, TermKind};
 use super::expr::Printed;
@@ -39,7 +41,7 @@ impl InstanceFields {
     /// `written`.
     pub fn of(item: &Printed, written: &Printed) -> InstanceFields {
         let (of_item, of_step) = (fields_of(item), fields_of(written));
-        let real_at_rationals = of_step == std::collections::BTreeSet::from([Num::Rat])
+        let real_at_rationals = of_step == BTreeSet::from([Num::Rat])
             && of_item.contains(&Num::Real)
             && !of_item.contains(&Num::Complex);
         match (of_item.last() == of_step.last(), real_at_rationals) {
@@ -53,7 +55,7 @@ impl InstanceFields {
 /// The fields a statement as Lean writes it is worked in, ℚ, ℝ or ℂ, of
 /// its number types: an exponent's ℕ or an index's ℤ beside them says
 /// nothing of the field.
-pub fn fields_of(term: &Printed) -> std::collections::BTreeSet<Num> {
+pub fn fields_of(term: &Printed) -> BTreeSet<Num> {
     number_types(term)
         .into_iter()
         .filter(|n| matches!(n, Num::Rat | Num::Real | Num::Complex))
@@ -62,8 +64,8 @@ pub fn fields_of(term: &Printed) -> std::collections::BTreeSet<Num> {
 
 /// The number types a statement as Lean writes it names: those of its
 /// terms, and those it casts to.
-pub fn number_types(term: &Printed) -> std::collections::BTreeSet<Num> {
-    let mut out = std::collections::BTreeSet::new();
+pub fn number_types(term: &Printed) -> BTreeSet<Num> {
+    let mut out = BTreeSet::new();
     for t in term.walk() {
         if let Some(LeanType::Num(n)) = &t.ty {
             out.insert(*n);

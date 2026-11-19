@@ -1,6 +1,11 @@
 //! What a step cites: requires, facings, meetings and restatements.
 
+use std::ptr;
+
 use super::*;
+use crate::checker::record::{BodyPart, ChainTerms};
+use crate::matching::Meeting;
+use crate::{citing, matching};
 
 /// A requires line whose cited item does not give its fact.
 pub(super) struct Unconcluded {
@@ -118,8 +123,7 @@ pub(super) fn requires_parts(
     if step.openers.is_empty() {
         if let [claim] = read_all(&step.claim).as_slice() {
             if let Some((member, _)) = claimed_member(claim, library.env.g) {
-                if let Some((letter, system)) =
-                    crate::citing::introduction(&member, &in_scope)
+                if let Some((letter, system)) = citing::introduction(&member, &in_scope)
                 {
                     in_scope.insert(letter, system);
                 }
@@ -516,7 +520,7 @@ pub(super) fn meetings(
     claims: &[Node],
     known: &Known,
     library: &Library,
-) -> Vec<Option<crate::matching::Meeting>> {
+) -> Vec<Option<Meeting>> {
     let group = &groups[taken.group];
     taken
         .concluded
@@ -650,11 +654,11 @@ pub(super) fn item_letters(
         ]
         .into_iter()
         .find(|s| {
-            crate::citing::within(
+            citing::within(
                 value,
                 *s,
                 &letters,
-                &|d| crate::citing::nonzero_said_once(d, &letters),
+                &|d| citing::nonzero_said_once(d, &letters),
                 &stated,
             )
         })
@@ -688,7 +692,7 @@ pub(super) fn rules_by_name(
     let defined = known.citing_step(step);
     let named = |value: &Node| {
         defined.iter().find_map(|(name, d)| {
-            let crate::matching::Defined::Rule(rule) = d else {
+            let matching::Defined::Rule(rule) = d else {
                 return None;
             };
             let [param] = rule.params.as_slice() else {
@@ -863,7 +867,7 @@ pub(super) fn narrowed_of(
     let apart = asked.notation() == FOR_ALL
         && fact.notation() == FOR_ALL
         && !alike(&standard(to, ctx), &standard(from, ctx), ctx, &none, &none);
-    (apart && crate::citing::set_within(to, from)).then(|| Narrowed {
+    (apart && citing::set_within(to, from)).then(|| Narrowed {
         from: from.clone(),
         to: to.clone(),
     })
@@ -895,10 +899,10 @@ pub(super) fn firsts_at(
     below: Option<usize>,
     known: &Known,
     library: &Library,
-) -> (Vec<SuppliedBy>, Vec<Option<crate::matching::Meeting>>) {
+) -> (Vec<SuppliedBy>, Vec<Option<Meeting>>) {
     let suppliers = Suppliers::new(step, refs, Some(item), below, known, library);
     let mut out: Vec<SuppliedBy> = Vec::new();
-    let mut met: Vec<Option<crate::matching::Meeting>> = Vec::new();
+    let mut met: Vec<Option<Meeting>> = Vec::new();
     for (asked, first) in firsts {
         let by = suppliers.by(first);
         let placed = |o: &SuppliedBy| match (o, &by) {
@@ -964,8 +968,8 @@ pub(super) fn witnessed_at(
     let states = |said: &Node| {
         let mut with: Vec<Node> = vec![said.clone()];
         with.extend(facts.iter().cloned());
-        crate::citing::supplier(fact, &with, &none, &open, library, &sites)
-            .is_some_and(|took| std::ptr::eq(took, &with[0]))
+        citing::supplier(fact, &with, &none, &open, library, &sites)
+            .is_some_and(|took| ptr::eq(took, &with[0]))
     };
     line_at(step, refs, item, &states, known, library)
 }
@@ -1058,13 +1062,11 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
             let Some(fact) = known.whole_as_written(&req.fact) else {
                 continue;
             };
-            if !crate::citing::speaks_of_claim_letter(claim, &fact) {
+            if !citing::speaks_of_claim_letter(claim, &fact) {
                 continue;
             }
-            let under = standard(
-                &crate::citing::under_claim_binders(claim, &fact),
-                &library.ctx,
-            );
+            let under =
+                standard(&citing::under_claim_binders(claim, &fact), &library.ctx);
             if let Some(at) = fact_at(step, req.lines(), None, &under, known, library) {
                 let meeting = known.alike_how(&under, &at.written);
                 out.add(req.line, (at, meeting));
@@ -1109,10 +1111,10 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
 #[derive(Default)]
 pub struct Restatements {
     pub places: IndexMap<usize, FirstAt>,
-    pub meetings: IndexMap<usize, crate::matching::Meeting>,
+    pub meetings: IndexMap<usize, Meeting>,
     /// The requires lines found stated under the claim's "for all"
     /// (`CheckedTheorem::restated_under_claim`).
-    pub under_claim: IndexMap<usize, Option<crate::checker::record::BodyPart>>,
+    pub under_claim: IndexMap<usize, Option<BodyPart>>,
 }
 
 /// Where a line `refs` names says `under`, a fact under the claim's "for
@@ -1125,9 +1127,8 @@ fn part_under_claim(
     under: &Node,
     known: &Known,
     library: &Library,
-) -> Option<(FirstAt, crate::checker::record::BodyPart)> {
-    let (crate::notations::FOR_ALL, [letter, set, fact]) =
-        (under.notation(), under.children.as_slice())
+) -> Option<(FirstAt, BodyPart)> {
+    let (FOR_ALL, [letter, set, fact]) = (under.notation(), under.children.as_slice())
     else {
         return None;
     };
@@ -1140,7 +1141,7 @@ fn part_under_claim(
         says.iter()
             .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
             .find_map(|s| {
-                let (crate::notations::FOR_ALL, [bound, over, body]) =
+                let (FOR_ALL, [bound, over, body]) =
                     (s.cited.notation(), s.cited.children.as_slice())
                 else {
                     return None;
@@ -1150,13 +1151,13 @@ fn part_under_claim(
                 }
                 let put = Binding::from([(bound.text, letter.clone())]);
                 let body = substitute_apart(body, &put, &library.ctx);
-                let parts = crate::citing::conjuncts(&body, library);
+                let parts = citing::conjuncts(&body, library);
                 let fact = standard(fact, &library.ctx);
                 let part = parts.iter().position(|p| states(p, &fact, library))?;
                 let at = placed(r, s, &says, own)?;
                 Some((
                     at,
-                    crate::checker::record::BodyPart {
+                    BodyPart {
                         part,
                         of: parts.len(),
                     },
@@ -1169,7 +1170,7 @@ impl Restatements {
     pub(super) fn add(
         &mut self,
         line: usize,
-        (at, meeting): (FirstAt, Option<crate::matching::Meeting>),
+        (at, meeting): (FirstAt, Option<Meeting>),
     ) {
         if let Some(met) = meeting.filter(|m| !m.as_written()) {
             self.meetings.insert(line, met);
@@ -1188,7 +1189,7 @@ pub(super) fn restated_at(
     said: &Written,
     known: &Known,
     library: &Library,
-) -> Option<(FirstAt, Option<crate::matching::Meeting>)> {
+) -> Option<(FirstAt, Option<Meeting>)> {
     let fact = standard(&known.whole_as_written(said)?, &library.ctx);
     let at = fact_at(step, refs, None, &fact, known, library)?;
     let meeting = known.alike_how(&fact, &at.written);
@@ -1262,7 +1263,7 @@ pub(in crate::checker) fn placed(
         SaidFrom::Part { sentence, part } => (Some(sentence), Some(part)),
         // The equation between two terms of the chain the sentence is.
         SaidFrom::Pair { sentence, from, to } => {
-            pair = Some(crate::checker::record::ChainTerms { from, to });
+            pair = Some(ChainTerms { from, to });
             (Some(sentence), None)
         }
         // A "for all" read at a block's letter, numbered past the line's own

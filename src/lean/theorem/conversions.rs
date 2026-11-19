@@ -1,11 +1,20 @@
 //! Paths, conjuncts, intros and the conversions a citation needs.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use super::super::doc::bridges::BridgeModule;
 use super::super::doc::{Arg, LeanType, Op, Quant, Source, TermKind};
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::notations::{APPLICATION, HOLDS_OF, MOD, PROPERTY_OF};
+use crate::formula::notation::Binds;
+use crate::formula::notation_id::NotationId;
+use crate::formula::page;
+use crate::matching;
+use crate::matching::{Binding, FxIndexMap, Meeting};
+use crate::notations::{
+    APPLICATION, HOLDS_OF, INTEGER_RANGE, MEMBERSHIP, MOD, NUMBER_SYSTEMS, PROPERTY_OF,
+};
 use crate::rules::System;
 
 /// The child indices that lead from `node` to a part of the shape of `part`,
@@ -34,7 +43,7 @@ pub(super) fn at_path<'n>(node: &'n Node, path: &[usize]) -> Option<&'n Node> {
 pub(super) fn applied_at(node: &Node, f: &str, k: &str) -> bool {
     match node.children.as_slice() {
         [head, arg] => {
-            node.notation() == crate::notations::APPLICATION
+            node.notation() == APPLICATION
                 && head.is_name()
                 && &*head.text == f
                 && arg.is_name()
@@ -83,7 +92,7 @@ pub(super) fn conjuncts(
     }
     // a = b = c: its links, as the writer joins them, `a = b ∧ b = c`, the
     // first by `.1` and the rest from `.2` on.
-    if let Some(links) = crate::formula::page::chain_links(w.grammar, node) {
+    if let Some(links) = page::chain_links(w.grammar, node) {
         let (mut proof, mut says) = (proof, says);
         let last = links.len().saturating_sub(1);
         for (k, link) in links.iter().enumerate() {
@@ -117,11 +126,8 @@ pub(super) fn conjuncts(
 /// has them, as Lean's statement of it does.
 pub(super) fn read_at_values(
     node: &Node,
-    binding: &crate::matching::Binding,
-    binders: &crate::matching::FxIndexMap<
-        crate::formula::notation_id::NotationId,
-        crate::formula::notation::Binds,
-    >,
+    binding: &Binding,
+    binders: &FxIndexMap<NotationId, Binds>,
 ) -> Node {
     // A property holds of a term, P(x), and a function letter applied to
     // one, t(k): each read as the rule the citation gives the letter,
@@ -133,9 +139,9 @@ pub(super) fn read_at_values(
             if let (PROPERTY_OF, [body]) =
                 (stands.notation(), stands.children.as_slice())
             {
-                let arg = crate::matching::substitute_apart_by(arg, binding, binders);
-                let put = crate::matching::Binding::from([(stands.text, arg)]);
-                return crate::matching::substitute_apart_by(body, &put, binders);
+                let arg = matching::substitute_apart_by(arg, binding, binders);
+                let put = Binding::from([(stands.text, arg)]);
+                return matching::substitute_apart_by(body, &put, binders);
             }
         }
     }
@@ -430,7 +436,7 @@ pub(super) fn lean_body_parts(
             _ => t,
         }
     }
-    let mut given = std::collections::BTreeMap::new();
+    let mut given = BTreeMap::new();
     let mut at = statement;
     while let TermKind::Quantified {
         quant: Quant::Exists,
@@ -514,15 +520,11 @@ pub(super) struct ShownWhole {
 
 /// The term and the system of a membership of ℕ or ℕ₀, `t ∈ ℕ₀`; None of
 /// any other sentence.
-pub(super) fn membership_of_whole(
-    sentence: &Node,
-) -> Option<(&Node, crate::rules::System)> {
+pub(super) fn membership_of_whole(sentence: &Node) -> Option<(&Node, System)> {
     let [term, set] = sentence.children.as_slice() else {
         return None;
     };
-    if sentence.notation() != crate::notations::MEMBERSHIP
-        || set.notation() != crate::notations::NUMBER_SYSTEMS
-    {
+    if sentence.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
         return None;
     }
     let system = System::of_sign(&set.text)?;
@@ -753,9 +755,8 @@ pub(super) fn bound_rewrite(
 }
 
 /// The type variables a term's parts are of, or are sets or maps of.
-pub(super) fn things_in(term: &Printed) -> std::collections::BTreeSet<usize> {
-    let mut out: std::collections::BTreeSet<usize> =
-        term.ty.iter().flat_map(things_of_type).collect();
+pub(super) fn things_in(term: &Printed) -> BTreeSet<usize> {
+    let mut out: BTreeSet<usize> = term.ty.iter().flat_map(things_of_type).collect();
     for child in term.children() {
         out.extend(things_in(child));
     }
@@ -804,7 +805,7 @@ pub(super) fn ascribed(proof: Printed, says: Printed) -> Printed {
 /// renamed, which are the same term to Lean, and nothing else taken. An
 /// identity element dropped or a respelling is arithmetic left for
 /// `norm_num`.
-pub(super) fn unfolds_alone(met: &crate::matching::Meeting) -> bool {
+pub(super) fn unfolds_alone(met: &Meeting) -> bool {
     met.identities.is_empty() && !met.respelled && !met.turned && !met.permuted
 }
 
@@ -897,9 +898,9 @@ pub(super) fn in_named_forms(
 
 /// That a term is at least 0, from the line that puts it in ℕ₀, `h`, or
 /// in ℕ, `(le_of_lt h)`.
-pub(super) fn nonneg_of(system: crate::rules::System, line: Printed) -> Printed {
+pub(super) fn nonneg_of(system: System, line: Printed) -> Printed {
     match system {
-        crate::rules::System::N => Printed::applied(
+        System::N => Printed::applied(
             "le_of_lt",
             super::super::doc::Source::Mathlib,
             vec![line],
@@ -1044,7 +1045,7 @@ pub(super) fn parts_closed(
                 quant: super::super::doc::Quant::Exists,
                 guard: Some(guard),
                 ..
-            } if part.notation() == crate::notations::MEMBERSHIP => {
+            } if part.notation() == MEMBERSHIP => {
                 zero_bound(guard).filter(|order| zero_bound(&given) == Some(*order))
             }
             _ => None,
@@ -1089,12 +1090,11 @@ pub(super) fn range_member_made(equation: Printed, member: Printed) -> Printed {
 /// `f(a) ∈ {0, …, p − 1}` of a real f, which Lean says of the integer that
 /// is the term (`Writer::formula`).
 pub(super) fn wide_range_member(writer: &Writer, claim: &Node) -> bool {
-    let (crate::notations::MEMBERSHIP, [term, set]) =
-        (claim.notation(), claim.children.as_slice())
+    let (MEMBERSHIP, [term, set]) = (claim.notation(), claim.children.as_slice())
     else {
         return false;
     };
-    set.notation() == crate::notations::INTEGER_RANGE
+    set.notation() == INTEGER_RANGE
         && writer
             .carrier(term)
             .built()

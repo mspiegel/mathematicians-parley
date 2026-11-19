@@ -2,6 +2,13 @@
 //! fit, and that the methods which relate formulas are given the shapes
 //! they need.
 
+mod clashes;
+mod closures;
+mod ends;
+mod letters;
+mod relations;
+mod rows;
+
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
@@ -36,9 +43,10 @@ use crate::matching::{
     FxIndexSet, Meeting,
 };
 use crate::methods::field::{decide_closed, Verdict};
-use crate::methods::membership as methods_membership;
 use crate::methods::terms::{term_of_node, term_of_node_reading, Targets};
-use crate::methods::{algebra, inequalities, linear, reals};
+use crate::methods::{
+    algebra, inequalities, linear, membership as methods_membership, reals,
+};
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
@@ -53,13 +61,6 @@ use crate::sorts::infer::{self, Reader, Store};
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{define_sorts, types_a_function, unlabel, written_tokens, Env};
 use crate::targets::split_entries;
-
-mod clashes;
-mod closures;
-mod ends;
-mod letters;
-mod relations;
-mod rows;
 
 pub use self::clashes::{
     check_clashes, check_decided_words, check_formulas, check_item_clashes,

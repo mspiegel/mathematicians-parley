@@ -15,11 +15,9 @@ use num_bigint::{BigInt, BigUint};
 use num_traits::ToPrimitive;
 
 use super::field::{self, Verdict};
-use super::numerals;
 use super::pairs::InClass;
 use super::state::Elaborator;
-use super::Facts;
-use crate::binds;
+use super::{numerals, Facts};
 use crate::corpus::Step;
 use crate::methods::inspection::{
     disjuncts, integer_value, is_prime, least_factor, range_elements,
@@ -29,8 +27,7 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
-use crate::rules;
-use crate::{pf, t, take};
+use crate::{binds, pf, rules, t, take};
 
 /// Where a closed fact a range's listing asks of a negative integer is
 /// said to be asked, should arithmetic not show it.

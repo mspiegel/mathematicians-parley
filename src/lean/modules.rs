@@ -7,12 +7,14 @@
 //! another revision starts the table again.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 
 use super::doc::file::Lookup;
 use crate::outcome::Problem;
 use crate::source::Source;
+use serde_json::{from_slice, from_str, Value};
 use sha2::{Digest, Sha256};
 
 /// The table, from the root of the tree.
@@ -76,7 +78,7 @@ impl MadeFor {
 
     /// What a table's first line says it was made for.
     fn read(line: &str) -> Option<MadeFor> {
-        let v: serde_json::Value = serde_json::from_str(line).ok()?;
+        let v: Value = from_str(line).ok()?;
         Some(MadeFor {
             mathlib: v["mathlib"].as_str()?.to_string(),
             script: v["script"].as_str()?.to_string(),
@@ -86,7 +88,7 @@ impl MadeFor {
 
 /// One line of the table or of the script's answers.
 fn read_line(line: &str) -> Result<(Lookup, Answer), String> {
-    let v: serde_json::Value = serde_json::from_str(line).map_err(|e| e.to_string())?;
+    let v: Value = from_str(line).map_err(|e| e.to_string())?;
     let field = |name: &str| v.get(name).and_then(|f| f.as_str());
     let (Some(kind), Some(key)) = (field("kind"), field("key")) else {
         return Err("a line with no kind and key".to_string());
@@ -121,8 +123,7 @@ fn line_of(lookup: &Lookup, answer: Option<&Answer>) -> String {
 fn mathlib_revision(source: &dyn Source) -> Result<String, Problem> {
     let unread = |why: String| Problem::new(MANIFEST, 1, why);
     let bytes = source.read(MANIFEST).map_err(|e| unread(e.to_string()))?;
-    let v: serde_json::Value =
-        serde_json::from_slice(&bytes).map_err(|e| unread(e.to_string()))?;
+    let v: Value = from_slice(&bytes).map_err(|e| unread(e.to_string()))?;
     v["packages"]
         .as_array()
         .and_then(|ps| ps.iter().find(|p| p["name"] == "mathlib"))
@@ -206,10 +207,10 @@ impl ModuleTable {
             ".lake/modules-of/asked.jsonl",
             ".lake/modules-of/answers.jsonl",
         );
-        std::fs::create_dir_all(project.join(".lake/modules-of"))
+        fs::create_dir_all(project.join(".lake/modules-of"))
             .map_err(|e| failed(e.to_string()))?;
         let lines: Vec<String> = asked.iter().map(|l| line_of(l, None)).collect();
-        std::fs::write(project.join(questions), lines.join("\n") + "\n")
+        fs::write(project.join(questions), lines.join("\n") + "\n")
             .map_err(|e| failed(e.to_string()))?;
         let run = Command::new("lake")
             .args(["env", "lean", "--run", SCRIPT, questions, answers])
@@ -223,7 +224,7 @@ impl ModuleTable {
                 String::from_utf8_lossy(&run.stderr)
             )));
         }
-        let text = std::fs::read_to_string(project.join(answers))
+        let text = fs::read_to_string(project.join(answers))
             .map_err(|e| failed(e.to_string()))?;
         for (i, line) in text.lines().filter(|l| !l.is_empty()).enumerate() {
             let (lookup, answer) = read_line(line)

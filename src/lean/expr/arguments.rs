@@ -1,9 +1,11 @@
 //! Templates, functions, carriers and natural forms.
 
 use super::*;
+use crate::citing;
 use crate::notations::{
-    COMPOSITION, DERIVATIVE, INTEGRAL, INVERSE, NTH_DERIVATIVE, POLYNOMIAL_DEGREE,
-    SUPREMUM, UNARY_MINUS,
+    APPLICATION, APPLICATION_TO_PAIR, APPLICATION_TO_TWO, COMPOSITION, DERIVATIVE,
+    INTEGRAL, INVERSE, MAP, NTH_DERIVATIVE, POLYNOMIAL_DEGREE, POWER,
+    SUM_OVER_CONDITION, SUPREMUM, UNARY_MINUS,
 };
 
 impl Writer<'_> {
@@ -99,10 +101,7 @@ impl Writer<'_> {
     /// The Lean form of the library function a node applies, `gcd(a, b)`;
     /// None for any other node, a letter of the page applied included.
     pub fn library_function(&self, node: &Node) -> Option<&Template> {
-        if !matches!(
-            node.notation(),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
-        ) {
+        if !matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO) {
             return None;
         }
         let f = node.children.first()?;
@@ -160,7 +159,7 @@ impl Writer<'_> {
             // g⁻¹(y), (g ∘ f)(x) and a map applied, of functions of numbers,
             // whose sort the checker leaves open, and f(i) of a function
             // letter into numbers a quantifier binds.
-            || (node.notation() == crate::notations::APPLICATION
+            || (node.notation() == APPLICATION
                 && node.children.first().is_some_and(|f| {
                     self.inverse_of_function(f).is_some()
                         || ((matches!(f.notation(), COMPOSITION | DERIVATIVE | NTH_DERIVATIVE)
@@ -260,7 +259,7 @@ impl Writer<'_> {
             } else {
                 Num::Int
             }),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+            APPLICATION | APPLICATION_TO_PAIR
                 if self.library_function(node).is_none() =>
             {
                 match self.applied(node) {
@@ -313,7 +312,7 @@ impl Writer<'_> {
     /// as Lean computes one and is not said once in ℕ₀: a negative, an
     /// integer letter, or n − 1 of n ∈ ℕ. None for any other node.
     pub fn integer_power<'n>(&self, node: &'n Node) -> Option<&'n [Node; 2]> {
-        if node.notation() != crate::notations::POWER {
+        if node.notation() != POWER {
             return None;
         }
         let parts: &[Node; 2] = node.children.as_slice().try_into().ok()?;
@@ -596,7 +595,7 @@ impl Writer<'_> {
             {
                 true
             }
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+            APPLICATION | APPLICATION_TO_PAIR
                 if self.library_function(node).is_none() =>
             {
                 true
@@ -637,7 +636,7 @@ impl Writer<'_> {
                 Some(LetterType::Number(Num::Nat))
             ),
             NUMERAL => !node.text.contains('.'),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_PAIR
+            APPLICATION | APPLICATION_TO_PAIR
                 if self.library_function(node).is_none() =>
             {
                 matches!(
@@ -681,7 +680,7 @@ impl Writer<'_> {
                 (index, Over::Set(set), term)
             }
             (None, [index, set, condition, term])
-                if node.notation() == crate::notations::SUM_OVER_CONDITION =>
+                if node.notation() == SUM_OVER_CONDITION =>
             {
                 (index, Over::Where { set, condition }, term)
             }
@@ -724,11 +723,11 @@ impl Writer<'_> {
         // (`citing::index_system`), so x^k of Σ(k = 0 to n) x^k is a
         // natural power.
         if let Over::Range { from, .. } = &over {
-            match crate::citing::index_system(from) {
-                Some(crate::rules::System::N) => {
+            match citing::index_system(from) {
+                Some(rules::System::N) => {
                     inner.introduce(&index.text, System::Positive)
                 }
-                Some(crate::rules::System::N0) => {
+                Some(rules::System::N0) => {
                     inner.introduce(&index.text, System::NonNegative)
                 }
                 _ => {}
@@ -769,7 +768,7 @@ impl Writer<'_> {
     /// members k is among in t(k); None where the term applies none to it.
     pub(super) fn index_taken(&self, index: &Node, term: &Node) -> Option<Members> {
         term.walk().iter().find_map(|n| {
-            let applies = n.notation() == crate::notations::APPLICATION
+            let applies = n.notation() == APPLICATION
                 && self.library_function(n).is_none()
                 && matches!(n.children.as_slice(), [_, x] if x.is_name() && x.text == index.text);
             match applies.then(|| self.applied(n)) {
@@ -810,9 +809,7 @@ pub(super) struct MapRule<'n> {
 impl<'n> MapRule<'n> {
     /// The map `f` is; None where it is no map.
     pub fn of(f: &'n Node) -> Option<MapRule<'n>> {
-        let (crate::notations::MAP, [letter, set, rule]) =
-            (f.notation(), f.children.as_slice())
-        else {
+        let (MAP, [letter, set, rule]) = (f.notation(), f.children.as_slice()) else {
             return None;
         };
         Some(MapRule { letter, set, rule })

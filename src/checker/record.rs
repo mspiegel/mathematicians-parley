@@ -9,13 +9,24 @@
 use std::sync::Arc;
 
 use indexmap::IndexMap;
+use rustc_hash::FxHashMap;
 
-use crate::citing::{Concluded, Group};
+use crate::citing::bounds::SaidBounds;
+use crate::citing::finite::{FiniteSets, SaidFinite};
+use crate::citing::number_sets::Between;
+use crate::citing::things::ThingTypes;
+use crate::citing::{
+    Concluded, Group, HypothesisAt, Implication, Introduced, SaidOnceFact, Want,
+};
 use crate::corpus::{Step, StepPlace, Theorem};
+use crate::formula::node::ByShape;
 use crate::formula::page::Sentence;
+use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
-use crate::matching::{Binding, Definitions};
+use crate::matching::{Binding, Definitions, Flip, Meeting, SubstitutionPlaces};
+use crate::methods::pairs::Coordinate;
 use crate::outcome::{Checked, Problem};
+use crate::rules::System;
 use crate::sorts::CitedStatement;
 
 /// Where a step or a define stands: directly in a block, and in which part
@@ -116,11 +127,11 @@ impl PartKey {
 /// proof one way.
 #[derive(Clone, Debug, Default)]
 pub struct PageReading {
-    read: rustc_hash::FxHashMap<PartKey, Node>,
+    read: FxHashMap<PartKey, Node>,
 }
 
 impl PageReading {
-    pub fn new(read: rustc_hash::FxHashMap<PartKey, Node>) -> PageReading {
+    pub fn new(read: FxHashMap<PartKey, Node>) -> PageReading {
         PageReading { read }
     }
 
@@ -162,7 +173,7 @@ impl ItemKey {
 /// problem, which the build reports where it asks for it.
 #[derive(Clone, Debug, Default)]
 pub struct ItemReading {
-    read: rustc_hash::FxHashMap<ItemKey, Checked<Node>>,
+    read: FxHashMap<ItemKey, Checked<Node>>,
 }
 
 impl ItemReading {
@@ -193,7 +204,7 @@ pub struct LibraryReading {
     /// What each item's function-type `let` lines say, `t : {a, …, b} → ℝ`,
     /// by its full name, which its groups leave out, each with where the
     /// item writes it (`citing::Library::function_type_lines`).
-    pub function_types: IndexMap<String, Vec<crate::citing::Want>>,
+    pub function_types: IndexMap<String, Vec<Want>>,
     /// What each group of each item says of its terms, its phrases written
     /// out, by the item's full name and the group's place
     /// (`checker::written::item_facts`).
@@ -201,7 +212,7 @@ pub struct LibraryReading {
     /// The set each property an item's `let` lines name is of, read, by
     /// the item's full name and the property's letter: ℕ of `P be a
     /// property of the elements of ℕ`.
-    pub property_domains: IndexMap<String, IndexMap<String, crate::formula::Node>>,
+    pub property_domains: IndexMap<String, IndexMap<String, Node>>,
 }
 
 /// What one group of an item says of its terms, read as a theorem's lines
@@ -209,18 +220,18 @@ pub struct LibraryReading {
 #[derive(Clone, Debug)]
 pub struct GroupFacts {
     /// What its hypotheses bound below (`citing::bounds`).
-    pub bounds: crate::citing::bounds::SaidBounds,
+    pub bounds: SaidBounds,
     /// The sets its hypotheses make finite (`citing::finite::said_finite`).
-    pub finite: crate::citing::finite::SaidFinite,
+    pub finite: SaidFinite,
     /// For each sentence it concludes, the number system each set letter of
     /// numbers holds by the hypotheses and that sentence
     /// (`citing::number_sets::set_letter_systems`).
-    pub set_systems: Vec<IndexMap<String, crate::rules::System>>,
+    pub set_systems: Vec<IndexMap<String, System>>,
     /// The function letters its function-type lines and hypotheses give a
     /// type between sets of numbers, `t : {a, …, b} → ℝ`, with the systems
     /// of the domain and the codomain, as a theorem's are
     /// (`CheckedTheorem::function_systems`).
-    pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
+    pub function_systems: IndexMap<String, Between>,
 }
 
 /// A condition of a define by cases that a step citing it passes: `t = c`
@@ -244,7 +255,7 @@ pub struct TakenCase {
     /// How the case's value meets the claim's other side (`Known::alike_how`):
     /// as it stands, or with arithmetic left; None where they met only as
     /// `Known::alike` reads them.
-    pub meeting: Option<crate::matching::Meeting>,
+    pub meeting: Option<Meeting>,
 }
 
 /// A theorem as the checker reads it.
@@ -254,7 +265,7 @@ pub struct CheckedTheorem {
     pub page: PageReading,
     /// Every sentence of every item the corpus may cite, read: one reading
     /// for the corpus, shared by each theorem's record.
-    pub items: std::sync::Arc<ItemReading>,
+    pub items: Arc<ItemReading>,
     /// What each definition the theorem sees from outside it stands for,
     /// written out where it was defined (`sorts::file_definitions`).
     pub outside: Definitions,
@@ -288,23 +299,23 @@ pub struct CheckedTheorem {
     /// The sets the theorem's hypotheses, defines and bound letters make
     /// finite (`citing::finite::said_finite`): what a backend that writes a
     /// count by whether its set is finite asks with `citing::finite::is_finite`.
-    pub said_finite: crate::citing::finite::SaidFinite,
+    pub said_finite: SaidFinite,
     /// The number system each set letter of numbers holds, D of `D ⊆ ℝ` or
     /// c of `{1, …, i} ∖ c` (`citing::number_sets::set_letter_systems`):
     /// what a backend whose sets are typed gives the letter.
-    pub set_systems: IndexMap<String, crate::rules::System>,
+    pub set_systems: IndexMap<String, System>,
     /// Which of the theorem's sets, members and maps' sides hold things of
     /// one type, read over every line of its page in order
     /// (`citing::things::ThingTypes`): A and B of `f : A → B` apart, C of
     /// `C ⊆ A` with A. What a backend whose sets are typed gives each its
     /// type variable by.
-    pub thing_types: crate::citing::things::ThingTypes,
+    pub thing_types: ThingTypes,
     /// The number system each letter in scope at a step is introduced in,
     /// by the step's index (`library::introduced`): the narrower of two
     /// where a later line narrows it, q ∈ ℕ₀ of a q let in ℤ. What the
     /// said-once walk reads letters by (`citing::reason`), so that a backend
     /// asking it of a term asks with the checker's letters.
-    pub introduced: Vec<crate::citing::Introduced>,
+    pub introduced: Vec<Introduced>,
     /// Each step's citation of an item, by the step's index; None for a step
     /// that cites none, or whose citation no group of the item reads, which
     /// the checker reports.
@@ -353,7 +364,7 @@ pub struct CheckedTheorem {
     /// How the line met each restatement it does not state as written:
     /// turned, identity elements dropped, bound letters renamed, `d = n` of
     /// `n = d·1`. By the line of the justification (`restatements`).
-    pub restated_meetings: IndexMap<usize, crate::matching::Meeting>,
+    pub restated_meetings: IndexMap<usize, Meeting>,
     /// The requires lines of `restated` whose line states the fact under the
     /// claim's leading "for all", not the fact alone: `g′(x) ≠ 0: from H11`
     /// of a claim "for all x ∈ D" and H11 "for all x ∈ D, g′(x) ≠ 0". With
@@ -366,7 +377,7 @@ pub struct CheckedTheorem {
     /// once each define's name is its value, a "for all"'s at its body; None
     /// where they do not meet and arithmetic is left. By the link's or the
     /// step's line (`formulas::define_link_meetings`).
-    pub define_links: IndexMap<usize, Option<crate::matching::Meeting>>,
+    pub define_links: IndexMap<usize, Option<Meeting>>,
     /// Of each step citing a define by cases whose value it claims in one
     /// case, how it reaches that case and meets it. By the step's line
     /// (`formulas::define_cases`).
@@ -390,7 +401,7 @@ pub struct CheckedTheorem {
     /// How the line met each calculation link it does not state as written,
     /// as `restated_meetings`: `F(0) + G(0) = G(1)` of `G(0 + 1) = F(0) +
     /// G(0)`. By the link's line (`formulas::link_places`).
-    pub link_meetings: IndexMap<usize, crate::matching::Meeting>,
+    pub link_meetings: IndexMap<usize, Meeting>,
     /// Which way each calculation link that cites a line faces what the line
     /// says, an equation of the line's turned round where the link writes
     /// its sides the other way (`citations::facing_of`), by the link's line
@@ -433,11 +444,11 @@ pub struct CheckedTheorem {
     /// How each step that ends a block, a part of one or the proof meets
     /// what it owes, by the line of its justification: one meeting for each
     /// part of its "and" in order (`formulas::ended_meetings`).
-    pub ends_met: IndexMap<usize, Vec<crate::matching::Meeting>>,
+    pub ends_met: IndexMap<usize, Vec<Meeting>>,
     /// How each calculation's first and last terms meet the step's claim,
     /// by the line of its justification: permuted where a listed set's
     /// members stand in another order (`formulas::calculation_meetings`).
-    pub calculation_ends: IndexMap<usize, crate::matching::Meeting>,
+    pub calculation_ends: IndexMap<usize, Meeting>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
     /// (`formulas::check_place_systems`), by the step's index: so that a
@@ -460,7 +471,7 @@ pub struct CheckedTheorem {
     /// (`formulas::pairs_apart`): the first of (1, 1) ≠ (2, 3) by
     /// arithmetic, the second of (a, b) ≠ (c, d) by algebra from b ≠ d. A
     /// backend proves the pairs apart there.
-    pub pairs_apart: IndexMap<usize, crate::methods::pairs::Coordinate>,
+    pub pairs_apart: IndexMap<usize, Coordinate>,
     /// The parts of the terms a reason's claim and lines write that the
     /// lines it names put in a number system, each with how, by the line
     /// the reason is on: a step's, or a requires line's
@@ -491,12 +502,12 @@ pub struct CheckedTheorem {
     pub read_at: Vec<Vec<ReadAt>>,
     /// What the statement's hypotheses bound below, y − 3 ≥ 0 of `y ≥ 3`
     /// (`citing::bounds`), read with the letters the header lets.
-    pub statement_bounds: crate::citing::bounds::SaidBounds,
+    pub statement_bounds: SaidBounds,
     /// What the lines in scope at each step bound below, by the step's
     /// index, read with the step's letters (`checker::bounds`). A backend
     /// writes a square root or a real power of a base at least 0 as a real
     /// one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
-    pub bounds: Vec<crate::citing::bounds::SaidBounds>,
+    pub bounds: Vec<SaidBounds>,
     /// What any line of the theorem bounds below: the statement's
     /// hypotheses, the lines in scope at every step and every requires
     /// line, a step's or a naming `let`'s, together (`statement_bounds`,
@@ -504,28 +515,27 @@ pub struct CheckedTheorem {
     /// real power of a base the page shows at least 0 anywhere in one form
     /// throughout, as the statement's own may come before the line that
     /// shows it.
-    pub page_bounds: crate::citing::bounds::SaidBounds,
+    pub page_bounds: SaidBounds,
     /// The sets the lines in scope at each step say are finite in words,
     /// `W is finite` or `B ⊆ A` of a finite A, as printed, each with why,
     /// by the step's index (`citing::finite::finite_sets_in_words`): a
     /// count of one is a natural number from there on, as of one
     /// `said_finite` holds.
-    pub finite_at: Vec<crate::citing::finite::FiniteSets>,
+    pub finite_at: Vec<FiniteSets>,
     /// Of each "if P then Q" on the page, the sets P makes finite within Q,
     /// as `finite_sets` reads P: X of "if |X| = m then |𝒫X| = 2^m", by the
     /// whole sentence as a tree (`formulas::finite_under`). A backend that
     /// writes a count by whether its set is finite writes Q's so.
-    pub finite_under:
-        IndexMap<crate::formula::node::ByShape, crate::citing::finite::FiniteSets>,
+    pub finite_under: IndexMap<ByShape, FiniteSets>,
     /// The number system each letter the page's lines put in sets of
     /// numbers is in, the widest of them, A of `let A be an element` and
     /// `A ∈ ℝ ∖ ℚ` (`citing::number_sets::element_systems`): what a backend
     /// whose letters are typed gives the letter.
-    pub element_systems: IndexMap<String, crate::rules::System>,
+    pub element_systems: IndexMap<String, System>,
     /// The function letters the page's lines give a type between sets of
     /// numbers, f of `f : D → ℝ`, with the systems of the domain and the
     /// codomain (`citing::number_sets::function_systems`).
-    pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
+    pub function_systems: IndexMap<String, Between>,
     /// The steps that say which numbers a define's values, or a defined
     /// set's members, are among, by the define's name, in page order: `f :
     /// ℕ → ℚ`, `for all x ∈ ℚ, g(x) ∈ ℕ`, `S ⊆ ℚ` (`SYNTAX.md`, a define's
@@ -558,7 +568,7 @@ pub struct ReadAt {
 #[derive(Clone, Debug)]
 pub struct HeldByLines {
     pub term: Node,
-    pub system: crate::rules::System,
+    pub system: System,
     pub by: LinesHold,
 }
 
@@ -605,7 +615,7 @@ pub enum NonzeroBy {
 #[derive(Clone, Debug)]
 pub struct PlaceShown {
     pub term: Node,
-    pub system: crate::rules::System,
+    pub system: System,
     pub by: ShownBy,
 }
 
@@ -644,7 +654,7 @@ pub struct ValuesSaid {
     pub step: usize,
     /// The numbers it says: ℕ of `for all x ∈ ℚ, g(x) ∈ ℕ`, ℚ of `f : ℕ →
     /// ℚ`.
-    pub system: crate::rules::System,
+    pub system: System,
     /// Whether the step gives the function's type, `f : ℕ → ℚ`, which a
     /// backend whose functions are typed gives the function; or says its
     /// values at every member, or a set's members, a fact of numbers that
@@ -760,7 +770,7 @@ pub struct Cited {
     /// `Supplied::meeting` records it for a hypothesis: the fact's parts in
     /// another order, the sides turned, identity elements dropped. None
     /// where no line writes it.
-    pub firsts_meetings: Vec<Option<crate::matching::Meeting>>,
+    pub firsts_meetings: Vec<Option<Meeting>>,
     /// What supplies each hypothesis of the group the citation takes, in
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
@@ -780,7 +790,7 @@ pub struct Cited {
     /// the claim is, where it is one part of the sentence's "and"
     /// (`Concluded::part`, `within`); None where nothing of it meets the
     /// claim's sentence.
-    pub meetings: Vec<Option<crate::matching::Meeting>>,
+    pub meetings: Vec<Option<Meeting>>,
     /// For each of `concluded`, where the claim's sentence is one part of
     /// what the sentence's part gives once read at the binding, a property
     /// applied taken as its body: which part of that "and", counted from 0
@@ -857,7 +867,7 @@ pub struct Supposition {
     /// part owes, with the block's `let` and `assume` lines taken off it.
     pub against: Node,
     /// How what the one denies meets the other (`Known::alike_how`).
-    pub meeting: crate::matching::Meeting,
+    pub meeting: Meeting,
 }
 
 /// How a contradiction's supposition stands to what the block or part is
@@ -883,7 +893,7 @@ pub struct Contradicted {
     pub negated: Negating,
     /// How what the negating one denies meets the other
     /// (`Known::alike_how`).
-    pub meeting: crate::matching::Meeting,
+    pub meeting: Meeting,
 }
 
 /// Of a step and the line it contradicts, the one that says the other
@@ -917,7 +927,7 @@ pub struct FirstAt {
     /// Where the line does not write the fact but implies it, the rule:
     /// the sentence or part named above says what implies it, `k ∈ {1, …,
     /// n}` of `k ≤ n`.
-    pub implied: Option<crate::citing::Implication>,
+    pub implied: Option<Implication>,
     /// Where the fact is the equation between two terms of a chain the
     /// sentence writes, x = w of x = y = z = w, which two: a backend proves
     /// it by joining the chain's links between them.
@@ -1001,7 +1011,7 @@ pub struct ObtainedPart {
     /// body's parts.
     pub owed_written: Node,
     /// How the two meet (`Known::alike_how`).
-    pub meeting: crate::matching::Meeting,
+    pub meeting: Meeting,
 }
 
 /// A `transitivity` step's chain (`CheckedTheorem::links`): its links in
@@ -1090,21 +1100,18 @@ pub enum OrderFact {
     /// label, the rule, and the fact as the page writes it.
     Kind {
         define: String,
-        implied: crate::citing::Implication,
+        implied: Implication,
         written: Node,
     },
     /// One of the step's own requires lines above the one the fact is
     /// for, by its place among them, counted from 0, or what it implies.
     Requires {
         line: usize,
-        implied: Option<crate::citing::Implication>,
+        implied: Option<Implication>,
     },
     /// What the member a claim said of every member is read at implies,
     /// `i ≥ 1` of `i ∈ ℕ`: the rule, and the fact as the page writes it.
-    Member {
-        implied: crate::citing::Implication,
-        written: Node,
-    },
+    Member { implied: Implication, written: Node },
 }
 
 /// How an `antisymmetry` step's two lines make its equation
@@ -1127,7 +1134,7 @@ pub struct Instantiated {
     /// that meets it stands.
     pub conditions: Vec<Condition>,
     /// How what is left meets the claim (`Known::alike_how`).
-    pub meeting: crate::matching::Meeting,
+    pub meeting: Meeting,
     /// Each value the step puts in a domain, in the order the line binds
     /// their letters, with where its membership of the domain stands
     /// (`citations::value_guards`).
@@ -1187,24 +1194,24 @@ pub struct Substituted {
     pub start: Node,
     /// Where it is put (`matching::substitution_places`): which way round,
     /// and each place by its path of children from the top of `start`.
-    pub put: crate::matching::SubstitutionPlaces,
+    pub put: SubstitutionPlaces,
     /// How what the putting makes meets the claim (`Known::alike_how`): as
     /// written; with identity elements the putting makes and the claim
     /// leaves out, `1·x` written `x`; or turned round, `b ≡ c` of the claim
     /// `c ≡ b`, or a listed set's members in another order.
-    pub meeting: crate::matching::Meeting,
+    pub meeting: Meeting,
     /// Where a place writes the side put for with the parts of a notation
     /// that stands in no order in another order, |BA| for the side |AB|
     /// (`matching::places_alike`): each such flip, the side's term first
     /// (`Known::alike_how` of the side and the place). Empty where every
     /// place is written as the side is.
-    pub place_flips: Vec<crate::matching::Flip>,
+    pub place_flips: Vec<Flip>,
     /// Where the step writes its equation with the parts of a notation that
     /// stands in no order in another order than the line it is taken from
     /// says it, `|AC| = 4` of a line `|CA| = 4`: each such flip, the step's
     /// equation's term first (`Known::alike_how` of the equation and the
     /// line). Empty where the two are written alike, or no line gives it.
-    pub equation_flips: Vec<crate::matching::Flip>,
+    pub equation_flips: Vec<Flip>,
     /// Of an equation a define gives, which way the step writes it beside
     /// the define's own, name or function applied on the left: straight
     /// for `q(a) = a + 1`, turned for `a + 1 = q(a)`. None of an equation
@@ -1223,16 +1230,16 @@ pub struct Substituted {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ItemLetter {
     /// The item's letter, as the binding names it.
-    pub letter: crate::formula::symbol::Symbol,
+    pub letter: Symbol,
     /// The number system the item takes it in, by its own hypothesis
     /// `x ∈ S`; None where it asks it in none.
-    pub item_system: Option<crate::rules::System>,
+    pub item_system: Option<System>,
     /// The narrowest number system the page says its value is in once;
     /// None for a value in none, a set or a function.
-    pub value_system: Option<crate::rules::System>,
+    pub value_system: Option<System>,
     /// For a letter that stands for a set, the number system its value is
     /// as a set, ℕ of `X := ℕ`; None for any other value.
-    pub value_set: Option<crate::rules::System>,
+    pub value_set: Option<System>,
 }
 
 /// What one sentence of an exhibit's claim shows, a "there is".
@@ -1256,13 +1263,13 @@ pub struct Supplied {
     /// Where the item writes the hypothesis, by which a backend that
     /// states the item finds it among its own; None for a fact that is no
     /// item's hypothesis, a value's domain or an exhibit's.
-    pub at: Option<crate::citing::HypothesisAt>,
+    pub at: Option<HypothesisAt>,
     /// How the fact the line writes met the hypothesis at the citation's
     /// values (`Known::alike_how`), as `Cited::meetings` records it for a
     /// conclusion: a listed set's members in another order, the identity
     /// elements dropped, the two sides turned. None where no line writes
     /// it.
-    pub meeting: Option<crate::matching::Meeting>,
+    pub meeting: Option<Meeting>,
     /// Where the line says a "for all" over a set the hypothesis asks of a
     /// set inside it (`SYNTAX.md`; `citing::supply::narrowed`): "for all k ∈
     /// ℕ" for "for all k ∈ {1, …, n}". None where the two are over one set.
@@ -1290,7 +1297,7 @@ pub enum SuppliedBy {
         /// The line, by its place among the step's, counted from 0.
         line: usize,
         /// Where the line does not write the fact but implies it, the rule.
-        implied: Option<crate::citing::Implication>,
+        implied: Option<Implication>,
     },
     /// A `let` line in scope the step does not name: a membership said once
     /// where the letter is let, or what that membership implies.
@@ -1298,7 +1305,7 @@ pub enum SuppliedBy {
     /// No line: a membership the page says once of a term no `let` line
     /// writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, for the reason the said-once walk
     /// gives.
-    Walked(crate::citing::SaidOnceFact),
+    Walked(SaidOnceFact),
     /// No one line: a membership a function's type or a subset carries,
     /// `f(x) ∈ Y` of `f : X → Y` and `x ∈ X` (`citing::function_values`),
     /// `k ∈ B` of `A ⊆ B` and `k ∈ A`: where each of the two stands.
@@ -1315,7 +1322,7 @@ pub enum SuppliedBy {
     /// No line: an equation whose two sides are one once the citation's
     /// values are put in, `P = 1·P` (`SYNTAX.md`, an identity element goes
     /// without saying), with how the two met (`Known::alike_how`).
-    Identity(crate::matching::Meeting),
+    Identity(Meeting),
     /// No one line: an "and" no one line says, each part placed as a fact
     /// is, in the order the "and" joins them (`citing::conjuncts`).
     Parts(Vec<SuppliedBy>),

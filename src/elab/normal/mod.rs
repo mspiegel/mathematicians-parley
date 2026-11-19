@@ -21,6 +21,10 @@
 //! What it cannot do for itself — say that an atom is a complex number, or
 //! that a term is not zero — it asks of an [`Oracle`].
 
+mod products;
+mod quotients;
+mod runs;
+
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_integer::Integer;
@@ -30,16 +34,11 @@ use super::field::{
     self, numeral as n, order, q, spell_coefficient, spell_monomial, Monomial, Op, Q,
 };
 use super::numerals;
-use crate::binds;
 use crate::mm::kernel::{term_of, FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
-use crate::outcome::{Built, Checked, Declined, Route};
-use crate::{t, take};
-
-mod products;
-mod quotients;
-mod runs;
+use crate::outcome::{Built, Checked, Decline, Declined, Route};
+use crate::{binds, t, take};
 
 const ADD: &str = "caddc";
 const MUL: &str = "cmul";
@@ -102,10 +101,7 @@ pub trait Oracle {
 /// A decline naming a term, which a message writes in the page's notation
 /// (`Elaborator::say`).
 fn named_decline<T>(shape: &'static str, term: &Rpn) -> Route<T> {
-    Route::Declined(crate::outcome::Decline::shaped(
-        shape,
-        vec![term.to_string()],
-    ))
+    Route::Declined(Decline::shaped(shape, vec![term.to_string()]))
 }
 
 /// `( left what right )`, which reverse Polish writes the other way.

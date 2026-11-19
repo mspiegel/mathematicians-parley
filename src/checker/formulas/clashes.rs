@@ -1,6 +1,9 @@
 //! Name clashes, formula parts and decided words.
 
+use std::slice;
+
 use super::*;
+use crate::methods::{field, surds};
 
 /// The sorts an item's statement relates fit, as its reading found.
 pub fn check_item_clashes(
@@ -292,7 +295,7 @@ pub(super) fn say_unread(
     part: &FormulaPart,
     p: Problem,
 ) {
-    let lexed = written_tokens(std::slice::from_ref(&part.written), env.g);
+    let lexed = written_tokens(slice::from_ref(&part.written), env.g);
     if defined_below(thm, &lexed, own, env.scopes).is_empty() {
         let said = format!("{}: {}", part.what, p.message);
         report.say(&thm.path, part.line, said);
@@ -558,14 +561,14 @@ pub(super) const NATIVE: [NotationId; 3] = [MEMBERSHIP, EQUALITY, ORDER];
 /// by its notation's name, and whether `arithmetic` works it out: one of
 /// its own nature, or one whose record names it in a `decided` field.
 pub fn operations(records: &[Record]) -> IndexMap<NotationId, bool> {
-    operations_by(records, crate::methods::field::worked_out, false)
+    operations_by(records, field::worked_out, false)
 }
 
 /// `operations`, by whether `real arithmetic` works each out: one
 /// `arithmetic` does, or one whose record names `real arithmetic`; and the
 /// constants with them, π and e worked out, i not.
 pub fn real_operations(records: &[Record]) -> IndexMap<NotationId, bool> {
-    operations_by(records, crate::methods::surds::worked_out, true)
+    operations_by(records, surds::worked_out, true)
 }
 
 /// Each library function, by its name, and whether its record says
@@ -576,7 +579,7 @@ pub fn real_functions(records: &[Record]) -> IndexMap<String, bool> {
         .iter()
         .filter(|r| r.is_function())
         .map(|r| {
-            let decided = crate::methods::field::decides(r, "real arithmetic");
+            let decided = field::decides(r, "real arithmetic");
             (r.name.clone(), decided)
         })
         .collect()

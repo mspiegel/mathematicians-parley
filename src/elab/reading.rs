@@ -9,35 +9,38 @@
 //! and close; which kernel variable a binder or a fixed name takes is decided
 //! here, once, and kept in `bound_as`.
 
+use fancy_regex::{NoExpand, Regex};
 use indexmap::IndexMap;
+use regex::escape;
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::ptr;
 use std::rc::Rc;
 
 use super::state::{Elaborator, PhraseMeaning, SPARE_VARS};
 use crate::checker::record::Cited;
-use crate::corpus::proof::visible;
-use crate::corpus::RecordKind;
-use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
+use crate::corpus::proof::{visible, Visible};
+use crate::corpus::{
+    DefineLine, Intro, Item, RecordKind, Recursion, ScopeId, Step, Theorem,
+};
+use crate::elab::state;
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{
     conjoined, filled, made, made_as, template, Sentence, Written,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node};
-use crate::matching::FxIndexMap;
-use crate::matching::{substitute_apart_by, Binding};
-use crate::matching::{Defined, Definitions};
-use crate::mm::Rpn;
-use crate::notations::BICONDITIONAL;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
+use crate::matching::{substitute_apart_by, Binding, Defined, Definitions, FxIndexMap};
+use crate::mm::{Kind, Rpn};
+use crate::notations::{
+    AND, APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, MEMBERSHIP, NUMERAL, SUBGROUP,
+};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::GraphLine;
-use crate::t;
-use crate::targets;
 use crate::text::repr;
+use crate::{checker, t, targets};
 
 /// The class variables a theorem's `let` lines are given, in order.
 pub const CLASS_NAMES: [&str; 26] = [
@@ -47,7 +50,7 @@ pub const CLASS_NAMES: [&str; 26] = [
 
 /// Whether a hypothesis says a group has a subgroup: `H is a subgroup of G`.
 pub fn is_subgroup(said: &Node) -> bool {
-    said.notation() == crate::notations::SUBGROUP
+    said.notation() == SUBGROUP
 }
 
 /// A term already in kernel form, standing in a tree.
@@ -123,7 +126,7 @@ impl<'a> Elaborator<'a> {
         let introduced = Introduction::read(body.clone());
         let named = |name: &str| self.read_one(&introduced.part(name));
         let is_a = |form: &'static str, x: &Node| filled(form, g, sorts, &[("x", x)]);
-        let both = |a: Node, b: Node| made(g, crate::notations::AND, vec![a, b]);
+        let both = |a: Node, b: Node| made(g, AND, vec![a, b]);
         let asserted = || introduced.asserted_by(&|part| self.read_one(part), g, sorts);
         match &introduced.form {
             Form::Element(name) => {
@@ -217,7 +220,7 @@ impl<'a> Elaborator<'a> {
                 (written, cited.sorts.clone())
             }
             Item::Record(r) => {
-                let at = self.records.iter().position(|x| std::ptr::eq(x, r));
+                let at = self.records.iter().position(|x| ptr::eq(x, r));
                 let Some(sorts) =
                     at.and_then(|i| self.library_read.record_sorts.get(&i))
                 else {
@@ -557,7 +560,7 @@ impl<'a> Elaborator<'a> {
                 )),
             };
         }
-        if node.notation() == crate::notations::NUMERAL {
+        if node.notation() == NUMERAL {
             // set.mm writes a numeral of several digits as decimals,
             // `; A B` with A the digits before the last: 10 is `; 1 0`.
             let mut digits: Vec<&'static str> = Vec::new();
@@ -668,13 +671,10 @@ impl<'a> Elaborator<'a> {
                     ),
                 ));
             };
-            let alone = fancy_regex::Regex::new(&format!(
-                r"(?<!\S){}(?!\S)",
-                regex::escape(&token)
-            ))
-            .expect("a token as a pattern");
+            let alone = Regex::new(&format!(r"(?<!\S){}(?!\S)", escape(&token)))
+                .expect("a token as a pattern");
             found = alone
-                .replace_all(&found, fancy_regex::NoExpand(&stands.to_string()))
+                .replace_all(&found, NoExpand(&stands.to_string()))
                 .into_owned();
         }
         Ok(found)
@@ -688,7 +688,7 @@ impl<'a> Elaborator<'a> {
         let name = self.thm.names.full(cited);
         match self.items.get(&name) {
             Some(item) => Ok(*item),
-            None => Err(self.unreached(self.at, crate::checker::unresolved(cited))),
+            None => Err(self.unreached(self.at, checker::unresolved(cited))),
         }
     }
 
@@ -786,7 +786,7 @@ impl<'a> Elaborator<'a> {
                     self.names
                         .insert(introduced.text.to_string(), t!(spare.remove(0)));
                 }
-                if node.notation() == crate::notations::MEMBERSHIP {
+                if node.notation() == MEMBERSHIP {
                     let set = self.term(&node.children[1])?;
                     self.sets.insert(introduced.text.to_string(), set);
                 }
@@ -911,7 +911,7 @@ impl<'a> Elaborator<'a> {
 
     /// Each definition the theorem sees from outside it: those its file
     /// writes above it and those it imports.
-    pub fn visible_outside(&self) -> Vec<&'a crate::corpus::proof::Visible> {
+    pub fn visible_outside(&self) -> Vec<&'a Visible> {
         visible(self.scopes, self.thm.scope, self.thm.line)
     }
 
@@ -1181,7 +1181,7 @@ impl<'a> Elaborator<'a> {
     /// meaning.
     pub fn apart(&mut self, rpn: &Rpn) -> Checked<Rpn> {
         let whole = self.to_term(rpn);
-        let mut binding = crate::elab::state::Binding::new();
+        let mut binding = state::Binding::new();
         let holds = self.names_held();
         for said in whole.names().iter() {
             let Some(label) = self.b.flabel.get(said) else {
@@ -1263,7 +1263,7 @@ impl<'a> Elaborator<'a> {
                 .b
                 .sigs
                 .get(t.as_str())
-                .is_some_and(|s| s.kind == crate::mm::Kind::Float)
+                .is_some_and(|s| s.kind == Kind::Float)
             {
                 held.insert(t.to_string());
             }

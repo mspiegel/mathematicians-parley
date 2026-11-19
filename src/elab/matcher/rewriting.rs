@@ -1,6 +1,9 @@
 //! Universals, instances and rewriting by facts.
 
+use std::iter;
+
 use super::*;
+use crate::elab;
 
 impl<'a> Elaborator<'a> {
     /// ( scope -> F : A ⟶ C ), F the map ( x ∈ A ↦ B ) or the name a define
@@ -63,7 +66,7 @@ impl<'a> Elaborator<'a> {
         // rests on it without naming that line, as on a letter's membership.
         Ok(Some(Proof {
             items: made.items,
-            origin: std::iter::once(format!("{MEMBERSHIP}{label}")).collect(),
+            origin: iter::once(format!("{MEMBERSHIP}{label}")).collect(),
         }))
     }
 
@@ -1108,21 +1111,21 @@ impl<'a> Elaborator<'a> {
             );
             return Built((spelt_now, carried));
         }
-        let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
+        let mut all: Vec<crate::mm::spell::Part> = vec![elab::part(scope)];
         for &slot in &slots {
-            all.push(crate::elab::part(&was[slot]));
-            all.push(crate::elab::part(&now[slot]));
+            all.push(elab::part(&was[slot]));
+            all.push(elab::part(&now[slot]));
         }
         for (j, o) in was.iter().enumerate() {
             if !slots.contains(&j) {
-                all.push(crate::elab::part(o));
+                all.push(elab::part(o));
             }
         }
         if wrap.is_some() {
-            all.push(crate::elab::part(label));
+            all.push(elab::part(label));
         }
-        all.extend(deeper.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(lemma));
+        all.extend(deeper.iter().map(|p| elab::part(p)));
+        all.push(elab::part(lemma));
         Built((spelt_now, self.b.proof(&all)))
     }
 

@@ -1,6 +1,9 @@
 //! Closing blocks, cases and inductions.
 
+use std::mem;
+
 use super::*;
+use crate::elab;
 
 impl<'a> Elaborator<'a> {
     /// What a block gives back, by the lemma its kind closes with.
@@ -558,7 +561,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<(Rpn, Proof)> {
         let step = &block.owner;
         // Read with the variables the block had, not the ones given back.
-        let kept = std::mem::replace(&mut self.bound_as, block.inner.clone());
+        let kept = mem::replace(&mut self.bound_as, block.inner.clone());
         let claim = self.block_claim(step);
         self.bound_as = kept;
         let claim = claim?;
@@ -743,10 +746,8 @@ impl<'a> Elaborator<'a> {
     pub(super) fn close_cases(&mut self, block: &Block) -> Checked<(Rpn, Proof)> {
         let step = &block.owner;
         let scope = &block.outer;
-        let parts: std::collections::BTreeSet<usize> =
-            block.parts.keys().copied().collect();
-        let assumed_parts: std::collections::BTreeSet<usize> =
-            block.assumed.keys().copied().collect();
+        let parts: BTreeSet<usize> = block.parts.keys().copied().collect();
+        let assumed_parts: BTreeSet<usize> = block.assumed.keys().copied().collect();
         if parts != assumed_parts {
             return Err(self.unreached(step.line, "a case of the block proves nothing"));
         }
@@ -905,7 +906,7 @@ impl<'a> Elaborator<'a> {
         };
         let written = step.claim.clone();
         // The statement after "for all k ∈ X,", with k the general name.
-        let pattern = self.names_kept(|me| -> Checked<crate::formula::Node> {
+        let pattern = self.names_kept(|me| -> Checked<Node> {
             me.names.insert(name.clone(), general.clone());
             let node = me.claim_node(&written)?;
             me.freeze(&node.children[2])
@@ -1053,11 +1054,11 @@ impl<'a> Elaborator<'a> {
                     t!(variable),
                     named,
                 ];
-                all.extend(pieces.iter().map(|p| crate::elab::part(p)));
-                all.extend(ties.iter().map(|p| crate::elab::part(p)));
-                all.push(crate::elab::part(&base));
-                all.push(crate::elab::part(&stepped));
-                all.push(crate::elab::part(lemma));
+                all.extend(pieces.iter().map(|p| elab::part(p)));
+                all.extend(ties.iter().map(|p| elab::part(p)));
+                all.push(elab::part(&base));
+                all.push(elab::part(&stepped));
+                all.push(elab::part(lemma));
                 self.b.proof(&all)
             }
         };

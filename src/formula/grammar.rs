@@ -1,7 +1,9 @@
 //! Reading one sentence against the declared notations.
 
 use std::cell::{OnceCell, RefCell};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use std::mem;
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -20,8 +22,10 @@ use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, signature, NotationSorts};
 use crate::sorts::powers::ROOT_SIGN;
-use crate::sorts::NUMBER_SYSTEMS;
+use crate::sorts::{powers, NUMBER_SYSTEMS};
 use crate::text::repr;
+use crate::{matching, targets, text};
+use indexmap::map::Iter;
 use sha2::{Digest, Sha256};
 
 /// The sort of each name a text states one for, and the set each letter its
@@ -74,14 +78,14 @@ impl Sorts {
     }
 }
 
-impl std::ops::Deref for Sorts {
+impl Deref for Sorts {
     type Target = IndexMap<String, Sort, FxBuildHasher>;
     fn deref(&self) -> &IndexMap<String, Sort, FxBuildHasher> {
         &self.names
     }
 }
 
-impl std::ops::DerefMut for Sorts {
+impl DerefMut for Sorts {
     fn deref_mut(&mut self) -> &mut IndexMap<String, Sort, FxBuildHasher> {
         &mut self.names
     }
@@ -102,7 +106,7 @@ impl FromIterator<(String, Sort)> for Sorts {
 
 impl<'a> IntoIterator for &'a Sorts {
     type Item = (&'a String, &'a Sort);
-    type IntoIter = indexmap::map::Iter<'a, String, Sort>;
+    type IntoIter = Iter<'a, String, Sort>;
     fn into_iter(self) -> Self::IntoIter {
         self.names.iter()
     }
@@ -228,9 +232,10 @@ impl Grammar {
     /// value put into a tree apart from the tree's own letters
     /// (`matching::substitute_apart_by`).
     pub fn binders(&self) -> Arc<IndexMap<NotationId, Binds, FxBuildHasher>> {
-        Arc::clone(self.binders.get_or_init(|| {
-            Arc::new(crate::matching::binding_context(&self.notations).0)
-        }))
+        Arc::clone(
+            self.binders
+                .get_or_init(|| Arc::new(matching::binding_context(&self.notations).0)),
+        )
     }
 
     /// What the notations say about sorts, read the first time a reading
@@ -278,7 +283,7 @@ fn members(
         let Some(said) = r.field("member") else {
             continue;
         };
-        let says = crate::targets::split_entries(said);
+        let says = targets::split_entries(said);
         let patterns: Vec<&Notation> =
             notations.iter().filter(|n| n.name == r.name).collect();
         let line = r.lines.get("member").copied().unwrap_or(r.line);
@@ -297,7 +302,7 @@ fn members(
         // An entry may give several wordings for one set: `a natural number /
         // a positive integer`.
         for (entry, pattern) in says.into_iter().zip(patterns) {
-            for words in entry.split('/').map(crate::text::squash) {
+            for words in entry.split('/').map(text::squash) {
                 if out.insert(words.clone(), pattern.literal.clone()).is_some() {
                     return Err(Problem::new(
                         &r.path,
@@ -596,7 +601,7 @@ fn read(
             ),
         )));
     }
-    Ok(crate::sorts::powers::settled(&node, g, &local, path, line)?)
+    Ok(powers::settled(&node, g, &local, path, line)?)
 }
 
 /// The literals that follow an extending pattern's first hole: `is between`
@@ -1777,7 +1782,7 @@ impl<'a> Parser<'a> {
             winners = degree_read(winners);
         }
         if winners.len() > 1 {
-            let readings: std::collections::BTreeSet<String> = winners
+            let readings: BTreeSet<String> = winners
                 .iter()
                 .map(|w| w.0.notation_name().to_string())
                 .collect();
@@ -2243,7 +2248,7 @@ impl<'a> Parser<'a> {
                 let Some(read) = wanted_reading(self.g, &kids[i], want) else {
                     continue;
                 };
-                let was = std::mem::replace(&mut kids[i], read);
+                let was = mem::replace(&mut kids[i], read);
                 if admits(kids) {
                     return;
                 }

@@ -25,6 +25,7 @@ use num_rational::BigRational;
 use num_traits::{One, Signed};
 
 use parley::formula::grammar::Grammar;
+use parley::formula::node::Node;
 
 use crate::algebra::{at, constant, small, sum, times, written_out, Poly, LETTERS};
 use crate::gen::{made, term, Drawn};
@@ -54,7 +55,7 @@ fn header() -> Vec<String> {
     LETTERS.iter().map(|x| format!("let {x} ∈ ℝ")).collect()
 }
 
-fn side(g: &Grammar, p: &Poly) -> parley::formula::node::Node {
+fn side(g: &Grammar, p: &Poly) -> Node {
     term(g, &written_out(p))
 }
 

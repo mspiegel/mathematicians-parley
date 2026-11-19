@@ -8,6 +8,9 @@
 //! (`$d`) holds nothing apart in another. A label is global all the same,
 //! and a proof file that cites any of them includes this one file.
 
+use std::collections::BTreeSet;
+use std::iter;
+
 use crate::mm::compress::{compressed, shapes_of};
 use crate::mm::{Builder, Signatures};
 use crate::outcome::{Checked, Problem};
@@ -97,14 +100,14 @@ fn written(lemma: &Lemma, b: &Builder) -> String {
     out.push_str(&format!("  {} $p {} $=\n", lemma.label, lemma.statement));
     // What a lemma takes is the variables of its statement and hypotheses,
     // then the hypotheses.
-    let words: Vec<&str> = std::iter::once(lemma.statement.as_str())
+    let words: Vec<&str> = iter::once(lemma.statement.as_str())
         .chain(hyps.iter().map(|(_, s)| s.as_str()))
         .flat_map(|s| s.split_whitespace())
         .collect();
     let mut floats: Vec<String> = words
         .iter()
         .filter_map(|t| b.flabel.get(t).map(String::from))
-        .collect::<std::collections::BTreeSet<_>>()
+        .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
     floats.sort_by_key(|one| b.float_order(one).unwrap_or(usize::MAX));

@@ -7,8 +7,8 @@
 //! it applies its edit to an overlay and runs the tool over that.
 
 use std::cmp::Ordering;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, MAIN_SEPARATOR};
+use std::{fs, io};
 
 use indexmap::IndexMap;
 
@@ -76,7 +76,7 @@ impl Disk {
 }
 
 fn walk(root: &Path, dir: &Path, out: &mut Vec<String>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
+    let Ok(entries) = fs::read_dir(dir) else {
         return;
     };
     for entry in entries.flatten() {
@@ -98,7 +98,7 @@ fn walk(root: &Path, dir: &Path, out: &mut Vec<String>) {
             walk(root, &path, out);
         } else if let Ok(rel) = path.strip_prefix(root) {
             if let Some(rel) = rel.to_str() {
-                out.push(rel.replace(std::path::MAIN_SEPARATOR, "/"));
+                out.push(rel.replace(MAIN_SEPARATOR, "/"));
             }
         }
     }
@@ -106,7 +106,7 @@ fn walk(root: &Path, dir: &Path, out: &mut Vec<String>) {
 
 impl Source for Disk {
     fn read(&self, rel: &str) -> io::Result<Vec<u8>> {
-        std::fs::read(self.root.join(rel))
+        fs::read(self.root.join(rel))
     }
 
     fn files(&self) -> Vec<String> {

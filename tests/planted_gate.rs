@@ -15,18 +15,19 @@
 //! looked at.
 
 use std::path::{Path, PathBuf};
+use std::{env, fs, process};
 
 use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
+use parley::tools::build::Libraries;
+use parley::tools::gate::{as_built, as_built_edited, verifies};
+use parley::tools::{assumed, labels, lean_gate, restated, tested};
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary (`threads-required` in `.config/nextest.toml`).
 const SLOTS: usize = 8;
-use parley::tools::build::Libraries;
-use parley::tools::gate::{as_built, as_built_edited, verifies};
-use parley::tools::{assumed, labels, lean_gate, restated, tested};
 
 /// set.mm, where it is and as it reads, read once for every stage and case.
 struct SetMm {
@@ -406,11 +407,10 @@ fn the_gate_catches_every_planted_defect() {
 /// skipped would call green what it had not looked at.
 #[test]
 fn the_lean_stage_is_red_without_mathlib() {
-    let root =
-        std::env::temp_dir().join(format!("parley-no-mathlib-{}", std::process::id()));
-    std::fs::create_dir_all(root.join("lean")).unwrap();
+    let root = env::temp_dir().join(format!("parley-no-mathlib-{}", process::id()));
+    fs::create_dir_all(root.join("lean")).unwrap();
     let said = lean_gate::accepted(&root);
-    let _ = std::fs::remove_dir_all(&root);
+    let _ = fs::remove_dir_all(&root);
     assert!(!said.green(), "the Lean stage is green with no Mathlib");
     assert!(
         said.complained.contains("Mathlib has not been downloaded")

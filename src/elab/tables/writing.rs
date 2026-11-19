@@ -1,6 +1,7 @@
 //! Writing, congruences and values within a domain.
 
 use super::*;
+use crate::outcome::Decline;
 
 impl<'a> Elaborator<'a> {
     /// Run `f` with what the step's requires lines made offered to the
@@ -614,7 +615,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
         leaf: &Leaf,
-        why: crate::outcome::Decline,
+        why: Decline,
     ) -> Checked<Route<Proof>> {
         let kids = given.children().to_vec();
         let (body, variable, over) = (&kids[0], &kids[1], &kids[2]);

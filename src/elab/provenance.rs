@@ -11,19 +11,19 @@
 //! proof stand for one item from then on.
 
 use std::collections::BTreeSet;
+use std::{iter, mem};
 
 use super::state::{number_of, Elaborator};
 use super::Facts;
 use crate::corpus::proof::{Justification, Requires};
-use crate::corpus::{Head, Item, Method, Step};
+use crate::corpus::{proof, Head, Item, Method, Step};
 use crate::formula::Node;
 use crate::mm::kernel::{same, Term};
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
-use crate::targets;
-use crate::{pf, t, take};
+use crate::{pf, sorts, t, take, targets};
 
 pub const REQUIRES: &str = "requires@";
 
@@ -136,7 +136,7 @@ impl<'a> Elaborator<'a> {
         out.extend(self.read_with(&step.just));
         // A chain line's or a row's own reason is read as the step's is,
         // with the defines what it cites is stated over.
-        for reason in crate::corpus::proof::chain_reasons(&step.just, &self.thm.path) {
+        for reason in proof::chain_reasons(&step.just, &self.thm.path) {
             if let Ok(by) = &reason.by {
                 out.extend(self.read_with(by));
             }
@@ -250,7 +250,7 @@ impl<'a> Elaborator<'a> {
         // (`sorts::stated_over`).
         if let Some(cited) = just.cited_item() {
             let full = self.thm.names.full(&cited);
-            out.extend(crate::sorts::stated_over(self.thm, self.scopes, &full));
+            out.extend(sorts::stated_over(self.thm, self.scopes, &full));
             // A theorem stated over a sequence by recursion is read with this
             // proof's define of it, which the reason rests on the same way.
             if let Some(Item::Theorem(other)) = self.items.get(&full) {
@@ -355,7 +355,7 @@ impl<'a> Elaborator<'a> {
     pub fn seal(&mut self, proof: Proof, item: &str) -> Proof {
         Proof {
             items: proof.items,
-            origin: std::iter::once(item.to_string()).collect(),
+            origin: iter::once(item.to_string()).collect(),
         }
     }
 
@@ -409,7 +409,7 @@ impl<'a> Elaborator<'a> {
         if self.whole_scope {
             return f(self);
         }
-        let kept = std::mem::replace(&mut self.resting, allowed);
+        let kept = mem::replace(&mut self.resting, allowed);
         let out = f(self);
         self.resting = kept;
         out

@@ -1,6 +1,9 @@
 //! Closing a claim by identities, order and pairs.
 
+use std::mem;
+
 use super::*;
+use crate::targets;
 
 impl<'a> Elaborator<'a> {
     /// Two terms that are one but for the order of a pair in no order, |AB|
@@ -365,7 +368,7 @@ impl<'a> Elaborator<'a> {
         let (given_read, want_read) = (self.read_out(given), self.read_out(want));
         let mut letters = self.letters_bound(&given_read);
         letters.extend(self.letters_bound(&want_read));
-        let kept = std::mem::replace(&mut self.binding, letters);
+        let kept = mem::replace(&mut self.binding, letters);
         let out = self.congruence(given, want, scope, facts, step, &Leaf::Rows(rows));
         self.binding = kept;
         out
@@ -656,7 +659,7 @@ impl<'a> Elaborator<'a> {
     /// is the one `same` carries the term to.
     pub(crate) fn pairs_in_order(&mut self, term: &Term) -> Term {
         let letters = self.letters_bound(term);
-        let kept = std::mem::replace(&mut self.binding, letters);
+        let kept = mem::replace(&mut self.binding, letters);
         let out = self.pairs_put_in_order(term);
         self.binding = kept;
         out
@@ -692,7 +695,7 @@ impl<'a> Elaborator<'a> {
                 .iter()
                 .map(|l| Rpn::from(vec![Symbol::of(&format!("c{l}"))]))
                 .collect();
-            let pattern = self.to_term(&crate::targets::fill(&p.target, &holes));
+            let pattern = self.to_term(&targets::fill(&p.target, &holes));
             let Some(bound) = fit(&pattern, term, &Binding::new(), &names_of(&pattern))
             else {
                 continue;

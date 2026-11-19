@@ -7,6 +7,7 @@
 use crate::citing::bounds::{self, BoundsAsk, SaidBounds};
 use crate::citing::{index_system, Introduced};
 use crate::formula::Node;
+use crate::matching;
 use crate::matching::Context;
 use crate::notations::{APPLICATION, INTEGER_RANGE, PRODUCT, SUM};
 use crate::rules::System;
@@ -25,9 +26,9 @@ impl BoundsAsk for ScopeAsk<'_> {
     }
 
     fn same(&self, a: &Node, b: &Node) -> bool {
-        crate::matching::alike_top(
-            &crate::matching::standard(a, self.ctx),
-            &crate::matching::standard(b, self.ctx),
+        matching::alike_top(
+            &matching::standard(a, self.ctx),
+            &matching::standard(b, self.ctx),
             self.ctx,
         )
     }

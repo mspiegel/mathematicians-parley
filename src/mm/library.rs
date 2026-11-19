@@ -11,7 +11,10 @@
 //! of checking a proof; this is the part of it the elaborator needs.
 
 use std::collections::BTreeSet;
+use std::ops::Index;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::{env, fs, io, iter};
 
 use indexmap::IndexMap;
 
@@ -115,12 +118,12 @@ impl Lookup for Signatures {
 /// what was added, which is the order one table holding both would give.
 #[derive(Clone, Debug)]
 pub struct Layered {
-    base: std::sync::Arc<Signatures>,
+    base: Arc<Signatures>,
     added: Signatures,
 }
 
 impl Layered {
-    pub fn new(base: std::sync::Arc<Signatures>) -> Layered {
+    pub fn new(base: Arc<Signatures>) -> Layered {
         Layered {
             base,
             added: Signatures::default(),
@@ -197,11 +200,11 @@ impl Lookup for Layered {
 
 impl From<Signatures> for Layered {
     fn from(sigs: Signatures) -> Layered {
-        Layered::new(std::sync::Arc::new(sigs))
+        Layered::new(Arc::new(sigs))
     }
 }
 
-impl<Q: AsRef<str> + ?Sized> std::ops::Index<&Q> for Layered {
+impl<Q: AsRef<str> + ?Sized> Index<&Q> for Layered {
     type Output = Signature;
 
     fn index(&self, label: &Q) -> &Signature {
@@ -214,7 +217,7 @@ impl<Q: AsRef<str> + ?Sized> std::ops::Index<&Q> for Layered {
 pub fn where_set_mm(said: Option<&str>, root: &Path) -> Option<PathBuf> {
     let candidates = [
         said.map(PathBuf::from),
-        std::env::var_os("SET_MM").map(PathBuf::from),
+        env::var_os("SET_MM").map(PathBuf::from),
         Some(root.join("set.mm")),
     ];
     candidates.into_iter().flatten().find(|p| p.exists())
@@ -302,10 +305,10 @@ pub fn read_texts(texts: &[&str]) -> Signatures {
 }
 
 /// Every label in the files, read as one stream in the order given.
-pub fn read(paths: &[&Path]) -> std::io::Result<Signatures> {
+pub fn read(paths: &[&Path]) -> io::Result<Signatures> {
     let texts: Vec<String> = paths
         .iter()
-        .map(std::fs::read_to_string)
+        .map(fs::read_to_string)
         .collect::<Result<_, _>>()?;
     let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
     Ok(read_texts(&refs))
@@ -373,7 +376,7 @@ fn assertion(
         stack.iter().flat_map(|s| s.essentials.clone()).collect();
     let mut wanted: FxIndexSet<Symbol> = essentials
         .iter()
-        .chain(std::iter::once(&body))
+        .chain(iter::once(&body))
         .flat_map(|h| h.iter().copied())
         .filter(active)
         .collect();
@@ -443,6 +446,8 @@ pub fn thousands(n: usize) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
 
     #[test]
@@ -471,8 +476,8 @@ mod tests {
     fn a_layer_reads_and_walks_as_one_table_would() {
         let base =
             read_texts(&["$c wff |- $. $v ph $. wph $f wff ph $. ax $a |- ph $."]);
-        let shared = std::sync::Arc::new(base);
-        let mut one = Layered::new(std::sync::Arc::clone(&shared));
+        let shared = Arc::new(base);
+        let mut one = Layered::new(Arc::clone(&shared));
         one.insert(Symbol::of("itm1"), axiom("itm1"));
         assert!(one.contains_key("ax") && one.contains_key("itm1"));
         assert_eq!(one.len(), 3);

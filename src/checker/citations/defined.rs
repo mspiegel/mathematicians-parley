@@ -1,7 +1,13 @@
 //! Defined functions and the domains asked of them.
 
+use std::slice;
+
 use super::*;
-use crate::checker::record::{AppliedDomain, DomainSaid};
+use crate::checker::record::{AppliedDomain, DomainSaid, Substituted};
+use crate::corpus::{proof, DefineLine};
+use crate::methods::membership;
+use crate::notations::TENDS_TO;
+use crate::{citing, matching, sorts, Checked};
 
 /// A defined function by name, with the domain of each argument in order.
 #[derive(Clone)]
@@ -30,7 +36,7 @@ pub fn check_defined_types(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let defines = crate::corpus::proof::in_scope(thm, scopes);
+    let defines = proof::in_scope(thm, scopes);
     let mut defined: IndexMap<String, Option<DefinedRule>> =
         defined_functions(&defines)
             .into_iter()
@@ -105,23 +111,15 @@ impl DefinedRule {
     /// The define's function of one argument, read with its argument's
     /// sort; None for a define of anything else. A part that does not read
     /// is a defect.
-    pub(super) fn of(
-        d: &crate::corpus::DefineLine,
-        known: &Known,
-    ) -> crate::Checked<Option<DefinedRule>> {
+    pub(super) fn of(d: &DefineLine, known: &Known) -> Checked<Option<DefinedRule>> {
         let Built(DefineParts::One(one)) = define_parts(&d.text) else {
             return Ok(None);
         };
         let [param] = one.params.as_slice() else {
             return Ok(None);
         };
-        let local = crate::sorts::define_sorts(
-            &one,
-            &known.sorts,
-            known.env.g,
-            &d.path,
-            d.line,
-        )?;
+        let local =
+            sorts::define_sorts(&one, &known.sorts, known.env.g, &d.path, d.line)?;
         let rule = d.rule(&one.body).formula()?.read(known.env.g, &local)?;
         let domain = known.parse(&d.domain(param).formula()?)?;
         Ok(Some(DefinedRule {
@@ -165,11 +163,11 @@ impl DefinedRule {
         };
         let mut letters = letters.clone();
         letters.insert(self.letter.clone(), inside);
-        crate::citing::within(
+        citing::within(
             &self.rule,
             into,
             &letters,
-            &|d| crate::citing::nonzero_said_once(d, &letters),
+            &|d| citing::nonzero_said_once(d, &letters),
             &|_, _| false,
         )
     }
@@ -195,8 +193,8 @@ pub fn define_domains(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-    substituted: &IndexMap<usize, crate::checker::record::Substituted>,
-) -> IndexMap<usize, crate::checker::record::DomainSaid> {
+    substituted: &IndexMap<usize, Substituted>,
+) -> IndexMap<usize, DomainSaid> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let Some(claim) = known.whole_as_written(&step.claim) else {
@@ -267,8 +265,8 @@ pub fn applied_domains(
     library: &Library,
     known: &Known,
     scopes: &[FileScope],
-) -> IndexMap<usize, Vec<crate::checker::record::AppliedDomain>> {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+) -> IndexMap<usize, Vec<AppliedDomain>> {
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let asks = match &step.just.head {
@@ -298,7 +296,7 @@ pub fn applied_domains(
         // An argument that is the index of a sum or a sequence's limit in
         // `formula` whose range lies inside the domain.
         let index_said = |formula: &Node, arg: &Node, domain: &Node| {
-            let formulas = std::slice::from_ref(formula);
+            let formulas = slice::from_ref(formula);
             let within = index_range_within(
                 formulas,
                 arg,
@@ -398,7 +396,7 @@ pub(super) fn introduced_placed(
     step: &Step,
     fact: &Node,
     known: &Known,
-) -> Option<crate::checker::record::FirstAt> {
+) -> Option<FirstAt> {
     let scope = known.scope(step);
     let defined = known.citing_step(step);
     let lets = thm
@@ -497,7 +495,7 @@ pub(super) fn values_said(typed: &Node, facts: &[Node], library: &Library) -> bo
     let none = IndexMap::new();
     facts
         .iter()
-        .any(|fact| crate::matching::alike(fact, &every, &library.ctx, &none, &none))
+        .any(|fact| matching::alike(fact, &every, &library.ctx, &none, &none))
 }
 
 /// The functions the defines a theorem may use name (`corpus::in_scope`),
@@ -558,7 +556,7 @@ pub(super) fn function_on_unshown(
         return None;
     };
     let named = req.lines();
-    let defines = crate::corpus::proof::in_scope(thm, scopes);
+    let defines = proof::in_scope(thm, scopes);
     let given = defined_functions(&defines).into_iter().find_map(|f| {
         let label = f.label.clone()?;
         (f.name == function.text && named.contains(&label)).then_some((f, label))
@@ -610,7 +608,7 @@ pub(super) fn evaluated(
     known: &Known,
     library: &Library,
 ) -> Vec<Applied> {
-    let direct = step.just.head == crate::corpus::Head::Define
+    let direct = step.just.head == Head::Define
         && used
             .iter()
             .any(|f| f.label.is_some() && step.just.defined == f.label);
@@ -776,7 +774,7 @@ pub(super) fn applied(
 /// → K as n → ∞.
 pub(super) fn limit_index(formulas: &[Node], arg: &Node) -> bool {
     formulas.iter().flat_map(|f| f.walk()).any(|n| {
-        n.notation() == crate::notations::TENDS_TO
+        n.notation() == TENDS_TO
             && matches!(n.children.as_slice(), [_, _, k] if k.is_name() && k.text == arg.text)
     })
 }
@@ -844,7 +842,7 @@ fn indices_outside(
         .filter_map(|(asked, formula)| {
             let domain = asked.says.first()?.children.get(1)?.clone();
             let within = index_range_within(
-                std::slice::from_ref(&formula),
+                slice::from_ref(&formula),
                 &asked.arg,
                 &domain,
                 &letters,
@@ -876,7 +874,7 @@ pub(super) fn index_range_within(
     // A sequence's index, n of S(n) → K as n → ∞, runs over ℕ (the
     // notation's own reading).
     if limit_index(formulas, arg) {
-        let inside = crate::citing::set_system(domain, letters)?;
+        let inside = citing::set_system(domain, letters)?;
         return Some(System::N.within(inside));
     }
     let sum = formulas.iter().flat_map(|f| f.walk()).find(|n| {
@@ -893,8 +891,8 @@ pub(super) fn index_range_within(
         &[("a", from), ("b", to)],
     )
     .ok()?;
-    let runs = crate::citing::range_system(&range)?;
-    let inside = crate::citing::set_system(domain, letters)?;
+    let runs = citing::range_system(&range)?;
+    let inside = citing::set_system(domain, letters)?;
     Some(runs.within(inside))
 }
 
@@ -929,7 +927,7 @@ pub fn check_define_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -1054,17 +1052,14 @@ pub(super) fn read_over_cited_theorem(
     let Some(item) = step.just.cited_item() else {
         return Vec::new();
     };
-    let over = crate::sorts::stated_over(thm, scopes, &step.just.item(&item));
+    let over = sorts::stated_over(thm, scopes, &step.just.item(&item));
     if over.is_empty() {
         return Vec::new();
     }
-    let functions: Vec<Defined> =
-        defined_functions(&crate::corpus::proof::in_scope(thm, scopes))
-            .into_iter()
-            .filter(|f| {
-                !f.recursive && f.label.as_ref().is_some_and(|l| over.contains(l))
-            })
-            .collect();
+    let functions: Vec<Defined> = defined_functions(&proof::in_scope(thm, scopes))
+        .into_iter()
+        .filter(|f| !f.recursive && f.label.as_ref().is_some_and(|l| over.contains(l)))
+        .collect();
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new(); // `check_formulas` says it does not read
     };
@@ -1088,7 +1083,7 @@ pub fn check_stated_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -1141,7 +1136,7 @@ pub fn check_cited_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -1149,7 +1144,7 @@ pub fn check_cited_domains(
         let Some(item) = step.just.cited_item() else {
             continue;
         };
-        let over = crate::sorts::stated_over(thm, scopes, &step.just.item(&item));
+        let over = sorts::stated_over(thm, scopes, &step.just.item(&item));
         let used: Vec<Defined> = functions
             .iter()
             .filter(|f| {
@@ -1165,7 +1160,7 @@ pub fn check_cited_domains(
         };
         // The statement as its page writes it, the define by name: what the
         // build reads written out.
-        let Some(crate::corpus::Item::Theorem(of)) = library.item(&read.item) else {
+        let Some(Item::Theorem(of)) = library.item(&read.item) else {
             continue;
         };
         let written: Vec<Written> = of
@@ -1256,7 +1251,7 @@ pub(super) fn built_from(
         targets: &library.targets,
         ctx: known.ctx,
     };
-    crate::methods::membership::holds(term, system, &given)
+    membership::holds(term, system, &given)
 }
 
 /// The last step's claim speaks of a define's name where the statement
@@ -1276,7 +1271,7 @@ pub fn check_conclusion_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
+    let functions = defined_functions(&proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }

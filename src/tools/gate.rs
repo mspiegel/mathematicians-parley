@@ -50,6 +50,7 @@ use super::build::metamath::{
     artifacts, made_in_waves, reached_by, verified, Artifact, Libraries, MadeAs, Shared,
 };
 use super::{assumed, labels, restated, tested, verify};
+use crate::{checker, threads};
 
 /// Where a label missing from a rule table is said to be written.
 const TABLES_AT: &str = "src/rules.rs";
@@ -87,7 +88,7 @@ fn built_as(
         said.status = 2;
         return said;
     };
-    let checked = match crate::checker::checked(source) {
+    let checked = match checker::checked(source) {
         Ok(checked) => checked,
         Err(out) => return out,
     };
@@ -175,7 +176,7 @@ pub fn run(root: &Path) -> Said {
 
     type Stage<'s> = Box<dyn Fn() -> Said + Send + Sync + 's>;
     let stages: Vec<(&str, Stage)> = vec![
-        ("checker", Box::new(|| crate::checker::run(&source))),
+        ("checker", Box::new(|| checker::run(&source))),
         (
             "every artifact is what a fresh build makes",
             Box::new(|| as_built(&source, libraries)),
@@ -212,8 +213,7 @@ pub fn run(root: &Path) -> Said {
 
     // No stage reads what another writes, so they run side by side, on as
     // many threads as `threads()` gives, and are printed in the order above.
-    let results: Vec<Said> =
-        crate::threads::in_order(&stages, || (), |_, (_, stage)| stage());
+    let results: Vec<Said> = threads::in_order(&stages, || (), |_, (_, stage)| stage());
     let mut out = Said::default();
     let mut failed = Vec::new();
     for ((what, _), said) in stages.iter().zip(results) {

@@ -4,6 +4,7 @@
 //! patterns, at the place the code gives it. The first four are built by
 //! the tools themselves and no record declares them.
 
+use std::fs;
 use std::path::Path;
 
 use parley::corpus::parse_database;
@@ -18,7 +19,7 @@ const BUILT_IN: usize = 4;
 #[test]
 fn every_notation_the_code_names_is_one_a_record_declares() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("corpus/db/notation.records");
-    let text = std::fs::read_to_string(&path).expect("the notation records read");
+    let text = fs::read_to_string(&path).expect("the notation records read");
     let records =
         parse_database("corpus/db/notation.records", &text).expect("the records parse");
     let g = Grammar::load(&records).expect("the grammar loads");

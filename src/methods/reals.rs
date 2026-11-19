@@ -24,6 +24,8 @@ use super::field::{self, q, ADD, DIV, EXP, MUL, NEG, Q, SUB};
 use super::surds::{self, Bracket, Piece, Surd, Verdict};
 use crate::mm::kernel::Term;
 use crate::outcome::{Built, Declined, Route};
+use num_traits::pow;
+pub use surds::applies;
 
 /// Why a logarithm is refused: set.mm's log is taken in ℂ.
 pub const LN_NOT_POSITIVE: &str =
@@ -253,8 +255,6 @@ pub enum Value {
     Exact(Real),
     Unworked(&'static str),
 }
-
-pub use surds::applies;
 
 /// Whether a term holds π, e, a logarithm or an exponential anywhere.
 pub fn holds_atom(term: &Term) -> bool {
@@ -539,11 +539,8 @@ fn exponential(x: &Real) -> Result<Real, &'static str> {
         if n.unsigned_abs() > 64 {
             return Err(surds::TOO_LARGE);
         }
-        ratio *= num_traits::pow(
-            Q::from_integer(BigInt::from(p)),
-            n.unsigned_abs() as usize,
-        )
-        .pow(n.signum());
+        ratio *= pow(Q::from_integer(BigInt::from(p)), n.unsigned_abs() as usize)
+            .pow(n.signum());
     }
     let mut out = Real::default();
     let monomial = if k == 0 {

@@ -1,5 +1,7 @@
 //! Proof methods: lines cited and met with a claim.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use super::super::doc::forms::Meets;
 use super::super::doc::CountForm::{Extended, Natural};
 use super::super::doc::{
@@ -8,8 +10,16 @@ use super::super::doc::{
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::DomainSaid;
-use crate::citing::Implication;
+use crate::checker::record::{
+    AppliedDomain, BodyPart, ChainTerms, DomainSaid, Instantiated, ObtainedPart,
+};
+use crate::citing::{claimed_member, Implication};
+use crate::formula::node::Sort;
+use crate::formula::page;
+use crate::matching::{Binding, Meeting};
+use crate::notations::{EQUALS, FOR_ALL, INTEGER_RANGE};
+use crate::rules::RANGE_BOUNDS;
+use crate::{matching, rules};
 
 impl<'a> Proof<'a> {
     /// A claim "for all j ∈ S" proved by a header function's equation at
@@ -31,23 +41,19 @@ impl<'a> Proof<'a> {
         ) else {
             return Route::no("a claim \"for all\" with no domain or meeting recorded");
         };
-        let Some((member, _)) =
-            crate::citing::claimed_member(node, self.writer.grammar)
-        else {
+        let Some((member, _)) = claimed_member(node, self.writer.grammar) else {
             return Route::no("a claim \"for all\" over no set");
         };
         let (intros, body, writer) = self.peel(node);
-        let ([letter, h], false) = (
-            intros.as_slice(),
-            body.notation() == crate::notations::FOR_ALL,
-        ) else {
+        let ([letter, h], false) = (intros.as_slice(), body.notation() == FOR_ALL)
+        else {
             return Route::no("a claim \"for all\" of more than one letter");
         };
         // The member's own fact as the domain's: the domain's fact itself
         // where the set is the domain, the range's lower bound where it is a
         // range inside it.
         let member_fact = match member.children[1].notation() {
-            crate::notations::INTEGER_RANGE => {
+            INTEGER_RANGE => {
                 let says = match writer.formula(&member) {
                     Route::Built(s) => s,
                     Route::Declined(d) => return Route::Declined(d),
@@ -114,14 +120,12 @@ impl<'a> Proof<'a> {
         line: usize,
         proof: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        let at: Vec<&crate::checker::record::AppliedDomain> = self
+        let at: Vec<&AppliedDomain> = self
             .rec
             .applied_domains
             .get(&line)?
             .iter()
-            .filter(|a| {
-                matches!(a.said, crate::checker::record::DomainSaid::LimitIndex)
-            })
+            .filter(|a| matches!(a.said, DomainSaid::LimitIndex))
             .collect();
         let [applied] = at.as_slice() else {
             return None;
@@ -175,7 +179,7 @@ impl<'a> Proof<'a> {
         &self,
         line: usize,
         wrapped: &Node,
-        part: crate::checker::record::BodyPart,
+        part: BodyPart,
     ) -> Route<super::super::doc::Proof> {
         let Some(at) = self.rec.restated.get(&line) else {
             return Route::no("a requires line under the claim no line was found for");
@@ -215,7 +219,7 @@ impl<'a> Proof<'a> {
     /// without writing it.
     pub(super) fn domain_proof(
         &self,
-        said: &crate::checker::record::DomainSaid,
+        said: &DomainSaid,
         member: Option<Printed>,
     ) -> Route<Printed> {
         match (said, member) {
@@ -264,7 +268,7 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                let Some(node) = crate::formula::page::conjoined(
+                let Some(node) = page::conjoined(
                     self.writer.grammar,
                     parts.iter().map(|p| p.node.clone()).collect(),
                 ) else {
@@ -293,7 +297,7 @@ impl<'a> Proof<'a> {
                 .find(|s| s.at == k)
                 .map(LineSentence::cited),
             (Some(k), _) => {
-                let letters: std::collections::BTreeSet<String> =
+                let letters: BTreeSet<String> =
                     at.written.names().into_iter().collect();
                 sentences
                     .iter()
@@ -315,10 +319,8 @@ impl<'a> Proof<'a> {
         // A part of a chain is its link from that term to the next, `|MA| =
         // |MC|` of `|MA| = |MC| = |MB|`.
         if let Some(j) = at.part {
-            if crate::formula::page::chain_links(self.writer.grammar, &found.node)
-                .is_some()
-            {
-                let link = crate::checker::record::ChainTerms { from: j, to: j + 1 };
+            if page::chain_links(self.writer.grammar, &found.node).is_some() {
+                let link = ChainTerms { from: j, to: j + 1 };
                 return self.chain_pair(&found, link, &at.written);
             }
         }
@@ -351,12 +353,10 @@ impl<'a> Proof<'a> {
     pub(super) fn chain_pair(
         &self,
         chain: &super::super::algebra::Cited,
-        pair: crate::checker::record::ChainTerms,
+        pair: ChainTerms,
         written: &Node,
     ) -> Route<super::super::algebra::Cited> {
-        let Some(links) =
-            crate::formula::page::chain_links(self.writer.grammar, &chain.node)
-        else {
+        let Some(links) = page::chain_links(self.writer.grammar, &chain.node) else {
             return Route::no("a pair of a chain from a sentence that is no chain");
         };
         if pair.from >= pair.to || pair.to > links.len() {
@@ -419,7 +419,7 @@ impl<'a> Proof<'a> {
     pub(super) fn implied_proof(
         &self,
         found: &super::super::algebra::Cited,
-        rule: crate::citing::Implication,
+        rule: Implication,
         target: &Printed,
     ) -> Route<Printed> {
         match rule {
@@ -438,11 +438,11 @@ impl<'a> Proof<'a> {
                 );
                 let positive = matches!(
                     membership_of_whole(&found.node),
-                    Some((_, crate::rules::System::N))
+                    Some((_, rules::System::N))
                 );
                 match (at_most, positive && self.written_as_bound(&found.node)) {
                     (true, true) => Route::Built(nonneg_of(
-                        crate::rules::System::N,
+                        rules::System::N,
                         found.proof.clone(),
                     )),
                     _ => Route::no(format!(
@@ -456,7 +456,7 @@ impl<'a> Proof<'a> {
                     Route::Built(s) => s,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let side = crate::rules::RANGE_BOUNDS
+                let side = RANGE_BOUNDS
                     .iter()
                     .position(|(_, l)| *l == lemma);
                 match side.and_then(|k| range_bounds(&says, &found.proof).into_iter().nth(k)) {
@@ -704,15 +704,11 @@ impl<'a> Proof<'a> {
     /// A part of a cited item's sentence at the citation's values, as a
     /// tree: the values put into it, a function or property given as a value
     /// applied where the sentence applies it.
-    pub(super) fn at_values(
-        &self,
-        part: &Node,
-        binding: &crate::matching::Binding,
-    ) -> Node {
+    pub(super) fn at_values(&self, part: &Node, binding: &Binding) -> Node {
         let read =
             read_at_values(part, binding, &self.sources.checked.grammar.binders());
-        crate::matching::standard(
-            &crate::matching::substitute_apart(&read, binding, self.sources.ctx),
+        matching::standard(
+            &matching::substitute_apart(&read, binding, self.sources.ctx),
             self.sources.ctx,
         )
     }
@@ -725,7 +721,7 @@ impl<'a> Proof<'a> {
     pub(super) fn written_at_values(
         &self,
         part: &Node,
-        binding: &crate::matching::Binding,
+        binding: &Binding,
     ) -> Option<Printed> {
         let at_values = self.at_values(part, binding);
         match self.worked_in.get() {
@@ -760,7 +756,7 @@ impl<'a> Proof<'a> {
     /// otherwise too.
     fn parts_respelt(
         &self,
-        cited: Option<&crate::checker::record::Cited>,
+        cited: Option<&Cited>,
         term: &Printed,
         said: &Printed,
         written: &Printed,
@@ -805,7 +801,7 @@ impl<'a> Proof<'a> {
 
     pub(super) fn read_in_spelling(
         &self,
-        cited: Option<&crate::checker::record::Cited>,
+        cited: Option<&Cited>,
         term: &Printed,
         said: &Printed,
         written: &Printed,
@@ -862,7 +858,7 @@ impl<'a> Proof<'a> {
             && letters.iter().any(|l| {
                 matches!(
                     (l.item_system, l.value_system),
-                    (Some(crate::rules::System::C | crate::rules::System::R), Some(v))
+                    (Some(rules::System::C | rules::System::R), Some(v))
                         if Some(v) != l.item_system
                 ) && cited
                     .and_then(|c| c.binding.get(&l.letter))
@@ -1249,10 +1245,8 @@ impl<'a> Proof<'a> {
         let values = self.set_values();
         says.walk().into_iter().find_map(|candidate| {
             let witness = candidate.clone();
-            let asked = body.substituted(&std::collections::BTreeMap::from([(
-                letter.clone(),
-                witness.clone(),
-            )]));
+            let asked =
+                body.substituted(&BTreeMap::from([(letter.clone(), witness.clone())]));
             super::super::doc::forms::meets(&asked, says, &values)
                 .is_some()
                 .then_some(Witnessed { witness, asked })
@@ -1329,7 +1323,7 @@ impl<'a> Proof<'a> {
     pub(super) fn stated_part(
         &self,
         stated: &[Printed],
-        owed: &crate::checker::record::ObtainedPart,
+        owed: &ObtainedPart,
     ) -> Option<Printed> {
         let single = stated.get(owed.owed)?;
         let written = self.writer.formula(&owed.owed_written).built()?;
@@ -1551,7 +1545,7 @@ impl<'a> Proof<'a> {
                 },
                 ty: Some(LeanType::Prop),
             };
-            let values = std::collections::BTreeMap::from([(letter.clone(), number)]);
+            let values = BTreeMap::from([(letter.clone(), number)]);
             let next = super::super::doc::forms::substituted_all(body, &values);
             says = bare_term(&next).clone();
             opened = true;
@@ -1607,7 +1601,7 @@ impl<'a> Proof<'a> {
         &self,
         by: &SuppliedBy,
         wanted: &Printed,
-        meeting: Option<&crate::matching::Meeting>,
+        meeting: Option<&Meeting>,
     ) -> Route<Printed> {
         // What Lean proves as it stands, whatever line supplies it.
         if let Some(p) = lean_truth(wanted) {
@@ -1841,7 +1835,7 @@ impl<'a> Proof<'a> {
         proof: Printed,
         says: Printed,
         wanted: &Printed,
-        meeting: Option<&crate::matching::Meeting>,
+        meeting: Option<&Meeting>,
     ) -> Route<Printed> {
         if let Some(p) = self.parts_apart(&proof, &says, wanted) {
             return Route::Built(p);
@@ -2275,8 +2269,7 @@ impl<'a> Proof<'a> {
                     },
                 ) => {
                     let x = Printed::letter(letter, letter_ty.clone());
-                    let at =
-                        std::collections::BTreeMap::from([(theirs.clone(), x.clone())]);
+                    let at = BTreeMap::from([(theirs.clone(), x.clone())]);
                     intros.push(letter.clone());
                     applied = applied_to(applied, x);
                     // The same condition on the letter, or none on either.
@@ -2382,10 +2375,8 @@ impl<'a> Proof<'a> {
         };
         // The line's body in the letter Lean asks it of.
         let x = Printed::letter(letter, letter_ty.clone());
-        let their_body = their_body.substituted(&std::collections::BTreeMap::from([(
-            theirs.clone(),
-            x.clone(),
-        )]));
+        let their_body =
+            their_body.substituted(&BTreeMap::from([(theirs.clone(), x.clone())]));
         let meets =
             |a: &Printed, b: &Printed| forms::meets(a, b, &self.set_values()).is_some();
         let hx = "hx".to_string();
@@ -2425,10 +2416,7 @@ impl<'a> Proof<'a> {
                     let y = Printed::letter(next, next_ty.clone());
                     intros.extend([next.clone(), "_".to_string()]);
                     applied = applied_to(applied, y.clone());
-                    let tb = tb.substituted(&std::collections::BTreeMap::from([(
-                        their_next.clone(),
-                        y,
-                    )]));
+                    let tb = tb.substituted(&BTreeMap::from([(their_next.clone(), y)]));
                     (ours, theirs) = ((**b).clone(), tb);
                 }
                 if !meets(&theirs, &ours) {
@@ -2475,7 +2463,7 @@ impl<'a> Proof<'a> {
     /// was opened with (`intros_now`).
     pub(super) fn value_guard(
         &self,
-        recorded: &crate::checker::record::Instantiated,
+        recorded: &Instantiated,
         letter: &str,
         value: &Node,
     ) -> Option<Printed> {
@@ -2625,11 +2613,7 @@ impl<'a> Proof<'a> {
         }
         self.writer.letters.insert(name.to_string(), ty);
         let letter = Node::name(body.sort.clone(), name);
-        let equation = Node::of(
-            crate::notations::EQUALS,
-            crate::formula::node::Sort::of("formula"),
-            vec![letter, body],
-        );
+        let equation = Node::of(EQUALS, Sort::of("formula"), vec![letter, body]);
         self.named.insert(page_label.clone(), vec![label.clone()]);
         self.trees
             .insert(page_label, vec![LineSentence::only(equation, label)]);

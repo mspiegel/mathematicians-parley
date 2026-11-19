@@ -1,6 +1,9 @@
 //! Running a theorem's steps.
 
+use std::{mem, slice};
+
 use super::*;
+use crate::corpus::skeleton;
 
 impl<'a> Elaborator<'a> {
     /// The biconditional a definition's lemma gives, in scope, and the right
@@ -385,13 +388,7 @@ impl<'a> Elaborator<'a> {
         }
         for (node, term) in nodes.iter().zip(&terms) {
             if let Some(held) = self.held(&facts, term, &scope)? {
-                self.know_chains(
-                    std::slice::from_ref(node),
-                    term,
-                    &held,
-                    &scope,
-                    &facts,
-                );
+                self.know_chains(slice::from_ref(node), term, &held, &scope, &facts);
             }
         }
         let more = self.sethoods(&nodes, &terms, &scope, &facts)?;
@@ -1029,7 +1026,7 @@ impl<'a> Elaborator<'a> {
         let Some(how) = self.method_for(&at)? else {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
         };
-        let kept = std::mem::replace(&mut self.lines, lines.clone());
+        let kept = mem::replace(&mut self.lines, lines.clone());
         // The line rests on what it names and nothing else the step names
         // (R2), as a requires line does.
         let allowed = self.reason_allows(step, req);
@@ -1071,7 +1068,7 @@ impl<'a> Elaborator<'a> {
             _ => None,
         };
         // Whether a step unfolds what it cites is read from the record.
-        let cited = match crate::corpus::item_kind(&head) {
+        let cited = match skeleton::item_kind(&head) {
             Some(_) => Some(self.item_cited(&head)?),
             None => None,
         };

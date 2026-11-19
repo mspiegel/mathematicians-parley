@@ -6,18 +6,26 @@
 //! same reading serves a theorem's own statement and a citation of it, so
 //! the two agree on the order of what is asked.
 
+use std::collections::BTreeSet;
+
 use super::doc::file::Binder as Doc;
 use super::doc::LeanType;
-use super::expr::Members;
-use super::expr::{letter_type, system_of, LetterType, Printed, System, Writer};
+use super::expr::{
+    letter_type, system_of, LetterType, Members, Printed, System, Writer,
+};
+use crate::citing::things::ThingKey;
 use crate::citing::HypothesisAt;
+use crate::corpus::proof::Hypothesis;
+use crate::corpus::Intro;
 use crate::formula::Node;
 use crate::notations::{
-    EMPTY_SET, FUNCTION_TYPE, IN, IS_AN_INTEGER_POLYNOMIAL, IS_A_POLYNOMIAL,
-    LISTED_FOUR, LISTED_THREE, LISTED_TWO, MEMBERSHIP, NUMBER_SYSTEMS, ONE_TO_ONE,
-    ONE_TO_ONE_ONTO, ONTO, POLYNOMIALS, POWERSET, SINGLETON, SUBGROUP, SUBSET,
+    EMPTY_SET, FUNCTION_TYPE, IN, INTEGER_RANGE, IS_AN_INTEGER_POLYNOMIAL,
+    IS_A_POLYNOMIAL, LISTED_FOUR, LISTED_THREE, LISTED_TWO, LOGICAL_NOT, MEMBERSHIP,
+    NUMBER_SYSTEMS, ONE_TO_ONE, ONE_TO_ONE_ONTO, ONTO, POLYNOMIALS, POWERSET,
+    SINGLETON, SUBGROUP, SUBSET,
 };
 use crate::outcome::Route;
+use crate::rules;
 use crate::sorts::introduction::{Form, Introduction};
 
 /// One binder of a statement.
@@ -180,17 +188,16 @@ pub fn introduces_function(
     let [f, from, to] = node.children.as_slice() else {
         return None;
     };
-    if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+    if node.notation() != FUNCTION_TYPE || !f.is_name() {
         return None;
     }
-    let whole = |set: &Node| {
-        set.notation() == crate::notations::INTEGER_RANGE || system_of(set).is_some()
-    };
-    if !whole(from) || !whole(to) || to.notation() == crate::notations::INTEGER_RANGE {
+    let whole =
+        |set: &Node| set.notation() == INTEGER_RANGE || system_of(set).is_some();
+    if !whole(from) || !whole(to) || to.notation() == INTEGER_RANGE {
         return None;
     }
     let between = writer.function_systems.get(f.text.as_str())?;
-    if between.to == crate::rules::System::N {
+    if between.to == rules::System::N {
         return None;
     }
     let ty = LetterType::Function {
@@ -221,9 +228,7 @@ pub fn range_letter(node: &Node) -> Option<String> {
     let [x, set] = node.children.as_slice() else {
         return None;
     };
-    let fits = node.spelling() == IN
-        && x.is_name()
-        && set.notation() == crate::notations::INTEGER_RANGE;
+    let fits = node.spelling() == IN && x.is_name() && set.notation() == INTEGER_RANGE;
     fits.then(|| x.text.to_string())
 }
 
@@ -250,12 +255,8 @@ enum Fact {
 fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
     // v ∉ W, read as not (v ∈ W): v is a member of what W holds, and the
     // line, `¬ v ∈ W`, a fact about it.
-    if let ([inner], crate::notations::LOGICAL_NOT) =
-        (node.children.as_slice(), node.notation())
-    {
-        if let ([v, set], crate::notations::MEMBERSHIP) =
-            (inner.children.as_slice(), inner.notation())
-        {
+    if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
+        if let ([v, set], MEMBERSHIP) = (inner.children.as_slice(), inner.notation()) {
             if v.is_name() && !writer.letters.contains_key(v.text.as_str()) {
                 return Some(InSet {
                     letter: v.text.to_string(),
@@ -348,9 +349,9 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             // the type variable its values take.
             let a = writer.set_members(from)?;
             let b = match to.notation() {
-                EMPTY_SET => a.with_things(writer.things.var(
-                    &crate::citing::things::ThingKey::To(letter.text.to_string()),
-                )),
+                EMPTY_SET => a.with_things(
+                    writer.things.var(&ThingKey::To(letter.text.to_string())),
+                ),
                 _ => writer.set_members(to)?,
             };
             let (from_text, to_text) =
@@ -401,7 +402,7 @@ pub fn things_binder(
     binders: &[Binder],
     statement: &[&Printed],
 ) -> Option<super::doc::file::Binder> {
-    let mut vars: std::collections::BTreeSet<usize> = binders
+    let mut vars: BTreeSet<usize> = binders
         .iter()
         .flat_map(|b| match b {
             Binder::Letter { ty, .. } => ty.things_vars(),
@@ -451,13 +452,10 @@ pub fn sethood_name(letter: &str) -> String {
 /// The letters a statement's `let` lines introduce as sets or members of
 /// them, A of `let A be a set`, x of `let x be an element`, a of `let a ∉
 /// X`: those set.mm reads as sets of ZF.
-pub fn let_letters(
-    hypotheses: &[crate::corpus::proof::Hypothesis],
-    path: &str,
-) -> Vec<String> {
+pub fn let_letters(hypotheses: &[Hypothesis], path: &str) -> Vec<String> {
     hypotheses
         .iter()
-        .filter(|h| h.kind == crate::corpus::Intro::Let)
+        .filter(|h| h.kind == Intro::Let)
         .filter_map(|h| match Introduction::read(h.body(path)).form {
             Form::Set(name) | Form::Element(name) | Form::NotIn(name) => Some(name),
             _ => None,
@@ -721,7 +719,7 @@ pub fn binders(
         // and a term has one Lean form in a theorem (`GOALS.md` decision
         // 20).
         if let [term, set] = a.node.children.as_slice() {
-            let integer = a.node.notation() == crate::notations::MEMBERSHIP
+            let integer = a.node.notation() == MEMBERSHIP
                 && !term.is_name()
                 && system_of(set) == Some(System::Type(super::templates::Num::Int))
                 && writer

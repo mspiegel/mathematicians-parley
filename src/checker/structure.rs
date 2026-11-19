@@ -2,6 +2,7 @@
 //! reach, imports, definitions, and the forms justifications take.
 
 use std::collections::BTreeSet;
+use std::{iter, slice};
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -10,27 +11,27 @@ use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_items, define_parts, described, fmt, is_label, item_kind, DefineParts,
-    FileScope, Head, Intro, Item, Justification, Method, Opener, Range, Record,
-    RecordKind, Requires, Step, StepNo, StepPlace, Theorem,
+    cited_items, define_parts, described, fmt, is_label, item_kind, phrases, proof,
+    DefineParts, FileScope, Head, Intro, Item, Justification, Method, Opener, Range,
+    Record, RecordKind, Requires, Step, StepNo, StepPlace, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{made, made_by_name, numeral, Written};
 use crate::formula::token::{Token, TokenKind};
-use crate::formula::{holds, Node, Sorts};
+use crate::formula::{holds, notation, Grammar, Node, Sort, Sorts, Whole};
+use crate::matching::Defined;
 use crate::notations::{
-    EMPTY_SET, EXISTS, FINITE, FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL,
-    MEMBERSHIP, NUMBER_SYSTEMS, POWERSET, SUBGROUP, SUBSET, WITHOUT,
+    CONJUNCTION, EMPTY_SET, EXISTS, FINITE, FOR_ALL, FUNCTION_TYPE, IS_A_POINT,
+    IS_A_POLYNOMIAL, MEMBERSHIP, NUMBER_SYSTEMS, POWERSET, SUBGROUP, SUBSET, WITHOUT,
 };
 use crate::outcome::{Built, Declined};
-use crate::regex;
-use crate::rules;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{
     bound_written, define_formulas, names_written, theorem_tokens, written_tokens,
 };
 use crate::text::{prefix, repr};
+use crate::{matching, regex, rules, sorts};
 
 /// A step numbered `cited` is visible from the step numbered `here` when it
 /// is an ancestor, or shares `here`'s path to some position and comes before
@@ -762,11 +763,7 @@ pub(super) fn parts_of(set: &Node) -> Option<&Node> {
 /// What a `let` line opening an induction's step part says, `k ∈ X`, or
 /// `Y ∈ 𝒫X` of `let Y ⊆ X`; None for a line of another form or one that
 /// does not read.
-pub(super) fn let_said(
-    opener: &crate::corpus::Opener,
-    thm: &Theorem,
-    known: &Known,
-) -> Option<Node> {
+pub(super) fn let_said(opener: &Opener, thm: &Theorem, known: &Known) -> Option<Node> {
     let i = Introduction::read(opener.body(&thm.path));
     if !matches!(i.form, Form::Member | Form::Part { .. }) {
         return None;
@@ -777,7 +774,7 @@ pub(super) fn let_said(
 /// Whether `opener` is the third line of a step part over the parts of
 /// `whole`, `let a ∈ X ∖ Y`, with `letter` the part's Y.
 fn adds_a_member(
-    opener: &crate::corpus::Opener,
+    opener: &Opener,
     whole: &Node,
     letter: &Node,
     thm: &Theorem,
@@ -876,7 +873,7 @@ fn check_induction_runs(
         return;
     }
     let first_of = |label: &str| rules::digit_of(label).map(|d| d.to_string());
-    let begins = (set.notation() == crate::notations::NUMBER_SYSTEMS)
+    let begins = (set.notation() == NUMBER_SYSTEMS)
         .then(|| rules::System::of_sign(&set.text))
         .flatten()
         .and_then(|s| rules::lookup(rules::INDUCTION, s.label()))
@@ -951,7 +948,7 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
         );
     }
     // A chain the skeleton cannot cut is refused as the build refuses it.
-    let cut = crate::corpus::proof::chain(&step.just, &thm.path);
+    let cut = proof::chain(&step.just, &thm.path);
     if let Some(Err(problem)) = &cut {
         report.say(&problem.path, problem.line, problem.message.clone());
     }
@@ -1166,7 +1163,7 @@ pub fn check_citations(
         }
         // A chain line's or a row's own reason cites as a requires line's
         // does.
-        for req in &crate::corpus::proof::chain_reasons(just, &thm.path) {
+        for req in &proof::chain_reasons(just, &thm.path) {
             let what = if just.head.is(Method::Calculation) {
                 "chain line"
             } else {
@@ -1372,7 +1369,7 @@ pub fn check_run_together(
     report: &mut Report,
     thm: &Theorem,
     words: &IndexSet<String>,
-    g: &crate::formula::Grammar,
+    g: &Grammar,
 ) {
     // A run of letters the lexer read whole as a word, between the bars of
     // |xy| or straight after ∠, where two names were meant.
@@ -1384,7 +1381,7 @@ pub fn check_run_together(
             })
     };
     for s in &thm.steps {
-        for line in written_tokens(std::slice::from_ref(&s.claim), g) {
+        for line in written_tokens(slice::from_ref(&s.claim), g) {
             for (i, t) in line.iter().enumerate() {
                 let next = line.get(i + 1);
                 let end = t.at + t.text.chars().count();
@@ -1765,8 +1762,7 @@ pub fn check_last_step(report: &mut Report, thm: &Theorem, known: &Known) {
     // sentence joining them with "and" (`SYNTAX.md`), so each side is
     // compared as the conjuncts it says, in order.
     fn conjuncts(node: Node, out: &mut Vec<Node>) {
-        if node.notation() == crate::notations::CONJUNCTION && node.children.len() == 2
-        {
+        if node.notation() == CONJUNCTION && node.children.len() == 2 {
             for part in node.children.iter() {
                 conjuncts(part.clone(), out);
             }
@@ -1865,7 +1861,7 @@ pub fn check_function_imports(
 pub fn files_tokens(
     theorems: &[Theorem],
     scopes: &[FileScope],
-    g: &crate::formula::Grammar,
+    g: &Grammar,
 ) -> Vec<Vec<Vec<Token>>> {
     let mut by_scope: Vec<Vec<&Theorem>> = vec![Vec::new(); scopes.len()];
     for t in theorems {
@@ -1883,7 +1879,7 @@ pub fn files_tokens(
 fn file_tokens(
     theorems: &[&Theorem],
     scope: &FileScope,
-    g: &crate::formula::Grammar,
+    g: &Grammar,
 ) -> Vec<Vec<Token>> {
     let mut out: Vec<Vec<Token>> =
         theorems.iter().flat_map(|t| theorem_tokens(t, g)).collect();
@@ -1958,7 +1954,7 @@ pub fn check_function_names(
                     .map(|o| (o.text.as_str(), o.line))
             }));
         for (text, no) in lets {
-            let body = crate::sorts::unlabel(text);
+            let body = sorts::unlabel(text);
             let body = str::trim(body.trim_start_matches("let"));
             let said = Introduction::read(Written::new(body, &thm.path, no));
             let function = matches!(
@@ -1980,7 +1976,7 @@ pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
     let binders = env.g.binders();
     for (src, scope) in env.scopes.iter().enumerate() {
         for d in &scope.defines {
-            let defined = match crate::sorts::file_define(d, src, env) {
+            let defined = match sorts::file_define(d, src, env) {
                 Ok(Some(defined)) => defined,
                 Ok(None) => continue,
                 Err(p) => {
@@ -2004,17 +2000,17 @@ pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
                     .map(|v| v.name.clone()),
             );
             let written: Vec<&Node> = match &defined {
-                crate::matching::Defined::Term(body) => vec![body],
-                crate::matching::Defined::Rule(rule) => {
+                Defined::Term(body) => vec![body],
+                Defined::Rule(rule) => {
                     given.extend(rule.params.iter().map(|p| p.name.clone()));
-                    std::iter::once(&rule.body)
+                    iter::once(&rule.body)
                         .chain(rule.read.iter().map(|p| &p.domain))
                         .collect()
                 }
             };
             let free: BTreeSet<String> = written
                 .into_iter()
-                .flat_map(|n| crate::matching::free_names(n, &binders))
+                .flat_map(|n| matching::free_names(n, &binders))
                 .filter(|n| !given.contains(n))
                 .collect();
             for name in free {
@@ -2063,7 +2059,7 @@ pub fn check_phrase_imports(
             let pattern = notation.field("pattern").unwrap_or_default();
             // The words after its first slot, up to the next: `is a Sylow`
             // of `_ is a Sylow _-subgroup of _`.
-            let words: Vec<&str> = crate::formula::notation::patterns_of(pattern)
+            let words: Vec<&str> = notation::patterns_of(pattern)
                 .first()
                 .map(|p| {
                     p.split_whitespace()
@@ -2097,11 +2093,11 @@ fn writes_words(tokens: &[Token], words: &[&str]) -> bool {
 
 /// Whether a phrase's slot has a sort the reading of its definition record
 /// settles, if only as a set of things of any sort.
-fn settles(sorts: &crate::formula::Sorts, slot: &str) -> bool {
+fn settles(sorts: &Sorts, slot: &str) -> bool {
     sorts
         .get(slot)
-        .and_then(crate::formula::Sort::full)
-        .is_some_and(|w| *w != crate::formula::Whole::Open)
+        .and_then(Sort::full)
+        .is_some_and(|w| *w != Whole::Open)
 }
 
 /// Every define of a phrase says what its phrase means in so many words
@@ -2134,7 +2130,7 @@ pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts:
             if !scope.readings.contains_key(&d.label) {
                 say(report, "carries no `reads` line".to_string());
             }
-            let name = crate::corpus::phrases::notation_name(d, &p);
+            let name = phrases::notation_name(d, &p);
             let taken = env.g.notations.iter().find(|n| {
                 n.name != name
                     && (n.pattern == p.pattern() || n.pattern == p.negated_pattern())
@@ -2157,7 +2153,7 @@ pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts:
             let Some(made) = made else {
                 continue;
             };
-            let sorts = crate::sorts::sorts_of_record(made, env);
+            let sorts = sorts::sorts_of_record(made, env);
             let mut read = None;
             for written in made.stated() {
                 match written.formula().and_then(|s| s.read(env.g, &sorts)) {
@@ -2169,7 +2165,7 @@ pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts:
             else {
                 continue;
             };
-            let free = crate::matching::free_names(meaning, &binders);
+            let free = matching::free_names(meaning, &binders);
             let slots = p.slots();
             for s in &slots {
                 if !free.contains(*s) {
@@ -2198,7 +2194,7 @@ pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts:
             if !made.slot_kinds.is_empty() {
                 let mut alone = made.clone();
                 alone.slot_kinds.clear();
-                let unaided = crate::sorts::sorts_of_record(&alone, env);
+                let unaided = sorts::sorts_of_record(&alone, env);
                 for said in &made.slot_kinds {
                     if settles(&unaided, &said.slot) {
                         say(

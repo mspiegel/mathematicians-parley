@@ -1,5 +1,6 @@
 //! Each hand-written comparison proof writes the file committed for it.
 
+use std::fs;
 use std::path::Path;
 
 use parley::proofs::comparison::COMPARISONS;
@@ -10,7 +11,7 @@ fn every_comparison_writes_its_committed_file() {
     let mut differ = Vec::new();
     for c in &COMPARISONS {
         let path = root.join(format!("{}.mm", c.name));
-        let committed = std::fs::read_to_string(&path)
+        let committed = fs::read_to_string(&path)
             .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
         if (c.text)() != committed {
             differ.push(c.name);

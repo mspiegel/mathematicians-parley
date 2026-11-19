@@ -1,14 +1,26 @@
 //! Proof methods: steps read: names, claims, what a step holds.
 
+use std::collections::BTreeSet;
+use std::{mem, ptr};
+
 use super::super::algebra::{NotZero, NotZeroBy};
 use super::super::doc::{LeanType, Location, Op, Quant, Tactic, TacticArg, TermKind};
 use super::super::templates::Num;
 use super::super::{doc, expr, tactics as t};
 use super::*;
-use crate::checker::record::{LinesHold, NonzeroBy, ShownBy};
-use crate::citing::OnceReason;
-use crate::notations::{PI, PROPERTY_OF, SQUARE_ROOT, SUBSET};
-use crate::rules;
+use crate::checker::record::{HeldByLines, LinesHold, NonzeroBy, ShownBy};
+use crate::citing::{
+    bounds, finite, nonzero_said_once, reason_within, speaks_of_claim_letter,
+    under_claim_binders, Introduced, OnceReason,
+};
+use crate::corpus::DefineParts;
+use crate::formula::{page, Sort};
+use crate::notations::{
+    CARDINALITY, DISJUNCTION, FOR_ALL, FUNCTION_TYPE, LOGICAL_NOT, MEMBERSHIP, PI,
+    POWER, PROPERTY_OF, SQUARE_ROOT, SUBSET,
+};
+use crate::rules::WHOLE;
+use crate::{corpus, matching, rules};
 
 impl<'a> Proof<'a> {
     /// `intro a b` as a line of the proof at a depth of its blocks.
@@ -148,13 +160,11 @@ impl<'a> Proof<'a> {
                 .filter(|(i, _)| *i != at)
                 .filter_map(|(_, o)| *o)
                 .collect();
-            let positive = |n: &Node| {
-                crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
-            };
+            let positive =
+                |n: &Node| bounds::least(&self.writer, n).is_some_and(|l| l >= 1);
             let mut writer = self.writer.with_letters(self.writer.letters.clone());
-            let by_others = crate::citing::finite::finite_sets(others, &positive);
-            let by_itself =
-                crate::citing::finite::finite_sets_vouched([node], &positive);
+            let by_others = finite::finite_sets(others, &positive);
+            let by_itself = finite::finite_sets_vouched([node], &positive);
             for (set, why) in by_others.into_iter().chain(by_itself) {
                 writer.finite.entry(set).or_insert(why);
             }
@@ -174,7 +184,7 @@ impl<'a> Proof<'a> {
                 // ℂ has no order: a line of points or complex numbers, P = R
                 // of a contradiction's supposition, gives an order of
                 // numerals the widest type that has one.
-                if node.notation() == crate::notations::ORDER {
+                if node.notation() == ORDER {
                     floor = floor.min(super::super::templates::Num::Real);
                 }
                 writer.closed_formula(node, floor)
@@ -260,7 +270,7 @@ impl<'a> Proof<'a> {
         let [g, from, to] = node.children.as_slice() else {
             return None;
         };
-        let new = node.notation() == crate::notations::FUNCTION_TYPE
+        let new = node.notation() == FUNCTION_TYPE
             && g.is_name()
             && !self.writer.letters.contains_key(g.text.as_str());
         new.then(|| self.writer.function_between(from, to))
@@ -295,7 +305,7 @@ impl<'a> Proof<'a> {
         let [x, set] = node.children.as_slice() else {
             return None;
         };
-        let new = node.notation() == crate::notations::MEMBERSHIP
+        let new = node.notation() == MEMBERSHIP
             && x.is_name()
             && !self.writer.letters.contains_key(x.text.as_str());
         new.then(|| self.writer.members_of(set))
@@ -316,16 +326,16 @@ impl<'a> Proof<'a> {
         // where the domain starts (`applied_domains`).
         let through = !matches!(
             step.just.head,
-            crate::corpus::Head::Define
-                | crate::corpus::Head::Item { .. }
-                | crate::corpus::Head::Method(
-                    crate::corpus::Method::Substitute
-                        | crate::corpus::Method::Calculation
-                        | crate::corpus::Method::Membership
-                        | crate::corpus::Method::Transitivity
-                        | crate::corpus::Method::Inequalities
-                        | crate::corpus::Method::Algebra
-                        | crate::corpus::Method::Restate
+            Head::Define
+                | Head::Item { .. }
+                | Head::Method(
+                    Method::Substitute
+                        | Method::Calculation
+                        | Method::Membership
+                        | Method::Transitivity
+                        | Method::Inequalities
+                        | Method::Algebra
+                        | Method::Restate
                 )
         );
         if through
@@ -400,13 +410,11 @@ impl<'a> Proof<'a> {
             // What the requires lines above make finite, "X is finite" of
             // the set this one counts, it counts as a natural number, as the
             // check reads them (`Step::requires_above`).
-            let positive = |n: &Node| {
-                crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
-            };
-            let made: Vec<_> =
-                crate::citing::finite::finite_sets(above.iter(), &positive)
-                    .into_iter()
-                    .collect();
+            let positive =
+                |n: &Node| bounds::least(&self.writer, n).is_some_and(|l| l >= 1);
+            let made: Vec<_> = finite::finite_sets(above.iter(), &positive)
+                .into_iter()
+                .collect();
             for (set, why) in made {
                 self.writer.finite.entry(set).or_insert(why);
             }
@@ -416,8 +424,8 @@ impl<'a> Proof<'a> {
             // proved with its letters given.
             let under = claimed
                 .as_ref()
-                .filter(|c| crate::citing::speaks_of_claim_letter(c, &node))
-                .map(|c| crate::citing::under_claim_binders(c, &node));
+                .filter(|c| speaks_of_claim_letter(c, &node))
+                .map(|c| under_claim_binders(c, &node));
             let stated = under.clone().unwrap_or_else(|| node.clone());
             let fact = match self.writer.formula(&stated) {
                 Route::Built(f) => f,
@@ -468,7 +476,7 @@ impl<'a> Proof<'a> {
                 }
                 Some(wrapped) => {
                     let (intros, _, inner) = self.peel(wrapped);
-                    let outer = std::mem::replace(&mut self.writer, inner);
+                    let outer = mem::replace(&mut self.writer, inner);
                     *self.intros_now.borrow_mut() = intros.clone();
                     let proof = self.proof_of(reason, 0, &node);
                     self.intros_now.borrow_mut().clear();
@@ -500,7 +508,7 @@ impl<'a> Proof<'a> {
                 spot.clone(),
             );
         }
-        let mut named: std::collections::BTreeSet<String> =
+        let mut named: BTreeSet<String> =
             step_cited_refs(step, &self.thm.path).into_iter().collect();
         named.extend(
             (0..step.requires.len()).map(|k| format!("r{}_{}", step.line, k + 1)),
@@ -531,8 +539,7 @@ impl<'a> Proof<'a> {
                 // the claim the block proves is no line in scope inside it.
                 let own = step.number.number().map(|n| n.to_string());
                 let claimed = own.as_ref().and_then(|n| self.trees.shift_remove(n));
-                let visible: std::collections::BTreeSet<String> =
-                    self.trees.keys().cloned().collect();
+                let visible: BTreeSet<String> = self.trees.keys().cloned().collect();
                 let written = self.block(i, m, &claim, &names, depth);
                 self.trees.retain(|k, _| visible.contains(k));
                 self.narrowings_ended(depth);
@@ -564,11 +571,11 @@ impl<'a> Proof<'a> {
             // cited at that k, given as a method takes it (`peel`). An item
             // that says the "for all" itself is cited whole.
             let cites_for_all = matches!(reason.just.head, Head::Item { .. })
-                && node.notation() == crate::notations::FOR_ALL
+                && node.notation() == FOR_ALL
                 && self.cited_at_bound_letter(reason.cited, node);
             let proof = if cites_for_all {
                 let (intros, body, inner) = self.peel(node);
-                let outer = std::mem::replace(&mut self.writer, inner);
+                let outer = mem::replace(&mut self.writer, inner);
                 let proof = self.proof_of(reason, places[k], body);
                 self.writer = outer;
                 proof.map(|p| match intros.is_empty() {
@@ -712,7 +719,7 @@ impl<'a> Proof<'a> {
                 super::super::templates::Slot::Fixed(n) if holds(&filled) => Some(n),
                 _ => None,
             })
-            .fold(super::super::templates::Num::Int, std::cmp::Ord::max)
+            .fold(super::super::templates::Num::Int, Ord::max)
     }
 
     /// The proof of sentence `k` of step `i`'s claim, where the claim puts
@@ -876,7 +883,7 @@ impl<'a> Proof<'a> {
                     Tactic::Exact(super::super::expr::anonymous(vec![int, equal]));
                 return Route::Built(haves_then(haves, doc::Proof::By(shown)));
             }
-            let outer = std::mem::replace(&mut self.writer, inner);
+            let outer = mem::replace(&mut self.writer, inner);
             let proof = self.proof_of(reason, k, node);
             self.writer = outer;
             let proof = match proof {
@@ -901,8 +908,7 @@ impl<'a> Proof<'a> {
             .leaf_wides(node)
             .into_iter()
             .filter(|w| {
-                !(w.term.notation() == crate::notations::CARDINALITY
-                    && self.writer.counts(&w.term))
+                !(w.term.notation() == CARDINALITY && self.writer.counts(&w.term))
             })
             .collect();
         // A term the cited item itself puts in a whole-number slot,
@@ -929,7 +935,7 @@ impl<'a> Proof<'a> {
             .filter_map(|c| {
                 let (said, negated) =
                     match (c.node.notation(), c.node.children.as_slice()) {
-                        (crate::notations::LOGICAL_NOT, [inner]) => (inner, true),
+                        (LOGICAL_NOT, [inner]) => (inner, true),
                         _ => (&c.node, false),
                     };
                 let terms = self.leaf_wides(said);
@@ -1056,7 +1062,7 @@ impl<'a> Proof<'a> {
                         restated.push(RestatedInStep {
                             line: line.clone(),
                             place,
-                            before: std::mem::replace(&mut s.says, says),
+                            before: mem::replace(&mut s.says, says),
                         });
                     }
                 }
@@ -1130,7 +1136,7 @@ impl<'a> Proof<'a> {
                 Some((name, says, stated))
             }
         };
-        let outer = std::mem::replace(&mut self.writer, inner);
+        let outer = mem::replace(&mut self.writer, inner);
         self.named_specs = specs.clone();
         self.in_witness.set(!ints.is_empty());
         let proof = self.proof_of(reason, k, node);
@@ -1187,7 +1193,7 @@ impl<'a> Proof<'a> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
-        if node.notation() != crate::notations::MEMBERSHIP || term.is_name() {
+        if node.notation() != MEMBERSHIP || term.is_name() {
             return None;
         }
         let (whole, ordered) = match super::super::expr::system_of(set)? {
@@ -1219,8 +1225,8 @@ impl<'a> Proof<'a> {
                     super::super::tactics::hyp(&format!("r{}_{}", step.line, k + 1));
                 let under = claimed
                     .as_ref()
-                    .filter(|c| crate::citing::speaks_of_claim_letter(c, &node))
-                    .map(|c| crate::citing::under_claim_binders(c, &node));
+                    .filter(|c| speaks_of_claim_letter(c, &node))
+                    .map(|c| under_claim_binders(c, &node));
                 if let Some(wrapped) = under {
                     let (intros, _, _) = self.peel(&wrapped);
                     for name in intros {
@@ -1238,7 +1244,7 @@ impl<'a> Proof<'a> {
         // A "for all" line is read at the block's letter the claim names, as
         // the checker reads it: 5.6's "for all a ∈ {2, …, p − 2}, f(a) ∈ ℤ"
         // says f(a) ∈ ℤ at the block's a.
-        let mut names = std::collections::BTreeSet::new();
+        let mut names = BTreeSet::new();
         for s in step.claim.sentences() {
             if let Some(n) = self.rec.page.get(&s) {
                 names.extend(n.names());
@@ -1277,7 +1283,7 @@ impl<'a> Proof<'a> {
             let other = &beside.other;
             let Some(e) = facts
                 .iter()
-                .find(|f| crate::matching::alike_top(&f.node, &beside.equation, ctx))
+                .find(|f| matching::alike_top(&f.node, &beside.equation, ctx))
             else {
                 continue;
             };
@@ -1287,7 +1293,7 @@ impl<'a> Proof<'a> {
             let held = beside.other_stated.as_ref().and_then(|stated| {
                 facts
                     .iter()
-                    .find(|f| crate::matching::alike_top(&f.node, stated, ctx))
+                    .find(|f| matching::alike_top(&f.node, stated, ctx))
             });
             let (node, proved) = match held {
                 // A line puts the other side in the system: it, rewritten by
@@ -1314,7 +1320,7 @@ impl<'a> Proof<'a> {
                 // The other side is said once, an integer Lean computes as
                 // one, p² + q² of integers: that integer, and the equation
                 // cast down.
-                None if shown.system == crate::rules::System::Z
+                None if shown.system == rules::System::Z
                     && beside.other_beside.is_none() =>
                 {
                     let int = super::super::templates::Num::Int;
@@ -1327,14 +1333,12 @@ impl<'a> Proof<'a> {
                     if !lean_whole {
                         continue;
                     }
-                    let Some(set) = crate::formula::page::made_as(
-                        &self.sources.checked.grammar,
-                        "ℤ",
-                        vec![],
-                    ) else {
+                    let Some(set) =
+                        page::made_as(&self.sources.checked.grammar, "ℤ", vec![])
+                    else {
                         continue;
                     };
-                    let node = crate::formula::page::made_as(
+                    let node = page::made_as(
                         &self.sources.checked.grammar,
                         "_ ∈ _",
                         vec![shown.term.clone(), set],
@@ -1404,7 +1408,7 @@ impl<'a> Proof<'a> {
             return [l, r].iter().flat_map(|p| self.part_wides(p)).collect();
         }
         match (node.notation(), node.children.as_slice()) {
-            (crate::notations::DISJUNCTION, [l, r]) => {
+            (DISJUNCTION, [l, r]) => {
                 [l, r].iter().flat_map(|p| self.part_wides(p)).collect()
             }
             _ => Vec::new(),
@@ -1414,8 +1418,7 @@ impl<'a> Proof<'a> {
     /// `wide_in_parts` of one part: its parts where it is itself joined,
     /// else its own terms.
     fn part_wides(&self, part: &Node) -> Vec<WideTerm> {
-        let joined = self.writer.is_and(part)
-            || part.notation() == crate::notations::DISJUNCTION;
+        let joined = self.writer.is_and(part) || part.notation() == DISJUNCTION;
         match joined {
             true => self.wide_in_parts(part),
             false => self.leaf_wides(part),
@@ -1433,7 +1436,7 @@ impl<'a> Proof<'a> {
         while let Some((term, whole)) = w.wide_in_slot(&at) {
             let m = super::super::expr::witness_letter(&at);
             w.letters.insert(m.clone(), LetterType::Number(whole));
-            let named = Node::name(crate::formula::Sort::of("number"), &m);
+            let named = Node::name(Sort::of("number"), &m);
             at = super::super::expr::put_for(&at, &term, &named);
             out.push(WideTerm { term, whole });
         }
@@ -1472,9 +1475,7 @@ impl<'a> Proof<'a> {
                 };
             return Route::Built(super::super::expr::anonymous(vec![left, right]));
         }
-        if let (crate::notations::DISJUNCTION, [l, r]) =
-            (node.notation(), node.children.as_slice())
-        {
+        if let (DISJUNCTION, [l, r]) = (node.notation(), node.children.as_slice()) {
             let mut sides = Vec::new();
             for side in [l, r] {
                 let body = match self.witnessed_parts(
@@ -1539,21 +1540,18 @@ impl<'a> Proof<'a> {
     pub(super) fn name_wholes(
         &self,
         term: &Node,
-        letters: &crate::citing::Introduced,
+        letters: &Introduced,
         whole: super::super::templates::Num,
         facts: &[super::super::algebra::Cited],
         out: &mut Vec<NamedAtom>,
     ) -> Route<()> {
         let system = match whole {
-            super::super::templates::Num::Nat => crate::rules::System::N0,
-            _ => crate::rules::System::Z,
+            super::super::templates::Num::Nat => rules::System::N0,
+            _ => rules::System::Z,
         };
-        let said =
-            |t: &Node, s: crate::rules::System| self.held_reason(t, s, letters, facts);
-        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
-        let Some(reason) =
-            crate::citing::reason_within(term, system, letters, &nonzero, &said)
-        else {
+        let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, facts);
+        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let Some(reason) = reason_within(term, system, letters, &nonzero, &said) else {
             return Route::no(format!(
                 "{}, put where a whole number is asked, is one by no line the step names",
                 self.writer.grammar.print(term)
@@ -1585,7 +1583,7 @@ impl<'a> Proof<'a> {
         defines: &[CitedDefine],
     ) -> Route<Vec<super::super::algebra::NotZero>> {
         let ctx = self.sources.ctx;
-        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let standard = |n: &Node| matching::standard(n, ctx);
         let named: Vec<String> =
             self.named_now.borrow().iter().flatten().cloned().collect();
         let mut facts = self.cited_parts(&named);
@@ -1603,9 +1601,7 @@ impl<'a> Proof<'a> {
                     let from = standard(from);
                     let said = facts
                         .iter()
-                        .find(|f| {
-                            crate::matching::alike_top(&standard(&f.node), &from, ctx)
-                        })
+                        .find(|f| matching::alike_top(&standard(&f.node), &from, ctx))
                         .and_then(|f| {
                             let says = f
                                 .says
@@ -1649,10 +1645,7 @@ impl<'a> Proof<'a> {
 
     /// The record's parts held by the lines of the reason on `line`
     /// (`CheckedTheorem::held_by_lines`); none for a line it has none of.
-    pub(super) fn held_at(
-        &self,
-        line: usize,
-    ) -> Vec<crate::checker::record::HeldByLines> {
+    pub(super) fn held_at(&self, line: usize) -> Vec<HeldByLines> {
         self.rec
             .held_by_lines
             .get(&line)
@@ -1662,20 +1655,16 @@ impl<'a> Proof<'a> {
 
     /// How the lines of the reason being written hold `term` in `system`, as
     /// the check found it; None where they do not.
-    pub(super) fn held(
-        &self,
-        term: &Node,
-        system: crate::rules::System,
-    ) -> Option<crate::checker::record::LinesHold> {
+    pub(super) fn held(&self, term: &Node, system: rules::System) -> Option<LinesHold> {
         let ctx = self.sources.ctx;
-        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let standard = |n: &Node| matching::standard(n, ctx);
         let term = standard(term);
         self.held_now
             .borrow()
             .iter()
             .find(|h| {
                 h.system == system
-                    && crate::matching::alike_top(&standard(&h.term), &term, ctx)
+                    && matching::alike_top(&standard(&h.term), &term, ctx)
             })
             .map(|h| h.by.clone())
     }
@@ -1689,10 +1678,10 @@ impl<'a> Proof<'a> {
     pub(super) fn held_reason(
         &self,
         term: &Node,
-        system: crate::rules::System,
-        letters: &crate::citing::Introduced,
+        system: rules::System,
+        letters: &Introduced,
         facts: &[super::super::algebra::Cited],
-    ) -> Option<crate::citing::OnceReason> {
+    ) -> Option<OnceReason> {
         // How the check found the part held, of the lines the reason names;
         // a line stating it, or one the equation it stands beside makes
         // (`shown_beside`), is among `facts` under its Lean name.
@@ -1704,7 +1693,7 @@ impl<'a> Proof<'a> {
             LinesHold::Closed => {}
         }
         let op = self.sources.targets.operation(term)?;
-        let w = crate::rules::WHOLE.iter().find(|w| w.op == op.label)?;
+        let w = WHOLE.iter().find(|w| w.op == op.label)?;
         let (Some(left_in), Some(right_in)) = (
             rules::System::of_label(w.left.1),
             rules::System::of_label(w.right.1),
@@ -1716,17 +1705,15 @@ impl<'a> Proof<'a> {
                 .parts
                 .iter()
                 .zip(&term.children)
-                .all(|(p, c)| std::ptr::eq(*p, c));
+                .all(|(p, c)| ptr::eq(*p, c));
         if !own || !rules::System::N0.within(system) {
             return None;
         }
         let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, facts);
-        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
+        let nonzero = |d: &Node| nonzero_said_once(d, letters);
         let mut parts = Vec::new();
         for (part, within) in op.parts.iter().zip([left_in, right_in]) {
-            parts.push(crate::citing::reason_within(
-                part, within, letters, &nonzero, &said,
-            )?);
+            parts.push(reason_within(part, within, letters, &nonzero, &said)?);
         }
         Some(OnceReason::Built(parts))
     }
@@ -1742,7 +1729,7 @@ impl<'a> Proof<'a> {
         line: usize,
         term: &Node,
         node: &Node,
-        letters: &crate::citing::Introduced,
+        letters: &Introduced,
         facts: &[super::super::algebra::Cited],
     ) -> Option<super::super::doc::Proof> {
         let ctx = self.sources.ctx;
@@ -1751,12 +1738,12 @@ impl<'a> Proof<'a> {
             return None;
         };
         let other = &beside.other;
-        if !crate::matching::alike_top(&shown.term, term, ctx) {
+        if !matching::alike_top(&shown.term, term, ctx) {
             return None;
         }
         let e = facts
             .iter()
-            .find(|f| crate::matching::alike_top(&f.node, &beside.equation, ctx))?;
+            .find(|f| matching::alike_top(&f.node, &beside.equation, ctx))?;
         let set = node.children.get(1)?.clone();
         let says = self
             .writer
@@ -1792,7 +1779,7 @@ impl<'a> Proof<'a> {
     pub(super) fn whole_witness(
         &self,
         term: &Node,
-        letters: &crate::citing::Introduced,
+        letters: &Introduced,
         facts: &[super::super::algebra::Cited],
     ) -> Route<super::super::doc::Proof> {
         let mut atoms = Vec::new();
@@ -1820,7 +1807,7 @@ impl<'a> Proof<'a> {
     pub(super) fn atoms_of(
         &self,
         term: &Node,
-        reason: &crate::citing::OnceReason,
+        reason: &OnceReason,
         whole: super::super::templates::Num,
         top: super::super::templates::Num,
         facts: &[super::super::algebra::Cited],
@@ -2007,7 +1994,7 @@ impl<'a> Proof<'a> {
             // A power to an exponent a line the step names puts in ℕ₀: the
             // base to that exponent's `toNat`, written out, and its equation
             // with the power, from that line.
-            (OnceReason::Built(parts), crate::notations::POWER, [base, exponent]) => {
+            (OnceReason::Built(parts), POWER, [base, exponent]) => {
                 let [base_reason] = parts.as_slice() else {
                     return false;
                 };
@@ -2084,7 +2071,7 @@ impl<'a> Proof<'a> {
     /// `0 ≤ t` of a term the said-once walk puts in ℕ₀ at the step being
     /// written (`said_bound`): `abs_nonneg` of |A| of an A in ℤ.
     pub(super) fn said_nonneg(&self, term: &Node) -> Option<Printed> {
-        self.said_bound(term, crate::rules::System::N0, &[])
+        self.said_bound(term, rules::System::N0, &[])
     }
 
     /// The bound a membership of ℕ₀ or ℕ is in Lean, `0 ≤ t` or `0 < t`, of
@@ -2096,7 +2083,7 @@ impl<'a> Proof<'a> {
     pub(super) fn said_bound(
         &self,
         term: &Node,
-        system: crate::rules::System,
+        system: rules::System,
         refs: &[String],
     ) -> Option<Printed> {
         self.said_bound_in(term, system, refs, &self.writer)
@@ -2107,7 +2094,7 @@ impl<'a> Proof<'a> {
     pub(super) fn said_bound_in(
         &self,
         term: &Node,
-        system: crate::rules::System,
+        system: rules::System,
         refs: &[String],
         writer: &Writer,
     ) -> Option<Printed> {
@@ -2118,9 +2105,8 @@ impl<'a> Proof<'a> {
         let mut facts = self.step_facts(i);
         facts.extend(self.cited_parts(refs));
         let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, &facts);
-        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
-        let reason =
-            crate::citing::reason_within(term, system, letters, &nonzero, &said);
+        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let reason = reason_within(term, system, letters, &nonzero, &said);
         let reason = reason?;
         match system {
             rules::System::N0 => {
@@ -2152,7 +2138,7 @@ impl<'a> Proof<'a> {
         // A citation given a line's number, ⌊m⌋ = m for the m of `A/B ∈
         // ℤ`, meets a goal that has the line's term, ⌊A/B⌋: the goal is put
         // in terms of the number first.
-        let used = std::mem::take(&mut *self.said_used.borrow_mut());
+        let used = mem::take(&mut *self.said_used.borrow_mut());
         let by_term = self.number_rules(node, &used);
         if by_term.is_empty() {
             return Route::Built(proof);
@@ -2192,7 +2178,7 @@ impl<'a> Proof<'a> {
     /// claim's leading "for all" binds: the item is cited at that letter.
     pub(super) fn cited_at_bound_letter(
         &self,
-        cited: Option<&crate::checker::record::Cited>,
+        cited: Option<&Cited>,
         claim: &Node,
     ) -> bool {
         let Some(cited) = cited else {
@@ -2200,7 +2186,7 @@ impl<'a> Proof<'a> {
         };
         let mut bound = Vec::new();
         let mut body = claim;
-        while let (crate::notations::FOR_ALL, [letter, _, inner]) =
+        while let (FOR_ALL, [letter, _, inner]) =
             (body.notation(), body.children.as_slice())
         {
             bound.push(letter.text);
@@ -2212,7 +2198,7 @@ impl<'a> Proof<'a> {
         let binders = self.sources.checked.grammar.binders();
         cited.binding.values().any(|v| {
             let own = |n: &str| v.notation() == PROPERTY_OF && *v.text == *n;
-            crate::matching::free_names(v, &binders)
+            matching::free_names(v, &binders)
                 .iter()
                 .any(|n| !own(n) && bound.iter().any(|b| **b == **n))
         })
@@ -2232,12 +2218,10 @@ impl<'a> Proof<'a> {
             .defines
             .iter()
             .find(|d| d.label == label && d.line < self.thm.conclusion_line)?;
-        match crate::corpus::define_parts(&d.text) {
+        match corpus::define_parts(&d.text) {
             // One of several arguments is written out where it is applied
             // (`checker::written`), and has no hypothesis to name.
-            Route::Built(crate::corpus::DefineParts::One(one))
-                if one.params.len() == 1 =>
-            {
+            Route::Built(DefineParts::One(one)) if one.params.len() == 1 => {
                 Some(line_name(&d.label))
             }
             _ => None,

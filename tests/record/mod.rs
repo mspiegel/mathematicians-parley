@@ -7,9 +7,11 @@
 //! rewrite that moves lines leaves the print as it was.
 
 use std::fmt::Write as _;
+use std::slice;
 
-use parley::checker::record::Cited;
-use parley::checker::record::{OrderFact, SuppliedBy, Unfolded};
+use parley::checker::record::{
+    Cited, DomainSaid, Facing, FirstAt, OrderFact, OrderPart, SuppliedBy, Unfolded,
+};
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
 use parley::corpus::Theorem;
@@ -263,16 +265,10 @@ pub fn printed_but(
     }
     for (line, said) in &record.define_domains {
         let by = match said {
-            parley::checker::record::DomainSaid::Line(at) => place(at),
-            parley::checker::record::DomainSaid::Member => {
-                "the claim's member".to_string()
-            }
-            parley::checker::record::DomainSaid::SumRange => {
-                "the sum's range".to_string()
-            }
-            parley::checker::record::DomainSaid::LimitIndex => {
-                "the sequence's index".to_string()
-            }
+            DomainSaid::Line(at) => place(at),
+            DomainSaid::Member => "the claim's member".to_string(),
+            DomainSaid::SumRange => "the sum's range".to_string(),
+            DomainSaid::LimitIndex => "the sequence's index".to_string(),
         };
         writeln!(
             out,
@@ -307,7 +303,7 @@ pub fn requires_at(thm: &Theorem, line: usize) -> String {
 /// A citation as the record holds it: the item and group, its binding,
 /// each conclusion and the way it is read, and where each fact is taken.
 /// Why a set is finite, each line and set printed as the page writes it.
-fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
+fn finite_why(why: &FiniteBy, g: &Grammar) -> String {
     match why {
         FiniteBy::Said(line) => format!("Said({:?})", g.print(&line.0)),
         FiniteBy::Counted { line, at_least_one } => format!(
@@ -332,7 +328,7 @@ fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
 }
 
 /// How a finite set is made, its parts' reasons printed by `finite_why`.
-fn making(made: &parley::citing::finite::Making, g: &Grammar) -> String {
+fn making(made: &Making, g: &Grammar) -> String {
     match made {
         Making::Empty => "Empty".to_string(),
         Making::Listed => "Listed".to_string(),
@@ -484,7 +480,7 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
 /// The parts of a definition's right side (`Cited::unfolded`): each fact
 /// and what supplies it, each witness with its membership and its body's
 /// parts.
-fn unfolded_parts(parts: &[parley::checker::record::Unfolded], g: &Grammar) -> String {
+fn unfolded_parts(parts: &[Unfolded], g: &Grammar) -> String {
     let each: Vec<String> = parts
         .iter()
         .map(|p| match p {
@@ -498,7 +494,7 @@ fn unfolded_parts(parts: &[parley::checker::record::Unfolded], g: &Grammar) -> S
             } => format!(
                 "witness {} with {}; {}",
                 g.print(value),
-                unfolded_parts(std::slice::from_ref(member.as_ref()), g),
+                unfolded_parts(slice::from_ref(member.as_ref()), g),
                 unfolded_parts(body, g)
             ),
         })
@@ -507,17 +503,17 @@ fn unfolded_parts(parts: &[parley::checker::record::Unfolded], g: &Grammar) -> S
 }
 
 /// Which way an equation or congruence faces another, in a word.
-fn facing_word(facing: Option<parley::checker::record::Facing>) -> &'static str {
+fn facing_word(facing: Option<Facing>) -> &'static str {
     match facing {
-        Some(parley::checker::record::Facing::Straight) => "straight",
-        Some(parley::checker::record::Facing::Turned) => "turned",
+        Some(Facing::Straight) => "straight",
+        Some(Facing::Turned) => "turned",
         None => "none",
     }
 }
 
 /// Where a fact stands in a line, by its sentence and part, and the rule
 /// where the line implies it (`record::FirstAt`).
-pub fn place(f: &parley::checker::record::FirstAt) -> String {
+pub fn place(f: &FirstAt) -> String {
     let mut at = f.line.clone();
     if let Some(s) = f.sentence {
         write!(at, " sentence {s}").unwrap();
@@ -532,8 +528,8 @@ pub fn place(f: &parley::checker::record::FirstAt) -> String {
 }
 
 /// What one part of an order step rests on (`record::OrderPart`).
-fn order_part(part: &parley::checker::record::OrderPart, flipped: bool) -> String {
-    let facts = |of: &[parley::checker::record::OrderFact]| -> String {
+fn order_part(part: &OrderPart, flipped: bool) -> String {
+    let facts = |of: &[OrderFact]| -> String {
         of.iter().map(order_fact).collect::<Vec<_>>().join(", ")
     };
     let mut said = match &part.restates {
@@ -554,7 +550,7 @@ fn order_part(part: &parley::checker::record::OrderPart, flipped: bool) -> Strin
 }
 
 /// Where a fact an order step adds stands (`record::OrderFact`).
-fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
+fn order_fact(fact: &OrderFact) -> String {
     match fact {
         OrderFact::Line(at) => place(at),
         OrderFact::Define(label) => format!("define {label}"),
@@ -570,7 +566,7 @@ fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
 }
 
 /// What supplies a hypothesis (`record::SuppliedBy`).
-fn supplier(by: &parley::checker::record::SuppliedBy) -> String {
+fn supplier(by: &SuppliedBy) -> String {
     match by {
         SuppliedBy::Line(at) => place(at),
         SuppliedBy::SaidOnce(at) => format!("once {}", place(at)),

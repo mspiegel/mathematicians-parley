@@ -5,7 +5,9 @@ use super::super::doc::{LeanType, Location, Op, TermKind};
 use super::super::tactics as t;
 use super::super::templates::Num;
 use super::*;
-use crate::notations::{FOR_ALL, MEMBERSHIP, SET_BUILDER, THERE_IS};
+use crate::formula::symbol::Symbol;
+use crate::matching::Meeting;
+use crate::notations::{FOR_ALL, MEMBERSHIP, NUMBER_SYSTEMS, SET_BUILDER, THERE_IS};
 use crate::rules::System;
 
 /// A line of a proof as the writer pushes it, which may hold several of the
@@ -393,7 +395,7 @@ pub(super) struct HowMet<'m> {
     pub(super) facing: Option<Facing>,
     /// What was taken to meet them: identities dropped, parts paired out of
     /// their places (`Cited::meetings`).
-    pub(super) meeting: Option<&'m crate::matching::Meeting>,
+    pub(super) meeting: Option<&'m Meeting>,
 }
 
 /// An equation a substitution puts in that no line says, as Lean has it:
@@ -531,10 +533,7 @@ pub(super) fn cited_bridge(
 /// Whether every place `says` names the letter `set` is the set something
 /// belongs to: of `x ∈ X`, `for all x ∈ X`, `there is x ∈ X` or
 /// `{t ∈ X | P}`, each of which holds it second.
-pub(super) fn read_as_members(
-    says: &Node,
-    set: crate::formula::symbol::Symbol,
-) -> bool {
+pub(super) fn read_as_members(says: &Node, set: Symbol) -> bool {
     let holds = matches!(
         says.notation(),
         MEMBERSHIP | FOR_ALL | THERE_IS | SET_BUILDER
@@ -580,12 +579,12 @@ impl Cites {
         };
         let names_set_letter =
             node.names().iter().any(|n| values.contains_key(n.as_str()));
-        let claims_natural = node.notation() == crate::notations::MEMBERSHIP
+        let claims_natural = node.notation() == MEMBERSHIP
             && node.children.get(1).is_some_and(|set| {
-                set.notation() == crate::notations::NUMBER_SYSTEMS
+                set.notation() == NUMBER_SYSTEMS
                     && matches!(
-                        crate::rules::System::of_sign(&set.text),
-                        Some(crate::rules::System::N | crate::rules::System::N0)
+                        System::of_sign(&set.text),
+                        Some(System::N | System::N0)
                     )
             });
         let moves = |t: Option<&Printed>| {

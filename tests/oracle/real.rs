@@ -23,7 +23,9 @@ use num_traits::{One, Signed, Zero};
 use parley::formula::grammar::Grammar;
 use parley::formula::node::Node;
 use parley::formula::page::numeral;
+use parley::formula::Sort;
 
+use crate::atoms;
 use crate::gen::{made, Drawn};
 use crate::judge::Verdict;
 use crate::shared::Random;
@@ -360,7 +362,7 @@ pub fn draw(r: &mut Random) -> Claim {
 pub fn claim(r: &mut Random, g: &Grammar) -> Drawn {
     // One claim in three holds π, e or a logarithm, which `atoms` judges.
     if r.below(3) == 0 {
-        return crate::atoms::claim(r, g);
+        return atoms::claim(r, g);
     }
     let c = draw(r);
     Drawn {
@@ -405,10 +407,7 @@ fn term(g: &Grammar, e: &Real) -> Node {
                 g,
                 "_(_)",
                 vec![
-                    Node::name(
-                        parley::formula::Sort::of("function from number to number"),
-                        name,
-                    ),
+                    Node::name(Sort::of("function from number to number"), name),
                     angle_node(g, a),
                 ],
             )

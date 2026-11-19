@@ -37,9 +37,17 @@
 //!
 //! This reads set.mm, and fails if set.mm cannot be found.
 
+#[path = "shared/mod.rs"]
+mod shared;
+
 use std::collections::{BTreeMap, BTreeSet};
+use std::ops::{Bound, Range};
+use std::panic::AssertUnwindSafe;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+use std::{env, panic, thread};
 
 use parley::checker::{check_cuts, Cut};
 use parley::citing::largest_search;
@@ -50,17 +58,13 @@ use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
+use parley::tools::build::{library, Libraries, Loaded};
+use parley::tools::{path_of, verify};
+use shared::{included, Random};
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).
 const SLOTS: usize = 8;
-use parley::tools::build::{library, Libraries, Loaded};
-use parley::tools::{path_of, verify};
-
-#[path = "shared/mod.rs"]
-mod shared;
-
-use shared::{included, Random};
 
 /// The seed the order of the mutants is shuffled by where `MUTATION_SEED`
 /// does not say another.
@@ -80,7 +84,7 @@ const SHARE: usize = 50;
 const SEARCHED: usize = 4_000;
 
 /// How long checking a share may run before the test names its mutants.
-const SLOW: std::time::Duration = std::time::Duration::from_secs(60);
+const SLOW: Duration = Duration::from_secs(60);
 
 /// How many verifications run at once: each runs on every core already,
 /// and holds a copy of set.mm of its own.
@@ -412,7 +416,7 @@ fn pair_values(line: &str) -> Vec<(usize, usize)> {
 
 /// The lines of a file a theorem's text runs over, by index: from its
 /// `theorem` line to the next theorem's, or the end.
-fn region(thm: &Theorem, every: &[&Theorem], lines: usize) -> std::ops::Range<usize> {
+fn region(thm: &Theorem, every: &[&Theorem], lines: usize) -> Range<usize> {
     let next = every
         .iter()
         .filter(|t| t.path == thm.path && t.line > thm.line)
@@ -540,10 +544,7 @@ fn mutants(tree: &dyn Source) -> Vec<Mutant> {
                     continue;
                 };
                 let next = same
-                    .range::<&str, _>((
-                        std::ops::Bound::Excluded(word),
-                        std::ops::Bound::Unbounded,
-                    ))
+                    .range::<&str, _>((Bound::Excluded(word), Bound::Unbounded))
                     .next()
                     .or_else(|| same.iter().next())
                     .filter(|n| **n != word);
@@ -604,20 +605,20 @@ fn shuffled(mut all: Vec<Mutant>, seed: u64) -> Vec<Mutant> {
 fn a_wrong_proof_is_refused_and_never_verified() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
-    let seed = std::env::var("MUTATION_SEED")
+    let seed = env::var("MUTATION_SEED")
         .ok()
         .map(|s| s.parse::<u64>().expect("MUTATION_SEED is a number"))
         .unwrap_or(SEED);
     let all = shuffled(mutants(&clean), seed);
     let total = all.len();
-    let wanted = std::env::var("MUTANTS")
+    let wanted = env::var("MUTANTS")
         .ok()
         .map(|s| s.parse::<usize>().expect("MUTANTS is a number"))
         .unwrap_or(total);
     // `MUTATION_AT` keeps the mutants at the lines it lists, `path:line`
     // with commas between, to ask again of what a run reported; each is
     // then checked on its own, so that one running away is named alone.
-    let at: Option<Vec<String>> = std::env::var("MUTATION_AT")
+    let at: Option<Vec<String>> = env::var("MUTATION_AT")
         .ok()
         .map(|s| s.split(',').map(|p| p.trim().to_string()).collect());
     let taken: Vec<Mutant> = all
@@ -634,18 +635,17 @@ fn a_wrong_proof_is_refused_and_never_verified() {
     // Checked a share at a time on every core, each share reading the corpus
     // once. A share still running after `SLOW` is named, since the test
     // cannot stop it: a checker that runs away on a page is a fault too.
-    let shares: Vec<std::ops::Range<usize>> = (0..taken.len())
+    let shares: Vec<Range<usize>> = (0..taken.len())
         .step_by(share)
         .map(|s| s..(s + share).min(taken.len()))
         .collect();
-    let running: std::sync::Mutex<BTreeMap<usize, std::time::Instant>> =
-        std::sync::Mutex::new(BTreeMap::new());
-    let done = std::sync::atomic::AtomicBool::new(false);
-    let checked: Vec<Vec<String>> = std::thread::scope(|scope| {
+    let running: Mutex<BTreeMap<usize, Instant>> = Mutex::new(BTreeMap::new());
+    let done = AtomicBool::new(false);
+    let checked: Vec<Vec<String>> = thread::scope(|scope| {
         scope.spawn(|| {
             let mut named: BTreeSet<usize> = BTreeSet::new();
-            while !done.load(std::sync::atomic::Ordering::Relaxed) {
-                std::thread::sleep(std::time::Duration::from_secs(5));
+            while !done.load(Ordering::Relaxed) {
+                thread::sleep(Duration::from_secs(5));
                 let now = running.lock().unwrap().clone();
                 for (share, began) in now {
                     if began.elapsed() > SLOW && named.insert(share) {
@@ -668,10 +668,7 @@ fn a_wrong_proof_is_refused_and_never_verified() {
             &(0..shares.len()).collect::<Vec<usize>>(),
             || (),
             |_, &share| {
-                running
-                    .lock()
-                    .unwrap()
-                    .insert(share, std::time::Instant::now());
+                running.lock().unwrap().insert(share, Instant::now());
                 let cuts: Vec<Cut> = taken[shares[share].clone()]
                     .iter()
                     .map(|m| Cut {
@@ -685,7 +682,7 @@ fn a_wrong_proof_is_refused_and_never_verified() {
                 said
             },
         );
-        done.store(true, std::sync::atomic::Ordering::Relaxed);
+        done.store(true, Ordering::Relaxed);
         out.into_iter().flatten().collect()
     });
     let largest = largest_search();
@@ -711,7 +708,7 @@ fn a_wrong_proof_is_refused_and_never_verified() {
             let m = &taken[i];
             let mut tree = Overlay::new(&clean);
             tree.write(&m.path, m.text.clone().into_bytes());
-            let run = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let run = panic::catch_unwind(AssertUnwindSafe(|| {
                 Loaded::new(&tree)
                     .and_then(|loaded| {
                         loaded.elaborate(&m.qualified, lib, Options::default())

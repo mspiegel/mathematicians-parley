@@ -377,7 +377,7 @@ impl<'a> Elaborator<'a> {
             .firsts
             .into_iter()
             .filter_map(|by| match by {
-                crate::checker::record::SuppliedBy::Line(at) => Some(at),
+                SuppliedBy::Line(at) => Some(at),
                 _ => None,
             })
             .collect())

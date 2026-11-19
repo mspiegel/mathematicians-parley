@@ -1,6 +1,7 @@
 //! Parsing a proof.
 
 use super::*;
+use crate::outcome::Declined;
 
 /// The theorems of a proof file, and what the file holds outside them.
 /// Structure comes from the step number; indentation is presentation and is
@@ -458,7 +459,7 @@ pub fn parse_proof(
                     reason: None,
                 };
                 match define_parts(&t) {
-                    crate::outcome::Declined(d) => {
+                    Declined(d) => {
                         return Err(d.into_problem(path, line.no));
                     }
                     Built(DefineParts::Recursion(_)) => {
@@ -736,9 +737,7 @@ pub fn parse_proof(
                 ));
             };
             let says_kind = match define_parts(&t) {
-                crate::outcome::Declined(d) => {
-                    return Err(d.into_problem(path, line.no))
-                }
+                Declined(d) => return Err(d.into_problem(path, line.no)),
                 Built(parts) => parts.one().is_some_and(|one| one.kind.is_some()),
             };
             // A define names an object and is in scope from where it stands on.

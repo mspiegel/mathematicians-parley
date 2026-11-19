@@ -23,6 +23,7 @@
 //! the order is part of what a proof comes out as, so an entry is not moved
 //! without a reason.
 
+use num_rational::BigRational;
 /// The digits and the constant set.mm names each by.
 use num_traits::Signed;
 
@@ -645,7 +646,7 @@ impl System {
 
     /// Whether a rational value is a member, by `METHODS.md`'s tests on a
     /// closed number's value.
-    pub fn admits(self, value: &num_rational::BigRational) -> bool {
+    pub fn admits(self, value: &BigRational) -> bool {
         match self {
             System::N => value.is_integer() && value.is_positive(),
             System::N0 => value.is_integer() && !value.is_negative(),

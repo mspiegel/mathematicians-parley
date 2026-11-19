@@ -1,6 +1,13 @@
 //! Classes, renaming within and witnesses.
 
+use std::iter;
+use std::slice::Iter;
+
 use super::*;
+use crate::checker::record::SuppliedBy;
+use crate::citing;
+use crate::matching::FxIndexSet;
+use crate::notations::PROPERTY_OF;
 
 impl<'a> Elaborator<'a> {
     /// The closed `lemma` applied so that it states `one` against `other`,
@@ -381,7 +388,7 @@ impl<'a> Elaborator<'a> {
         // setvar; the element is a class. Stripping the `cv` is what lets the
         // one stand in for the other.
         let name = over.children()[0].variable().unwrap().to_string();
-        let marks: BTreeSet<String> = std::iter::once(name.clone()).collect();
+        let marks: BTreeSet<String> = iter::once(name.clone()).collect();
         let said = as_class(&body.substitute(binding), &marks);
         let mut put = Binding::new();
         put.insert(Symbol::of(&name), element);
@@ -521,15 +528,13 @@ impl<'a> Elaborator<'a> {
                 && cited
                     .binding
                     .get(&node.children[0].text)
-                    .is_some_and(|v| v.notation() == crate::notations::PROPERTY_OF)
+                    .is_some_and(|v| v.notation() == PROPERTY_OF)
         };
         let mut nodes = Vec::new();
         for s in group.asked().chain(&group.gives) {
             for node in s.walk() {
                 if applied(&node) {
-                    nodes.extend(
-                        crate::citing::filled(&node, &cited.binding, ctx).walk(),
-                    );
+                    nodes.extend(citing::filled(&node, &cited.binding, ctx).walk());
                 }
                 nodes.push(node);
             }
@@ -580,7 +585,7 @@ impl<'a> Elaborator<'a> {
     /// where `node` is no "there is".
     pub(super) fn existential_letters(
         node: &Node,
-        exists: &crate::matching::FxIndexSet<NotationId>,
+        exists: &FxIndexSet<NotationId>,
     ) -> Vec<Symbol> {
         let mut letters = Vec::new();
         let mut at = node;
@@ -738,7 +743,7 @@ impl<'a> Elaborator<'a> {
         // The facts the checker recorded the exhibit as shown by
         // (`Exhibit::shown`): each letter in its domain, outermost first,
         // then each part of the body joined by "and".
-        let shown: Vec<crate::checker::record::SuppliedBy> = self
+        let shown: Vec<SuppliedBy> = self
             .checked
             .exhibited
             .get(&step.just.line)
@@ -829,7 +834,7 @@ impl<'a> Elaborator<'a> {
     pub(super) fn body_from_record(
         &mut self,
         term: &Term,
-        parts: &mut std::slice::Iter<'_, Option<(Rpn, Proof)>>,
+        parts: &mut Iter<'_, Option<(Rpn, Proof)>>,
         scope: &Rpn,
         facts: &Facts,
         step: &Step,

@@ -19,7 +19,7 @@
 use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
 
-use crate::binds;
+use crate::methods::field::BITS;
 pub use crate::methods::numerals::{at_number, spell, spell_integer, value};
 use crate::methods::numerals::{
     digit, is_letter, last_off, numeral_term, one_digit, put, spelt,
@@ -27,7 +27,7 @@ use crate::methods::numerals::{
 use crate::mm::kernel::{FloatLabels, Term};
 use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
-use crate::t;
+use crate::{binds, t};
 
 const ADD: &str = "caddc";
 const SUB: &str = "cmin";
@@ -563,7 +563,7 @@ fn factorial_of(b: &Builder, n: &BigUint) -> Option<(BigUint, Proof)> {
     let m = n - 1u32;
     let (below, held) = factorial_of(b, &m)?;
     let value = &below * n;
-    if value.bits() > crate::methods::field::BITS {
+    if value.bits() > BITS {
         return None;
     }
     let (sm, sn, s_below) = (spelt(&m), spelt(n), spelt(&below));

@@ -4,6 +4,7 @@ use std::borrow::Cow;
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
+use std::slice;
 use std::sync::Arc;
 
 use indexmap::IndexMap;
@@ -11,8 +12,7 @@ use indexmap::IndexMap;
 use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{chain_links, chain_pairs, Written};
-use crate::formula::Binds;
-use crate::formula::{Grammar, Node, Sorts};
+use crate::formula::{Binds, Grammar, Node, Sorts};
 use crate::matching::{
     expand, free_names, standard, Context, Defined, Definitions, FxIndexMap, FxIndexSet,
 };
@@ -26,6 +26,9 @@ use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 
 use super::supply::names_of;
 use crate::checker::record::ItemReading;
+use crate::corpus::Item;
+use crate::rules::System;
+use crate::{matching, targets};
 
 /// Where an item writes a fact it asks: its hypothesis line, counted from 0
 /// among the item's, and the sentence of that line, or the part a `let`
@@ -101,7 +104,7 @@ impl Group {
             .chain(&self.gives)
             .flat_map(|t| t.names())
             .collect();
-        let apart = |t: &Node| crate::matching::bound_apart(t, &free, &used, binders);
+        let apart = |t: &Node| matching::bound_apart(t, &free, &used, binders);
         let wants = self
             .wants
             .iter()
@@ -160,7 +163,7 @@ fn defines_apart(
 ) -> Definitions {
     let apart = |t: &Node| {
         let used: BTreeSet<String> = names.union(&t.names()).cloned().collect();
-        crate::matching::bound_apart(t, names, &used, binders)
+        matching::bound_apart(t, names, &used, binders)
     };
     own.iter()
         .map(|(name, defined)| {
@@ -232,7 +235,7 @@ fn applied_functions<'t>(
 #[derive(Clone)]
 pub struct Proved<'a> {
     pub thm: &'a Theorem,
-    pub sorts: std::borrow::Cow<'a, Sorts>,
+    pub sorts: Cow<'a, Sorts>,
 }
 
 /// What each item asks a citation to supply.
@@ -279,7 +282,7 @@ pub struct Library<'a> {
 /// The number system each place of a notation is in, by the definition
 /// that defines it: `definition divides` lets d and n in ℤ, so both places
 /// of "d divides n" are in ℤ. None at a place the definition leaves open.
-pub type PlaceSystems = FxIndexMap<NotationId, Vec<Option<crate::rules::System>>>;
+pub type PlaceSystems = FxIndexMap<NotationId, Vec<Option<System>>>;
 
 regex!(FIRST_WORD, r"^[a-z0-9-]+");
 
@@ -358,13 +361,11 @@ impl<'a> Library<'a> {
     }
 
     /// The item of that full name, a record or a theorem this corpus proves.
-    pub fn item(&self, name: &str) -> Option<crate::corpus::Item<'a>> {
+    pub fn item(&self, name: &str) -> Option<Item<'a>> {
         if let Some(&i) = self.items.get(name) {
-            return Some(crate::corpus::Item::Record(&self.records[i]));
+            return Some(Item::Record(&self.records[i]));
         }
-        self.proved
-            .get(name)
-            .map(|k| crate::corpus::Item::Theorem(k.thm))
+        self.proved.get(name).map(|k| Item::Theorem(k.thm))
     }
 
     /// The sorts the item of that full name is read with, a record's or a
@@ -579,7 +580,7 @@ impl<'a> Library<'a> {
                 .filter(|h| h.kind == Intro::Let)
                 .map(|h| h.body(&record.path))
                 .collect();
-            let systems: FxIndexMap<String, crate::rules::System> = self
+            let systems: FxIndexMap<String, System> = self
                 .trees(&lets, sorts)
                 .iter()
                 .filter_map(letter_system)
@@ -588,7 +589,7 @@ impl<'a> Library<'a> {
                 let Some(defined) = defined_side(&stated, &self.bicond) else {
                     continue;
                 };
-                let places: Vec<Option<crate::rules::System>> = defined
+                let places: Vec<Option<System>> = defined
                     .children
                     .iter()
                     .map(|c| match c.is_name() {
@@ -639,7 +640,7 @@ impl<'a> Library<'a> {
             let lines = r.hypotheses.iter().map(|h| (h.kind, h.body(&r.path)));
             let mut said: Vec<Written> = hypothesis_parts(lines);
             said.extend(r.stated());
-            let (_, fills) = crate::targets::lemma(r);
+            let (_, fills) = targets::lemma(r);
             said.extend(fills.values().map(|f| Written::new(f, &r.path, r.line)));
             self.read_into(&mut out, &said, sorts);
         }
@@ -683,10 +684,7 @@ impl<'a> Library<'a> {
         let (said, proved) = (self.read_record(i), self.read_proved(k));
         let (wants, proved_wants) = (wants_of(&said), wants_of(&proved));
         for (n, (a, b)) in wants.iter().zip(&proved_wants).enumerate() {
-            if !written_alike(
-                std::slice::from_ref(&a.tree),
-                std::slice::from_ref(&b.tree),
-            ) {
+            if !written_alike(slice::from_ref(&a.tree), slice::from_ref(&b.tree)) {
                 return Some(format!(
                     "its fact {} is {} where the proof's is {}",
                     n + 1,
@@ -896,7 +894,7 @@ impl<'a> Library<'a> {
 /// parts (`Introduction::parts`), and an `assume` line whole.
 /// The letter a `let` line puts in a number system, `d ∈ ℤ`, with the
 /// system; None for any other line.
-fn letter_system(line: &Node) -> Option<(String, crate::rules::System)> {
+fn letter_system(line: &Node) -> Option<(String, System)> {
     let (MEMBERSHIP, [letter, set]) = (line.notation(), line.children.as_slice())
     else {
         return None;
@@ -904,7 +902,7 @@ fn letter_system(line: &Node) -> Option<(String, crate::rules::System)> {
     if !letter.is_name() || set.notation() != NUMBER_SYSTEMS {
         return None;
     }
-    let system = crate::rules::System::of_sign(&set.text)?;
+    let system = System::of_sign(&set.text)?;
     Some((letter.text.to_string(), system))
 }
 

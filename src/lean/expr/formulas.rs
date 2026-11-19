@@ -1,11 +1,17 @@
 //! Formulas, relations, membership and quantifiers.
 
+use std::iter;
+
 use super::*;
-use crate::notations::{BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION};
+use crate::formula::node::ByShape;
+use crate::formula::{page, Sort};
+use crate::matching;
 use crate::notations::{
-    BIJECTION, CONTINUOUS, DIFFERENTIABLE, EXISTS, FUNCTIONS_FROM, FUNCTION_LIMIT,
-    FUNCTION_ON, HOLDS_OF, LISTED_FOUR, LISTED_THREE, LISTED_TWO, OPEN, PAIR, POWERSET,
-    SINGLETON, SUBSET, TENDS_TO, THERE_IS_SOME,
+    BICONDITIONAL, BIJECTION, COMMA_CONJUNCTION, CONDITIONAL, CONTINUOUS, DEFINED_AT,
+    DERIVATIVE, DIFFERENTIABLE, DISJUNCTION, EQUAL_CHAIN, EXISTS, FOR_ALL_SETS,
+    FUNCTIONS_FROM, FUNCTION_LIMIT, FUNCTION_ON, FUNCTION_TYPE, HOLDS_OF, IMPLICATION,
+    INCIDENT, JOINS, LISTED_FOUR, LISTED_THREE, LISTED_TWO, NTH_DERIVATIVE, OPEN, PAIR,
+    POWER, POWERSET, SINGLETON, SUBSET, TENDS_TO, THERE_IS_SOME,
 };
 
 impl Writer<'_> {
@@ -32,13 +38,10 @@ impl Writer<'_> {
         // "If P then Q": Q written with the sets P makes finite, as the
         // checker records them (`finite_under`), and P as it stands, a
         // count in it not vouching for itself.
-        if let ([p, q], crate::notations::CONDITIONAL | crate::notations::IMPLICATION) =
+        if let ([p, q], CONDITIONAL | IMPLICATION) =
             (node.children.as_slice(), node.notation())
         {
-            if let Some(sets) = self
-                .finite_under
-                .get(&crate::formula::node::ByShape(node.clone()))
-            {
+            if let Some(sets) = self.finite_under.get(&ByShape(node.clone())) {
                 let mut inner = self.with_letters(self.letters.clone());
                 for (set, why) in sets {
                     inner
@@ -61,8 +64,8 @@ impl Writer<'_> {
             return self.tends_to(node);
         }
         match (node.notation(), node.children.as_slice()) {
-            (crate::notations::JOINS, [a, u, w]) => return self.joins(a, u, w),
-            (crate::notations::INCIDENT, [x, a]) => return self.incident(x, a),
+            (JOINS, [a, u, w]) => return self.joins(a, u, w),
+            (INCIDENT, [x, a]) => return self.incident(x, a),
             _ => {}
         }
         if node.notation() == FUNCTION_LIMIT {
@@ -89,14 +92,10 @@ impl Writer<'_> {
         // c in where set.mm takes that derivative to be defined,
         // `c ∈ LeanBridges.Calculus.derivDomain k f`, k of f^(k), 1 of f′,
         // 0 of f itself.
-        if let (crate::notations::DEFINED_AT, [g, c]) =
-            (node.notation(), node.children.as_slice())
-        {
+        if let (DEFINED_AT, [g, c]) = (node.notation(), node.children.as_slice()) {
             let (base, order) = match (g.notation(), g.children.as_slice()) {
-                (crate::notations::NTH_DERIVATIVE, [f, n]) => {
-                    (f, self.number(n, Num::Nat))
-                }
-                (crate::notations::DERIVATIVE, [f]) => (
+                (NTH_DERIVATIVE, [f, n]) => (f, self.number(n, Num::Nat)),
+                (DERIVATIVE, [f]) => (
                     f,
                     Route::Built(Printed::numeral("1", LeanType::Num(Num::Nat))),
                 ),
@@ -152,8 +151,7 @@ impl Writer<'_> {
             }
             // ∅ of no things the lines name, the empty-set axiom's, is a set
             // of the statement's things, `(∅ : Set α)`.
-            let unheld = set.notation() == crate::notations::EMPTY_SET
-                && self.set_members(set).is_none();
+            let unheld = set.notation() == EMPTY_SET && self.set_members(set).is_none();
             return self.set_term(set).map(|s| {
                 let s = match unheld {
                     true => super::super::doc::Term::cast(
@@ -286,7 +284,7 @@ impl Writer<'_> {
             MEMBERSHIP => self.membership(node),
             // f : A → B, which Lean's types give where f takes and gives
             // those.
-            crate::notations::FUNCTION_TYPE => {
+            FUNCTION_TYPE => {
                 let [f, from, to] = node.children.as_slice() else {
                     return Route::no("a function type of other than three parts");
                 };
@@ -332,16 +330,15 @@ impl Writer<'_> {
                 }
             }
             THERE_IS | FOR_ALL => self.quantified(node),
-            crate::notations::FOR_ALL_SETS => match node.children.as_slice() {
+            FOR_ALL_SETS => match node.children.as_slice() {
                 [letter, body] => self.quantified_over_sets(letter, body),
                 _ => Route::no("for all sets of other than a letter and a body"),
             },
             // a = b = c: the equation between each two neighbouring terms,
             // joined as the parts of an "and" are, as set.mm's chain says
             // (`page::chain_links`).
-            crate::notations::EQUAL_CHAIN => {
-                let Some(links) = crate::formula::page::chain_links(self.grammar, node)
-                else {
+            EQUAL_CHAIN => {
+                let Some(links) = page::chain_links(self.grammar, node) else {
                     return Route::no("a chain of equations with no links");
                 };
                 let mut parts = Vec::new();
@@ -356,7 +353,7 @@ impl Writer<'_> {
                     None => Route::no("a chain of equations with no links"),
                 }
             }
-            crate::notations::COMMA_CONJUNCTION => {
+            COMMA_CONJUNCTION => {
                 let mut parts = Vec::new();
                 for (i, c) in node.children.iter().enumerate() {
                     match self.knowing(&node.children[..i]).formula(c) {
@@ -428,7 +425,7 @@ impl Writer<'_> {
         };
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(m.clone(), LetterType::Number(whole));
-        let named = Node::name(crate::formula::Sort::of("number"), &m);
+        let named = Node::name(Sort::of("number"), &m);
         let body = match inner.formula(&put_for(node, &term, &named)) {
             Route::Built(b) => b,
             Route::Declined(d) => return Some(Route::Declined(d)),
@@ -484,7 +481,7 @@ impl Writer<'_> {
     /// such slot: one that is no natural number makes the power Lean's
     /// integer power (`Writer::integer_power`).
     pub(in crate::lean) fn wide_arg(&self, n: &Node) -> Option<(Node, Num)> {
-        if n.notation() == crate::notations::POWER {
+        if n.notation() == POWER {
             return None;
         }
         let template = self.template(n).built()?;
@@ -499,12 +496,10 @@ impl Writer<'_> {
             // Its free letters only: the a of |{a ∈ E : x is incident
             // with a}| is the set-builder's own.
             let binders = self.grammar.binders();
-            let free = crate::matching::free_names(arg, &binders)
-                .iter()
-                .all(|name| {
-                    self.letters.contains_key(name.as_str())
-                        || self.templates.function(name).is_some()
-                });
+            let free = matching::free_names(arg, &binders).iter().all(|name| {
+                self.letters.contains_key(name.as_str())
+                    || self.templates.function(name).is_some()
+            });
             // A count of a set no line says is finite, |H| of "|H| divides
             // |G|", is a natural number only where the set is finite.
             if arg.notation() == CARDINALITY && self.counts(arg) {
@@ -758,7 +753,7 @@ impl Writer<'_> {
         ) && self.is_number(x)
         {
             let mut at = Num::Int;
-            for n in std::iter::once(x).chain(&set.children) {
+            for n in iter::once(x).chain(&set.children) {
                 match self.carrier(n) {
                     Route::Built(c) => at = at.max(c),
                     Route::Declined(d) => return Route::Declined(d),

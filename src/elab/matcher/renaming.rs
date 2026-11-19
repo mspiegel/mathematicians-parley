@@ -1,6 +1,7 @@
 //! Renaming, tidying and reaching.
 
 use super::*;
+use crate::elab;
 
 impl<'a> Elaborator<'a> {
     /// The two as one claim, spelt with different bound variables:
@@ -895,14 +896,11 @@ impl<'a> Elaborator<'a> {
         let mut pushed: Vec<Rpn> = layers.iter().map(|(v, _)| v.clone()).collect();
         pushed.extend(layers.iter().map(|(_, s)| s.clone()));
         let lifted = pf!(self.b; outer, body, want, made, "ex");
-        let mut all: Vec<crate::mm::spell::Part> = vec![
-            crate::elab::part(scope),
-            crate::elab::part(&body),
-            crate::elab::part(&want),
-        ];
-        all.extend(pushed.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(&lifted));
-        all.push(crate::elab::part(discharge));
+        let mut all: Vec<crate::mm::spell::Part> =
+            vec![elab::part(scope), elab::part(&body), elab::part(&want)];
+        all.extend(pushed.iter().map(|p| elab::part(p)));
+        all.push(elab::part(&lifted));
+        all.push(elab::part(discharge));
         let eliminated = self.b.proof(&all);
         Ok(Built(
             pf!(self.b; scope, self.rpn(&ground), want, strong, eliminated, "mpd"),

@@ -10,6 +10,7 @@ use super::term::{
     Term, TermKind,
 };
 use crate::lean::expr::{bracketed, things_name, APP, GENERAL, MAX};
+use crate::lean::names;
 
 impl LeanType {
     /// How Lean writes the type.
@@ -22,11 +23,11 @@ impl LeanType {
             LeanType::Set(m) => format!("Set {}", bracketed(&m.text())),
             LeanType::Sym2(m) => format!("Sym2 {}", bracketed(&m.text())),
             LeanType::Things(var) => things_name(*var),
-            LeanType::Elements(g) => crate::lean::names::letter(g),
+            LeanType::Elements(g) => names::letter(g),
             LeanType::Fun { from, to } => format!("{} → {}", from.text(), to.text()),
             LeanType::Universe => "Type*".to_string(),
             LeanType::Subgroup(g) => {
-                format!("Subgroup {}", crate::lean::names::letter(g))
+                format!("Subgroup {}", names::letter(g))
             }
             LeanType::Within(set) => format!("↥{}", bracketed(&set.text())),
             LeanType::Prod(a, b) => format!("{} × {}", a.text(), b.text()),

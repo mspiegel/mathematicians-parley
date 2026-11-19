@@ -4,6 +4,7 @@
 //! normaliser; two sides are one claim exactly when they expand alike
 //! (`METHODS.md`, algebra: with no cited equation, `L − R` normalises to 0).
 
+use std::cmp::Reverse;
 use std::collections::BTreeMap;
 
 use num_bigint::BigInt;
@@ -145,8 +146,7 @@ pub fn letters_in(e: &Expr, out: &mut Vec<&'static str>) {
 /// power of 1.
 pub fn written_out(p: &Poly) -> Expr {
     let mut terms: Vec<(&Monomial, &BigRational)> = p.iter().collect();
-    terms
-        .sort_by_key(|(m, _)| std::cmp::Reverse(m.iter().map(|(_, k)| k).sum::<u32>()));
+    terms.sort_by_key(|(m, _)| Reverse(m.iter().map(|(_, k)| k).sum::<u32>()));
     let mut out: Option<Expr> = None;
     for (m, c) in terms {
         let size = c.abs();

@@ -2,6 +2,7 @@
 
 use std::borrow::Cow;
 use std::collections::BTreeSet;
+use std::iter;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use indexmap::{IndexMap, IndexSet};
@@ -382,7 +383,7 @@ fn fits(
             inside = read.inside;
             body_form = Some((read.body.clone(), read.seen));
         }
-        let forms = std::iter::once((&first, open_names.as_ref()))
+        let forms = iter::once((&first, open_names.as_ref()))
             .chain(body_form.iter().map(|(n, s)| (n, s)));
         // Whether every variable of the hypothesis is already bound, which is
         // the same for every fact tried here, so asked at most once.

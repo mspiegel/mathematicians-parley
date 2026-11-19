@@ -11,6 +11,10 @@
 //! and what was known there. A step whose lemma forbids an inner assumption
 //! is proved at an outer frame and carried back in.
 
+mod closing;
+mod obtaining;
+mod opening;
+
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -23,7 +27,6 @@ use super::state::{
     Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
 };
 use super::{Facts, Line};
-use crate::binds;
 use crate::checker::record::{self, CheckedTheorem};
 use crate::corpus::proof::PartBy;
 use crate::corpus::{
@@ -39,11 +42,7 @@ use crate::mm::{Rpn, Signature};
 use crate::notations::{AND, EQUAL_CHAIN, FUNCTION_TYPE, IN};
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
-use crate::{pf, t, take};
-
-mod closing;
-mod obtaining;
-mod opening;
+use crate::{binds, pf, t, take};
 
 /// One opener of a `proof` block, as its claim says it: a name fixed over a
 /// set, or over every set, or an assumption.

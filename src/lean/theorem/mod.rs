@@ -8,7 +8,25 @@
 //! the page, and each line written records the step it was written for, so
 //! that a line Lean refuses is reported against the page.
 
-use indexmap::IndexMap;
+mod blocks;
+mod cited_lines;
+mod citing;
+mod conversions;
+mod headers;
+mod helpers;
+mod kinds;
+mod orders;
+mod proved;
+mod reading;
+mod reasons;
+mod substitution;
+mod terms;
+
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use indexmap::{IndexMap, IndexSet};
 
 use super::doc::bridges::BridgeModule;
 use super::doc::{ListReason, Tactic, TacticArg};
@@ -30,20 +48,6 @@ use crate::formula::Node;
 use crate::notations::{BICONDITIONAL, CONDITIONAL, EQUALITY, IMPLICATION, ORDER};
 use crate::outcome::Route;
 
-mod blocks;
-mod cited_lines;
-mod citing;
-mod conversions;
-mod headers;
-mod helpers;
-mod kinds;
-mod orders;
-mod proved;
-mod reading;
-mod reasons;
-mod substitution;
-mod terms;
-
 use self::conversions::*;
 use self::headers::*;
 use self::helpers::*;
@@ -55,7 +59,13 @@ pub use self::terms::{
 use super::doc::{Op, TermKind};
 use super::expr::System;
 use super::templates::Num;
+use crate::checker::record::HeldByLines;
+use crate::citing::HypothesisAt;
+use crate::corpus::{DefineParts, Recursion};
+use crate::matching::Context;
+use crate::notations::{MEMBERSHIP, NUMBER_SYSTEMS};
 use crate::sorts::introduction::{Form, Introduction};
+use crate::{corpus, matching, rules};
 
 /// A theorem's Lean declaration, and for each of its lines the place on
 /// the page it was written for.
@@ -288,10 +298,10 @@ fn statement(
         .defines
         .iter()
         .filter(|d| d.line < thm.conclusion_line)
-        .filter(|d| match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
+        .filter(|d| match corpus::define_parts(&d.text) {
+            Route::Built(DefineParts::Recursion(_)) => true,
             // One of several arguments is written out, and lets nothing.
-            Route::Built(crate::corpus::DefineParts::One(one)) => one.params.len() == 1,
+            Route::Built(DefineParts::One(one)) => one.params.len() == 1,
             _ => false,
         })
         .map(|d| d.line)
@@ -319,7 +329,7 @@ fn statement(
                 into.push(StatedHypothesis {
                     node: defined_out(&s.node, rec, writer),
                     name: name.clone(),
-                    at: crate::citing::HypothesisAt {
+                    at: HypothesisAt {
                         line,
                         sentence: s.at,
                     },
@@ -386,26 +396,26 @@ struct Proof<'a> {
     /// it.
     trees: IndexMap<String, Vec<LineSentence>>,
     /// The defines written so far, by their index in the theorem's.
-    defined: indexmap::IndexSet<usize>,
+    defined: IndexSet<usize>,
     /// While a calculation's rows are written, the type it is worked out
     /// in: a row's claim alone, Σ j² = 1², may hold in a narrower type than
     /// the calculation's ℚ, which a citation in the row is applied at.
-    worked_in: std::cell::Cell<Option<super::templates::Num>>,
+    worked_in: Cell<Option<super::templates::Num>>,
     /// While a calculation's row is written, the row as the calculation
     /// states it in Lean, `_ = ((2 : ℕ) : ℕ∞)` of a chain of counts: what a
     /// citation in the row is compared with.
-    row_stated: std::cell::RefCell<Option<Printed>>,
+    row_stated: RefCell<Option<Printed>>,
     /// While the part a witness's `refine` leaves open is proved: the step's
     /// `have` states the whole "there is", and the goal is what the claim
     /// says of the witness, as the writer writes the claim with its number
     /// named.
-    in_witness: std::cell::Cell<bool>,
+    in_witness: Cell<bool>,
     /// The lines whose numbers a citation was given while its step was
     /// written, A/B of `A/B ∈ ℤ`, which the step's goal is put in terms of.
-    said_used: std::cell::RefCell<Vec<SaidUsed>>,
+    said_used: RefCell<Vec<SaidUsed>>,
     /// Where a citation's item, read as written, writes a term in another
     /// form than the line it proves (`doc::forms`).
-    forms: std::cell::RefCell<Vec<FormNote>>,
+    forms: RefCell<Vec<FormNote>>,
     /// While a step that names whole numbers is written
     /// (`proof_with_named`), the equations of each with its term: what a
     /// row citing a line in the page's forms is put in terms of.
@@ -415,7 +425,7 @@ struct Proof<'a> {
     /// function a step has narrowed (`narrowed_function`): their equation
     /// is a line about an obtained number or function, cited as any line
     /// is, not a `set` written out.
-    witnessed: std::collections::BTreeSet<String>,
+    witnessed: BTreeSet<String>,
     /// The narrowings written in the blocks open at the step being
     /// written, innermost last, each put back where its block ends.
     narrowings: Vec<NarrowingUndo>,
@@ -433,26 +443,26 @@ struct Proof<'a> {
     /// saying a term is an integer is one of these (`integer_line`), as
     /// the page puts a term in a system only in the steps that name the
     /// line (`docs/SYNTAX.md`).
-    named_now: std::cell::RefCell<Option<std::collections::BTreeSet<String>>>,
+    named_now: RefCell<Option<BTreeSet<String>>>,
     /// While a reason is written, the parts its lines put in a number
     /// system, as the check found them (`CheckedTheorem::held_by_lines`).
-    held_now: std::cell::RefCell<Vec<crate::checker::record::HeldByLines>>,
+    held_now: RefCell<Vec<HeldByLines>>,
     /// The index of the step being written, whose lines a witness's whole
     /// number is named from (`witness`).
-    step_now: std::cell::Cell<Option<usize>>,
+    step_now: Cell<Option<usize>>,
     /// The names a claim's leading "for all" is opened under while its
     /// proof is written, `x h_x` of `intro x h_x` (`peel`): a line Lean
     /// states under the same binders is read at them, and a member's fact
     /// is the guard's name.
-    intros_now: std::cell::RefCell<Vec<String>>,
+    intros_now: RefCell<Vec<String>>,
     /// The sentence of a claim whose proof is being written (`proof_of`),
     /// by which the step's proof puts its cited lines in terms of the
     /// numbers lines name (`specs_in`).
-    claim_now: std::cell::RefCell<Option<Node>>,
+    claim_now: RefCell<Option<Node>>,
     /// While a citation's closing is written, the equations of the defines
     /// the citation has already put into the goal (`written_out`), `hD1`:
     /// the closing does not put them in again.
-    defines_in_goal: std::cell::RefCell<Vec<String>>,
+    defines_in_goal: RefCell<Vec<String>>,
     /// While a block's part is opened, the goal it opens, as Lean states it
     /// (`OpeningGoal`): an `assume` takes its statement from it, as `intro`
     /// does, `V.encard = 2` of a direction of `V.encard = 2 ↔ …`.
@@ -466,7 +476,7 @@ struct Proof<'a> {
     /// binder's name, `hD1` with `∀ j : ℤ, 0 < j → q j = j + 1`
     /// (`headers::header_function`), which a step applying the function
     /// reads at its argument.
-    header_equations: std::collections::BTreeMap<String, Printed>,
+    header_equations: BTreeMap<String, Printed>,
 }
 
 /// A statement's fact that a thing is one of ZF's sets.
@@ -552,7 +562,7 @@ struct RestatedInStep {
 /// its Lean name and the system it says.
 struct NamedLine {
     name: Printed,
-    system: crate::rules::System,
+    system: rules::System,
 }
 
 /// The Lean name of the line among `facts` that puts the term `t` in
@@ -561,20 +571,20 @@ struct NamedLine {
 fn named_line(
     facts: &[super::algebra::Cited],
     t: &Node,
-    within: crate::rules::System,
-    ctx: &crate::matching::Context,
+    within: rules::System,
+    ctx: &Context,
 ) -> Option<NamedLine> {
     facts.iter().find_map(|f| {
         let [x, set] = f.node.children.as_slice() else {
             return None;
         };
-        let system = crate::rules::System::of_sign(&set.text)?;
+        let system = rules::System::of_sign(&set.text)?;
         // Each in its standard spelling, x² as x^2, as the membership method
         // reads them (`methods::membership`).
-        let standard = |n: &Node| crate::matching::standard(n, ctx);
-        (f.node.notation() == crate::notations::MEMBERSHIP
-            && set.notation() == crate::notations::NUMBER_SYSTEMS
-            && crate::matching::alike_top(&standard(x), &standard(t), ctx)
+        let standard = |n: &Node| matching::standard(n, ctx);
+        (f.node.notation() == MEMBERSHIP
+            && set.notation() == NUMBER_SYSTEMS
+            && matching::alike_top(&standard(x), &standard(t), ctx)
             && system.within(within))
         .then(|| NamedLine {
             name: f.proof.clone(),
@@ -737,7 +747,7 @@ impl SaidLine {
 
 /// A recursion the header lets, as a step cites it.
 struct CitedRecursion {
-    rule: crate::corpus::Recursion,
+    rule: Recursion,
     /// The Lean name of its hypothesis, `hD1`.
     hypothesis: String,
     /// Whether a rule of it is by cases, F(k) if b(k) = 0, G(k) otherwise.
@@ -758,14 +768,14 @@ pub(super) fn statement_writer<'a>(
         sources.templates,
         &sources.ctx.conjunctions,
     );
-    writer.function_systems = std::rc::Rc::new(rec.function_systems.clone());
-    writer.things = std::rc::Rc::new(rec.thing_types.clone());
+    writer.function_systems = Rc::new(rec.function_systems.clone());
+    writer.things = Rc::new(rec.thing_types.clone());
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
-    writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
+    writer.finite_under = Rc::new(rec.finite_under.clone());
     writer.bounds = rec.statement_bounds.clone();
     writer.whole_bounds = rec.statement_bounds.clone();
-    writer.page_bounds = std::rc::Rc::new(rec.page_bounds.clone());
+    writer.page_bounds = Rc::new(rec.page_bounds.clone());
     writer
 }
 
@@ -786,26 +796,26 @@ pub fn theorem(
         lines: Vec::new(),
         named: IndexMap::new(),
         trees: IndexMap::new(),
-        defined: indexmap::IndexSet::new(),
-        worked_in: std::cell::Cell::new(None),
-        row_stated: std::cell::RefCell::new(None),
-        in_witness: std::cell::Cell::new(false),
-        said_used: std::cell::RefCell::new(Vec::new()),
-        forms: std::cell::RefCell::new(Vec::new()),
+        defined: IndexSet::new(),
+        worked_in: Cell::new(None),
+        row_stated: RefCell::new(None),
+        in_witness: Cell::new(false),
+        said_used: RefCell::new(Vec::new()),
+        forms: RefCell::new(Vec::new()),
         named_specs: Vec::new(),
-        witnessed: std::collections::BTreeSet::new(),
+        witnessed: BTreeSet::new(),
         witness_letters: Vec::new(),
         narrowings: Vec::new(),
         finite_defined: IndexMap::new(),
-        named_now: std::cell::RefCell::new(None),
-        held_now: std::cell::RefCell::new(Vec::new()),
-        step_now: std::cell::Cell::new(None),
-        intros_now: std::cell::RefCell::new(Vec::new()),
-        claim_now: std::cell::RefCell::new(None),
-        defines_in_goal: std::cell::RefCell::new(Vec::new()),
+        named_now: RefCell::new(None),
+        held_now: RefCell::new(Vec::new()),
+        step_now: Cell::new(None),
+        intros_now: RefCell::new(Vec::new()),
+        claim_now: RefCell::new(None),
+        defines_in_goal: RefCell::new(Vec::new()),
         opening_goal: None,
         sethoods: Vec::new(),
-        header_equations: std::collections::BTreeMap::new(),
+        header_equations: BTreeMap::new(),
     };
     let Statement {
         binders,
@@ -819,15 +829,14 @@ pub fn theorem(
     // Each says what its binder states, which a later reading reads: a
     // count the hypothesis alone makes finite stays in ℕ∞ there, where the
     // proof's writer counts it in ℕ.
-    let stated: std::collections::BTreeMap<&str, &Printed> = binders
+    let stated: BTreeMap<&str, &Printed> = binders
         .iter()
         .filter_map(|b| match b {
             Binder::Fact { name, says, .. } => Some((name.as_str(), says)),
             Binder::Letter { .. } => None,
         })
         .collect();
-    let bound: std::collections::BTreeSet<&str> =
-        binders.iter().map(Binder::name).collect();
+    let bound: BTreeSet<&str> = binders.iter().map(Binder::name).collect();
     for (label, said) in hypothesis_sentences(thm, rec) {
         let said: Vec<LineSentence> = said
             .into_iter()
@@ -848,10 +857,10 @@ pub fn theorem(
     // A recursion or a function the statement lets is cited by its label,
     // as its hypothesis (`header_recursions`).
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        let function = match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
+        let function = match corpus::define_parts(&d.text) {
+            Route::Built(DefineParts::Recursion(_)) => true,
             // One of several arguments is written out, and has no hypothesis.
-            Route::Built(crate::corpus::DefineParts::One(one)) => one.params.len() == 1,
+            Route::Built(DefineParts::One(one)) => one.params.len() == 1,
             _ => false,
         };
         if function {
@@ -892,7 +901,7 @@ pub fn theorem(
     // The names the statement wrote out, named again for the proof.
     // Only those the theorem's page writes: a file's other defines are its
     // other theorems'.
-    let written: std::collections::BTreeSet<String> = rec
+    let written: BTreeSet<String> = rec
         .page
         .entries()
         .flat_map(|(_, node)| node.names())
@@ -904,8 +913,8 @@ pub fn theorem(
         let own = thm.defines.iter().position(|d| {
             d.line < thm.conclusion_line
                 && matches!(
-                    crate::corpus::define_parts(&d.text),
-                    Route::Built(crate::corpus::DefineParts::One(ref one)) if one.name == name
+                    corpus::define_parts(&d.text),
+                    Route::Built(DefineParts::One(ref one)) if one.name == name
                 )
         });
         let named = match own {

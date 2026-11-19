@@ -22,17 +22,19 @@
 //! rational brackets on each root and atom, added part by part
 //! (`bracketed_positive`).
 
+mod pieces;
+mod positives;
+mod proving;
+
 use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
 use super::calculators::{Ordered, Revalued, Vanishing, Work};
 use super::field::{self, numeral, Monomial, Poly, Q};
-use super::numerals;
 use super::provenance::MEMBERSHIP;
 use super::state::{fit, names_of, Binding, Elaborator};
-use super::Facts;
-use crate::binds;
+use super::{numerals, Facts};
 use crate::corpus::Step;
 use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::methods::reals::{self, Atom, Real};
@@ -41,12 +43,7 @@ use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
-use crate::rules;
-use crate::{t, take};
-
-mod pieces;
-mod positives;
-mod proving;
+use crate::{binds, methods, rules, t, take};
 
 /// The lemmas that read a difference of two points out of a line that says
 /// it inside something more (`apart_held`): a betweenness says its
@@ -185,7 +182,7 @@ fn prime_under(term: &Term) -> Option<u64> {
     if !surds::is_root(term) {
         return None;
     }
-    let n = crate::methods::numerals::value(&term.children()[0])?.to_u64()?;
+    let n = methods::numerals::value(&term.children()[0])?.to_u64()?;
     surds::root_of(&field::q(n as i64))
         .ok()
         .filter(|r| r.primes == [n] && r.coefficient == field::q(1))

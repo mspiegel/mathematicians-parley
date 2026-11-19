@@ -11,12 +11,16 @@
 //! of every set, so it proves finiteness from the page's lines alone.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::iter;
 
 use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::node::ByShape;
-use crate::formula::Node;
-use crate::notations::{COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, IMPLICATION};
+use crate::formula::{Node, Sort};
+use crate::notations::{
+    APPLICATION, APPLICATION_TO_TWO, COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION,
+    EQUALITY, FOR_ALL, IMPLICATION, INTEGER_RANGE, MEMBERSHIP, NAME, NUMERAL, THERE_IS,
+};
 
 /// Why a set is finite: what a backend proves it finite from, a line or how
 /// the set is made, in one form for every backend.
@@ -95,7 +99,7 @@ pub fn key(set: &Node) -> ByShape {
 /// The key of a name, a define's or a bound letter's, in `FiniteSets`: the
 /// name as a tree, which is that name wherever the page writes it.
 pub fn name_key(name: &str) -> ByShape {
-    ByShape(Node::name(crate::formula::Sort::unknown(), name))
+    ByShape(Node::name(Sort::unknown(), name))
 }
 
 /// What a theorem makes finite, each set or name by its tree.
@@ -129,7 +133,7 @@ pub fn said_finite(
     for line in hypotheses {
         let by_others =
             finite_sets(hypotheses.iter().filter(|l| !l.spelt_alike(line)), positive);
-        let by_itself = finite_sets_vouched(std::iter::once(line), positive);
+        let by_itself = finite_sets_vouched(iter::once(line), positive);
         let only: IndexSet<ByShape> = by_all
             .keys()
             .filter(|s| !by_others.contains_key(*s) && !by_itself.contains_key(*s))
@@ -169,8 +173,8 @@ pub fn finite_sets<'n>(
 /// whose P makes nothing finite is left out.
 pub fn finite_under<'n>(
     sentences: impl IntoIterator<Item = &'n Node>,
-) -> indexmap::IndexMap<crate::formula::node::ByShape, FiniteSets> {
-    let mut out = indexmap::IndexMap::new();
+) -> IndexMap<ByShape, FiniteSets> {
+    let mut out = IndexMap::new();
     for sentence in sentences {
         for node in sentence.walk() {
             let ([condition, _], CONDITIONAL | IMPLICATION) =
@@ -180,7 +184,7 @@ pub fn finite_under<'n>(
             };
             let sets = finite_sets([condition], &|_| false);
             if !sets.is_empty() {
-                out.insert(crate::formula::node::ByShape(node.clone()), sets);
+                out.insert(ByShape(node.clone()), sets);
             }
         }
     }
@@ -333,15 +337,13 @@ impl<'n> SaidOfSets<'n, '_> {
                 self.subsets.push(Subset { part, whole, line })
             }
             // A member of 𝒫A is a part of A: `let Y ⊆ X` read as Y ∈ 𝒫X.
-            (_, crate::notations::MEMBERSHIP, [part, set])
-                if &*set.notation_name() == "powerset" =>
-            {
+            (_, MEMBERSHIP, [part, set]) if &*set.notation_name() == "powerset" => {
                 if let [whole] = set.children.as_slice() {
                     self.subsets.push(Subset { part, whole, line });
                 }
             }
             // |X| = e, a count given as a number, says X is finite.
-            (_, crate::notations::EQUALITY, [a, b]) => {
+            (_, EQUALITY, [a, b]) => {
                 for (count, value) in [(a, b), (b, a)] {
                     let counted = &*count.notation_name() == "cardinality";
                     let a_number = !value
@@ -363,14 +365,14 @@ impl<'n> SaidOfSets<'n, '_> {
             // member of A is f of one of the range's, so A is finite, the
             // edges of a walk that crosses every edge. Of a range only: the
             // image of a finite set read so would hold every "onto" line.
-            (_, crate::notations::FOR_ALL, [a, set, body]) => {
-                if let (crate::notations::THERE_IS, [i, over, equation]) =
+            (_, FOR_ALL, [a, set, body]) => {
+                if let (THERE_IS, [i, over, equation]) =
                     (body.notation(), body.children.as_slice())
                 {
-                    if over.notation() != crate::notations::INTEGER_RANGE {
+                    if over.notation() != INTEGER_RANGE {
                         return;
                     }
-                    let covered = equation.notation() == crate::notations::EQUALITY
+                    let covered = equation.notation() == EQUALITY
                         && matches!(equation.children.as_slice(),
                             [l, r] if l.is_name() && *l.text == *a.text
                                 && r.children.iter().any(|c| c.is_name() && *c.text == *i.text));
@@ -448,8 +450,8 @@ pub fn natural_beside_count(node: &Node, natural: &dyn Fn(&str) -> bool) -> bool
         return true;
     }
     match node.notation() {
-        crate::notations::NUMERAL => !node.text.contains('.'),
-        crate::notations::NAME => natural(&node.text),
+        NUMERAL => !node.text.contains('.'),
+        NAME => natural(&node.text),
         _ => {
             matches!(&*node.notation_name(), "additive" | "multiplicative")
                 && matches!(&*node.spelling().text(), "+" | "·")
@@ -498,10 +500,8 @@ pub fn finite_by(finite: &FiniteSets, set: &Node) -> Option<FiniteBy> {
         // A function a define names finite sets with, G(m, n) of a G whose
         // body is finite whatever its arguments (`finite_names`).
         (_, _, [f, ..])
-            if matches!(
-                set.notation(),
-                crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
-            ) && f.is_name()
+            if matches!(set.notation(), APPLICATION | APPLICATION_TO_TWO)
+                && f.is_name()
                 && finite.contains_key(&key(f)) =>
         {
             Making::Applied(f.text.to_string())
@@ -519,9 +519,7 @@ fn holds_finite(finite: &FiniteSets, members: &BTreeSet<String>, set: &Node) -> 
     if set.is_name() && members.contains(&*set.text) {
         return true;
     }
-    if let (crate::notations::APPLICATION, [f, ..]) =
-        (set.notation(), set.children.as_slice())
-    {
+    if let (APPLICATION, [f, ..]) = (set.notation(), set.children.as_slice()) {
         if f.is_name() && members.contains(&*f.text) {
             return true;
         }
@@ -579,11 +577,7 @@ pub fn finite_names(finite: &mut FiniteSets, defines: &[Named], lines: &[&Node])
         let over = match (n.notation(), &*n.notation_name(), n.children.as_slice()) {
             (_, "set-builder", [x, set, _]) => Some((x, set)),
             (_, "set-image", [_, x, set]) => Some((x, set)),
-            (
-                crate::notations::FOR_ALL | crate::notations::THERE_IS,
-                _,
-                [x, set, _],
-            ) => Some((x, set)),
+            (FOR_ALL | THERE_IS, _, [x, set, _]) => Some((x, set)),
             _ => None,
         };
         if let Some((x, set)) = over.filter(|(x, _)| x.is_name()) {

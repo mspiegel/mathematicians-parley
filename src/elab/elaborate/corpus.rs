@@ -1,6 +1,10 @@
 //! Citing a theorem the corpus proves.
 
+use std::collections::VecDeque;
+use std::iter;
+
 use super::*;
+use crate::sorts;
 
 impl<'a> Elaborator<'a> {
     /// Apply a theorem this corpus proves, as this elaborator states it: its
@@ -41,8 +45,7 @@ impl<'a> Elaborator<'a> {
         // stands for is given back beside the reading, to be put in once the
         // theorem's bound letters are moved off its letters.
         let read = |me: &mut Self, apart: &BTreeSet<String>| -> Checked<Reading> {
-            let mut spare: std::collections::VecDeque<&str> =
-                CLASS_NAMES.iter().copied().collect();
+            let mut spare: VecDeque<&str> = CLASS_NAMES.iter().copied().collect();
             let mut given: Vec<Given> = Vec::new();
             {
                 let saved = me.names.clone();
@@ -399,7 +402,7 @@ impl<'a> Elaborator<'a> {
         // them by name, as the citing step does, so the step reads them as
         // the statement does without citing them, as the checker reads it.
         let kept = self.resting.clone();
-        let over = crate::sorts::stated_over(self.thm, self.scopes, &other.qualified());
+        let over = sorts::stated_over(self.thm, self.scopes, &other.qualified());
         if let Some(allowed) = &mut self.resting {
             allowed.extend(over);
             allowed.extend(recursive);
@@ -432,7 +435,7 @@ impl<'a> Elaborator<'a> {
             reading
                 .wanted
                 .iter()
-                .chain(std::iter::once(&reading.whole))
+                .chain(iter::once(&reading.whole))
                 .flat_map(|t| me.letters_bound(&me.to_term(t)))
                 .map(|v| v.to_string())
                 .collect()
@@ -472,7 +475,7 @@ impl<'a> Elaborator<'a> {
         let terms: Vec<Term> = second
             .wanted
             .iter()
-            .chain(std::iter::once(&second.whole))
+            .chain(iter::once(&second.whole))
             .chain(second.given.iter().map(|g| &g.term))
             .map(|t| self.to_term(t))
             .collect();

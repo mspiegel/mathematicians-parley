@@ -1,6 +1,10 @@
 //! The lemma stages' types and the free functions of fitting.
 
+use std::collections::VecDeque;
+use std::iter;
+
 use super::*;
+use crate::mm::kernel;
 
 /// The token a join is written with in a statement.
 pub(super) fn join_token(join: Join) -> &'static str {
@@ -357,7 +361,7 @@ pub(super) fn is_conjunction(term: &Term) -> bool {
 
 pub fn conjuncts_of(slot: &Term) -> Vec<Term> {
     let mut pieces = Vec::new();
-    let mut parts = std::collections::VecDeque::from([slot.clone()]);
+    let mut parts = VecDeque::from([slot.clone()]);
     while let Some(part) = parts.pop_front() {
         if matches!(part.label(), Some("wa") | Some("w3a")) {
             for c in part.children().iter().rev() {
@@ -416,7 +420,7 @@ pub fn as_class(node: &Term, marks: &BTreeSet<String>) -> Term {
 /// Every part of a term, the whole first.
 pub(super) fn subterms(term: &Term) -> Vec<Term> {
     let mut out = Vec::new();
-    let mut rest = std::collections::VecDeque::from([term.clone()]);
+    let mut rest = VecDeque::from([term.clone()]);
     while let Some(node) = rest.pop_front() {
         if node.variable().is_none() {
             rest.extend(node.children().iter().cloned());
@@ -483,7 +487,7 @@ pub(super) fn either_way(
         .filter(|v| fitting.variables.contains(*v))
     {
         match binding.get(v) {
-            Some(seen) if !crate::mm::kernel::same(seen, &ground) => return None,
+            Some(seen) if !kernel::same(seen, &ground) => return None,
             Some(_) => {}
             None => {
                 binding.insert(Symbol::of(v), ground.clone());
@@ -508,7 +512,7 @@ pub(super) fn either_way(
         }
     }
     let exchanged = (fitting.turned)(&ground);
-    for one in std::iter::once(&ground).chain(exchanged.as_ref()) {
+    for one in iter::once(&ground).chain(exchanged.as_ref()) {
         let more = parts_paired(&left, &pattern, one, false);
         if let Some(done) = either_way(more, binding.clone(), fitting) {
             return Some(done);

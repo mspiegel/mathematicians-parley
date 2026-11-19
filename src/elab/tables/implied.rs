@@ -1,6 +1,9 @@
 //! Memberships, implied terms and chains.
 
 use super::*;
+use crate::corpus::Intro;
+use crate::mm::spell::Binds;
+use crate::notations;
 
 impl<'a> Elaborator<'a> {
     /// The innermost part of `whole` whose membership of `system` nothing
@@ -521,7 +524,7 @@ impl<'a> Elaborator<'a> {
             let Some(label) = h.label.clone().filter(|l| !l.is_empty()) else {
                 continue;
             };
-            if h.kind != crate::corpus::Intro::Let || h.text.contains(" be a set") {
+            if h.kind != Intro::Let || h.text.contains(" be a set") {
                 continue;
             }
             let subject = node.leftmost().text.to_string();
@@ -530,7 +533,7 @@ impl<'a> Elaborator<'a> {
             };
             let said = t!(kernel, "cvv", "wcel");
             let origin = format!("sethood@{label}");
-            let membership = if node.notation() == crate::notations::MEMBERSHIP {
+            let membership = if node.notation() == notations::MEMBERSHIP {
                 self.held(facts, t, scope)?
             } else {
                 None
@@ -611,7 +614,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
     ) -> Proof {
         let proofs: Vec<&Proof> = asked.iter().map(|(_, p)| p).collect();
-        let mut binds = crate::mm::spell::Binds::new();
+        let mut binds = Binds::new();
         for (var, term) in vars {
             binds.insert(var.to_string(), (*term).clone());
         }

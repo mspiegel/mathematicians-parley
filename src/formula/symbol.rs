@@ -9,10 +9,12 @@
 //! keyed by symbols walks in the order one keyed by strings did.
 
 use std::borrow::Borrow;
-use std::fmt;
+use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::sync::{OnceLock, RwLock};
+use std::{fmt, ptr};
 
 use rustc_hash::FxHashSet;
 
@@ -30,8 +32,8 @@ fn interned() -> &'static RwLock<FxHashSet<&'static str>> {
 thread_local! {
     /// The texts this thread has interned or found, asked first, so that a
     /// text asked again takes no lock.
-    static NEAR: std::cell::RefCell<FxHashSet<&'static str>> =
-        std::cell::RefCell::new(FxHashSet::default());
+    static NEAR: RefCell<FxHashSet<&'static str>> =
+        RefCell::new(FxHashSet::default());
 }
 
 impl Symbol {
@@ -72,7 +74,7 @@ impl Default for Symbol {
 
 impl PartialEq for Symbol {
     fn eq(&self, other: &Symbol) -> bool {
-        std::ptr::eq(self.0, other.0)
+        ptr::eq(self.0, other.0)
     }
 }
 
@@ -85,13 +87,13 @@ impl Hash for Symbol {
 }
 
 impl PartialOrd for Symbol {
-    fn partial_cmp(&self, other: &Symbol) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Symbol) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for Symbol {
-    fn cmp(&self, other: &Symbol) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Symbol) -> Ordering {
         self.0.cmp(other.0)
     }
 }

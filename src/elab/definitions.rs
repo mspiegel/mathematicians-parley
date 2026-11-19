@@ -1,5 +1,6 @@
 //! The constants this corpus introduces, and what they stand for.
 
+use indexmap::IndexMap;
 use sha2::{Digest, Sha256};
 
 use crate::corpus::{Record, RecordKind};
@@ -35,7 +36,7 @@ pub struct Introduced {
 /// already has would not be a definition, and one whose term had a free
 /// variable would not be eliminable.
 pub fn definitions(records: &[Record], sigs: &dyn Lookup) -> Checked<Vec<Introduced>> {
-    let mut labels = indexmap::IndexMap::new();
+    let mut labels = IndexMap::new();
     for s in sigs.values() {
         if s.kind == Kind::Float {
             labels.insert(s.statement[1], s.label);
