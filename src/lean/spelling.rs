@@ -390,13 +390,17 @@ fn casts_pushed(said: &Printed) -> bool {
 }
 
 /// The proof of the step's spelling, `written`, from the item's proof
-/// `term`, whose Lean statement is `said`, in `fields`.
+/// `term`, whose Lean statement is `said`, in `fields`. `across_cast` is
+/// whether the citation gives a letter of the item a value the page puts in
+/// a narrower number system than the item's letter
+/// (`Cited::item_letters`), so that the two meet by moving casts.
 pub fn read_as_written(
     term: &Printed,
     said: &Printed,
     written: &Printed,
     fields: InstanceFields,
     values: &forms::Values,
+    across_cast: bool,
 ) -> Tactic {
     let spelt = spelling(said, written);
     let mut steps = Vec::new();
@@ -431,6 +435,30 @@ pub fn read_as_written(
             }
             if casts_pushed(said) {
                 steps.insert(0, t::push_cast(Some(t::at_h(true))));
+            }
+            // The two in one field but a value given in a narrower number
+            // system than the item's letter, a numeral the step types in ℤ
+            // where the item has it in ℝ (`across_cast`): met by moving the
+            // casts. A statement with a binder, a set-builder or a function
+            // given, is met as it stands: Lean reads the two alike through
+            // the binder, where moving casts would elaborate them apart.
+            let binds = |p: &Printed| {
+                p.walk().iter().any(|n| {
+                    matches!(
+                        n.kind,
+                        TermKind::Quantified { .. }
+                            | TermKind::Bound { .. }
+                            | TermKind::Lambda { .. }
+                    )
+                })
+            };
+            if steps.is_empty()
+                && across_cast
+                && said.text() != written.text()
+                && !binds(said)
+                && !binds(written)
+            {
+                return t::exact_mod_cast(term.clone());
             }
             if steps.is_empty() {
                 return Tactic::Exact(term.clone());

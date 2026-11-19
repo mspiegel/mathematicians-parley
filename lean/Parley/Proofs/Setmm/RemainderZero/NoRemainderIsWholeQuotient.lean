@@ -45,7 +45,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
+    (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3); push_cast at h; exact h)
   -- 3. both directions
   constructor
   · skip

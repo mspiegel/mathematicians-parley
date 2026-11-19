@@ -44,11 +44,11 @@ theorem triple_scaled (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) 
   have s1a : k ∣ a := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) hH1 (b := b) hH2)
+    (have h := (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) hH1 (b := b) hH2); push_cast at h; exact h)
   have s1b : k ∣ b := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) hH1 (b := b) hH2)
+    (have h := (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) hH1 (b := b) hH2); push_cast at h; exact h)
   -- 2. mun:divides-quotient n := a, d := k, from 1
   have s2 : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (a : ℚ) / (k : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := a) hH1 (d := k) hD1_pos)).mp s1a
   -- 3. mun:divides-quotient n := b, d := k, from 1

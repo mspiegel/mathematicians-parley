@@ -44,7 +44,7 @@ theorem remainder_of_sum (A : ℝ) (B : ℝ) (M : ℝ) (hH4 : M > 0) :
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := M) hH4)
+    (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := M) hH4); push_cast at h; exact h)
   -- 3. algebra, from 2
   have s3 : LeanBridges.Divisibility.mod A M + B = A + B + M * -(q : ℝ) := by linear_combination s2
   -- 4. calculation

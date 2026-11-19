@@ -1,7 +1,10 @@
 module
 
+public import Mathlib.Algebra.Algebra.Basic
+public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.RingTheory.Algebraic.Defs
 public import Mathlib.Tactic.FieldSimp

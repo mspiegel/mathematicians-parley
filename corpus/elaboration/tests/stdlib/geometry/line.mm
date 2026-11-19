@@ -9,6 +9,6 @@ ${
   $d A u $.
   $d B u $.
   $d C u $.
-  tests.stdlib.geometry.line $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) -> A e. { u e. CC | ( B = C \/ ( ( u - B ) / ( C - B ) ) e. RR ) } ) $=
-    ( cc wcel wa wceq cmin co cdiv cr wo cv crab simpr wb simpl id syl glinel mpbird ) BEFZCEFZGZDEFZGZCDHZBCIJZDCIJZKJZLFZMZGZBUHANZCIJZUJKJZLFZMZAEOZFZUMUGUMPUNUCVAUMQUNUGUCUGUMRUGUEUCUEUFRUEUCUCUCUDRUCSTTTACDBUATUB $.
+  tests.stdlib.geometry.line $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) /\ -. B = C ) -> A e. { u e. CC | ( B = C \/ ( ( u - B ) / ( C - B ) ) e. RR ) } ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn cv crab simpl simpr syl wb id glinel mpbird ) BEFZCEFZGZDEFZGZCDHZBCIJZDCIJZKJZLFZMZGZUINZGZBUIAOZCIJZUKKJZLFZMZAEPZFZUNUQUOUNUOUPQZUHUNRSUQUDVDUNTUQUOUDVEUOUHUDUHUNQUHUFUDUFUGQUFUDUDUDUEQUDUASSSSACDBUBSUC $.
 $}

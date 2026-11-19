@@ -272,10 +272,11 @@ theorem on-line
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   assume P is on line AB                                              (H4)
+  assume A ≠ B                                                        (H5)
   then A, B, P are collinear
 
 1.  A, B, P are collinear
-    def:geometry-on-line, from H4
+    def:geometry-on-line, from H4, H5
 
 theorem perpendicular-by-right-angle
   let P be a point                                                    (H1)
@@ -780,10 +781,11 @@ theorem line
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   assume P is on line AB                                              (H4)
+  assume A ≠ B                                                        (H5)
   then P ∈ line AB
 
 1.  P ∈ line AB
-    def:geometry-line, from H4
+    def:geometry-line, from H4, H5
 
 theorem line-turned
   let A be a point                                                    (H1)
@@ -1166,10 +1168,11 @@ theorem opposite-sides-off-line
 theorem on-line-ends
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
   then A is on line AB. B is on line AB.
 
 1.  A is on line AB. B is on line AB.
-    mun:geometry-on-line-ends
+    mun:geometry-on-line-ends, from H3
 
 theorem triangle-not-on-line
   let P be a point                                                    (H1)
@@ -1197,11 +1200,12 @@ theorem off-line-apart
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let P be a point                                                    (H3)
-  assume P is not on line AB                                          (H4)
+  assume A ≠ B                                                        (H4)
+  assume P is not on line AB                                          (H5)
   then P ≠ A. P ≠ B.
 
 1.  P ≠ A. P ≠ B.
-    mun:geometry-off-line-apart, from H4
+    mun:geometry-off-line-apart, from H4, H5
 
 theorem on-off-apart
   let A be a point                                                    (H1)
@@ -1260,21 +1264,23 @@ theorem ray-side-transfer
   let X be a point                                                    (H5)
   assume X is on line RP                                              (H6)
   assume X and P are on the same side of line RS                      (H7)
-  assume P is not on line RQ                                          (H8)
+  assume R ≠ Q                                                        (H8)
+  assume P is not on line RQ                                          (H9)
   then X and P are on the same side of line RQ
 
 1.  X and P are on the same side of line RQ
-    mun:geometry-ray-side-transfer, from H6, H7, H8
+    mun:geometry-ray-side-transfer, from H6, H7, H8, H9
 
 theorem off-line-swap
   let R be a point                                                    (H1)
   let P be a point                                                    (H2)
   let Q be a point                                                    (H3)
-  assume Q is not on line RP                                          (H4)
+  assume R ≠ P                                                        (H4)
+  assume Q is not on line RP                                          (H5)
   then P is not on line RQ
 
 1.  P is not on line RQ
-    mun:geometry-off-line-swap, from H4
+    mun:geometry-off-line-swap, from H4, H5
 
 theorem parallel-along
   let A be a point                                                    (H1)

@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/on-line-ends, elaborated from tests/stdlib/geometry.pro
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.on-line-ends $p |- ( ( A e. CC /\ B e. CC ) -> ( ( A = B \/ ( ( A - A ) / ( B - A ) ) e. RR ) /\ ( A = B \/ ( ( B - A ) / ( B - A ) ) e. RR ) ) ) $=
-    ( cc wcel wa wceq cmin co cdiv cr wo gonends1 gonends2 jca ) ACDBCDEABFZAAGHBAGHZIHJDKOPPIHJDKABLABMN $.
+  tests.stdlib.geometry.on-line-ends $p |- ( ( ( A e. CC /\ B e. CC ) /\ -. A = B ) -> ( ( A = B \/ ( ( A - A ) / ( B - A ) ) e. RR ) /\ ( A = B \/ ( ( B - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr wo simpl id syl simpr jca gonends1 gonends2 ) ACDZBCDZEZABFZGZEZUCAAHIZBAHIZJIZKDZLZUCUGUGJIZKDZLZUEUBUJUETUAUEUBTUBUDMZUBTTTUAMZTNZOZOZUEUBUAUNTUAPZOZQZABROUEUBUMVAABSOQ $.
 $}

@@ -927,10 +927,16 @@ impl<'a> Proof<'a> {
                     self.sources.targets,
                     &claim,
                     &cited,
-                    inside_terms,
-                    &divisors,
-                    self.worked_in.get(),
+                    super::super::algebra::AlgebraReading {
+                        inside_terms,
+                        divisors: &divisors,
+                        worked_in: self.worked_in.get(),
+                        commuted: self.commuted_here(just.line),
+                    },
                 ) {
+                    Route::Built(p) if self.commuted_here(just.line) => {
+                        super::terms::haves_in_one_order(p)
+                    }
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -2106,8 +2112,41 @@ impl<'a> Proof<'a> {
         met: &crate::matching::Meeting,
     ) -> Option<Proved> {
         use super::super::doc::forms;
-        if met.permuted {
+        // Parts of a notation that stand in no order, paired in another
+        // order. Every such notation is written in one order, so a line and
+        // the claim that differ only in the order the page writes them are
+        // alike as Lean has them; where the line is the item's statement at
+        // the citation's values, its parts as the item has them, it is
+        // turned by an exact instance of the notation's swap lemma at each
+        // node the checker recorded a flip of (`turning_rewrites`).
+        let turned_notations: Vec<&str> = met
+            .flips
+            .iter()
+            .map(|f| f.notation.as_str())
+            .filter(|n| super::terms::turns_notation(n))
+            .collect();
+        if met.permuted && turned_notations.is_empty() {
             return None;
+        }
+        if met.identities.is_empty() && !turned_notations.is_empty() {
+            // A flip at the root is the claim's own notation read in another
+            // order, which is the whole turn; any other turn is an equation
+            // with its sides exchanged, which the lemmas do not do.
+            let root_flip = met.flips.iter().any(|f| f.at.is_empty());
+            let (line, says) = match met.turned && !root_flip {
+                true => (turned_proof(proof, says), forms::turned_statement(says)),
+                false => (proof, says.clone()),
+            };
+            // The meeting's trees stand to the line either way round, by
+            // where it was recorded: the line's own writing decides.
+            let rewrites = super::terms::flip_rewrites(
+                &self.writer,
+                &met.flips,
+                super::terms::Toward::Holding(&says),
+            )?;
+            return Some(Proved::Term(super::terms::rewritten_to(
+                line, rewrites, wanted,
+            )));
         }
         let (proof, says) = match met.turned {
             true => (turned_proof(proof, says), forms::turned_statement(says)),

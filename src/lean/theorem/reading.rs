@@ -164,6 +164,12 @@ impl<'a> Proof<'a> {
                         }
                     }
                 }
+                // ℂ has no order: a line of points or complex numbers, P = R
+                // of a contradiction's supposition, gives an order of
+                // numerals the widest type that has one.
+                if node.notation() == crate::notations::ORDER {
+                    floor = floor.min(super::super::templates::Num::Real);
+                }
                 writer.closed_formula(node, floor)
             } else {
                 writer.formula(node)
@@ -569,6 +575,16 @@ impl<'a> Proof<'a> {
                 Route::Built(t) => t,
                 Route::Declined(d) => return Route::Declined(d),
             };
+            // An algebra, inequalities or transitivity reason reads |AB| and
+            // |BA| of its lines as one term; Lean's two are not.
+            let proof = match step.just.head {
+                Head::Method(
+                    Method::Algebra | Method::Inequalities | Method::Transitivity,
+                ) => {
+                    self.with_commuted(step.just.line, &self.step_facts(i), prop, proof)
+                }
+                _ => proof,
+            };
             self.push_at(
                 depth,
                 Tactic::Have {
@@ -709,6 +725,99 @@ impl<'a> Proof<'a> {
     ) -> Route<super::super::doc::Proof> {
         let facts = self.step_facts(i);
         self.proof_named_from(reason, k, node, i, &facts)
+    }
+
+    /// Whether the checker found the reason on `line` to read a notation
+    /// whose parts stand in no order written in more than one order among
+    /// its claim and lines (`CheckedTheorem::commuted_by_lines`), one the
+    /// writer turns.
+    pub(super) fn commuted_here(&self, line: usize) -> bool {
+        self.rec
+            .commuted_by_lines
+            .get(&line)
+            .is_some_and(|ns| ns.iter().any(|n| super::terms::turns_notation(n)))
+    }
+
+    /// The proof of the reason on `line`, of a step or a calculation's row,
+    /// with its claim `goal` and the lines it cites `cited`, where the
+    /// reason reads |AB| and |BA| of its lines as one term
+    /// (`commuted_here`): the goal and each line it cites taken to one order
+    /// of the parts of such notations, each by exact instances of the
+    /// notation's swap lemmas (`turning_rewrites`); the proof, whose
+    /// coefficients the algebra writes in that order too, follows.
+    pub(super) fn with_commuted(
+        &self,
+        line: usize,
+        cited: &[super::super::algebra::Cited],
+        goal: &Printed,
+        proof: super::super::doc::Proof,
+    ) -> super::super::doc::Proof {
+        use super::super::doc::{Location, Proof, Tactic, TacticArg};
+        use super::super::tactics as t;
+        if !self.commuted_here(line) {
+            return proof;
+        }
+        let rewrite = |rewrites: Vec<Printed>, at: Option<String>| {
+            let mut args = vec![TacticArg::Rules(
+                rewrites.into_iter().map(t::forwards).collect(),
+            )];
+            args.extend(at.map(|name| TacticArg::At(vec![Location::Hypothesis(name)])));
+            t::call("rw", args)
+        };
+        let mut steps: Vec<Tactic> = Vec::new();
+        for cited in cited {
+            let (Some(says), name) = (&cited.says, cited.proof.text()) else {
+                continue;
+            };
+            // A line that is a hypothesis by its name; a part of one, `H3.1`,
+            // is not rewritten in place.
+            if name.contains(|c: char| !(c.is_alphanumeric() || c == '_')) {
+                continue;
+            }
+            let rewrites = super::terms::turning_rewrites(says, &says.in_one_order());
+            if !rewrites.is_empty() {
+                steps.push(rewrite(rewrites, Some(name)));
+            }
+        }
+        // A define's equation, which the proof may write out (`simp only
+        // [hD1]`), taken to the same order, so that what it brings in is
+        // in it too.
+        for (name, value) in self.set_values() {
+            let says = Printed::infix(
+                super::super::doc::Op::EQUALS,
+                Printed::letter(
+                    name.clone(),
+                    value
+                        .value
+                        .ty
+                        .clone()
+                        .unwrap_or(super::super::doc::LeanType::Prop),
+                ),
+                value.value.clone(),
+                super::super::doc::LeanType::Prop,
+            );
+            let rewrites = super::terms::turning_rewrites(&says, &says.in_one_order());
+            if !rewrites.is_empty() {
+                steps.push(rewrite(rewrites, Some(value.equation.clone())));
+            }
+        }
+        let ordered = goal.in_one_order();
+        let rewrites = super::terms::turning_rewrites(goal, &ordered);
+        if !rewrites.is_empty() {
+            steps.push(rewrite(rewrites, None));
+            // An equation whose sides are one term once in that order,
+            // `|QR|` beside `|RQ|`: `rw` closes it by reflexivity.
+            if let super::super::doc::TermKind::Infix { op, lhs, rhs } = &ordered.kind {
+                if op.symbol == "=" && lhs.text() == rhs.text() {
+                    return Proof::Block(steps);
+                }
+            }
+        }
+        if steps.is_empty() {
+            return proof;
+        }
+        steps.push(Tactic::Exact(t::bracket(t::by_term(proof))));
+        Proof::Block(steps)
     }
 
     /// `proof_with_named`, its numbers named from `facts`: a step's lines,

@@ -74,12 +74,12 @@ theorem ramsey_step {α : Type*} [Nonempty α] (V : Set α) (E : Set (Set α)) (
   have s10 : X \ ({v} : Set α) = R ∪ B := by
     simp only [hD2, hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); push_cast at h; exact h)
   -- 11. mun:set-builder-split-disjoint, from D2, D3
   have s11 : R ∩ B = ∅ := by
     simp only [hD2, hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); push_cast at h; exact h)
   -- 12. mun:difference-subset
   have s12 : X \ ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := X) (Y := ({v} : Set α)))
   -- 13. mun:finite-part, from 1, 12
@@ -88,12 +88,12 @@ theorem ramsey_step {α : Type*} [Nonempty α] (V : Set α) (E : Set (Set α)) (
   have s14 : R ⊆ X \ ({v} : Set α) := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); push_cast at h; exact h)
   -- 15. mun:set-builder-subset, from D3
   have s15 : B ⊆ X \ ({v} : Set α) := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); push_cast at h; exact h)
   -- 16. mun:finite-part, from 13, 14
   have s16 : R.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X \ ({v} : Set α)) (Y := R) s13 s14)
   -- 17. mun:finite-part, from 13, 15

@@ -119,7 +119,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       have s2_7_11 : (120 : ℤ) ∣ P := by
         simp only [hD2] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) s2_7_10)
+        (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) s2_7_10); push_cast at h; exact h)
       -- 2.7.12. mun:divides-multiple e := 120, a := P, x := −1, from 2.7.11
       have s2_7_12 : (120 : ℤ) ∣ P * -1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)
       -- 2.7.13. algebra, from D1, D2

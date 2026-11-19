@@ -108,6 +108,9 @@ pub const IN_CODE: &[&str] = &[
     "sum-over-condition",
     "joins",
     "incident",
+    "plane",
+    "line",
+    "ray",
 ];
 
 /// Every theorem of the corpus, in or out.

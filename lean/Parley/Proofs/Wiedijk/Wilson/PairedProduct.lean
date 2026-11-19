@@ -48,22 +48,22 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   have s1 : X = L ∪ U := by
     simp only [hD1, hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X)); push_cast at h; exact h)
   -- 2. mun:set-builder-split-disjoint, from D1, D2
   have s2 : L ∩ U = ∅ := by
     simp only [hD1, hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun x : ℤ => x < f x)) (X := X))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun x : ℤ => x < f x)) (X := X)); push_cast at h; exact h)
   -- 3. mun:set-builder-subset, from D1
   have s3 : L ⊆ X := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℤ => x < f x)) (X := X))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℤ => x < f x)) (X := X)); push_cast at h; exact h)
   -- 4. mun:set-builder-subset, from D2
   have s4 : U ⊆ X := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℤ => ¬ x < f x)) (X := X))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℤ => ¬ x < f x)) (X := X)); push_cast at h; exact h)
   -- 5. mun:finite-part, from H2, 3
   have s5 : L.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := L) hH2 s3)
   -- 6. mun:subset-transitive, from H1, 3

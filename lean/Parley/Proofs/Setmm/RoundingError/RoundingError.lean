@@ -55,7 +55,7 @@ theorem rounding_error (A : ℝ) :
   have s9 : e ≥ 0 ∨ e < 0 := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A))
+    (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)); push_cast at h; exact h)
   -- 10. cases, from 9
   have s10 : abs e ≤ 1 / 2 := by
     rcases s9 with hC1 | hC2
@@ -64,7 +64,7 @@ theorem rounding_error (A : ℝ) :
       have s10_1 : abs e = e := by
         simp only [hD1] at ⊢
         push_cast at ⊢
-        exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1
+        (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1; push_cast at h; exact h)
       -- 10.2. transitivity, from 10.1, 5
       exact Eq.trans_le s10_1 s5
     · skip
@@ -72,7 +72,7 @@ theorem rounding_error (A : ℝ) :
       have s10_3 : abs e = -e := by
         simp only [hD1] at ⊢
         push_cast at ⊢
-        exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2
+        (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2; push_cast at h; exact h)
       -- 10.4. transitivity, from 10.3, 8
       exact Eq.trans_le s10_3 s8
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10

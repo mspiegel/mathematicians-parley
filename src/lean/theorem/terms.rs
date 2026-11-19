@@ -293,6 +293,403 @@ pub(super) fn identity_lemma(d: &crate::matching::Dropped) -> Option<&'static st
     })
 }
 
+/// Whether the writer turns the parts of this notation, one that stands in
+/// no order, by a lemma of its own (`turning_rewrites`).
+pub(super) fn turns_notation(notation: &str) -> bool {
+    matches!(
+        notation,
+        "distance"
+            | "collinear"
+            | "forms-a-triangle"
+            | "between"
+            | "midpoint"
+            | "same-side"
+            | "opposite-sides"
+    )
+}
+
+/// The rewrites by which `from` becomes `to`, two writings of one statement
+/// that differ only in the order of the parts of notations that stand in no
+/// order: each an exact instance of a swap lemma for a node, `dist_comm B A`
+/// of `dist B A`, the permutation lemma of the three points of a triangle,
+/// in the order the nodes stand. Empty where they are written alike, or
+/// where they differ otherwise than so.
+pub(super) fn turning_rewrites(from: &Printed, to: &Printed) -> Vec<Printed> {
+    use super::super::doc::{Arg, TermKind};
+    use super::super::tactics as t;
+    let (here, there) = (from.walk(), to.walk());
+    if here.len() != there.len() {
+        return Vec::new();
+    }
+    let applied = |lemma: &str, args: Vec<Arg>| Printed {
+        kind: TermKind::App {
+            head: Box::new(t::lemma(lemma)),
+            args,
+            explicit: false,
+        },
+        ty: None,
+    };
+    let explicit = |terms: &[&Printed]| -> Vec<Arg> {
+        terms.iter().map(|x| Arg::Explicit((*x).clone())).collect()
+    };
+    // The lemma that takes three parts as they stand to the order `to` has
+    // them in.
+    let permutation =
+        |family: &str, parts: [&Printed; 3], goal: [&Printed; 3]| -> Option<Printed> {
+            let mut taken = [false; 3];
+            let mut idx = [0usize; 3];
+            for (k, g) in goal.iter().enumerate() {
+                let found =
+                    (0..3).find(|&j| !taken[j] && parts[j].text() == g.text())?;
+                taken[found] = true;
+                idx[k] = found;
+            }
+            let suffix = match idx {
+                [0, 1, 2] => return None,
+                [1, 0, 2] => "swap_12",
+                [0, 2, 1] => "swap_23",
+                [2, 1, 0] => "swap_13",
+                [1, 2, 0] => "rot_231",
+                _ => "rot_312",
+            };
+            Some(applied(
+                &format!("LeanBridges.Geometry.{family}_{suffix}"),
+                explicit(&parts),
+            ))
+        };
+    let mut out = Vec::new();
+    for (node, goal) in here.into_iter().zip(there) {
+        match (&node.kind, &goal.kind) {
+            (
+                TermKind::App { head, args, .. },
+                TermKind::App {
+                    args: wanted_args, ..
+                },
+            ) => {
+                let TermKind::Const(c) = &head.kind else {
+                    continue;
+                };
+                let at = |a: &'_ Vec<Arg>, k: usize| match a.get(k) {
+                    Some(Arg::Explicit(x)) => Some(x.clone()),
+                    _ => None,
+                };
+                match (c.name.as_str(), args.len()) {
+                    ("dist", 2) => {
+                        if let (Some(a), Some(b), Some(w)) =
+                            (at(args, 0), at(args, 1), at(wanted_args, 0))
+                        {
+                            if a.text() != w.text() {
+                                out.push(applied("dist_comm", explicit(&[&a, &b])));
+                            }
+                        }
+                    }
+                    ("Sbtw", 4) => {
+                        if let (Some(x), Some(y), Some(z), Some(w)) =
+                            (at(args, 1), at(args, 2), at(args, 3), at(wanted_args, 1))
+                        {
+                            if x.text() != w.text() {
+                                out.push(applied(
+                                    "sbtw_comm",
+                                    [("x", &x), ("y", &y), ("z", &z)]
+                                        .into_iter()
+                                        .map(|(name, v)| Arg::Named {
+                                            name: name.to_string(),
+                                            value: v.clone(),
+                                        })
+                                        .collect(),
+                                ));
+                            }
+                        }
+                    }
+                    ("LeanBridges.Geometry.Triangle", 3) => {
+                        if let (Some(a), Some(b), Some(c), Some(x), Some(y), Some(z)) = (
+                            at(args, 0),
+                            at(args, 1),
+                            at(args, 2),
+                            at(wanted_args, 0),
+                            at(wanted_args, 1),
+                            at(wanted_args, 2),
+                        ) {
+                            out.extend(permutation(
+                                "triangle",
+                                [&a, &b, &c],
+                                [&x, &y, &z],
+                            ));
+                        }
+                    }
+                    ("Collinear", 2) => {
+                        if let (
+                            Some(Printed {
+                                kind: TermKind::Listed { items, .. },
+                                ..
+                            }),
+                            Some(Printed {
+                                kind: TermKind::Listed { items: wanted, .. },
+                                ..
+                            }),
+                        ) = (at(args, 1), at(wanted_args, 1))
+                        {
+                            if let ([a, b, c], [x, y, z]) =
+                                (items.as_slice(), wanted.as_slice())
+                            {
+                                out.extend(permutation(
+                                    "collinear",
+                                    [a, b, c],
+                                    [x, y, z],
+                                ));
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            (
+                TermKind::Infix { op, lhs, rhs },
+                TermKind::Infix {
+                    lhs: wanted_lhs, ..
+                },
+            ) if op.symbol == "*" => {
+                let imaginary = |x: &Printed| {
+                    matches!(&x.kind, TermKind::App { head, .. }
+                        if matches!(&head.kind, TermKind::Const(c) if c.name == "Complex.im"))
+                };
+                if imaginary(lhs) && imaginary(rhs) && lhs.text() != wanted_lhs.text() {
+                    out.push(applied("mul_comm", explicit(&[lhs, rhs])));
+                }
+            }
+            _ => {}
+        }
+    }
+    // A rewrite takes every place of its left side at once, so a node
+    // written twice alike is turned by one.
+    let mut once: Vec<Printed> = Vec::new();
+    for r in out {
+        if !once.iter().any(|seen| seen.text() == r.text()) {
+            once.push(r);
+        }
+    }
+    once
+}
+
+/// Which of the two ways a flip's term is written a rewrite starts from.
+#[derive(Clone, Copy)]
+pub(super) enum Toward<'s> {
+    /// The way the first tree the checker met writes it, `Flip::term`.
+    FromFirst,
+    /// The way the second writes it, `Flip::turned`.
+    FromSecond,
+    /// Whichever this statement holds, where the meeting's trees stand
+    /// either way round to the proof at hand.
+    Holding(&'s Printed),
+}
+
+/// The rewrites that take a statement across each flip the checker
+/// recorded (`matching::Flip`): of the two ways the flip's term is written,
+/// its own and its parts in the flip's order, the one `toward` names is
+/// rewritten to the other by an exact instance of the notation's swap
+/// lemma, `dist_comm C A` of `dist C A`. A flip whose term the statement
+/// `Toward::Holding` names holds in neither way gives none. None where a
+/// flip's notation has no lemma, or its term does not print.
+pub(super) fn flip_rewrites(
+    writer: &super::super::expr::Writer,
+    flips: &[crate::matching::Flip],
+    toward: Toward<'_>,
+) -> Option<Vec<Printed>> {
+    use super::super::doc::{Arg, TermKind};
+    use super::super::tactics as t;
+    use super::super::templates::Num;
+    let applied = |lemma: &str, args: Vec<Arg>| Printed {
+        kind: TermKind::App {
+            head: Box::new(t::lemma(lemma)),
+            args,
+            explicit: false,
+        },
+        ty: None,
+    };
+    let print = |node: &Node| match node.notation_name().as_ref() {
+        "distance" => writer.number_fixed(node, Num::Real).built(),
+        _ => writer.formula(node).built(),
+    };
+    let points = |node: &Node| -> Option<Vec<Printed>> {
+        node.children
+            .iter()
+            .map(|c| writer.number_fixed(c, Num::Complex).built())
+            .collect()
+    };
+    let mut out: Vec<Printed> = Vec::new();
+    for flip in flips {
+        if !turns_notation(&flip.notation) {
+            return None;
+        }
+        let (first, second) = (flip.term.clone(), flip.turned());
+        let back = || {
+            let mut back = vec![0; flip.order.len()];
+            for (k, &j) in flip.order.iter().enumerate() {
+                if let Some(slot) = back.get_mut(j) {
+                    *slot = k;
+                }
+            }
+            back
+        };
+        // The term rewritten, and the order its parts go to: from the first
+        // tree's way to the second's, `order`; from the second's back, its
+        // inverse.
+        let (node, idx): (Node, Vec<usize>) = match toward {
+            Toward::FromFirst => (first, flip.order.clone()),
+            Toward::FromSecond => (second, back()),
+            Toward::Holding(says) => {
+                let text = says.text();
+                if text.contains(&print(&first)?.text()) {
+                    (first, flip.order.clone())
+                } else if text.contains(&print(&second)?.text()) {
+                    (second, back())
+                } else {
+                    continue;
+                }
+            }
+        };
+        let parts = points(&node)?;
+        let explicit =
+            |terms: Vec<Printed>| terms.into_iter().map(Arg::Explicit).collect();
+        let rewrite = match (flip.notation.as_str(), idx.as_slice()) {
+            ("distance", [1, 0]) => applied("dist_comm", explicit(parts)),
+            ("between", [0, 2, 1]) => {
+                let [p, a, b] = <[Printed; 3]>::try_from(parts).ok()?;
+                applied(
+                    "sbtw_comm",
+                    [("x", a), ("y", p), ("z", b)]
+                        .into_iter()
+                        .map(|(name, value)| Arg::Named {
+                            name: name.to_string(),
+                            value,
+                        })
+                        .collect(),
+                )
+            }
+            // `M is the midpoint of AB`, its ends exchanged.
+            ("midpoint", [0, 2, 1]) => {
+                applied("LeanBridges.Geometry.midpoint_comm", explicit(parts))
+            }
+            ("collinear" | "forms-a-triangle", [i, j, k]) => {
+                let family = match flip.notation.as_str() {
+                    "collinear" => "collinear",
+                    _ => "triangle",
+                };
+                let suffix = match [*i, *j, *k] {
+                    [1, 0, 2] => "swap_12",
+                    [0, 2, 1] => "swap_23",
+                    [2, 1, 0] => "swap_13",
+                    [1, 2, 0] => "rot_231",
+                    [2, 0, 1] => "rot_312",
+                    _ => return None,
+                };
+                applied(
+                    &format!("LeanBridges.Geometry.{family}_{suffix}"),
+                    explicit(parts),
+                )
+            }
+            ("same-side" | "opposite-sides", [1, 0, 2, 3]) => {
+                // The two factors of the side test, as Lean writes the term.
+                let whole = print(&node)?;
+                let product = whole.walk().into_iter().find_map(|n| match &n.kind {
+                    TermKind::Infix { op, lhs, rhs } if op.symbol == "*" => {
+                        Some(((**lhs).clone(), (**rhs).clone()))
+                    }
+                    _ => None,
+                })?;
+                applied("mul_comm", explicit(vec![product.0, product.1]))
+            }
+            _ => return None,
+        };
+        if !out.iter().any(|seen| seen.text() == rewrite.text()) {
+            out.push(rewrite);
+        }
+    }
+    Some(out)
+}
+
+/// `proof`, a proof of a statement Lean writes, rewritten by `rewrites`
+/// (`flip_rewrites`), and given the statement `to` it then proves, so that
+/// inside an unnamed `have` `rw` has no open goal of its own to close.
+pub(super) fn rewritten_to(
+    proof: Printed,
+    rewrites: Vec<Printed>,
+    to: &Printed,
+) -> Printed {
+    use super::super::tactics as t;
+    if rewrites.is_empty() {
+        return proof;
+    }
+    let rules = rewrites.into_iter().map(t::forwards).collect();
+    let turned = t::by_term(super::super::doc::Proof::By(t::on_h(
+        &proof,
+        vec![
+            t::call(
+                "rw",
+                vec![super::super::doc::TacticArg::Rules(rules), t::at_h(false)],
+            ),
+            super::super::doc::Tactic::Exact(t::hyp("h")),
+        ],
+    )));
+    Printed {
+        kind: super::super::doc::TermKind::Ascribed {
+            proof: Box::new(turned),
+            says: Box::new(to.clone()),
+        },
+        ty: None,
+    }
+}
+
+/// An algebra's proof whose lines are taken to one order of the parts of
+/// the notations that stand in no order (`Proof::with_commuted`): each
+/// fact it states first, a divisor's `hz1 : |PA| ≠ 0`, stated in that order
+/// too, its proof turned to it.
+pub(super) fn haves_in_one_order(
+    proof: super::super::doc::Proof,
+) -> super::super::doc::Proof {
+    use super::super::doc::{Proof, Tactic};
+    let ordered = |t: Tactic| match t {
+        Tactic::Have { name, says, proof } => match *proof {
+            Proof::Term(term) => {
+                let to = says.in_one_order();
+                Tactic::Have {
+                    name,
+                    proof: Box::new(Proof::Term(turned_to(term, &says, &to))),
+                    says: to,
+                }
+            }
+            other => Tactic::Have {
+                name,
+                says,
+                proof: Box::new(other),
+            },
+        },
+        other => other,
+    };
+    match proof {
+        Proof::By(Tactic::Seq(steps)) => {
+            Proof::By(Tactic::Seq(steps.into_iter().map(ordered).collect()))
+        }
+        Proof::Block(steps) => Proof::Block(steps.into_iter().map(ordered).collect()),
+        other => other,
+    }
+}
+
+/// `proof`, a proof of `from`, taken to a proof of `to`, the same statement
+/// with the parts of notations that stand in no order in another order
+/// (`turning_rewrites`); `proof` itself where they are written alike.
+pub(super) fn turned_to(proof: Printed, from: &Printed, to: &Printed) -> Printed {
+    rewritten_to(proof, turning_rewrites(from, to), to)
+}
+
+/// Whether every notation a meeting paired in another order is one with
+/// no swap lemma, a listed set, whose members the writer takes in the
+/// claim's order (`reordered`); a meeting of any other is turned by its
+/// notation's lemmas (`met_proof`).
+pub(super) fn permuted_only_listed(met: &crate::matching::Meeting) -> bool {
+    met.flips.iter().all(|f| !turns_notation(&f.notation))
+}
+
 /// The two sides of an "and", as Lean writes it: `a ∧ b`, bracketed or
 /// not; of several sentences, which group to the right, the first and the
 /// rest.

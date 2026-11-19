@@ -84,7 +84,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   have s2_6 : g > 0 := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ)) (by norm_num) (show 0 < (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_3); simp only [Rat.cast_add, Rat.cast_sub, Rat.cast_zpow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_natCast] at h; exact h))
+    (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ)) (by norm_num) (show 0 < (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_3); simp only [Rat.cast_add, Rat.cast_sub, Rat.cast_zpow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_natCast] at h; exact h)); push_cast at h; exact h)
   -- 2.7. inequalities
   have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g + (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by linarith only [s2_5]
   -- 2.8. inequalities

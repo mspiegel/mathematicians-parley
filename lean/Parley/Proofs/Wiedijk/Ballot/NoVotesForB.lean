@@ -111,7 +111,7 @@ theorem no_votes_for_b (m : ℤ) (hH1 : 0 < m) :
     _ = (LeanBridges.Counting.choose m m : ℤ) := by
         simp only [hD3] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Wiedijk.Combinations.Combinations.combinations (A := (Set.Icc (1 : ℤ) m : Set ℤ)) (n := m) (le_of_lt hH1) (k := m) (by (have h := congrArg Int.toNat (s5); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s5; rw [h0] at h; exact ne_of_lt ((hH1 : 0 < m)) (by exact_mod_cast h)) : ((Set.Icc (1 : ℤ) m : Set ℤ) : Set ℤ).Finite)), h])))
+        (have h := (Parley.Proofs.Wiedijk.Combinations.Combinations.combinations (A := (Set.Icc (1 : ℤ) m : Set ℤ)) (n := m) (le_of_lt hH1) (k := m) (by (have h := congrArg Int.toNat (s5); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s5; rw [h0] at h; exact ne_of_lt ((hH1 : 0 < m)) (by exact_mod_cast h)) : ((Set.Icc (1 : ℤ) m : Set ℤ) : Set ℤ).Finite)), h]))); push_cast at h; exact h)
     _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := m) (le_of_lt hH1))
 
 end Parley.Proofs.Wiedijk.Ballot.NoVotesForB

@@ -48,10 +48,10 @@ theorem intersecting-chords-by-angles
     mun:triangle-not-on-line P := A, Q := C, R := B, from 2
 
 4.  B is on line CB
-    mun:on-line-ends A := C
+    mun:on-line-ends A := C, from 2
 
 5.  C is on line CB
-    mun:on-line-ends A := C
+    mun:on-line-ends A := C, from 2
 
 6.  P and A are on the same side of line CB
     mun:segment-off-line A := C, P := A, Q := B, X := P, from H7, 2, 3, 4
@@ -91,10 +91,10 @@ theorem intersecting-chords-by-angles
     mun:between-collinear R := P, S := A, T := B, from H7
 
 17. P is on line AB
-    def:on-line, from 16
+    def:on-line, from 1, 16
 
 18. A is on line AC
-    mun:on-line-ends B := C
+    mun:on-line-ends B := C, from 2
 
 19. B is not on line AC
     mun:triangle-not-on-line P := B, Q := A, R := C, from 2
@@ -106,10 +106,10 @@ theorem intersecting-chords-by-angles
     mun:between-collinear R := P, S := C, T := D, from H8
 
 22. P is on line DC
-    def:on-line A := D, B := C, from 21
+    def:on-line A := D, B := C, from 13, 21
 
 23. D is on line DB
-    mun:on-line-ends A := D
+    mun:on-line-ends A := D, from 13
 
 24. C is not on line DB
     mun:triangle-not-on-line P := C, Q := D, R := B, from 13

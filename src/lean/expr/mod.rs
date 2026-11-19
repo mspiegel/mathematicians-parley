@@ -369,6 +369,12 @@ pub struct Writer<'a> {
     /// spelt one way throughout the theorem. A fact a later line proves is
     /// bridged at the step that uses it, and changes no spelling.
     pub whole_bounds: SaidBounds,
+    /// What any line of the theorem says terms are at least
+    /// (`CheckedTheorem::page_bounds`): a square root or real power of a
+    /// base the page shows at least 0 anywhere is Mathlib's real one in
+    /// every line, so that it is written one way throughout the theorem. It
+    /// chooses the form alone; a step proves nothing from it.
+    pub page_bounds: std::rc::Rc<SaidBounds>,
     /// Each real power or square root written so far in a theorem, by the
     /// page's print of it, with the forms it was written in: Mathlib's real
     /// one, the principal one in ℂ, or both, which the theorem's writer
@@ -618,6 +624,7 @@ impl<'a> Writer<'a> {
             empty_of: None,
             bounds: SaidBounds::default(),
             whole_bounds: SaidBounds::default(),
+            page_bounds: Default::default(),
             root_forms: Default::default(),
             function_systems: Default::default(),
             things: Default::default(),
@@ -641,6 +648,7 @@ impl<'a> Writer<'a> {
             empty_of: self.empty_of.clone(),
             bounds: self.bounds.clone(),
             whole_bounds: self.whole_bounds.clone(),
+            page_bounds: self.page_bounds.clone(),
             root_forms: self.root_forms.clone(),
             function_systems: self.function_systems.clone(),
             things: self.things.clone(),
@@ -803,7 +811,16 @@ impl<'a> Writer<'a> {
     /// (−4)^(1/2) = 2i where Mathlib's real power gives 0, and the node is
     /// written in ℂ. True of every other node.
     pub fn principal_is_real(&self, node: &Node) -> bool {
-        bounds::principal_is_real(self, node)
+        if bounds::principal_is_real(self, node) {
+            return true;
+        }
+        // A base some line of the page shows at least 0 (`page_bounds`).
+        node.children.first().is_some_and(|base| {
+            self.page_bounds
+                .terms
+                .iter()
+                .any(|b| b.least >= 0 && bounds::BoundsAsk::same(self, &b.term, base))
+        })
     }
 
     /// Note the form a real power or square root is written in, where it is

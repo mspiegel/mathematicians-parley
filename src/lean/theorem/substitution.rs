@@ -80,9 +80,45 @@ impl<'a> Proof<'a> {
         natural_put_whole: bool,
     ) -> Route<PutClosing> {
         let m = &rec.meeting;
-        if m.permuted || m.renamed {
+        // Parts of a notation that stand in no order, put in another order
+        // than the claim writes them: what the putting makes, turned to the
+        // claim by the notation's swap lemmas (`PutClosing::made`).
+        let turnable = !m.flips.is_empty()
+            && m.flips
+                .iter()
+                .all(|f| super::terms::turns_notation(&f.notation));
+        if (m.permuted && !turnable) || m.renamed {
             return Route::no("a putting that meets the claim other than as written");
         }
+        let turn = match turnable {
+            true => {
+                let put =
+                    crate::matching::put_at_places(&rec.start, &rec.put.places, now);
+                // A line put into is a formula; a side of the claim, a
+                // number in the type it is computed in.
+                let made = self.writer.formula(&put).built().or_else(|| {
+                    let at = self.writer.carrier(&put).built()?;
+                    self.writer.number(&put, at).built()
+                });
+                // The checker met what the putting makes, first, with the
+                // claim (`Substituted::meeting`).
+                match made.and_then(|_| {
+                    super::terms::flip_rewrites(
+                        &self.writer,
+                        &m.flips,
+                        super::terms::Toward::FromFirst,
+                    )
+                }) {
+                    Some(rewrites) => rewrites,
+                    None => {
+                        return Route::no(
+                            "a putting that meets the claim in an order no lemma turns",
+                        )
+                    }
+                }
+            }
+            false => Vec::new(),
+        };
         // The identity elements the putting leaves and the claim drops, as
         // the record names them, `1·x` as `x` by `one_mul`.
         let dropped: Option<Vec<&'static str>> =
@@ -111,6 +147,7 @@ impl<'a> Proof<'a> {
             dropped,
             backs,
             wanted: self.claim_as_stated(line, claim),
+            turn,
         })
     }
 
@@ -254,7 +291,36 @@ impl<'a> Proof<'a> {
                 // Which way round the line says the recorded equation
                 // (`Substituted::line_facing`).
                 let as_said = rec.line_facing != Some(Facing::Turned);
-                let equation = faced(part.proof.clone(), put_facing(as_said));
+                // A line that writes the equation's terms in another order
+                // of a notation's parts than the step does, |CA| for |AC|
+                // (`Substituted::equation_flips`): its proof turned to the
+                // step's equation, facing as the line does.
+                let line_proof = match rec.equation_flips.is_empty() {
+                    true => part.proof.clone(),
+                    false => {
+                        let Route::Built(stated) = self.writer.formula(&rec.equation)
+                        else {
+                            return Route::no("an equation the writer does not state");
+                        };
+                        let to = match as_said {
+                            true => stated,
+                            false => {
+                                super::super::doc::forms::turned_statement(&stated)
+                            }
+                        };
+                        let Some(rewrites) = super::terms::flip_rewrites(
+                            &self.writer,
+                            &rec.equation_flips,
+                            super::terms::Toward::FromSecond,
+                        ) else {
+                            return Route::no(
+                                "an equation written in an order no lemma turns",
+                            );
+                        };
+                        super::terms::rewritten_to(part.proof.clone(), rewrites, &to)
+                    }
+                };
+                let equation = faced(line_proof, put_facing(as_said));
                 Route::Built(PuttingEquation { part, equation })
             }
             (None, Some(row)) => {
@@ -429,7 +495,39 @@ impl<'a> Proof<'a> {
                 self.putting_into_claim_by_int_exponent(putting, &closing, side)
             }
             SubstitutedInto::ClaimSide(side) => {
-                self.putting_into_claim_side(putting, &closing, side)
+                let proof = self.putting_into_claim_side(putting, &closing, side);
+                // A claim side that writes a place in another order of the
+                // parts of a notation that stands in no order than the
+                // equation's side, |AC| for |CA| (`Substituted::place_flips`):
+                // the goal turned to the side's order first.
+                if rec.place_flips.is_empty() {
+                    return proof;
+                }
+                let Some(rewrites) = super::terms::flip_rewrites(
+                    &self.writer,
+                    &rec.place_flips,
+                    super::terms::Toward::FromSecond,
+                ) else {
+                    return Route::no("a place written in an order no lemma turns");
+                };
+                proof.map(|p| {
+                    use super::super::doc::{Proof, TacticArg};
+                    if rewrites.is_empty() {
+                        return p;
+                    }
+                    let rw = t::call(
+                        "rw",
+                        vec![TacticArg::Rules(
+                            rewrites.into_iter().map(t::forwards).collect(),
+                        )],
+                    );
+                    let rest = match p {
+                        Proof::Term(term) => vec![Tactic::Exact(term)],
+                        Proof::By(tactic) => vec![tactic],
+                        Proof::Block(tactics) => tactics,
+                    };
+                    Proof::Block(std::iter::once(rw).chain(rest).collect())
+                })
             }
         }
     }
@@ -485,6 +583,36 @@ impl<'a> Proof<'a> {
                 }),
             ) => above.clone(),
             _ => return Route::no("a row's substitution with no row above"),
+        };
+        // A line that writes a place in another order of the parts of a
+        // notation that stands in no order than the equation's side, |BA|
+        // for |AB| (`Substituted::place_flips`): turned to the side's order
+        // at its places first, so that the motive meets it.
+        let into = match rec.place_flips.is_empty() {
+            true => into,
+            false => {
+                let toward =
+                    crate::matching::put_at_places(&rec.start, &rec.put.places, was);
+                let Route::Built(want) = self.writer.formula(&toward) else {
+                    return Route::no("a line put into that the writer does not state");
+                };
+                let Some(rewrites) = super::terms::flip_rewrites(
+                    &self.writer,
+                    &rec.place_flips,
+                    super::terms::Toward::FromSecond,
+                ) else {
+                    return Route::no("a place written in an order no lemma turns");
+                };
+                super::super::algebra::Cited {
+                    proof: super::terms::rewritten_to(
+                        into.proof.clone(),
+                        rewrites,
+                        &want,
+                    ),
+                    says: Some(want),
+                    node: into.node,
+                }
+            }
         };
         // The type the line writes the term put for in. A term of
         // the line's arithmetic, a side or a part of a sum, product or
@@ -2296,7 +2424,30 @@ impl<'a> Proof<'a> {
                 Route::Built(n) => n,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let row_says = match writer.formula(&row_node) {
+            // A row of numerals alone is written in the type of the row
+            // above, as a claim of numerals is in the type of the lines it
+            // is reached from; ℂ having no order, an order at most in ℝ.
+            let row_says = match row_node.names().is_empty() {
+                true => {
+                    use super::super::templates::Num;
+                    let mut floor = Num::Int;
+                    for side in above_cited
+                        .iter()
+                        .flat_map(|c| c.node.children.iter())
+                        .filter(|s| writer.is_number(s))
+                    {
+                        if let Route::Built(n) = writer.carrier(side) {
+                            floor = floor.max(n);
+                        }
+                    }
+                    if row_node.notation() == crate::notations::ORDER {
+                        floor = floor.min(Num::Real);
+                    }
+                    writer.closed_formula(&row_node, floor)
+                }
+                false => writer.formula(&row_node),
+            };
+            let row_says = match row_says {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -2329,6 +2480,22 @@ impl<'a> Proof<'a> {
             let proof = match proof {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
+            };
+            // A change whose reason reads |AB| and |BA| of its lines as one
+            // term: its lines and it taken to one order first, as a
+            // calculation's row is (`with_commuted`).
+            let proof = match by.head {
+                crate::corpus::Head::Method(
+                    crate::corpus::Method::Algebra
+                    | crate::corpus::Method::Inequalities
+                    | crate::corpus::Method::Transitivity,
+                ) => self.with_commuted(
+                    by.line,
+                    &self.cited_parts(&by.refs),
+                    &change_says,
+                    proof,
+                ),
+                _ => proof,
             };
             let change_name = format!("c{k}");
             haves.push(Tactic::Have {
@@ -2692,7 +2859,12 @@ impl<'a> Proof<'a> {
                         parent.notation(),
                         crate::notations::EQUALITY | crate::notations::ORDER
                     );
-                formula || self.writer.in_formula_type(parent, last)
+                // A square root or real power of a base not shown at least
+                // 0 is the principal value, written in ℂ with its base
+                // (`Writer::principal_is_real`): a term of ℂ's arithmetic.
+                formula
+                    || self.writer.in_formula_type(parent, last)
+                    || !self.writer.principal_is_real(parent)
             })
         })
     }

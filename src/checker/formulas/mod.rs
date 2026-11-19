@@ -104,5 +104,5 @@ pub use self::rows::{
     check_antisymmetry, check_inequalities_holds, check_inequality_rows,
     check_inspection_holds, check_kind_methods, check_membership_holds,
     check_method_cites_used, check_requires_combined, check_requires_manipulations,
-    held_by_lines, inspected, members_shown, reasons_under_lets,
+    commuted_by_lines, held_by_lines, inspected, members_shown, reasons_under_lets,
 };

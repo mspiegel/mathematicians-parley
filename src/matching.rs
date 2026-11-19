@@ -1403,6 +1403,7 @@ fn fit_in_any_order(
 /// found by augmenting paths, so that a listing of any length is compared
 /// in every order without each order written out.
 fn paired_in_some_order(
+    whole: &Node,
     a: &[Node],
     b: &[Node],
     related: &dyn Fn(&Node, &Node) -> Option<Meeting>,
@@ -1419,7 +1420,13 @@ fn paired_in_some_order(
     let in_place: Option<Vec<Meeting>> =
         (0..a.len()).map(|i| met[i][i].clone()).collect();
     if let Some(in_place) = in_place {
-        return Some(in_place.into_iter().fold(Meeting::default(), Meeting::with));
+        return Some(
+            in_place
+                .into_iter()
+                .enumerate()
+                .map(|(i, m)| m.under(i))
+                .fold(Meeting::default(), Meeting::with),
+        );
     }
     let pairs: Vec<Vec<bool>> = met
         .iter()
@@ -1432,10 +1439,20 @@ fn paired_in_some_order(
         return None;
     }
     let mut out = Meeting::default();
+    let mut order = Vec::new();
     for (j, i) in partner.iter().enumerate() {
         let i = (*i)?;
         out.permuted |= i != j;
-        out = out.with(met[i][j].clone()?);
+        order.push(i);
+        out = out.with(met[i][j].clone()?.under(i));
+    }
+    if out.permuted {
+        out.flips.push(Flip {
+            notation: whole.notation_name().to_string(),
+            at: Vec::new(),
+            order,
+            term: whole.clone(),
+        });
     }
     Some(out)
 }
@@ -1484,7 +1501,7 @@ fn parts_related_how(
     related: &dyn Fn(&Node, &Node) -> Option<Meeting>,
 ) -> Option<Meeting> {
     if ctx.unordered.contains(&a.notation()) {
-        return paired_in_some_order(&a.children, &b.children, related);
+        return paired_in_some_order(a, &a.children, &b.children, related);
     }
     orders(a, b, ctx)
         .iter()
@@ -1494,8 +1511,22 @@ fn parts_related_how(
                 turned: way > 0,
                 ..Meeting::default()
             };
-            for (x, y) in a.children.iter().zip(kids.iter()) {
-                out = out.with(related(x, y)?);
+            for (k, (x, y)) in a.children.iter().zip(kids.iter()).enumerate() {
+                out = out.with(related(x, y)?.under(k));
+            }
+            // Two holes of a notation that stands in no order in those two
+            // only, taken the other way round.
+            if let (true, Some(&(i, j))) =
+                (way > 0, ctx.unordered_pairs.get(&a.notation()))
+            {
+                let mut order: Vec<usize> = (0..a.children.len()).collect();
+                order.swap(i, j);
+                out.flips.push(Flip {
+                    notation: a.notation_name().to_string(),
+                    at: Vec::new(),
+                    order,
+                    term: a.clone(),
+                });
             }
             Some(out)
         })
@@ -1631,9 +1662,66 @@ pub struct Meeting {
     pub respelled: bool,
     /// Each identity element dropped, x + 0 read as x.
     pub identities: Vec<Dropped>,
+    /// Each notation whose parts stand in no order that met with its parts
+    /// paired other than in their places, where it stands.
+    pub flips: Vec<Flip>,
+}
+
+/// A notation whose parts stand in no order (`commutes`), met with its
+/// parts in another order than the other tree writes them: |AB| against
+/// |BA|, or `P is between A and B` against `P is between B and A`. A
+/// backend turns it by its own lemma for the notation.
+#[derive(Clone, Debug)]
+pub struct Flip {
+    /// The notation's name.
+    pub notation: String,
+    /// Where it stands in the first tree: the place of each child to go
+    /// down by from its root, counted from 0.
+    pub at: Vec<usize>,
+    /// Which of the first tree's parts is paired with each of the second's:
+    /// `order[k]` is the place in the first of the part against the
+    /// second's k-th.
+    pub order: Vec<usize>,
+    /// The notation's term as the first tree writes it, |AB|; the second
+    /// writes it with its parts in `order`, |BA|.
+    pub term: Node,
+}
+
+/// Two flips are one where they are of one notation at one place in one
+/// order, their terms one tree by shape, as the checker compares trees.
+impl PartialEq for Flip {
+    fn eq(&self, other: &Flip) -> bool {
+        self.notation == other.notation
+            && self.at == other.at
+            && self.order == other.order
+            && self.term.shape() == other.term.shape()
+    }
+}
+
+impl Eq for Flip {}
+
+impl Flip {
+    /// The term as the second tree writes it: the first's parts in `order`.
+    pub fn turned(&self) -> Node {
+        let parts: Vec<Node> = self
+            .order
+            .iter()
+            .filter_map(|&k| self.term.children.get(k).cloned())
+            .collect();
+        self.term.with_children(parts)
+    }
 }
 
 impl Meeting {
+    /// The same meeting of two parts that stand as the `index`-th child of
+    /// the trees it is for: each flip's place gains that step.
+    fn under(mut self, index: usize) -> Meeting {
+        for flip in &mut self.flips {
+            flip.at.insert(0, index);
+        }
+        self
+    }
+
     /// Whether the two are written alike: nothing was taken to pair them.
     pub fn as_written(&self) -> bool {
         *self == Meeting::default()
@@ -1646,6 +1734,7 @@ impl Meeting {
         self.renamed |= other.renamed;
         self.respelled |= other.respelled;
         self.identities.extend(other.identities);
+        self.flips.extend(other.flips);
         self
     }
 
@@ -1844,7 +1933,7 @@ fn alike_as_written(
             true => alike_how(p, q, ctx, &inner_ours, &inner_theirs),
             false => alike_how(p, q, ctx, ours, theirs),
         };
-        out = out.with(met?);
+        out = out.with(met?.under(i));
     }
     Some(out)
 }
@@ -1983,6 +2072,32 @@ pub fn places_of(term: &Node, was: &Node) -> Vec<Vec<usize>> {
     }
     let mut out = Vec::new();
     walk(term, was, &mut Vec::new(), &mut out);
+    out
+}
+
+/// Every place a term `alike` to `was` stands in `term`, |BA| of |AB|, each
+/// by its path of children from the top; none inside another. Where the
+/// page writes `was` as it stands, `places_of` finds the same places.
+pub fn places_alike(term: &Node, was: &Node, ctx: &Context) -> Vec<Vec<usize>> {
+    fn walk(
+        term: &Node,
+        was: &Node,
+        ctx: &Context,
+        at: &mut Vec<usize>,
+        out: &mut Vec<Vec<usize>>,
+    ) {
+        if alike_top(term, was, ctx) {
+            out.push(at.clone());
+            return;
+        }
+        for (k, child) in term.children.iter().enumerate() {
+            at.push(k);
+            walk(child, was, ctx, at, out);
+            at.pop();
+        }
+    }
+    let mut out = Vec::new();
+    walk(term, was, ctx, &mut Vec::new(), &mut out);
     out
 }
 

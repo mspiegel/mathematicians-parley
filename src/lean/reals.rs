@@ -104,13 +104,29 @@ pub fn real_link(
     Route::Built(Proof::Block(w.lines))
 }
 
-/// The proof that an equation real arithmetic shows false is false, as a
-/// disequality of its sides is shown (`apart_proof`). Any other claim
-/// declines.
+/// The proof that an equation or an order real arithmetic shows false is
+/// false: an equation as a disequality of its sides is shown
+/// (`apart_proof`), an order as the opposite order (`order_refuted`). Any
+/// other claim declines.
 pub fn real_refuted(writer: &Writer, targets: &Targets, claim: &Node) -> Route<Proof> {
     let mut w = Work::new(writer, targets);
-    if w.term(claim).label() != Some("wceq") {
-        return Route::no("a line real arithmetic shows false that is no equation");
+    let term = w.term(claim);
+    if let (Some("wbr"), [a, _, rel]) = (term.label(), term.children()) {
+        if let Route::Declined(d) = w.pieces_of(claim) {
+            return Route::Declined(d);
+        }
+        return match w.order_refuted(claim, a, rel) {
+            Route::Built(t) => {
+                w.lines.push(t);
+                Route::Built(Proof::Block(w.lines))
+            }
+            Route::Declined(d) => Route::Declined(d),
+        };
+    }
+    if term.label() != Some("wceq") {
+        return Route::no(
+            "a line real arithmetic shows false that is neither equation nor order",
+        );
     }
     let [a, b] = claim.children.as_slice() else {
         return Route::no("an equation without two sides");
@@ -334,14 +350,13 @@ impl<'a> Work<'a> {
     /// is no sum, difference, product, quotient, power or negation noted
     /// as an atom.
     fn pieces_of(&mut self, node: &Node) -> Route<()> {
-        let mut nodes = node.walk();
+        let mut nodes = Vec::new();
+        self.walk_to_opaque(node, &mut nodes);
         nodes.reverse();
         for n in &nodes {
             if self.lettered(n) {
                 let term = self.term(n);
-                let arithmetic = matches!(term.label(), Some("co" | field::NEG))
-                    && !term.children().is_empty();
-                if !arithmetic {
+                if self.opaque_at(n) {
                     let said = match self.number(n) {
                         Route::Built(s) => s,
                         Route::Declined(d) => return Route::Declined(d),
@@ -355,6 +370,30 @@ impl<'a> Work<'a> {
             }
         }
         Route::Built(())
+    }
+
+    /// Whether the node is a term the arithmetic takes as one piece: one
+    /// with a letter in it that is no sum, product or negation, |CA| or
+    /// x³.
+    fn opaque_at(&self, node: &Node) -> bool {
+        let term = self.term(node);
+        self.lettered(node)
+            && !(matches!(term.label(), Some("co" | field::NEG))
+                && !term.children().is_empty())
+    }
+
+    /// The node and what stands in it, before what stands in each, as
+    /// `Node::walk` gives them, but nothing inside an opaque term
+    /// (`opaque_at`): the points A and C of |CA| are no numbers of the
+    /// arithmetic's.
+    fn walk_to_opaque(&self, node: &Node, out: &mut Vec<Node>) {
+        out.push(node.clone());
+        if self.opaque_at(node) {
+            return;
+        }
+        for c in &node.children {
+            self.walk_to_opaque(c, out);
+        }
     }
 
     fn number(&self, node: &Node) -> Route<Printed> {
@@ -495,29 +534,7 @@ impl<'a> Work<'a> {
                         self.apart_proof(l, r)
                     }
                     (Some("wbr"), [a, _, rel]) => {
-                        let Some(strict) = order(rel) else {
-                            return Route::no(
-                                "a relation real arithmetic does not decide",
-                            );
-                        };
-                        let Some((low, high)) = self.ordered_sides(inner_node, a)
-                        else {
-                            return Route::no(
-                                "an order whose sides are not the claim's",
-                            );
-                        };
-                        // Not x < y is y ≤ x; not x ≤ y is y < x.
-                        let facts = match self.order_facts(high, low, !strict) {
-                            Route::Built(f) => f,
-                            Route::Declined(d) => return Route::Declined(d),
-                        };
-                        let turn = match strict {
-                            true => "not_lt.mpr",
-                            false => "not_le.mpr",
-                        };
-                        let inside =
-                            t::bracket(t::by_term(Proof::By(linarith_only(facts))));
-                        Route::Built(vec![Tactic::Exact(lemma(turn, vec![inside]))])
+                        self.order_refuted(inner_node, a, rel).map(|t| vec![t])
                     }
                     (Some("wcel"), [_, system]) => {
                         self.membership(inner_node, system, true)
@@ -527,6 +544,36 @@ impl<'a> Work<'a> {
             }
             _ => Route::no("a claim real arithmetic does not decide"),
         }
+    }
+
+    /// The proof that the order `claim` is false, `rel` its relation and
+    /// `lesser` the side the decider reads as the lesser: not x < y is
+    /// y ≤ x, and not x ≤ y is y < x, which `linarith` shows from the
+    /// facts the decider gives (`order_facts`).
+    fn order_refuted(
+        &mut self,
+        claim: &Node,
+        lesser: &Term,
+        rel: &Term,
+    ) -> Route<Tactic> {
+        let strict = match rel.label() {
+            Some("clt") => true,
+            Some("cle") => false,
+            _ => return Route::no("a relation real arithmetic does not decide"),
+        };
+        let Some((low, high)) = self.ordered_sides(claim, lesser) else {
+            return Route::no("an order whose sides are not the claim's");
+        };
+        let facts = match self.order_facts(high, low, !strict) {
+            Route::Built(f) => f,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let turn = match strict {
+            true => "not_lt.mpr",
+            false => "not_le.mpr",
+        };
+        let inside = t::bracket(t::by_term(Proof::By(linarith_only(facts))));
+        Route::Built(Tactic::Exact(lemma(turn, vec![inside])))
     }
 
     /// The sides of an order, the lesser first: `lesser` is the side the

@@ -600,14 +600,25 @@ pub(super) struct PutClosing {
     pub(super) backs: Vec<Printed>,
     /// The claim as Lean states it.
     pub(super) wanted: Option<Printed>,
+    /// Where what the putting makes meets the claim only with the parts of
+    /// a notation that stands in no order in another order
+    /// (`Meeting::flips`): the rewrites that turn it to the claim
+    /// (`terms::flip_rewrites`).
+    pub(super) turn: Vec<Printed>,
 }
 
 impl PutClosing {
-    /// The line the motive makes closed against the claim: by the casts
-    /// pushed down to the letters, `exact_mod_cast` meeting the two.
+    /// The line the motive makes closed against the claim: turned where the
+    /// claim writes a notation's parts in another order (`turn`), then by
+    /// the casts pushed down to the letters, `exact_mod_cast` meeting the
+    /// two.
     pub(super) fn close(&self, term: Printed) -> super::super::doc::Proof {
         use super::super::doc::Proof;
         use super::super::tactics as t;
+        let term = match &self.wanted {
+            Some(wanted) => super::terms::rewritten_to(term, self.turn.clone(), wanted),
+            None => term,
+        };
         if self.cast_to_nat && self.dropped.is_empty() {
             return match self.backs.is_empty() {
                 true => Proof::Term(term),

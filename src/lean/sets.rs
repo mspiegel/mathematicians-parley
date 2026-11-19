@@ -163,6 +163,10 @@ impl Writer<'_> {
                 _ => None,
             };
         }
+        // The plane, a line and a ray hold points, which are complex numbers.
+        if matches!(&*node.notation_name(), "plane" | "line" | "ray") {
+            return Some(Members::Numbers(Num::Complex));
+        }
         match node.notation() {
             // gH holds elements of g's group.
             COSET => self.member_kind(node.children.first()?),
@@ -437,6 +441,41 @@ impl Writer<'_> {
                 )),
                 _ => Route::no(format!("{} is no set, member or map", node.text)),
             };
+        }
+        // The plane is every point, and the line through two points and the
+        // ray from the first through the second are the sets the bridges
+        // define (`Geometry.line`, `Geometry.ray`).
+        let of_points = LeanType::Set(Box::new(LeanType::Num(Num::Complex)));
+        match &*node.notation_name() {
+            "plane" => {
+                return Route::Built(Printed::cast(
+                    Printed::head("Set.univ", Source::Mathlib),
+                    of_points,
+                ))
+            }
+            which @ ("line" | "ray") => {
+                if node.children.len() != 2 {
+                    return Route::no(format!("{which} of other than two points"));
+                }
+                let mut p = Vec::new();
+                for point in &node.children {
+                    match self.number_fixed(point, Num::Complex) {
+                        Route::Built(x) => p.push(x),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                let name = match which {
+                    "line" => "LeanBridges.Geometry.line",
+                    _ => "LeanBridges.Geometry.ray",
+                };
+                return Route::Built(Printed::applied(
+                    name,
+                    Source::Bridge(BridgeModule::Geometry),
+                    p,
+                    of_points,
+                ));
+            }
+            _ => {}
         }
         // a·b, a⁻¹ and gH of a group: Mathlib's `*`, `⁻¹`, and the left
         // coset.

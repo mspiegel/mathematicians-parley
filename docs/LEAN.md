@@ -547,6 +547,34 @@ member gets `LeanBridges.Sets.sep_insert_of` or `sep_insert_of_not`, with
 its property stated of that member and proved from the facts. A count of the
 members kept is then worked out by `norm_num`.
 
+## Geometry
+
+A point is a complex number, `(A : ℂ)`, as in the Metamath kernel. Each
+geometry notation's `lean-builds` names Mathlib's term: |AB| is `dist A B`,
+∠PQR is `EuclideanGeometry.angle P Q R`, ∡PQR is
+`Complex.arg ((R - Q) / (P - Q))`, "Q is between P and R" is `Sbtw ℝ P Q R`,
+and collinear is `Collinear ℝ {A, B, C}`. A triangle is
+`LeanBridges.Geometry.Triangle P Q R`: its points apart and not collinear.
+Same side, opposite sides, parallel and perpendicular are the page's
+formulas in the imaginary or real part of a quotient of differences.
+`line AB` and `ray AB` are sets in `corpus/lean-bridges/Geometry.lean`,
+empty when A = B, since a line through one point is no line. x° is
+`x * Real.pi / 180`.
+
+The notations that stand in no order (|AB| and |BA|, a triangle or a
+collinearity named in any order) are one term on the page and two in Lean.
+The checker records each place it met them in the other order
+(`Meeting::flips`, `place_flips`, `equation_flips`, `commuted_by_lines`).
+Lean turns a line at each by an exact instance of the notation's swap
+lemma, `rw [dist_comm C A] at h` or
+`LeanBridges.Geometry.triangle_rot_231 A B C`, never a list for `simp` to
+search. An algebra, inequalities or transitivity reason, which reads |AB|
+and |BA| as one term, first takes every line it cites and its goal to one
+order that way.
+
+The geometry library's axioms and theorems are proved from Mathlib, by
+short proofs in their records or by bridges in `Geometry.lean`.
+
 ## Defines and recursions
 
 A define in a proof is Lean's `set`: `let m = (a + b)/2` is

@@ -1249,6 +1249,54 @@ pub fn held_by_lines(
     out
 }
 
+/// The notations whose parts stand in no order that each reason's claim and
+/// lines write in more than one order, by the line the reason is on
+/// (`CheckedTheorem::commuted_by_lines`): of a step's claim and the lines it
+/// names, and of each requires line and the lines its own reason names.
+pub fn commuted_by_lines(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, Vec<String>> {
+    let commuted = |at: &ClosureClaim| -> Vec<String> {
+        let Some(read) = at.read(known, targets, true) else {
+            return Vec::new();
+        };
+        let nodes: Vec<Node> = std::iter::once(read.claimed.clone())
+            .chain(read.lines.iter().cloned())
+            .collect();
+        targets.written_in_other_orders(&nodes)
+    };
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        out.insert(step.just.line, commuted(&ClosureClaim::step(step)));
+        for req in &step.requires {
+            if let Ok(by) = &req.by {
+                out.insert(by.line, commuted(&ClosureClaim::requires(step, req)));
+            }
+        }
+        // A calculation's rows and a substitution's, each by the line its
+        // reason is on, the change a substitution's row makes its claim.
+        let substituted: Vec<crate::corpus::proof::Requires> =
+            match crate::corpus::proof::substitute_rows(&step.just, &thm.path) {
+                Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
+                _ => Vec::new(),
+            };
+        let rows: Vec<crate::corpus::proof::Requires> =
+            chain_links(&step.just, &thm.path)
+                .into_iter()
+                .filter_map(|link| link.line.reason)
+                .chain(substituted)
+                .collect();
+        for req in &rows {
+            if let Ok(by) = &req.by {
+                out.insert(by.line, commuted(&ClosureClaim::row(step, req)));
+            }
+        }
+    }
+    out
+}
+
 /// The number systems a part may be asked in.
 pub(super) const HELD_IN: [System; 5] =
     [System::N, System::N0, System::Z, System::Q, System::R];

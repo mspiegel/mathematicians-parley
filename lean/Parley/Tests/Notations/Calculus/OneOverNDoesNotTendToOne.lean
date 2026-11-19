@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Ring.Unbundled.Rat
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder

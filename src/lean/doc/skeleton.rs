@@ -4,7 +4,8 @@
 //! The templates a record's `lean-builds` field writes use a small part of
 //! Lean: names applied to arguments, infix operators, `¬` and `-` before a
 //! term, `⌊x⌋` and `‖x‖`, `x.toNat`, a cast `(x : ℂ)`, `[ZMOD n]` after a
-//! congruence, `@` before a name given every argument, and `_`.
+//! congruence, a set listed by its members `{a, b}`, `@` before a name given
+//! every argument, and `_`.
 
 use super::bridges::BridgeModule;
 use super::term::{Arg, ConstRef, LeanType, Op, Source, Term, TermKind};
@@ -24,7 +25,10 @@ fn tokens(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     let mut word = String::new();
     for c in text.chars() {
-        let mark = matches!(c, '(' | ')' | '⌊' | '⌋' | '‖' | '[' | ']' | ':');
+        let mark = matches!(
+            c,
+            '(' | ')' | '⌊' | '⌋' | '‖' | '[' | ']' | ':' | '{' | '}' | ','
+        );
         if c.is_whitespace() || mark {
             if !word.is_empty() {
                 out.push(std::mem::take(&mut word));
@@ -134,7 +138,9 @@ impl Reader {
     fn starts_atom(&self) -> bool {
         match self.peek() {
             Some("(" | "⌊") => true,
-            Some(")" | "⌋" | "‖" | "]" | "[" | ":" | "¬") | None => false,
+            Some(")" | "⌋" | "‖" | "]" | "[" | ":" | "¬" | "}" | ",") | None => {
+                false
+            }
             Some(word) => Op::of(word).is_none(),
         }
     }
@@ -161,6 +167,18 @@ impl Reader {
             }
             "⌊" => self.enclosed("⌊", "⌋"),
             "‖" => self.enclosed("‖", "‖"),
+            "{" => {
+                let mut items = vec![self.expr(0)?];
+                while self.peek() == Some(",") {
+                    self.at += 1;
+                    items.push(self.expr(0)?);
+                }
+                self.expect("}")?;
+                Some(skeleton(TermKind::Listed {
+                    brackets: super::term::Brackets::Brace,
+                    items,
+                }))
+            }
             word => atom_word(word.strip_prefix('@').unwrap_or(word)),
         }
     }
@@ -246,6 +264,7 @@ mod tests {
             "ArithmeticFunction.sigma 1 _1 = 2 * _1",
             "_1 ^ (1 / 2 : ℂ)",
             "_1 ≡ _2 [ZMOD _3]",
+            "Collinear ℝ {_1, _2, _3}",
             "@ite _ _2 (Classical.propDecidable _2) _1 _3",
             "Polynomial.aeval _2 (Polynomial.bernoulli _1)",
             "IsAlgebraic ℤ _1",

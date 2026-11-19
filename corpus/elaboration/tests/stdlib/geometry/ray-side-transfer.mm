@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/ray-side-transfer, elaborated from tests/stdlib/geometr
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.ray-side-transfer $p |- ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ E e. CC ) /\ ( A = B \/ ( ( E - A ) / ( B - A ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( E - A ) / ( C - A ) ) ) x. ( Im ` ( ( B - A ) / ( C - A ) ) ) ) ) /\ -. ( A = D \/ ( ( B - A ) / ( D - A ) ) e. RR ) ) -> 0 < ( ( Im ` ( ( E - A ) / ( D - A ) ) ) x. ( Im ` ( ( B - A ) / ( D - A ) ) ) ) ) $=
-    ( graysidetr ) BDACEF $.
+  tests.stdlib.geometry.ray-side-transfer $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ E e. CC ) /\ ( A = B \/ ( ( E - A ) / ( B - A ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( E - A ) / ( C - A ) ) ) x. ( Im ` ( ( B - A ) / ( C - A ) ) ) ) ) /\ -. A = D ) /\ -. ( A = D \/ ( ( B - A ) / ( D - A ) ) e. RR ) ) -> 0 < ( ( Im ` ( ( E - A ) / ( D - A ) ) ) x. ( Im ` ( ( B - A ) / ( D - A ) ) ) ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo cc0 cim cfv cmul clt wbr wn simpl id syl simpr jca graysidetr ) AFGZBFGZHZCFGZHZDFGZHZEFGZHZABIZEAJKZBAJKZLKZMGZNZHZOURCAJKZLKZPQZUSVDLKZPQZRKZSTZHZADIZUAZHZVLUSDAJKZLKZMGZNZUAZHZVKVSHOURVOLKPQVPPQRKSTVTVKVSVTVCVJVTUPVBVTUNUOVTULUMVTUJUKVTUHUIVTVNUHVNVSUBZVNVKUHVKVMUBZVKVCUHVCVJUBZVCUPUHUPVBUBZUPUNUHUNUOUBZUNULUHULUMUBZULUJUHUJUKUBZUJUHUHUHUIUBUHUCUDUDUDUDUDUDUDUDVTVNUIWAVNVKUIWBVKVCUIWCVCUPUIWDUPUNUIWEUNULUIWFULUJUIWGUHUIUEUDUDUDUDUDUDUDUFVTVNUKWAVNVKUKWBVKVCUKWCVCUPUKWDUPUNUKWEUNULUKWFUJUKUEUDUDUDUDUDUDUFVTVNUMWAVNVKUMWBVKVCUMWCVCUPUMWDUPUNUMWEULUMUEUDUDUDUDUDUFVTVNUOWAVNVKUOWBVKVCUOWCVCUPUOWDUNUOUEUDUDUDUDUFVTVNVBWAVNVKVBWBVKVCVBWCUPVBUEUDUDUDUFVTVNVJWAVNVKVJWBVCVJUEUDUDUFVNVSUEUFBDACEUGUD $.
 $}

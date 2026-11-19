@@ -469,6 +469,14 @@ pub struct CheckedTheorem {
     /// whole from the line the check found, m of m² from `m ∈ ℕ`, and from
     /// no line the reason does not name.
     pub held_by_lines: IndexMap<usize, Vec<HeldByLines>>,
+    /// The notations whose parts stand in no order (`commutes any order`)
+    /// that a reason's claim and the lines it names write with their parts
+    /// in more than one order, |AB| in one and |BA| in another, by the line
+    /// the reason is on: a step's, or a requires line's
+    /// (`formulas::commuted_by_lines`). The reason reads them as one term;
+    /// a backend turns each by its own lemma where it works on the terms
+    /// as written.
+    pub commuted_by_lines: IndexMap<usize, Vec<String>>,
     /// Each part an `algebra` reason divides by, with why it is not zero,
     /// by the line the reason is on: a step's, a requires line's or a
     /// calculation row's (`formulas::divided_by`). A backend clears the
@@ -489,6 +497,14 @@ pub struct CheckedTheorem {
     /// writes a square root or a real power of a base at least 0 as a real
     /// one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
     pub bounds: Vec<crate::citing::bounds::SaidBounds>,
+    /// What any line of the theorem bounds below: the statement's
+    /// hypotheses, the lines in scope at every step and every requires
+    /// line, a step's or a naming `let`'s, together (`statement_bounds`,
+    /// `bounds`). A backend writes a square root or a
+    /// real power of a base the page shows at least 0 anywhere in one form
+    /// throughout, as the statement's own may come before the line that
+    /// shows it.
+    pub page_bounds: crate::citing::bounds::SaidBounds,
     /// The sets the lines in scope at each step say are finite in words,
     /// `W is finite` or `B ⊆ A` of a finite A, as printed, each with why,
     /// by the step's index (`citing::finite::finite_sets_in_words`): a
@@ -739,6 +755,12 @@ pub struct Cited {
     /// unfolded from; else a requires line, or the `let` line that says a
     /// membership once. A fact nothing supplies has none.
     pub firsts: Vec<SuppliedBy>,
+    /// How the line each of `firsts` names met the fact the citation
+    /// reads from it (`Known::alike_how`), one for each, as
+    /// `Supplied::meeting` records it for a hypothesis: the fact's parts in
+    /// another order, the sides turned, identity elements dropped. None
+    /// where no line writes it.
+    pub firsts_meetings: Vec<Option<crate::matching::Meeting>>,
     /// What supplies each hypothesis of the group the citation takes, in
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
@@ -753,8 +775,11 @@ pub struct Cited {
     pub facings: Vec<Option<Facing>>,
     /// For each of `concluded`, how the sentence read at the binding met
     /// the claim's sentence it gives (`Known::alike_how`): the identity
-    /// elements dropped among it, x − 0 read as x; None where the two were
-    /// not met as wholes.
+    /// elements dropped among it, x − 0 read as x, and the parts of a
+    /// notation that stand in no order taken in another order. Of the part
+    /// the claim is, where it is one part of the sentence's "and"
+    /// (`Concluded::part`, `within`); None where nothing of it meets the
+    /// claim's sentence.
     pub meetings: Vec<Option<crate::matching::Meeting>>,
     /// For each of `concluded`, where the claim's sentence is one part of
     /// what the sentence's part gives once read at the binding, a property
@@ -1168,6 +1193,18 @@ pub struct Substituted {
     /// leaves out, `1·x` written `x`; or turned round, `b ≡ c` of the claim
     /// `c ≡ b`, or a listed set's members in another order.
     pub meeting: crate::matching::Meeting,
+    /// Where a place writes the side put for with the parts of a notation
+    /// that stands in no order in another order, |BA| for the side |AB|
+    /// (`matching::places_alike`): each such flip, the side's term first
+    /// (`Known::alike_how` of the side and the place). Empty where every
+    /// place is written as the side is.
+    pub place_flips: Vec<crate::matching::Flip>,
+    /// Where the step writes its equation with the parts of a notation that
+    /// stands in no order in another order than the line it is taken from
+    /// says it, `|AC| = 4` of a line `|CA| = 4`: each such flip, the step's
+    /// equation's term first (`Known::alike_how` of the equation and the
+    /// line). Empty where the two are written alike, or no line gives it.
+    pub equation_flips: Vec<crate::matching::Flip>,
     /// Of an equation a define gives, which way the step writes it beside
     /// the define's own, name or function applied on the left: straight
     /// for `q(a) = a + 1`, turned for `a + 1 = q(a)`. None of an equation

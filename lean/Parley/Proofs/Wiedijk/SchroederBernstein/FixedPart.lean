@@ -37,7 +37,7 @@ theorem fixed_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B :
     intro X h_X
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Functions.mun_image_within (X := B) (W := A) (Y := B \ f '' (A ∩ X)) (f := g) hH4)
+    (have h := (Parley.Items.Stdlib.Functions.mun_image_within (X := B) (W := A) (Y := B \ f '' (A ∩ X)) (f := g) hH4); push_cast at h; exact h)
   -- 2. proof
   have s2 : ∀ X ∈ 𝒫 A, ∀ Y ∈ 𝒫 A, X ⊆ Y → M Y ⊆ M X := by
     intro X hK3
@@ -52,14 +52,14 @@ theorem fixed_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B :
     have r62_2 : Y ⊆ A := by exact hK4
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := B) (Y := B \ f '' (A ∩ Y)) (Z := B \ f '' (A ∩ X)) (f := g) (W := A) s2_2 hH4)
+    (have h := (Parley.Items.Stdlib.Functions.mun_image_monotone (X := B) (Y := B \ f '' (A ∩ Y)) (Z := B \ f '' (A ∩ X)) (f := g) (W := A) s2_2 hH4); push_cast at h; exact h)
   -- 3. def:part-builder, from D2
   have s3 : ∀ X ∈ D, X ⊆ A := by intro X h_X; (exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun X : Set α => M X ∩ X = ∅)) (X := A) (u := X))).mp h_X).1)
   -- 4. mun:union-within, from D3, 3
   have s4 : C ⊆ A := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_union_within (D := D) (Z := A) s3)
+    (have h := (Parley.Items.Stdlib.Sets.mun_union_within (D := D) (Z := A) s3); push_cast at h; exact h)
   -- 5. instantiate X := C in line 1, from 4
   have s5 : M C ⊆ A := by exact (s1 C s4)
   -- 6. proof
@@ -73,7 +73,7 @@ theorem fixed_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B :
     have s6_3 : X ⊆ C := by
       simp only [hD3] at ⊢
       push_cast at ⊢
-      exact (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := X) hK6)
+      (have h := (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := X) hK6); push_cast at h; exact h)
     -- 6.4. instantiate X := X, Y := C in line 2, from 4, 6.1, 6.3
     have s6_4 : M C ⊆ M X := by exact (s2 X s6_1 C s4 s6_3)
     -- 6.5. mun:disjoint-within, from 6.2, 6.4
@@ -113,7 +113,7 @@ theorem fixed_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B :
   have s15 : A \ M C ⊆ C := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := A \ M (⋃ X ∈ D, X)) s14)
+    (have h := (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := A \ M (⋃ X ∈ D, X)) s14); push_cast at h; exact h)
   -- 16. mun:complement-swap-outside, from 15
   have s16 : A \ C ⊆ M C := by exact ((Parley.Items.Stdlib.Sets.mun_complement_swap_outside (X := C) (Y := M C) (Z := A))).mp s15
   -- 17. mun:subset-antisymmetric, from 8, 16

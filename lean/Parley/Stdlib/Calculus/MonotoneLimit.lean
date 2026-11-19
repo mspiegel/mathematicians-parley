@@ -6,6 +6,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations

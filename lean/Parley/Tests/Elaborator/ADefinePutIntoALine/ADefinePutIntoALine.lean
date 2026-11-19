@@ -30,7 +30,7 @@ theorem a_define_put_into_a_line {α : Type*} [Nonempty α] (A : Set α) (B : Se
   have s1 : C ⊆ A := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))
+    (have h := (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B)); push_cast at h; exact h)
   -- 2. substitute C = A ∩ B (D1) into line 1
   exact Eq.subst (motive := (fun t : Set α => t ⊆ A)) hD1 s1
 

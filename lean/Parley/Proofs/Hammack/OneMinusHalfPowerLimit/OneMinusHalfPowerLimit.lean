@@ -14,6 +14,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Cast.CharZero

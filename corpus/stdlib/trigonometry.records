@@ -175,13 +175,13 @@ mundane theorem special-angles
   note        The values a school reader takes from the unit circle. set.mm
               states them at π/2, π/3 and π/6; each lemma first writes the
               degrees as that fraction of π.
-  lean-proof  not yet implemented
+  lean-proof  by rw [show (90 : ℝ) * Real.pi / 180 = Real.pi / 2 by ring]; exact Real.cos_pi_div_two ; by rw [show (90 : ℝ) * Real.pi / 180 = Real.pi / 2 by ring]; exact Real.sin_pi_div_two ; by rw [show (60 : ℝ) * Real.pi / 180 = Real.pi / 3 by ring]; exact Real.cos_pi_div_three ; by rw [show (30 : ℝ) * Real.pi / 180 = Real.pi / 6 by ring]; exact Real.sin_pi_div_six
 
 mundane theorem cos-supplement
   let x ∈ ℝ                                                           (H1)
   then        cos(180° − x) = −cos(x)
   metamath-proof metamath-bridges/plane/gcossupp
-  lean-proof  not yet implemented
+  lean-proof  by rw [show (180 : ℝ) * Real.pi / 180 = Real.pi by ring]; exact Real.cos_pi_sub x
 
 mundane theorem sin-supplement
   let x ∈ ℝ                                                           (H1)
@@ -189,7 +189,7 @@ mundane theorem sin-supplement
   metamath-proof metamath-bridges/plane/gsinsupp
   note        Supplementary angles have one sine, as the two angles at a
               point of a line do.
-  lean-proof  not yet implemented
+  lean-proof  by rw [show (180 : ℝ) * Real.pi / 180 = Real.pi by ring]; exact Real.sin_pi_sub x
 
 definition arctan
   sort        number → number

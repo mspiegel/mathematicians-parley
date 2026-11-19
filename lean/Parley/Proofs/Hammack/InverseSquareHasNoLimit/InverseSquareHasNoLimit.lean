@@ -112,7 +112,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_8 : t > 0 := by
       simp only [hD1] at ⊢
       push_cast at ⊢
-      exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by exact_mod_cast gt_iff_lt.mp s10_1))
+      (have h := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by exact_mod_cast gt_iff_lt.mp s10_1)); push_cast at h; exact h)
     -- 10.9. inequalities
     have s10_9 : t ≠ 0 := ne_of_gt (by linarith only [s10_8])
     -- 10.10. mun:remove-member u := t, from 10.9

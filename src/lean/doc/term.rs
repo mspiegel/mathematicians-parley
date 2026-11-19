@@ -811,6 +811,10 @@ impl Term {
                 }))),
                 ty: None,
             },
+            // A name that stands for a type, `ℝ` of `Collinear ℝ s`, is its
+            // own sample: the instances that follow from it are what Lean is
+            // asked of.
+            (TermKind::Const(_), None) => term.clone(),
             (_, Some(ty)) if ty.fixed() => {
                 Term::cast(Term::letter("sorry", ty.clone()), ty.clone())
             }
@@ -1139,6 +1143,76 @@ impl Term {
         }
     }
 
+    /// The term with the parts of each notation Lean writes in one order
+    /// that the page reads in any, `dist a b`, `Sbtw ℝ a b c`, a set of
+    /// three points, a triangle, the two factors of a side's test, put in
+    /// the order of their text: |AB| and |BA| are `dist A B` alike, whether
+    /// the page or a template wrote them, so that every line of a theorem
+    /// agrees on one form. A citation that puts an item's letters in
+    /// another order is turned by the notation's lemmas.
+    pub fn in_one_order(&self) -> Term {
+        let mut out = self.clone();
+        out.order_parts();
+        out
+    }
+
+    fn order_parts(&mut self) {
+        for child in self.children_mut() {
+            child.order_parts();
+        }
+        let key = |t: &Term| t.text();
+        match &mut self.kind {
+            TermKind::App { head, args, .. } => {
+                let TermKind::Const(c) = &head.kind else {
+                    return;
+                };
+                let name = c.name.clone();
+                let term_at = |args: &Vec<Arg>, k: usize| match args.get(k) {
+                    Some(Arg::Explicit(t)) => Some(t.clone()),
+                    _ => None,
+                };
+                // The places in `args` that stand in no order, as a group.
+                let group: &[usize] = match (name.as_str(), args.len()) {
+                    ("dist", 2) => &[0, 1],
+                    ("Sbtw", 4) => &[1, 3],
+                    ("LeanBridges.Geometry.Triangle", 3) => &[0, 1, 2],
+                    ("Collinear", 2) => {
+                        if let Some(Arg::Explicit(Term {
+                            kind: TermKind::Listed { items, .. },
+                            ..
+                        })) = args.get_mut(1)
+                        {
+                            items.sort_by_cached_key(|t| t.text());
+                        }
+                        return;
+                    }
+                    _ => return,
+                };
+                let mut held: Vec<Term> =
+                    group.iter().filter_map(|&k| term_at(args, k)).collect();
+                if held.len() != group.len() {
+                    return;
+                }
+                held.sort_by_cached_key(key);
+                for (&k, t) in group.iter().zip(held) {
+                    args[k] = Arg::Explicit(t);
+                }
+            }
+            // The two sides' parts of "on the same side": a product of two
+            // imaginary parts.
+            TermKind::Infix { op, lhs, rhs } if op.symbol == "*" => {
+                let imaginary = |t: &Term| {
+                    matches!(&t.kind, TermKind::App { head, .. }
+                        if matches!(&head.kind, TermKind::Const(c) if c.name == "Complex.im"))
+                };
+                if imaginary(lhs) && imaginary(rhs) && lhs.text() > rhs.text() {
+                    std::mem::swap(lhs, rhs);
+                }
+            }
+            _ => {}
+        }
+    }
+
     /// A template's tree with hole i filled by `args[i − 1]`; None where a
     /// hole has no argument.
     pub fn instantiate(&self, args: &[Term]) -> Option<Term> {
@@ -1291,10 +1365,23 @@ impl Term {
                 no: Box::new(no.instantiate(args)?),
             },
         };
-        Some(Term {
-            kind,
-            ty: self.ty.clone(),
-        })
+        // A set a template lists, `{_1, _2, _3}`, is of the type its members
+        // are, which the filled holes give.
+        let ty = match (&kind, &self.ty) {
+            (
+                TermKind::Listed {
+                    brackets: Brackets::Brace,
+                    items,
+                },
+                None,
+            ) => items
+                .first()
+                .and_then(|first| first.ty.clone())
+                .filter(|t| items.iter().all(|i| i.ty.as_ref() == Some(t)))
+                .map(|t| LeanType::Set(Box::new(t))),
+            _ => self.ty.clone(),
+        };
+        Some(Term { kind, ty })
     }
 
     /// The term with an item's general number type, `K`, made the type a

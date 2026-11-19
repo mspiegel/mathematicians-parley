@@ -105,7 +105,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s8 : (2 ^ p.toNat : ℤ) = 2 ^ k.toNat * 2 := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) s1a)
+    (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) s1a); push_cast at h; exact h)
   -- 9. contradiction
   have s9 : ¬ (2 : ℤ) ∣ (2 ^ p.toNat - 1 : ℤ) := by
     intro hS2

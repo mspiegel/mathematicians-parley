@@ -63,8 +63,9 @@ impl<'a> Suppliers<'a> {
     }
 
     /// How the line `by` names, as it writes `fact`, met `asked`, the
-    /// hypothesis at the citation's values (`Known::alike_how`); None where
-    /// no line writes it, or one implies it.
+    /// hypothesis at the citation's values (`Known::alike_how`); of a fact a
+    /// line implies, how that fact met it, `H ≠ Q` of a triangle met with the
+    /// asked `Q ≠ H`; None where no line writes or implies it.
     pub(super) fn meeting(
         &self,
         asked: &Node,
@@ -78,6 +79,32 @@ impl<'a> Suppliers<'a> {
             SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) if at.implied.is_none() => {
                 at.written.clone()
             }
+            // The fact the line implies by the recorded rule that is alike
+            // what is asked.
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
+                let rule = at.implied?;
+                implied_by(&at.written, self.known.env, &self.known.sorts)
+                    .into_iter()
+                    .filter(|(_, r)| *r == rule)
+                    .map(|(implied, _)| implied)
+                    .find(|implied| {
+                        alike(&standard(implied, ctx), fact, ctx, &none, &none)
+                    })?
+            }
+            // So of a fact one of the step's requires lines implies.
+            SuppliedBy::Requires {
+                line,
+                implied: Some(rule),
+            } => self
+                .required
+                .get(*line)?
+                .iter()
+                .flat_map(|s| implied_by(s, self.known.env, &self.known.sorts))
+                .filter(|(_, r)| r == rule)
+                .map(|(implied, _)| implied)
+                .find(|implied| {
+                    alike(&standard(implied, ctx), fact, ctx, &none, &none)
+                })?,
             SuppliedBy::Requires {
                 line,
                 implied: None,

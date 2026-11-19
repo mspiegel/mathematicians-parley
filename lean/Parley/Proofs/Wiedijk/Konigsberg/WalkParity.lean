@@ -82,7 +82,7 @@ theorem walk_parity {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) (E 
   have s5 : c = d + r := by
     simp only [hD1, hD2, hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Counting.mun_count_either (P := (fun i : ℤ => x = v (i - 1))) (Q := (fun i : ℤ => x = v i)) (n := n) s4)
+    (have h := (Parley.Items.Stdlib.Counting.mun_count_either (P := (fun i : ℤ => x = v (i - 1))) (Q := (fun i : ℤ => x = v i)) (n := n) s4); push_cast at h; exact h)
   have hD4_kind : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | x = v i}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => x = v i)) (k := n - 1))
   set m : ℤ := ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | x = v i}.ncard : ℤ) with hD4
   have hD4_pos := hD4_kind
@@ -91,7 +91,7 @@ theorem walk_parity {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) (E 
     calc d = ({i ∈ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) | x = v i}.ncard : ℤ) := by
           simp only [hD1] at ⊢
           push_cast at ⊢
-          exact (Parley.Items.Stdlib.Counting.mun_count_shift (P := (fun i : ℤ => x = v i)) (n := n))
+          (have h := (Parley.Items.Stdlib.Counting.mun_count_shift (P := (fun i : ℤ => x = v i)) (n := n)); push_cast at h; exact h)
       _ = ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | x = v i}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_first_fails (P := (fun i : ℤ => x = v i)) (m := n - 1) hH7)
       _ = m := by simp (disch := omega) only [hD4]
   -- 7. calculation
@@ -99,7 +99,7 @@ theorem walk_parity {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) (E 
     calc r = ({i ∈ (Set.Icc (1 : ℤ) (n - 1) : Set ℤ) | x = v i}.ncard : ℤ) := by
           simp only [hD2] at ⊢
           push_cast at ⊢
-          exact (Parley.Items.Stdlib.Counting.mun_count_last_fails (P := (fun i : ℤ => x = v i)) (n := n) hH8)
+          (have h := (Parley.Items.Stdlib.Counting.mun_count_last_fails (P := (fun i : ℤ => x = v i)) (n := n) hH8); push_cast at h; exact h)
       _ = m := by simp (disch := omega) only [hD4]
   -- 8. substitute
   have s8 : c = m + m := by
@@ -114,7 +114,7 @@ theorem walk_parity {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) (E 
       _ = c := by
           simp only [hD3] at ⊢
           push_cast at ⊢
-          exact (Parley.Items.Stdlib.Counting.mun_count_same (P := (fun i : ℤ => x ∈ G (e i))) (Q := (fun i : ℤ => x = v (i - 1) ∨ x = v i)) (n := n) s3)
+          (have h := (Parley.Items.Stdlib.Counting.mun_count_same (P := (fun i : ℤ => x ∈ G (e i))) (Q := (fun i : ℤ => x = v (i - 1) ∨ x = v i)) (n := n) s3); push_cast at h; exact h)
       _ = m + m := s8
       _ = 2 * m := by ring1
   -- 10. def:even n := deg(x), from 9

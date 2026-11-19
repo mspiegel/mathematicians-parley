@@ -548,8 +548,10 @@ pub enum Implication {
     /// The fact written in its other form, `C ⊆ A` as `C ∈ 𝒫A`, by the
     /// lemma (`rules::OTHER_FORMS`).
     OtherForm { lemma: &'static str },
-    /// Two vertices of a triangle apart, `P ≠ Q`.
-    TriangleApart,
+    /// Two vertices of a triangle apart, `P ≠ Q`: the places, counted from
+    /// 0 among the triangle's three as the line writes them, of the vertex
+    /// on the left and the one on the right.
+    TriangleApart { first: usize, second: usize },
     /// A function's type with a wider number system as its codomain.
     WiderCodomain,
     /// A bound of a range, `a ≤ x` or `x ≤ b` of `x ∈ {a, …, b}`, by the
@@ -598,9 +600,14 @@ pub fn implied_by(fact: &Node, env: Env, sorts: &Sorts) -> Vec<(Node, Implicatio
         return vec![(other, Implication::OtherForm { lemma })];
     }
     if let Some(apart) = triangle_apart(fact, env, sorts) {
+        // In the order `triangle_apart` gives them: P ≠ Q, Q ≠ R, P ≠ R.
+        let pairs = [(0, 1), (1, 2), (0, 2)];
         return apart
             .into_iter()
-            .map(|a| (a, Implication::TriangleApart))
+            .zip(pairs)
+            .map(|(a, (first, second))| {
+                (a, Implication::TriangleApart { first, second })
+            })
             .collect();
     }
     if let Some(wider) = wider_types(fact, env) {

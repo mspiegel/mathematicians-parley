@@ -10,6 +10,7 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Order

@@ -302,8 +302,8 @@ impl Export {
         out
     }
 
-    /// The head constant of an application and its arguments, in order.
-    fn spine(&self, id: usize) -> (Option<String>, Vec<usize>) {
+    /// An application taken apart into its head and its arguments, in order.
+    fn spine(&self, id: usize) -> Spine {
         let mut args = Vec::new();
         let mut at = id;
         loop {
@@ -315,11 +315,19 @@ impl Export {
                 Some(Expr::Mdata { inner }) => at = *inner,
                 Some(Expr::Const(n)) => {
                     args.reverse();
-                    return (Some(self.name(*n)), args);
+                    return Spine {
+                        head: at,
+                        constant: Some(self.name(*n)),
+                        args,
+                    };
                 }
                 _ => {
                     args.reverse();
-                    return (None, args);
+                    return Spine {
+                        head: at,
+                        constant: None,
+                        args,
+                    };
                 }
             }
         }
@@ -336,20 +344,30 @@ impl Export {
         while let Some(id) = stack.pop() {
             match self.expr(id) {
                 Some(Expr::App { .. }) => {
-                    let (head, mut args) = self.spine(id);
+                    let Spine {
+                        head,
+                        constant,
+                        mut args,
+                    } = self.spine(id);
                     // A case split's instance deciding its condition,
                     // `Classical.propDecidable (x < 1/2)`, says the condition
                     // again and does no arithmetic of its own.
-                    if matches!(head.as_deref(), Some("ite" | "dite")) && args.len() > 2
+                    if matches!(constant.as_deref(), Some("ite" | "dite"))
+                        && args.len() > 2
                     {
                         args.remove(2);
                     }
-                    if let Some(op) = head.as_deref().and_then(operation) {
+                    if let Some(op) = constant.as_deref().and_then(operation) {
                         let ty = args
                             .first()
-                            .and_then(|t| self.spine(*t).0)
+                            .and_then(|t| self.spine(*t).constant)
                             .unwrap_or_default();
                         *out.entry((op.to_string(), ty)).or_insert(0) += 1;
+                    }
+                    // A head that is no constant, the map of
+                    // `(fun y => y + 1) x`, does arithmetic of its own.
+                    if constant.is_none() {
+                        stack.push(head);
                     }
                     stack.extend(args);
                 }
@@ -365,6 +383,16 @@ impl Export {
         }
         out
     }
+}
+
+/// An application taken apart (`Export::spine`).
+struct Spine {
+    /// The expression applied, past every application and metadata.
+    head: usize,
+    /// The constant the head is, where it is one.
+    constant: Option<String>,
+    /// The arguments it is applied to, in order.
+    args: Vec<usize>,
 }
 
 /// The page's name for a Lean arithmetic operation, by its constant; None

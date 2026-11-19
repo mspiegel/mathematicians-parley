@@ -57,7 +57,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_5 : 0 ≤ A * X := by
         simp only [hD1] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)
+        (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); push_cast at h; exact h)
       -- 1.6. mun:square-nonneg x := A − 1
       have s1_6 : 0 ≤ (A - 1) ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))
       -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6

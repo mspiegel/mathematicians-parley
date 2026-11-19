@@ -423,6 +423,7 @@ fn free_letters(
     group: &crate::citing::Group,
     says: &Node,
     functions: &[Node],
+    points: &[String],
     w: &Writer,
     binders: &IndexMap<
         crate::formula::notation_id::NotationId,
@@ -544,7 +545,9 @@ fn free_letters(
             // A member of a range the item names, the k of "k ∈ {1, …, n}
             // ↔ k ∈ ℕ and k ≤ n", is an integer, as a range letter is in a
             // theorem: of any other k both sides are false.
-            let num = if beside_count.contains(&name) {
+            let num = if points.contains(&name) {
+                Num::Complex
+            } else if beside_count.contains(&name) {
                 Num::Nat
             } else if in_range.contains(&name)
                 || (said_integer.contains(&name) && exponents.contains(&name))
@@ -557,7 +560,7 @@ fn free_letters(
             };
             FreeLetter {
                 num,
-                fixed: fixed.contains(&name),
+                fixed: fixed.contains(&name) || points.contains(&name),
                 name,
             }
         })
@@ -715,6 +718,20 @@ fn group_lines(record: &Record) -> Vec<GroupLine> {
         .collect()
 }
 
+/// The letters the record's lines let as points, `let P be a point`: each
+/// is a complex number, whatever an order or an arithmetic around it asks.
+fn point_letters(record: &Record) -> Vec<String> {
+    use crate::sorts::introduction::{Form, Introduction};
+    record
+        .hypotheses
+        .iter()
+        .filter_map(|h| match Introduction::read(h.body(&record.path)).form {
+            Form::Point(name) => Some(name),
+            _ => None,
+        })
+        .collect()
+}
+
 pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<Item> {
     let full = format!("{}/{}", record.module(), record.name);
     let Some(Some(groups)) = checked.library.groups.get(&full) else {
@@ -725,6 +742,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let total: usize = groups.iter().map(|g| g.gives.len()).sum();
     let mut sentences = Vec::new();
     let groups_let = group_lines(record);
+    let points = point_letters(record);
     // A phrase a define gives is written out as its meaning, as a theorem's
     // page is (`checker::written`).
     let phrases = crate::checker::written::library_phrases(
@@ -768,8 +786,14 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             let function_trees: Vec<Node> =
                 typed.iter().map(|t| t.tree.clone()).collect();
             let functions = function_trees.as_slice();
-            let free =
-                free_letters(group, says, functions, &w, &writer.grammar.binders());
+            let free = free_letters(
+                group,
+                says,
+                functions,
+                &points,
+                &w,
+                &writer.grammar.binders(),
+            );
             // A letter the record's sorts make a set, a member of one or a
             // map between sets, `let Y be a set`: of Lean's `Set α`, and no
             // number the item's general type is chosen for.

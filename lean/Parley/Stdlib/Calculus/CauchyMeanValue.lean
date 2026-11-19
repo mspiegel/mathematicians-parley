@@ -72,12 +72,12 @@ theorem cauchy_mean_value (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set ℝ)) (a : 
   have s9 : ContinuousOn p (Set.Icc a b : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := f) (D := D) (S := (Set.Icc a b : Set ℝ)) hH1 hH5 hH8)
+    (have h := (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := f) (D := D) (S := (Set.Icc a b : Set ℝ)) hH1 hH5 hH8); push_cast at h; exact h)
   -- 10. mun:map-continuous-on-part S := [a, b], f := g, from D2, H1, H5, H7, H9
   have s10 : ContinuousOn q (Set.Icc a b : Set ℝ) := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := g) (D := D) (S := (Set.Icc a b : Set ℝ)) hH1 hH5 hH9)
+    (have h := (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := g) (D := D) (S := (Set.Icc a b : Set ℝ)) hH1 hH5 hH9); push_cast at h; exact h)
   -- 11. proof
   have s11 : ∀ t ∈ (Set.Icc a b : Set ℝ), True := by
     intro t hK1
@@ -98,12 +98,12 @@ theorem cauchy_mean_value (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set ℝ)) (a : 
   have s13 : Set.MapsTo p (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
+    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
   -- 14. mun:function-into, from D2, 12
   have s14 : Set.MapsTo q (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => g t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
+    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => g t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
   -- 15. D1
   have r125_1 : ∀ x ∈ (Set.Ioo a b : Set ℝ), x ∈ (Set.Icc a b : Set ℝ) := by intro x h_x; (exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s2 h_x))
   have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), p x = f x := by simp (disch := omega) only [hD1, implies_true]

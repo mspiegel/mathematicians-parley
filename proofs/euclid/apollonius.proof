@@ -40,22 +40,22 @@ theorem apollonius
     mun:between-ends-apart R := M, S := B, T := C, from H5
 
 2.  B is on line BC. C is on line BC.
-    mun:on-line-ends A := B, B := C
+    mun:on-line-ends A := B, B := C, from 1
 
 3.  C, M, B are collinear
     mun:between-collinear R := M, S := B, T := C, from H5
 
 4.  M is on line BC
-    def:on-line P := M, A := B, B := C, from 3
+    def:on-line P := M, A := B, B := C, from 1, 3
 
 5.  B ∈ line BC
-    def:line P := B, A := B, B := C, from 2
+    def:line P := B, A := B, B := C, from 1, 2
 
 6.  C ∈ line BC
-    def:line P := C, A := B, B := C, from 2
+    def:line P := C, A := B, B := C, from 1, 2
 
 7.  M ∈ line BC
-    def:line P := M, A := B, B := C, from 4
+    def:line P := M, A := B, B := C, from 1, 4
 
 8.  f : line BC → ℝ. f : line BC → ℝ is one-to-one and onto. For all
     P, Q ∈ line BC, |PQ| = |f(P) − f(Q)|.
@@ -113,7 +113,7 @@ theorem apollonius
     assume X is on line BC                                            (A1)
 
     18.1. X ∈ line BC
-          def:line P := X, A := B, B := C, from A1
+          def:line P := X, A := B, B := C, from A1, 1
 
     18.2. |XB| = |f(X) − f(B)|
           instantiate P := X, Q := B in line 8, from 5, 18.1

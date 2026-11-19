@@ -23,9 +23,17 @@ pub fn hyp(name: &str) -> Term {
     }
 }
 
-/// A lemma of Mathlib's, by its name.
+/// A lemma by its name: a bridge module's where the name is
+/// `LeanBridges.<module>.<lemma>`, Mathlib's otherwise.
 pub fn lemma(name: &str) -> Term {
-    Term::head(name, Source::Mathlib)
+    let bridge = name
+        .strip_prefix("LeanBridges.")
+        .and_then(|rest| rest.split_once('.'))
+        .and_then(|(module, _)| BridgeModule::of_name(module));
+    match bridge {
+        Some(module) => Term::head(name, Source::Bridge(module)),
+        None => Term::head(name, Source::Mathlib),
+    }
 }
 
 /// A lemma of a bridge module, by its full name.

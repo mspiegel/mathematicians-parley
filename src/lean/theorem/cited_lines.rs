@@ -307,6 +307,16 @@ impl<'a> Proof<'a> {
         if let Some(pair) = at.pair {
             return self.chain_pair(&found, pair, &at.written);
         }
+        // A part of a chain is its link from that term to the next, `|MA| =
+        // |MC|` of `|MA| = |MC| = |MB|`.
+        if let Some(j) = at.part {
+            if crate::formula::page::chain_links(self.writer.grammar, &found.node)
+                .is_some()
+            {
+                let link = crate::checker::record::ChainTerms { from: j, to: j + 1 };
+                return self.chain_pair(&found, link, &at.written);
+            }
+        }
         match at.part {
             None => Route::Built(found),
             // The part as the page writes it (`FirstAt::written`), found in
@@ -511,6 +521,12 @@ impl<'a> Proof<'a> {
             Implication::OtherForm {
                 lemma: "gsspw" | "elpwi",
             } => Route::Built(found.proof.clone()),
+            // `P is on line AB` is `P ∈ line AB` as Lean writes the notation,
+            // and `∉` is `¬ ∈`: either form's proof is the other's
+            // (`rules::ON_LINE`).
+            Implication::OtherForm {
+                lemma: "glineel" | "glineon" | "glinenel" | "glinenon",
+            } => Route::Built(found.proof.clone()),
             // A sentence about a function, which Lean writes with the
             // function's type first, `Set.MapsTo f A B ∧ Set.InjOn f A`
             // (`sets::map_claim_parts`): that first part.
@@ -530,6 +546,18 @@ impl<'a> Proof<'a> {
                         says.text()
                     )),
                 }
+            }
+            // The three differences a triangle opens with, `P ≠ Q`, `Q ≠ R`
+            // and `P ≠ R` of `P, Q, R form a triangle`: the first three parts
+            // of Lean's `Triangle`, by the two vertices the checker recorded.
+            Implication::TriangleApart { first, second } => {
+                let path: &[&str] = match (first, second) {
+                    (0, 1) => &["1"],
+                    (1, 2) => &["2", "1"],
+                    (0, 2) => &["2", "2", "1"],
+                    _ => return Route::no("a triangle's difference in another order"),
+                };
+                Route::Built(fields(found.proof.clone(), path))
             }
             other => Route::no(format!(
                 "a fact a line implies by {other:?}, which the Lean build does not prove yet"
@@ -875,6 +903,10 @@ impl<'a> Proof<'a> {
                             written,
                             fields,
                             &self.set_values(),
+                            letters.iter().any(|l| {
+                                matches!((l.item_system, l.value_system),
+                                    (Some(item), Some(value)) if item != value)
+                            }),
                         ),
                     )),
                 },
@@ -909,6 +941,22 @@ impl<'a> Proof<'a> {
         };
         let claim = claim.filter(|c| !c.is_truth() && !counts_unknown(c));
         if let (Some(claim), Some(says)) = (claim, says) {
+            // The item met with the claim only with the parts of a notation
+            // that stands in no order in another order (`Cited::meetings`,
+            // `Meeting::flips`): turned by the notation's lemmas.
+            if let Some(met) = meeting.filter(|m| {
+                !m.flips.is_empty()
+                    && m.identities.is_empty()
+                    && m.flips
+                        .iter()
+                        .all(|f| super::terms::turns_notation(&f.notation))
+            }) {
+                if let Some(Proved::Term(t)) =
+                    self.met_proof(term.clone(), says, claim, met)
+                {
+                    return Route::Built(super::super::doc::Proof::Term(t));
+                }
+            }
             let agree = super::super::doc::forms::relation_types_agree(says, claim);
             // Where the two are alike but for the types of their terms, or
             // apart only in casts, and `norm_cast` moves every cast in both
@@ -996,7 +1044,11 @@ impl<'a> Proof<'a> {
                 )
             });
             let only_permuted = meeting.is_some_and(|m| {
-                m.permuted && m.identities.is_empty() && !m.respelled && !m.turned
+                m.permuted
+                    && m.identities.is_empty()
+                    && !m.respelled
+                    && !m.turned
+                    && super::terms::permuted_only_listed(m)
             });
             if listed && only_permuted {
                 return Route::Built(super::super::doc::Proof::By(reordered(
@@ -1255,17 +1307,19 @@ impl<'a> Proof<'a> {
         if let ([left_at, right_at], Some((left, right))) =
             (cited.firsts.as_slice(), and_sides(wanted))
         {
-            let side =
-                |by: &SuppliedBy, w: &Printed| self.supplied_proof(by, w, None).built();
+            let side = |k: usize, by: &SuppliedBy, w: &Printed| {
+                let met = cited.firsts_meetings.get(k).and_then(Option::as_ref);
+                self.supplied_proof(by, w, met).built()
+            };
             return Some(super::super::expr::anonymous(vec![
-                side(left_at, &left)?,
-                side(right_at, &right)?,
+                side(0, left_at, &left)?,
+                side(1, right_at, &right)?,
             ]));
         }
-        cited
-            .firsts
-            .iter()
-            .find_map(|by| self.supplied_proof(by, wanted, None).built())
+        cited.firsts.iter().enumerate().find_map(|(k, by)| {
+            let met = cited.firsts_meetings.get(k).and_then(Option::as_ref);
+            self.supplied_proof(by, wanted, met).built()
+        })
     }
 
     /// The part of a "there is"'s body as Lean states it, `stated` taken
@@ -1663,6 +1717,40 @@ impl<'a> Proof<'a> {
             // An equation the same on both sides once the identity elements
             // the checker dropped are dropped (`identity_lemma`).
             SuppliedBy::Identity(met) => {
+                // Its two sides alike but for the order of the parts of a
+                // notation that stands in no order, |CA| beside |AC|: the
+                // left side turned to the right's by exact instances of the
+                // notation's swap lemmas, after which the two are one.
+                let turned = met
+                    .flips
+                    .iter()
+                    .any(|f| super::terms::turns_notation(&f.notation));
+                if met.identities.is_empty() && turned {
+                    if let super::super::doc::TermKind::Infix { op, .. } =
+                        &unparenthesized(wanted).kind
+                    {
+                        // The checker met the left side with the right
+                        // (`Known::alike_how`), so each flip's term is the
+                        // left side's, which the rewrite takes to the right's.
+                        let rewrites = super::terms::flip_rewrites(
+                            &self.writer,
+                            &met.flips,
+                            super::terms::Toward::FromFirst,
+                        )
+                        .unwrap_or_default();
+                        if op.symbol == "=" && !rewrites.is_empty() {
+                            use super::super::tactics as t;
+                            return Route::Built(t::by_term(
+                                super::super::doc::Proof::By(t::call(
+                                    "rw",
+                                    vec![TacticArg::Rules(
+                                        rewrites.into_iter().map(t::forwards).collect(),
+                                    )],
+                                )),
+                            ));
+                        }
+                    }
+                }
                 if met.identities.is_empty() {
                     return Route::Built(Printed::constant(
                         "rfl",
@@ -1800,6 +1888,7 @@ impl<'a> Proof<'a> {
                 && met.identities.is_empty()
                 && !met.turned
                 && !met.respelled
+                && super::terms::permuted_only_listed(met)
             {
                 let equation = relation_symbol(wanted) == Some("=");
                 return Route::Built(super::super::tactics::by_term(

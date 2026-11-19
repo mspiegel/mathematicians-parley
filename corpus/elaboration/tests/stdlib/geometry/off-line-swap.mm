@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/off-line-swap, elaborated from tests/stdlib/geometry.pr
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.off-line-swap $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. ( A = B \/ ( ( C - A ) / ( B - A ) ) e. RR ) ) -> -. ( A = C \/ ( ( B - A ) / ( C - A ) ) e. RR ) ) $=
-    ( goffswap ) BCAD $.
+  tests.stdlib.geometry.off-line-swap $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. ( A = B \/ ( ( C - A ) / ( B - A ) ) e. RR ) ) -> -. ( A = C \/ ( ( B - A ) / ( C - A ) ) e. RR ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr wo simpl id syl simpr jca goffswap ) ADEZBDEZFZCDEZFZABGZHZFZUECAIJZBAIJZKJZLEZMZHZFZUDUMFACGUIUHKJLEMHUNUDUMUNUBUCUNTUAUNUGTUGUMNZUGUDTUDUFNZUDUBTUBUCNZUBTTTUANTOPPPPUNUGUAUOUGUDUAUPUDUBUAUQTUAQPPPRUNUGUCUOUGUDUCUPUBUCQPPRUGUMQRBCASP $.
 $}

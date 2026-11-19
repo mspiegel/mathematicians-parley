@@ -107,7 +107,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       have s1_15 : A ≥ 0 := by
         simp only [hD2] at ⊢
         push_cast at ⊢
-        exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := (j : ℝ)) s1_14 (by exact_mod_cast gt_iff_lt.mp (lt_of_lt_of_le zero_lt_one hK1)))
+        (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := (j : ℝ)) s1_14 (by exact_mod_cast gt_iff_lt.mp (lt_of_lt_of_le zero_lt_one hK1))); push_cast at h; exact h)
       -- 1.16. mun:sum-nonneg a := 1, b := j + 1, from 1.9
       have s1_16 : (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j + 1) s1_9)
       -- 1.17. mun:quotient-nonneg, from D3, 1.16
@@ -115,7 +115,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       have s1_17 : B ≥ 0 := by
         simp only [hD3] at ⊢
         push_cast at ⊢
-        exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) (y := (j : ℝ) + 1) s1_16 (by exact_mod_cast r146_2))
+        (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) (y := (j : ℝ) + 1) s1_16 (by exact_mod_cast r146_2)); push_cast at h; exact h)
       -- 1.18. mun:le-cases, from 1.15
       have s1_18 : 0 < A ∨ 0 = A := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (0 : ℝ)) (y := A))).mp s1_15
       -- 1.19. cases, from 1.18
@@ -178,7 +178,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           _ ≤ A ^ j.toNat * x := by
               simp only [hD1, hD2] at ⊢
               push_cast at ⊢
-              exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) (c := a (j + 1)) s1_7 s1_11)
+              (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) (c := a (j + 1)) s1_7 s1_11); push_cast at h; exact h)
           _ ≤ B ^ (j + 1).toNat := s1_19
           _ = ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by simp (disch := omega) only [hD3]
       (have h := s1_20; push_cast at h ⊢; exact h)

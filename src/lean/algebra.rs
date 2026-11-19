@@ -437,9 +437,12 @@ fn unequal(
             targets,
             wanted,
             std::slice::from_ref(&given),
-            inside_terms,
-            &[],
-            None,
+            AlgebraReading {
+                inside_terms,
+                divisors: &[],
+                worked_in: None,
+                commuted: false,
+            },
         ) {
             Route::Built(inner) => {
                 let refuted = Printed {
@@ -464,23 +467,40 @@ fn unequal(
     declined
 }
 
-/// The Lean proof of an `algebra` claim from the equations cited.
-/// `inside_terms` says the checker read two terms as one that differ inside
-/// a function's argument or an exponent, F(0 + 1) and F(1), (d·1).toNat and
-/// d.toNat: the check is then `ring_nf`, which normalises inside them, where
-/// `ring1` takes each as its own atom. `divisors` are the parts the step
-/// divides by, with how each is not 0 (`CheckedTheorem::divided_by`), and
-/// `worked_in` the type a calculation the step is a row of is worked in,
-/// which a row's claim may be narrower than.
+/// How the checker read an `algebra` step, which says how Lean proves it.
+#[derive(Clone, Copy)]
+pub struct AlgebraReading<'a> {
+    /// The checker read two terms as one that differ inside a function's
+    /// argument or an exponent, F(0 + 1) and F(1), (d·1).toNat and d.toNat:
+    /// the check is then `ring_nf`, which normalises inside them, where
+    /// `ring1` takes each as its own atom.
+    pub inside_terms: bool,
+    /// The parts the step divides by, with how each is not 0
+    /// (`CheckedTheorem::divided_by`).
+    pub divisors: &'a [NotZero],
+    /// The type a calculation the step is a row of is worked in, which a
+    /// row's claim may be narrower than.
+    pub worked_in: Option<Num>,
+    /// The step's lines write a notation that stands in no order in more
+    /// than one order (`CheckedTheorem::commuted_by_lines`).
+    pub commuted: bool,
+}
+
+/// The Lean proof of an `algebra` claim from the equations cited, as the
+/// checker read the step (`AlgebraReading`).
 pub fn algebra(
     writer: &Writer,
     targets: &Targets,
     claim: &Node,
     cited: &[Cited],
-    inside_terms: bool,
-    divisors: &[NotZero],
-    worked_in: Option<Num>,
+    reading: AlgebraReading<'_>,
 ) -> Route<Proof> {
+    let AlgebraReading {
+        inside_terms,
+        divisors,
+        worked_in,
+        commuted,
+    } = reading;
     if let Some(proof) = unequal(writer, targets, claim, cited, inside_terms) {
         return proof;
     }
@@ -708,6 +728,14 @@ pub fn algebra(
         });
     }
     let sum = sum.unwrap_or_else(|| Printed::numeral("0", ty));
+    // The step's lines and goal are taken to one order of the parts of the
+    // notations that stand in no order (`Proof::with_commuted`); the
+    // coefficients are written in it too, so that they and the lines'
+    // terms are the same atoms.
+    let sum = match commuted {
+        true => sum.in_one_order(),
+        false => sum,
+    };
     // The step moved to its cited lines' type first, where it is, and then
     // checked by the field's normal form where it divides.
     let mut steps: Vec<Tactic> = moved

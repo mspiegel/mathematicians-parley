@@ -20,6 +20,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs

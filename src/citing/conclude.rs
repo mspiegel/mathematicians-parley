@@ -627,6 +627,39 @@ impl Taken {
             library,
             &sites,
         )
+        .into_iter()
+        .map(|(_, fact)| fact)
+        .collect()
+    }
+
+    /// `first_facts`, each with what the reading asks first at the
+    /// citation's values: the definition's side as the item writes it, the
+    /// binding put in, which the fact that states it, a line's own, is met
+    /// with.
+    pub fn first_pairs(
+        &self,
+        groups: &[Group],
+        facts: &[Node],
+        library: &Library,
+    ) -> Vec<(Node, Node)> {
+        let Some(group) = groups.get(self.group) else {
+            return Vec::new();
+        };
+        let mut trees = group.gives.clone();
+        trees.extend(group.asked().cloned());
+        let variables = group.letters(&trees);
+        let mut sites = Sites::new();
+        for t in &trees {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        first_facts(
+            &self.asks_first,
+            facts,
+            &self.binding,
+            &variables,
+            library,
+            &sites,
+        )
     }
 }
 
@@ -706,16 +739,17 @@ fn first_facts(
     variables: &BTreeSet<String>,
     library: &Library,
     sites: &Sites,
-) -> Vec<Node> {
+) -> Vec<(Node, Node)> {
     let none = IndexMap::new();
-    let mut out: Vec<Node> = Vec::new();
+    let mut out: Vec<(Node, Node)> = Vec::new();
     for first in firsts {
         if let Some(fact) = supplier(first, facts, binding, variables, library, sites) {
             if !out
                 .iter()
-                .any(|f| alike(f, fact, &library.ctx, &none, &none))
+                .any(|(_, f)| alike(f, fact, &library.ctx, &none, &none))
             {
-                out.push(fact.clone());
+                let asked = substitute_apart(first, binding, &library.ctx);
+                out.push((asked, fact.clone()));
             }
         }
     }

@@ -9,10 +9,11 @@ theorem a-collinearity-held-in-another-order
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   assume B, P, A are collinear                                        (H4)
+  assume A ≠ B                                                        (H5)
   then P is on line AB
 
 1.  P is on line AB
-    def:on-line, from H4
+    def:on-line, from H4, H5
 
 theorem the-middle-point-in-the-middle
   note        between-collinear concludes T, R, S are collinear, and the

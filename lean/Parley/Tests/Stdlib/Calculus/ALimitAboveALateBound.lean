@@ -3,6 +3,7 @@ module
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs

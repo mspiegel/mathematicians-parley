@@ -556,6 +556,7 @@ notation distance
   reads       the distance between the two points
   metamath-syntax ( abs ` ( P − Q ) )
   metamath-builds _1 _2 cmin co cabs cfv
+  lean-builds ℂ, ℂ → ℝ: dist _1 _2
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
               |CA| would otherwise read as a product; the point sort is what
@@ -659,6 +660,7 @@ notation degrees
   decided     real arithmetic
   metamath-syntax multiplied by π and divided by 180
   metamath-builds _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
+  lean-builds ℝ → ℝ: _1 * Real.pi / 180
   note        An angle is a number of radians, from 0 to π, as
               def:stdlib/geometry/angle has it, and x° is that number written
               in degrees, so 180° is π. The page writes degrees because a
@@ -1108,6 +1110,7 @@ notation open-interval
 
 notation point-coordinates
   pattern     (_, _)
+  lean-builds ℝ, ℝ → ℂ: Complex.mk _1 _2
   sort        number, number → point
   wanted      point
   reads       the point with coordinates, and
@@ -1165,6 +1168,7 @@ notation juxtaposition
 
 notation angle
   pattern     ∠___
+  lean-builds ℂ, ℂ, ℂ → ℝ: EuclideanGeometry.angle _1 _2 _3
   sort        point, point, point → number
   reads       the angle at the second from the first to the third
   metamath-syntax the absolute value of ang applied to the two differences
@@ -1176,6 +1180,7 @@ notation angle
 
 notation signed-angle
   pattern     ∡___
+  lean-builds ℂ, ℂ, ℂ → ℝ: Complex.arg ((_3 - _2) / (_1 - _2))
   sort        point, point, point → number
   reads       the signed angle at the second from the first to the third
   metamath-syntax ang applied to the two differences
@@ -1187,6 +1192,7 @@ notation signed-angle
 
 notation area
   pattern     the area of △___
+  lean-builds ℂ, ℂ, ℂ → ℝ: 1 / 2 * (dist _2 _3 * dist _1 _3) * abs (Real.sin (Complex.arg ((_1 - _3) / (_2 - _3))))
   sort        point, point, point → number
   reads       the area of the triangle
   metamath-syntax half the product of the sides at the third point and the size
@@ -1200,6 +1206,7 @@ notation area
 
 notation congruent
   pattern     triangle ___ ≅ triangle ___
+  lean-builds ℂ, ℂ, ℂ, ℂ, ℂ, ℂ → Prop: dist _1 _2 = dist _4 _5 ∧ dist _2 _3 = dist _5 _6 ∧ dist _3 _1 = dist _6 _4 ∧ EuclideanGeometry.angle _1 _2 _3 = EuclideanGeometry.angle _4 _5 _6 ∧ EuclideanGeometry.angle _2 _3 _1 = EuclideanGeometry.angle _5 _6 _4 ∧ EuclideanGeometry.angle _3 _1 _2 = EuclideanGeometry.angle _6 _4 _5
   sort        point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
@@ -1215,6 +1222,7 @@ notation congruent
 
 notation congruent-by-symbol
   pattern     △___ ≅ △___
+  lean-builds -
   sort        point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
@@ -1226,6 +1234,7 @@ notation congruent-by-symbol
 
 notation isosceles
   pattern     △___ is isosceles
+  lean-builds ℂ, ℂ, ℂ → Prop: LeanBridges.Geometry.Triangle _1 _2 _3 ∧ (dist _1 _2 = dist _1 _3 ∨ dist _2 _1 = dist _2 _3 ∨ dist _3 _1 = dist _3 _2)
   sort        point, point, point → formula
   level       predicate
   reads       is isosceles
@@ -1241,6 +1250,7 @@ notation isosceles
 
 notation equilateral
   pattern     △___ is equilateral
+  lean-builds ℂ, ℂ, ℂ → Prop: LeanBridges.Geometry.Triangle _1 _2 _3 ∧ dist _1 _2 = dist _2 _3 ∧ dist _2 _3 = dist _3 _1
   sort        point, point, point → formula
   level       predicate
   reads       is equilateral
@@ -1253,6 +1263,7 @@ notation equilateral
 
 notation right-angled
   pattern     △___ is right-angled at _
+  lean-builds ℂ, ℂ, ℂ, ℂ → Prop: LeanBridges.Geometry.Triangle _1 _2 _3 ∧ (_4 = _1 ∧ EuclideanGeometry.angle _2 _1 _3 = Real.pi / 2 ∨ _4 = _2 ∧ EuclideanGeometry.angle _1 _2 _3 = Real.pi / 2 ∨ _4 = _3 ∧ EuclideanGeometry.angle _1 _3 _2 = Real.pi / 2)
   sort        point, point, point, point → formula
   level       predicate
   reads       is right-angled at
@@ -1841,6 +1852,7 @@ notation irrational
 
 notation is-a-point
   pattern     _ is a point
+  lean-builds ℂ → Prop: True
   sort        point → formula
   level       predicate
   reads       is a point
@@ -1928,6 +1940,7 @@ notation open
 
 notation collinear
   pattern     _, _, _ are collinear
+  lean-builds ℂ, ℂ, ℂ → Prop: Collinear ℝ {_1, _2, _3}
   sort        point, point, point → formula
   level       predicate
   commutes    any order
@@ -1943,6 +1956,7 @@ notation collinear
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
+  lean-builds ℂ, ℂ, ℂ → Prop: LeanBridges.Geometry.Triangle _1 _2 _3
   sort        point, point, point → formula
   level       predicate
   commutes    any order
@@ -1964,6 +1978,7 @@ notation plane
 
 notation parallel
   pattern     line __ ∥ line __
+  lean-builds ℂ, ℂ, ℂ, ℂ → Prop: Complex.im ((_2 - _1) / (_4 - _3)) = 0
   sort        point, point, point, point → formula
   level       predicate
   reads       is parallel to
@@ -1979,6 +1994,7 @@ notation parallel
 
 notation between
   pattern     _ is between _ and _
+  lean-builds ℂ, ℂ, ℂ → Prop: Sbtw ℝ _2 _1 _3
   sort        point, point, point → formula
   level       betweenness
   commutes    any order of holes 2 and 3
@@ -1993,6 +2009,7 @@ notation between
 
 notation on-line
   pattern     _ is on line __        _ is not on line __
+  lean-builds ℂ, ℂ, ℂ → Prop: _1 ∈ LeanBridges.Geometry.line _2 _3 ; -
   sort        point, point, point → formula
   level       predicate
   negates     pattern 2 is logical-not of pattern 1
@@ -2036,6 +2053,7 @@ notation ray
 
 notation perpendicular
   pattern     line __ ⊥ line __
+  lean-builds ℂ, ℂ, ℂ, ℂ → Prop: _1 ≠ _2 ∧ _3 ≠ _4 ∧ Complex.re ((_4 - _3) / (_2 - _1)) = 0
   sort        point, point, point, point → formula
   level       predicate
   reads       is perpendicular to
@@ -2049,6 +2067,7 @@ notation perpendicular
 
 notation midpoint
   pattern     _ is the midpoint of __
+  lean-builds ℂ, ℂ, ℂ → Prop: Sbtw ℝ _2 _1 _3 ∧ dist _2 _1 = dist _1 _3
   sort        point, point, point → formula
   level       predicate
   commutes    any order of holes 2 and 3
@@ -2063,6 +2082,7 @@ notation midpoint
 
 notation same-side
   pattern     _ and _ are on the same side of line __
+  lean-builds ℂ, ℂ, ℂ, ℂ → Prop: 0 < Complex.im ((_1 - _3) / (_4 - _3)) * Complex.im ((_2 - _3) / (_4 - _3))
   sort        point, point, point, point → formula
   level       predicate
   commutes    any order of holes 1 and 2
@@ -2076,6 +2096,7 @@ notation same-side
 
 notation opposite-sides
   pattern     _ and _ are on opposite sides of line __
+  lean-builds ℂ, ℂ, ℂ, ℂ → Prop: Complex.im ((_1 - _3) / (_4 - _3)) * Complex.im ((_2 - _3) / (_4 - _3)) < 0
   sort        point, point, point, point → formula
   level       predicate
   commutes    any order of holes 1 and 2

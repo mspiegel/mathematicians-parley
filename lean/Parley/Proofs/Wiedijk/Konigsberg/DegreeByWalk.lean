@@ -139,7 +139,7 @@ theorem degree_by_walk {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) 
   have r148_1 : S ⊆ (Set.Icc (1 : ℤ) n : Set ℤ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun i : ℤ => x ∈ G (e i))) (X := (Set.Icc (1 : ℤ) n : Set ℤ)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun i : ℤ => x ∈ G (e i))) (X := (Set.Icc (1 : ℤ) n : Set ℤ))); push_cast at h; exact h)
   have r148_2 : (Set.Icc (1 : ℤ) n : Set ℤ).Finite := by exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (1 : ℤ)) (b := n))
   have r148_3 : S.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (1 : ℤ) n : Set ℤ)) (Y := S) r148_2 r148_1)
   calc ({a ∈ E | x ∈ G a}.ncard : ℤ) = (T.ncard : ℤ) := by simp only [hD2] at ⊢

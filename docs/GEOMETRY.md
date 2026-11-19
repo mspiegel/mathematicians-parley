@@ -176,8 +176,11 @@ is one of the vertices and the angle there is 90°, whichever V is;
 last, which is how a proof names it. No sort holds triangles, so a statement
 about every triangle quantifies over its three points.
 
-**Lines, midpoints and circles are said of points.** `P is on line AB` is
-`A, B, P are collinear` with the point first. `line AB ⊥ line CD` says A ≠ B,
+**Lines, midpoints and circles are said of points.** `P is on line AB`,
+said of A ≠ B, is `A, B, P are collinear` with the point first. Line AA is
+no line, so every record that names a line assumes its two points apart:
+`definition on-line`, `definition line`, `on-line-ends`, `off-line-apart`,
+`off-line-swap` and `ray-side-transfer`. `line AB ⊥ line CD` says A ≠ B,
 C ≠ D and that the quotient of the two directions has real part 0. Like
 `parallel`, it is a definition that states nothing, `metamath-proof none`, read as a right angle by
 `perpendicular-by-right-angle` where the lines meet. `M is the midpoint of AB`

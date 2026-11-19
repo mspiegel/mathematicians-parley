@@ -93,19 +93,19 @@ theorem subsets_count {α : Type*} [Nonempty α] (A : Set α) (n : ℤ) (hH1 : 0
       have s1_9 : ∃ g : Set α → Set α, Set.BijOn g U T := by
         simp only [hD1, hD2] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Wiedijk.Subsets.AddElementBijection.add_element_bijection (X := X \ ({a} : Set α)) (a := a) r260_1)
+        (have h := (Parley.Proofs.Wiedijk.Subsets.AddElementBijection.add_element_bijection (X := X \ ({a} : Set α)) (a := a) r260_1); push_cast at h; exact h)
       -- 1.10. mun:card-bijection X := U, Y := T, m := 2^k, from 1.8, 1.9
       have s1_10 : (T.ncard : ℤ) = 2 ^ k.toNat := by rw [Set.ncard_def, (Parley.Items.Stdlib.Counting.mun_card_bijection (X := U) (Y := T) (m := (2 ^ k.toNat : ℤ)) (pow_nonneg (by norm_num) _) (by (have h := congrArg Int.toNat (s1_8); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((hD1_finite : (U : Set (Set α)).Finite)), h])) s1_9), ENat.toNat_coe, Int.toNat_of_nonneg (pow_nonneg (by norm_num) _)]
       -- 1.11. thm:powerset-split-disjoint, from D1, D2, 1.6
       have s1_11 : U ∩ T = ∅ := by
         simp only [hD1, hD2] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Wiedijk.Subsets.PowersetSplitDisjoint.powerset_split_disjoint (X := X) (a := a) s1_6)
+        (have h := (Parley.Proofs.Wiedijk.Subsets.PowersetSplitDisjoint.powerset_split_disjoint (X := X) (a := a) s1_6); push_cast at h; exact h)
       -- 1.12. thm:powerset-split, from D1, D2, 1.6
       have s1_12 : 𝒫 X = U ∪ T := by
         simp only [hD1, hD2] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Wiedijk.Subsets.PowersetSplit.powerset_split (X := X) (a := a) s1_6)
+        (have h := (Parley.Proofs.Wiedijk.Subsets.PowersetSplit.powerset_split (X := X) (a := a) s1_6); push_cast at h; exact h)
       -- 1.13. mun:card-disjoint-union X := U, Y := T, m := 2^k, n := 2^k, from 1.8, 1.10, 1.11
       have s1_13 : ((U ∪ T).ncard : ℤ) = 2 ^ k.toNat + 2 ^ k.toNat := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := U) (Y := T) (m := (2 ^ k.toNat : ℤ)) (pow_nonneg (by norm_num) _) (n := (2 ^ k.toNat : ℤ)) (pow_nonneg (by norm_num) _) (by (have h := congrArg Int.toNat (s1_8); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((hD1_finite : (U : Set (Set α)).Finite)), h])) (by (have h := congrArg Int.toNat (s1_10); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((hD2_finite : (T : Set (Set α)).Finite)), h])) s1_11)
       -- 1.14. substitute 𝒫X = U ∪ T (line 1.12) into line 1.13

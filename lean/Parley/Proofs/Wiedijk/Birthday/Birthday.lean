@@ -67,7 +67,7 @@ theorem birthday :
   have s5 : (S.ncard : ℤ) = ((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) ^ (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ).ncard := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Counting.thm_count_functions (X := (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ)) s1 s2)
+    (have h := (Parley.Items.Stdlib.Counting.thm_count_functions (X := (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ)) s1 s2); push_cast at h; exact h)
   -- 6. substitute
   have s6 : (S.ncard : ℤ) = 365 ^ 23 := by
     have c1 : ((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) = 365 := by
@@ -94,7 +94,7 @@ theorem birthday :
   have s9 : (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (((Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ).ncard : ℤ) - 1), (((Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ).ncard : ℤ) - k : ℤ)) := by
     simp only [hD1, hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Counting.thm_count_one_to_one (X := (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ)) s1 s2 s8)
+    (have h := (Parley.Items.Stdlib.Counting.thm_count_one_to_one (X := (Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (365 : ℤ) : Set ℤ)) s1 s2 s8); push_cast at h; exact h)
   -- 10. substitute
   have s10 : (T.ncard : ℤ) = (∏ k ∈ Finset.Icc (0 : ℤ) (22 : ℤ), (365 - k : ℤ)) := by
     have c1 : ((Set.Icc (1 : ℤ) (23 : ℤ) : Set ℤ).ncard : ℤ) = 23 := by

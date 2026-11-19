@@ -36,7 +36,7 @@ theorem integer_under_twice_half_floor (N : ℤ) :
   have s1 : ((N : ℝ) + 1) / 2 < (k : ℝ) + 1 := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := ((N : ℝ) + 1) / 2))
+    (have h := (Parley.Items.Stdlib.Numbers.mun_floor_above (x := ((N : ℝ) + 1) / 2)); push_cast at h; exact h)
   -- 2. inequalities
   have s2 : N < 2 * k + 1 := by exact_mod_cast (show (N : ℝ) < 2 * (k : ℝ) + 1 by linarith only [s1])
   -- 3. mun:integer-step m := N, n := 2k + 1, from 2

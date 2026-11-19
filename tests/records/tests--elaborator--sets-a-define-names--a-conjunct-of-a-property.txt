@@ -1,5 +1,5 @@
 theorem tests/elaborator/sets-a-define-names/a-conjunct-of-a-property
-step 1 cites stdlib/sets/part-builder group 0; P := property-of(N ∈ S and (for all p ∈ S, p ≤ N)), X := {1, …, N}, u := T, bound t := S; concludes 0 Forward, 0 Forward; from H3 sentence 0; supplied by ; letters P none from none, X none from none, u none from none; facing none, none; met apart, apart; within whole, part 1
+step 1 cites stdlib/sets/part-builder group 0; P := property-of(N ∈ S and (for all p ∈ S, p ≤ N)), X := {1, …, N}, u := T, bound t := S; concludes 0 Forward, 0 Forward; from H3 sentence 0; supplied by ; letters P none from none, X none from none, u none from none; facing none, none; met as written, as written; within whole, part 1
 finite S, by Bound("S")
 set T holds numbers of cn
 step 2 restates 1 sentence 1
@@ -12,4 +12,4 @@ read 17: For all p ∈ T, p ≤ N  as  for-all:forall∈,(name:p, name:T, order:
 read 17: T ⊆ {1, …, N}  as  subset:⊆(name:T, integer-range:{,…,}(numeral:1, name:N))  a statement
 read 18: T  as  name:T  a set of numbers
 read 20: For all p ∈ T, p ≤ N  as  for-all:forall∈,(name:p, name:T, order:≤(name:p, name:N))  a statement
-step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]

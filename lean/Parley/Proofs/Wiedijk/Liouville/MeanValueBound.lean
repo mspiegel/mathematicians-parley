@@ -63,14 +63,14 @@ theorem mean_value_bound (f : ℝ → ℝ) (hH2 : ContinuousOn f (Set.univ : Set
   have s4 : ContinuousOn g (Set.Icc a b : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := (Set.Icc a b : Set ℝ)) s2 s1 s3)
+    (have h := (Parley.Items.Stdlib.Calculus.mun_map_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := (Set.Icc a b : Set ℝ)) s2 s1 s3); push_cast at h; exact h)
   -- 5. membership, from D1, H1
   have s5 : ∀ t ∈ (Set.Icc a b : Set ℝ), True := by intro t h_t; exact by trivial
   -- 6. mun:function-into, from D1, 5
   have s6 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
+    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
   -- 7. mun:open-within-closed
   have s7 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   -- 8. mun:open-interval-real

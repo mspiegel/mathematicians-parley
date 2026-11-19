@@ -63,22 +63,22 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   have s3 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} = U ∪ V := by
     simp only [hD3, hD4] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)})); push_cast at h; exact h)
   -- 4. mun:set-builder-split-disjoint X := G(m, n), from D3, D4
   have s4 : U ∩ V = ∅ := by
     simp only [hD3, hD4] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)})); push_cast at h; exact h)
   -- 5. thm:last-vote-for-a, from D3, H3, 1
   have s5 : U = (fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.Ballot.LastVoteForA.last_vote_for_a (m := m) hH1 (n := n) hH2 hH3)
+    (have h := (Parley.Proofs.Wiedijk.Ballot.LastVoteForA.last_vote_for_a (m := m) hH1 (n := n) hH2 hH3); push_cast at h; exact h)
   -- 6. thm:last-vote-for-b, from D4, H3, 2
   have s6 : V = {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} := by
     simp only [hD4] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.Ballot.LastVoteForB.last_vote_for_b (m := m) hH1 (n := n) hH2 hH3)
+    (have h := (Parley.Proofs.Wiedijk.Ballot.LastVoteForB.last_vote_for_b (m := m) hH1 (n := n) hH2 hH3); push_cast at h; exact h)
   -- 7. thm:add-last-place, from 1
   have s7 : ∃ g : Set ℤ → Set ℤ, Set.BijOn g {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} ((fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) := by exact (Parley.Proofs.Wiedijk.Ballot.AddLastPlace.add_last_place (m := m) hH1 (n := n) hH2)
   -- 8. thm:good-finite m := m − 1, from 1

@@ -52,19 +52,19 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   have s1 : P ≤ M ^ n.toNat := by
     simp only [hD1, hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.AmGm.AmGmPower.am_gm_power (n := n) hH1 (a := a) hH3)
+    (have h := (Parley.Proofs.Wiedijk.AmGm.AmGmPower.am_gm_power (n := n) hH1 (a := a) hH3); push_cast at h; exact h)
   -- 2. mun:product-range-nonneg a := 1, b := n, from D1, H3
   have s2 : P ≥ 0 := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sums.mun_product_range_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3)
+    (have h := (Parley.Items.Stdlib.Sums.mun_product_range_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3); push_cast at h; exact h)
   -- 3. mun:sum-nonneg a := 1, b := n, from H3
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3)
   -- 4. mun:quotient-nonneg, from D2, H1, 3
   have s4 : M ≥ 0 := by
     simp only [hD2] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) (y := (n : ℝ)) s3 (by exact_mod_cast gt_iff_lt.mp hH1))
+    (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) (y := (n : ℝ)) s3 (by exact_mod_cast gt_iff_lt.mp hH1)); push_cast at h; exact h)
   set r : ℝ := P ^ (1 / (n : ℝ)) with hD3
   -- 5. mun:root-power x := P, from D3
   have s5 : r ^ n.toNat = P := by

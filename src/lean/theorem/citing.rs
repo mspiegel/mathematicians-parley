@@ -125,6 +125,39 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
+            // A row whose reason reads |AB| and |BA| of its lines as one
+            // term, an algebra, inequalities or transitivity: the row and the
+            // lines it cites taken to one order first (`with_commuted`). A
+            // row of another reason works on the terms as the page writes
+            // them.
+            let reads_as_one = |by: &crate::corpus::Justification| {
+                matches!(
+                    by.head,
+                    crate::corpus::Head::Method(
+                        crate::corpus::Method::Algebra
+                            | crate::corpus::Method::Inequalities
+                            | crate::corpus::Method::Transitivity
+                    )
+                )
+            };
+            let proof = match line.reason.as_ref().and_then(|r| r.by.as_ref().ok()) {
+                Some(by) if reads_as_one(by) && self.commuted_here(by.line) => {
+                    match super::super::doc::Op::of(&relation) {
+                        Some(op) if modulus.is_none() => {
+                            let goal = super::super::expr::Printed::infix(
+                                op,
+                                printed[k].clone(),
+                                printed[k + 1].clone(),
+                                super::super::doc::LeanType::Prop,
+                            );
+                            let cited = self.cited_parts(&by.refs);
+                            self.with_commuted(by.line, &cited, &goal, proof)
+                        }
+                        _ => proof,
+                    }
+                }
+                _ => proof,
+            };
             // A chain of one link is that link, and its proof the step's:
             // Lean's calc would read the line after a lone link as another.
             if single {
@@ -152,12 +185,69 @@ impl<'a> Proof<'a> {
         // set's members in another order (`calculation_ends`, `permuted`),
         // {2kmn, k(m² − n²)} beside the claim's {k(m² − n²), 2kmn}, is taken
         // in the claim's order (`reordered`).
-        if self
-            .rec
-            .calculation_ends
-            .get(&just.line)
-            .is_some_and(|m| m.permuted)
-        {
+        let ends = self.rec.calculation_ends.get(&just.line);
+        // Ends met with the claim with the parts of a notation that stands
+        // in no order in another order, |CA| for |AC|: the chain's equation
+        // turned by the notation's lemmas (`met_proof`).
+        if let Some(met) = ends.filter(|m| {
+            m.permuted
+                && !super::terms::permuted_only_listed(m)
+                && m.flips
+                    .iter()
+                    .all(|f| super::terms::turns_notation(&f.notation))
+        }) {
+            let (Some(first), Some(last)) = (printed.first(), printed.last()) else {
+                return Route::no("a calculation with no terms");
+            };
+            let Some(claim) = claim_now
+                .as_ref()
+                .and_then(|c| self.claim_as_stated(just.line, c))
+            else {
+                return Route::no("a calculation's claim the writer does not state");
+            };
+            // The chain says its first term stands to its last as the claim
+            // relates them.
+            let super::super::doc::TermKind::Infix { op, .. } = &claim.kind else {
+                return Route::no("a calculation's claim that is no relation");
+            };
+            let says = super::super::expr::Printed::infix(
+                *op,
+                first.clone(),
+                last.clone(),
+                super::super::doc::LeanType::Prop,
+            );
+            if met.turned || !met.identities.is_empty() {
+                return Route::no(
+                    "a calculation's ends met turned and in another order",
+                );
+            }
+            let Some(rewrites) = super::terms::flip_rewrites(
+                &self.writer,
+                &met.flips,
+                super::terms::Toward::Holding(&says),
+            ) else {
+                return Route::no(
+                    "a calculation's ends met in an order no lemma turns",
+                );
+            };
+            // The chain named `h` as its own block, `calc` laid out on lines
+            // of its own, then turned and closing the claim.
+            use super::super::tactics as t;
+            return Route::Built(super::super::doc::Proof::Block(vec![
+                t::name_h(&t::by_term(super::super::doc::Proof::Block(block))),
+                t::call(
+                    "rw",
+                    vec![
+                        super::super::doc::TacticArg::Rules(
+                            rewrites.into_iter().map(t::forwards).collect(),
+                        ),
+                        t::at_h(false),
+                    ],
+                ),
+                Tactic::Exact(t::hyp("h")),
+            ]));
+        }
+        if ends.is_some_and(|m| m.permuted) {
             let equation = claim_now
                 .as_ref()
                 .is_some_and(|c| c.notation() == crate::notations::EQUALITY);
@@ -2429,6 +2519,27 @@ impl<'a> Proof<'a> {
             stated: self.writer.formula(node).built().into_iter().collect(),
         };
         let mut before = written_out(&defines, &[goal], &self.writer);
+        // The goal's casts pushed in before the citation closes it, where
+        // the item states its own as they stand: the item's pushed in the
+        // same way, which a complex power of a real, √ of a number not
+        // shown at least 0, lets through where lifting them would not.
+        let pushes = before.iter().any(|t| {
+            matches!(t, Tactic::Call { tactic, .. } if tactic.name() == "push_cast")
+        });
+        let closed = match (pushes, closed) {
+            (true, super::super::doc::Proof::Term(term))
+            | (true, super::super::doc::Proof::By(Tactic::Exact(term))) => {
+                use super::super::tactics as t;
+                super::super::doc::Proof::By(t::on_h(
+                    &term,
+                    vec![
+                        t::push_cast(Some(t::at_h(false))),
+                        Tactic::Exact(t::hyp("h")),
+                    ],
+                ))
+            }
+            (_, closed) => closed,
+        };
         if !headers.is_empty() {
             before.push(super::super::tactics::call(
                 "rw",

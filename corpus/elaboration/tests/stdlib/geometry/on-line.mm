@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/on-line, elaborated from tests/stdlib/geometry.proof by
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.geometry.on-line $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) -> ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) $=
-    ( cc wcel wa wceq cmin co cdiv cr wo simpr wb biid a1i mpbid ) ADEZBDEZFZCDEZFZBCGZABHIZCBHIZJIZKEZLZFZUHUHUBUHMUHUHNUIUHOPQ $.
+  tests.stdlib.geometry.on-line $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) /\ -. B = C ) -> ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn simpl simpr syl wb biid a1i mpbid ) ADEZBDEZFZCDEZFZBCGZABHIZCBHIZJIZKEZLZFZUFMZFZUKUKUNULUKULUMNUEUKOPUKUKQUNUKRST $.
 $}

@@ -421,6 +421,32 @@ fn atom(node: &Node, indices: &[&Node], targets: &Targets) -> Term {
     Term::apply(&name, Vec::new())
 }
 
+impl Targets {
+    /// The notations that `nodes` and what is inside them write whose holes
+    /// stand in no order, each once, where one term is written in more than
+    /// one way among them: |AB| and |BA| are one term written two ways.
+    pub fn written_in_other_orders(&self, nodes: &[Node]) -> Vec<String> {
+        let mut forms: IndexMap<String, (String, FxIndexSet<String>)> = IndexMap::new();
+        for node in nodes.iter().flat_map(|n| n.walk()) {
+            if !self.unordered.contains(&node.notation()) {
+                continue;
+            }
+            let one = in_no_order(&node, &self.unordered).shape().to_string();
+            let entry = forms.entry(one).or_insert_with(|| {
+                (node.notation_name().to_string(), FxIndexSet::default())
+            });
+            entry.1.insert(node.shape().to_string());
+        }
+        let mut out: Vec<String> = Vec::new();
+        for (name, written) in forms.into_values() {
+            if written.len() > 1 && !out.contains(&name) {
+                out.push(name);
+            }
+        }
+        out
+    }
+}
+
 /// `node` with the holes of each notation `unordered` names put in one
 /// order, by their shapes, at every depth: |BA| is written |AB|, so the two
 /// are one atom.

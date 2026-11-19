@@ -68,7 +68,8 @@ line's own. A list holds one entry for each step, in the proof's order.
   hypothesis at the citation's values (`Supplied::meeting`), as
   `Cited::meetings` says it for a conclusion: a listed set's members in
   another order, identity elements dropped, the sides turned. None where
-  no line writes the fact, or one implies it. Lean proves the hypothesis
+  no line writes the fact; for a fact a line implies, how the implied fact
+  met the hypothesis. Lean proves the hypothesis
   from the line by it. Where the line says a "for all" over a wider set
   than asked, the entry says over which set it is read
   (`Supplied::narrowed`). A hypothesis is looked for as the citation
@@ -100,9 +101,13 @@ line's own. A list holds one entry for each step, in the proof's order.
   straight or turned round.
 - `Cited::meetings`: for each conclusion a citation takes, how the item's
   sentence, read at the citation's values, met the claim's
-  (`Known::alike_how`), with the identity elements dropped on the way, x − 0
-  read as x. Lean rewrites by those identities (`sub_zero`, `zero_add`, …)
-  where it converts a power at the step.
+  (`Known::alike_how`). That covers the identity elements dropped on the
+  way (x − 0 read as x), and each notation that stands in no order whose
+  parts were taken in the other order (`Meeting::flips`). Where the claim is
+  one part of the item's "and" (`Concluded::part`, `within`), it is how that
+  part met it. Lean rewrites by those identities (`sub_zero`, `zero_add`,
+  …) where it converts a power at the step, and turns each flip by an exact
+  instance of the notation's swap lemma, `dist_comm C A`.
 - `Cited::within`: for each conclusion a citation takes, where the claim's
   sentence is one part of what the item's part gives read at the values, a
   property applied taken as its body, which part of that "and". `P(u)` at
@@ -114,7 +119,9 @@ line's own. A list holds one entry for each step, in the proof's order.
   it (`FirstAt::written`); else a requires line, or the `let` line that
   says a membership once. Metamath unfolds the definition from a cited line
   among them; Lean gives each to `.mp`, and to `.mpr` for the witnesses'
-  facts.
+  facts. How the line met each fact is kept beside it
+  (`Cited::firsts_meetings`), as `Cited::meetings` keeps it for a
+  conclusion.
 - `FirstAt`: where a fact stands in a line. Its sentence is counted by its
   place among the sentences the line writes, from 0. Past those come the
   line's "for all" sentences read at a block's letter, in order. Its part is
@@ -122,7 +129,9 @@ line's own. A list holds one entry for each step, in the proof's order.
   the fact rather than writing it, `implied` names the rule
   (`citing::Implication`). The rules are a range's bound, `k ≤ n` of
   `k ∈ {1, …, n}`; what ℕ or ℕ₀ says of a term, `n > 0` of `n ∈ ℕ`; a subset
-  written as a power-set membership; and the others `implied_by` gives.
+  written as a power-set membership; that a triangle's points are apart,
+  P ≠ Q of `P, Q, R form a triangle` (`TriangleApart`, with which pair); and
+  the others `implied_by` gives.
 - `exhibited`: for each `exhibit` step, the values of each "there is" it
   shows, and where each fact it asks of them stands, placed as a citation's
   hypotheses are (`Exhibit::shown`). Both backends read the values; Lean
@@ -192,7 +201,12 @@ line's own. A list holds one entry for each step, in the proof's order.
   the standard order is not recorded, and the step keeps its ways. Of an
   equation a define gives, it holds which way the step writes it beside the
   define's own (`define_facing`), and Lean turns the define's hypothesis by
-  it.
+  it. A place the line writes with a notation's parts in another order than
+  the equation's side, |BA| for |AB|, is still a place, and each such flip
+  is kept (`place_flips`). So is each flip between the step's equation and
+  the line it is taken from, `|AC| = 4` of a line `|CA| = 4`
+  (`equation_flips`). Lean turns the line, or the equation, by the
+  notation's swap lemmas before putting it in.
 - `substituted_rows`: for each row of a `substitute` step after the first,
   how its change, which its reason proves, goes into the row above
   (`SubstitutedInto::RowAbove`), by the line of the row's reason; places as
@@ -361,6 +375,13 @@ line's own. A list holds one entry for each step, in the proof's order.
   beside a term in the system, or the closure table puts it there. Lean
   names a part whole only from such a line, m of m² from `m ∈ ℕ` where the
   step names it, and never from a line the reason does not name.
+- `commuted_by_lines`: for each step, requires line, calculation row and
+  substitute row, by the line its reason is on, the notations its claim and
+  its lines write in more than one order of their parts, |AB| in one and
+  |BA| in another (`Targets::written_in_other_orders`). An algebra,
+  inequalities or transitivity reason reads the two as one term. Lean first
+  takes the lines it cites and its goal to one order, by exact rewrites with
+  the swap lemmas.
 - `read_at`: each "for all" a line a step may cite says that the step reads
   at the letter of a `let` of the header or of a block around it, with
   that letter, by the step's index:
@@ -375,6 +396,13 @@ line's own. A list holds one entry for each step, in the proof's order.
   square root or a real power of a base at least 0 as a real one, as
   Metamath proves `√x ∈ ℝ` from `0 ≤ x`. Where Lean converts a power, it
   proves the exponent at least 0 from that sentence.
+- `page_bounds`: what any line of the theorem bounds below. That is the
+  statement's hypotheses, the lines in scope at every step and every
+  requires line (a step's or a naming `let`'s), each term at the greatest
+  bound a line gives it. A term naming a header define is there again with
+  the define written out. Lean writes a square root or a real power in one
+  form throughout from it, since the statement's may come before the line
+  that shows its base is at least 0.
 - `finite_at`: for each step, the sets the lines in scope make finite,
   `W is finite`, `|W| = m`, or `B ⊆ A` of a finite A, each with why, as
   `said_finite` keeps them. A count records whether its number is at least

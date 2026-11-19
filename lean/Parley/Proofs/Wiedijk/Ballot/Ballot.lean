@@ -55,12 +55,12 @@ theorem ballot (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n < m) :
   have s1 : (E.ncard : ℤ) * (m + n) = (m - n) * (LeanBridges.Counting.choose (m + n) m : ℤ) := by
     simp only [hD3, hD4] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.Ballot.BallotCount.ballot_count (a := m) (le_of_lt hH1) (b := n) (le_of_lt hH2) r1152_1)
+    (have h := (Parley.Proofs.Wiedijk.Ballot.BallotCount.ballot_count (a := m) (le_of_lt hH1) (b := n) (le_of_lt hH2) r1152_1); push_cast at h; exact h)
   -- 2. thm:good-finite, from D3, D4
   have s2 : E.Finite := by
     simp only [hD3, hD4] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.Ballot.GoodFinite.good_finite (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2))
+    (have h := (Parley.Proofs.Wiedijk.Ballot.GoodFinite.good_finite (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2)); push_cast at h; exact h)
   -- 3. mun:card-nat0 X := E, from 2
   have s3 : 0 ≤ (E.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := E) s2)
   -- 4. mun:range-size n := m + n
@@ -69,7 +69,7 @@ theorem ballot (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n < m) :
   have s5 : (O.ncard : ℤ) = (LeanBridges.Counting.choose (m + n) m : ℤ) := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.Combinations.Combinations.combinations (A := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (n := m + n) (add_nonneg (le_of_lt hH1) (le_of_lt hH2)) (k := m) (by (have h := congrArg Int.toNat (s4); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s4; rw [h0] at h; exact ne_of_lt ((add_pos (hH1) (hH2) : 0 < m + n)) (by exact_mod_cast h)) : ((Set.Icc (1 : ℤ) (m + n) : Set ℤ) : Set ℤ).Finite)), h])))
+    (have h := (Parley.Proofs.Wiedijk.Combinations.Combinations.combinations (A := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (n := m + n) (add_nonneg (le_of_lt hH1) (le_of_lt hH2)) (k := m) (by (have h := congrArg Int.toNat (s4); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (fun h0 => by have h := s4; rw [h0] at h; exact ne_of_lt ((add_pos (hH1) (hH2) : 0 < m + n)) (by exact_mod_cast h)) : ((Set.Icc (1 : ℤ) (m + n) : Set ℤ) : Set ℤ).Finite)), h]))); push_cast at h; exact h)
   -- 6. inequalities, from H2
   have s6 : m ≤ m + n := by linarith only [hH2]
   -- 7. mun:binomial-nat n := m + n, k := m

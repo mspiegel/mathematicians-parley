@@ -127,6 +127,24 @@ fn statement(
             | Form::Element(name)
             | Form::Property { name, .. }
             | Form::FunctionOn { name, .. } => name,
+            // `let P be a point`: a point is a complex number, as the plane
+            // is ℂ in set.mm (`docs/GEOMETRY.md`).
+            Form::Point(name) => {
+                use super::expr::System;
+                use super::templates::Num;
+                let ty = LetterType::Number(Num::Complex);
+                writer.introduce(&name, System::Type(Num::Complex));
+                binders_of_sets.push(Binder::Letter {
+                    name: super::names::letter(&name),
+                    page: name,
+                    general: false,
+                    ty,
+                });
+                if rec.asserted.get(i).is_none_or(Vec::is_empty) {
+                    read += body.sentences().len();
+                }
+                continue;
+            }
             // `let G be a group with operation · and identity e`: the type
             // of its elements with Mathlib's group on it, and e its 1. What
             // else the line asserts, that G is finite, is among `said`.
@@ -747,6 +765,7 @@ pub(super) fn statement_writer<'a>(
     writer.finite_under = std::rc::Rc::new(rec.finite_under.clone());
     writer.bounds = rec.statement_bounds.clone();
     writer.whole_bounds = rec.statement_bounds.clone();
+    writer.page_bounds = std::rc::Rc::new(rec.page_bounds.clone());
     writer
 }
 

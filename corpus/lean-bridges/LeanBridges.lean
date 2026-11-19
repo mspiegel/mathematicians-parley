@@ -13,6 +13,7 @@ public import Functions
 public import Sets
 public import Groups
 public import Graphs
+public import Geometry
 public import Polynomials
 public import ZF
 

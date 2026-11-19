@@ -54,7 +54,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s3 : S ⊆ (Set.Icc a b : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))); push_cast at h; exact h)
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 5. mun:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4

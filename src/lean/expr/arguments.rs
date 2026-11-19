@@ -149,7 +149,9 @@ impl Writer<'_> {
         if self.counts(node) {
             return false;
         }
+        // A point is a complex number.
         node.sort.is("number")
+            || node.sort.is("point")
             || (node.is_name()
                 && matches!(
                     self.letters.get(node.text.as_str()),

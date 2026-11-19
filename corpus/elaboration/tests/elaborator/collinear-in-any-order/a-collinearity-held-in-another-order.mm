@@ -6,6 +6,6 @@ $( tests/elaborator/collinear-in-any-order/a-collinearity-held-in-another-order,
 $[ stdlib/proved.mm $]
 
 ${
-  tests.elaborator.collinear-in-any-order.a-collinearity-held-in-another-order $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( C = A \/ ( ( B - C ) / ( A - C ) ) e. RR ) ) -> ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) $=
-    ( cc wcel wa wceq cmin co cdiv cr wo simpr w3a wi simpl syl id 3jca gcolrotate mpd wb biid a1i mpbird ) ADEZBDEZFZCDEZFZCAGZBCHIZACHIZJIZKEZLZFZBCGZABHIZCBHIZJIZKEZLZVCUQABGZCAHIZBAHIZJIZKEZLZVCUQUPVIUJUPMUQUIUFUGNUPVIOUQUIUFUGUQUJUIUJUPPZUHUIMZQZUQUJUFVJUJUHUFUHUIPZUHUFUFUFUGPZUFRZQZQZQZUQUJUGVJUJUHUGVMUFUGMZQZQZSCABTQUAUQUFUGUINVIVCOUQUFUGUIVRWAVLSABCTQUAVCVCUBUQVCUCUDUE $.
+  tests.elaborator.collinear-in-any-order.a-collinearity-held-in-another-order $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( C = A \/ ( ( B - C ) / ( A - C ) ) e. RR ) ) /\ -. B = C ) -> ( B = C \/ ( ( A - B ) / ( C - B ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn simpl simpr syl w3a wi id 3jca gcolrotate mpd wb biid a1i mpbird ) ADEZBDEZFZCDEZFZCAGZBCHIZACHIZJIZKEZLZFZBCGZMZFZUSABHIZCBHIZJIZKEZLZVFVAABGZCAHIZBAHIZJIZKEZLZVFVAUQVLVAURUQURUTNZUKUQOPVAUJUGUHQUQVLRVAUJUGUHVAURUJVMURUKUJUKUQNZUIUJOZPZPZVAURUGVMURUKUGVNUKUIUGUIUJNZUIUGUGUGUHNZUGSZPZPZPZPZVAURUHVMURUKUHVNUKUIUHVRUGUHOZPZPZPZTCABUAPUBVAUGUHUJQVLVFRVAUGUHUJWDWHVQTABCUAPUBVFVFUCVAVFUDUEUF $.
 $}

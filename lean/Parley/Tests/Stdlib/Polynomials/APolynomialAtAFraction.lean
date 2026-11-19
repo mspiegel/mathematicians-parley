@@ -9,6 +9,7 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith

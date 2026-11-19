@@ -305,7 +305,14 @@ pub(super) fn substitution_reading(
         [(left, right, false), (right, left, true)]
             .into_iter()
             .find_map(|(was, now, turned)| {
-                let places = crate::matching::places_of(&start.start, was);
+                // A place the page writes in another order of the parts of
+                // a notation that stands in no order, |BA| for the side
+                // |AB|, is a place all the same; a backend turns it first.
+                let mut places = crate::matching::places_of(&start.start, was);
+                if places.is_empty() {
+                    places =
+                        crate::matching::places_alike(&start.start, was, &library.ctx);
+                }
                 if places.is_empty() {
                     return None;
                 }
@@ -321,16 +328,49 @@ pub(super) fn substitution_reading(
     let line_facing = from
         .as_ref()
         .and_then(|at| facing_of(&at.written, equation, known));
-    let found = match (&start.into, way.claimed) {
-        (Some(into), true) => {
+    // Each place that writes the side put for in another order of a
+    // notation's parts, the side's term first.
+    let place_flips = |start: &Node, put: &crate::matching::SubstitutionPlaces| {
+        let was = match put.turned {
+            true => right,
+            false => left,
+        };
+        put.places
+            .iter()
+            .filter_map(|path| {
+                let mut at = start;
+                for &k in path {
+                    at = at.children.get(k)?;
+                }
+                known.alike_how(was, at)
+            })
+            .flat_map(|m| m.flips)
+            .collect::<Vec<_>>()
+    };
+    // A claim made by making its other form (`rules::OTHER_FORMS`), `Q ∉
+    // line HK` for `Q is not on line HK`, is recorded with that form as what
+    // the putting makes, which a backend that writes the two alike closes
+    // the claim by; the meeting says the claim is respelt.
+    let found = match &start.into {
+        Some(into) => {
             crate::matching::substitution_places(&start.start, &way.aim, left, right)
                 .map(|put| (put, crate::matching::Meeting::default()))
                 .or_else(met_otherwise)
-                .map(|(put, meeting)| Substituted {
+                .map(|(put, meeting)| match way.claimed {
+                    true => (put, meeting, start.start.clone()),
+                    false => (put, meeting.respelt(true), start.start.clone()),
+                })
+                .map(|(put, meeting, start)| Substituted {
                     equation: equation.clone(),
                     from: from.clone(),
                     into: into.clone(),
-                    start: start.start.clone(),
+                    place_flips: place_flips(&start, &put),
+                    equation_flips: from
+                        .as_ref()
+                        .and_then(|at| known.alike_how(equation, &at.written))
+                        .map(|m| m.flips)
+                        .unwrap_or_default(),
+                    start,
                     put,
                     meeting,
                     define_facing,
@@ -465,6 +505,8 @@ pub fn sentence_substitutions(
                     start,
                     put,
                     meeting: crate::matching::Meeting::default(),
+                    place_flips: Vec::new(),
+                    equation_flips: s.equation_flips.clone(),
                     define_facing: s.define_facing,
                     line_facing: s.line_facing,
                 },
@@ -525,6 +567,8 @@ pub(super) fn step_row_substitutions(
                     start,
                     put,
                     meeting: crate::matching::Meeting::default(),
+                    place_flips: Vec::new(),
+                    equation_flips: Vec::new(),
                     define_facing: None,
                     line_facing: None,
                 },

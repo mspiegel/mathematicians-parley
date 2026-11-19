@@ -212,8 +212,9 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let stated = taken.first_facts(&groups, &parts.facts, library);
-    let firsts = firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
+    let stated = taken.first_pairs(&groups, &parts.facts, library);
+    let (firsts, firsts_meetings) =
+        firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
     let mut supplying = taken.supplying_facts(&groups, &parts.facts, library);
     supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
@@ -250,6 +251,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         obtained: taken.obtained,
         concluded: across_groups(taken, before),
         firsts,
+        firsts_meetings,
         supplied,
         item_letters,
         facings,
@@ -504,7 +506,10 @@ pub(in crate::checker) fn facing_of(
 
 /// For each sentence `taken` concludes, how the item's sentence read at the
 /// binding met the claim's sentence it gives (`record::Cited::meetings`), as
-/// `Known::alike_how` meets them; None where the two do not meet as wholes.
+/// `Known::alike_how` meets them: the whole, or else the part its reading's
+/// "and" gives (`Concluded::part`); and where that is an "and" of which the
+/// claim is one part (`parts_within`), that part. None where nothing of it
+/// meets the claim's sentence, or more than one part does.
 pub(super) fn meetings(
     groups: &[Group],
     taken: &Taken,
@@ -522,8 +527,27 @@ pub(super) fn meetings(
             let read = readings(said, library)
                 .into_iter()
                 .find(|r| r.way == c.way)?;
-            let item = filled(&read.claimed, &taken.binding, &library.ctx);
-            known.alike_how(&item, claims.get(k)?)
+            let claim = claims.get(k)?;
+            let whole = filled(&read.claimed, &taken.binding, &library.ctx);
+            if let Some(met) = known.alike_how(&whole, claim) {
+                return Some(met);
+            }
+            let item = match c.part {
+                Some(j) => {
+                    let part = conjuncts(&read.claimed, library).into_iter().nth(j)?;
+                    filled(&part, &taken.binding, &library.ctx)
+                }
+                None => whole,
+            };
+            if let Some(met) = known.alike_how(&item, claim) {
+                return Some(met);
+            }
+            let parts = conjuncts(&item, library);
+            let mut met = parts.iter().filter_map(|p| known.alike_how(p, claim));
+            match (parts.len() > 1, met.next(), met.next()) {
+                (true, Some(m), None) => Some(m),
+                _ => None,
+            }
         })
         .collect()
 }
@@ -759,8 +783,8 @@ pub fn cited_requires(
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let stated = taken.first_facts(&groups, &parts.facts, library);
-    let firsts = firsts_at(
+    let stated = taken.first_pairs(&groups, &parts.facts, library);
+    let (firsts, firsts_meetings) = firsts_at(
         step,
         req.lines(),
         &item,
@@ -805,6 +829,7 @@ pub fn cited_requires(
         obtained: taken.obtained,
         concluded: across_groups(&taken, before),
         firsts,
+        firsts_meetings,
         supplied,
         item_letters,
         facings,
@@ -866,14 +891,15 @@ pub(super) fn firsts_at(
     step: &Step,
     refs: &[String],
     item: &str,
-    firsts: &[Node],
+    firsts: &[(Node, Node)],
     below: Option<usize>,
     known: &Known,
     library: &Library,
-) -> Vec<SuppliedBy> {
+) -> (Vec<SuppliedBy>, Vec<Option<crate::matching::Meeting>>) {
     let suppliers = Suppliers::new(step, refs, Some(item), below, known, library);
     let mut out: Vec<SuppliedBy> = Vec::new();
-    for first in firsts {
+    let mut met: Vec<Option<crate::matching::Meeting>> = Vec::new();
+    for (asked, first) in firsts {
         let by = suppliers.by(first);
         let placed = |o: &SuppliedBy| match (o, &by) {
             (SuppliedBy::Line(a), SuppliedBy::Line(b))
@@ -888,10 +914,11 @@ pub(super) fn firsts_at(
             _ => false,
         };
         if !matches!(by, SuppliedBy::Unstated) && !out.iter().any(placed) {
+            met.push(suppliers.meeting(asked, first, &by, None));
             out.push(by);
         }
     }
-    out
+    (out, met)
 }
 
 /// Where `fact` stands among the lines `refs` names at `step`, each read as

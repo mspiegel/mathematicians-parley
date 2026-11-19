@@ -61,7 +61,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   have s3 : S ⊆ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ))); push_cast at h; exact h)
   -- 4. mun:finite-part, from 1, 3
   have s4 : S.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Y := S) s1 s3)
   -- 5. mun:subset-transitive, from 2, 3
@@ -154,7 +154,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   have s13 : (Nat.totient n.toNat : ℤ) = (S.ncard : ℤ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.def_phi (n := n) hH1)
+    (have h := (Parley.Items.Stdlib.Divisibility.def_phi (n := n) hH1); push_cast at h; exact h)
   -- 14. substitute
   have s14 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by
     have c1 : (∏ᶠ r ∈ S, (r * a : ℤ)) = a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) := by exact (Parley.Items.Stdlib.Sums.thm_product_factor (X := S) s5 s4 (c := a))

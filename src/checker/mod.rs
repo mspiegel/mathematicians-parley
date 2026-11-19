@@ -494,6 +494,57 @@ fn finite_defines<'r>(
 /// holds them written out (`CheckedTheorem::outside`). A backend that
 /// writes the page otherwise, a define of its file written out where
 /// applied, reads it again of the page it writes.
+/// What any line of the theorem bounds below (`CheckedTheorem::page_bounds`):
+/// the statement's bounds, each step's, and those of `requires`, what the
+/// requires lines say, each term once at the greatest bound a line gives
+/// it. A term that names a define of the header is
+/// there as well with the define written out, as the statement is read
+/// (`statement_definitions`), `(a + b + c)/2·(…)` beside `s·(…)`.
+fn page_bounds(
+    record: &CheckedTheorem,
+    requires: &crate::citing::bounds::SaidBounds,
+) -> crate::citing::bounds::SaidBounds {
+    let mut out = crate::citing::bounds::SaidBounds {
+        terms: Vec::new(),
+        over_ranges: record.statement_bounds.over_ranges.clone(),
+    };
+    let all = record
+        .statement_bounds
+        .terms
+        .iter()
+        .chain(record.bounds.iter().flat_map(|said| said.terms.iter()))
+        .chain(requires.terms.iter());
+    for b in all {
+        let written_out =
+            crate::matching::expand(&b.term, &record.statement_definitions);
+        let mut ways = vec![b.clone()];
+        if written_out.shape() != b.term.shape() {
+            let mut out_b = b.clone();
+            out_b.term = written_out;
+            ways.push(out_b);
+        }
+        for b in ways {
+            match out
+                .terms
+                .iter_mut()
+                .find(|o| o.term.shape() == b.term.shape())
+            {
+                Some(o) if o.least < b.least => *o = b,
+                Some(_) => {}
+                None => out.terms.push(b),
+            }
+        }
+    }
+    for said in &record.bounds {
+        for r in &said.over_ranges {
+            if !out.over_ranges.iter().any(|o| o.shape() == r.shape()) {
+                out.over_ranges.push(r.clone());
+            }
+        }
+    }
+    out
+}
+
 /// The sets the lines in scope at each step make finite
 /// (`CheckedTheorem::finite_at`), each step's lines read with the letters
 /// and bounds the record has there.
@@ -934,6 +985,8 @@ fn theorem_record(
     record.pairs_apart = formulas::pairs_apart(thm, &c.known[i], &c.library.targets);
     record.held_by_lines =
         formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
+    record.commuted_by_lines =
+        formulas::commuted_by_lines(thm, &c.known[i], &c.library.targets);
     record.divided_by = formulas::divided_by(thm, &c.known[i], &c.library.targets);
     let ctx = &c.library.ctx;
     let in_scope: Vec<Vec<Node>> = thm
@@ -1013,7 +1066,26 @@ fn theorem_record(
     record.define_values = define_values_of(thm, &record);
     record.items = std::sync::Arc::clone(items);
     record.statement_definitions = statement_definitions(thm, c.env, &c.known[i].sorts);
+    let requires_said =
+        bounds::said_by(&requires_lines(thm, &c.known[i]), &header, &c.library.ctx);
+    record.page_bounds = page_bounds(&record, &requires_said);
     record
+}
+
+/// What every requires line of the theorem says, a step's or one under a
+/// naming `let`'s reason, each sentence read as written.
+fn requires_lines(thm: &Theorem, known: &Known) -> Vec<Node> {
+    let steps = thm.steps.iter().flat_map(|s| s.requires.iter());
+    let lets = thm
+        .defines
+        .iter()
+        .filter_map(|d| d.reason.as_ref())
+        .flat_map(|r| r.requires.iter());
+    steps
+        .chain(lets)
+        .flat_map(|r| r.fact.sentences())
+        .filter_map(|s| known.read_as_written(&s))
+        .collect()
 }
 
 fn check_nth(report: &mut Report, c: &mut Checking<'_>, i: usize) {

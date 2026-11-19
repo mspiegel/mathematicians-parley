@@ -32,7 +32,7 @@ theorem cantor {α : Type*} [Nonempty α] (A : Set α) (f : α → Set α) (hH2 
   have s1 : B ⊆ A := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : α => ¬ x ∈ f x)) (X := A))
+    (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : α => ¬ x ∈ f x)) (X := A)); push_cast at h; exact h)
   -- 2. proof
   have s2 : ∀ x ∈ A, ¬ f x = B := by
     intro x hK

@@ -96,7 +96,7 @@ theorem combinations {α : Type*} [Nonempty α] (A : Set α) (n : ℤ) (hH1 : 0 
       have s1_10 : {S ∈ 𝒫 X | (S.ncard : ℤ) = j} = U ∪ W := by
         simp only [hD1, hD2, hD3] at ⊢
         push_cast at ⊢
-        exact (Parley.Proofs.Wiedijk.Combinations.ChooseSplit.choose_split (X := X) (a := a) s1_2 (j := j) s1_4)
+        (have h := (Parley.Proofs.Wiedijk.Combinations.ChooseSplit.choose_split (X := X) (a := a) s1_2 (j := j) s1_4); push_cast at h; exact h)
       -- 1.11. mun:card-disjoint-union X := U, Y := W, m := C(m, j), n := C(m, j − 1), from 1.5, 1.8, 1.9
       have s1_11 : ((U ∪ W).ncard : ℤ) = (LeanBridges.Counting.choose m j : ℤ) + (LeanBridges.Counting.choose m (j - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := U) (Y := W) (m := (LeanBridges.Counting.choose m j : ℤ)) (Nat.cast_nonneg _) (n := (LeanBridges.Counting.choose m (j - 1) : ℤ)) (Nat.cast_nonneg _) (by (have h := congrArg Int.toNat (s1_5); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((hD1_finite : (U : Set (Set α)).Finite)), h])) (by (have h := congrArg Int.toNat (s1_8); rw [Int.toNat_natCast] at h; rw [← Set.Finite.cast_ncard_eq ((hD3_finite : (W : Set (Set α)).Finite)), h])) s1_9)
       -- 1.12. substitute {S ⊆ X : |S| = j} = U ∪ W (line 1.10) into line 1.11

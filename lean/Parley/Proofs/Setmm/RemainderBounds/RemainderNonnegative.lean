@@ -43,12 +43,12 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
+    (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3); push_cast at h; exact h)
   -- 3. mun:floor-below x := A/B, from D1, 1
   have s3 : (q : ℝ) ≤ A / B := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B))
+    (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B)); push_cast at h; exact h)
   -- 4. calculation
   have s4 : B * (q : ℝ) ≤ A := by
     calc B * (q : ℝ) ≤ B * (A / B) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) s3 hH3)

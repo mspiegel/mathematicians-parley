@@ -83,7 +83,7 @@ theorem liouville (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomials.integer
     intro x
     simp only [hD1] at ⊢
     push_cast at ⊢
-    exact (Parley.Items.Stdlib.Polynomials.mun_integer_polynomial_real (F := F) hH2 (x := x))
+    (have h := (Parley.Items.Stdlib.Polynomials.mun_integer_polynomial_real (F := F) hH2 (x := x)); push_cast at h; exact h)
   obtain ⟨f, s2_eq⟩ : ∃ f' : ℝ → ℝ, ∀ x : ℝ, (f' x : ℂ) = f x := ⟨fun x => (s2 x).choose, fun x => (s2 x).choose_spec⟩
   have hD1_f : ∀ x : ℝ, (f x : ℂ) = F (x : ℂ) := fun x => (s2_eq x).trans (by simp only [hD1])
   -- 3. mun:function-into, from 2

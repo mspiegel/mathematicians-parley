@@ -6,10 +6,13 @@ public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Group.Semigroup
+public import Mathlib.Algebra.GroupWithZero.Basic
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Module.Defs
+public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Floor.Defs
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Algebra.Ring.Nat
 public import Mathlib.Analysis.Calculus.Deriv.Basic
@@ -45,6 +48,7 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Inv
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Result
 public import Mathlib.Tactic.Positivity.Basic
@@ -139,6 +143,30 @@ theorem mun_cos_bounded_2 (a : ℝ) :
 theorem mun_cos_decreasing (a : ℝ) (b : ℝ) (h1 : a ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ)) (h2 : b ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ)) :
     a < b ↔ Real.cos b < Real.cos a :=
   ⟨fun h => Real.cos_lt_cos_of_nonneg_of_le_pi h1.1 h2.2 h, fun h => by by_contra hle; push_neg at hle; have h' := Real.cos_le_cos_of_nonneg_of_le_pi h2.1 h1.2 hle; linarith⟩
+
+theorem mun_special_angles_1 :
+    Real.cos ((90 : ℝ) * Real.pi / 180) = 0 :=
+  by rw [show (90 : ℝ) * Real.pi / 180 = Real.pi / 2 by ring]; exact Real.cos_pi_div_two
+
+theorem mun_special_angles_2 :
+    Real.sin ((90 : ℝ) * Real.pi / 180) = 1 :=
+  by rw [show (90 : ℝ) * Real.pi / 180 = Real.pi / 2 by ring]; exact Real.sin_pi_div_two
+
+theorem mun_special_angles_3 :
+    Real.cos ((60 : ℝ) * Real.pi / 180) = 1 / 2 :=
+  by rw [show (60 : ℝ) * Real.pi / 180 = Real.pi / 3 by ring]; exact Real.cos_pi_div_three
+
+theorem mun_special_angles_4 :
+    Real.sin ((30 : ℝ) * Real.pi / 180) = 1 / 2 :=
+  by rw [show (30 : ℝ) * Real.pi / 180 = Real.pi / 6 by ring]; exact Real.sin_pi_div_six
+
+theorem mun_cos_supplement (x : ℝ) :
+    Real.cos ((180 : ℝ) * Real.pi / 180 - x) = -Real.cos x :=
+  by rw [show (180 : ℝ) * Real.pi / 180 = Real.pi by ring]; exact Real.cos_pi_sub x
+
+theorem mun_sin_supplement (x : ℝ) :
+    Real.sin ((180 : ℝ) * Real.pi / 180 - x) = Real.sin x :=
+  by rw [show (180 : ℝ) * Real.pi / 180 = Real.pi by ring]; exact Real.sin_pi_sub x
 
 theorem mun_pi_positive :
     0 < Real.pi :=
