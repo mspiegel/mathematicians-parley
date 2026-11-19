@@ -1,14 +1,5 @@
 //! A citation supplies what the item asks, and claims what it concludes.
 
-mod cited_facts;
-mod defined;
-mod exhibits;
-mod joins;
-mod kinds;
-mod repeated;
-mod substitutes;
-mod suppliers;
-
 use std::cell::OnceCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -91,3 +82,12 @@ pub use self::substitutes::{
 };
 use self::suppliers::*;
 pub use self::suppliers::{bound_there, check_conclusion, check_hypotheses, searched};
+
+mod cited_facts;
+mod defined;
+mod exhibits;
+mod joins;
+mod kinds;
+mod repeated;
+mod substitutes;
+mod suppliers;

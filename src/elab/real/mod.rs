@@ -22,10 +22,6 @@
 //! rational brackets on each root and atom, added part by part
 //! (`bracketed_positive`).
 
-mod pieces;
-mod positives;
-mod proving;
-
 use indexmap::IndexMap;
 use num_bigint::{BigInt, BigUint};
 use num_traits::{One, Signed, ToPrimitive, Zero};
@@ -44,6 +40,10 @@ use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::{binds, methods, rules, t, take};
+
+mod pieces;
+mod positives;
+mod proving;
 
 /// The lemmas that read a difference of two points out of a line that says
 /// it inside something more (`apart_held`): a betweenness says its

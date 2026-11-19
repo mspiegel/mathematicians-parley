@@ -6,16 +6,6 @@
 //! it cites, and that its claim is what that item concludes. It does not
 //! build the kernel proof; that needs the elaborator.
 
-mod angles;
-mod bounds;
-mod citations;
-mod database;
-mod formulas;
-mod library;
-pub mod record;
-mod structure;
-pub mod written;
-
 use std::borrow::Cow;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -65,6 +55,16 @@ use crate::{citing, corpus, matching, sorts, text, threads};
 pub use library::{statements_in_scope, Known, SaidFrom};
 pub use record::{CheckedTheorem, LibraryReading};
 pub use structure::{cited_in_order, out_of_reach, unresolved};
+
+mod angles;
+mod bounds;
+mod citations;
+mod database;
+mod formulas;
+mod library;
+pub mod record;
+mod structure;
+pub mod written;
 
 /// A variable may be a Greek letter and may carry a subscript or a prime.
 /// These are not notation and have no record of their own; see `GRAMMAR.md`.

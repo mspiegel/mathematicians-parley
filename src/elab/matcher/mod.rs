@@ -17,16 +17,6 @@
 //! or eliminated (`witnessed`, `introduced`, `through_existential`), and a
 //! conjunct projected (`as_conjunct`).
 
-mod applying;
-mod classes;
-mod closing;
-mod facts;
-mod lemmas;
-mod pieces;
-mod renaming;
-mod rewriting;
-mod standard;
-
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -52,6 +42,16 @@ use crate::{binds, pf, t, take};
 
 use self::pieces::*;
 pub use self::pieces::{as_class, conjuncts_of, sethood};
+
+mod applying;
+mod classes;
+mod closing;
+mod facts;
+mod lemmas;
+mod pieces;
+mod renaming;
+mod rewriting;
+mod standard;
 
 /// One rule of the standard form: its label, the side it rewrites, the side
 /// it becomes, and the lemma's variables.

@@ -2,6 +2,9 @@
 //! the labels set.mm must have, the items something must cite, and the steps
 //! `ELABORATION.md` must record.
 
+/// Where the generated files go, under the working tree.
+use crate::text;
+
 pub mod assumed;
 pub mod build;
 pub mod gate;
@@ -11,9 +14,6 @@ pub mod renumber;
 pub mod restated;
 pub mod tested;
 pub mod verify;
-
-/// Where the generated files go, under the working tree.
-use crate::text;
 
 pub const ELABORATION: &str = "corpus/elaboration";
 

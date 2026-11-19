@@ -8,13 +8,13 @@
 //! constructors in `mm::spell`, and each file is written to
 //! `corpus/elaboration/<name>.mm`.
 
+use crate::mm::Spell;
+
 pub(crate) mod abs_bounds;
 pub(crate) mod algebra;
 pub(crate) mod parity;
 pub(crate) mod sqrt2;
 pub(crate) mod sum_formula;
-
-use crate::mm::Spell;
 
 /// What a hand-written step is put together from: a label, a constant, or
 /// a term or proof built already, each lent as it is.

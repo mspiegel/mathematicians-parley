@@ -12,6 +12,20 @@
 //! denied here (`clippy.toml`, `disallowed-methods`).
 #![deny(clippy::disallowed_methods)]
 
+use std::borrow;
+use std::cell::RefCell;
+use std::hash::Hash;
+use std::rc::Rc;
+
+use indexmap::IndexMap;
+
+pub(crate) use crate::methods::{field, linear};
+use crate::mm::spell::{Part, Proof};
+use crate::mm::Rpn;
+
+pub use cited::Line;
+pub use elaborate::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
+
 pub(crate) mod calculators;
 mod cited;
 pub(crate) mod definitions;
@@ -29,20 +43,6 @@ pub(crate) mod scopes;
 mod spoken;
 pub(crate) mod state;
 pub(crate) mod tables;
-
-use std::borrow;
-use std::cell::RefCell;
-use std::hash::Hash;
-use std::rc::Rc;
-
-use indexmap::IndexMap;
-
-pub(crate) use crate::methods::{field, linear};
-use crate::mm::spell::{Part, Proof};
-use crate::mm::Rpn;
-
-pub use cited::Line;
-pub use elaborate::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
 
 /// A table that more than one holder may share and change, as the frames of
 /// scopes and the step loop share what is known at a scope.

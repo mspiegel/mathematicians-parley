@@ -6,9 +6,6 @@
 //! artifacts it waits on, the order they are made in, and writing a file
 //! only where its text changed.
 
-pub mod lean;
-pub mod metamath;
-
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::Path;
@@ -21,6 +18,9 @@ use crate::said::Said;
 use crate::source::Source;
 
 pub use metamath::*;
+
+pub mod lean;
+pub mod metamath;
 
 /// The check a build begins with (`checker::front`): what `parley check`
 /// prints, which is the start of what the build prints, and the corpus as

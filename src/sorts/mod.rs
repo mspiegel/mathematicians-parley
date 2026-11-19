@@ -13,10 +13,6 @@
 //! so many words where a question is about the text and not the sort: which
 //! names a theorem introduces, and what a `define`'s domain holds.
 
-pub(crate) mod infer;
-pub mod introduction;
-pub mod powers;
-
 use std::collections::BTreeSet;
 use std::iter;
 use std::sync::Arc;
@@ -38,6 +34,10 @@ use crate::outcome::{Built, Checked, Declined};
 use indexmap::IndexMap;
 pub use introduction::graph_line;
 use introduction::Introduction;
+
+pub(crate) mod infer;
+pub mod introduction;
+pub mod powers;
 
 pub const NUMBER_SYSTEMS: [&str; 5] = ["ℕ", "ℕ₀", "ℤ", "ℚ", "ℝ"];
 

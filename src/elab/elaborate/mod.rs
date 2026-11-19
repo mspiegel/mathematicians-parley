@@ -16,15 +16,6 @@
 //! What is not expanded is stated at the head of the file it writes: a
 //! closure method, or an item the database gives no target for.
 
-mod chains;
-mod cited_items;
-mod cites;
-mod corpus;
-mod defines;
-mod library;
-mod running;
-mod unfolds;
-
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -78,6 +69,15 @@ use self::library::*;
 pub use self::library::{Elaborated, Library, Options, ReadLibrary};
 use crate::corpus::proof;
 use crate::text;
+
+mod chains;
+mod cited_items;
+mod cites;
+mod corpus;
+mod defines;
+mod library;
+mod running;
+mod unfolds;
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";

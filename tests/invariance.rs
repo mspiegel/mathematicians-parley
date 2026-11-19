@@ -22,17 +22,6 @@
 //! them, and its elaborated statement, which they read, is not built again
 //! here.
 
-#[path = "invariance/rewrites/mod.rs"]
-mod rewrites;
-
-#[path = "invariance/sampled.rs"]
-mod sampled;
-
-#[path = "shared/mod.rs"]
-mod shared;
-
-mod record;
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::sync::Arc;
@@ -52,6 +41,17 @@ use parley::tools::{path_of, verify};
 use parley::checker;
 use parley::corpus::{skeleton, Head, Theorem};
 use rewrites::{Context, Declined, Rewritten};
+
+#[path = "invariance/rewrites/mod.rs"]
+mod rewrites;
+
+#[path = "invariance/sampled.rs"]
+mod sampled;
+
+#[path = "shared/mod.rs"]
+mod shared;
+
+mod record;
 
 /// The breaks there are, each a gap a later change closes.
 const KNOWN: &[&str] = &[];

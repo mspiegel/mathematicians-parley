@@ -23,13 +23,13 @@
 //! adds: a disequality taken both ways, an antisymmetry's two lines, a
 //! requires line weakened to a disequality, and rows from a line.
 
-mod record;
-
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 use parley::checker::{checked, CheckedCorpus};
 use parley::source::Disk;
+
+mod record;
 
 /// The theorems whose records are kept, by full name.
 const KEPT: [&str; 22] = [

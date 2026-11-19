@@ -8,11 +8,6 @@
 //! is computed there, and a term that does not fit it is declined rather
 //! than cast down (`LEAN.md`, "Number types").
 
-mod arguments;
-mod formulas;
-mod graphs;
-mod operators;
-
 use std::cell::RefCell;
 use std::iter;
 use std::rc::Rc;
@@ -42,6 +37,11 @@ use crate::rules::System as S;
 use crate::{citing, rules};
 pub use formulas::{pair_coordinates, pair_type};
 use indexmap::IndexSet;
+
+mod arguments;
+mod formulas;
+mod graphs;
+mod operators;
 
 /// What a letter is in Lean.
 #[derive(Clone, Debug, PartialEq, Eq)]

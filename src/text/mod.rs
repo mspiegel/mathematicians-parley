@@ -1,12 +1,12 @@
 //! Text as the corpus is written and as the tools quote it.
 
-pub mod encoding;
-pub mod pyrepr;
-
 pub use encoding::check_encoding;
 pub use pyrepr::repr;
 
 use unicode_segmentation::UnicodeSegmentation;
+
+pub mod encoding;
+pub mod pyrepr;
 
 /// A name with each Greek letter written as its English name, for what
 /// Metamath reads, which is ASCII: a label, and the name of a file it

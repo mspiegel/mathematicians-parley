@@ -8,20 +8,6 @@
 //! the page, and each line written records the step it was written for, so
 //! that a line Lean refuses is reported against the page.
 
-mod blocks;
-mod cited_lines;
-mod citing;
-mod conversions;
-mod headers;
-mod helpers;
-mod kinds;
-mod orders;
-mod proved;
-mod reading;
-mod reasons;
-mod substitution;
-mod terms;
-
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
@@ -66,6 +52,20 @@ use crate::matching::Context;
 use crate::notations::{MEMBERSHIP, NUMBER_SYSTEMS};
 use crate::sorts::introduction::{Form, Introduction};
 use crate::{corpus, matching, rules};
+
+mod blocks;
+mod cited_lines;
+mod citing;
+mod conversions;
+mod headers;
+mod helpers;
+mod kinds;
+mod orders;
+mod proved;
+mod reading;
+mod reasons;
+mod substitution;
+mod terms;
 
 /// A theorem's Lean declaration, and for each of its lines the place on
 /// the page it was written for.

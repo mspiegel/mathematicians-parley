@@ -1,10 +1,5 @@
 //! Proof skeletons: the `.proof` files.
 
-mod chains;
-mod parse;
-mod steps;
-mod theorem;
-
 use std::fmt;
 use std::sync::Arc;
 
@@ -40,3 +35,8 @@ pub use self::theorem::{
     cited_items, in_scope, outermost, read_visible, references, visible, written_text,
     FileScope, InScope, Reference, ScopeId, Theorem, Visible,
 };
+
+mod chains;
+mod parse;
+mod steps;
+mod theorem;

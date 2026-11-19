@@ -8,12 +8,6 @@
 //! formula is read, a formula that does not read, declines the theorem and
 //! says why; it never guesses.
 
-mod layout;
-mod letters;
-mod lifting;
-mod obtains;
-mod statements;
-
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
@@ -56,6 +50,12 @@ pub use self::obtains::{
 };
 use self::statements::*;
 pub use self::statements::{parts_named, statements_renamed};
+
+mod layout;
+mod letters;
+mod lifting;
+mod obtains;
+mod statements;
 
 /// What every rewrite reads: the corpus, its grammar, and what the corpus
 /// says about letters.

@@ -3,14 +3,16 @@
 # (`std::`, `crate::`, a dependency) may have one segment only.
 absolute-paths-max-segments = 1
 
-# Only the items of a module are ordered, and only by group: modules, then
-# imports, then everything else, in any order within each group. Enum
-# variants, struct fields and impl and trait items keep the order written.
+# Only the items of a module are ordered, and only by group: `extern crate`,
+# then imports, then module declarations, then everything else, in any order
+# within each group (`docs/RUST_STYLE_GUIDE.md`, "Items"). Enum variants,
+# struct fields and impl and trait items keep the order written.
 source-item-ordering = ["module"]
 module-items-ordered-within-groupings = "none"
 module-item-order-groupings = [
-    ["modules", ["extern_crate", "mod", "foreign_mod"]],
+    ["extern_crate", ["extern_crate"]],
     ["use", ["use"]],
+    ["modules", ["mod", "foreign_mod"]],
     ["everything_else", [
         "macro", "global_asm", "static", "const",
         "ty_alias", "enum", "struct", "union",

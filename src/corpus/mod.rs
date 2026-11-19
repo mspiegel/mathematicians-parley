@@ -4,15 +4,6 @@
 //! A claim is an opaque run of text here. Nothing in this module looks
 //! inside a formula; `formula` does that.
 
-pub mod define;
-pub(crate) mod lines;
-pub(crate) mod load;
-pub mod phrases;
-pub mod proof;
-pub(crate) mod records;
-pub mod skeleton;
-pub(crate) mod values;
-
 pub use define::{
     define_parts, for_pieces, step_index, Define, DefineParts, Param, Recursion,
     RuleText, Within,
@@ -34,6 +25,15 @@ pub use skeleton::{
     Source,
 };
 pub use values::{Value, Values};
+
+pub mod define;
+pub(crate) mod lines;
+pub(crate) mod load;
+pub mod phrases;
+pub mod proof;
+pub(crate) mod records;
+pub mod skeleton;
+pub(crate) mod values;
 
 /// Build a regular expression once, the first time it is used.
 #[macro_export]

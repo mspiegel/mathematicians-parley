@@ -8,10 +8,6 @@
 //! that shape and builds the proof from it. Nothing here searches: what a
 //! table has no entry for is declined, and left to what is tried after.
 
-mod implied;
-mod introduced;
-mod writing;
-
 use std::cell::OnceCell;
 use std::collections::BTreeSet;
 
@@ -38,6 +34,10 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup, numeral_label, System};
 use crate::{binds, citing, pf, t, take};
+
+mod implied;
+mod introduced;
+mod writing;
 
 /// Why `built` takes a term no further: it is no operation the closure
 /// tables walk, and so an atom of the walk.

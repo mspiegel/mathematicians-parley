@@ -33,6 +33,27 @@
 //! cargo test --release --test oracle -- --ignored --nocapture
 //! ```
 
+use std::collections::BTreeSet;
+use std::panic::AssertUnwindSafe;
+use std::path::Path;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::{env, panic};
+
+use gen::Drawn;
+use judge::Verdict;
+use parley::checker;
+use parley::corpus::corpus;
+use parley::elab::elaborate::Options;
+use parley::elab::Library;
+use parley::formula::grammar::Grammar;
+use parley::mm::where_set_mm;
+use parley::source::{Disk, Memory, Overlay, Source};
+use parley::threads::in_order_slots;
+use parley::tools::build::{library, Libraries, Loaded};
+use parley::tools::{path_of, verify};
+use shared::{included, Random};
+
 #[path = "oracle/algebra.rs"]
 mod algebra;
 #[path = "oracle/atoms.rs"]
@@ -55,27 +76,6 @@ mod rows;
 mod said;
 #[path = "shared/mod.rs"]
 mod shared;
-
-use std::collections::BTreeSet;
-use std::panic::AssertUnwindSafe;
-use std::path::Path;
-use std::str::FromStr;
-use std::sync::Arc;
-use std::{env, panic};
-
-use gen::Drawn;
-use judge::Verdict;
-use parley::checker;
-use parley::corpus::corpus;
-use parley::elab::elaborate::Options;
-use parley::elab::Library;
-use parley::formula::grammar::Grammar;
-use parley::mm::where_set_mm;
-use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order_slots;
-use parley::tools::build::{library, Libraries, Loaded};
-use parley::tools::{path_of, verify};
-use shared::{included, Random};
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).

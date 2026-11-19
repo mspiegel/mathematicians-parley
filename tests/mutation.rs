@@ -37,9 +37,6 @@
 //!
 //! This reads set.mm, and fails if set.mm cannot be found.
 
-#[path = "shared/mod.rs"]
-mod shared;
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::{Bound, Range};
 use std::panic::AssertUnwindSafe;
@@ -61,6 +58,9 @@ use parley::threads::in_order_slots;
 use parley::tools::build::{library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 use shared::{included, Random};
+
+#[path = "shared/mod.rs"]
+mod shared;
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).

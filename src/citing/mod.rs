@@ -9,18 +9,6 @@
 //! the nodes over; the checker and the elaborator ask the one question
 //! here, so that they answer it alike.
 
-mod asked;
-pub mod bounds;
-mod conclude;
-pub mod finite;
-mod library;
-pub mod number_sets;
-mod once;
-mod parts;
-mod supply;
-pub mod things;
-mod typed;
-
 pub use asked::{asked, asks_of, filled, Asked};
 pub use conclude::{
     concludes, derives, identities_unsaid, link_unsaid, not_numbers, obtained, obtains,
@@ -47,3 +35,15 @@ pub use supply::{
     largest_search, names_of, search, set_within, supplier, supply, Sites, Ways,
 };
 pub use typed::{codomain_reason, CodomainAsk, CodomainReason};
+
+mod asked;
+pub mod bounds;
+mod conclude;
+pub mod finite;
+mod library;
+pub mod number_sets;
+mod once;
+mod parts;
+mod supply;
+pub mod things;
+mod typed;

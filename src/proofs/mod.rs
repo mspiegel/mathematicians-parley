@@ -12,11 +12,11 @@
 //! notation set.mm writes it in, and never transcribed into stack order by
 //! hand.
 
+use crate::mm::Proof;
+
 pub mod comparison;
 pub(crate) mod stdlib;
 pub(crate) mod worksheet;
-
-use crate::mm::Proof;
 
 /// One lemma: its label, its statement, its proof, and the hypotheses it
 /// states, as (label, statement) pairs.

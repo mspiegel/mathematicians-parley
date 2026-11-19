@@ -108,3 +108,5 @@ Read the one that governs a change before making it.
 - `docs/SELECTION.md` and `docs/pilot/`: which theorems come next and how
   each pilot was done. Before starting a theorem.
 - `docs/GEOMETRY.md`, `docs/LINTER.md`: the geometry encoding and the linter.
+- `docs/RUST_STYLE_GUIDE.md`: how Rust code is laid out and written.
+  Before writing or changing Rust code.

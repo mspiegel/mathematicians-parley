@@ -67,6 +67,6 @@ disallowed_methods = "allow"
 # the top of the file, not by a path from a crate root (`clippy.toml` sets the
 # longest path allowed).
 absolute_paths = "warn"
-# A module's `mod` lines come first, then its `use` lines, then everything
+# A module's `use` lines come first, then its `mod` lines, then everything
 # else (`clippy.toml` sets the groups).
 arbitrary_source_item_ordering = "warn"

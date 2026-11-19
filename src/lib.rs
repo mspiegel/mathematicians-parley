@@ -9,6 +9,8 @@
 //! tested, that nothing is taken as stated unrecorded, and an external
 //! verifier over every proof.
 
+pub use outcome::{Built, Checked, Decline, Declined, Problem, Route};
+
 pub mod checker;
 pub mod citing;
 pub mod corpus;
@@ -29,5 +31,3 @@ pub(crate) mod targets;
 pub(crate) mod text;
 pub mod threads;
 pub mod tools;
-
-pub use outcome::{Built, Checked, Decline, Declined, Problem, Route};

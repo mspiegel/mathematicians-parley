@@ -12,14 +12,6 @@
 //! What a method decides but cannot write is a defect at its line: nothing is
 //! taken as stated in its place.
 
-mod algebra;
-mod bounds;
-mod ordering;
-mod polynomials;
-mod rows;
-mod sums;
-mod values;
-
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 
@@ -47,6 +39,14 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::{binds, pf, t, take};
+
+mod algebra;
+mod bounds;
+mod ordering;
+mod polynomials;
+mod rows;
+mod sums;
+mod values;
 
 /// What an emitter asks of the elaborator: the scope, the facts a
 /// membership is answered from, whether it may search for a term not being

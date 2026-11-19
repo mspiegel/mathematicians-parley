@@ -16,6 +16,15 @@
 //! running said nothing, and nothing here noticed. A message put together
 //! elsewhere and handed to the report is not read this way.
 
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use parley::checker;
+use parley::checker::Clean;
+use parley::corpus::proof::METHODS;
+use parley::source::{Disk, Memory, Overlay, Source};
+use parley::threads::in_order_slots;
+
 mod calculations;
 mod citations;
 mod defines;
@@ -26,15 +35,6 @@ mod methods;
 mod numbers;
 mod reading;
 mod structure;
-
-use std::fs;
-use std::path::{Path, PathBuf};
-
-use parley::checker;
-use parley::checker::Clean;
-use parley::corpus::proof::METHODS;
-use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order_slots;
 
 /// The threads the cases are shared among: the slots nextest gives this
 /// binary's tests (`threads-required` in `.config/nextest.toml`).

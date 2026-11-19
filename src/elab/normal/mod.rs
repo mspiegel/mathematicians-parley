@@ -21,10 +21,6 @@
 //! What it cannot do for itself — say that an atom is a complex number, or
 //! that a term is not zero — it asks of an [`Oracle`].
 
-mod products;
-mod quotients;
-mod runs;
-
 use indexmap::IndexMap;
 use num_bigint::BigInt;
 use num_integer::Integer;
@@ -39,6 +35,10 @@ use crate::mm::spell::{Builder, Proof};
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Decline, Declined, Route};
 use crate::{binds, t, take};
+
+mod products;
+mod quotients;
+mod runs;
 
 const ADD: &str = "caddc";
 const MUL: &str = "cmul";

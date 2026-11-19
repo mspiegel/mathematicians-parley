@@ -5,6 +5,13 @@
 //! levels and their associativity all come from the database, so adding a
 //! notation is a database entry and never a change to this module.
 
+pub use grammar::{fits, holds, wanted_reading, Grammar, Sorts, TERM_SORTS};
+pub use node::{walk, ByShape, Node, NodeId, Sort, Whole};
+pub use notation::{
+    binds_tighter, categories_of, holes_in, patterns_of, Binds, Notation, Part,
+    Tighter, RAISED_HOLE,
+};
+
 pub mod grammar;
 pub(crate) mod library;
 pub mod node;
@@ -14,10 +21,3 @@ pub mod page;
 mod print;
 pub mod symbol;
 pub mod token;
-
-pub use grammar::{fits, holds, wanted_reading, Grammar, Sorts, TERM_SORTS};
-pub use node::{walk, ByShape, Node, NodeId, Sort, Whole};
-pub use notation::{
-    binds_tighter, categories_of, holes_in, patterns_of, Binds, Notation, Part,
-    Tighter, RAISED_HOLE,
-};

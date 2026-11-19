@@ -6,14 +6,6 @@
 //! agree are read from the tree. Text is made in one place, the printer
 //! (`print`), which brackets by precedence as Lean reads.
 
-pub mod bridges;
-pub mod file;
-pub mod forms;
-pub mod print;
-pub mod skeleton;
-pub mod tactic;
-pub mod term;
-
 pub use tactic::{
     ListReason, Location, Pattern, Proof, Rule, Tactic, TacticArg, TacticRef,
 };
@@ -21,3 +13,11 @@ pub use term::{
     Arg, Assoc, BoundForm, Brackets, ConstRef, CountForm, LeanType, Op, PostfixMark,
     PrefixMark, Quant, Source, Term, TermKind,
 };
+
+pub mod bridges;
+pub mod file;
+pub mod forms;
+pub mod print;
+pub mod skeleton;
+pub mod tactic;
+pub mod term;

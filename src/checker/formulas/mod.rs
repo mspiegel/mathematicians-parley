@@ -2,13 +2,6 @@
 //! fit, and that the methods which relate formulas are given the shapes
 //! they need.
 
-mod clashes;
-mod closures;
-mod ends;
-mod letters;
-mod relations;
-mod rows;
-
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
@@ -107,3 +100,10 @@ pub use self::rows::{
     check_method_cites_used, check_requires_combined, check_requires_manipulations,
     commuted_by_lines, held_by_lines, inspected, members_shown, reasons_under_lets,
 };
+
+mod clashes;
+mod closures;
+mod ends;
+mod letters;
+mod relations;
+mod rows;
