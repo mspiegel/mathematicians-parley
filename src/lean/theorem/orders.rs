@@ -2009,9 +2009,7 @@ impl<'a> Proof<'a> {
                 })
             })
         else {
-            return Route::left_out(
-                "a define of a function on other than a number system",
-            );
+            return Route::no("a define of a function on other than a number system");
         };
         let bodies: Vec<&Node> = read
             .iter()
@@ -2024,7 +2022,7 @@ impl<'a> Proof<'a> {
             ([body], _) => *body,
             ([], Some(arg)) => arg,
             _ => {
-                return Route::left_out(
+                return Route::no(
                     "a define whose value the checker did not read as one term",
                 )
             }

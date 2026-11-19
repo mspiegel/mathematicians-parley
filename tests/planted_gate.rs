@@ -268,6 +268,24 @@ fn cases() -> Vec<Case> {
             new: "ℕ, ℕ → ℕ: _1 - _2",
             expect: "would be computed in ℕ, where subtraction stops at 0",
         },
+        // Every theorem of the corpus is built by both backends: one either
+        // cannot build is red, never left out.
+        Case {
+            name: "a theorem the Metamath build cannot make",
+            stage: as_built_case,
+            file: "corpus/stdlib/sets.records",
+            old: "  metamath-proof unidm\n",
+            new: "  metamath-proof not yet implemented\n",
+            expect: "cannot be built",
+        },
+        Case {
+            name: "a theorem the Lean build cannot write",
+            stage: lean_fresh_case,
+            file: "corpus/stdlib/sets.records",
+            old: "  lean-proof  Set.union_self Y\n",
+            new: "  lean-proof  not yet implemented\n",
+            expect: "the Lean build cannot write this, which the checker accepts: ",
+        },
         Case {
             name: "a broken tactic in a Lean file",
             stage: lean_accepted_case,

@@ -669,7 +669,7 @@ impl<'a> Proof<'a> {
                     )
                 }
                 (None, Some(m)) => m,
-                (None, None) => return Route::left_out(SET_VALUED),
+                (None, None) => return Route::no(SET_VALUED),
             };
             return self.define_map(d, def, from, FunctionRead { domain, body }, depth);
         }

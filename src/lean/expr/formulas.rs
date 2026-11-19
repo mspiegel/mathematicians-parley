@@ -139,11 +139,11 @@ impl Writer<'_> {
         // X exists: X is one of ZF's sets, `LeanBridges.ZF.IsSet X`, of a
         // set of things or of integers, each of which the bridge makes a
         // set, ℕ of the axiom of infinity among them. Of other numbers,
-        // which the bridge does not make sets yet, it is left out.
+        // which the bridge does not make sets yet, the writer declines.
         if let (EXISTS, [set]) = (node.notation(), node.children.as_slice()) {
             if let Some(Members::Numbers(n)) = self.set_members(set) {
                 if n != Num::Int {
-                    return Route::left_out(format!(
+                    return Route::no(format!(
                         "{} exists, of numbers no ZF sets stand for yet",
                         self.grammar.print(set)
                     ));

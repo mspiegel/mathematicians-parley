@@ -187,7 +187,7 @@ if [ -f "$logs/build.out" ] && ! grep -q " 0 changed$" "$logs/build.out"; then
     echo "parley build rewrote artifacts: commit them and run this again"
     not_ready "artifacts-changed"
 fi
-if [ -f "$logs/build-lean.out" ] && ! grep -q " 0 changed," "$logs/build-lean.out"; then
+if [ -f "$logs/build-lean.out" ] && ! grep -q " 0 changed$" "$logs/build-lean.out"; then
     echo
     echo "parley build lean rewrote Lean files: commit them and run this again"
     not_ready "lean-files-changed"

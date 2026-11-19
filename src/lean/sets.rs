@@ -1466,7 +1466,7 @@ impl Writer<'_> {
             (ADDITIVE, "+") => "+",
             (MULTIPLICATIVE, "·") => "*",
             (_, other) => {
-                return Route::left_out(format!(
+                return Route::no(format!(
                     "{other} of a count, which ℕ∞ does not compute as the page does"
                 ))
             }

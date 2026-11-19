@@ -270,30 +270,19 @@ A step the writer could close several ways, with no fact to choose one by,
 is declined with that reason; a generated proof tries no ways in turn.
 `tests/lean_closers.rs` names a step where each rule decides.
 
-## Which theorems are in
+## Every theorem is in
 
-A theorem is in the Lean build when every notation its page uses, every
-library function it applies and every item it cites has a Lean form: a
-notation with a `lean-builds` field; a record whose `lean-proof` is Mathlib's
-proof, a bridge or `none`, or names a Parley proof that is itself in; a
-function whose definition has a `lean-builds` field; or a theorem of the
-corpus that is itself in. A record whose `lean-proof` is `not yet
-implemented` keeps out every theorem that cites it. A theorem is in, too, only when every letter it writes has a Lean type: a
-number, a set, a member of one, a map or function between sets, a property, a
-group or one of its elements, or a polynomial. Nothing lists the theorems; the build grows as fields are added. A
-theorem left out is printed with what keeps it out, `it writes notation
-set-operations, which has no lean-builds field`. A theorem that is in and that the
-writer cannot write is a gap of the Lean build, and the gate is red. A
-theorem the checker refuses, or a file Lean does not read, is a failure: it
-is not built, nor is what cites it, every such failure is reported in one
-run, and the build exits 1 (`ELABORATION.md`).
-
-The Lean build is to build every theorem the Metamath build does. Leaving
-theorems out (`lean::coverage`) is scaffolding for the build while it grows
-by fields, and goes once nothing is left out. Its rules are lookups of
-fields: a notation's `lean-builds`, an item's `lean-proof`, a function's
-definition. A limit of the writer's own is a decline the writer gives at the
-step, from the checker's record, not a reading coverage makes of the page.
+Every theorem of the corpus is in the Lean build, as every one is in the
+Metamath build. A theorem the writer cannot write is a gap: `parley build
+lean` lists it with the reason and exits 1, and the gate is red. That
+includes a theorem that cites an item whose `lean-proof` is `not yet
+implemented`, writes a notation with no `lean-builds` field, or writes a
+letter Lean has no type for. A theorem the checker refuses, or a file Lean
+does not read, is a failure: it is not built, nor is what cites it, every
+such failure is reported in one run, and the build exits 1
+(`ELABORATION.md`). The gate's planted cases hold both builds to this: a
+record whose `metamath-proof` or `lean-proof` is taken away turns the gate
+red.
 
 ## Number types
 
@@ -507,8 +496,8 @@ of a `let` gives `X ∈ V`. A citation meets that hypothesis with the citing
 statement's own fact for the letter it gives. The axioms that say a
 collection exists are proved once each in the bridge from Mathlib's ZF sets,
 and `ℕ exists` is said of the page's ℕ, the positive integers. Sets of reals
-and complex numbers are not yet among ZF's sets, so a page that says one
-exists is left out.
+and complex numbers are not yet among ZF's sets, so the writer declines a
+page that says one exists, and the build fails on it.
 
 f(x, y) of a function on pairs is `f (x, y)`, each coordinate at the type
 f's domain gives it. Σ(d ∈ ℕ : d divides n) d is the sum over the set the
@@ -683,7 +672,7 @@ A step proves what it can from the record, so a search is left only where
 no line states the fact.
 
 Where the record gives a step no way, the writer declines, and the theorem
-is left out of the build with the reason (`parley build lean` lists it).
+is a gap: `parley build lean` lists it with the reason, and the build fails.
 No proof is left to a general search tactic.
 
 | method | Lean |

@@ -735,7 +735,7 @@ impl<'a> Proof<'a> {
                     super::super::doc::Source::Mathlib,
                 ))
             }
-            _ => Route::left_out(format!(
+            _ => Route::no(format!(
                 "a map's domain where its map {map} is given no letter"
             )),
         })

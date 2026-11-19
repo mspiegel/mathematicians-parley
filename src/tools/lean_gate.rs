@@ -90,8 +90,7 @@ pub fn fresh_in(source: &dyn Source) -> Said {
     };
     let mut said = Said::default();
     // A lookup the table does not answer is a file a fresh build writes
-    // otherwise, as one that differs is: said with the rest, the theorems
-    // the build leaves out among them.
+    // otherwise, as one that differs is: said with the rest.
     if let Some(why) = unanswered(&made) {
         said.complained += &format!("{}:1  {why}\n", crate::lean::modules::TABLE);
     }
@@ -114,20 +113,22 @@ pub fn fresh_in(source: &dyn Source) -> Said {
             said.complained += &format!("{path} is no longer made by the build\n");
         }
     }
+    // Every theorem of the corpus is built in Lean, as in Metamath: one the
+    // writer cannot write, or one not built because of a failure, fails the
+    // gate.
     for (name, why) in &made.gaps {
         said.complained += &format!(
-            "{name}: the Lean build cannot yet write this, which the checker accepts: {why}\n"
+            "{name}: the Lean build cannot write this, which the checker accepts: {why}\n"
         );
+    }
+    for (name, why) in &made.failed {
+        said.complained += &format!("{name}: not built because of a failure: {why}\n");
     }
     if !said.complained.is_empty() {
         said.printed += "run parley build lean\n";
         said.status = 1;
     }
-    said.printed += &format!(
-        "{} files, {} theorems left out of the Lean build\n",
-        made.files.len(),
-        made.left_out.len()
-    );
+    said.printed += &format!("{} files\n", made.files.len());
     said
 }
 

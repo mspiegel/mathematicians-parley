@@ -1,11 +1,12 @@
-//! `parley build lean`: every theorem the Lean build covers, written as a
-//! Lean file over Mathlib under `lean/`.
+//! `parley build lean`: every theorem of the corpus, written as a Lean file
+//! over Mathlib under `lean/`.
 //!
 //! The build writes three kinds of file. Each module of the library with a
 //! record that has a `lean-proof` field becomes `lean/Parley/Items/…`, a theorem
-//! for each sentence an item concludes. Each theorem the build covers
-//! (`lean::coverage`) becomes a file of its own, which imports the items
-//! and the theorems it cites. `lean/Parley.lean` imports them all, so that
+//! for each sentence an item concludes. Each theorem becomes a file of its
+//! own, which imports the items and the theorems it cites. A theorem the
+//! writer cannot write is a gap, and the build fails, as the Metamath
+//! build does on an artifact it cannot make. `lean/Parley.lean` imports them all, so that
 //! `lake build` checks exactly what this build made. A generated file the
 //! build no longer makes is removed. The Lean bridges, written by hand, are
 //! in `corpus/lean-bridges/`, a library of their own that every file
@@ -22,7 +23,6 @@ use indexmap::IndexMap;
 use super::{write_changed, Written};
 use crate::checker::CheckedCorpus;
 use crate::corpus::{cited_items, RecordKind};
-use crate::lean::coverage::{coverage, Covered};
 use crate::lean::doc::bridges::BridgeModule;
 use crate::lean::doc::file::{DeclProof, Declaration, Lookup};
 use crate::lean::doc::{Source, TermKind};
@@ -40,8 +40,8 @@ use crate::source::Disk;
 /// written by hand: the module importing them all.
 pub const LIBRARY: &str = "LeanBridges";
 
-/// What a Lean build makes: each file's path and text, the theorems left
-/// out and why, and what could not be written.
+/// What a Lean build makes: each file's path and text, and what could not
+/// be written and why.
 #[derive(Default)]
 pub struct Made {
     /// Each file, by its path from the root of the tree.
@@ -54,10 +54,8 @@ pub struct Made {
     pub unanswered: BTreeSet<Lookup>,
     /// Everything the files write whose modules come from the table.
     pub looked_up: BTreeSet<Lookup>,
-    /// Each theorem left out, and why.
-    pub left_out: IndexMap<String, String>,
-    /// Each item or theorem in the build that could not be written, and
-    /// why: a gap of the Lean writer's.
+    /// Each item or theorem that could not be written, and why: a gap of
+    /// the Lean writer's.
     pub gaps: IndexMap<String, String>,
     /// Each theorem or file not built because of a failure, and why: the
     /// checker refuses it, Lean does not read what the writer wrote of it,
@@ -77,25 +75,17 @@ pub struct Made {
 }
 
 impl Made {
-    /// What the writer declined of the item or theorem `name`: left out
-    /// where it is a form the build does not cover yet
-    /// (`Decline::left_out`), and a gap otherwise.
+    /// What the writer declined of the item or theorem `name`: a gap.
     fn declined(&mut self, name: String, d: &crate::outcome::Decline) {
-        match d.leaves_out() {
-            true => self.left_out.insert(name, d.reason()),
-            false => self.gaps.insert(name, d.reason()),
-        };
+        self.gaps.insert(name, d.reason());
     }
 
     /// The theorem `name` not written because it cites `cited`, which is
-    /// not: as `cited` was, failed, left out or a gap.
+    /// not: as `cited` was, failed or a gap.
     fn not_built_after(&mut self, name: String, cited: &str) {
         if self.failed.contains_key(cited) {
             self.failed
                 .insert(name, format!("it cites {cited}, which was not built"));
-        } else if self.left_out.contains_key(cited) {
-            self.left_out
-                .insert(name, format!("{cited} is not in the Lean build"));
         } else {
             self.gaps.insert(
                 name,
@@ -275,13 +265,8 @@ pub fn make(
                 items.insert(full, it);
             }
             // A phrase's definition is made from its define, its proof
-            // `Iff.rfl` wherever the meaning can be stated: one that cannot
-            // is left out, and what cites it with it (`coverage`). Any
-            // other record that gives a Lean proof claims its statement is
-            // one the build writes.
-            Route::Declined(d) if record.phrase.is_some() => {
-                made.left_out.insert(full, d.reason());
-            }
+            // `Iff.rfl`. Every record that gives a Lean proof, a phrase's
+            // included, claims its statement is one the build writes.
             Route::Declined(d) => made.declined(full, &d),
         }
     }
@@ -325,10 +310,8 @@ pub fn make(
         made.imports.insert(path_of_module(module), imports);
     }
 
-    // The theorems the build covers, first as items a citation names. A
-    // record the Lean build proves by a Parley proof is cited as that proof.
-    let stated: BTreeSet<String> = items.keys().cloned().collect();
-    let covered = coverage(checked, &templates, &stated);
+    // Every theorem, first as an item a citation names. A record the Lean
+    // build proves by a Parley proof is cited as that proof.
     let mut proves: IndexMap<&str, Vec<String>> = IndexMap::new();
     for record in &checked.corpus.records {
         let proof = record
@@ -341,21 +324,16 @@ pub fn make(
     let mut theorems = Vec::new();
     for thm in &checked.corpus.theorems {
         let name = thm.qualified();
-        match covered.get(&name) {
-            Some(Covered::In) => {}
-            Some(Covered::Out { reason }) => {
-                made.left_out.insert(name, reason.clone());
-                continue;
-            }
-            Some(Covered::Failed { reason }) => {
-                made.failed.insert(name, reason.clone());
-                continue;
-            }
-            None => continue,
-        }
         let Some(rec) = checked.theorems.get(&name) else {
+            made.failed
+                .insert(name, "the checker has not read it".to_string());
             continue;
         };
+        if !rec.problems.is_empty() {
+            made.failed
+                .insert(name, "the checker refuses it".to_string());
+            continue;
+        }
         let sources = Sources {
             checked,
             templates: &templates,
@@ -542,9 +520,8 @@ pub fn make(
             // writes, a theorem the writer declined by the module it would
             // have been, or the module itself where it is the library's.
             let declined = made
-                .left_out
+                .failed
                 .keys()
-                .chain(made.failed.keys())
                 .chain(made.gaps.keys())
                 .find(|t| module_of(t) == import)
                 .cloned();
@@ -653,11 +630,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     };
     if let Some(name) = wanted {
         if !made.files.contains_key(&path_of_module(&module_of(name))) {
-            let why = made
-                .left_out
-                .get(name)
-                .or(made.gaps.get(name))
-                .or(made.failed.get(name));
+            let why = made.gaps.get(name).or(made.failed.get(name));
             said.complained = match why {
                 Some(why) => format!("{name} is not in the Lean build: {why}\n"),
                 None => format!("no theorem {name}\n"),
@@ -695,12 +668,6 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
             }
         }
     }
-    if !made.left_out.is_empty() {
-        said.printed += "\nleft out of the Lean build:\n";
-        for (name, why) in &made.left_out {
-            said.printed += &format!("  {name}: {why}\n");
-        }
-    }
     // An item that writes a term in another form than the line it proves
     // leaves Lean a search to close the step: the writer is to convert it
     // (`doc::forms`), and the build fails until it does.
@@ -713,10 +680,10 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
         failed = true;
     }
     if !made.gaps.is_empty() {
-        said.printed +=
-            "\nthe Lean build cannot yet write these, which the checker accepts:\n";
+        said.complained +=
+            "\nthe Lean build cannot write these, which the checker accepts:\n";
         for (name, why) in &made.gaps {
-            said.printed += &format!("  {name}: {why}\n");
+            said.complained += &format!("  {name}: {why}\n");
         }
         failed = true;
     }
@@ -727,11 +694,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
         }
         failed = true;
     }
-    said.printed += &format!(
-        "\n{} built, {changed} changed, {} left out\n",
-        made.files.len(),
-        made.left_out.len()
-    );
+    said.printed += &format!("\n{} built, {changed} changed\n", made.files.len());
     if failed {
         said.status = 1;
     }

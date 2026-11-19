@@ -277,7 +277,7 @@ impl Writer<'_> {
             self.letters.get(f.text.as_str()),
             Some(LetterType::Function { to: Num::Real, .. })
         ) {
-            return Route::left_out(format!("{} is no function into ℝ", f.text));
+            return Route::no(format!("{} is no function into ℝ", f.text));
         }
         let Some(domain) = self.domain_of(&f.text) else {
             return Route::no(format!(
@@ -514,7 +514,7 @@ impl Writer<'_> {
         let map = derived
             && matches!(self.function_type(f), Route::Built((Num::Real, Num::Real)));
         if !letter && !map {
-            return Route::left_out(format!(
+            return Route::no(format!(
                 "{} is no function into ℝ",
                 self.grammar.print(f)
             ));

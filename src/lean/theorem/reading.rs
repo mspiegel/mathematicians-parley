@@ -328,7 +328,7 @@ impl<'a> Proof<'a> {
                 .iter()
                 .any(|r| self.header_function_named(r).is_some())
         {
-            return Route::left_out(
+            return Route::no(
                 "a step cites a function the header lets through a method, which its equation for every x is not put in by",
             );
         }

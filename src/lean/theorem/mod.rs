@@ -272,7 +272,7 @@ fn statement(
     if read != written {
         return match untyped {
             Some(line) => {
-                Route::left_out(format!("let {line}, a line Lean has no type for yet"))
+                Route::no(format!("let {line}, a line Lean has no type for yet"))
             }
             None => Route::no("a hypothesis the checker did not read"),
         };
