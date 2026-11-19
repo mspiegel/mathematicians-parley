@@ -175,7 +175,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   says, `Straight` or `Turned`, compared as a
   citation's facing is (`citations::facing_of`), by the link's line. Lean
   uses the line as it stands or turned round, `linear_combination line` or
-  `-line`, `exact` or `.symm`.
+  `-line`, `exact` or `.symm`. `None` says the line gives no equation or no
+  side meets; the entry is left out only for a link that is not placed. A
+  chain going down is built going up (`Chain::falls`), so a writer that
+  builds it rising reads the facing of the link it builds the other way
+  round.
 - `link_meetings`: for each link of a calculation that cites a line, how
   the line meets the link where not as written (`Known::alike_how`), its
   identity elements dropped. Lean proves the link through it, `simpa only
@@ -197,9 +201,16 @@ line's own. A list holds one entry for each step, in the proof's order.
   it holds which way the line writes it beside the step's (`line_facing`).
   Where writing the theorem's outside defines out makes the line the claim,
   it holds no place. A calculation row's or substitute row's reason is read
-  with its step's requires lines. A substitution found only in
-  the standard order is not recorded, and the step keeps its ways. Of an
-  equation a define gives, it holds which way the step writes it beside the
+  with its step's requires lines. Every `substitute` step is recorded;
+  where an equation's place in the line it is taken from stands in no
+  sentence or part, `from` is empty and `equation` is the fact. Whether the
+  putting makes the claim or the claim's other form (`rules::OTHER_FORMS`)
+  is `made_other_form`; a backend carries the other form back to the claim.
+  What it is put into may be something the line says that no sentence or
+  part of it states, a part of a "for all" read at a block's letter or a
+  set's members (`SubstitutedInto::Unplaced`); `start` is what it says, and
+  Lean writes no putting into it.
+  Of an equation a define gives, it holds which way the step writes it beside the
   define's own (`define_facing`), and Lean turns the define's hypothesis by
   it. A place the line writes with a notation's parts in another order than
   the equation's side, |BA| for |AB|, is still a place, and each such flip
@@ -225,15 +236,34 @@ line's own. A list holds one entry for each step, in the proof's order.
   that meeting, arithmetic left, or Lean's casts ask more.
 - `define_cases`: for each step citing a define by cases whose value it
   claims in one case, the conditions it passes to reach that case, in the
-  define's order. Each condition holds, for the case it gives, or fails,
+  define's order. A step citing a define by recursion has an entry too, for
+  the case its rule by cases takes, and so does a calculation link citing a
+  define by cases, by the link's line, and so does a `substitute` step, or a
+  requires line whose reason is one, that takes its equation from a define by
+  cases. `turned` says the define's name is on the claim's right side. Each condition holds, for the case it gives, or fails,
   for the cases after it, with where a line the step cites says so
   (`FirstAt`). It also records how the case's value meets the claim's other
   side. The check that the step's claim is the define's value reads the
   step the same way (`value_given`). Lean puts each condition by
   `if_pos h` or `if_neg h`, h that line.
+- `define_sides`: of each step citing a define of a name, a function or a
+  recursion whose claim is one equation, which side has the define at its
+  head (`DefineSide`): left, right, or inside a side, as `p` in
+  `∫(0 to 1) p(t) dt`. The Metamath writer reads the equation by that side,
+  and an inside define where it stands.
+- `define_facings`: of each calculation link citing a define of a name, and
+  each step citing one, which way it faces the define's equation, by the
+  link's line or the step's line. A transitivity chain's link carries the
+  same fact as `ChainLink::define_facing`. A define of a function or a
+  recursion says no one equation and has none.
+- `substitute_ends`: of each `substitute` step with rows, where the first
+  row stands in the line it cites, and how the last row meets the claim,
+  with whether it meets it as the claim's other form.
 - `define_domains`: for each step citing a function a define lets on a
-  domain, or substituting the define's equation at an argument, what says
-  the argument is in the domain (`DomainSaid`): a line the step cites, else
+  domain, or substituting the define's equation at an argument, each
+  application of that function in the claim or the equation, in order,
+  with what says its argument is in the domain (`AppliedDomain`,
+  `DomainSaid`): a line the step cites, else
   the `let` line introducing the argument (`Line`); or, for a claim said of
   every member of a set inside the domain, the member itself (`Member`).
   Lean puts the function's equation at that argument, `hD1 _ h`, h that

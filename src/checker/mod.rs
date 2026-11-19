@@ -926,9 +926,15 @@ fn theorem_record(
     record.link_places = links.places;
     record.link_facings = links.facings;
     record.define_facings = formulas::define_facings(thm, &c.known[i]);
-    record.define_sides = formulas::define_sides(thm, &c.known[i]);
+    record.define_sides = formulas::define_sides(thm, c.library, &c.known[i]);
     record.link_meetings = links.meetings;
     record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
+    record.define_cases.extend(citations::substitute_cases(
+        thm,
+        c.library,
+        &c.known[i],
+        &record.substituted,
+    ));
     record.substituted_rows = citations::row_substitutions(thm, c.library, &c.known[i]);
     record.define_domains =
         citations::define_domains(thm, c.library, &c.known[i], &record.substituted);

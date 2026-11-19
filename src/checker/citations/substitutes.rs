@@ -3,7 +3,7 @@
 use std::iter;
 
 use super::*;
-use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
+use crate::checker::record::{FirstAt, Substituted, SubstitutedInto, TakenCase};
 use crate::corpus::proof;
 use crate::matching;
 use crate::matching::{Flip, Meeting, SubstitutionPlaces};
@@ -317,8 +317,9 @@ pub(super) fn substitution_reading(
     // line HK` for `Q is not on line HK`, is recorded with that form as what
     // the putting makes, which a backend that writes the two alike closes
     // the claim by; the meeting says the claim is respelt.
-    let found = match &start.into {
-        Some(into) => put_found(&start.start, &way.aim, equation, library, known)
+    let found = {
+        let into = start.into.clone().unwrap_or(SubstitutedInto::Unplaced);
+        put_found(&start.start, &way.aim, equation, library, known)
             .map(|(put, meeting)| match way.claimed {
                 true => (put, meeting, start.start.clone()),
                 false => (put, meeting.respelt(true), start.start.clone()),
@@ -339,8 +340,7 @@ pub(super) fn substitution_reading(
                 made_other_form: !way.claimed,
                 define_facing,
                 line_facing,
-            }),
-        _ => None,
+            })
     };
     Some(SubstitutionReading { faults, found })
 }
@@ -379,6 +379,50 @@ pub fn substitutions(
             };
             if let (true, Some(found)) = (reading.faults.is_empty(), reading.found) {
                 out.insert(at.just.line, found);
+            }
+        }
+    }
+    out
+}
+
+/// Of each `substitute` step, and each requires line whose reason is one,
+/// that takes its equation from a define by cases, the case the equation
+/// takes (`CheckedTheorem::define_cases`), as a step citing the define is read
+/// (`formulas::case_of`); by the line of the step's justification.
+pub fn substitute_cases(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    substituted: &IndexMap<usize, Substituted>,
+) -> IndexMap<usize, TakenCase> {
+    let wrappers = super::super::formulas::wrappers(library.env);
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let reasons = step
+            .requires
+            .iter()
+            .filter_map(|req| requires_read_as_step(step, req));
+        for at in iter::once(step.clone()).chain(reasons) {
+            let Some(recorded) = substituted.get(&at.just.line) else {
+                continue;
+            };
+            let Some(source) = at.just.source.as_ref().map(|s| s.named().to_string())
+            else {
+                continue;
+            };
+            if !thm.defines.iter().any(|d| d.label == source) {
+                continue;
+            }
+            let parts = known.parts(&at, library);
+            if let Some(taken) = super::super::formulas::case_of(
+                &at,
+                &recorded.equation,
+                &parts.facts,
+                &wrappers,
+                library,
+                known,
+            ) {
+                out.insert(at.just.line, taken);
             }
         }
     }

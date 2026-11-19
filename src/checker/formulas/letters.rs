@@ -289,7 +289,7 @@ pub(super) fn negates_how(
     known.alike_how(&a.children[0], b)
 }
 
-pub(super) fn wrappers(env: Env) -> FxIndexSet<NotationId> {
+pub(in crate::checker) fn wrappers(env: Env) -> FxIndexSet<NotationId> {
     env.g
         .notations
         .iter()

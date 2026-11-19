@@ -303,6 +303,7 @@ impl<'a> Elaborator<'a> {
                             step,
                             &part,
                             link.define_facing,
+                            r,
                             scope,
                             facts,
                         )?

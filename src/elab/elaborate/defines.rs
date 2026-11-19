@@ -3,7 +3,7 @@
 use std::mem;
 
 use super::*;
-use crate::checker::record::{DefineSide, Facing};
+use crate::checker::record::{DefineSide, DomainSaid, Facing};
 use crate::mm::spell::Binds;
 
 impl<'a> Elaborator<'a> {
@@ -148,7 +148,7 @@ impl<'a> Elaborator<'a> {
                     (Facing::Turned, true) => Facing::Straight,
                 }
             });
-            return match self.define_makes(step, &wanted, faces, scope, facts)? {
+            return match self.define_makes(step, &wanted, faces, cite, scope, facts)? {
                 Built(p) => Ok(p),
                 Declined(d) => Err(self.defect(
                     step.line,
@@ -297,12 +297,14 @@ impl<'a> Elaborator<'a> {
     /// letter, as a define of a count read its index before the step's lines
     /// took theirs; or two sides the standard form reads as one, the name
     /// read as its rule. `faces` is which way `wanted` faces the define's
-    /// own equation, as the checker recorded it.
+    /// own equation, as the checker recorded it, and `label` is the define.
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn define_makes(
         &mut self,
         step: &Step,
         wanted: &Rpn,
         faces: Option<Facing>,
+        label: &str,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
@@ -310,9 +312,13 @@ impl<'a> Elaborator<'a> {
         let known = self.with_cited(Some(step), scope, &supplied, None)?;
         // Where the claim faces an equation the define says of a name
         // (`CheckedTheorem::define_facings`), the equation the elaborator
-        // holds for it may spell a bound letter another way than the page,
-        // which `held_rebound` carries across; the claim is otherwise the two
-        // sides read by `same`.
+        // holds for it, the facts resting on the define alone, may spell a
+        // bound letter another way than the page, which `held_rebound`
+        // carries across; the claim is otherwise the two sides read by
+        // `same`.
+        let own = known.filtered(|_, p| {
+            !p.origin.is_empty() && p.origin.iter().all(|o| o == label)
+        });
         if let Some(facing) = faces {
             let (target, flip) = match facing {
                 Facing::Straight => (wanted.clone(), None),
@@ -321,7 +327,7 @@ impl<'a> Elaborator<'a> {
                     None => (wanted.clone(), None),
                 },
             };
-            if let Some(p) = self.held_rebound(&known, &target, scope)? {
+            if let Some(p) = self.held_rebound(&own, &target, scope)? {
                 return Ok(Built(match flip {
                     None => p,
                     Some(flip) => {
@@ -340,6 +346,71 @@ impl<'a> Elaborator<'a> {
             &offered,
             Some(step),
         )
+    }
+
+    /// ( where -> at ∈ domain ) for the argument of a function a define lets
+    /// on the domain, in the step being elaborated. Where the checker
+    /// recorded a line that says it (`CheckedTheorem::applied_domains`,
+    /// `define_domains`, `DomainSaid::Line`), that line's statement is the
+    /// membership, carried to the domain as the define spells it by `same`.
+    /// Where the argument is in the domain by the claim's member, a sum's
+    /// range or a limit's index, the membership is settled from what the
+    /// step holds.
+    pub(crate) fn domain_membership(
+        &mut self,
+        at: &Rpn,
+        domain: &Rpn,
+        scope: &Rpn,
+        held: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let wanted = t!(at, domain, "wcel");
+        let line = self
+            .step_now
+            .and_then(|i| self.thm.steps.get(i))
+            .map(|s| s.just.line);
+        let mut places = Vec::new();
+        if let Some(line) = line {
+            let recorded: Vec<_> = self
+                .checked
+                .applied_domains
+                .get(&line)
+                .into_iter()
+                .chain(self.checked.define_domains.get(&line))
+                .flatten()
+                .cloned()
+                .collect();
+            for one in recorded {
+                // An argument a sum or a "for all" binds has no kernel name
+                // here, and is in the domain by that binder, not by a line.
+                let DomainSaid::Line(place) = one.said else {
+                    continue;
+                };
+                if self.term(&one.arg)? == *at {
+                    places.push(place);
+                }
+            }
+        }
+        for place in places {
+            let stated = self.recorded_statement(&place)?;
+            let Some(proof) = self.held(held, &stated, scope)? else {
+                continue;
+            };
+            if stated == wanted {
+                return Ok(Built(proof));
+            }
+            if let Built(alike) = self.same(
+                &self.to_term(&stated),
+                &self.to_term(&wanted),
+                scope,
+                held,
+                None,
+            )? {
+                return Ok(Built(
+                    pf!(self.b; scope, stated, wanted, proof, alike, "mpbid"),
+                ));
+            }
+        }
+        self.settle(&self.to_term(&wanted), scope, held, 3, None, None)
     }
 
     /// A step citing a define: the name, applied or not, is its value, and
@@ -380,7 +451,8 @@ impl<'a> Elaborator<'a> {
         };
         if side == DefineSide::Inside {
             let faces = self.checked.define_facings.get(&step.just.line).copied();
-            return self.define_makes(step, term, faces, scope, facts);
+            let label = step.just.defined.clone().unwrap_or_default();
+            return self.define_makes(step, term, faces, &label, scope, facts);
         }
         let supplied = self.supplied(Some(step), scope, facts)?;
         let held = self.with_cited(Some(step), scope, &supplied, None)?;

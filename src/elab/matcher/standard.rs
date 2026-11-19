@@ -215,14 +215,7 @@ impl<'a> Elaborator<'a> {
         let tie = self.to_term(&t!(t!(x, "cv", a, "wceq"), t!(b, c, "wceq"), "wi"));
         let instance =
             take!(self.prove_essential(&tie, &Rpn::default(), &Facts::new())?);
-        let member = take!(self.settle(
-            &self.to_term(&t!(a, d, "wcel")),
-            where_,
-            held,
-            3,
-            None,
-            None
-        )?);
+        let member = take!(self.domain_membership(&a, &d, where_, held)?);
         let a_set = take!(self.settle(
             &self.to_term(&t!(c, "cvv", "wcel")),
             where_,

@@ -1226,6 +1226,10 @@ pub enum SubstitutedInto {
     /// its reason proves it, put into the row before it makes the row
     /// (`CheckedTheorem::substituted_rows`).
     RowAbove,
+    /// Something the line says that no sentence or part of it states, a
+    /// part of a "for all" read at a block's letter or a set's members;
+    /// `Substituted::start` is what it says.
+    Unplaced,
 }
 
 /// How a `substitute` step or calculation row makes its claim: the

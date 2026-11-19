@@ -1667,16 +1667,56 @@ pub fn define_cases(
 /// Which side of the equation each step citing a define of a name or a
 /// function has the define at (`CheckedTheorem::define_sides`), by the
 /// step's line; `check_define_citation` reads the same claim. The name is a
-/// side's head where the side is the name or the name applied.
-pub fn define_sides(thm: &Theorem, known: &Known) -> IndexMap<usize, DefineSide> {
+/// side's head where the side is the name or the name applied; where both
+/// sides are, `G(0) = F(0 + 1)` of a recursion, the side whose value the
+/// define gives as the other side (`recursion_taken`, `value_given`).
+pub fn define_sides(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, DefineSide> {
+    let wrappers = wrappers(library.env);
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
         let label = step.just.defined.as_deref().unwrap_or_default();
+        let parts = known.parts(step, library);
         // A recursion names each sequence it defines.
-        let names = match recursion_cited(thm, label) {
-            Some((recursion, _)) => recursion.names,
+        let (names, by_value) = match recursion_cited(thm, label) {
+            Some((recursion, line)) => {
+                let turned = recursion_taken(
+                    &parts.claims,
+                    &parts.facts,
+                    &recursion,
+                    line,
+                    known,
+                    &wrappers,
+                    &library.ctx.equations,
+                )
+                .ok()
+                .map(|taken| taken.turned);
+                (recursion.names, turned)
+            }
             None => match define_named(thm, label, known.env.scopes) {
-                Some(name) => vec![name],
+                Some(name) => {
+                    let turned = match parts.claims.as_slice() {
+                        [claim]
+                            if library.ctx.equations.contains(&claim.notation()) =>
+                        {
+                            match value_given(
+                                &claim.children[0],
+                                &claim.children[1],
+                                &parts.facts,
+                                &wrappers,
+                                known,
+                            ) {
+                                Given::Taken { turned, .. } => Some(turned),
+                                _ => None,
+                            }
+                        }
+                        _ => None,
+                    };
+                    (vec![name], turned)
+                }
                 None => continue,
             },
         };
@@ -1698,10 +1738,11 @@ pub fn define_sides(thm: &Theorem, known: &Known) -> IndexMap<usize, DefineSide>
                 .is_some_and(|f| f.is_name() && names.contains(&f.text.to_string())),
             _ => side.is_name() && names.contains(&side.text.to_string()),
         };
-        let side = match (heads(left), heads(right)) {
-            (true, _) => DefineSide::Left,
-            (false, true) => DefineSide::Right,
-            (false, false) => DefineSide::Inside,
+        let side = match (heads(left), heads(right), by_value) {
+            (true, true, Some(true)) => DefineSide::Right,
+            (true, _, _) => DefineSide::Left,
+            (false, true, _) => DefineSide::Right,
+            (false, false, _) => DefineSide::Inside,
         };
         out.insert(step.just.line, side);
     }
@@ -1760,7 +1801,7 @@ pub fn define_facings(thm: &Theorem, known: &Known) -> IndexMap<usize, Facing> {
 /// `value_given` reads it, with each condition it passes placed among the
 /// lines `step` cites (`fact_placed`); None where the claim is no equation,
 /// takes no case, or passes no condition.
-fn case_of(
+pub(in crate::checker) fn case_of(
     step: &Step,
     claim: &Node,
     facts: &[Node],

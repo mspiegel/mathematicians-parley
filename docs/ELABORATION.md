@@ -1622,11 +1622,35 @@ The checker records, for each step, the page facts it settled
   (`Exhibit::shown`);
 - for an obtain, which part of the body each part of each sentence is
   (`obtained_parts`);
-- for a cited record, the line supplying each hypothesis (`Cited::supplied`).
+- for a cited record, the line supplying each hypothesis (`Cited::supplied`);
+- how a calculation link meets the line it cites (`link_meetings`) and which
+  way it faces it (`link_facings`), read with the chain's direction: a chain
+  going down is built going up (`Chain::falls`);
+- of a step citing a define, which side has the define at its head
+  (`define_sides`), which way a link, step or chain link faces the define's
+  equation (`define_facings`), and, for a define by cases or by recursion,
+  whether each condition passed holds or fails (`define_cases`), where a
+  `substitute` step takes its equation from a define by cases as well;
+- of a `substitute` step, which way the equation faces the line it is taken
+  from (`line_facing`) or the define (`define_facing`), what it is put into
+  (`start`, `into`), which way round it is put (`put.turned`), whether an
+  identity element is dropped (`meeting`), and whether it makes the claim's
+  other form (`made_other_form`); of one with rows, where the first row
+  stands and how the last meets the claim (`substitute_ends`).
 
 A recorded fact is read where it stands (`FirstAt::written`) and matched to
 what the line says in set.mm up to a renamed bound variable. A fact said once,
-or written by no line, is settled as before.
+or written by no line, is settled as before. Three things stay with the
+elaborator. `congruence` walks the term a substitution puts the equation
+into against the aim, which the record fixes, and builds the proof at each
+place they differ. `define_makes` carries a define's equation, the facts
+resting on that define alone, by `held_rebound` where the record gives a
+facing, because the elaborator's stored equation may bind a letter the page
+spells otherwise. And the membership of an applied function's argument in its
+domain is taken from the line the record names (`applied_domains`,
+`define_domains`, `DomainSaid::Line`); where the argument is in the domain by
+the claim's member, a sum's range or a limit's index, or the line is not held
+there, it is settled from what the step holds.
 
 What stays the elaborator's is every question about set.mm terms: which lemma
 carries one statement to another, how a lemma's antecedents pair with the

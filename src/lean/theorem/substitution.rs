@@ -496,6 +496,9 @@ impl<'a> Proof<'a> {
             whole_was,
         };
         match &rec.into {
+            SubstitutedInto::Unplaced => {
+                Route::no("a putting into a statement no part of the line states")
+            }
             SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
                 self.putting_into_line(putting, &closing)
             }
@@ -1327,6 +1330,11 @@ impl<'a> Proof<'a> {
         let mut inner = self.writer.with_letters(letters);
         self.motive_knows(&mut inner, letter, was, now);
         let made = match &rec.into {
+            SubstitutedInto::Unplaced => {
+                return Route::no(
+                    "a putting into a statement no part of the line states",
+                );
+            }
             SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
                 let into = match (&rec.into, row) {
                     (SubstitutedInto::Line(at), _) => match self.put_into_line(at) {

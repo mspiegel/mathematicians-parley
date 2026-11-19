@@ -63,7 +63,7 @@ pub use self::clashes::{
 pub(super) use self::clashes::{claim_parts, one_formula_parts, FormulaPart};
 use self::closures::*;
 pub(super) use self::closures::{
-    arithmetic_worked, fact_placed, real_worked, RealWorked, Worked,
+    arithmetic_worked, case_of, fact_placed, real_worked, RealWorked, Worked,
 };
 pub use self::closures::{
     check_chain_links, check_closed_arithmetic, check_closed_by_arithmetic,
@@ -80,6 +80,7 @@ pub use self::ends::{
     check_cases_cited, check_chain_congruences, check_ends_numbered,
     check_place_systems, ended_meetings, ends_asking, ends_unnumbered, places_at, Link,
 };
+pub(super) use self::letters::wrappers;
 use self::letters::*;
 pub use self::letters::{
     check_both_directions, check_claimed_cases, check_contradicting,

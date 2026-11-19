@@ -78,7 +78,7 @@ pub(super) use self::repeated::membership_said_once;
 pub use self::repeated::{check_from_lines, check_repeated, check_surplus};
 pub use self::substitutes::{
     check_obtained, check_obtained_claims, check_substitutes, obtained_parts,
-    row_substitutions, sentence_substitutions, substitutions,
+    row_substitutions, sentence_substitutions, substitute_cases, substitutions,
 };
 use self::suppliers::*;
 pub use self::suppliers::{bound_there, check_conclusion, check_hypotheses, searched};
