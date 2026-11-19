@@ -1,5 +1,9 @@
 //! Proof methods: calculations and cited items.
 
+use super::super::doc::{forms, LeanType, Op, Source, TermKind};
+use super::super::expr::Members;
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
 use crate::notations::{EMPTY_SET, PROPERTY_OF, THERE_IS_SOME};
 
@@ -175,7 +179,6 @@ impl<'a> Proof<'a> {
             links,
         });
         if met_after {
-            use super::super::tactics as t;
             return Route::Built(super::super::doc::Proof::Block(vec![
                 t::name_h(&t::by_term(super::super::doc::Proof::Block(block))),
                 t::exact_mod_cast(t::hyp("h")),
@@ -232,7 +235,6 @@ impl<'a> Proof<'a> {
             };
             // The chain named `h` as its own block, `calc` laid out on lines
             // of its own, then turned and closing the claim.
-            use super::super::tactics as t;
             return Route::Built(super::super::doc::Proof::Block(vec![
                 t::name_h(&t::by_term(super::super::doc::Proof::Block(block))),
                 t::call(
@@ -751,7 +753,6 @@ impl<'a> Proof<'a> {
         binders: &[Binder],
         binding: &crate::matching::Binding,
     ) -> ThingsGiven {
-        use super::super::expr::Members;
         let mut given = ThingsGiven::default();
         for b in binders {
             let Binder::Letter { page, ty, .. } = b else {
@@ -1299,7 +1300,6 @@ impl<'a> Proof<'a> {
         // names says is real, F(p/q) of `F(p/q) ∈ ℝ`, the item is taken at
         // ℝ, each such value the real number its line gives
         // (`letter_given`).
-        use super::super::templates::Num;
         if g.ordered && at == Num::Complex {
             let complex_values_real = sentence.binders.iter().all(|b| {
                 let Binder::Letter {
@@ -1364,8 +1364,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::doc::{Op, Proof, Source, TermKind};
-        use super::super::tactics as t;
         let TermKind::Infix { op, lhs, rhs } = &bare_term(wanted).kind else {
             return None;
         };
@@ -1419,7 +1417,7 @@ impl<'a> Proof<'a> {
         let joined =
             applied_to(fields(t::bracket(spec), &["trans"]), t::symm(t::hyp("hw")));
         let injective = applied_to(t::lemma("Int.cast_injective"), joined);
-        Some(t::by_term(Proof::By(Tactic::Seq(vec![
+        Some(t::by_term(doc::Proof::By(Tactic::Seq(vec![
             Tactic::Obtain {
                 names: vec!["w".to_string(), "hw0".to_string(), "hw".to_string()],
                 says: None,
@@ -1428,7 +1426,7 @@ impl<'a> Proof<'a> {
             Tactic::Have {
                 name: "e".to_string(),
                 says: same,
-                proof: Box::new(Proof::Term(injective)),
+                proof: Box::new(doc::Proof::Term(injective)),
             },
             t::call("omega", vec![]),
         ]))))
@@ -1440,10 +1438,8 @@ impl<'a> Proof<'a> {
     /// the hypothesis by `linarith only`. None where the line says nothing of
     /// the number besides its equation.
     fn from_naming_line(line: &SaidLine) -> Option<Printed> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         let order = line.besides()?;
-        Some(t::by_term(Proof::By(t::call(
+        Some(t::by_term(doc::Proof::By(t::call(
             "linarith",
             vec![TacticArg::Only, t::rules(vec![order])],
         ))))
@@ -1865,7 +1861,6 @@ impl<'a> Proof<'a> {
     /// comparison, reading a count's relation in ℕ, does not ask. An item's
     /// type variable is Lean's to fill.
     fn agreement(&self, asked: AgreementAsked<'_>) -> Agreement {
-        use super::super::doc::forms;
         let AgreementAsked {
             found,
             compared,
@@ -2013,7 +2008,6 @@ impl<'a> Proof<'a> {
         counted: &[Printed],
         (cited, sentence, node): (&crate::checker::record::Cited, &Sentence, &Node),
     ) -> PowerForms {
-        use super::super::doc::forms;
         let templates = self.writer.templates;
         let widen = |head: &str, at| templates.same_function_at(head, at);
         let mut found = found;
@@ -2150,7 +2144,6 @@ impl<'a> Proof<'a> {
             if let Some(claim) = stated {
                 let templates = self.writer.templates;
                 let widen = |head: &str, at| templates.same_function_at(head, at);
-                use super::super::doc::forms;
                 // Which way the item's equation faces the claim, as the
                 // checker met them (`Cited::facings`).
                 turned = matches!(
@@ -2282,7 +2275,6 @@ impl<'a> Proof<'a> {
         k: usize,
         node: &Node,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let (item, cited) = match self.cited_item(reason) {
             Route::Built(x) => x,
             Route::Declined(d) => return Route::Declined(d),
@@ -2297,7 +2289,7 @@ impl<'a> Proof<'a> {
             });
         if phrase {
             return match self.phrase_proof(cited, &reason.just.refs, k, node) {
-                Some(p) => Route::Built(Proof::Term(p)),
+                Some(p) => Route::Built(doc::Proof::Term(p)),
                 None => {
                     Route::no("a phrase's define cited where no line says the claim")
                 }
@@ -2529,7 +2521,6 @@ impl<'a> Proof<'a> {
         let closed = match (pushes, closed) {
             (true, super::super::doc::Proof::Term(term))
             | (true, super::super::doc::Proof::By(Tactic::Exact(term))) => {
-                use super::super::tactics as t;
                 super::super::doc::Proof::By(t::on_h(
                     &term,
                     vec![
@@ -2565,7 +2556,6 @@ impl<'a> Proof<'a> {
         term: Printed,
         says: Option<Printed>,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let CitationClosing {
             node,
             k,
@@ -2650,7 +2640,7 @@ impl<'a> Proof<'a> {
             {
                 forms_converted(&term, &conversion, turned)
             }
-            _ if agrees => Proof::By(Tactic::Exact(term)),
+            _ if agrees => doc::Proof::By(Tactic::Exact(term)),
             // The item read in the step's spelling and met with the claim
             // (`docs/LEAN.md`, a citation); the recorded identities where
             // they are all that stands apart; the closer's rules where
@@ -2693,8 +2683,6 @@ impl<'a> Proof<'a> {
         &self,
         asked: Backwards<'_>,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         let Backwards {
             reason,
             k,
@@ -2750,7 +2738,7 @@ impl<'a> Proof<'a> {
             _ => false,
         };
         if as_claimed && !by_to_nat {
-            return Route::Built(Proof::Term(mpr));
+            return Route::Built(doc::Proof::Term(mpr));
         }
         // The definition's left side at the citation's values, as the
         // step's lines write it, read from the reading and met with
@@ -2781,10 +2769,10 @@ impl<'a> Proof<'a> {
         let at = Cites::of(node, left.as_ref(), claim_lean.as_ref(), &values);
         match (cited_bridge(cited, sentence, &at), by_to_nat) {
             (Some(CitedBridge::Rules(rules)), false) => {
-                return Route::Built(Proof::By(t::simpa_only(rules, mpr)))
+                return Route::Built(doc::Proof::By(t::simpa_only(rules, mpr)))
             }
             (Some(CitedBridge::Cast), false) => {
-                return Route::Built(Proof::By(t::exact_mod_cast(mpr)))
+                return Route::Built(doc::Proof::By(t::exact_mod_cast(mpr)))
             }
             _ => {}
         }
@@ -3002,7 +2990,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         known: &[Tactic],
     ) -> Option<Printed> {
-        use super::super::tactics as t;
         if known.is_empty()
             || !matches!(relation_symbol(wanted)?, "=" | "<" | "≤" | ">" | "≥")
         {
@@ -3068,8 +3055,6 @@ impl<'a> Proof<'a> {
     /// (`whole_witness`), chosen from the proof that there is one, and that
     /// proof's spec put in scope where the witness's facts are proved.
     pub(super) fn named_witness(&self, value: &Node) -> Route<Witness> {
-        use super::super::doc::{LeanType, Op, Proof};
-        use super::super::tactics as t;
         let Some(i) = self.step_now.get() else {
             return Route::no("a witness outside a step");
         };
@@ -3126,7 +3111,7 @@ impl<'a> Proof<'a> {
             vec![t::hyp(&name)],
             LeanType::Prop,
         );
-        let term = t::bracket(t::by_term(Proof::By(Tactic::Seq(vec![
+        let term = t::bracket(t::by_term(doc::Proof::By(Tactic::Seq(vec![
             have.clone(),
             Tactic::Exact(chosen),
         ]))));
@@ -3363,7 +3348,6 @@ impl<'a> Proof<'a> {
 /// The integer t of `((t.toNat : ℕ) : ℕ∞)`, a whole number the page says
 /// is one, cast up to ℕ∞; None for any other term.
 fn whole_in_extended(term: &Printed) -> Option<Printed> {
-    use super::super::doc::{LeanType, TermKind};
     let TermKind::Cast {
         inner,
         to: LeanType::ENat,
@@ -3384,8 +3368,6 @@ fn whole_in_extended(term: &Printed) -> Option<Printed> {
 /// `fun t : ℤ => ((t.toNat : ℕ) : ℕ∞)`: an integer as the whole number it
 /// is, in ℕ∞ (`whole_in_extended`).
 fn whole_cast_up() -> Printed {
-    use super::super::doc::{LeanType, TermKind};
-    use super::super::templates::Num;
     let t = Printed::letter("t", LeanType::Num(Num::Int));
     let to_nat = Printed::of(TermKind::ToNat(Box::new(t)), LeanType::Num(Num::Nat));
     lambda(

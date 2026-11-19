@@ -1,6 +1,10 @@
 //! Chain claims, inequality rows, kind methods and memberships.
 
+use super::super::record::{HeldByLines, Inspection, LinesHold, PlaceShown, ShownBy};
 use super::*;
+use crate::methods::inspection;
+use crate::methods::inspection::{Facts, Inspected};
+use methods_membership::HeldHow;
 
 /// What a calculation's chain gives of its ends.
 pub(super) enum ChainClaim {
@@ -1054,7 +1058,6 @@ pub(super) fn inspection_holds(
         .flat_map(|stated| known.supplied(stated, &known.citing_step(at.step)))
         .map(|n| term_of_node(&n, targets))
         .collect();
-    use crate::methods::inspection::{Facts, Inspected};
     let what = format!("step {} claims {}", at.step.number, known.print(&claim));
     match Facts::of(&cited).decide(&term_of_node(&claim, targets)) {
         Inspected::Holds => true,
@@ -1171,8 +1174,6 @@ pub(super) fn inspection_case(
     known: &Known,
     targets: &Targets,
 ) -> Option<super::super::record::Inspection> {
-    use super::super::record::Inspection;
-    use crate::methods::inspection::{Case, Facts};
     let claim = known.whole(at.step, at.claim)?;
     let scope = known.scope(at.step);
     let defined = known.citing_step(at.step);
@@ -1190,17 +1191,17 @@ pub(super) fn inspection_case(
     }
     Some(
         match Facts::of(&cited).case(&term_of_node(&claim, targets))? {
-            Case::OneOf { fact, range } => Inspection::OneOf {
+            inspection::Case::OneOf { fact, range } => Inspection::OneOf {
                 from: from.get(fact)?.to_string(),
                 range,
             },
-            Case::Prime => Inspection::Prime,
-            Case::Empty => Inspection::Empty,
-            Case::Member => Inspection::Member,
-            Case::Size => Inspection::Size,
-            Case::TakenSize { kept } => Inspection::TakenSize { kept },
-            Case::Taken { kept } => Inspection::Taken { kept },
-            Case::Other => Inspection::Other,
+            inspection::Case::Prime => Inspection::Prime,
+            inspection::Case::Empty => Inspection::Empty,
+            inspection::Case::Member => Inspection::Member,
+            inspection::Case::Size => Inspection::Size,
+            inspection::Case::TakenSize { kept } => Inspection::TakenSize { kept },
+            inspection::Case::Taken { kept } => Inspection::Taken { kept },
+            inspection::Case::Other => Inspection::Other,
         },
     )
 }
@@ -1308,8 +1309,6 @@ pub(super) fn held_at(
     known: &Known,
     targets: &Targets,
 ) -> Vec<super::super::record::HeldByLines> {
-    use super::super::record::{HeldByLines, LinesHold};
-    use methods_membership::HeldHow;
     let Some(read) = at.read(known, targets, true) else {
         return Vec::new();
     };
@@ -1362,7 +1361,6 @@ pub(super) fn member_beside(
     known: &Known,
     targets: &Targets,
 ) -> Option<super::super::record::PlaceShown> {
-    use super::super::record::{PlaceShown, ShownBy};
     let read = at.read(known, targets, true)?;
     let mut held = MembershipIn::of(at, &read, known);
     // A claim said of every member is read at a member, as

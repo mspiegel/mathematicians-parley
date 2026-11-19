@@ -22,6 +22,7 @@ use crate::sorts::infer::{function_sort, signature, NotationSorts};
 use crate::sorts::powers::ROOT_SIGN;
 use crate::sorts::NUMBER_SYSTEMS;
 use crate::text::repr;
+use sha2::{Digest, Sha256};
 
 /// The sort of each name a text states one for, and the set each letter its
 /// theorem declares a range for belongs to (`ε, δ range over ℝ`).
@@ -174,7 +175,6 @@ impl Grammar {
     /// grammar is shared only where nothing it was built from differs.
     pub fn load(records: &[Record]) -> Checked<Rc<Grammar>> {
         let key = {
-            use sha2::{Digest, Sha256};
             Sha256::digest(format!("{records:?}").as_bytes())
                 .iter()
                 .map(|b| format!("{b:02x}"))

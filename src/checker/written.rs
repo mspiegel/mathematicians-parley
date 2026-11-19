@@ -45,7 +45,6 @@ pub fn graph_letters(
     hypotheses: &[crate::corpus::proof::Hypothesis],
     path: &str,
 ) -> Option<GraphLetters> {
-    use crate::sorts::introduction::{Form, Introduction};
     hypotheses
         .iter()
         .filter(|h| h.kind == crate::corpus::proof::Intro::Let)
@@ -82,7 +81,6 @@ pub fn record_graphs(
 /// Where a fact is supplied, with `out` applied to what each line it names
 /// writes there, those inside what lines give together among them.
 fn supplied_written(by: &mut super::record::SuppliedBy, out: &impl Fn(&Node) -> Node) {
-    use super::record::SuppliedBy;
     match by {
         SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
             at.written = out(&at.written)
@@ -110,7 +108,6 @@ fn unfolded_written(
     parts: &mut [super::record::Unfolded],
     out: &impl Fn(&Node) -> Node,
 ) {
-    use super::record::Unfolded;
     for part in parts {
         match part {
             Unfolded::Fact { fact, by } => {
@@ -373,7 +370,6 @@ pub fn written_out(
         .chain(written.members_shown.values_mut())
     {
         shown.term = out(&shown.term);
-        use super::record::ShownBy;
         match &mut shown.by {
             ShownBy::Beside(b) => beside_written(b),
             ShownBy::Typed { map, at } => {
@@ -392,7 +388,6 @@ pub fn written_out(
         }
     }
     for held in written.held_by_lines.values_mut().flatten() {
-        use super::record::LinesHold;
         held.term = out(&held.term);
         match &mut held.by {
             LinesHold::Stated { line } => *line = out(line),
@@ -438,7 +433,6 @@ fn finite_by_written(
     why: &crate::citing::finite::FiniteBy,
     out: &impl Fn(&Node) -> Node,
 ) -> crate::citing::finite::FiniteBy {
-    use crate::citing::finite::{FiniteBy, Making};
     let boxed = |w: &FiniteBy| Box::new(finite_by_written(w, out));
     match why {
         FiniteBy::Said(line) => FiniteBy::Said(written_key(line, out)),
@@ -703,7 +697,10 @@ fn phrases_written(
     )
 }
 
+use super::record::{LinesHold, ShownBy, SuppliedBy, Unfolded};
+use crate::citing::finite::{FiniteBy, Making};
 use crate::matching::Binding;
+use crate::sorts::introduction::{Form, Introduction};
 
 /// The definition's graph letters the meaning uses, each put as the page's
 /// own graph letter of the same part.

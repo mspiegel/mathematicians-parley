@@ -1,6 +1,7 @@
 //! Surds, powers, logarithms, exponentials and trigonometry.
 
 use super::*;
+use reals::Trig::{Cosine, Sine};
 
 impl<'a> Elaborator<'a> {
     /// ( scope -> claim ) for a membership, said of the term's canon and
@@ -1191,7 +1192,6 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<(Rpn, Proof)>> {
-        use reals::Trig::{Cosine, Sine};
         let half = Q::new(BigInt::from(1), BigInt::from(2));
         let apply = |g: reals::Trig, a: &Rpn| t!(a, trig_label(g), "cfv");
         let angle = angle_form(r);
@@ -1256,7 +1256,6 @@ impl<'a> Elaborator<'a> {
         r: &Q,
         scope: &Rpn,
     ) -> (Rpn, Proof) {
-        use reals::Trig::{Cosine, Sine};
         let apply = |g: reals::Trig, a: &Rpn| t!(a, trig_label(g), "cfv");
         let over = |top: Rpn, d: &str| t!(top, d, "cdiv", "co");
         let root = |p: &str| t!(p, "csqrt", "cfv");

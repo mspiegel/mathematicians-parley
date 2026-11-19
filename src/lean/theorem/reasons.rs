@@ -1,6 +1,12 @@
 //! Proof methods: a step's reason: defines, methods, closing.
 
+use super::super::doc::forms::{differences, relation_type, FormDifference};
+use super::super::doc::{forms, CountForm, LeanType, Location, Op, Quant, TermKind};
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
+use crate::checker::record::Inspection;
+use crate::corpus::skeleton;
 use crate::notations::{BY_CASES, CARDINALITY};
 
 /// A set of things taken by a property from one a cited equation lists in
@@ -69,8 +75,6 @@ impl<'a> Proof<'a> {
         claim: &Node,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         let (r, hyp) = (&cited.rule, &cited.hypothesis);
         let mut case_rewrites: Vec<Tactic> = Vec::new();
         if cited.by_cases {
@@ -116,7 +120,7 @@ impl<'a> Proof<'a> {
         let closed = t::call("linarith", vec![]);
         let worked = t::call("ring_nf", vec![t::at_h(true)]);
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
-            return Route::Built(Proof::By(Tactic::Seq(vec![
+            return Route::Built(doc::Proof::By(Tactic::Seq(vec![
                 t::name_h(&fields(t::hyp(hyp), &start)),
                 worked,
                 closed,
@@ -140,7 +144,8 @@ impl<'a> Proof<'a> {
             int,
         );
         let rule = fields(t::hyp(hyp), &steps);
-        let omega = super::super::tactics::by_term(Proof::By(t::call("omega", vec![])));
+        let omega =
+            super::super::tactics::by_term(doc::Proof::By(t::call("omega", vec![])));
         let at = Printed {
             kind: super::super::doc::TermKind::App {
                 head: Box::new(rule),
@@ -160,7 +165,7 @@ impl<'a> Proof<'a> {
         tactics.extend(case_rewrites);
         tactics.push(worked);
         tactics.push(closed);
-        Route::Built(Proof::By(Tactic::Seq(tactics)))
+        Route::Built(doc::Proof::By(Tactic::Seq(tactics)))
     }
 
     /// A claim that a term of a wider type is an integer, a rational or a
@@ -176,7 +181,6 @@ impl<'a> Proof<'a> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
-        use super::super::templates::Num;
         // The type the term is said to be in, and the type its parts are
         // said to be in: ℕ₀ is said of an integer, its parts integers.
         let (claimed, ty) = match super::super::expr::system_of(set)? {
@@ -241,7 +245,6 @@ impl<'a> Proof<'a> {
         if lines.is_empty() {
             return None;
         }
-        use super::super::tactics as t;
         let witness = writer.number_fixed(term, ty).built()?;
         let rules: Vec<super::super::doc::Rule> = lines
             .iter()
@@ -278,8 +281,6 @@ impl<'a> Proof<'a> {
         k: usize,
         node: &Node,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         // A restate step, or a requires line of lines alone, whose claim the
         // checker found a line states (`restated`): that line, met as a
         // whole before any "for all" of the claim is taken apart.
@@ -332,7 +333,7 @@ impl<'a> Proof<'a> {
                 let before = self.counts_to_integers(*m, reason.just);
                 let proof = match before.is_empty() {
                     true => proof,
-                    false => Proof::By(Tactic::Seq(
+                    false => doc::Proof::By(Tactic::Seq(
                         before.into_iter().chain([tactic_of(&proof)]).collect(),
                     )),
                 };
@@ -348,7 +349,7 @@ impl<'a> Proof<'a> {
                     self.recursion_clause(&r, &cases, body, &writer)
                         .map(|clause| match intros.is_empty() {
                             true => clause,
-                            false => Proof::By(Tactic::Seq(vec![
+                            false => doc::Proof::By(Tactic::Seq(vec![
                                 Tactic::Intro(intros.clone()),
                                 tactic_of(&clause),
                             ])),
@@ -396,7 +397,7 @@ impl<'a> Proof<'a> {
                                 rules.extend(conditions);
                                 let alone =
                                     taken.meeting.as_ref().is_some_and(unfolds_alone);
-                                Route::Built(Proof::By(simp_unfolded(
+                                Route::Built(doc::Proof::By(simp_unfolded(
                                     rules,
                                     alone,
                                     node.notation() == crate::notations::FOR_ALL,
@@ -416,7 +417,7 @@ impl<'a> Proof<'a> {
                     {
                         let met = &self.rec.define_links[&reason.just.line];
                         let alone = met.as_ref().is_some_and(unfolds_alone);
-                        Route::Built(Proof::By(unfolded_by(&[hyp], alone, false)))
+                        Route::Built(doc::Proof::By(unfolded_by(&[hyp], alone, false)))
                     }
                     // A claim "for all" of a header's function: its equation
                     // at the member, where the record says what puts the
@@ -472,7 +473,7 @@ impl<'a> Proof<'a> {
                                 Route::Declined(_) => false,
                             };
                             let alone = met.as_ref().is_some_and(unfolds_alone);
-                            return Route::Built(Proof::By(unfolded_by(
+                            return Route::Built(doc::Proof::By(unfolded_by(
                                 &unfold,
                                 alone && !cast,
                                 node.notation() == crate::notations::FOR_ALL,
@@ -498,7 +499,7 @@ impl<'a> Proof<'a> {
                                     .map(|d| t::forwards(t::hyp(d)))
                                     .collect();
                                 rules.extend(conditions);
-                                return Route::Built(Proof::By(simp_unfolded(
+                                return Route::Built(doc::Proof::By(simp_unfolded(
                                     rules,
                                     alone,
                                     node.notation() == crate::notations::FOR_ALL,
@@ -516,7 +517,7 @@ impl<'a> Proof<'a> {
                                     && bare_term(lhs).untyped()
                                         == bare_term(rhs).untyped()
                                 {
-                                    return Route::Built(Proof::Term(
+                                    return Route::Built(doc::Proof::Term(
                                         Printed::constant(
                                             "rfl",
                                             super::super::doc::Source::Core,
@@ -549,7 +550,7 @@ impl<'a> Proof<'a> {
             // A membership of ℕ₀ or ℕ they give, `gcd(s, w)² ∈ ℕ: from 1`,
             // by the said-once walk over them (`member_bound`).
             Head::Lines => match self.member_bound(reason.just, node) {
-                Some(p) => Route::Built(Proof::Term(p)),
+                Some(p) => Route::Built(doc::Proof::Term(p)),
                 None => Route::no("a requires line its lines give no bound for"),
             },
         }
@@ -567,8 +568,6 @@ impl<'a> Proof<'a> {
         m: Method,
         just: &Justification,
     ) -> Vec<Tactic> {
-        use super::super::doc::{CountForm, Location, TermKind};
-        use super::super::tactics as t;
         if !matches!(
             m,
             Method::Algebra | Method::Arithmetic | Method::Inequalities
@@ -716,8 +715,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Option<Route<super::super::doc::Proof>> {
-        use super::super::doc::{LeanType, Proof, Source, TermKind};
-        use super::super::tactics as t;
         let (equation, negated) = match (node.notation(), node.children.as_slice()) {
             (crate::notations::LOGICAL_NOT, [inner])
                 if inner.notation() == EQUALITY =>
@@ -749,9 +746,9 @@ impl<'a> Proof<'a> {
         if !negated {
             return Some(match (coordinate(0), coordinate(1)) {
                 (Route::Built(a), Route::Built(b)) => {
-                    Route::Built(Proof::Term(Printed::applied(
+                    Route::Built(doc::Proof::Term(Printed::applied(
                         "Prod.ext",
-                        Source::Core,
+                        doc::Source::Core,
                         vec![a, b],
                         LeanType::Prop,
                     )))
@@ -769,14 +766,14 @@ impl<'a> Proof<'a> {
         Some(coordinate(i).map(|apart| {
             let equal_there = Printed::applied(
                 "congrArg",
-                Source::Core,
+                doc::Source::Core,
                 vec![
-                    Printed::constant(projection, Source::Core, LeanType::Prop),
+                    Printed::constant(projection, doc::Source::Core, LeanType::Prop),
                     t::hyp("h"),
                 ],
                 LeanType::Prop,
             );
-            Proof::Term(Printed::of(
+            doc::Proof::Term(Printed::of(
                 TermKind::Lambda {
                     letters: vec!["h".to_string()],
                     body: Box::new(applied_to(apart, equal_there)),
@@ -796,7 +793,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let just = reason.just;
         if matches!(
             m,
@@ -888,7 +884,7 @@ impl<'a> Proof<'a> {
                     // no cast is left to push.
                     let mut lines = header_rewrite;
                     lines.extend(written_out_as(&defines, &goal, writer, false));
-                    return Route::Built(Proof::By(Tactic::Seq(lines)));
+                    return Route::Built(doc::Proof::By(Tactic::Seq(lines)));
                 }
                 let mut haves = Vec::new();
                 for c in &mut cited {
@@ -951,7 +947,7 @@ impl<'a> Proof<'a> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 match worked_out(&says) {
-                    Route::Built(tactic) => Proof::By(tactic),
+                    Route::Built(tactic) => doc::Proof::By(tactic),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -1028,9 +1024,6 @@ impl<'a> Proof<'a> {
         just: &Justification,
         node: &Node,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
-        use crate::checker::record::Inspection;
         // The cited lines that are equations, which give a set or a value,
         // or an edge's ends, which its "joins" gives; and two terms said to
         // differ, each way round, so that a denial reads whichever side it
@@ -1103,9 +1096,9 @@ impl<'a> Proof<'a> {
                         ]
                     }
                 };
-                Proof::By(t::on_h(&member.proof, steps))
+                doc::Proof::By(t::on_h(&member.proof, steps))
             }
-            Inspection::Empty => Proof::Term(Printed::applied(
+            Inspection::Empty => doc::Proof::Term(Printed::applied(
                 "Set.notMem_empty",
                 super::super::doc::Source::Mathlib,
                 vec![Printed::of(
@@ -1123,7 +1116,7 @@ impl<'a> Proof<'a> {
             }
             Inspection::Prime => simp_call("norm_num", equations),
             // The set listed as Lean's finite set and counted.
-            Inspection::TakenSize { .. } => Proof::By(Tactic::Seq(vec![
+            Inspection::TakenSize { .. } => doc::Proof::By(Tactic::Seq(vec![
                 t::call(
                     "rw",
                     vec![TacticArg::Rules(lemma_rules(&[
@@ -1134,7 +1127,7 @@ impl<'a> Proof<'a> {
             ])),
             // Member by member: each side's members' equations, and the
             // property, odd or even, by the remainder `omega` reads.
-            Inspection::Taken { .. } => Proof::By(Tactic::Seq(vec![
+            Inspection::Taken { .. } => doc::Proof::By(Tactic::Seq(vec![
                 t::call("ext", vec![TacticArg::Term(t::hyp("x"))]),
                 t::simp_only(
                     false,
@@ -1215,7 +1208,6 @@ impl<'a> Proof<'a> {
         cited: &[super::super::algebra::Cited],
         facts: Vec<super::super::doc::Rule>,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
         if kept.len() != listed.listed.len() {
             return None;
         }
@@ -1348,8 +1340,6 @@ impl<'a> Proof<'a> {
         &self,
         cited: &[super::super::algebra::Cited],
     ) -> Option<Vec<super::super::doc::Rule>> {
-        use super::super::doc::{CountForm, LeanType};
-        use super::super::tactics as t;
         let mut out = Vec::new();
         for c in cited {
             let (crate::notations::EQUALITY, [count, value]) =
@@ -1417,7 +1407,6 @@ impl<'a> Proof<'a> {
         r: &crate::corpus::Recursion,
         depth: usize,
     ) -> Route<()> {
-        use super::super::templates::Num;
         let line = self.thm.defines[d].clone();
         if r.domain.trim() != "ℕ₀" {
             return Route::no("a recursion over other than ℕ₀");
@@ -1495,7 +1484,6 @@ impl<'a> Proof<'a> {
         let v = super::super::names::letter(&previous);
         let label = line_name(&line.label);
         // ∃ f : ℤ → T, f 0 = start ∧ ∀ k : ℤ, 0 ≤ k → f (k + 1) = step.
-        use super::super::doc::{LeanType, Op, Quant, TermKind};
         let int = LeanType::Num(super::super::templates::Num::Int);
         let value = LeanType::Num(to);
         let function = LeanType::Fun {
@@ -1672,7 +1660,6 @@ impl<'a> Proof<'a> {
             self.name_value(d, &def.name, ty, value, body, depth);
             return Route::Built(());
         }
-        use super::super::templates::Num;
         // A positive or nonnegative whole number is a natural number named
         // from its kind's fact, whatever its value's type, as `let m ∈ ℕ`
         // names one and as the elaborator puts the name among ℕ's members
@@ -2023,7 +2010,6 @@ impl<'a> Proof<'a> {
     /// The sets the two count in two forms, `ncard` in one and `encard` in
     /// the other (`forms::FormDifference::Count`), as Lean writes each.
     fn counted_apart(&self, says: &Printed, wanted: &Printed) -> Vec<Printed> {
-        use super::super::doc::forms::{differences, FormDifference};
         let templates = self.sources.templates;
         let widen = |head: &str, at| templates.same_function_at(head, at);
         differences(says, wanted, &widen)
@@ -2111,7 +2097,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         met: &crate::matching::Meeting,
     ) -> Option<Proved> {
-        use super::super::doc::forms;
         // Parts of a notation that stand in no order, paired in another
         // order. Every such notation is written in one order, so a line and
         // the claim that differ only in the order the page writes them are
@@ -2165,7 +2150,6 @@ impl<'a> Proof<'a> {
         // and the cast of a numeral it leaves, ↑0 beside 0, from ℕ or from
         // ℤ, is that numeral (`casts::NUMERAL_CASTS`).
         if met.identities.is_empty() && !to_nat.is_empty() {
-            use super::super::templates::Num;
             let mut rules = to_nat;
             rules.extend(
                 super::super::casts::NUMERAL_CASTS
@@ -2309,7 +2293,6 @@ impl<'a> Proof<'a> {
         c: &Contradicted,
         to_false: bool,
     ) -> Route<Printed> {
-        use super::super::doc::forms;
         let own = match self.claim(step) {
             Route::Built(said) => match said.as_slice() {
                 [(_, says)] => (
@@ -2434,8 +2417,6 @@ impl<'a> Proof<'a> {
         &self,
         just: &Justification,
     ) -> Option<(Option<Tactic>, GivenEquation)> {
-        use super::super::tactics as t;
-        use crate::corpus::skeleton::Source;
         let rec = self.rec.substituted.get(&just.line)?;
         if rec.from.is_some() {
             return None;
@@ -2471,9 +2452,9 @@ impl<'a> Proof<'a> {
             ))
         };
         match just.source.as_ref()? {
-            Source::Arithmetic => worked("e_arith", false),
-            Source::RealArithmetic => worked("e_real", true),
-            Source::At(place) => {
+            skeleton::Source::Arithmetic => worked("e_arith", false),
+            skeleton::Source::RealArithmetic => worked("e_real", true),
+            skeleton::Source::At(place) => {
                 let label = place.named();
                 let d = self.thm.defines.iter().find(|d| d.label == label)?;
                 let Route::Built(crate::corpus::DefineParts::One(one)) =
@@ -2525,7 +2506,6 @@ impl<'a> Proof<'a> {
         taken: &crate::checker::record::TakenCase,
         claim: &Node,
     ) -> Route<Vec<super::super::doc::Rule>> {
-        use super::super::doc::forms::relation_type;
         let claim_type = match self.writer.formula(claim) {
             Route::Built(c) => relation_type(&c),
             Route::Declined(d) => return Route::Declined(d),

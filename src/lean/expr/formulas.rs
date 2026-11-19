@@ -1,6 +1,7 @@
 //! Formulas, relations, membership and quantifiers.
 
 use super::*;
+use crate::notations::{BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION};
 use crate::notations::{
     BIJECTION, CONTINUOUS, DIFFERENTIABLE, EXISTS, FUNCTIONS_FROM, FUNCTION_LIMIT,
     FUNCTION_ON, HOLDS_OF, LISTED_FOUR, LISTED_THREE, LISTED_TWO, OPEN, PAIR, POWERSET,
@@ -462,7 +463,6 @@ impl Writer<'_> {
     /// inside a connective or a quantifier, whose own parts are formulas
     /// said apart. None where there is none.
     pub(in crate::lean) fn wide_in_slot(&self, node: &Node) -> Option<(Node, Num)> {
-        use crate::notations::{BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION};
         let joins = self.is_and(node)
             || matches!(
                 node.notation(),

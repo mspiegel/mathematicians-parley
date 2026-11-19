@@ -1,5 +1,7 @@
 //! Lean terms and propositions as trees.
 
+use super::file::Lookup;
+use super::tactic::{Proof, Tactic, TacticRef};
 use crate::lean::templates::Num;
 
 /// A Lean type a term has.
@@ -722,7 +724,6 @@ impl Term {
     /// those its printed form names through Lean's resolution of a field,
     /// `A.ncard` for `Set.ncard`.
     pub fn named(&self) -> Vec<super::file::Lookup> {
-        use super::file::Lookup;
         let name = match &self.kind {
             TermKind::Const(c) => match c.source {
                 Source::Core | Source::Mathlib => c.name.as_str(),
@@ -802,7 +803,6 @@ impl Term {
     /// instances its types take; `by skip` for a proof; a letter where the
     /// type is not one a sample can write.
     fn placeholder(term: &Term) -> Term {
-        use super::tactic::{Proof, Tactic, TacticRef};
         match (&term.kind, &term.ty) {
             (TermKind::By(_), _) => Term {
                 kind: TermKind::By(Box::new(Proof::By(Tactic::Call {

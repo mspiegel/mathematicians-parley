@@ -8,6 +8,7 @@
 
 use indexmap::IndexMap;
 
+use super::doc::file::{Binder as Doc, DeclProof, Declaration};
 use super::expr::{LetterType, Writer, GENERAL};
 use super::names::{module_of, snake};
 use super::sets::set_type_in;
@@ -28,6 +29,7 @@ use crate::notations::{
     SUPERSCRIPT, THERE_ARE, THERE_ARE_TWO, THERE_IS, UNARY_MINUS,
 };
 use crate::outcome::Route;
+use crate::sorts::introduction::{Form, Introduction};
 
 /// One sentence an item concludes, as Lean has it.
 #[derive(Clone, Debug)]
@@ -628,9 +630,6 @@ fn statement_letters(
     sentences: &[Node],
     w: &Writer,
 ) -> std::collections::BTreeSet<String> {
-    use crate::notations::{
-        BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION, LOGICAL_NOT,
-    };
     let mut out = std::collections::BTreeSet::new();
     for s in sentences {
         if s.is_name() {
@@ -698,7 +697,6 @@ struct GroupLine {
 
 /// Each line of the record that lets a group.
 fn group_lines(record: &Record) -> Vec<GroupLine> {
-    use crate::sorts::introduction::{Form, Introduction};
     record
         .hypotheses
         .iter()
@@ -721,7 +719,6 @@ fn group_lines(record: &Record) -> Vec<GroupLine> {
 /// The letters the record's lines let as points, `let P be a point`: each
 /// is a complex number, whatever an order or an arithmetic around it asks.
 fn point_letters(record: &Record) -> Vec<String> {
-    use crate::sorts::introduction::{Form, Introduction};
     record
         .hypotheses
         .iter()
@@ -1334,7 +1331,6 @@ pub fn declaration(
     proof: &str,
     modules: std::collections::BTreeSet<String>,
 ) -> super::doc::file::Declaration {
-    use super::doc::file::{Binder as Doc, DeclProof, Declaration};
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
     let mut binders: Vec<Doc> = sentence
         .general

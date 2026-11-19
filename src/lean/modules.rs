@@ -13,6 +13,7 @@ use std::process::Command;
 use super::doc::file::Lookup;
 use crate::outcome::Problem;
 use crate::source::Source;
+use sha2::{Digest, Sha256};
 
 /// The table, from the root of the tree.
 pub const TABLE: &str = "lean/mathlib-modules.jsonl";
@@ -53,7 +54,6 @@ pub struct MadeFor {
 impl MadeFor {
     /// The revision and script of the tree.
     fn of(source: &dyn Source) -> Result<MadeFor, Problem> {
-        use sha2::{Digest, Sha256};
         let script = format!("lean/{SCRIPT}");
         let bytes = source
             .read(&script)

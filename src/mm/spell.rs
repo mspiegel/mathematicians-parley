@@ -32,6 +32,7 @@ use super::library::{Kind, Layered, Signature};
 use super::rpn::{Rpn, Spell};
 use crate::formula::symbol::Symbol;
 use crate::matching::FxIndexMap;
+use std::hash::{Hash, Hasher};
 
 /// One label applied to the steps it takes, and what kind of thing that
 /// builds: a `wff`, a `class`, a `setvar`, or a proof (`|-`).
@@ -335,7 +336,6 @@ impl Print {
 
     /// One token.
     fn token(text: &str) -> Print {
-        use std::hash::{Hash, Hasher};
         let mut hash = [0; 2];
         for (n, h) in hash.iter_mut().enumerate() {
             let mut hasher = std::collections::hash_map::DefaultHasher::new();

@@ -1,6 +1,12 @@
 //! What a step proves and how it cites.
 
+use super::super::casts::{norm_cast_moves_all, push_cast_moves_all_in_sides};
+use super::super::doc::{LeanType, Location, Op, TermKind};
+use super::super::tactics as t;
+use super::super::templates::Num;
 use super::*;
+use crate::notations::{FOR_ALL, MEMBERSHIP, SET_BUILDER, THERE_IS};
+use crate::rules::System;
 
 /// A line of a proof as the writer pushes it, which may hold several of the
 /// file's lines, and what it was written for; its line number is set where
@@ -118,7 +124,6 @@ pub(super) fn cast_proved(
     says: &Printed,
     wanted: &Printed,
 ) -> Option<Proved> {
-    use super::super::casts::{norm_cast_moves_all, push_cast_moves_all_in_sides};
     // A line whose numbers are of a narrower field than the goal's, under
     // its "for all"s as well, ℚ for ℝ, is lifted to it.
     // A relation of ℚ for the same of ℝ: by ℚ's lemma for it, as
@@ -151,7 +156,6 @@ pub(super) fn cast_proved(
 impl Proved {
     /// The tactic that closes the goal by it: `exact` of a term.
     pub(super) fn closer(&self) -> Tactic {
-        use super::super::tactics as t;
         match self {
             Proved::Term(term) => Tactic::Exact(term.clone()),
             Proved::Simplified { rules, line } => {
@@ -276,7 +280,6 @@ impl Proved {
 /// `0 < j → P` and then P, and an "if", `A → B` to B. None where the goal
 /// has fewer binders.
 pub(super) fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
-    use super::super::doc::{LeanType, Op, TermKind};
     let mut goal = goal.clone();
     let mut left = names;
     while left > 0 {
@@ -307,7 +310,6 @@ pub(super) fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed>
 /// `choose (m + 1 - 0) 1` and `choose (m + 1) 1` are two. The exponent of a
 /// power is an atom unless it is a numeral.
 pub(super) fn ring_atoms(term: &Printed, out: &mut Vec<Printed>) {
-    use super::super::doc::TermKind;
     match &term.kind {
         TermKind::Numeral(_) => {}
         // An instance's conditions met stand as `True` beside its statement,
@@ -448,8 +450,6 @@ pub(super) fn cited_bridge(
     sentence: &Sentence,
     at: &Cites,
 ) -> Option<CitedBridge> {
-    use super::super::templates::Num;
-    use crate::rules::System;
     // A claim naming a letter a `set` gives, `b ∈ T`, reads as the item
     // only once the letter is its value, which `simpa only` does not do.
     if at.names_set_letter {
@@ -535,7 +535,6 @@ pub(super) fn read_as_members(
     says: &Node,
     set: crate::formula::symbol::Symbol,
 ) -> bool {
-    use crate::notations::{FOR_ALL, MEMBERSHIP, SET_BUILDER, THERE_IS};
     let holds = matches!(
         says.notation(),
         MEMBERSHIP | FOR_ALL | THERE_IS | SET_BUILDER
@@ -573,7 +572,6 @@ impl Cites {
         claim: Option<&Printed>,
         values: &super::super::doc::forms::Values,
     ) -> Cites {
-        use super::super::doc::LeanType;
         let num = |t: Option<&Printed>| match t
             .and_then(super::super::doc::forms::relation_type)
         {
@@ -606,7 +604,6 @@ impl Cites {
 /// power is the real one only at a base not negative, a fact no cast moves,
 /// so an item in ℂ written with one is not read at reals.
 pub(super) fn complex_exponent(term: &Printed) -> bool {
-    use super::super::doc::{LeanType, Op, TermKind};
     let complex = Some(LeanType::Num(super::super::templates::Num::Complex));
     term.walk().iter().any(|t| {
         matches!(&t.kind, TermKind::Infix { op, rhs, .. }
@@ -630,7 +627,6 @@ pub(super) fn one_statement(written: &Printed, said: &Printed) -> bool {
 /// taken to `toNat` on one side alone, which the reading of the item
 /// (`spelling::read_as_written`) has no fact to join.
 pub(super) fn integer_powers_under_binders(term: &Printed) -> usize {
-    use super::super::doc::{LeanType, Op, TermKind};
     let int = Some(LeanType::Num(super::super::templates::Num::Int));
     match &term.kind {
         TermKind::Quantified { .. }
@@ -666,8 +662,6 @@ pub(super) fn integer_powers_under_binders(term: &Printed) -> usize {
 /// `simp`'s discharger, reads them. A difference's `toNat` stays whole: subtraction in
 /// ℕ stops at 0.
 pub(super) fn to_nat_read(term: &Printed) -> Printed {
-    use super::super::doc::{LeanType, TermKind};
-    use super::super::templates::Num;
     let mut out = term.clone();
     for c in out.children_mut() {
         *c = to_nat_read(c);
@@ -717,8 +711,6 @@ pub(super) fn ring_combination(
     says: &Printed,
     wanted: &Printed,
 ) -> Tactic {
-    use super::super::doc::Location;
-    use super::super::tactics as t;
     let to_nat = |p: &Printed| to_nat_read(p).untyped() != p.untyped();
     let places = |test: &dyn Fn(&Printed) -> bool| {
         let mut at = Vec::new();
@@ -781,7 +773,6 @@ pub(super) fn naturals_read(term: &Printed) -> Printed {
 /// ascription of a term to its own type and its bound letters renamed in
 /// order (`forms::bound_renamed`).
 pub(super) fn to_nat_texts(term: &Printed) -> Vec<String> {
-    use super::super::doc::TermKind;
     let read = super::super::doc::forms::bound_renamed(
         &super::super::doc::forms::ascriptions_dropped(&to_nat_read(term)),
     );
@@ -804,7 +795,6 @@ pub(super) fn read_down(
     says: &Printed,
     claim: &Printed,
 ) -> Option<Tactic> {
-    use super::super::templates::Num;
     let claimed = fields_of(claim);
     let wider = fields_of(says)
         .into_iter()

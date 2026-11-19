@@ -1,6 +1,7 @@
 //! The library a theorem is elaborated against.
 
 use super::*;
+use sha2::{Digest, Sha256};
 
 /// What reading set.mm and the corpus's `proved.mm` gives. Nothing here
 /// changes once read, so one is shared, between threads too, by every
@@ -21,7 +22,6 @@ impl ReadLibrary {
     /// What set.mm's text and, where there is one, `proved.mm`'s give.
     pub fn from_texts(setmm: &str, proved: Option<&str>) -> ReadLibrary {
         let digest = {
-            use sha2::{Digest, Sha256};
             Sha256::digest(setmm.as_bytes())
                 .iter()
                 .map(|b| format!("{b:02x}"))

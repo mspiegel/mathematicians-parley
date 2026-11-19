@@ -109,8 +109,11 @@ impl Report {
     }
 }
 
+use crate::matching::Defined;
+use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
 /// What the check printed, and the status it exits with.
 pub use crate::said::Said as Outcome;
+use crate::sorts::introduction::{Form, Introduction};
 
 /// Check the corpus under the source's root.
 pub fn run(source: &dyn Source) -> Outcome {
@@ -337,7 +340,6 @@ fn property_domains(
     c: &Checking<'_>,
     records: &[Record],
 ) -> IndexMap<String, IndexMap<String, Node>> {
-    use crate::sorts::introduction::{Form, Introduction};
     let mut out = IndexMap::new();
     for (i, r) in records.iter().enumerate() {
         let Some(sorts) = c.record_sorts.get(&i) else {
@@ -471,7 +473,6 @@ fn finite_defines<'r>(
     thm: &Theorem,
     record: &'r CheckedTheorem,
 ) -> Vec<crate::citing::finite::Named<'r>> {
-    use crate::matching::Defined;
     let outside = record
         .outside
         .iter()
@@ -746,7 +747,6 @@ fn values_said(
     node: &Node,
     system_of: &dyn Fn(&Node) -> Option<crate::rules::System>,
 ) -> Option<(String, crate::rules::System)> {
-    use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
     match (node.notation(), node.children.as_slice()) {
         (FUNCTION_TYPE, [f, _, to]) if f.is_name() => {
             Some((f.text.to_string(), system_of(to)?))

@@ -15,6 +15,7 @@
 //! - where the item is in a wider type, ℂ at reals or ℝ at rationals, its
 //!   casts moved to meet the step's (`exact_mod_cast`).
 
+use super::doc::bridges::BridgeModule;
 use super::doc::{forms, Arg, BoundForm, LeanType, Quant, Tactic, TermKind};
 use super::expr::Printed;
 use super::tactics as t;
@@ -222,7 +223,6 @@ fn spelling(said: &Printed, written: &Printed) -> Spelling {
     if item_ranges && step.iter().any(|n| member_of_range(n, "Finset.Icc")) {
         add_facts(&mut at_step, &["Finset.mem_Icc"]);
     }
-    use super::doc::bridges::BridgeModule;
     let side_by_omega = !divided.is_empty();
     let mut item_facts: Vec<Printed> = bridged
         .into_iter()

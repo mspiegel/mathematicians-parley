@@ -1,7 +1,12 @@
 //! Proof methods: obtaining, blocks and inductions.
 
+use super::super::doc::forms::Meets;
+use super::super::doc::{forms, LeanType};
+use super::super::tactics as t;
+use super::super::templates::Num;
 use super::*;
 use crate::notations::{POWERSET, SUBSET, THERE_IS_SOME};
+use crate::sorts::introduction::{Form, Introduction};
 
 impl<'a> Proof<'a> {
     pub(super) fn obtain(&mut self, i: usize, depth: usize) -> Route<()> {
@@ -460,8 +465,6 @@ impl<'a> Proof<'a> {
         spec: Printed,
         term: &Node,
     ) -> Option<Printed> {
-        use super::super::doc::LeanType;
-        use super::super::templates::Num;
         let value = self.writer.number_fixed(term, Num::Real).built()?;
         let chosen = line.chosen(Num::Int);
         let says = Printed::infix(
@@ -1064,7 +1067,6 @@ impl<'a> Proof<'a> {
         parts: &[Option<usize>],
         depth: usize,
     ) -> Route<()> {
-        use super::super::tactics as t;
         let spot = Self::step_spot(step);
         let ([letter, set, body], crate::notations::FOR_ALL) =
             (claimed.children.as_slice(), claimed.notation())
@@ -1311,7 +1313,6 @@ impl<'a> Proof<'a> {
             // its sort as a theorem's own `let X be a set` is
             // (`set_letter_type`), as "for all sets X" gives it.
             if o.kind == Intro::Let && nodes.is_empty() {
-                use crate::sorts::introduction::{Form, Introduction};
                 let Form::Set(name) = Introduction::read(body.clone()).form else {
                     return Route::no("a let that is no formula and lets no set");
                 };
@@ -1561,8 +1562,6 @@ impl<'a> Proof<'a> {
         spot: &Spot,
         depth: usize,
     ) -> Route<()> {
-        use super::super::doc::forms::{self, Meets};
-        use super::super::doc::LeanType;
         let Some(supposition) = self.rec.supposed.get(&line) else {
             return Route::no("a supposition the checker relates to no claim");
         };

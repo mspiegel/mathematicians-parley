@@ -26,6 +26,9 @@ mod formulas;
 mod graphs;
 mod operators;
 
+use crate::citing::things::Things;
+use crate::rules;
+use crate::rules::System as S;
 pub use formulas::{pair_coordinates, pair_type};
 
 /// What a letter is in Lean.
@@ -157,7 +160,6 @@ impl Members {
 
     /// A member's type in the document model.
     pub fn member_type(&self) -> super::doc::LeanType {
-        use super::doc::LeanType;
         match self {
             Members::Things(var) => LeanType::Things(*var),
             Members::Sets(m) => LeanType::Set(Box::new(m.member_type())),
@@ -222,7 +224,6 @@ impl Members {
     /// take (`ThingTypes::things_of_letter`): pairs place by place, `α ×
     /// β` of S ⊆ X × Y.
     pub fn with_things_of(&self, things: &crate::citing::things::Things) -> Members {
-        use crate::citing::things::Things;
         match (self, things) {
             (Members::Pairs { first, second }, Things::Pairs(a, b)) => Members::Pairs {
                 first: Box::new(first.with_things_of(a)),
@@ -252,7 +253,6 @@ impl LetterType {
 
     /// The type in the document model.
     pub fn lean_type(&self) -> super::doc::LeanType {
-        use super::doc::LeanType;
         let fun = |from: LeanType, to: LeanType| LeanType::Fun {
             from: Box::new(from),
             to: Box::new(to),
@@ -674,7 +674,6 @@ impl<'a> Writer<'a> {
     /// said-once rule reads them: a letter of `wholes` in ℕ or ℕ₀, any
     /// other in its type's.
     pub fn page_systems(&self) -> crate::citing::Introduced {
-        use crate::rules::System as S;
         self.letters
             .iter()
             .filter_map(|(name, ty)| {
@@ -699,7 +698,6 @@ impl<'a> Writer<'a> {
     /// their introducing lines. Such a term goes where Lean wants a natural
     /// number as `(t).toNat`, and a power to it is a natural power.
     pub fn said_whole(&self, node: &Node) -> bool {
-        use crate::rules::System;
         let letters = self.page_systems();
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
         // An integer by its letters and its build that a hypothesis of the
@@ -707,12 +705,14 @@ impl<'a> Writer<'a> {
         // read the hypotheses (`whole_bounds`), is a whole number as surely
         // as one its build makes so, in every step alike.
         let integer = |t: &Node| {
-            crate::citing::within(t, System::Z, &letters, &nonzero, &|_, _| false)
+            crate::citing::within(t, rules::System::Z, &letters, &nonzero, &|_, _| {
+                false
+            })
         };
-        let bounded = |t: &Node, s: System| {
+        let bounded = |t: &Node, s: rules::System| {
             let least = match s {
-                System::N0 => 0,
-                System::N => 1,
+                rules::System::N0 => 0,
+                rules::System::N => 1,
                 _ => return false,
             };
             integer(t)
@@ -720,7 +720,7 @@ impl<'a> Writer<'a> {
                     b.least >= least && bounds::BoundsAsk::same(self, &b.term, t)
                 })
         };
-        crate::citing::within(node, System::N0, &letters, &nonzero, &bounded)
+        crate::citing::within(node, rules::System::N0, &letters, &nonzero, &bounded)
     }
 
     /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.

@@ -16,6 +16,7 @@ use indexmap::{IndexMap, IndexSet};
 
 use crate::formula::node::ByShape;
 use crate::formula::Node;
+use crate::notations::{COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, IMPLICATION};
 
 /// Why a set is finite: what a backend proves it finite from, a line or how
 /// the set is made, in one form for every backend.
@@ -169,7 +170,6 @@ pub fn finite_sets<'n>(
 pub fn finite_under<'n>(
     sentences: impl IntoIterator<Item = &'n Node>,
 ) -> indexmap::IndexMap<crate::formula::node::ByShape, FiniteSets> {
-    use crate::notations::{CONDITIONAL, IMPLICATION};
     let mut out = indexmap::IndexMap::new();
     for sentence in sentences {
         for node in sentence.walk() {
@@ -319,7 +319,6 @@ struct Subset<'n> {
 impl<'n> SaidOfSets<'n, '_> {
     /// What `node`, a part of `line`, says.
     fn read(&mut self, line: &'n Node, node: &'n Node) {
-        use crate::notations::{COMMA_CONJUNCTION, CONJUNCTION};
         match (
             &*node.notation_name(),
             node.notation(),

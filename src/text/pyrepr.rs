@@ -9,12 +9,12 @@
 //! non-ASCII included.
 
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
+use GeneralCategory::*;
 
 /// Whether Python's `str.isprintable` holds of `c`: everything except the
 /// control, format, surrogate, private-use and unassigned characters and the
 /// separators other than the ASCII space.
 fn printable(c: char) -> bool {
-    use GeneralCategory::*;
     if c == ' ' {
         return true;
     }

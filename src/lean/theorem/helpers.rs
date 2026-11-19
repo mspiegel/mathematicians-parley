@@ -1,5 +1,8 @@
 //! What an obtain takes, widening and the proof's small helpers.
 
+use super::super::doc::{BoundForm, Brackets, Op, Pattern, Quant, TermKind};
+use super::super::expr::NaturalForm;
+use super::super::{doc, tactics as t};
 use super::*;
 
 /// What an `obtain` takes its witnesses from: the Lean term that proves the
@@ -59,7 +62,6 @@ pub(super) fn natural_form_named(
     writer: &Writer,
     node: &Node,
 ) -> super::super::expr::NaturalForm {
-    use super::super::expr::NaturalForm;
     match writer.natural_form(node) {
         NaturalForm::Integer
             if writer.named_whole(node) || writer.nonnegative(node) =>
@@ -110,7 +112,6 @@ pub(super) fn numerals_in_an_argument(node: &Node) -> bool {
 /// Whether a statement as Lean writes it casts a term that is no letter or
 /// numeral, `(Real.cos 0 : ℂ)`, which `push_cast` moves into it.
 pub(super) fn casts_compound(p: &Printed) -> bool {
-    use super::super::doc::TermKind;
     p.walk().iter().any(|c| match &c.kind {
         TermKind::Cast { inner, .. } => !matches!(
             bare_term(inner).kind,
@@ -133,7 +134,6 @@ pub(super) fn widening_have(
     to: super::super::templates::Num,
     proof: Printed,
 ) -> Tactic {
-    use super::super::tactics as t;
     let goal = casts_compound(&says);
     Tactic::Have {
         name: name.to_string(),
@@ -156,8 +156,6 @@ pub(super) fn widening_have(
 /// refutes; anything else `norm_num`. A binomial coefficient declines:
 /// `norm_num` does not work one out.
 pub(super) fn worked_out(says: &Printed) -> Route<Tactic> {
-    use super::super::doc::{BoundForm, Brackets, Op, TermKind};
-    use super::super::tactics as t;
     let parts = says.walk();
     let applied = |name: &str| {
         parts.iter().any(
@@ -227,7 +225,6 @@ pub(super) struct WholeNumberDenied {
 }
 
 pub(super) fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
-    use super::super::doc::{Op, Quant, TermKind};
     let bare = |t: &Printed| -> Printed {
         let mut t = t.clone();
         while let TermKind::Paren(inner) = t.kind {
@@ -613,16 +610,14 @@ impl PutClosing {
     /// the casts pushed down to the letters, `exact_mod_cast` meeting the
     /// two.
     pub(super) fn close(&self, term: Printed) -> super::super::doc::Proof {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         let term = match &self.wanted {
             Some(wanted) => super::terms::rewritten_to(term, self.turn.clone(), wanted),
             None => term,
         };
         if self.cast_to_nat && self.dropped.is_empty() {
             return match self.backs.is_empty() {
-                true => Proof::Term(term),
-                false => Proof::By(Tactic::Seq(vec![
+                true => doc::Proof::Term(term),
+                false => doc::Proof::By(Tactic::Seq(vec![
                     t::call(
                         "rw",
                         vec![TacticArg::Rules(
@@ -647,7 +642,7 @@ impl PutClosing {
         // pushing the casts would work out by itself: the line put in the
         // goal and the whole worked out, true or false.
         if self.wanted.as_ref().is_some_and(no_letter) {
-            return Proof::By(t::on_h(
+            return doc::Proof::By(t::on_h(
                 &term,
                 vec![
                     t::call("revert", vec![TacticArg::Term(t::hyp("h"))]),
@@ -655,7 +650,7 @@ impl PutClosing {
                 ],
             ));
         }
-        Proof::By(t::on_h(&term, vec![pushed, t::exact_mod_cast(t::hyp("h"))]))
+        doc::Proof::By(t::on_h(&term, vec![pushed, t::exact_mod_cast(t::hyp("h"))]))
     }
 
     /// What the motive makes, `says`, written as Lean writes the claim: the
@@ -665,7 +660,6 @@ impl PutClosing {
         term: Printed,
         says: Option<Printed>,
     ) -> super::super::doc::Proof {
-        use super::super::doc::Proof;
         let as_written = self.dropped.is_empty()
             && !self.cast_to_nat
             && says.zip(self.wanted.as_ref()).is_some_and(|(s, w)| {
@@ -674,7 +668,7 @@ impl PutClosing {
                         == super::super::doc::forms::relation_type(w)
             });
         match as_written {
-            true => Proof::Term(term),
+            true => doc::Proof::Term(term),
             false => self.close(term),
         }
     }
@@ -686,17 +680,16 @@ pub(super) fn haves_then(
     haves: Vec<Tactic>,
     proof: super::super::doc::Proof,
 ) -> super::super::doc::Proof {
-    use super::super::doc::Proof;
     if haves.is_empty() {
         return proof;
     }
     let mut lines = haves;
     match proof {
-        Proof::By(t) => lines.push(t),
-        Proof::Term(t) => lines.push(Tactic::Exact(t)),
-        Proof::Block(ts) => lines.extend(ts),
+        doc::Proof::By(t) => lines.push(t),
+        doc::Proof::Term(t) => lines.push(Tactic::Exact(t)),
+        doc::Proof::Block(ts) => lines.extend(ts),
     }
-    Proof::Block(lines)
+    doc::Proof::Block(lines)
 }
 
 /// A claim `s ∈ S`, S ℤ, ℚ or ℝ and s of a wider type, shown by an
@@ -812,7 +805,6 @@ pub(super) struct CitedDefine {
 /// d`, `0 < d`, `d < 0`, `d > 0` or `0 > d`: the line, its `symm`, `ne'` or
 /// `ne`. None of a statement of another form.
 pub(super) fn nonzero_turned(proof: &Printed, says: &Printed) -> Option<Printed> {
-    use super::super::doc::TermKind;
     fn zero(p: &Printed) -> bool {
         match &bare_term(p).kind {
             TermKind::Numeral(n) => n == "0",
@@ -857,7 +849,6 @@ pub(super) fn natural_witnessed(line: &Node, writer: &Writer) -> bool {
 /// its witness (`natural_witnessed`): `by obtain ⟨m, hm, hx⟩ := proof; rw
 /// [← hx]; positivity`, the witness above 0 by `hm`.
 pub(super) fn unwitnessed_nonzero(proof: &Printed) -> Printed {
-    use super::super::tactics as t;
     let by = super::super::doc::Proof::By(Tactic::Seq(vec![
         Tactic::Obtain {
             names: vec!["m".to_string(), "hm".to_string(), "hx".to_string()],
@@ -960,7 +951,6 @@ pub(super) fn written_out_as(
     writer: &Writer,
     push: bool,
 ) -> Vec<Tactic> {
-    use super::super::tactics as t;
     if defines.is_empty() {
         return Vec::new();
     }
@@ -1122,7 +1112,6 @@ pub(super) fn or_pattern(
     node: &Node,
     names: &mut std::slice::Iter<'_, String>,
 ) -> super::super::doc::Pattern {
-    use super::super::doc::Pattern;
     if let ([left, right], crate::notations::DISJUNCTION) =
         (node.children.as_slice(), node.notation())
     {
@@ -1149,7 +1138,6 @@ pub(super) fn cases_said(cases: Vec<Printed>) -> Printed {
 
 /// The cases named in turn, read from the right: `a | b | c`.
 pub(super) fn cases_pattern(names: &[String]) -> super::super::doc::Pattern {
-    use super::super::doc::Pattern;
     match names {
         [] => Pattern::Name("_".to_string()),
         [one] => Pattern::Name(one.clone()),

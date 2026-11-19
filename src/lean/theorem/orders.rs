@@ -1,6 +1,10 @@
 //! Proof methods: chains, orders and instantiation.
 
+use super::super::doc::{forms, CountForm, LeanType, Source, TermKind};
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
+use crate::checker::record::{OrderFact, Weakened};
 
 impl<'a> Proof<'a> {
     /// The sentence of a line in scope that is `line`, by its tree.
@@ -19,7 +23,6 @@ impl<'a> Proof<'a> {
     /// statement's `∃ m : ℕ, S.encard = m ∧ P m` as `P S.ncard`. None where
     /// there is no such count, or they are parts of more than one set.
     pub(super) fn some_counts_opened(&self, node: &Node) -> Option<Tactic> {
-        use super::super::tactics as t;
         let mut wholes: Vec<Printed> = Vec::new();
         for set in self.counted_sets(&[node]) {
             if self.writer.set_term(&set).built().is_some() {
@@ -352,7 +355,6 @@ impl<'a> Proof<'a> {
         to: Option<super::super::templates::Num>,
         w: &Writer,
     ) -> Route<Printed> {
-        use super::super::doc::Proof;
         let Some(to) = to.filter(|t| number_type(&f.says) != Some(*t)) else {
             return Route::Built(f.proof);
         };
@@ -379,7 +381,7 @@ impl<'a> Proof<'a> {
         }
         Route::Built(super::super::tactics::bracket(shown(
             says,
-            Proof::By(super::super::tactics::exact_mod_cast(f.proof)),
+            doc::Proof::By(super::super::tactics::exact_mod_cast(f.proof)),
         )))
     }
 
@@ -421,7 +423,6 @@ impl<'a> Proof<'a> {
         parts: &mut impl Iterator<Item = &'p crate::checker::record::OrderPart>,
         w: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let Some((left, right)) = w.and_sides(node) else {
             let Some(part) = parts.next() else {
                 return Route::no(
@@ -433,12 +434,12 @@ impl<'a> Proof<'a> {
         let mut items = Vec::new();
         for child in [left, right] {
             match self.order_joined(child, parts, w) {
-                Route::Built(Proof::Term(t)) => items.push(t),
+                Route::Built(doc::Proof::Term(t)) => items.push(t),
                 Route::Built(p) => items.push(super::super::tactics::by_term(p)),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        Route::Built(Proof::Term(super::super::expr::anonymous(items)))
+        Route::Built(doc::Proof::Term(super::super::expr::anonymous(items)))
     }
 
     /// One part of an order step's claim, `node`, from what it rests on:
@@ -458,8 +459,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         w: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::{LeanType, Proof, Source, TermKind};
-        use crate::checker::record::Weakened;
         let wanted = match w.formula(node) {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
@@ -479,7 +478,7 @@ impl<'a> Proof<'a> {
             // is the claim; otherwise an equation denying the claim gives
             // one denying the fact by linear arithmetic.
             if fact.says.text() == wanted.text() {
-                return Route::Built(Proof::Term(fact.proof));
+                return Route::Built(doc::Proof::Term(fact.proof));
             }
             if r.turned {
                 let turned = Printed::applied(
@@ -489,7 +488,7 @@ impl<'a> Proof<'a> {
                     LeanType::Prop,
                 );
                 if turned_relation_text(&fact.says).as_deref() == Some(&wanted.text()) {
-                    return Route::Built(Proof::Term(turned));
+                    return Route::Built(doc::Proof::Term(turned));
                 }
             }
             let mut with = vec![super::super::tactics::hyp("h")];
@@ -519,7 +518,7 @@ impl<'a> Proof<'a> {
                 },
                 LeanType::Prop,
             );
-            return Route::Built(Proof::Term(Printed::of(
+            return Route::Built(doc::Proof::Term(Printed::of(
                 TermKind::Lambda {
                     letters: vec!["h".to_string()],
                     body: Box::new(body),
@@ -607,9 +606,9 @@ impl<'a> Proof<'a> {
             }) else {
                 return Route::no("an equation in ℂ an order step adds no facts to");
             };
-            return Route::Built(Proof::By(super::super::tactics::linear_combination(
-                sum,
-            )));
+            return Route::Built(doc::Proof::By(
+                super::super::tactics::linear_combination(sum),
+            ));
         }
         let linear = split_linarith(&apart, added);
         let narrower = match (claim_in, widest) {
@@ -628,7 +627,7 @@ impl<'a> Proof<'a> {
             };
             let proof = match linear.kind {
                 TermKind::By(proof) => *proof,
-                _ => Proof::By(Tactic::Exact(linear)),
+                _ => doc::Proof::By(Tactic::Exact(linear)),
             };
             // A claim of ℚ is taken back from ℝ by ℚ's cast lemmas
             // (`real_to_rat`).
@@ -645,9 +644,11 @@ impl<'a> Proof<'a> {
             {
                 return Route::no("an order step's claim in a narrower type than norm_cast takes it to");
             }
-            return Route::Built(Proof::By(super::super::tactics::exact_mod_cast(
-                super::super::tactics::bracket(shown(says, proof)),
-            )));
+            return Route::Built(doc::Proof::By(
+                super::super::tactics::exact_mod_cast(super::super::tactics::bracket(
+                    shown(says, proof),
+                )),
+            ));
         }
         let weak = |lemma: &str| {
             Printed::applied(
@@ -658,11 +659,11 @@ impl<'a> Proof<'a> {
             )
         };
         Route::Built(match part.weakened {
-            Some(Weakened::Below) => Proof::Term(weak("ne_of_lt")),
-            Some(Weakened::Above) => Proof::Term(weak("ne_of_gt")),
+            Some(Weakened::Below) => doc::Proof::Term(weak("ne_of_lt")),
+            Some(Weakened::Above) => doc::Proof::Term(weak("ne_of_gt")),
             None => match linear.kind {
                 TermKind::By(proof) => *proof,
-                _ => Proof::Term(linear),
+                _ => doc::Proof::Term(linear),
             },
         })
     }
@@ -674,7 +675,6 @@ impl<'a> Proof<'a> {
         fact: &crate::checker::record::OrderFact,
         w: &Writer,
     ) -> Route<OrderFactTerm> {
-        use crate::checker::record::OrderFact;
         let (proof, says, node) = match fact {
             OrderFact::Line(at) => match self.line_says(at) {
                 Route::Built((proof, says)) => (proof, says, at.written.clone()),
@@ -820,7 +820,6 @@ impl<'a> Proof<'a> {
     /// saying `q a = a + 1`, ha the membership from where the record found
     /// it. Declined where the step applies it at no argument or at several.
     fn header_equation_at(&self, label: &str, w: &Writer) -> Route<OrderFactTerm> {
-        use super::super::doc::TermKind;
         let Some(step) = self.step_now.get().map(|i| &self.thm.steps[i]) else {
             return Route::no("a define an order step adds outside a step");
         };
@@ -1169,7 +1168,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         w: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::{LeanType, Proof, Source};
         let Some(rec) = self.rec.antisymmetric.get(&line) else {
             return Route::no("an antisymmetry step the checker paired no lines for");
         };
@@ -1190,7 +1188,7 @@ impl<'a> Proof<'a> {
             }
             proofs.push(proof);
         }
-        Route::Built(Proof::Term(Printed::applied(
+        Route::Built(doc::Proof::Term(Printed::applied(
             "le_antisymm",
             Source::Mathlib,
             proofs,
@@ -1539,7 +1537,6 @@ impl<'a> Proof<'a> {
         page: Option<&Node>,
         recorded: &crate::checker::record::Instantiated,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::forms;
         let lean = match (&instance, claim.clone()) {
             (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
             _ => None,
@@ -1699,8 +1696,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::{CountForm, TermKind};
-        use super::super::tactics as t;
         let TermKind::Quantified {
             quant: super::super::doc::Quant::Exists,
             letter,
@@ -1768,7 +1763,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::doc::{CountForm, TermKind};
         let TermKind::Quantified {
             quant: super::super::doc::Quant::Exists,
             guard: Some(guard),
@@ -1818,7 +1812,6 @@ impl<'a> Proof<'a> {
         let proof = match written {
             true => proof.clone(),
             false => {
-                use super::super::templates::Num;
                 let mut rules: Vec<&'static str> =
                     super::super::doc::forms::to_nat_rules(body)
                         .into_iter()
@@ -1864,7 +1857,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         claim: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
         let nonneg = self.count_value_nonneg(value, says, claim)?;
         Some(super::super::doc::Proof::By(t::call(
             "rw",
@@ -1912,7 +1904,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
         count_value_shape(wanted, says)?;
         let finite = self.shown_finite(set)?;
         // The line's count taken to ℕ, `S.ncard = j.toNat`, and the goal's
@@ -2106,7 +2097,6 @@ impl<'a> Proof<'a> {
 /// A term with its casts and brackets taken off, `((S.ncard : ℕ) : ℤ)` as
 /// `S.ncard`.
 fn uncast(p: &Printed) -> &Printed {
-    use super::super::doc::TermKind;
     match &p.kind {
         TermKind::Cast { inner, .. } | TermKind::Paren(inner) => uncast(inner),
         _ => p,
@@ -2118,7 +2108,6 @@ fn uncast(p: &Printed) -> &Printed {
 /// value, `(S.ncard : ℤ) = j`: the two forms of one count the writer
 /// meets (`count_value_met`, `count_value_made`). None otherwise.
 pub(super) fn count_value_shape(extended: &Printed, natural: &Printed) -> Option<()> {
-    use super::super::doc::{CountForm, TermKind};
     let (e_left, e_right) = equation_sides(extended)?;
     let (n_left, n_right) = equation_sides(natural)?;
     let counted = |p: &Printed, form: CountForm| match &uncast(p).kind {
@@ -2145,8 +2134,6 @@ pub(super) fn witness_to_value(
     says: &Printed,
     wanted: &Printed,
 ) -> Option<super::super::doc::Proof> {
-    use super::super::doc::{CountForm, TermKind};
-    use super::super::tactics as t;
     let TermKind::Quantified {
         quant: super::super::doc::Quant::Exists,
         letter,
@@ -2198,7 +2185,6 @@ pub(super) fn witness_to_value(
 /// The term with each `toNat` of a term with no letter, a numeral's, taken
 /// off: what `Int.reduceToNat` works out, `(0 : ℤ).toNat` as 0.
 fn numerals_worked(p: &Printed) -> Printed {
-    use super::super::doc::TermKind;
     if let TermKind::ToNat(inner) = &p.kind {
         if !inner.lettered() {
             return numerals_worked(inner);
@@ -2216,10 +2202,8 @@ fn numerals_worked(p: &Printed) -> Printed {
 /// (by intro k h; exact hD1 k (by simp only [Finset.mem_Icc] at h ⊢;
 /// omega))`, the index's fact read off its place in the range.
 fn sum_term_by_term(hyp: &str, index: &str) -> Printed {
-    use super::super::doc::Proof;
-    use super::super::tactics as t;
     let k = super::super::names::letter(index);
-    let in_domain = t::by_term(Proof::By(Tactic::Seq(vec![
+    let in_domain = t::by_term(doc::Proof::By(Tactic::Seq(vec![
         t::simp_only(
             false,
             None,
@@ -2228,7 +2212,7 @@ fn sum_term_by_term(hyp: &str, index: &str) -> Printed {
         ),
         t::call("omega", vec![]),
     ])));
-    let term = t::by_term(Proof::By(Tactic::Seq(vec![
+    let term = t::by_term(doc::Proof::By(Tactic::Seq(vec![
         Tactic::Intro(vec![k.clone(), "h".to_string()]),
         Tactic::Exact(super::terms::hyp_applied(hyp, vec![t::hyp(&k), in_domain])),
     ])));
@@ -2250,7 +2234,6 @@ fn sum_term_by_term(hyp: &str, index: &str) -> Printed {
 /// The two sides of an equation as Lean writes it; None for any other
 /// statement.
 pub(super) fn equation_sides(p: &Printed) -> Option<(&Printed, &Printed)> {
-    use super::super::doc::TermKind;
     match &p.kind {
         TermKind::Infix { op, lhs, rhs } if op.symbol == "=" => Some((lhs, rhs)),
         TermKind::Paren(inner) => equation_sides(inner),

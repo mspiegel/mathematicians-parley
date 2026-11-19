@@ -1,6 +1,8 @@
 //! Closure claims, real arithmetic, links and recursions.
 
 use super::*;
+use crate::methods::pairs;
+use crate::methods::surds::Verdict as Surd;
 
 /// A claim a closure method is asked of: a step's own, or a requires line's
 /// read as the step it would be, with the requires lines above it among what
@@ -275,7 +277,6 @@ fn pair_apart_at(
     known: &Known,
     targets: &Targets,
 ) -> Option<crate::methods::pairs::Coordinate> {
-    use crate::methods::pairs;
     // The claim's one fact, as the method reads it.
     let one = || {
         let facts: Vec<Node> = at
@@ -468,7 +469,6 @@ pub(super) fn real_worked_of(
     known: &Known,
     targets: &Targets,
 ) -> RealWorked {
-    use crate::methods::surds::Verdict as Surd;
     let mut out = RealWorked::Holds;
     let mut beyond = false;
     for node in nodes {
@@ -602,7 +602,6 @@ pub fn check_closed_by_real_arithmetic(
     known: &Known,
     targets: &Targets,
 ) {
-    use crate::methods::surds::Verdict as Surd;
     let decided = |written: &Written| {
         let terms = real_terms(written, known, targets)?;
         if !terms.iter().any(reals::beyond_arithmetic)

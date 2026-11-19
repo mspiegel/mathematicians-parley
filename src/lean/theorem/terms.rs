@@ -1,6 +1,12 @@
 //! Terms, orders and rational casts of Lean statements.
 
+use super::super::doc::{
+    Arg, BoundForm, LeanType, Op, Quant, Source, Tactic, TacticArg, TermKind,
+};
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
+use crate::notations::{INTEGER_RANGE, NUMBER_SYSTEMS};
 
 /// Lean's statement of a "for all" line once each of its leading letters is
 /// given its value (`lean_instance`).
@@ -22,7 +28,6 @@ pub(super) fn lean_instance(
     given: &[(Printed, bool)],
     conditions: usize,
 ) -> Route<LeanInstance> {
-    use super::super::doc::TermKind;
     let bare = |t: Printed| match t.kind {
         TermKind::Paren(inner) => *inner,
         _ => t,
@@ -108,7 +113,6 @@ pub(super) fn hyp_applied(hyp: &str, args: Vec<Printed>) -> Printed {
 /// The bounds a range line gives, `x ∈ Finset.Icc a b` proved by `proof`:
 /// `a ≤ x` and `x ≤ b`, by `Finset.mem_Icc`; none for any other line.
 pub(super) fn range_bounds(says: &Printed, proof: &Printed) -> Vec<(Printed, Printed)> {
-    use super::super::doc::{Arg, LeanType, Op, Source, TermKind};
     let TermKind::Infix { op, lhs, rhs } = &says.kind else {
         return Vec::new();
     };
@@ -210,7 +214,6 @@ pub(super) fn turned_under(
     says: &Printed,
     letter: Option<&str>,
 ) -> Printed {
-    use super::super::doc::{Quant, TermKind};
     // `fun a h => body`, the letters' types left to Lean.
     let fun = |letters: Vec<String>, body: Printed| Printed {
         kind: TermKind::Lambda {
@@ -315,8 +318,6 @@ pub(super) fn turns_notation(notation: &str) -> bool {
 /// in the order the nodes stand. Empty where they are written alike, or
 /// where they differ otherwise than so.
 pub(super) fn turning_rewrites(from: &Printed, to: &Printed) -> Vec<Printed> {
-    use super::super::doc::{Arg, TermKind};
-    use super::super::tactics as t;
     let (here, there) = (from.walk(), to.walk());
     if here.len() != there.len() {
         return Vec::new();
@@ -495,9 +496,6 @@ pub(super) fn flip_rewrites(
     flips: &[crate::matching::Flip],
     toward: Toward<'_>,
 ) -> Option<Vec<Printed>> {
-    use super::super::doc::{Arg, TermKind};
-    use super::super::tactics as t;
-    use super::super::templates::Num;
     let applied = |lemma: &str, args: Vec<Arg>| Printed {
         kind: TermKind::App {
             head: Box::new(t::lemma(lemma)),
@@ -616,7 +614,6 @@ pub(super) fn rewritten_to(
     rewrites: Vec<Printed>,
     to: &Printed,
 ) -> Printed {
-    use super::super::tactics as t;
     if rewrites.is_empty() {
         return proof;
     }
@@ -647,14 +644,13 @@ pub(super) fn rewritten_to(
 pub(super) fn haves_in_one_order(
     proof: super::super::doc::Proof,
 ) -> super::super::doc::Proof {
-    use super::super::doc::{Proof, Tactic};
     let ordered = |t: Tactic| match t {
         Tactic::Have { name, says, proof } => match *proof {
-            Proof::Term(term) => {
+            doc::Proof::Term(term) => {
                 let to = says.in_one_order();
                 Tactic::Have {
                     name,
-                    proof: Box::new(Proof::Term(turned_to(term, &says, &to))),
+                    proof: Box::new(doc::Proof::Term(turned_to(term, &says, &to))),
                     says: to,
                 }
             }
@@ -667,10 +663,12 @@ pub(super) fn haves_in_one_order(
         other => other,
     };
     match proof {
-        Proof::By(Tactic::Seq(steps)) => {
-            Proof::By(Tactic::Seq(steps.into_iter().map(ordered).collect()))
+        doc::Proof::By(Tactic::Seq(steps)) => {
+            doc::Proof::By(Tactic::Seq(steps.into_iter().map(ordered).collect()))
         }
-        Proof::Block(steps) => Proof::Block(steps.into_iter().map(ordered).collect()),
+        doc::Proof::Block(steps) => {
+            doc::Proof::Block(steps.into_iter().map(ordered).collect())
+        }
         other => other,
     }
 }
@@ -694,7 +692,6 @@ pub(super) fn permuted_only_listed(met: &crate::matching::Meeting) -> bool {
 /// not; of several sentences, which group to the right, the first and the
 /// rest.
 pub(super) fn and_sides(term: &Printed) -> Option<(Printed, Printed)> {
-    use super::super::doc::{Op, TermKind};
     match &term.kind {
         TermKind::Paren(inner) => and_sides(inner),
         TermKind::Infix { op, lhs, rhs } if *op == Op::AND => {
@@ -920,7 +917,6 @@ pub(super) fn rules_said(
     starts: Vec<Printed>,
     steps: Vec<Printed>,
 ) -> Printed {
-    use super::super::doc::{LeanType, Op};
     let int = LeanType::Num(super::super::templates::Num::Int);
     let from_0 = Printed::infix(
         Op::AT_MOST,
@@ -961,7 +957,6 @@ pub(super) fn conjunction(parts: Vec<Printed>) -> Option<Printed> {
 /// Whether the statement applies a function to a numeral, through brackets
 /// and casts: `Complex.cos 0`.
 pub(super) fn function_of_numeral(statement: &Printed) -> bool {
-    use super::super::doc::{Arg, TermKind};
     fn bare(t: &Printed) -> &Printed {
         match &t.kind {
             TermKind::Paren(inner) | TermKind::Cast { inner, .. } => bare(inner),
@@ -983,7 +978,6 @@ pub(super) fn function_of_numeral(statement: &Printed) -> bool {
 /// Whether the term holds a cast whose term, through brackets, is a
 /// `toNat`: `((2^p − 1).toNat : ℤ)`.
 pub(super) fn casts_a_to_nat(term: &Printed) -> bool {
-    use super::super::doc::TermKind;
     fn bare(t: &Printed) -> &Printed {
         match &t.kind {
             TermKind::Paren(inner) => bare(inner),
@@ -1063,7 +1057,6 @@ pub(super) fn number_type(says: &Printed) -> Option<super::super::templates::Num
 /// Whether the relation `narrow` states in ℚ is taken to `wide`, the same
 /// relation in ℝ.
 pub(super) fn rat_crossing(narrow: &Printed, wide: &Printed) -> bool {
-    use super::super::templates::Num;
     (number_type(narrow), number_type(wide)) == (Some(Num::Rat), Some(Num::Real))
 }
 
@@ -1085,7 +1078,6 @@ pub(super) fn rat_relation_lemma(says: &Printed) -> Option<&'static str> {
 /// numerals (`rat_cast_lemmas`), and the casts left in both pushed alike.
 /// None of a relation with no such lemma.
 pub(super) fn rat_lifted(proof: Printed, says: &Printed) -> Option<Printed> {
-    use super::super::tactics as t;
     let lemma = rat_relation_lemma(says)?;
     let up = applied_to(
         fields(
@@ -1111,7 +1103,6 @@ pub(super) fn rat_relation_at(
     lemma: &str,
     to: super::super::templates::Num,
 ) -> Printed {
-    use super::super::doc::{Arg, LeanType, Source, TermKind};
     // Mathlib names the field `α` in `Rat.cast_inj` and `K` in the orders'.
     let field = match lemma {
         "Rat.cast_inj" => "α",
@@ -1134,7 +1125,6 @@ pub(super) fn rat_relation_at(
 /// holds, down to its letters and numerals, in a fixed order: ℚ's own
 /// (`Rat.cast_div`, `Rat.cast_pow`, …), never a step through ℕ.
 pub(super) fn rat_cast_lemmas(says: &Printed) -> Vec<super::super::doc::Rule> {
-    use super::super::doc::{BoundForm, TermKind};
     const ORDER: [&str; 15] = [
         "Rat.cast_sum",
         "Rat.cast_prod",
@@ -1216,8 +1206,6 @@ pub(super) fn rat_to_real(
     narrow: &Printed,
     wide: Printed,
 ) -> Option<Printed> {
-    use super::super::doc::{LeanType, Proof, TermKind};
-    use super::super::tactics as t;
     // A negated equation, `a ≠ b` or `¬ a = b`, is cast by its equation's
     // lemma, negated (`Rat.cast_inj.not`).
     let (lemma, path): (_, &[&str]) = match &unparenthesized(narrow).kind {
@@ -1252,7 +1240,7 @@ pub(super) fn rat_to_real(
         t::simp_only(false, None, lemmas, Some(t::at_h(false))),
         Tactic::Exact(t::hyp("h")),
     ];
-    Some(t::bracket(shown(wide, Proof::By(Tactic::Seq(steps)))))
+    Some(t::bracket(shown(wide, doc::Proof::By(Tactic::Seq(steps)))))
 }
 
 /// A claim of ℚ, `narrow`, proved from `wide`, the same relation in ℝ,
@@ -1264,12 +1252,10 @@ pub(super) fn real_to_rat(
     narrow: &Printed,
     wide: Printed,
 ) -> Option<super::super::doc::Proof> {
-    use super::super::doc::{LeanType, Proof, TermKind};
-    use super::super::tactics as t;
     let lemma = rat_relation_lemma(narrow)?;
     let to = number_type(&wide)?;
     let lemmas = rat_cast_lemmas(&wide);
-    let pushed = Proof::By(Tactic::Seq(vec![
+    let pushed = doc::Proof::By(Tactic::Seq(vec![
         t::simp_only(false, None, lemmas, None),
         Tactic::Exact(t::hyp("h")),
     ]));
@@ -1283,7 +1269,7 @@ pub(super) fn real_to_rat(
         },
         LeanType::Prop,
     );
-    Some(Proof::Block(vec![
+    Some(doc::Proof::Block(vec![
         Tactic::Have {
             name: "h".to_string(),
             says: wide,
@@ -1301,7 +1287,6 @@ pub(super) fn real_to_rat(
 /// both and is read as an atom: `norm_cast` reads the wide statement's ℤ
 /// to ℝ as ℤ to ℚ to ℝ, so only the cast to `to` moves.
 pub(super) fn lifts_whole(narrow: &Printed, to: super::super::templates::Num) -> bool {
-    use super::super::doc::{LeanType, TermKind};
     let narrow = match &narrow.kind {
         TermKind::Paren(inner) => inner,
         _ => narrow,
@@ -1323,7 +1308,6 @@ pub(super) fn lifts_whole(narrow: &Printed, to: super::super::templates::Num) ->
 /// `term` with each cast in it a letter of the type it is cast to, which
 /// the cast table reads as an atom.
 pub(super) fn casts_as_atoms(term: &Printed) -> Printed {
-    use super::super::doc::TermKind;
     if let TermKind::Cast { to, .. } = &term.kind {
         return Printed::letter("x", to.clone());
     }
@@ -1346,7 +1330,6 @@ pub(super) struct OrderTurn {
 /// where `wanted` writes `<` by `gt_iff_lt.mp`, to `0 < 2`. None where the
 /// two face alike, or either is no order.
 pub(super) fn order_turn(says: &Printed, wanted: &Printed) -> Option<OrderTurn> {
-    use super::super::doc::TermKind;
     let (lemma, turned) = match (relation_symbol(says)?, relation_symbol(wanted)?) {
         (">", "<") => ("gt_iff_lt.mp", "<"),
         ("≥", "≤") => ("ge_iff_le.mp", "≤"),
@@ -1369,7 +1352,6 @@ pub(super) fn order_turn(says: &Printed, wanted: &Printed) -> Option<OrderTurn> 
 /// How Lean writes a disequality with its sides swapped, `b ≠ a` of
 /// `a ≠ b`; None of anything else.
 pub(super) fn turned_relation_text(says: &Printed) -> Option<String> {
-    use super::super::doc::TermKind;
     match &says.kind {
         TermKind::Infix { op, lhs, rhs } if op.symbol == "≠" => Some(
             Printed::infix(
@@ -1408,7 +1390,6 @@ pub(super) fn turned_relation_text(says: &Printed) -> Option<String> {
 /// with 1/(n + 1) (`METHODS.md`, inequalities, Atoms), where Lean's
 /// `linarith` takes each quotient as an atom of its own.
 pub(super) fn reciprocals(stated: &[&Printed]) -> Vec<Printed> {
-    use super::super::doc::{LeanType, Source, TermKind};
     let numeral = |t: &Printed| matches!(&t.kind, TermKind::Numeral(_));
     // Each quotient with the number type of the relation it stands in.
     let mut quotients: Vec<(&Printed, &Printed, Option<super::super::templates::Num>)> =
@@ -1463,7 +1444,6 @@ pub(super) fn read_at_intros(
     says: &Printed,
     intros: &[String],
 ) -> Option<(Printed, Printed)> {
-    use super::super::doc::{Arg, LeanType, Quant, TermKind};
     let mut body = says;
     let mut args = Vec::new();
     let mut names = intros.iter();
@@ -1507,8 +1487,6 @@ pub(super) fn read_at_intros(
 /// `(Ne.lt_or_gt d).elim (fun h1 => …) (fun h1 => …)`, with h1, the order
 /// each case gives, among the facts below it.
 pub(super) fn split_linarith(split: &[Printed], facts: Vec<Printed>) -> Printed {
-    use super::super::doc::{LeanType, Proof, Source, TacticArg, TermKind};
-    use super::super::tactics as t;
     let Some((apart, rest)) = split.split_first() else {
         // A step resting on no line, `N ≤ N + 1`, is plain `linarith`:
         // with nothing to name, `only []` says nothing a reader needs.
@@ -1516,7 +1494,7 @@ pub(super) fn split_linarith(split: &[Printed], facts: Vec<Printed>) -> Printed 
             true => Vec::new(),
             false => vec![TacticArg::Only, t::rules(facts)],
         };
-        return t::by_term(Proof::By(t::call("linarith", args)));
+        return t::by_term(doc::Proof::By(t::call("linarith", args)));
     };
     let name = format!("h{}", split.len());
     let mut with = facts;
@@ -1549,7 +1527,6 @@ pub(super) fn lambda(
     ty: super::super::doc::LeanType,
     body: Printed,
 ) -> Printed {
-    use super::super::doc::LeanType;
     let to = body.ty.clone().unwrap_or(LeanType::Prop);
     let fun = Printed::of(
         super::super::doc::TermKind::Quantified {
@@ -1578,7 +1555,6 @@ pub(super) fn mapped_through(
     gives: super::super::templates::Num,
     wanted: super::super::templates::Num,
 ) -> Printed {
-    use super::super::doc::LeanType;
     let x = Printed::cast(super::super::tactics::hyp("x"), LeanType::Num(takes));
     let value = Printed::cast(applied_to(f, x), LeanType::Num(gives));
     lambda("x", from, Printed::cast(value, LeanType::Num(wanted)))
@@ -1630,7 +1606,6 @@ pub(super) fn forwards_of(iff: Printed, premise: Printed) -> Printed {
 /// number system it is in, which Lean writes as the number it is, `∃ m :
 /// ℤ, (m : ℤ) = a - b` (`⟨_, rfl⟩`). None for any other statement.
 pub(super) fn lean_truth(statement: &Printed) -> Option<Printed> {
-    use super::super::doc::{LeanType, Quant, TermKind};
     if let Some(p) = in_univ(statement) {
         return Some(p);
     }
@@ -1696,7 +1671,6 @@ pub(super) fn lean_truth(statement: &Printed) -> Option<Printed> {
 /// Whether `statement` is `0 ≤ x` of an x Lean writes as a natural number
 /// cast up, `(Int.gcd s w : ℤ)`.
 pub(super) fn natural_cast_bounded(statement: &Printed) -> bool {
-    use super::super::doc::{LeanType, TermKind};
     let TermKind::Infix { op, rhs, .. } = &bare_term(statement).kind else {
         return false;
     };
@@ -1765,8 +1739,6 @@ pub(super) fn narrowed_proof(
     proof: Printed,
     wanted: &Printed,
 ) -> Option<Printed> {
-    use super::super::doc::{Quant, TermKind};
-    use crate::notations::{INTEGER_RANGE, NUMBER_SYSTEMS};
     let TermKind::Quantified {
         quant: Quant::ForAll,
         letter,
@@ -1809,7 +1781,6 @@ pub(super) fn narrowed_proof(
 /// The lines whose numbers `term` names, the h of each `Classical.choose
 /// h`, each once.
 pub(super) fn chosen_witnesses(term: &Printed) -> Vec<Printed> {
-    use super::super::doc::{Arg, TermKind};
     let mut out: Vec<Printed> = Vec::new();
     for t in term.walk() {
         if let TermKind::App { head, args, .. } = &t.kind {
@@ -1846,7 +1817,6 @@ pub(super) struct Witnessed {
 /// it, `∃ m : T, P m ∧ (m : T) = t`, t free of m; None for any other
 /// statement.
 pub(super) fn number_member(statement: &Printed) -> Option<Witnessed> {
-    use super::super::doc::{Quant, TermKind};
     let TermKind::Quantified {
         quant: Quant::Exists,
         letter,
@@ -1885,7 +1855,6 @@ pub(super) fn number_member(statement: &Printed) -> Option<Witnessed> {
 /// S, True`, and `says` names one, `a ∈ S`: the witness a, asked `a ∈ S`
 /// as Lean writes the set. None for any other two.
 pub(super) fn member_named(wanted: &Printed, says: &Printed) -> Option<Witnessed> {
-    use super::super::doc::{Quant, TermKind};
     let TermKind::Quantified {
         quant: Quant::Exists,
         letter,
@@ -1920,7 +1889,6 @@ pub(super) fn member_named(wanted: &Printed, says: &Printed) -> Option<Witnessed
 /// the citation leaves open or gives as a number system, which Lean writes
 /// as the whole of its type.
 pub(super) fn in_univ(statement: &Printed) -> Option<Printed> {
-    use super::super::doc::{LeanType, Quant, TermKind};
     let elided = || Printed::of(TermKind::Elided, LeanType::Prop);
     let lemma = |name: &str, args: usize| {
         Printed::applied(

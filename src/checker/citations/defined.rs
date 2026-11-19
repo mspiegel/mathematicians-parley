@@ -1,6 +1,7 @@
 //! Defined functions and the domains asked of them.
 
 use super::*;
+use crate::checker::record::{AppliedDomain, DomainSaid};
 
 /// A defined function by name, with the domain of each argument in order.
 #[derive(Clone)]
@@ -196,7 +197,6 @@ pub fn define_domains(
     known: &Known,
     substituted: &IndexMap<usize, crate::checker::record::Substituted>,
 ) -> IndexMap<usize, crate::checker::record::DomainSaid> {
-    use crate::checker::record::DomainSaid;
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let Some(claim) = known.whole_as_written(&step.claim) else {
@@ -268,7 +268,6 @@ pub fn applied_domains(
     known: &Known,
     scopes: &[FileScope],
 ) -> IndexMap<usize, Vec<crate::checker::record::AppliedDomain>> {
-    use crate::checker::record::{AppliedDomain, DomainSaid};
     let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     let mut out = IndexMap::new();
     for step in &thm.steps {

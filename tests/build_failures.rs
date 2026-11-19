@@ -12,6 +12,9 @@
 
 use std::path::{Path, PathBuf};
 
+use parley::lean::doc::file::Lookup;
+use parley::lean::modules::Answer;
+use parley::lean::names::{module_of, path_of_module};
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::tools::build::artifacts;
 
@@ -174,8 +177,6 @@ fn every_lean_failure_is_found_in_one_run_and_the_rest_is_built() {
     // Two library modules Lean is said not to read: the table, as the build
     // has it once Lean has answered, holds an error for each in place of
     // its modules. The file keeps no such answer (`ModuleTable::text`).
-    use parley::lean::doc::file::Lookup;
-    use parley::lean::modules::Answer;
     let mut table = parley::lean::modules::ModuleTable::read(&tree).unwrap();
     let mut rejected = Vec::new();
     for (lookup, answer) in table.answers.iter_mut() {
@@ -214,7 +215,6 @@ fn every_lean_failure_is_found_in_one_run_and_the_rest_is_built() {
         });
         assert!(why.contains("planted"), "{module}: {why}");
     }
-    use parley::lean::names::{module_of, path_of_module};
     for module in &rejected {
         assert!(
             !made.files.contains_key(&path_of_module(module)),

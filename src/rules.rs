@@ -24,6 +24,8 @@
 //! without a reason.
 
 /// The digits and the constant set.mm names each by.
+use num_traits::Signed;
+
 pub const NUMERALS: [(&str, &str); 10] = [
     ("0", "cc0"),
     ("1", "c1"),
@@ -644,7 +646,6 @@ impl System {
     /// Whether a rational value is a member, by `METHODS.md`'s tests on a
     /// closed number's value.
     pub fn admits(self, value: &num_rational::BigRational) -> bool {
-        use num_traits::Signed;
         match self {
             System::N => value.is_integer() && value.is_positive(),
             System::N0 => value.is_integer() && !value.is_negative(),

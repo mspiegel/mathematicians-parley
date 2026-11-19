@@ -1,6 +1,15 @@
 //! Proof methods: lines cited and met with a claim.
 
+use super::super::doc::forms::Meets;
+use super::super::doc::CountForm::{Extended, Natural};
+use super::super::doc::{
+    forms, BoundForm, CountForm, LeanType, PrefixMark, Quant, Source, TermKind,
+};
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
+use crate::checker::record::DomainSaid;
+use crate::citing::Implication;
 
 impl<'a> Proof<'a> {
     /// A claim "for all j ∈ S" proved by a header function's equation at
@@ -16,7 +25,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         line: usize,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::tactics as t;
         let (Some(said), Some(met)) = (
             self.rec.define_domains.get(&line),
             self.rec.define_links.get(&line),
@@ -106,8 +114,6 @@ impl<'a> Proof<'a> {
         line: usize,
         proof: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::{LeanType, Proof, Source, TermKind};
-        use super::super::tactics as t;
         let at: Vec<&crate::checker::record::AppliedDomain> = self
             .rec
             .applied_domains
@@ -128,10 +134,10 @@ impl<'a> Proof<'a> {
         let n = super::super::names::letter(&applied.arg.text);
         let mut args = vec![t::hyp(&n)];
         if guarded {
-            args.push(t::by_term(Proof::By(t::call("omega", vec![]))));
+            args.push(t::by_term(doc::Proof::By(t::call("omega", vec![]))));
         }
         let equation = super::terms::hyp_applied(&hyp, args);
-        let agree = t::by_term(Proof::By(Tactic::Seq(vec![
+        let agree = t::by_term(doc::Proof::By(Tactic::Seq(vec![
             Tactic::Intro(vec![n.clone(), "hn".to_string()]),
             t::call("rw", vec![TacticArg::Rules(vec![t::forwards(equation)])]),
         ])));
@@ -158,7 +164,7 @@ impl<'a> Proof<'a> {
             },
             ty: Some(LeanType::Prop),
         };
-        Some(Proof::By(Tactic::Exact(congr)))
+        Some(doc::Proof::By(Tactic::Exact(congr)))
     }
 
     /// The proof of `wrapped`, a requires fact under the claim's "for all",
@@ -212,7 +218,6 @@ impl<'a> Proof<'a> {
         said: &crate::checker::record::DomainSaid,
         member: Option<Printed>,
     ) -> Route<Printed> {
-        use crate::checker::record::DomainSaid;
         match (said, member) {
             (DomainSaid::Line(at), _) if at.implied.is_none() => {
                 self.line_part(at).map(|found| found.proof)
@@ -417,7 +422,6 @@ impl<'a> Proof<'a> {
         rule: crate::citing::Implication,
         target: &Printed,
     ) -> Route<Printed> {
-        use crate::citing::Implication;
         match rule {
             // A membership of a wider number system: of one Lean's type
             // already holds, `True`; of ℕ₀ from ℕ, `le_of_lt` of the bound
@@ -489,7 +493,6 @@ impl<'a> Proof<'a> {
                         ))
                     }
                 };
-                use super::super::tactics as t;
                 let steps = vec![
                     Tactic::Obtain {
                         names: vec!["w".to_string(), "hw".to_string(), "ew".to_string()],
@@ -577,7 +580,6 @@ impl<'a> Proof<'a> {
     /// in by its own equation, `(f a : ℝ) = …`, which states the claim's
     /// side as the claim casts it, and leaves no cast.
     pub(super) fn unfolds_to_casts(&self, one: &Printed, other: &Printed) -> bool {
-        use super::super::doc::forms;
         let values = self.set_values();
         !forms::alike_once_set(one, other, &values)
             && (forms::casts_set_letter(one, &values)
@@ -620,8 +622,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Proved> {
-        use super::super::doc::forms::{self, Meets};
-        use super::super::doc::CountForm::{Extended, Natural};
         let meets = forms::meets(says, wanted, &self.set_values())?;
         // A count is taken from ℕ to ℕ∞ or ℤ only as `forms_converted`
         // takes it: a line counting one way meets one counting another not
@@ -656,7 +656,6 @@ impl<'a> Proof<'a> {
             // The whole of a type read away, each `set` letter named by its
             // equation first.
             Meets::Universe { rules, through } => {
-                use super::super::tactics as t;
                 let mut by: Vec<Printed> = through.iter().map(|e| t::hyp(e)).collect();
                 by.extend(rules.into_iter().map(t::lemma));
                 Proved::Term(t::by_term(super::super::doc::Proof::By(t::call(
@@ -766,7 +765,6 @@ impl<'a> Proof<'a> {
         said: &Printed,
         written: &Printed,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
         let cited = cited?;
         let mut rules = Vec::new();
         let mut respelt = said.clone();
@@ -817,8 +815,6 @@ impl<'a> Proof<'a> {
             printed: claim,
             stated: claim_stated,
         } = claim;
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         // Not of a fact Lean's types make true, which says nothing to read;
         // nor in a step that works through numbers lines or the step name,
         // whose goal those numbers' equations rewrite before the step's
@@ -891,12 +887,12 @@ impl<'a> Proof<'a> {
             claim,
         )?;
         Some(match one_statement(written, said) {
-            true => Proof::By(met.closer()),
-            false => Proof::Block(vec![
+            true => doc::Proof::By(met.closer()),
+            false => doc::Proof::Block(vec![
                 Tactic::Have {
                     name: "hI".to_string(),
                     says: written.clone(),
-                    proof: Box::new(Proof::By(
+                    proof: Box::new(doc::Proof::By(
                         super::super::spelling::read_as_written(
                             &t::bracket(term.clone()),
                             said,
@@ -1240,7 +1236,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         says: &Printed,
     ) -> Option<Witnessed> {
-        use super::super::doc::{Quant, TermKind};
         let TermKind::Quantified {
             quant: Quant::Exists,
             letter,
@@ -1368,7 +1363,6 @@ impl<'a> Proof<'a> {
     /// range; `∃ m, ↑m = t`, nothing. None where no line in scope has that
     /// proof, or it says no "there is".
     pub(super) fn said_line_of(&self, h: &Printed) -> Option<SaidLine> {
-        use super::super::doc::{Quant, TermKind};
         let says = self
             .trees
             .values()
@@ -1403,7 +1397,6 @@ impl<'a> Proof<'a> {
     /// `∃ m, 0 < m ∧ ↑m = t` whose proof is `h`; None where no line in scope
     /// has that proof or it says no such equation.
     fn term_named_by(&self, h: &Printed) -> Option<Printed> {
-        use super::super::doc::{Quant, TermKind};
         let says = self
             .trees
             .values()
@@ -1480,7 +1473,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::tactics as t;
         let chosen = chosen_witnesses(wanted);
         if chosen.is_empty() || chosen.iter().any(|h| h.untyped() == proof.untyped()) {
             return None;
@@ -1519,8 +1511,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<LineAtNumbers> {
-        use super::super::doc::{LeanType, Quant, TermKind};
-        use super::super::templates::Num;
         let chosen = chosen_witnesses(wanted);
         let mut proof = proof.clone();
         let mut says = bare_term(says).clone();
@@ -1739,7 +1729,6 @@ impl<'a> Proof<'a> {
                         )
                         .unwrap_or_default();
                         if op.symbol == "=" && !rewrites.is_empty() {
-                            use super::super::tactics as t;
                             return Route::Built(t::by_term(
                                 super::super::doc::Proof::By(t::call(
                                     "rw",
@@ -1815,7 +1804,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::doc::{forms, TermKind};
         let (said, asked) = (conjoined_parts(says), conjoined_parts(wanted));
         if said.len() < 2
             || said.len() != asked.len()
@@ -1868,7 +1856,6 @@ impl<'a> Proof<'a> {
         let met = super::super::doc::forms::meets(&says, wanted, &self.set_values())
             .is_some();
         if no_letter(&says) && no_letter(wanted) && !met {
-            use super::super::tactics as t;
             return Route::Built(t::by_term(super::super::doc::Proof::By(t::on_h(
                 &proof,
                 vec![
@@ -1997,7 +1984,6 @@ impl<'a> Proof<'a> {
         if super::super::spelling::whole_about_a_point(wanted)
             && !super::super::spelling::whole_about_a_point(&says)
         {
-            use super::super::tactics as t;
             return Route::Built(t::by_term(super::super::doc::Proof::By(
                 Tactic::Seq(vec![
                     t::simp_only(
@@ -2013,7 +1999,6 @@ impl<'a> Proof<'a> {
                 ]),
             )));
         }
-        use super::super::doc::forms;
         // A line in another type than Lean asks, `(10^(k + 1) : ℤ) > 0` for
         // `0 < (10^(k + 1) : ℚ)`, is taken across by `exact_mod_cast`, where
         // the cast table says `norm_cast` moves a cast of the two types
@@ -2027,7 +2012,6 @@ impl<'a> Proof<'a> {
         // fact of numerals across, `(0 : ℚ) ≤ 3^m` for `(0 : ℝ) ≤ 3^m`. A
         // fact of numerals alone never gets here (`lean_truth`).
         if forms::relation_types_apart(&says, wanted) {
-            use super::super::{doc::LeanType, templates::Num};
             let by_norm_cast = forms::relation_type(wanted).is_some_and(|to| {
                 super::super::casts::norm_cast_lifts_relation(&says, &to)
             }) && super::super::casts::norm_cast_moves_all(wanted);
@@ -2058,7 +2042,6 @@ impl<'a> Proof<'a> {
                 if let Some(forms::Meets::Casts { through, .. }) =
                     forms::meets(&says, wanted, &self.set_values())
                 {
-                    use super::super::tactics as t;
                     let mut steps = Vec::new();
                     if !through.is_empty() {
                         steps.push(t::simp_only(
@@ -2078,7 +2061,6 @@ impl<'a> Proof<'a> {
             // {1, 2}`: both read as the members' equations they say, which
             // `exact_mod_cast` takes across.
             if !lifts && listed_membership(&says) && listed_membership(wanted) {
-                use super::super::tactics as t;
                 let lemmas = || {
                     vec![
                         t::forwards(t::lemma("Set.mem_insert_iff")),
@@ -2104,7 +2086,6 @@ impl<'a> Proof<'a> {
             let opened = forms::maps_opened(&says, &self.set_values())
                 .filter(|o| pair_equation(&o.says));
             if (pair_equation(&says) || opened.is_some()) && pair_equation(wanted) {
-                use super::super::tactics as t;
                 let mut rules: Vec<_> = opened
                     .iter()
                     .flat_map(|o| o.equations.iter().map(|e| t::forwards(t::hyp(e))))
@@ -2270,8 +2251,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::doc::{forms, Quant, TermKind};
-        use super::super::tactics as t;
         let values = self.set_values();
         let mut intros: Vec<String> = Vec::new();
         let mut applied = proof;
@@ -2380,8 +2359,6 @@ impl<'a> Proof<'a> {
         says: &Printed,
         wanted: &Printed,
     ) -> Option<Printed> {
-        use super::super::doc::{forms, LeanType, Quant, TermKind};
-        use super::super::tactics as t;
         let TermKind::Quantified {
             quant: Quant::ForAll,
             letter,
@@ -2622,7 +2599,6 @@ impl<'a> Proof<'a> {
             false => None,
         };
         if let Some(made_finite) = made_finite {
-            use super::super::tactics as t;
             let says = Printed {
                 kind: super::super::doc::TermKind::Field {
                     inner: Box::new(t::hyp(&letter_name)),
@@ -2704,7 +2680,6 @@ impl<'a> Proof<'a> {
 /// number, `{S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = m ∧ (m : ℤ) = j}`: Y, and j.
 /// None for any other term.
 fn parts_counted(p: &Printed) -> Option<(&Printed, &Printed)> {
-    use super::super::doc::{BoundForm, CountForm, PrefixMark, Quant, TermKind};
     let TermKind::Bound {
         form: BoundForm::SetOfMember { set },
         letter,
@@ -2762,8 +2737,6 @@ fn parts_counted_extended(p: &Printed, out: &mut Vec<Printed>) {
 /// (`parts_counted`) counted in ℕ instead, `{S ∈ 𝒫 Y | (S.ncard : ℤ) = j}`:
 /// what `builder_count_spelt` rewrites it to.
 fn parts_counted_natural(p: &mut Printed) {
-    use super::super::doc::{CountForm, LeanType, TermKind};
-    use super::super::templates::Num;
     let natural = parts_counted(p).map(|(_, j)| j.clone());
     if let (Some(j), TermKind::Bound { letter, body, .. }) = (natural, &mut p.kind) {
         let count = Printed::of(

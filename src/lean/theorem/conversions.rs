@@ -1,7 +1,12 @@
 //! Paths, conjuncts, intros and the conversions a citation needs.
 
+use super::super::doc::bridges::BridgeModule;
+use super::super::doc::{Arg, LeanType, Op, Quant, Source, TermKind};
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
 use crate::notations::{APPLICATION, HOLDS_OF, MOD, PROPERTY_OF};
+use crate::rules::System;
 
 /// The child indices that lead from `node` to a part of the shape of `part`,
 /// the first in the tree's order; None where there is none.
@@ -213,14 +218,13 @@ pub(super) fn after_intros(
     intros: &[String],
     proof: super::super::doc::Proof,
 ) -> super::super::doc::Proof {
-    use super::super::doc::Proof;
     let intro = Tactic::Intro(intros.to_vec());
     match proof {
-        Proof::Block(mut tactics) => {
+        doc::Proof::Block(mut tactics) => {
             tactics.insert(0, intro);
-            Proof::Block(tactics)
+            doc::Proof::Block(tactics)
         }
-        other => Proof::By(Tactic::Seq(vec![intro, tactic_of(&other)])),
+        other => doc::Proof::By(Tactic::Seq(vec![intro, tactic_of(&other)])),
     }
 }
 
@@ -230,18 +234,19 @@ pub(super) fn with_intros(
     intros: &[String],
     proof: super::super::doc::Proof,
 ) -> super::super::doc::Proof {
-    use super::super::doc::Proof;
     if intros.is_empty() {
         return proof;
     }
     let intro = Tactic::Intro(intros.to_vec());
     match proof {
-        Proof::By(t) => Proof::By(Tactic::Seq(vec![intro, t])),
-        Proof::Block(mut ts) => {
+        doc::Proof::By(t) => doc::Proof::By(Tactic::Seq(vec![intro, t])),
+        doc::Proof::Block(mut ts) => {
             ts.insert(0, intro);
-            Proof::Block(ts)
+            doc::Proof::Block(ts)
         }
-        Proof::Term(t) => Proof::By(Tactic::Seq(vec![intro, Tactic::Exact(t)])),
+        doc::Proof::Term(t) => {
+            doc::Proof::By(Tactic::Seq(vec![intro, Tactic::Exact(t)]))
+        }
     }
 }
 
@@ -251,9 +256,8 @@ pub(super) fn with_intros(
 /// tactics joined by `;`, and each `have`'s own tactic proof in brackets, so
 /// that it does not take the tactics after it as its own.
 pub(super) fn on_one_line(proof: super::super::doc::Proof) -> super::super::doc::Proof {
-    use super::super::doc::Proof;
     match proof {
-        Proof::Block(tactics) => Proof::By(Tactic::Seq(
+        doc::Proof::Block(tactics) => doc::Proof::By(Tactic::Seq(
             tactics.into_iter().map(have_bracketed).collect(),
         )),
         other => other,
@@ -263,12 +267,11 @@ pub(super) fn on_one_line(proof: super::super::doc::Proof) -> super::super::doc:
 /// A `have` whose proof is tactics, its proof as a bracketed `by` term; any
 /// other tactic as it is.
 pub(super) fn have_bracketed(tactic: Tactic) -> Tactic {
-    use super::super::doc::Proof;
     match tactic {
         Tactic::Have { name, says, proof } => {
             let proof = match *proof {
-                Proof::Term(t) => Proof::Term(t),
-                tactics => Proof::Term(super::super::tactics::bracket(
+                doc::Proof::Term(t) => doc::Proof::Term(t),
+                tactics => doc::Proof::Term(super::super::tactics::bracket(
                     super::super::tactics::by_term(on_one_line(tactics)),
                 )),
             };
@@ -283,11 +286,10 @@ pub(super) fn have_bracketed(tactic: Tactic) -> Tactic {
 }
 
 pub(super) fn tactic_of(proof: &super::super::doc::Proof) -> Tactic {
-    use super::super::doc::Proof;
     match proof {
-        Proof::By(t) => Tactic::Group(Box::new(t.clone())),
-        Proof::Term(t) => Tactic::Exact(super::super::tactics::bracket(t.clone())),
-        Proof::Block(_) => Tactic::Exact(super::super::tactics::bracket(
+        doc::Proof::By(t) => Tactic::Group(Box::new(t.clone())),
+        doc::Proof::Term(t) => Tactic::Exact(super::super::tactics::bracket(t.clone())),
+        doc::Proof::Block(_) => Tactic::Exact(super::super::tactics::bracket(
             super::super::tactics::by_term(proof.clone()),
         )),
     }
@@ -354,7 +356,6 @@ pub(super) fn apart(
 /// set, read in both as the members' equations it says, which `tauto` takes
 /// in any order.
 pub(super) fn reordered(cited: &Printed, equation: bool) -> Tactic {
-    use super::super::tactics as t;
     let h = || t::hyp("h");
     if !equation {
         return t::on_h(
@@ -423,7 +424,6 @@ pub(super) fn lean_body_parts(
     statement: &Printed,
     obtained: &[String],
 ) -> Vec<Printed> {
-    use super::super::doc::{Quant, TermKind};
     fn unbracketed(t: &Printed) -> &Printed {
         match &t.kind {
             TermKind::Paren(inner) => unbracketed(inner),
@@ -517,7 +517,6 @@ pub(super) struct ShownWhole {
 pub(super) fn membership_of_whole(
     sentence: &Node,
 ) -> Option<(&Node, crate::rules::System)> {
-    use crate::rules::System;
     let [term, set] = sentence.children.as_slice() else {
         return None;
     };
@@ -533,7 +532,6 @@ pub(super) fn membership_of_whole(
 /// Whether a statement, its functions applied (`forms::beta_reduced`), takes
 /// a numeral to ℕ, `(0 : ℤ).toNat` of `fun k => y ^ k.toNat` at 0.
 pub(super) fn leaves_numeral_to_nat(term: &Printed) -> bool {
-    use super::super::doc::TermKind;
     super::super::doc::forms::beta_reduced(term).walk().iter().any(|t| {
         matches!(&t.kind, TermKind::ToNat(inner)
             if super::super::casts::as_natural(inner).is_some()
@@ -566,7 +564,6 @@ pub(super) struct Conversion<'a> {
 /// `Set.Finite.cast_ncard_eq (p : S.Finite)`: a finite set's count as a
 /// natural number, cast to ℕ∞, is its count in ℕ∞.
 pub(super) fn cast_ncard_eq(ShownFinite { set, proof }: &ShownFinite) -> Printed {
-    use super::super::tactics as t;
     // Told its type, `({a} : Set α)`, as the count writes it.
     let typed = match &set.ty {
         Some(ty) => Printed::cast(set.clone(), ty.clone()),
@@ -600,7 +597,6 @@ pub(super) fn forms_converted(
     c: &Conversion,
     turned: bool,
 ) -> super::super::doc::Proof {
-    use super::super::tactics as t;
     let Conversion {
         finite,
         whole,
@@ -685,8 +681,6 @@ pub(super) fn bound_rewrite(
     b: &super::super::doc::forms::BoundPower,
     name: &str,
 ) -> Option<Tactic> {
-    use super::super::doc::{LeanType, Op, Quant, Source, TermKind};
-    use super::super::tactics as t;
     range_lower(&b.over)?;
     let k = || Printed::letter(&b.letter, b.letter_ty.clone());
     let natural = Printed::infix(
@@ -770,7 +764,6 @@ pub(super) fn things_in(term: &Printed) -> std::collections::BTreeSet<usize> {
 
 /// The type variables a type is made of.
 pub(super) fn things_of_type(ty: &super::super::doc::LeanType) -> Vec<usize> {
-    use super::super::doc::LeanType;
     match ty {
         LeanType::Things(n) => vec![*n],
         LeanType::Set(inner) | LeanType::Sym2(inner) => things_of_type(inner),
@@ -821,7 +814,6 @@ pub(super) fn unfolds_alone(met: &crate::matching::Meeting) -> bool {
 /// claim "for all x ∈ S, A = B", `implies_true` takes the `∀ x ∈ S, True`
 /// its body leaves.
 pub(super) fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tactic {
-    use super::super::tactics as t;
     let rules: Vec<super::super::doc::Rule> =
         defines.iter().map(|d| t::forwards(t::hyp(d))).collect();
     simp_unfolded(rules, alone, for_all)
@@ -830,7 +822,6 @@ pub(super) fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tac
 /// A step citing a function the header lets, where the record does not
 /// decide it: the function's equation put in, which closes the claim.
 pub(super) fn header_ways(hyp: &str) -> super::super::doc::Proof {
-    use super::super::tactics as t;
     super::super::doc::Proof::By(Tactic::Seq(vec![
         t::simp_only(false, None, vec![t::forwards(t::hyp(hyp))], None),
         t::call("done", vec![]),
@@ -844,7 +835,6 @@ pub(super) fn simp_unfolded(
     alone: bool,
     for_all: bool,
 ) -> Tactic {
-    use super::super::tactics as t;
     if for_all {
         rules.push(t::forwards(t::lemma("implies_true")));
     }
@@ -861,7 +851,6 @@ pub(super) fn simp_unfolded(
 /// only [h]; push_cast; norm_num; done)`: a claim made true by the
 /// equations of the defines cited, as they stand or once worked out.
 pub(super) fn unfolded(defines: &[String]) -> Vec<Tactic> {
-    use super::super::tactics as t;
     let rules: Vec<super::super::doc::Rule> =
         defines.iter().map(|d| t::forwards(t::hyp(d))).collect();
     let simp =
@@ -889,7 +878,6 @@ pub(super) fn in_named_forms(
     facing: Option<Facing>,
     congruence: bool,
 ) -> Route<Tactic> {
-    use super::super::tactics as t;
     if let (true, Some(facing)) = (congruence, facing) {
         return Route::Built(Tactic::Exact(faced(t::hyp(line), facing)));
     }
@@ -970,7 +958,6 @@ pub(super) fn spec_of(said: &super::super::expr::SaidInteger) -> Printed {
 /// built from the named numbers' values as the term is from theirs, so
 /// their equations put in leave the two sides one.
 pub(super) fn specs_equal(specs: &[Printed]) -> Printed {
-    use super::super::tactics as t;
     let rules: Vec<super::super::doc::Rule> =
         specs.iter().cloned().map(t::forwards).collect();
     super::super::tactics::by_term(super::super::doc::Proof::By(specs_then(&rules)))
@@ -983,7 +970,6 @@ pub(super) fn specs_equal(specs: &[Printed]) -> Printed {
 /// way first puts the one for the other, the divisor's sign by `omega`
 /// from the lines in scope.
 pub(super) fn specs_equal_of(term: &Node, specs: &[Printed]) -> Printed {
-    use super::super::tactics as t;
     if !takes_remainder(term) {
         return specs_equal(specs);
     }
@@ -995,7 +981,6 @@ pub(super) fn specs_equal_of(term: &Node, specs: &[Printed]) -> Printed {
 /// One way of `specs_equal_of`: the integers' `%` put as the bridge's
 /// `mod` of their casts, then the named numbers' equations.
 pub(super) fn unmod_then(rules: &[super::super::doc::Rule]) -> Tactic {
-    use super::super::tactics as t;
     let unmod = t::call(
         "rw",
         vec![TacticArg::Rules(vec![t::backwards(mod_int_cast())])],
@@ -1032,8 +1017,6 @@ pub(super) fn parts_closed(
     term: &Printed,
     w: &Writer,
 ) -> Option<super::super::doc::Proof> {
-    use super::super::doc::TermKind;
-    use super::super::tactics as t;
     let parts = and_parts(node, w);
     if parts.len() < 2 {
         return None;
@@ -1129,11 +1112,8 @@ pub(super) fn takes_remainder(term: &Node) -> bool {
 /// of two integers cast to ℝ is their `%`, where the divisor is not
 /// negative, which `omega` reads off the lines in scope.
 pub(super) fn mod_int_cast() -> Printed {
-    use super::super::doc::bridges::BridgeModule;
-    use super::super::doc::{Arg, Proof, TermKind};
-    use super::super::tactics as t;
     let elided = || Printed::of(TermKind::Elided, super::super::doc::LeanType::Prop);
-    let sign = t::bracket(t::by_term(Proof::By(t::call("omega", vec![]))));
+    let sign = t::bracket(t::by_term(doc::Proof::By(t::call("omega", vec![]))));
     Printed {
         kind: TermKind::App {
             head: Box::new(t::bridge_lemma(
@@ -1161,9 +1141,6 @@ pub(super) fn cast_carried(
     from: super::super::templates::Num,
     to: super::super::templates::Num,
 ) -> super::super::doc::Proof {
-    use super::super::doc::{Arg, LeanType, TermKind};
-    use super::super::tactics as t;
-    use super::super::templates::Num;
     if (from, to) != (Num::Rat, Num::Real) {
         return super::super::doc::Proof::By(t::exact_mod_cast(equation));
     }
@@ -1216,7 +1193,6 @@ pub(super) fn refine(parts: Vec<Printed>) -> Tactic {
 
 /// `(push_cast; simp only [specs])`.
 pub(super) fn specs_then(rules: &[super::super::doc::Rule]) -> Tactic {
-    use super::super::tactics as t;
     t::steps(vec![
         t::push_cast(None),
         t::simp_only(false, None, rules.to_vec(), None),

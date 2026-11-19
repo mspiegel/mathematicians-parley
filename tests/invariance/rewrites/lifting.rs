@@ -1,6 +1,7 @@
 //! Raising requires and defines, lifting blocks.
 
 use super::*;
+use parley::sorts::introduction::Form;
 
 /// The methods a requires line may name as its one citation, as a step may.
 pub(super) const REQUIRES_METHODS: [Method; 4] = [
@@ -859,7 +860,6 @@ pub(super) fn let_asked(
     path: &str,
     body: &str,
 ) -> Result<bool, String> {
-    use parley::sorts::introduction::Form;
     let written = Written::new(body, path, 0);
     let introduced = Introduction::read(written.clone());
     Ok(match introduced.form {

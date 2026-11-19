@@ -1,7 +1,18 @@
 //! Proof methods: kinds, exhibits, counts and non-negativity.
 
+use super::super::doc::CountForm::{Extended, Natural};
+use super::super::doc::{forms, CountForm, LeanType, Quant, TermKind};
+use super::super::templates::Num;
+use super::super::{expr, tactics as t};
 use super::*;
+use crate::citing::finite::{FiniteBy, Making};
+use crate::citing::OnceReason;
+use crate::notations::{
+    ADDITIVE, AT_LEAST, AT_MOST, GREATER, LESS, MEMBERSHIP, MULTIPLICATIVE, NUMERAL,
+    ORDER, PLUS, POWERSET, SET_BUILDER, TIMES,
+};
 use crate::notations::{CARDINALITY, FUNCTIONS_FROM, POLYNOMIALS, THERE_IS_SOME};
+use crate::rules;
 
 impl<'a> Proof<'a> {
     /// The proof of `fact`, a define of a kind's, by the define's reason.
@@ -173,8 +184,6 @@ impl<'a> Proof<'a> {
         at: usize,
         depth: usize,
     ) -> Option<()> {
-        use super::super::doc::{Quant, TermKind};
-        use super::super::tactics as t;
         let Narrowing {
             function,
             from,
@@ -1258,7 +1267,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         binding: &crate::matching::Binding,
     ) -> Route<Printed> {
-        use super::super::doc::CountForm::{Extended, Natural};
         let at_values = || self.at_values(&s.want, binding);
         // A line's "for all" over a set holding the one asked.
         if let Some(n) = &s.narrowed {
@@ -1352,7 +1360,6 @@ impl<'a> Proof<'a> {
         by: &SuppliedBy,
         wanted: &Printed,
     ) -> Option<Route<Printed>> {
-        use super::super::doc::CountForm::{Extended, Natural};
         let (SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at)) = by else {
             return None;
         };
@@ -1425,8 +1432,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         at_values: &Node,
     ) -> Option<Printed> {
-        use super::super::doc::{CountForm, TermKind};
-        use super::super::tactics as t;
         let in_extended = |written: &Printed| {
             wanted.walk().iter().any(|c| {
                 matches!(&c.kind, TermKind::Count { set, form: CountForm::Extended }
@@ -1470,8 +1475,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         at_values: &Node,
     ) -> Option<Printed> {
-        use super::super::doc::{CountForm, Quant, TermKind};
-        use super::super::tactics as t;
         let TermKind::Quantified {
             quant: Quant::ForAll,
             letter,
@@ -1545,7 +1548,6 @@ impl<'a> Proof<'a> {
     /// built from 𝒫A, {X ⊆ A : P(X)}, the same of `h.1`; of a define's name,
     /// as of its value. None for any other set, or an A not shown finite.
     pub(super) fn member_finite(&self, set: &Node, member: Printed) -> Option<Printed> {
-        use crate::notations::{POWERSET, SET_BUILDER};
         let value = match set.is_name() {
             true => self.define_value_tree(&set.text)?,
             false => set.clone(),
@@ -1595,8 +1597,6 @@ impl<'a> Proof<'a> {
         wanted: &Printed,
         nodes: &[&Node],
     ) -> Option<Printed> {
-        use super::super::doc::{CountForm, TermKind};
-        use super::super::tactics as t;
         let in_extended = |written: &Printed| {
             [says, wanted].iter().any(|s| {
                 s.walk().iter().any(|c| {
@@ -1638,7 +1638,6 @@ impl<'a> Proof<'a> {
     /// finite A, by why the record says it is (`finite_proof`). None where
     /// `at_values` is no such equation or A is not shown finite.
     pub(super) fn count_itself(&self, at_values: &Node) -> Option<Printed> {
-        use super::super::tactics as t;
         let counted = |n: &Node| match (n.notation(), n.children.as_slice()) {
             (CARDINALITY, [set]) => Some(set.clone()),
             _ => None,
@@ -1689,7 +1688,6 @@ impl<'a> Proof<'a> {
         proof: &Printed,
         turned: bool,
     ) -> PowersMet {
-        use super::super::doc::forms;
         let templates = self.writer.templates;
         let widen = |head: &str, at| templates.same_function_at(head, at);
         let facing = match turned {
@@ -1715,7 +1713,6 @@ impl<'a> Proof<'a> {
         proof: &Printed,
         turned: bool,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::forms;
         let templates = self.writer.templates;
         let widen = |head: &str, at| templates.same_function_at(head, at);
         let facing = match turned {
@@ -1816,12 +1813,16 @@ impl<'a> Proof<'a> {
     /// None where the walk does not put e in ℕ, or gives a reason
     /// `positive_by` writes no proof for.
     pub(super) fn positive_proof(&self, e: &Node) -> Option<Printed> {
-        use crate::rules::System;
         let letters = self.writer.page_systems();
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
-        let said = |_: &Node, _: System| None;
-        let reason =
-            crate::citing::reason_within(e, System::N, &letters, &nonzero, &said)?;
+        let said = |_: &Node, _: rules::System| None;
+        let reason = crate::citing::reason_within(
+            e,
+            rules::System::N,
+            &letters,
+            &nonzero,
+            &said,
+        )?;
         let facts = match self.step_now.get() {
             Some(i) => self.step_facts(i),
             None => Vec::new(),
@@ -1841,23 +1842,26 @@ impl<'a> Proof<'a> {
         e: &Node,
         known: &[ShownWhole],
     ) -> Option<Printed> {
-        use crate::citing::OnceReason;
-        use crate::rules::System;
         let ctx = self.sources.ctx;
         let mut known = known.to_vec();
         known.extend(self.wholes_in_scope());
         let known = known.as_slice();
         let letters = self.writer.page_systems();
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
-        let said = |t: &Node, s: System| {
-            (System::N0.within(s)
+        let said = |t: &Node, s: rules::System| {
+            (rules::System::N0.within(s)
                 && known
                     .iter()
                     .any(|k| crate::matching::alike_top(&k.term, t, ctx)))
             .then_some(OnceReason::Stated)
         };
-        let reason =
-            crate::citing::reason_within(e, System::N0, &letters, &nonzero, &said)?;
+        let reason = crate::citing::reason_within(
+            e,
+            rules::System::N0,
+            &letters,
+            &nonzero,
+            &said,
+        )?;
         self.nonneg_by(e, &reason, known)
     }
 
@@ -1919,12 +1923,10 @@ impl<'a> Proof<'a> {
         walked: &crate::citing::SaidOnceFact,
         wanted: &Printed,
     ) -> Route<Printed> {
-        use super::super::{doc::LeanType, templates::Num};
-        use crate::rules::System;
         let [term, set] = walked.fact.children.as_slice() else {
             return Route::no("a said-once fact that is no membership");
         };
-        let system = System::of_sign(&set.text);
+        let system = rules::System::of_sign(&set.text);
         // A bound Lean writes as a membership it defines by it, `b * d ∈
         // {n : ℤ | 0 < n}`, read as that bound.
         let wanted = &super::super::doc::forms::unfolded(wanted);
@@ -1940,7 +1942,7 @@ impl<'a> Proof<'a> {
         }
         let proof = match (system, relation_symbol(wanted)) {
             // A natural number Lean casts up, `(Int.gcd s w : ℤ)`.
-            (Some(System::N0), Some("≤")) if natural_cast_bounded(wanted) => {
+            (Some(rules::System::N0), Some("≤")) if natural_cast_bounded(wanted) => {
                 Some(Printed::applied(
                     "Nat.cast_nonneg",
                     super::super::doc::Source::Mathlib,
@@ -1951,10 +1953,10 @@ impl<'a> Proof<'a> {
                     LeanType::Prop,
                 ))
             }
-            (Some(System::N0), Some("≤")) => {
+            (Some(rules::System::N0), Some("≤")) => {
                 self.nonneg_by(term, &walked.reason, &self.wholes_in_scope())
             }
-            (Some(System::N), Some("<")) => {
+            (Some(rules::System::N), Some("<")) => {
                 let facts = match self.step_now.get() {
                     Some(i) => self.step_facts(i),
                     None => Vec::new(),
@@ -1987,8 +1989,6 @@ impl<'a> Proof<'a> {
         reason: &crate::citing::OnceReason,
         facts: &[super::super::algebra::Cited],
     ) -> Option<Printed> {
-        use crate::citing::OnceReason;
-        use crate::notations::{ADDITIVE, MULTIPLICATIVE, PLUS, TIMES};
         let both = |lemma: &str, reasons: &[OnceReason]| {
             let ([a, b], [ra, rb]) = (e.children.as_slice(), reasons) else {
                 return None;
@@ -2110,9 +2110,6 @@ impl<'a> Proof<'a> {
         &self,
         b: &crate::citing::bounds::Bound,
     ) -> Option<Printed> {
-        use crate::notations::{
-            AT_LEAST, AT_MOST, GREATER, LESS, MEMBERSHIP, NUMERAL, ORDER,
-        };
         let ctx = self.sources.ctx;
         let said = b.said_by.as_ref()?;
         let line = self
@@ -2172,8 +2169,6 @@ impl<'a> Proof<'a> {
         reason: &crate::citing::OnceReason,
         known: &[ShownWhole],
     ) -> Option<Printed> {
-        use crate::citing::OnceReason;
-        use crate::notations::{ADDITIVE, MULTIPLICATIVE, PLUS, TIMES};
         let ctx = self.sources.ctx;
         let both = |lemma: &str, parts: &[Node], reasons: &[OnceReason]| {
             let ([a, b], [ra, rb]) = (parts, reasons) else {
@@ -2270,7 +2265,6 @@ impl<'a> Proof<'a> {
     /// `le_trans` of `0 ≤ a` and the range's lower bound. None where no line
     /// in scope introduces it so.
     pub(super) fn letter_nonneg(&self, e: &Node) -> Option<Printed> {
-        use super::super::expr::System;
         if !e.is_name() {
             return None;
         }
@@ -2285,9 +2279,11 @@ impl<'a> Proof<'a> {
                     return None;
                 }
                 return match system {
-                    System::Positive => Some(nonneg_of(crate::rules::System::N, proof)),
-                    System::NonNegative => Some(proof),
-                    System::Type(_) => None,
+                    expr::System::Positive => {
+                        Some(nonneg_of(crate::rules::System::N, proof))
+                    }
+                    expr::System::NonNegative => Some(proof),
+                    expr::System::Type(_) => None,
                 };
             }
             let letter = super::super::statement::range_letter(&node)?;
@@ -2360,8 +2356,6 @@ impl<'a> Proof<'a> {
         why: &crate::citing::finite::FiniteBy,
         set: &Node,
     ) -> Option<Printed> {
-        use super::super::doc::TermKind;
-        use crate::citing::finite::{FiniteBy, Making};
         let field = |inner: Printed, name: &str| projected(inner, &[name]);
         let hole = || Printed::of(TermKind::Elided, super::super::doc::LeanType::Prop);
         let constant = |name: &str| {
@@ -2423,7 +2417,6 @@ impl<'a> Proof<'a> {
                 line,
                 at_least_one: true,
             } => {
-                use super::super::tactics as t;
                 let said = self.line_sentence(line)?;
                 let [_, value] = said.node.children.as_slice() else {
                     return None;

@@ -6,6 +6,9 @@
 //! same reading serves a theorem's own statement and a citation of it, so
 //! the two agree on the order of what is asked.
 
+use super::doc::file::Binder as Doc;
+use super::doc::LeanType;
+use super::expr::Members;
 use super::expr::{letter_type, system_of, LetterType, Printed, System, Writer};
 use crate::citing::HypothesisAt;
 use crate::formula::Node;
@@ -15,6 +18,7 @@ use crate::notations::{
     ONE_TO_ONE_ONTO, ONTO, POLYNOMIALS, POWERSET, SINGLETON, SUBGROUP, SUBSET,
 };
 use crate::outcome::Route;
+use crate::sorts::introduction::{Form, Introduction};
 
 /// One binder of a statement.
 #[derive(Clone, Debug)]
@@ -69,7 +73,6 @@ impl Binder {
 
     /// The binder in the document model.
     pub fn doc(&self) -> super::doc::file::Binder {
-        use super::doc::file::Binder as Doc;
         match self {
             Binder::Fact { name, says, .. } => Doc::Fact {
                 name: name.clone(),
@@ -398,7 +401,6 @@ pub fn things_binder(
     binders: &[Binder],
     statement: &[&Printed],
 ) -> Option<super::doc::file::Binder> {
-    use super::doc::LeanType;
     let mut vars: std::collections::BTreeSet<usize> = binders
         .iter()
         .flat_map(|b| match b {
@@ -453,7 +455,6 @@ pub fn let_letters(
     hypotheses: &[crate::corpus::proof::Hypothesis],
     path: &str,
 ) -> Vec<String> {
-    use crate::sorts::introduction::{Form, Introduction};
     hypotheses
         .iter()
         .filter(|h| h.kind == crate::corpus::Intro::Let)
@@ -509,7 +510,6 @@ pub fn with_sethoods(
 /// Whether a letter of this type is a thing ZF's sets are, a set of things
 /// or a member of one, and not a number or a set of numbers.
 fn of_things(ty: &LetterType) -> bool {
-    use super::expr::Members;
     fn things(m: &Members) -> bool {
         match m {
             Members::Things(_) => true,

@@ -15,7 +15,9 @@ use super::expr::{
 use super::templates::Num;
 use crate::citing::bounds;
 use crate::citing::finite::{is_finite, SaidFinite};
+use crate::citing::things::ThingKey;
 use crate::formula::Node;
+use crate::formula::Whole;
 use crate::notations::{
     ADDITIVE, APPLICATION, BY_CASES, CARDINALITY, CLOSED_INTERVAL, COMPOSITION, COSET,
     EMPTY_SET, FINITE, GROUP_INVERSE, GROUP_OPERATION, IMAGE, INDEXED_INTERSECTION,
@@ -109,7 +111,6 @@ pub fn set_type_in(
     things: &crate::citing::things::ThingTypes,
     name: &str,
 ) -> Option<LetterType> {
-    use crate::citing::things::ThingKey;
     let ty = sorts.and_then(|s| s.get(name)).and_then(set_letter_type)?;
     Some(match ty {
         LetterType::Map { from, to } => LetterType::Map {
@@ -133,7 +134,6 @@ pub fn set_type_in(
 /// one or a map between sets, its things of the first type variable; None
 /// for any other sort.
 pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
-    use crate::formula::Whole;
     match sort.full()? {
         Whole::Set(_) => Members::of_set(sort.full()?).map(LetterType::Set),
         Whole::Open => Some(LetterType::Member(Members::Things(0))),

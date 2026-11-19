@@ -1,6 +1,7 @@
 //! Substitutions and obtained claims.
 
 use super::*;
+use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
 
 /// A `substitute` claims the line it puts its equation into with one side
 /// put for the other at some of the places it stands, or with no line to
@@ -72,7 +73,6 @@ pub(super) fn substitution_reading(
     library: &Library,
     known: &Known,
 ) -> Option<SubstitutionReading> {
-    use crate::checker::record::{Substituted, SubstitutedInto};
     // A justification matching no production has no reading, and
     // `check_justification_form` says so; what the substitution makes is
     // asked only of one that reads.
@@ -434,7 +434,6 @@ pub fn sentence_substitutions(
     known: &Known,
     substituted: &IndexMap<usize, crate::checker::record::Substituted>,
 ) -> IndexMap<(usize, usize), crate::checker::record::Substituted> {
-    use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
     let mut out = IndexMap::new();
     for (line, s) in substituted {
         let SubstitutedInto::Line(at) = &s.into else {
@@ -538,7 +537,6 @@ pub(super) fn step_row_substitutions(
     thm: &Theorem,
     known: &Known,
 ) -> Vec<(usize, crate::checker::record::Substituted)> {
-    use crate::checker::record::{Substituted, SubstitutedInto};
     let Some(Ok(rows)) = crate::corpus::proof::substitute_rows(&step.just, &thm.path)
     else {
         return Vec::new();

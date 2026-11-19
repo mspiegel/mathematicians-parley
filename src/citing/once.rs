@@ -36,6 +36,7 @@ use crate::sorts::types_a_function;
 
 use super::library::Library;
 use super::parts::{bound_in, function_values, Bound, Parts, SaidOnceFact};
+use crate::methods::reals::{trig_value, Trig};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -701,7 +702,6 @@ pub fn log_taken(value: &BigRational) -> bool {
 /// Whether `real arithmetic` takes the sine and cosine of q·π: q's
 /// denominator divides 4 or 6 (`methods::reals::trig_value`).
 pub fn angle_taken(multiple: &BigRational) -> bool {
-    use crate::methods::reals::{trig_value, Trig};
     trig_value(Trig::Sine, multiple).is_ok()
 }
 

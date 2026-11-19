@@ -1,7 +1,14 @@
 //! Proof methods: steps read: names, claims, what a step holds.
 
+use super::super::algebra::{NotZero, NotZeroBy};
+use super::super::doc::{LeanType, Location, Op, Quant, Tactic, TacticArg, TermKind};
+use super::super::templates::Num;
+use super::super::{doc, expr, tactics as t};
 use super::*;
+use crate::checker::record::{LinesHold, NonzeroBy, ShownBy};
+use crate::citing::OnceReason;
 use crate::notations::{PI, PROPERTY_OF, SQUARE_ROOT, SUBSET};
+use crate::rules;
 
 impl<'a> Proof<'a> {
     /// `intro a b` as a line of the proof at a depth of its blocks.
@@ -615,7 +622,6 @@ impl<'a> Proof<'a> {
                         })
                 })
             });
-            use super::super::tactics as t;
             if let (Some(last), Some((node, prop))) = (names.last(), claim.last()) {
                 // Real arithmetic shows the line false as a fact of its own,
                 // `hn : ¬ line`; `norm_num` any other line.
@@ -752,8 +758,6 @@ impl<'a> Proof<'a> {
         goal: &Printed,
         proof: super::super::doc::Proof,
     ) -> super::super::doc::Proof {
-        use super::super::doc::{Location, Proof, Tactic, TacticArg};
-        use super::super::tactics as t;
         if !self.commuted_here(line) {
             return proof;
         }
@@ -809,7 +813,7 @@ impl<'a> Proof<'a> {
             // `|QR|` beside `|RQ|`: `rw` closes it by reflexivity.
             if let super::super::doc::TermKind::Infix { op, lhs, rhs } = &ordered.kind {
                 if op.symbol == "=" && lhs.text() == rhs.text() {
-                    return Proof::Block(steps);
+                    return doc::Proof::Block(steps);
                 }
             }
         }
@@ -817,7 +821,7 @@ impl<'a> Proof<'a> {
             return proof;
         }
         steps.push(Tactic::Exact(t::bracket(t::by_term(proof))));
-        Proof::Block(steps)
+        doc::Proof::Block(steps)
     }
 
     /// `proof_with_named`, its numbers named from `facts`: a step's lines,
@@ -830,7 +834,6 @@ impl<'a> Proof<'a> {
         i: usize,
         facts: &[super::super::algebra::Cited],
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let Some(letters) = self.rec.introduced.get(i).cloned() else {
             return Route::no("a step the checker's record has no letters for");
         };
@@ -871,7 +874,7 @@ impl<'a> Proof<'a> {
             if !ordered {
                 let shown =
                     Tactic::Exact(super::super::expr::anonymous(vec![int, equal]));
-                return Route::Built(haves_then(haves, Proof::By(shown)));
+                return Route::Built(haves_then(haves, doc::Proof::By(shown)));
             }
             let outer = std::mem::replace(&mut self.writer, inner);
             let proof = self.proof_of(reason, k, node);
@@ -889,7 +892,7 @@ impl<'a> Proof<'a> {
                 equal,
             ]));
             haves.push(tactic_of(&proof));
-            return Route::Built(Proof::Block(haves));
+            return Route::Built(doc::Proof::Block(haves));
         }
         // A count in ℕ∞ of a set not known finite is no whole number a line
         // names: the claim says it is some natural number, `∃ m : ℕ,
@@ -1152,7 +1155,7 @@ impl<'a> Proof<'a> {
                 proof: Box::new(proof),
             });
             haves.push(Tactic::Exact(stated));
-            return Route::Built(Proof::Block(haves));
+            return Route::Built(doc::Proof::Block(haves));
         }
         if ints.is_empty() {
             return Route::Built(haves_then(haves, proof));
@@ -1169,7 +1172,7 @@ impl<'a> Proof<'a> {
         ));
         haves.push(refine(parts));
         haves.push(tactic_of(&proof));
-        Route::Built(Proof::Block(haves))
+        Route::Built(doc::Proof::Block(haves))
     }
 
     /// Of a claim that a term Lean computes in ℚ or wider is a whole number,
@@ -1181,8 +1184,6 @@ impl<'a> Proof<'a> {
         &self,
         node: &Node,
     ) -> Option<(Node, super::super::templates::Num, bool)> {
-        use super::super::expr::System;
-        use super::super::templates::Num;
         let [term, set] = node.children.as_slice() else {
             return None;
         };
@@ -1190,8 +1191,8 @@ impl<'a> Proof<'a> {
             return None;
         }
         let (whole, ordered) = match super::super::expr::system_of(set)? {
-            System::Positive | System::NonNegative => (Num::Int, true),
-            System::Type(Num::Int) => (Num::Int, false),
+            expr::System::Positive | expr::System::NonNegative => (Num::Int, true),
+            expr::System::Type(Num::Int) => (Num::Int, false),
             _ => return None,
         };
         let wide = self.writer.carrier(term).built()? > Num::Int;
@@ -1267,9 +1268,6 @@ impl<'a> Proof<'a> {
         i: usize,
         facts: &[super::super::algebra::Cited],
     ) -> Vec<super::super::algebra::Cited> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
-        use crate::checker::record::ShownBy;
         let ctx = self.sources.ctx;
         let mut out = Vec::new();
         for shown in self.rec.places_shown.get(i).into_iter().flatten() {
@@ -1311,7 +1309,7 @@ impl<'a> Proof<'a> {
                             TacticArg::Using(h.proof.clone()),
                         ],
                     );
-                    (node, t::by_term(Proof::By(simpa)))
+                    (node, t::by_term(doc::Proof::By(simpa)))
                 }
                 // The other side is said once, an integer Lean computes as
                 // one, p² + q² of integers: that integer, and the equation
@@ -1348,7 +1346,7 @@ impl<'a> Proof<'a> {
                         true => t::symm(e.proof.clone()),
                         false => e.proof.clone(),
                     };
-                    let cast = t::by_term(Proof::By(t::exact_mod_cast(equal)));
+                    let cast = t::by_term(doc::Proof::By(t::exact_mod_cast(equal)));
                     (node, super::super::expr::anonymous(vec![number, cast]))
                 }
                 None => continue,
@@ -1374,7 +1372,6 @@ impl<'a> Proof<'a> {
     /// `Even (2 ^ n.toNat)`, is stated of the term, and its citing step
     /// names the whole number as any does.
     fn item_states_whole(&self, reason: Reason, k: usize) -> bool {
-        use super::super::doc::{LeanType, Op, Quant, TermKind};
         let Route::Built((item, cited)) = self.cited_item(reason) else {
             return false;
         };
@@ -1587,8 +1584,6 @@ impl<'a> Proof<'a> {
         line: usize,
         defines: &[CitedDefine],
     ) -> Route<Vec<super::super::algebra::NotZero>> {
-        use super::super::algebra::{NotZero, NotZeroBy};
-        use crate::checker::record::NonzeroBy;
         let ctx = self.sources.ctx;
         let standard = |n: &Node| crate::matching::standard(n, ctx);
         let named: Vec<String> =
@@ -1698,9 +1693,6 @@ impl<'a> Proof<'a> {
         letters: &crate::citing::Introduced,
         facts: &[super::super::algebra::Cited],
     ) -> Option<crate::citing::OnceReason> {
-        use crate::checker::record::LinesHold;
-        use crate::citing::OnceReason;
-        use crate::rules::System;
         // How the check found the part held, of the lines the reason names;
         // a line stating it, or one the equation it stands beside makes
         // (`shown_beside`), is among `facts` under its Lean name.
@@ -1713,9 +1705,10 @@ impl<'a> Proof<'a> {
         }
         let op = self.sources.targets.operation(term)?;
         let w = crate::rules::WHOLE.iter().find(|w| w.op == op.label)?;
-        let (Some(left_in), Some(right_in)) =
-            (System::of_label(w.left.1), System::of_label(w.right.1))
-        else {
+        let (Some(left_in), Some(right_in)) = (
+            rules::System::of_label(w.left.1),
+            rules::System::of_label(w.right.1),
+        ) else {
             return None;
         };
         let own = op.parts.len() == term.children.len()
@@ -1724,10 +1717,10 @@ impl<'a> Proof<'a> {
                 .iter()
                 .zip(&term.children)
                 .all(|(p, c)| std::ptr::eq(*p, c));
-        if !own || !System::N0.within(system) {
+        if !own || !rules::System::N0.within(system) {
             return None;
         }
-        let said = |t: &Node, s: System| self.held_reason(t, s, letters, facts);
+        let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, facts);
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
         let mut parts = Vec::new();
         for (part, within) in op.parts.iter().zip([left_in, right_in]) {
@@ -1752,9 +1745,6 @@ impl<'a> Proof<'a> {
         letters: &crate::citing::Introduced,
         facts: &[super::super::algebra::Cited],
     ) -> Option<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
-        use crate::checker::record::ShownBy;
         let ctx = self.sources.ctx;
         let shown = self.rec.members_shown.get(&line)?;
         let ShownBy::Beside(beside) = &shown.by else {
@@ -1784,7 +1774,7 @@ impl<'a> Proof<'a> {
             Facing::Turned => t::backwards(e.proof.clone()),
         };
         // One tactic to a line: the have's own proof may take several.
-        Some(Proof::Block(vec![
+        Some(doc::Proof::Block(vec![
             Tactic::Have {
                 name: "other".to_string(),
                 says,
@@ -1805,7 +1795,6 @@ impl<'a> Proof<'a> {
         letters: &crate::citing::Introduced,
         facts: &[super::super::algebra::Cited],
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let mut atoms = Vec::new();
         let int = super::super::templates::Num::Int;
         if let Route::Declined(d) =
@@ -1823,7 +1812,7 @@ impl<'a> Proof<'a> {
         let equal = specs_equal_of(term, &specs);
         let haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
         let shown = Tactic::Exact(super::super::expr::anonymous(vec![number, equal]));
-        Route::Built(haves_then(haves, Proof::By(shown)))
+        Route::Built(haves_then(haves, doc::Proof::By(shown)))
     }
 
     /// `name_wholes` of one part, whose reason is `reason`, named in
@@ -1837,9 +1826,6 @@ impl<'a> Proof<'a> {
         facts: &[super::super::algebra::Cited],
         out: &mut Vec<NamedAtom>,
     ) -> bool {
-        use super::super::templates::Num;
-        use crate::citing::OnceReason;
-        use crate::rules::System;
         let Some(own) = self.writer.carrier(term).built() else {
             return false;
         };
@@ -1863,8 +1849,6 @@ impl<'a> Proof<'a> {
         let Some(value) = self.writer.number_fixed(term, at).built() else {
             return false;
         };
-        use super::super::doc::{LeanType, Op, Proof};
-        use super::super::tactics as t;
         let name = format!("whole{}", out.len() + 1);
         let ty = self.writer.num_type(at);
         let (have, written) = match (reason, term.notation(), term.children.as_slice())
@@ -1873,8 +1857,8 @@ impl<'a> Proof<'a> {
             // witness, of ℕ where a natural number is asked.
             (OnceReason::Stated, _, _) => {
                 let asked = match whole {
-                    Num::Nat => System::N0,
-                    _ => System::Z,
+                    Num::Nat => rules::System::N0,
+                    _ => rules::System::Z,
                 };
                 let Some(NamedLine { name: line, system }) =
                     named_line(facts, term, asked, self.sources.ctx)
@@ -1906,9 +1890,9 @@ impl<'a> Proof<'a> {
                         have: Tactic::Have {
                             name: name.clone(),
                             says,
-                            proof: Box::new(Proof::By(t::exact_mod_cast(to_nat_of(
-                                nonneg.clone(),
-                            )))),
+                            proof: Box::new(doc::Proof::By(t::exact_mod_cast(
+                                to_nat_of(nonneg.clone()),
+                            ))),
                         },
                         said: super::super::expr::SaidInteger {
                             term: printed,
@@ -1929,7 +1913,7 @@ impl<'a> Proof<'a> {
                 let letter = super::super::expr::witness_letter(term);
                 let m = || t::hyp(&letter);
                 let (letter_ty, names, witness) = match (system, whole) {
-                    (System::N | System::N0, Num::Nat) => {
+                    (rules::System::N | rules::System::N0, Num::Nat) => {
                         let m_nat = Printed::of(
                             super::super::doc::TermKind::ToNat(Box::new(m())),
                             LeanType::Num(Num::Nat),
@@ -1946,10 +1930,10 @@ impl<'a> Proof<'a> {
                             ),
                             LeanType::Prop,
                         );
-                        let same_by = Proof::By(t::exact_mod_cast(to_nat_of(
+                        let same_by = doc::Proof::By(t::exact_mod_cast(to_nat_of(
                             nonneg_of(system, t::hyp("h0")),
                         )));
-                        let rewritten = Proof::By(Tactic::Seq(vec![
+                        let rewritten = doc::Proof::By(Tactic::Seq(vec![
                             t::call(
                                 "rw",
                                 vec![TacticArg::Rules(vec![t::forwards(shown(
@@ -1964,7 +1948,7 @@ impl<'a> Proof<'a> {
                             vec![m_nat, super::super::tactics::by_term(rewritten)],
                         )
                     }
-                    (System::N | System::N0, _) => (
+                    (rules::System::N | rules::System::N0, _) => (
                         Num::Int,
                         vec![letter.as_str(), "_", "hm"],
                         vec![
@@ -2005,7 +1989,7 @@ impl<'a> Proof<'a> {
                     },
                     LeanType::Prop,
                 );
-                let proof = Proof::By(Tactic::Seq(vec![
+                let proof = doc::Proof::By(Tactic::Seq(vec![
                     Tactic::Obtain {
                         names: names.iter().map(|n| n.to_string()).collect(),
                         says: None,
@@ -2033,7 +2017,7 @@ impl<'a> Proof<'a> {
                     return self.atoms_of(base, base_reason, whole, top, facts, out);
                 }
                 let Some(NamedLine { name: line, system }) =
-                    named_line(facts, exponent, System::N0, self.sources.ctx)
+                    named_line(facts, exponent, rules::System::N0, self.sources.ctx)
                 else {
                     return false;
                 };
@@ -2069,7 +2053,7 @@ impl<'a> Proof<'a> {
                 let have = Tactic::Have {
                     name: name.clone(),
                     says,
-                    proof: Box::new(Proof::By(t::call(
+                    proof: Box::new(doc::Proof::By(t::call(
                         "rw",
                         vec![TacticArg::Rules(rules)],
                     ))),
@@ -2127,23 +2111,22 @@ impl<'a> Proof<'a> {
         refs: &[String],
         writer: &Writer,
     ) -> Option<Printed> {
-        use crate::rules::System;
         let i = self.step_now.get()?;
         let letters = self.rec.introduced.get(i)?;
         // The step's lines, and those the reason itself names, a requires
         // line's `from 5.13`.
         let mut facts = self.step_facts(i);
         facts.extend(self.cited_parts(refs));
-        let said = |t: &Node, s: System| self.held_reason(t, s, letters, &facts);
+        let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, &facts);
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
         let reason =
             crate::citing::reason_within(term, system, letters, &nonzero, &said);
         let reason = reason?;
         match system {
-            System::N0 => {
+            rules::System::N0 => {
                 self.nonneg_by(term, &reason, &self.wholes_among_in(&facts, writer))
             }
-            System::N => self.positive_by(term, &reason, &facts),
+            rules::System::N => self.positive_by(term, &reason, &facts),
             _ => None,
         }
     }
@@ -2155,7 +2138,6 @@ impl<'a> Proof<'a> {
         k: usize,
         node: &Node,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         if let Some(witness) = self.member_by_integers(node) {
             return Route::Built(witness);
         }
@@ -2178,7 +2160,6 @@ impl<'a> Proof<'a> {
         let specs: Vec<super::super::doc::Rule> =
             by_term.iter().map(|r| r.rule.clone()).collect();
         let terms: Vec<String> = by_term.iter().map(|r| r.term.clone()).collect();
-        use super::super::tactics as t;
         let mut steps = vec![t::call("rw", vec![TacticArg::Rules(specs)])];
         // A remainder of the named numbers, now of integers cast to ℝ, is
         // put as their `%`, which a cited item of integers states.
@@ -2204,7 +2185,7 @@ impl<'a> Proof<'a> {
         let refs: Vec<&String> = reason.just.refs.iter().collect();
         steps.extend(self.put_numbers_in_lines(&refs, &giving, &by_term));
         steps.push(tactic_of(&proof));
-        Route::Built(Proof::By(Tactic::Seq(steps)))
+        Route::Built(doc::Proof::By(Tactic::Seq(steps)))
     }
 
     /// Whether a citation gives its item's letters values in a letter the

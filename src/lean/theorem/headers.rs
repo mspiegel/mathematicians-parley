@@ -1,5 +1,10 @@
 //! A theorem's header, recursions and given things.
 
+use super::super::doc::CountForm::{Extended, Natural};
+use super::super::doc::{Arg, Brackets, LeanType, Op, Quant, TermKind};
+use super::super::expr::Members;
+use super::super::tactics as t;
+use super::super::templates::Num;
 use super::*;
 
 /// A statement with the numbers a step names as an integer's `toNat` put
@@ -15,7 +20,6 @@ pub(super) struct PutBack {
 impl PutBack {
     /// `by rw [rules]; exact proof`, `proof` proving `left`.
     pub(super) fn then(self, proof: Printed) -> Printed {
-        use super::super::tactics as t;
         t::by_term(super::super::doc::Proof::By(Tactic::Seq(vec![
             t::call("rw", vec![TacticArg::Rules(self.rules)]),
             Tactic::Exact(proof),
@@ -140,7 +144,6 @@ pub(super) fn calc_row(
     from: &Printed,
     to: &Printed,
 ) -> Option<Printed> {
-    use super::super::doc::{LeanType, TermKind};
     match modulus {
         Some(n) => Some(Printed::of(
             TermKind::ModEq {
@@ -177,8 +180,6 @@ pub(super) fn under_for_alls(statement: &Printed) -> &Printed {
 /// from, `((u).toNat : ℤ)`, written as that integer `u`, each such `u`
 /// pushed to `found`.
 pub(super) fn to_nat_casts_removed(t: &Printed, found: &mut Vec<Printed>) -> Printed {
-    use super::super::doc::{LeanType, TermKind};
-    use super::super::templates::Num;
     if let TermKind::Cast {
         inner,
         to: LeanType::Num(Num::Int),
@@ -209,7 +210,6 @@ pub(super) fn subset_sides(says: &Printed) -> Option<(Printed, Printed)> {
 /// The range a term is, `Finset.Icc` or `Set.Icc`, of the set itself or of
 /// a membership of it; None of anything else.
 pub(super) fn range_head(t: &Printed) -> Option<&'static str> {
-    use super::super::doc::TermKind;
     let set = match &bare_term(t).kind {
         TermKind::Infix { op, rhs, .. } if op.symbol == "∈" => bare_term(rhs),
         _ => bare_term(t),
@@ -224,7 +224,6 @@ pub(super) fn range_head(t: &Printed) -> Option<&'static str> {
 
 /// Whether `t` says a term is in a set listed by its members, `x ∈ {1, 2}`.
 pub(super) fn listed_membership(t: &Printed) -> bool {
-    use super::super::doc::{Brackets, TermKind};
     matches!(
         &bare_term(t).kind,
         TermKind::Infix { op, rhs, .. } if op.symbol == "∈"
@@ -234,7 +233,6 @@ pub(super) fn listed_membership(t: &Printed) -> bool {
 
 /// Whether `t` says two pairs are equal, `((a, b) : ℝ × ℝ) = (c, d)`.
 pub(super) fn pair_equation(t: &Printed) -> bool {
-    use super::super::doc::{Brackets, TermKind};
     let pair = |side: &Printed| {
         let side = match &bare_term(side).kind {
             TermKind::Cast { inner, .. } => bare_term(inner),
@@ -262,7 +260,6 @@ pub(super) fn is_constant(t: &Printed, name: &str) -> bool {
 /// The set a statement `Set.MapsTo f X Y` says the map takes X into, Y;
 /// None for any other statement.
 pub(super) fn maps_to_codomain(statement: &Printed) -> Option<&Printed> {
-    use super::super::doc::{Arg, TermKind};
     let TermKind::App { head, args, .. } = &bare_term(statement).kind else {
         return None;
     };
@@ -294,7 +291,6 @@ pub(super) fn has_set_builder(term: &Printed) -> bool {
 /// count stands in the writer's type, ℤ, where Lean takes the item's own,
 /// ℕ or ℕ∞, so no line is known to say it from its printed form.
 pub(super) fn item_counts(statement: &Printed) -> bool {
-    use super::super::doc::CountForm::{Extended, Natural};
     statement.has_count(Natural) || statement.has_count(Extended)
 }
 
@@ -382,7 +378,6 @@ pub(super) fn exists_at(
     statement: Option<&Printed>,
     value: &Printed,
 ) -> (Option<Printed>, Option<Printed>) {
-    use super::super::doc::{Quant, TermKind};
     let Some(statement) = statement else {
         return (None, None);
     };
@@ -658,7 +653,6 @@ impl ThingsGiven {
         members: &super::super::expr::Members,
         at: &dyn Fn(&usize) -> super::super::templates::Num,
     ) -> super::super::expr::Members {
-        use super::super::expr::Members;
         match members {
             Members::Things(var) if self.numbers.contains(var) => {
                 Members::Numbers(at(var))
@@ -744,7 +738,6 @@ pub(super) fn header_reading(
     def: &crate::corpus::Define,
     rec: &CheckedTheorem,
 ) -> Route<HeaderReading> {
-    use super::super::templates::Num;
     let sets = set_valued(rec, &def.name);
     let [param] = def.params.as_slice() else {
         return Route::no("a function the header lets of more than one argument");
@@ -854,7 +847,6 @@ pub(super) fn header_function(
     def: &crate::corpus::Define,
     rec: &CheckedTheorem,
 ) -> Route<Vec<Binder>> {
-    use super::super::templates::Num;
     let HeaderReading {
         domain,
         body,
@@ -1124,7 +1116,6 @@ pub(super) fn header_recursions(
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Route<Vec<Binder>> {
-    use super::super::templates::Num;
     let mut out = Vec::new();
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
         let r = match crate::corpus::define_parts(&d.text) {
@@ -1185,7 +1176,6 @@ pub(super) fn header_recursions(
                 .letters
                 .insert(name.clone(), LetterType::Function { from: Num::Int, to });
         }
-        use super::super::doc::{LeanType, Op};
         let int = LeanType::Num(Num::Int);
         let k = super::super::names::letter(&index);
         let mut starts = Vec::new();

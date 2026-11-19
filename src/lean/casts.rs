@@ -16,6 +16,7 @@
 //! an entry is wrong or a Mathlib upgrade changes one.
 
 use super::doc::Term;
+use super::doc::{Arg, LeanType, Op, TermKind};
 use super::templates::Num;
 
 /// An operation the writer writes, as the cast table knows it.
@@ -516,7 +517,6 @@ pub fn norm_cast_moves_all(term: &Term) -> bool {
 /// relation (`Nat.cast_lt`, `Int.cast_inj`, …). What stands inside each side
 /// is alike in the two and moves nowhere.
 pub fn norm_cast_lifts_relation(relation: &Term, to: &super::doc::LeanType) -> bool {
-    use super::doc::TermKind;
     let relation = match &relation.kind {
         TermKind::Paren(inner) => inner,
         _ => relation,
@@ -549,7 +549,6 @@ pub fn norm_cast_lifts_relation(relation: &Term, to: &super::doc::LeanType) -> b
 /// `linear_combination` takes their difference, `a - b - (c - d) = 0`, and
 /// `push_cast at h ⊢; exact h` the two relations side by side.
 pub fn push_cast_moves_all_in_sides(term: &Term) -> bool {
-    use super::doc::TermKind;
     match &term.kind {
         TermKind::Paren(inner) => push_cast_moves_all_in_sides(inner),
         TermKind::Infix { op, lhs, rhs }
@@ -574,7 +573,6 @@ pub fn push_cast_moves_all(term: &Term) -> bool {
 /// Two statements in one type whose forms are alike `norm_cast` brings to
 /// one, and `exact_mod_cast` closes the one by the other.
 pub fn norm_cast_form(term: &Term) -> Term {
-    use super::doc::TermKind;
     match &term.kind {
         TermKind::Cast { inner, .. } | TermKind::Paren(inner) => {
             return norm_cast_form(inner)
@@ -616,7 +614,6 @@ pub fn norm_cast_form(term: &Term) -> Term {
 /// `(2 : ℤ) ^ k.toNat` as `2 ^ k.toNat`. None of any other term, a
 /// difference among them, which ℕ does not compute as ℤ does.
 pub fn as_natural(term: &Term) -> Option<Term> {
-    use super::doc::{LeanType, Op, TermKind};
     let nat = LeanType::Num(Num::Nat);
     if term.ty == Some(nat.clone()) {
         return Some(term.clone());
@@ -671,7 +668,6 @@ impl Mover {
 
 /// Whether `term` is a numeral, cast or not, `3` or `((1 : ℤ) : ℚ)`.
 fn numeral(term: &Term) -> bool {
-    use super::doc::TermKind;
     match &term.kind {
         TermKind::Numeral(_) => true,
         TermKind::Cast { inner, .. } | TermKind::Paren(inner) => numeral(inner),
@@ -683,7 +679,6 @@ fn numeral(term: &Term) -> bool {
 /// `over`, outermost first; an operation the table does not know stops a
 /// cast below it.
 fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
-    use super::doc::{Arg, LeanType, TermKind};
     let num = |t: &Term| match &t.ty {
         Some(LeanType::Num(n)) => Some(*n),
         _ => None,
@@ -835,6 +830,7 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use super::super::doc::{LeanType, TermKind};
     use super::*;
 
     /// A sum is taken through every widening between number types, and a
@@ -858,7 +854,6 @@ mod tests {
     /// already.
     #[test]
     fn an_order_cast_up_as_a_whole_is_lifted_back() {
-        use super::super::doc::{LeanType, TermKind};
         let int = LeanType::Num(Num::Int);
         let lt = super::super::doc::Op::of("<").expect("less");
         let a = Term::letter("a", int.clone());

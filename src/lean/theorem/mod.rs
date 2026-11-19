@@ -52,6 +52,10 @@ use self::terms::*;
 pub use self::terms::{
     as_item, as_written, set_valued, Origin, Sources, Spot, SET_VALUED,
 };
+use super::doc::{Op, TermKind};
+use super::expr::System;
+use super::templates::Num;
+use crate::sorts::introduction::{Form, Introduction};
 
 /// A theorem's Lean declaration, and for each of its lines the place on
 /// the page it was written for.
@@ -121,7 +125,6 @@ fn statement(
         if body.sentences().iter().all(|s| rec.page.get(s).is_some()) {
             continue;
         }
-        use crate::sorts::introduction::{Form, Introduction};
         let name = match Introduction::read(body.clone()).form {
             Form::Set(name)
             | Form::Element(name)
@@ -130,8 +133,6 @@ fn statement(
             // `let P be a point`: a point is a complex number, as the plane
             // is ℂ in set.mm (`docs/GEOMETRY.md`).
             Form::Point(name) => {
-                use super::expr::System;
-                use super::templates::Num;
                 let ty = LetterType::Number(Num::Complex);
                 writer.introduce(&name, System::Type(Num::Complex));
                 binders_of_sets.push(Binder::Letter {
@@ -523,7 +524,6 @@ struct LineAtNumbers {
 /// The `t` of `↑m = t`, the equation a "there is" of the letter `m` gives
 /// its number; None of any other formula.
 fn witness_equation(p: &Printed, letter: &str) -> Option<Printed> {
-    use super::doc::{Op, TermKind};
     fn bare_letter(p: &Printed) -> Option<&str> {
         match &p.kind {
             TermKind::Letter(l) => Some(l),

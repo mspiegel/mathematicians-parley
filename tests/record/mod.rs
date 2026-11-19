@@ -9,7 +9,9 @@
 use std::fmt::Write as _;
 
 use parley::checker::record::Cited;
+use parley::checker::record::{OrderFact, SuppliedBy, Unfolded};
 use parley::checker::CheckedCorpus;
+use parley::citing::finite::{FiniteBy, Making};
 use parley::corpus::Theorem;
 use parley::formula::Grammar;
 
@@ -306,7 +308,6 @@ pub fn requires_at(thm: &Theorem, line: usize) -> String {
 /// each conclusion and the way it is read, and where each fact is taken.
 /// Why a set is finite, each line and set printed as the page writes it.
 fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
-    use parley::citing::finite::FiniteBy;
     match why {
         FiniteBy::Said(line) => format!("Said({:?})", g.print(&line.0)),
         FiniteBy::Counted { line, at_least_one } => format!(
@@ -332,7 +333,6 @@ fn finite_why(why: &parley::citing::finite::FiniteBy, g: &Grammar) -> String {
 
 /// How a finite set is made, its parts' reasons printed by `finite_why`.
 fn making(made: &parley::citing::finite::Making, g: &Grammar) -> String {
-    use parley::citing::finite::Making;
     match made {
         Making::Empty => "Empty".to_string(),
         Making::Listed => "Listed".to_string(),
@@ -485,7 +485,6 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
 /// and what supplies it, each witness with its membership and its body's
 /// parts.
 fn unfolded_parts(parts: &[parley::checker::record::Unfolded], g: &Grammar) -> String {
-    use parley::checker::record::Unfolded;
     let each: Vec<String> = parts
         .iter()
         .map(|p| match p {
@@ -556,7 +555,6 @@ fn order_part(part: &parley::checker::record::OrderPart, flipped: bool) -> Strin
 
 /// Where a fact an order step adds stands (`record::OrderFact`).
 fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
-    use parley::checker::record::OrderFact;
     match fact {
         OrderFact::Line(at) => place(at),
         OrderFact::Define(label) => format!("define {label}"),
@@ -573,7 +571,6 @@ fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
 
 /// What supplies a hypothesis (`record::SuppliedBy`).
 fn supplier(by: &parley::checker::record::SuppliedBy) -> String {
-    use parley::checker::record::SuppliedBy;
     match by {
         SuppliedBy::Line(at) => place(at),
         SuppliedBy::SaidOnce(at) => format!("once {}", place(at)),

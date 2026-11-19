@@ -7,6 +7,7 @@
 //! another. Any other parting, a sentence the item says otherwise than the
 //! line, is no question of form and is not reported.
 
+use super::term::Op;
 use super::term::{Arg, BoundForm, CountForm, LeanType, Term, TermKind};
 use crate::lean::templates::Num;
 
@@ -202,7 +203,6 @@ pub fn with_natural_counts(term: &Term, sets: &[Term]) -> Term {
 /// makes of it. An integer power of a natural number cast up, `a ^ (k :
 /// ℤ)`, is the natural power `a ^ k`, as `zpow_natCast` rewrites it.
 pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
-    use super::term::Op;
     let mut out = term.clone();
     if let TermKind::Infix { op, lhs, rhs } = &mut out.kind {
         if let Some(k) = natural_cast_up(rhs).filter(|_| *op == Op::POWER) {
@@ -232,7 +232,6 @@ pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
 /// powers to natural exponents, `2 ^ e.toNat * (Rat.den x : ℤ)` of `(2 : ℚ)
 /// ^ e.toNat * ((Rat.den x : ℤ) : ℚ)`. None where some part is no integer.
 pub fn at_integers(term: &Term) -> Option<Term> {
-    use super::term::Op;
     let int = LeanType::Num(Num::Int);
     let at = |kind: TermKind| Term {
         kind,
@@ -296,7 +295,6 @@ pub struct BoundPower {
 /// Each integer power in a term that stands inside a sum or product and
 /// whose exponent names the letter it runs by (`BoundPower`).
 pub fn bound_integer_powers(term: &Term) -> Vec<BoundPower> {
-    use super::term::Op;
     let mut out = Vec::new();
     if let TermKind::Bound {
         form: BoundForm::BigOp { set, .. },
@@ -350,7 +348,6 @@ fn natural_cast_up(exponent: &Term) -> Option<Term> {
 /// Whether a term holds an integer power of a natural number cast up,
 /// `a ^ (k : ℤ)`.
 pub fn casts_natural_exponent(term: &Term) -> bool {
-    use super::term::Op;
     if let TermKind::Infix { op, rhs, .. } = &term.kind {
         if *op == Op::POWER && natural_cast_up(rhs).is_some() {
             return true;
@@ -394,7 +391,6 @@ pub fn cast_unit_lemmas(term: &Term) -> Vec<&'static str> {
 /// `sub_zero`, `0 + x` as `x` by `zero_add`, and so for `add_zero`,
 /// `mul_one`, `one_mul`, `div_one` and `pow_one`.
 pub fn with_identities_dropped(term: &Term, lemmas: &[&str]) -> Term {
-    use super::term::Op;
     let mut out = term.clone();
     for child in out.children_mut() {
         *child = with_identities_dropped(child, lemmas);
@@ -423,7 +419,6 @@ pub fn with_identities_dropped(term: &Term, lemmas: &[&str]) -> Term {
 /// The exponents of the integer powers in a term, `e` of each `a ^ e` with
 /// `e` in ℤ.
 pub fn integer_exponents(term: &Term) -> Vec<Term> {
-    use super::term::Op;
     let mut out = Vec::new();
     if let TermKind::Infix { op, rhs, .. } = &term.kind {
         if *op == Op::POWER && rhs.ty == Some(LeanType::Num(Num::Int)) {
@@ -561,7 +556,6 @@ fn pushed(term: &Term, widen: &Widen) -> Term {
 /// / in a field, whose division is exact, and through a library function
 /// that has a form at `to`.
 fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
-    use super::term::Op;
     let at = |kind: TermKind| Term {
         kind,
         ty: Some(to.clone()),
@@ -1719,7 +1713,6 @@ pub fn denied(term: &Term) -> Option<Term> {
 /// membership Mathlib defines as a statement written as that statement,
 /// `A ⊆ B` of `A ∈ 𝒫 B` and `0 < n` of `n ∈ {n : ℤ | 0 < n}`.
 pub fn unfolded(term: &Term) -> Term {
-    use super::term::Op;
     match &term.kind {
         TermKind::Paren(inner) => return unfolded(inner),
         // `(t : T)` of a t already in T says only what t is.
@@ -1838,7 +1831,6 @@ pub fn unfolded(term: &Term) -> Term {
 /// Whether `b` is the equation or the congruence `a` with its sides
 /// swapped, and not the same one.
 fn turned_pair(a: &Term, b: &Term) -> bool {
-    use super::term::Op;
     match (&a.kind, &b.kind) {
         (
             TermKind::ModEq {
@@ -2013,6 +2005,7 @@ fn children(term: &Term) -> Vec<&Term> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::term::Op;
     use super::*;
 
     /// `((↑a * ↑b : ℤ)).toNat` beside `a * b` of natural a and b: Lean
@@ -2164,7 +2157,6 @@ mod tests {
 
     #[test]
     fn a_cast_over_a_difference_is_the_difference_of_casts() {
-        use super::super::term::Op;
         let whole =
             to_rat(infix(Op::MINUS, int_letter("a"), int_letter("b"), Num::Int));
         let parts = infix(
@@ -2178,7 +2170,6 @@ mod tests {
 
     #[test]
     fn a_cast_over_a_natural_difference_stays() {
-        use super::super::term::Op;
         let nat = |n: &str| Term::letter(n, LeanType::Num(Num::Nat));
         let whole = to_rat(infix(Op::MINUS, nat("a"), nat("b"), Num::Nat));
         let parts = infix(Op::MINUS, to_rat(nat("a")), to_rat(nat("b")), Num::Rat);
@@ -2351,7 +2342,6 @@ mod tests {
     }
 
     fn powers_apart() -> PowersApart {
-        use super::super::term::Op;
         let e = infix(
             Op::MINUS,
             int_letter("n"),
@@ -2422,7 +2412,6 @@ mod tests {
 
     #[test]
     fn a_to_nat_outside_an_exponent_stays_apart() {
-        use super::super::term::Op;
         let none = |_: &str, _: Num| None;
         let n = int_letter("n");
         let m = Term::letter("m", LeanType::Num(Num::Nat));

@@ -20,6 +20,7 @@ use crate::lean::readback::differences;
 use crate::lean::theorem::Spot;
 use crate::said::Said;
 use crate::source::{Disk, Source};
+use std::io::Write;
 
 /// The Lean project, under the root of the tree.
 const PROJECT: &str = "lean";
@@ -272,7 +273,6 @@ pub fn accepted_edited(source: &dyn Source, edited: &[String]) -> Said {
             .spawn()
             .and_then(|mut child| {
                 if let Some(mut stdin) = child.stdin.take() {
-                    use std::io::Write;
                     stdin.write_all(text.as_bytes())?;
                 }
                 child.wait_with_output()

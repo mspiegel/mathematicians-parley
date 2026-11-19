@@ -16,6 +16,7 @@ use indexmap::IndexMap;
 use num_traits::{One, Signed};
 
 use super::doc::forms::casts_dropped;
+use super::doc::Source;
 use super::doc::{Arg, LeanType, Location, Op, Proof, Tactic, TacticArg, TermKind};
 use super::expr::{Printed, Writer};
 use super::tactics as t;
@@ -26,6 +27,10 @@ use crate::methods::field::{self, Poly, Q};
 use crate::methods::terms::{term_of_node, Targets};
 use crate::mm::kernel::FloatLabels;
 use crate::mm::Rpn;
+use crate::notations::{
+    DIVIDED, JUXTAPOSITION, MINUS, MULTIPLICATIVE, NUMERAL, PLUS, POWER, SUM,
+    SUPERSCRIPT, UNARY_MINUS,
+};
 use crate::outcome::Route;
 
 /// A cited line's equation: its tree, and the Lean term that proves it,
@@ -350,11 +355,6 @@ fn by_tactic(tactic: Tactic) -> Printed {
 /// to a numeral its base (`pow_ne_zero_iff`); numerals left out, which
 /// `field_simp` works out; any other term whole.
 fn nonzero_parts(term: &Node, proof: Printed, out: &mut Vec<NonzeroPart>) {
-    use super::doc::Source;
-    use crate::notations::{
-        DIVIDED, JUXTAPOSITION, MULTIPLICATIVE, NUMERAL, POWER, SUPERSCRIPT,
-        UNARY_MINUS,
-    };
     let apply = |name: &str, arg: Printed| {
         Printed::applied(name, Source::Mathlib, vec![arg], LeanType::Prop)
     };
@@ -907,7 +907,6 @@ fn cleared() -> Tactic {
 /// lemmas that gather sums into one (`Finset.mul_sum`,
 /// `Finset.sum_add_distrib`) act on.
 fn sums_joined(node: &Node) -> bool {
-    use crate::notations::{JUXTAPOSITION, MINUS, MULTIPLICATIVE, PLUS, SUM};
     let sum = |n: &Node| n.notation() == SUM;
     node.walk().iter().any(|n| {
         let product = [JUXTAPOSITION, MULTIPLICATIVE].contains(&n.notation());
@@ -919,10 +918,6 @@ fn sums_joined(node: &Node) -> bool {
 
 /// Whether a term is numerals joined by +, −, ·, / and powers alone.
 fn numeral_arithmetic(term: &Node) -> bool {
-    use crate::notations::{
-        DIVIDED, JUXTAPOSITION, MINUS, MULTIPLICATIVE, NUMERAL, PLUS, POWER,
-        SUPERSCRIPT, UNARY_MINUS,
-    };
     let arithmetic = term.notation() == NUMERAL
         || [
             JUXTAPOSITION,

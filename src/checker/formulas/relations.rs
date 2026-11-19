@@ -1,6 +1,8 @@
 //! What an algebra step leaves unsaid, relations and orders.
 
+use super::super::record::{NonzeroBy, NotZero};
 use super::*;
+use methods_membership::NonzeroHow;
 
 /// An `algebra` claim as the method decides it: the claim and its lines
 /// read, the cited lines fact by fact, and the verdict.
@@ -104,8 +106,6 @@ pub(super) fn divided_at(
     known: &Known,
     targets: &Targets,
 ) -> Vec<super::super::record::NotZero> {
-    use super::super::record::{NonzeroBy, NotZero};
-    use methods_membership::NonzeroHow;
     let Some(AlgebraDecided {
         read,
         facts,

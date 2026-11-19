@@ -1,6 +1,12 @@
 //! Proof methods: a recorded substitution written out.
 
+use super::super::doc::{Arg, LeanType, Location, Op, TacticArg, TermKind};
+use super::super::expr::NaturalForm;
+use super::super::templates::Num;
+use super::super::{doc, tactics as t};
 use super::*;
+use crate::checker::record::{ShownBy, SubstitutedInto};
+use crate::rules::System;
 
 impl<'a> Proof<'a> {
     /// `substitute`: the claim is a line, or the left side of a calculation's
@@ -29,7 +35,6 @@ impl<'a> Proof<'a> {
         row: Option<&GivenEquation>,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
         let turned = self
             .substitution_record(line, sentence, row.is_some_and(|r| r.above.is_some()))
             .is_some_and(|r| r.meeting.turned);
@@ -38,9 +43,9 @@ impl<'a> Proof<'a> {
             false => proof,
             true => proof.map(|p| {
                 let rest = match p {
-                    Proof::Term(t) => Tactic::Exact(t),
-                    Proof::By(t) => t,
-                    Proof::Block(ts) => Tactic::Seq(ts),
+                    doc::Proof::Term(t) => Tactic::Exact(t),
+                    doc::Proof::By(t) => t,
+                    doc::Proof::Block(ts) => Tactic::Seq(ts),
                 };
                 // `symm` turns a relation; a denial of an equation, `¬ y =
                 // v j`, which `symm` does not take, is turned by `Ne.symm`.
@@ -58,7 +63,7 @@ impl<'a> Proof<'a> {
                     ),
                     false => super::super::tactics::call("symm", vec![]),
                 };
-                Proof::By(Tactic::Seq(vec![turn, rest]))
+                doc::Proof::By(Tactic::Seq(vec![turn, rest]))
             }),
         }
     }
@@ -164,7 +169,6 @@ impl<'a> Proof<'a> {
         writer: &Writer,
         knowing: &Writer,
     ) -> PutExponents {
-        use super::super::expr::NaturalForm;
         // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
         // `push_cast` moves only knowing the term is not negative: what the
         // motive makes is the claim as it stands, closed with no cast moved.
@@ -247,8 +251,6 @@ impl<'a> Proof<'a> {
         line: usize,
         claim: &Node,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use crate::checker::record::SubstitutedInto;
         let SubstitutedInto::Line(at) = &rec.into else {
             return Route::no("a putting at no place into no line");
         };
@@ -260,7 +262,7 @@ impl<'a> Proof<'a> {
             return Route::no("a claim Lean states no form of");
         };
         match self.proof_meeting(proof, &says, &wanted) {
-            Some(proved) => Route::Built(Proof::By(Tactic::Exact(proved.term()))),
+            Some(proved) => Route::Built(doc::Proof::By(Tactic::Exact(proved.term()))),
             None => Route::no(
                 "a line put at no place that Lean states otherwise than the claim",
             ),
@@ -345,9 +347,6 @@ impl<'a> Proof<'a> {
         row: Option<&GivenEquation>,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::LeanType;
-        use super::super::tactics as t;
-        use crate::checker::record::SubstitutedInto;
         let found = self.substitution_record(
             line,
             sentence,
@@ -511,7 +510,6 @@ impl<'a> Proof<'a> {
                     return Route::no("a place written in an order no lemma turns");
                 };
                 proof.map(|p| {
-                    use super::super::doc::{Proof, TacticArg};
                     if rewrites.is_empty() {
                         return p;
                     }
@@ -522,11 +520,11 @@ impl<'a> Proof<'a> {
                         )],
                     );
                     let rest = match p {
-                        Proof::Term(term) => vec![Tactic::Exact(term)],
-                        Proof::By(tactic) => vec![tactic],
-                        Proof::Block(tactics) => tactics,
+                        doc::Proof::Term(term) => vec![Tactic::Exact(term)],
+                        doc::Proof::By(tactic) => vec![tactic],
+                        doc::Proof::Block(tactics) => tactics,
                     };
-                    Proof::Block(std::iter::once(rw).chain(rest).collect())
+                    doc::Proof::Block(std::iter::once(rw).chain(rest).collect())
                 })
             }
         }
@@ -539,9 +537,6 @@ impl<'a> Proof<'a> {
         p: Putting<'_, 'a>,
         k: &PutClosing,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::{LeanType, Proof};
-        use super::super::tactics as t;
-        use crate::checker::record::SubstitutedInto;
         let Putting {
             rec,
             row,
@@ -836,7 +831,7 @@ impl<'a> Proof<'a> {
         {
             return Route::Built(haves_then(
                 haves,
-                Proof::By(Tactic::Exact(range_member_made(equation, into.proof))),
+                doc::Proof::By(Tactic::Exact(range_member_made(equation, into.proof))),
             ));
         }
         let claimed = self.claim_as_stated(line, claim);
@@ -871,7 +866,7 @@ impl<'a> Proof<'a> {
                 );
                 return Route::Built(haves_then(
                     haves,
-                    Proof::By(Tactic::Seq(vec![
+                    doc::Proof::By(Tactic::Seq(vec![
                         Tactic::Obtain {
                             names: vec![
                                 "m".to_string(),
@@ -914,7 +909,9 @@ impl<'a> Proof<'a> {
                 haves.push(Tactic::Have {
                     name: "e_line".to_string(),
                     says: restated,
-                    proof: Box::new(Proof::By(t::exact_mod_cast(into.proof.clone()))),
+                    proof: Box::new(doc::Proof::By(t::exact_mod_cast(
+                        into.proof.clone(),
+                    ))),
                 });
                 super::super::algebra::Cited {
                     proof: t::hyp("e_line"),
@@ -971,13 +968,18 @@ impl<'a> Proof<'a> {
                     args: vec![
                         super::super::doc::Arg::Explicit(put_in),
                         super::super::doc::Arg::Explicit(w),
-                        super::super::doc::Arg::Explicit(t::by_term(Proof::By(shows))),
+                        super::super::doc::Arg::Explicit(t::by_term(doc::Proof::By(
+                            shows,
+                        ))),
                     ],
                     explicit: false,
                 },
                 ty: Some(LeanType::Prop),
             };
-            return Route::Built(haves_then(haves, Proof::By(Tactic::Exact(said))));
+            return Route::Built(haves_then(
+                haves,
+                doc::Proof::By(Tactic::Exact(said)),
+            ));
         }
         let closed = match int_exponent {
             false => {
@@ -1035,8 +1037,6 @@ impl<'a> Proof<'a> {
         k: &PutClosing,
         side: &usize,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::LeanType;
-        use super::super::tactics as t;
         let Putting {
             rec,
             line,
@@ -1053,8 +1053,6 @@ impl<'a> Proof<'a> {
             ..
         } = p;
         let close = |term: Printed| k.close(term);
-        use super::super::doc::Op;
-        use super::super::templates::Num;
         let at = match self.writer.carrier(&rec.start) {
             Route::Built(n) => n.max(ty).max(self.worked_in.get().unwrap_or(Num::Int)),
             Route::Declined(d) => return Route::Declined(d),
@@ -1124,8 +1122,6 @@ impl<'a> Proof<'a> {
         k: &PutClosing,
         side: &usize,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::LeanType;
-        use super::super::tactics as t;
         let Putting {
             rec,
             was,
@@ -1313,9 +1309,6 @@ impl<'a> Proof<'a> {
         line: usize,
         claim: &Node,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::{Arg, Proof};
-        use super::super::tactics as t;
-        use crate::checker::record::SubstitutedInto;
         let PutTerms { was, now } = put;
         let m = &rec.meeting;
         if m.renamed || !m.identities.is_empty() {
@@ -1437,8 +1430,8 @@ impl<'a> Proof<'a> {
         // A listed set the putting leaves in another order than the claim's
         // (`Meeting::permuted`): taken in the claim's order (`reordered`).
         match m.permuted {
-            false => Route::Built(Proof::Term(made)),
-            true => Route::Built(Proof::By(reordered(
+            false => Route::Built(doc::Proof::Term(made)),
+            true => Route::Built(doc::Proof::By(reordered(
                 &made,
                 rec.start.notation() == crate::notations::EQUALITY,
             ))),
@@ -1452,8 +1445,6 @@ impl<'a> Proof<'a> {
         claim: &Node,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
-        use super::super::doc::Proof;
-        use super::super::tactics as t;
         // As the checker recorded it, where it did; an equation from no line
         // by its own proof (`equation_given`).
         let given = self.equation_given(just);
@@ -1479,7 +1470,7 @@ impl<'a> Proof<'a> {
             if let Some(hyp) = self.header_function_named(place.named()) {
                 let everywhere =
                     TacticArg::At(vec![super::super::doc::Location::Everywhere]);
-                return Route::Built(Proof::By(Tactic::Seq(vec![
+                return Route::Built(doc::Proof::By(Tactic::Seq(vec![
                     t::simp_only(
                         false,
                         None,
@@ -1743,7 +1734,7 @@ impl<'a> Proof<'a> {
                     steps.push(t::simp_only(false, None, specs.clone(), None));
                 }
                 steps.push(t::linear_combination(by));
-                let shows = Proof::By(Tactic::Seq(steps));
+                let shows = doc::Proof::By(Tactic::Seq(steps));
                 let applied = Printed {
                     kind: super::super::doc::TermKind::App {
                         head: Box::new(t::bridge_lemma(
@@ -1916,7 +1907,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Option<super::super::doc::Proof> {
-        use crate::checker::record::ShownBy;
         let ShownBy::Beside(beside) = &self.rec.members_shown.get(&just.line)?.by
         else {
             return None;
@@ -2024,8 +2014,6 @@ impl<'a> Proof<'a> {
         just: &Justification,
         cited: &[super::super::algebra::Cited],
     ) -> Option<Printed> {
-        use super::super::tactics as t;
-        use crate::rules::System;
         let ctx = self.sources.ctx;
         let equation = cited
             .iter()
@@ -2077,9 +2065,6 @@ impl<'a> Proof<'a> {
         just: &Justification,
         node: &Node,
     ) -> Option<Printed> {
-        use super::super::tactics as t;
-        use crate::checker::record::ShownBy;
-        use crate::rules::System;
         let [term, set] = node.children.as_slice() else {
             return None;
         };
@@ -2227,9 +2212,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
-        use super::super::templates::Num;
-        use crate::rules::System;
         let [term, set] = node.children.as_slice() else {
             return None;
         };
@@ -2318,8 +2300,6 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Option<super::super::doc::Proof> {
-        use super::super::tactics as t;
-        use crate::checker::record::ShownBy;
         let Some(ShownBy::Define { value }) =
             self.rec.members_shown.get(&just.line).map(|s| &s.by)
         else {
@@ -2429,7 +2409,6 @@ impl<'a> Proof<'a> {
             // is reached from; ℂ having no order, an order at most in ℝ.
             let row_says = match row_node.names().is_empty() {
                 true => {
-                    use super::super::templates::Num;
                     let mut floor = Num::Int;
                     for side in above_cited
                         .iter()
@@ -2771,8 +2750,6 @@ impl<'a> Proof<'a> {
         giving: &[String],
         rules: &[NumberRule],
     ) -> Vec<Tactic> {
-        use super::super::doc::Location;
-        use super::super::tactics as t;
         let terms: Vec<String> = rules.iter().map(|r| r.term.clone()).collect();
         let mut out = Vec::new();
         for place in self.hypotheses_of(refs) {
@@ -2810,7 +2787,6 @@ impl<'a> Proof<'a> {
     /// The hypotheses that prove the lines `refs`, each with what its lines
     /// say: `s1` once for the `s1.1` and `s1.2` of a line of two sentences.
     pub(super) fn hypotheses_of(&self, refs: &[&String]) -> Vec<RewriteAt> {
-        use super::super::doc::{Location, TermKind};
         // The hypothesis a line's proof is, or projects from, `s1` of `s1.2`.
         fn root(p: &Printed) -> Option<&str> {
             match &p.kind {
@@ -2916,8 +2892,6 @@ impl<'a> Proof<'a> {
         equation: &Printed,
         writer: &Writer,
     ) -> Route<Tactic> {
-        use super::super::expr::NaturalForm;
-        use super::super::templates::Num;
         let forms = [
             natural_form_named(writer, was),
             natural_form_named(writer, now),
