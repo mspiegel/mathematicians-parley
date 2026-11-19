@@ -247,7 +247,7 @@ pub fn printed_but(
             out,
             "{} links facing {}",
             reason_at(*line),
-            facing_word(Some(*facing))
+            facing_word(*facing)
         )
         .unwrap();
     }
@@ -263,19 +263,21 @@ pub fn printed_but(
             .unwrap();
         }
     }
-    for (line, said) in &record.define_domains {
-        let by = match said {
-            DomainSaid::Line(at) => place(at),
-            DomainSaid::Member => "the claim's member".to_string(),
-            DomainSaid::SumRange => "the sum's range".to_string(),
-            DomainSaid::LimitIndex => "the sequence's index".to_string(),
-        };
-        writeln!(
-            out,
-            "{} has its define's argument in the domain by {by}",
-            reason_at(*line)
-        )
-        .unwrap();
+    for (line, applied) in &record.define_domains {
+        for one in applied {
+            let by = match &one.said {
+                DomainSaid::Line(at) => place(at),
+                DomainSaid::Member => "the claim's member".to_string(),
+                DomainSaid::SumRange => "the sum's range".to_string(),
+                DomainSaid::LimitIndex => "the sequence's index".to_string(),
+            };
+            writeln!(
+                out,
+                "{} has its define's argument in the domain by {by}",
+                reason_at(*line)
+            )
+            .unwrap();
+        }
     }
     for (line, parts) in &record.obtained_parts {
         let pairs: Vec<String> = parts

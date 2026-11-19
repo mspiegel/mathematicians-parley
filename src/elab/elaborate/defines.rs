@@ -3,8 +3,8 @@
 use std::mem;
 
 use super::*;
+use crate::checker::record::{DefineSide, Facing};
 use crate::mm::spell::Binds;
-use crate::outcome::Decline;
 
 impl<'a> Elaborator<'a> {
     /// The proof of one link of a chain, from what it cites.
@@ -19,6 +19,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
         defines: &BTreeSet<String>,
+        falling: bool,
     ) -> Checked<Proof> {
         let cite = line.cite.as_str();
         let link_line = line.line;
@@ -138,7 +139,16 @@ impl<'a> Elaborator<'a> {
         // A define says what its name is, and a link citing it says what that
         // comes to somewhere: the standard form reads the name as its rule.
         if defines.contains(cite) && line.claim != wanted {
-            return match self.define_makes(step, &wanted, scope, facts)? {
+            // The record's facing is of the link as the chain is written; a
+            // chain going down is built going up (`Chain::upward`).
+            let faces = self.checked.define_facings.get(&link_line).map(|f| {
+                match (*f, falling) {
+                    (f, false) => f,
+                    (Facing::Straight, true) => Facing::Turned,
+                    (Facing::Turned, true) => Facing::Straight,
+                }
+            });
+            return match self.define_makes(step, &wanted, faces, scope, facts)? {
                 Built(p) => Ok(p),
                 Declined(d) => Err(self.defect(
                     step.line,
@@ -180,56 +190,102 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
-        for (said_as, held) in known.entries() {
-            if said_as == wanted {
-                return Ok(held);
-            }
-            let said = self.to_term(&said_as);
-            if said.label() == Some("wceq") {
-                let (was, now) =
-                    (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
-                if t!(now, was, "wceq") == wanted {
-                    return Ok(pf!(self.b; scope, was, now, held, "eqcomd"));
-                }
-            }
-        }
-        // Or one of them with an identity element written that the link
-        // leaves out, or the other way about (`SYNTAX.md`).
-        let bare =
-            |me: &Self, rpn: &Rpn| me.rpn(&me.without_identities(&me.to_term(rpn)));
-        let goal = bare(self, &wanted);
-        let turned = self.turned_claim(&wanted);
-        for (said_as, held) in known.entries() {
-            if bare(self, &said_as) == goal {
-                if let Some(p) = self.tidied(&held, &said_as, &wanted, scope, facts)? {
-                    return Ok(p);
-                }
-            }
-            let Some((turned, flip)) = &turned else {
-                continue;
+        // How the checker met the line's fact with the link
+        // (`CheckedTheorem::link_meetings`) says which way to carry it: as it
+        // stands; the equation turned round and nothing else; an identity
+        // element written that the link leaves out, or the other way about
+        // (`SYNTAX.md`), the facing saying whether the claim is turned; or
+        // the two met by `same`, as with two sides its notation puts in no
+        // order the other way round, c ≡ b (mod n) for a link from b to c.
+        // That lemma asks that each side is a number, which the step's
+        // requires lines may be what say.
+        let met = self.checked.link_meetings.get(&link_line).cloned();
+        let faces = self.checked.link_facings.get(&link_line).copied().flatten();
+        // The record's facing is of the link as the chain is written; a chain
+        // going down is built going up, each link the other way round
+        // (`Chain::upward`), so the link built faces the line the other way.
+        let turned_round = faces.map(|f| (f == Facing::Turned) != falling);
+        // Turned: the equation the link claims is the line's turned round,
+        // with nothing else different between the two.
+        let turned_only = turned_round == Some(true)
+            && met.as_ref().is_none_or(|m| {
+                !m.permuted
+                    && !m.renamed
+                    && !m.respelled
+                    && m.flips.is_empty()
+                    && m.identities.is_empty()
+            });
+        // Spelt differently, or with an identity element dropped, and no
+        // part in another order: the sides are the same once each spelling
+        // is read, which `tidied` carries.
+        let spelt_only = met.as_ref().is_some_and(|m| {
+            (m.respelled || !m.identities.is_empty())
+                && !m.permuted
+                && !m.renamed
+                && m.flips.is_empty()
+        });
+        if met.is_none() && !turned_only {
+            return match known
+                .entries()
+                .into_iter()
+                .find(|(said, _)| *said == wanted)
+            {
+                Some((_, held)) => Ok(held),
+                None => Err(self.defect(
+                    step.line,
+                    format!("{cite} says {written} as written, and no line does"),
+                )),
             };
-            if bare(self, &said_as) == bare(self, turned) {
-                if let Some(p) = self.tidied(&held, &said_as, turned, scope, facts)? {
-                    let Sides { left, right } = self.equation_sides(turned);
-                    return Ok(pf!(self.b; scope, left, right, p, *flip));
+        }
+        if turned_only {
+            for (said_as, held) in known.entries() {
+                let said = self.to_term(&said_as);
+                if said.label() == Some("wceq") {
+                    let (was, now) =
+                        (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+                    if t!(now, was, "wceq") == wanted {
+                        return Ok(pf!(self.b; scope, was, now, held, "eqcomd"));
+                    }
                 }
             }
-        }
-        // Or one of them with two sides its notation puts in no order the
-        // other way round: c ≡ b (mod n) for a link from b to c. The lemma
-        // that exchanges them asks that each side is a number, which the
-        // step's requires lines may be what say.
-        let offered = facts.with(&self.supplied(Some(step), scope, facts)?);
-        for (said_as, held) in known.entries() {
-            let alike = self.same(
-                &self.to_term(&said_as),
-                &self.to_term(&wanted),
-                scope,
-                &offered,
-                Some(step),
-            )?;
-            if let Built(alike) = alike {
-                return Ok(pf!(self.b; scope, said_as, wanted, held, alike, "mpbid"));
+        } else if spelt_only {
+            let turned = self
+                .turned_claim(&wanted)
+                .filter(|_| turned_round == Some(true));
+            for (said_as, held) in known.entries() {
+                match &turned {
+                    None => {
+                        if let Some(p) =
+                            self.tidied(&held, &said_as, &wanted, scope, facts)?
+                        {
+                            return Ok(p);
+                        }
+                    }
+                    Some((turned, flip)) => {
+                        if let Some(p) =
+                            self.tidied(&held, &said_as, turned, scope, facts)?
+                        {
+                            let Sides { left, right } = self.equation_sides(turned);
+                            return Ok(pf!(self.b; scope, left, right, p, *flip));
+                        }
+                    }
+                }
+            }
+        } else {
+            let offered = facts.with(&self.supplied(Some(step), scope, facts)?);
+            for (said_as, held) in known.entries() {
+                let alike = self.same(
+                    &self.to_term(&said_as),
+                    &self.to_term(&wanted),
+                    scope,
+                    &offered,
+                    Some(step),
+                )?;
+                if let Built(alike) = alike {
+                    return Ok(
+                        pf!(self.b; scope, said_as, wanted, held, alike, "mpbid"),
+                    );
+                }
             }
         }
         Err(self.defect(step.line, format!("{cite} does not say {written}")))
@@ -240,23 +296,39 @@ impl<'a> Elaborator<'a> {
     /// the define's own equation, either way round and over another bound
     /// letter, as a define of a count read its index before the step's lines
     /// took theirs; or two sides the standard form reads as one, the name
-    /// read as its rule.
+    /// read as its rule. `faces` is which way `wanted` faces the define's
+    /// own equation, as the checker recorded it.
     pub(super) fn define_makes(
         &mut self,
         step: &Step,
         wanted: &Rpn,
+        faces: Option<Facing>,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
         let supplied = self.supplied(Some(step), scope, facts)?;
         let known = self.with_cited(Some(step), scope, &supplied, None)?;
-        if let Some(p) = self.held_rebound(&known, wanted, scope)? {
-            return Ok(Built(p));
-        }
-        if let Some((turned, flip)) = self.turned_claim(wanted) {
-            if let Some(p) = self.held_rebound(&known, &turned, scope)? {
-                let Sides { left, right } = self.equation_sides(&turned);
-                return Ok(Built(pf!(self.b; scope, left, right, p, flip)));
+        // Where the claim faces an equation the define says of a name
+        // (`CheckedTheorem::define_facings`), the equation the elaborator
+        // holds for it may spell a bound letter another way than the page,
+        // which `held_rebound` carries across; the claim is otherwise the two
+        // sides read by `same`.
+        if let Some(facing) = faces {
+            let (target, flip) = match facing {
+                Facing::Straight => (wanted.clone(), None),
+                Facing::Turned => match self.turned_claim(wanted) {
+                    Some((turned, flip)) => (turned, Some(flip)),
+                    None => (wanted.clone(), None),
+                },
+            };
+            if let Some(p) = self.held_rebound(&known, &target, scope)? {
+                return Ok(Built(match flip {
+                    None => p,
+                    Some(flip) => {
+                        let Sides { left, right } = self.equation_sides(&target);
+                        pf!(self.b; scope, left, right, p, flip)
+                    }
+                }));
             }
         }
         let claim = self.to_term(wanted);
@@ -300,81 +372,59 @@ impl<'a> Elaborator<'a> {
         let (a, b) = (whole.children()[0].clone(), whole.children()[1].clone());
         // A define standing inside a side, as ∫(0 to 1) p(t) dt holds p, is
         // read where it stands, as a calculation's link citing it is.
-        if !self.names_define_at_head(&a) && !self.names_define_at_head(&b) {
-            return self.define_makes(step, term, scope, facts);
+        let Some(side) = self.checked.define_sides.get(&step.just.line).copied() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no side of the equation that names the define",
+            ));
+        };
+        if side == DefineSide::Inside {
+            let faces = self.checked.define_facings.get(&step.just.line).copied();
+            return self.define_makes(step, term, faces, scope, facts);
         }
         let supplied = self.supplied(Some(step), scope, facts)?;
         let held = self.with_cited(Some(step), scope, &supplied, None)?;
-        self.equation_by_define(step, &a, &b, scope, &held)
-    }
-
-    /// Whether `one` is a defined name or a defined function applied, which
-    /// `define_value` reads.
-    pub(super) fn names_define_at_head(&mut self, one: &Term) -> bool {
-        let letters = self.letters_bound(one);
-        let kept = mem::replace(&mut self.binding, letters);
-        let head = self.standard_step(one);
-        self.binding = kept;
-        head.is_some_and(|(h, _)| {
-            matches!(
-                h,
-                super::super::matcher::How::Defined
-                    | super::super::matcher::How::Applied
-            )
-        })
+        self.equation_by_define(step, &a, &b, side == DefineSide::Right, scope, &held)
     }
 
     /// ( scope -> a = b ) where one side is a defined name, applied or not,
-    /// and the other its value, as the define says it; a decline where
-    /// neither side names a define whose value is the other.
+    /// and the other its value, as the define says it: the left side is the
+    /// name, or the right where `turned`, as the checker recorded
+    /// (`CheckedTheorem::define_sides`); a decline where the side's value is
+    /// not the other.
     pub(super) fn equation_by_define(
         &mut self,
         step: &Step,
         a: &Term,
         b: &Term,
+        turned: bool,
         scope: &Rpn,
         held: &Facts,
     ) -> Checked<Route<Proof>> {
-        let mut why: Option<Decline> = None;
-        for (one, other, turned) in [(a, b, false), (b, a, true)] {
-            let reached = self.define_value(one, scope, held)?;
-            let (value, mut proof) = match reached {
-                Built(r) => r,
-                Declined(d) => {
-                    // What the side naming a define says, over the other's.
-                    if why.as_ref().is_none_or(|w| w.reason() == NAMES_NO_DEFINE) {
-                        why = Some(d);
-                    }
-                    continue;
-                }
-            };
-            if self.rpn(&value) != self.rpn(other) {
-                match self.same(&value, other, scope, held, Some(step))? {
-                    Declined(d) => {
-                        why = Some(d);
-                        continue;
-                    }
-                    Built(alike) => {
-                        proof = self.b.ap(
-                            "eqtrd",
-                            &binds! {"ph" => scope, "A" => self.rpn(one), "B" => self.rpn(&value), "C" => self.rpn(other)},
-                            &[&proof, &alike],
-                        );
-                    }
-                }
-            }
-            if !turned {
-                return Ok(Built(proof));
-            }
-            return Ok(Built(self.b.ap(
-                "eqcomd",
-                &binds! {"ph" => scope, "A" => self.rpn(one), "B" => self.rpn(other)},
-                &[&proof],
-            )));
+        let (one, other) = if turned { (b, a) } else { (a, b) };
+        let holds: Vec<bool> = self
+            .checked
+            .define_cases
+            .get(&step.just.line)
+            .map(|taken| taken.passed.iter().map(|p| p.holds).collect())
+            .unwrap_or_default();
+        let (value, mut proof) = take!(self.define_value(one, &holds, scope, held)?);
+        if self.rpn(&value) != self.rpn(other) {
+            let alike = take!(self.same(&value, other, scope, held, Some(step))?);
+            proof = self.b.ap(
+                "eqtrd",
+                &binds! {"ph" => scope, "A" => self.rpn(one), "B" => self.rpn(&value), "C" => self.rpn(other)},
+                &[&proof, &alike],
+            );
         }
-        Ok(Declined(
-            why.expect("a reason one of the two sides declined"),
-        ))
+        if !turned {
+            return Ok(Built(proof));
+        }
+        Ok(Built(self.b.ap(
+            "eqcomd",
+            &binds! {"ph" => scope, "A" => self.rpn(one), "B" => self.rpn(other)},
+            &[&proof],
+        )))
     }
 
     /// ( scope -> t Fn A ) for a function a define gives on A: the map is a
@@ -389,7 +439,7 @@ impl<'a> Elaborator<'a> {
         held: &Facts,
     ) -> Checked<Route<Proof>> {
         let name = whole.children()[0].clone();
-        let (map, is_map) = take!(self.define_value(&name, scope, held)?);
+        let (map, is_map) = take!(self.define_value(&name, &[], scope, held)?);
         if map.label() != Some("cmpt") || map.children().len() != 3 {
             return Ok(Route::no(
                 "what is claimed a function is no function a define gives",
@@ -441,11 +491,14 @@ impl<'a> Elaborator<'a> {
     }
 
     /// (value, ( scope -> one = value )) where `one` is a defined name or a
-    /// defined function applied, read once and taken into the case the facts
-    /// say; a decline otherwise.
+    /// defined function applied, read once and taken into the case the
+    /// checker recorded (`CheckedTheorem::define_cases`): `holds` says of
+    /// each condition passed, in order, whether it holds or fails. A decline
+    /// where a case is reached that the record names no condition for.
     pub(super) fn define_value(
         &mut self,
         one: &Term,
+        holds: &[bool],
         scope: &Rpn,
         held: &Facts,
     ) -> Checked<Route<(Term, Proof)>> {
@@ -467,26 +520,31 @@ impl<'a> Elaborator<'a> {
             take!(self.recursion_value(one, &value, proof, scope, held)?);
         // Each case in turn: the condition held takes its value, the
         // condition refuted goes on to the rest.
+        let mut passed = holds.iter();
         while value.label() == Some("cif") && value.children().len() == 3 {
             let (condition, first, rest) = (
                 value.children()[0].clone(),
                 value.children()[1].clone(),
                 value.children()[2].clone(),
             );
+            let Some(&holding) = passed.next() else {
+                return Ok(Route::no("the checker recorded no case for the step"));
+            };
             let cond = self.rpn(&condition);
             let parts =
                 binds! {"ph" => &cond, "A" => self.rpn(&first), "B" => self.rpn(&rest)};
-            let holds = self.settle(&condition, scope, held, 3, None, None)?;
-            let fails = if holds.is_declined() {
-                self.settle(&self.to_term(&t!(cond, "wn")), scope, held, 3, None, None)?
-            } else {
-                holds.clone()
+            let asked = match holding {
+                true => condition.clone(),
+                false => self.to_term(&t!(cond, "wn")),
             };
-            let (taken, lemma, why) = match (holds, fails) {
-                (Built(h), _) => (first, "iftrue", h),
-                (_, Built(f)) => (rest, "iffalse", f),
-                _ => return Ok(Route::no("no line the step cites says which case")),
-            };
+            let (taken, lemma, why) =
+                match self.settle(&asked, scope, held, 3, None, None)? {
+                    Built(h) if holding => (first, "iftrue", h),
+                    Built(f) => (rest, "iffalse", f),
+                    Declined(_) => {
+                        return Ok(Route::no("no line the step cites says which case"));
+                    }
+                };
             let said = t!(self.rpn(&value), self.rpn(&taken), "wceq");
             let asked = if lemma == "iftrue" {
                 cond.clone()

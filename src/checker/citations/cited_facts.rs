@@ -453,7 +453,7 @@ pub(super) fn facings(
 /// its equation, `named` (`formulas::define_equation`), as `facing_of`
 /// meets the two; a define of a function by the side that applies it,
 /// `q(a)` of `q(a) = a + 1`. None where neither side is so.
-pub(super) fn define_facing(
+pub(in crate::checker) fn define_facing(
     thm: &Theorem,
     label: &str,
     equation: &Node,

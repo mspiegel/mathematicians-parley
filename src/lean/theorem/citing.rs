@@ -566,7 +566,7 @@ impl<'a> Proof<'a> {
                 (Some(name), false) => match in_named_forms(
                     &self.named_specs,
                     name,
-                    self.rec.link_facings.get(&line.line).copied(),
+                    self.rec.link_facings.get(&line.line).copied().flatten(),
                     relation == "≡",
                 ) {
                     Route::Built(t) => Some(t),
@@ -599,7 +599,7 @@ impl<'a> Proof<'a> {
             // faces it (`link_facings`).
             let at_letter =
                 match (read.as_slice(), self.rec.link_facings.get(&line.line)) {
-                    ([at], Some(facing)) => Some(super::super::doc::Proof::By(
+                    ([at], Some(Some(facing))) => Some(super::super::doc::Proof::By(
                         Tactic::Exact(faced(at.proof.clone(), *facing)),
                     )),
                     _ => None,
@@ -613,7 +613,12 @@ impl<'a> Proof<'a> {
             // record says the row faces it: the row's proof.
             let named_decided = in_named
                 .clone()
-                .filter(|_| self.rec.link_facings.contains_key(&line.line))
+                .filter(|_| {
+                    self.rec
+                        .link_facings
+                        .get(&line.line)
+                        .is_some_and(Option::is_some)
+                })
                 .map(super::super::doc::Proof::By);
             ways.extend(in_named);
             // The row is what the cited line says where the checker

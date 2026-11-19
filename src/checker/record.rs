@@ -252,6 +252,10 @@ pub struct TakenCase {
     /// failing, for the cases before it, and the last holding, unless the
     /// case is the one written `otherwise`.
     pub passed: Vec<PassedCondition>,
+    /// Whether the define's name is on the claim's right side, so the case
+    /// is read off the right and meets the left; false where it is on the
+    /// left.
+    pub turned: bool,
     /// How the case's value meets the claim's other side (`Known::alike_how`):
     /// as it stands, or with arithmetic left; None where they met only as
     /// `Known::alike` reads them.
@@ -382,11 +386,17 @@ pub struct CheckedTheorem {
     /// case, how it reaches that case and meets it. By the step's line
     /// (`formulas::define_cases`).
     pub define_cases: IndexMap<usize, TakenCase>,
+    /// Of each step citing a define of a name, a function or a recursion
+    /// whose claim is one equation, which side has the define at its head
+    /// (`formulas::define_sides`), by the step's line. A step that claims a
+    /// function on a set is left out.
+    pub define_sides: IndexMap<usize, DefineSide>,
     /// Of each step citing a function a define lets on a domain, `H(x) for
     /// x ∈ A ∪ B`, or substituting the define's equation at an argument,
-    /// what says the argument it applies the function at is in that domain.
-    /// By the step's line (`citations::define_domains`).
-    pub define_domains: IndexMap<usize, DomainSaid>,
+    /// what says the argument of each application it makes of the function is
+    /// in that domain, in the order the applications stand in the claim or
+    /// the equation. By the step's line (`citations::define_domains`).
+    pub define_domains: IndexMap<usize, Vec<AppliedDomain>>,
     /// Of each step of a method or an item citing a function a define lets
     /// on a domain, each application whose domain the step asks, with what
     /// says the
@@ -405,9 +415,15 @@ pub struct CheckedTheorem {
     /// Which way each calculation link that cites a line faces what the line
     /// says, an equation of the line's turned round where the link writes
     /// its sides the other way (`citations::facing_of`), by the link's line
-    /// (`formulas::link_places`); left out where the line says no equation
-    /// or no side meets.
-    pub link_facings: IndexMap<usize, Facing>,
+    /// (`formulas::link_places`). None where the line says no equation or no
+    /// side meets; left out where the link is not placed.
+    pub link_facings: IndexMap<usize, Option<Facing>>,
+    /// Which way each calculation link citing a define of a name, and each
+    /// step citing one, faces the define's equation, by the link's line or
+    /// the line of the step's justification (`formulas::define_facings`);
+    /// left out where no side meets, and for a define of a function or a
+    /// recursion, which says no one equation.
+    pub define_facings: IndexMap<usize, Facing>,
     /// How each `substitute` step and calculation row writing no rows makes
     /// its claim, by the line of its justification; none where the
     /// equation is put at places only a standard order of the trees finds,
@@ -449,6 +465,10 @@ pub struct CheckedTheorem {
     /// by the line of its justification: permuted where a listed set's
     /// members stand in another order (`formulas::calculation_meetings`).
     pub calculation_ends: IndexMap<usize, Meeting>,
+    /// Where the first row of each `substitute` step with rows stands in the
+    /// line it cites, and how its last row meets the step's claim, by the
+    /// line of the step's justification (`formulas::substitute_row_ends`).
+    pub substitute_ends: IndexMap<usize, RowEnds>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
     /// (`formulas::check_place_systems`), by the step's index: so that a
@@ -906,6 +926,34 @@ pub enum Negating {
     Line,
 }
 
+/// Where a step citing a define of a name or a function has the define in
+/// its equation (`CheckedTheorem::define_sides`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DefineSide {
+    /// The left side is the name, applied or not, and the right is its
+    /// value.
+    Left,
+    /// The right side is the name, applied or not.
+    Right,
+    /// Neither side is the name at its head; it stands inside a side, as p
+    /// does in ∫(0 to 1) p(t) dt, and the equation is read where it stands.
+    Inside,
+}
+
+/// The two ends of a `substitute` step's rows as the checker met them
+/// (`CheckedTheorem::substitute_ends`).
+#[derive(Clone, Debug)]
+pub struct RowEnds {
+    /// Where in the line the first row cites that row stands; None where
+    /// the line's sentences say it only together.
+    pub first: Option<FirstAt>,
+    /// How the last row meets the claim (`Known::alike_how`).
+    pub last: Meeting,
+    /// Whether the last row writes the claim in its other form
+    /// (`rules::OTHER_FORMS`) and meets the claim only so.
+    pub last_other_form: bool,
+}
+
 /// A line a citation names that states a fact its reading is taken from.
 #[derive(Clone, Debug)]
 pub struct FirstAt {
@@ -1040,6 +1088,10 @@ pub struct ChainLink {
     /// Whether the chain reads it from its right side: `b = a` as `a = b`,
     /// `b > a` as `a < b`.
     pub turned: bool,
+    /// Where the link cites a define of a name, which way `said` faces the
+    /// define's equation (`formulas::define_named_facing`); None where no
+    /// side meets or the link cites no such define.
+    pub define_facing: Option<Facing>,
 }
 
 /// What an order step rests on, by sentence of its claim
@@ -1200,6 +1252,10 @@ pub struct Substituted {
     /// leaves out, `1·x` written `x`; or turned round, `b ≡ c` of the claim
     /// `c ≡ b`, or a listed set's members in another order.
     pub meeting: Meeting,
+    /// Whether what the putting makes is the claim's other form
+    /// (`rules::OTHER_FORMS`), `Q is not on line HK` for `Q ∉ line HK`,
+    /// which a backend carries back to the claim, and not the claim itself.
+    pub made_other_form: bool,
     /// Where a place writes the side put for with the parts of a notation
     /// that stands in no order in another order, |BA| for the side |AB|
     /// (`matching::places_alike`): each such flip, the side's term first

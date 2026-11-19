@@ -393,7 +393,7 @@ impl<'a> Proof<'a> {
                     {
                         let taken = &self.rec.define_cases[&reason.just.line];
                         let domain = self.domain_proof(
-                            &self.rec.define_domains[&reason.just.line],
+                            &self.rec.define_domains[&reason.just.line][0].said,
                             None,
                         );
                         match (domain, self.conditions_put(taken, node)) {
@@ -2452,7 +2452,7 @@ impl<'a> Proof<'a> {
                         let hyp = self.header_function_named(label)?;
                         let domain = self
                             .domain_proof(
-                                self.rec.define_domains.get(&just.line)?,
+                                &self.rec.define_domains.get(&just.line)?.first()?.said,
                                 None,
                             )
                             .built()?;

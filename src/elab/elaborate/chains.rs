@@ -299,8 +299,13 @@ impl<'a> Elaborator<'a> {
                     } else if define {
                         // A define in the chain is the equation it makes
                         // between its neighbours, as a link citing it reads.
-                        let Built(proof) =
-                            self.define_makes(step, &part, scope, facts)?
+                        let Built(proof) = self.define_makes(
+                            step,
+                            &part,
+                            link.define_facing,
+                            scope,
+                            facts,
+                        )?
                         else {
                             return Err(self.defect(
                                 step.line,
@@ -668,7 +673,9 @@ impl<'a> Elaborator<'a> {
         };
         // A chain going down is composed as the same links going up, which
         // concludes the same formula: t₀ ≥ t₂ is t₂ ≤ t₀ (`Chain::upward`).
-        let chain = chain?.upward();
+        let chain = chain?;
+        let falling = chain.falls();
+        let chain = chain.upward();
         let mut defines: BTreeSet<String> =
             self.thm.defines.iter().map(|d| d.label.clone()).collect();
         for v in self.visible_outside() {
@@ -730,6 +737,7 @@ impl<'a> Elaborator<'a> {
             facts,
             lines,
             &defines,
+            falling,
         )?;
         for (before, line) in chain.lines.iter().zip(&chain.lines[1..]) {
             let (node, added) = link(self, &rest, line)?;
@@ -783,6 +791,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let held = self.link_held(
                     step, line, &joined, &written, scope, facts, lines, &defines,
+                    falling,
                 )?;
                 let m = modulus.clone().or(n.clone()).expect("a congruence");
                 if modulus.is_none() && said == "wceq" {
@@ -830,6 +839,7 @@ impl<'a> Elaborator<'a> {
                 let nxt = self.rpn(&joined.children()[1]);
                 let held = self.link_held(
                     step, line, &joined, &written, scope, facts, lines, &defines,
+                    falling,
                 )?;
                 // A calculation only joins (`SYNTAX.md`), so it asks no
                 // membership: the links fold in ℝ*, where each order puts
@@ -873,7 +883,7 @@ impl<'a> Elaborator<'a> {
                 relation = self.rpn(&joined.children()[2]).to_string();
             }
             let held = self.link_held(
-                step, line, &joined, &written, scope, facts, lines, &defines,
+                step, line, &joined, &written, scope, facts, lines, &defines, falling,
             )?;
             proof = pf!(self.b; scope, left, right, nxt, relation, proof, held, fold);
             right = nxt;

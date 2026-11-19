@@ -6,7 +6,7 @@ use super::*;
 use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
 use crate::corpus::proof;
 use crate::matching;
-use crate::matching::{Meeting, SubstitutionPlaces};
+use crate::matching::{Flip, Meeting, SubstitutionPlaces};
 
 /// A `substitute` claims the line it puts its equation into with one side
 /// put for the other at some of the places it stands, or with no line to
@@ -306,25 +306,6 @@ pub(super) fn substitution_reading(
     // claim written turned round, `c ≡ b` of `b ≡ c`, or a listed set's
     // members in another order: the side put for at every place it stands,
     // and how what that makes meets the claim.
-    let met_otherwise = || {
-        [(left, right, false), (right, left, true)]
-            .into_iter()
-            .find_map(|(was, now, turned)| {
-                // A place the page writes in another order of the parts of
-                // a notation that stands in no order, |BA| for the side
-                // |AB|, is a place all the same; a backend turns it first.
-                let mut places = matching::places_of(&start.start, was);
-                if places.is_empty() {
-                    places = matching::places_alike(&start.start, was, &library.ctx);
-                }
-                if places.is_empty() {
-                    return None;
-                }
-                let made = matching::put_at_places(&start.start, &places, now);
-                let met = known.alike_how(&made, &way.aim)?;
-                Some((SubstitutionPlaces { turned, places }, met))
-            })
-    };
     let define_facing = source
         .as_deref()
         .filter(|s| is_define(s))
@@ -332,55 +313,33 @@ pub(super) fn substitution_reading(
     let line_facing = from
         .as_ref()
         .and_then(|at| facing_of(&at.written, equation, known));
-    // Each place that writes the side put for in another order of a
-    // notation's parts, the side's term first.
-    let place_flips = |start: &Node, put: &SubstitutionPlaces| {
-        let was = match put.turned {
-            true => right,
-            false => left,
-        };
-        put.places
-            .iter()
-            .filter_map(|path| {
-                let mut at = start;
-                for &k in path {
-                    at = at.children.get(k)?;
-                }
-                known.alike_how(was, at)
-            })
-            .flat_map(|m| m.flips)
-            .collect::<Vec<_>>()
-    };
     // A claim made by making its other form (`rules::OTHER_FORMS`), `Q ∉
     // line HK` for `Q is not on line HK`, is recorded with that form as what
     // the putting makes, which a backend that writes the two alike closes
     // the claim by; the meeting says the claim is respelt.
     let found = match &start.into {
-        Some(into) => {
-            matching::substitution_places(&start.start, &way.aim, left, right)
-                .map(|put| (put, Meeting::default()))
-                .or_else(met_otherwise)
-                .map(|(put, meeting)| match way.claimed {
-                    true => (put, meeting, start.start.clone()),
-                    false => (put, meeting.respelt(true), start.start.clone()),
-                })
-                .map(|(put, meeting, start)| Substituted {
-                    equation: equation.clone(),
-                    from: from.clone(),
-                    into: into.clone(),
-                    place_flips: place_flips(&start, &put),
-                    equation_flips: from
-                        .as_ref()
-                        .and_then(|at| known.alike_how(equation, &at.written))
-                        .map(|m| m.flips)
-                        .unwrap_or_default(),
-                    start,
-                    put,
-                    meeting,
-                    define_facing,
-                    line_facing,
-                })
-        }
+        Some(into) => put_found(&start.start, &way.aim, equation, library, known)
+            .map(|(put, meeting)| match way.claimed {
+                true => (put, meeting, start.start.clone()),
+                false => (put, meeting.respelt(true), start.start.clone()),
+            })
+            .map(|(put, meeting, start)| Substituted {
+                equation: equation.clone(),
+                from: from.clone(),
+                into: into.clone(),
+                place_flips: place_flips(&start, &put, equation, known),
+                equation_flips: from
+                    .as_ref()
+                    .and_then(|at| known.alike_how(equation, &at.written))
+                    .map(|m| m.flips)
+                    .unwrap_or_default(),
+                start,
+                put,
+                meeting,
+                made_other_form: !way.claimed,
+                define_facing,
+                line_facing,
+            }),
         _ => None,
     };
     Some(SubstitutionReading { faults, found })
@@ -506,6 +465,7 @@ pub fn sentence_substitutions(
                     start,
                     put,
                     meeting: Meeting::default(),
+                    made_other_form: false,
                     place_flips: Vec::new(),
                     equation_flips: s.equation_flips.clone(),
                     define_facing: s.define_facing,
@@ -522,18 +482,89 @@ pub fn sentence_substitutions(
 /// (`CheckedTheorem::substituted_rows`): the change its reason proves, put
 /// into the row above (`SubstitutedInto::RowAbove`) at the places the
 /// change's left side stands where the row has its right.
-pub fn row_substitutions(thm: &Theorem, known: &Known) -> IndexMap<usize, Substituted> {
+pub fn row_substitutions(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Substituted> {
     thm.steps
         .iter()
-        .flat_map(|step| step_row_substitutions(step, thm, known))
+        .flat_map(|step| step_row_substitutions(step, thm, library, known))
         .collect()
 }
 
-/// `row_substitutions` of one step, the places found by
-/// `matching::substitution_places`, read as the page writes the trees.
+/// Where an equation's one side is put for the other to make `aim` from
+/// `start`, read as the page writes the trees (`matching::substitution_places`),
+/// and how what that makes meets `aim`: as it stands, or, where the putting
+/// makes the aim only as `Known::alike_how` meets the two, an identity
+/// element it leaves dropped, `1·x` written `x`, the aim written turned
+/// round, `c ≡ b` of `b ≡ c`, or a listed set's members in another order:
+/// the side put for at every place it stands. A place the page writes in
+/// another order of the parts of a notation that stands in no order, |BA|
+/// for the side |AB|, is a place all the same; a backend turns it first.
+pub(super) fn put_found(
+    start: &Node,
+    aim: &Node,
+    equation: &Node,
+    library: &Library,
+    known: &Known,
+) -> Option<(SubstitutionPlaces, Meeting)> {
+    let [left, right] = equation.children.as_slice() else {
+        return None;
+    };
+    matching::substitution_places(start, aim, left, right)
+        .map(|put| (put, Meeting::default()))
+        .or_else(|| {
+            [(left, right, false), (right, left, true)]
+                .into_iter()
+                .find_map(|(was, now, turned)| {
+                    let mut places = matching::places_of(start, was);
+                    if places.is_empty() {
+                        places = matching::places_alike(start, was, &library.ctx);
+                    }
+                    if places.is_empty() {
+                        return None;
+                    }
+                    let made = matching::put_at_places(start, &places, now);
+                    let met = known.alike_how(&made, aim)?;
+                    Some((SubstitutionPlaces { turned, places }, met))
+                })
+        })
+}
+
+/// Each place of `put` in `start` that writes the side put for in another
+/// order of a notation's parts, the side's term first.
+pub(super) fn place_flips(
+    start: &Node,
+    put: &SubstitutionPlaces,
+    equation: &Node,
+    known: &Known,
+) -> Vec<Flip> {
+    let [left, right] = equation.children.as_slice() else {
+        return Vec::new();
+    };
+    let was = match put.turned {
+        true => right,
+        false => left,
+    };
+    put.places
+        .iter()
+        .filter_map(|path| {
+            let mut at = start;
+            for &k in path {
+                at = at.children.get(k)?;
+            }
+            known.alike_how(was, at)
+        })
+        .flat_map(|m| m.flips)
+        .collect()
+}
+
+/// `row_substitutions` of one step, the places found by `put_found`.
 pub(super) fn step_row_substitutions(
     step: &Step,
     thm: &Theorem,
+    library: &Library,
     known: &Known,
 ) -> Vec<(usize, Substituted)> {
     let Some(Ok(rows)) = proof::substitute_rows(&step.just, &thm.path) else {
@@ -549,20 +580,18 @@ pub(super) fn step_row_substitutions(
                 read(&row.formula)?,
                 read(&reason.fact)?,
             );
-            let [left, right] = equation.children.as_slice() else {
-                return None;
-            };
-            let put = matching::substitution_places(&start, &aim, left, right)?;
+            let (put, meeting) = put_found(&start, &aim, &equation, library, known)?;
             Some((
                 reason.line,
                 Substituted {
+                    place_flips: place_flips(&start, &put, &equation, known),
                     equation: equation.clone(),
                     from: None,
                     into: SubstitutedInto::RowAbove,
                     start,
                     put,
-                    meeting: Meeting::default(),
-                    place_flips: Vec::new(),
+                    meeting,
+                    made_other_form: false,
                     equation_flips: Vec::new(),
                     define_facing: None,
                     line_facing: None,

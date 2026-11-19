@@ -1,8 +1,8 @@
 //! Citing items and substituting.
 
-use std::collections::VecDeque;
-
+use super::unfolds::PutFor;
 use super::*;
+use crate::checker::record::{Facing, SubstitutedInto};
 use crate::corpus::Source;
 
 impl<'a> Elaborator<'a> {
@@ -656,31 +656,59 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let (start, other) =
+        // The checker recorded which side of the claim the equation is put
+        // into (`SubstitutedInto::ClaimSide`), which way round it is put and
+        // whether an identity element is dropped on the way.
+        let Some(recorded) = self.checked.substituted.get(&step.just.line).cloned()
+        else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no substitution for the step",
+            ));
+        };
+        let SubstitutedInto::ClaimSide(side) = recorded.into else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded a substitution into a line for a step with none",
+            ));
+        };
+        let (left, right) =
             (self.term(&node.children[0])?, self.term(&node.children[1])?);
-        let alike = self.congruence(
-            &self.to_term(&start),
-            &self.to_term(&other),
-            scope,
-            equation,
-            Some(step),
-            &substitution_leaf(),
-        )?;
-        if let Built(p) = alike {
-            if start != other {
-                return Ok(Some(p));
-            }
+        if recorded.meeting.identities.is_empty() {
+            // The equation alone makes the claim as it stands; the sides are
+            // one term put either way round, so the congruence runs from the
+            // claim's left side.
+            return Ok(
+                match self.congruence(
+                    &self.to_term(&left),
+                    &self.to_term(&right),
+                    scope,
+                    equation,
+                    Some(step),
+                    &substitution_leaf(),
+                )? {
+                    Built(p) if left != right => Some(p),
+                    _ => None,
+                },
+            );
         }
-        if let Some(p) = self
-            .replaced_tidied(&start, &other, old, new, scope, equation, facts, step)?
-        {
-            return Ok(Some(p));
-        }
-        // The claim is t = t′ either way round: t′ = t, its right side the
-        // one the equation is put into.
-        Ok(self
-            .replaced_tidied(&other, &start, old, new, scope, equation, facts, step)?
-            .map(|p| pf!(self.b; scope, other, start, p, "eqcomd")))
+        // An identity element dropped on the way: the equation is put into
+        // the side the record names, and the claim is t = t′ either way
+        // round, t′ = t where that side is its right.
+        let (start, other) = match side {
+            0 => (left, right),
+            _ => (right, left),
+        };
+        let put = match recorded.put.turned {
+            true => PutFor { was: new, now: old },
+            false => PutFor { was: old, now: new },
+        };
+        let proof =
+            self.replaced_tidied(&start, &other, put, scope, equation, facts, step)?;
+        Ok(proof.map(|p| match side {
+            0 => p,
+            _ => pf!(self.b; scope, start, other, p, "eqcomd"),
+        }))
     }
 
     /// A `substitute` step's rows (`substitute_rows`): the first is what the
@@ -767,12 +795,23 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(proof));
         }
         // The last row may write the claim in its other form, carried back
-        // (`rules::OTHER_FORMS`), as the checker reads it.
-        if self.other_form(&reached).is_some() {
+        // (`rules::OTHER_FORMS`), as the checker recorded it
+        // (`CheckedTheorem::substitute_ends`).
+        let Some(ends) = self.checked.substitute_ends.get(&step.just.line) else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no ends for the rows of the step",
+            ));
+        };
+        if ends.last_other_form {
             let carried = self.implied(&reached, &proof, scope, facts)?;
-            if let Some(p) = self.held(&carried, term, scope)? {
-                return Ok(Built(p));
-            }
+            return match self.held(&carried, term, scope)? {
+                Some(p) => Ok(Built(p)),
+                None => Err(self.defect(
+                    step.line,
+                    "the last row's other form does not carry back to the claim",
+                )),
+            };
         }
         let alike = take!(self.same(
             &self.to_term(&reached),
@@ -828,9 +867,28 @@ impl<'a> Elaborator<'a> {
             return Err(self.unreached(step.line, "a substitute that names no source"));
         };
         let said = self.line_says(&source, scope, facts, lines)?;
+        // The equation the checker found the line to say
+        // (`Substituted::from`), matched to what the line says in set.mm up
+        // to a renamed bound variable.
+        let Some(found) = self.checked.substituted.get(&step.just.line).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no substitution for the step",
+            ));
+        };
+        // Where the line says it, or, where no sentence or part of it does
+        // (a chain's pair, a set's members), the equation as read.
+        let recorded = match &found.from {
+            Some(at) => self.recorded_statement(at)?,
+            None => self.term(&found.equation)?,
+        };
         for (said_as, held) in said.entries() {
+            let same = said_as == recorded
+                || self
+                    .renaming(&self.to_term(&recorded), &self.to_term(&said_as))?
+                    .is_some();
             let equation = self.to_term(&said_as);
-            if equation.label() != Some("wceq") {
+            if !same || equation.label() != Some("wceq") {
                 continue;
             }
             let (old, new) = (
@@ -874,41 +932,72 @@ impl<'a> Elaborator<'a> {
         let (old, new) = (self.term(&left)?, self.term(&right)?);
         // Which way the equation faces in the kernel is the lemma's choice,
         // not the text's, so either is accepted and turned if it has to be.
-        let mut facing = self.held(facts, &t!(old, new, "wceq"), scope)?;
-        if *source == Source::Arithmetic {
-            let what = format!("step {} substitutes {written}", step.number);
-            facing = Some(self.closed_fact(
+        let what = format!("step {} substitutes {written}", step.number);
+        let by_define = source.named().to_string();
+        let facing = match source {
+            Source::Arithmetic => self.closed_fact(
                 &t!(old, new, "wceq"),
                 scope,
                 facts,
                 &what,
                 Some(step),
-            )?);
-        }
-        if *source == Source::RealArithmetic {
-            let what = format!("step {} substitutes {written}", step.number);
-            facing =
-                Some(self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?);
-        }
-        // A define says the equation between its name and what it names
-        // (`SYNTAX.md`, substitute), which no line in scope holds.
-        let by_define = source.named().to_string();
-        if facing.is_none() && self.defined_by.values().any(|l| *l == by_define) {
-            let (a, b) = (self.to_term(&old), self.to_term(&new));
-            if let Built(p) = self.equation_by_define(step, &a, &b, scope, facts)? {
-                facing = Some(p);
+            )?,
+            Source::RealArithmetic => {
+                self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?
             }
-        }
-        let facing = match facing {
-            Some(f) => f,
-            None => {
-                let Some(held) = self.held(facts, &t!(new, old, "wceq"), scope)? else {
-                    return Err(self.defect(
+            _ => {
+                // The way the equation faces what the source says, as the
+                // checker recorded it for the substitution
+                // (`CheckedTheorem::substituted`): a define says the
+                // equation between its name and what it names
+                // (`SYNTAX.md`, substitute), and a line says it as it is
+                // written or turned round.
+                let Some(recorded) = self.checked.substituted.get(&step.just.line)
+                else {
+                    return Err(self.unreached(
                         step.line,
-                        format!("no equation {old} = {new} in scope"),
+                        "the checker recorded no substitution for the step",
                     ));
                 };
-                pf!(self.b; scope, new, old, held, "eqcomd")
+                let by_line = recorded.line_facing;
+                let by_name = recorded.define_facing;
+                if self.defined_by.values().any(|l| *l == by_define) {
+                    let Some(named) = by_name else {
+                        return Err(self.unreached(
+                            step.line,
+                            "the checker recorded no side the define names",
+                        ));
+                    };
+                    let (a, b) = (self.to_term(&old), self.to_term(&new));
+                    let turned = named == Facing::Turned;
+                    match self.equation_by_define(step, &a, &b, turned, scope, facts)? {
+                        Built(p) => p,
+                        Declined(d) => {
+                            return Err(self.defect(
+                                step.line,
+                                format!(
+                                    "{by_define} does not say {old} = {new}: {}",
+                                    self.say(&d)
+                                ),
+                            ));
+                        }
+                    }
+                } else {
+                    let (said, turned) = match by_line {
+                        Some(Facing::Turned) => (t!(new, old, "wceq"), true),
+                        _ => (t!(old, new, "wceq"), false),
+                    };
+                    let Some(held) = self.held(facts, &said, scope)? else {
+                        return Err(self.defect(
+                            step.line,
+                            format!("no equation {old} = {new} in scope"),
+                        ));
+                    };
+                    match turned {
+                        true => pf!(self.b; scope, new, old, held, "eqcomd"),
+                        false => held,
+                    }
+                }
             }
         };
         let equation = self.equation_facts(&old, &new, facing, scope);
@@ -924,112 +1013,109 @@ impl<'a> Elaborator<'a> {
                 }
             };
         };
-        let into = self
-            .line_written(&where_, lines)
-            .unwrap_or_else(|| panic!("no line {where_} to substitute into"));
-        let sentences = self.line_sentences(&where_, lines);
-        if sentences.is_empty() {
-            return Err(
-                self.unreached(step.line, format!("{where_} is not a line to rewrite"))
-            );
-        }
-        // A line may say several things and the substitution land in one of
-        // them, so each sentence is offered with a proof of itself; and the
-        // line as a whole is offered, which a claim of as many sentences
-        // rewrites (`SYNTAX.md`: the equation is replaced inside the line).
+        // What the equation is put into and what it makes, as the checker
+        // recorded it (`CheckedTheorem::substituted`): the line's sentence
+        // or part the putting starts from, whether it makes the claim or the
+        // claim in its other form (`rules::OTHER_FORMS`), carried back, or
+        // an equation claimed the other way round, and whether an identity
+        // element is dropped on the way.
+        let Some(recorded) = self.checked.substituted.get(&step.just.line).cloned()
+        else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no substitution for the step",
+            ));
+        };
         let known = self.line_says(&where_, scope, facts, lines)?;
-        // A sentence joined by `and` is its parts as surely as a line of two
-        // sentences is, so each is offered.
-        let mut offered = Vec::new();
-        let mut work: VecDeque<Node> = sentences.into_iter().collect();
-        while let Some(one) = work.pop_front() {
-            offered.push(one.clone());
-            if !one.children.is_empty() {
-                let said = self.term(&one)?;
-                if self.to_term(&said).label() == Some("wa") {
-                    work.extend(one.children.iter().cloned());
+        let mut start = self.term(&recorded.start)?;
+        let (aim, toward) = match (recorded.made_other_form, recorded.meeting.turned) {
+            (true, _) => match self.other_form(term) {
+                Some(other) => (self.rpn(&other.reached), Toward::OtherForm),
+                None => {
+                    return Err(self.unreached(
+                        step.line,
+                        "the checker recorded the claim's other form, which it has none",
+                    ));
+                }
+            },
+            (false, true) => match self.turned_claim(term) {
+                Some((turned, flip)) => (turned, Toward::Turned(flip)),
+                // A congruence claimed the other way round from the line is
+                // put into the line's own turned form, which the line says
+                // (`line_says`).
+                None => {
+                    if let Some(turned) = self.pair_turned(&self.to_term(&start)) {
+                        start = self.rpn(&turned);
+                    }
+                    (term.clone(), Toward::Claim)
+                }
+            },
+            (false, false) => (term.clone(), Toward::Claim),
+        };
+        if !self.holds(&known, &start) {
+            if let Some(p) = self.held(facts, &start, scope)? {
+                self.know(&known, start.clone(), p);
+            }
+        }
+        let Some(given) = self.held(&known, &start, scope)? else {
+            return Err(self.defect(
+                step.line,
+                format!("{where_} does not say what the checker put the equation into"),
+            ));
+        };
+        let made = if recorded.meeting.identities.is_empty() {
+            let walked = self.congruence(
+                &self.to_term(&start),
+                &self.to_term(&aim),
+                scope,
+                &equation,
+                Some(step),
+                &leaf,
+            )?;
+            match walked {
+                Built(alike) if start != aim => {
+                    pf!(self.b; scope, start, aim, given, alike, "mpbid")
+                }
+                _ => {
+                    return Err(
+                        self.defect(step.line, "the substitution misses the claim")
+                    );
                 }
             }
-        }
-        let mut starts: Vec<Rpn> = vec![into.claim.clone()];
-        for one in &offered {
-            let start = self.term(one)?;
-            if !starts.contains(&start) {
-                starts.push(start);
+        } else {
+            let put = match recorded.put.turned {
+                true => PutFor {
+                    was: &new,
+                    now: &old,
+                },
+                false => PutFor {
+                    was: &old,
+                    now: &new,
+                },
+            };
+            let tidy = self.substituted_tidied(
+                &start, &aim, &given, put, scope, &equation, facts, step,
+            )?;
+            let Some(made) = tidy else {
+                return Err(self.defect(step.line, "the substitution misses the claim"));
+            };
+            made
+        };
+        match toward {
+            Toward::Claim => Ok(Built(made)),
+            Toward::Turned(flip) => {
+                let Sides { left, right } = self.equation_sides(&aim);
+                Ok(Built(pf!(self.b; scope, left, right, made, flip)))
             }
-        }
-        for start in &starts {
-            if !self.holds(&known, start) {
-                if let Some(p) = self.held(facts, start, scope)? {
-                    self.know(&known, start.clone(), p);
-                }
-            }
-        }
-        // After what the line writes, everything else it says (`line_says`):
-        // a "for all" read at a block's letter, a chain's equations, a
-        // congruence turned round, a bound or a part of a set said otherwise.
-        for (said, _) in known.entries() {
-            if !starts.contains(&said) {
-                starts.push(said);
-            }
-        }
-        // The claim as written, and an equation's the other way round: what
-        // the substitution makes may face either way (`turned_claim`). A
-        // claim in one of two forms is made by making the other and carrying
-        // it back (`rules::OTHER_FORMS`), as the checker reads it.
-        let mut aims: Vec<(Rpn, Toward)> = vec![(term.clone(), Toward::Claim)];
-        if let Some((turned, flip)) = self.turned_claim(term) {
-            aims.push((turned, Toward::Turned(flip)));
-        }
-        if let Some(other) = self.other_form(term) {
-            aims.push((self.rpn(&other.reached), Toward::OtherForm));
-        }
-        for (aim, toward) in &aims {
-            for start in &starts {
-                if start == aim {
-                    continue;
-                }
-                let Some(given) = self.held(&known, start, scope)? else {
-                    continue;
-                };
-                let walked = self.congruence(
-                    &self.to_term(start),
-                    &self.to_term(aim),
-                    scope,
-                    &equation,
-                    Some(step),
-                    &leaf,
-                )?;
-                let made = match walked {
-                    Built(alike) => {
-                        pf!(self.b; scope, start, aim, given, alike, "mpbid")
-                    }
-                    Declined(_) => {
-                        let tidy = self.substituted_tidied(
-                            start, aim, &given, &old, &new, scope, &equation, facts,
-                            step,
-                        )?;
-                        let Some(made) = tidy else {
-                            continue;
-                        };
-                        made
-                    }
-                };
-                match toward {
-                    Toward::Claim => return Ok(Built(made)),
-                    Toward::Turned(flip) => {
-                        let Sides { left, right } = self.equation_sides(aim);
-                        return Ok(Built(pf!(self.b; scope, left, right, made, *flip)));
-                    }
-                    Toward::OtherForm => {
-                        let carried = self.implied(aim, &made, scope, facts)?;
-                        if let Some(p) = self.held(&carried, term, scope)? {
-                            return Ok(Built(p));
-                        }
+            Toward::OtherForm => {
+                let carried = self.implied(&aim, &made, scope, facts)?;
+                match self.held(&carried, term, scope)? {
+                    Some(p) => Ok(Built(p)),
+                    None => {
+                        Err(self.defect(step.line, "the substitution misses the claim"))
                     }
                 }
             }
         }
-        Err(self.defect(step.line, "the substitution misses the claim"))
     }
 }

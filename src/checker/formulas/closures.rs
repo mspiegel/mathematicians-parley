@@ -4,7 +4,7 @@ use std::slice;
 
 use super::*;
 use crate::checker::library;
-use crate::checker::record::{Facing, PassedCondition, TakenCase};
+use crate::checker::record::{DefineSide, Facing, PassedCondition, TakenCase};
 use crate::corpus::proof;
 use crate::matching;
 use crate::methods::pairs::Coordinate;
@@ -941,15 +941,15 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
                 }
                 out.places.insert(link.line.line, at);
             }
-            let facing = reading.at.and_then(|k| {
-                super::super::citations::facing_of(
-                    &reading.says[k].cited,
-                    &reading.said,
-                    known,
-                )
-            });
-            if let Some(facing) = facing {
-                out.facings.insert(link.line.line, facing);
+            if let Some(k) = reading.at {
+                out.facings.insert(
+                    link.line.line,
+                    super::super::citations::facing_of(
+                        &reading.says[k].cited,
+                        &reading.said,
+                        known,
+                    ),
+                );
             }
         }
     }
@@ -961,7 +961,7 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
 #[derive(Default)]
 pub struct LinkPlaces {
     pub places: IndexMap<usize, FirstAt>,
-    pub facings: IndexMap<usize, Facing>,
+    pub facings: IndexMap<usize, Option<Facing>>,
     /// How the line met the link, where not as written.
     pub meetings: IndexMap<usize, Meeting>,
 }
@@ -1225,6 +1225,8 @@ pub(super) enum Given {
     AsWritten,
     Taken {
         passed: Vec<Passed>,
+        /// Whether the side whose case is taken is the right one.
+        turned: bool,
         /// How the case's value meets the other side (`Known::alike_how`).
         meeting: Option<Meeting>,
     },
@@ -1245,13 +1247,17 @@ pub(super) fn value_given(
         return Given::AsWritten;
     }
     let mut why: Option<&'static str> = None;
-    for (one, other) in [(left, right), (right, left)] {
+    for (one, other, turned) in [(left, right, false), (right, left, true)] {
         match case_taken(one, facts, wrappers, known) {
             Case::Unsaid(reason) => why = why.or(Some(reason)),
             Case::Value { value, passed } => {
                 if known.alike(&value, other) {
                     let meeting = known.alike_how(&value, other);
-                    return Given::Taken { passed, meeting };
+                    return Given::Taken {
+                        passed,
+                        turned,
+                        meeting,
+                    };
                 }
             }
         }
@@ -1275,9 +1281,32 @@ pub(super) fn recursion_equation(
     wrappers: &FxIndexSet<NotationId>,
     equals: &FxIndexSet<NotationId>,
 ) -> Option<String> {
+    recursion_taken(claims, facts, said, line, known, wrappers, equals).err()
+}
+
+/// The case of a define by recursion a step's claim takes, as
+/// `recursion_equation` reads it: the conditions passed to reach it, which
+/// side of the equation is the sequence's value, and how the value the
+/// define gives meets the other side; or what is wrong with the claim.
+pub(super) struct RecursionTaken {
+    pub(super) passed: Vec<Passed>,
+    pub(super) turned: bool,
+    pub(super) meeting: Option<Meeting>,
+}
+
+/// `recursion_equation`, with the case the claim takes where it is right.
+pub(super) fn recursion_taken(
+    claims: &[Node],
+    facts: &[Node],
+    said: &Recursion,
+    line: usize,
+    known: &Known,
+    wrappers: &FxIndexSet<NotationId>,
+    equals: &FxIndexSet<NotationId>,
+) -> Result<RecursionTaken, String> {
     let sorts = &known.sorts;
     if claims.len() != 1 || !equals.contains(&claims[0].notation()) {
-        return Some(
+        return Err(
             "claims no one equation; a define says what its names are equal to"
                 .to_string(),
         );
@@ -1287,8 +1316,8 @@ pub(super) fn recursion_equation(
         said.names.join(", ")
     ));
     let kids = &claims[0].children;
-    let orders = [(&kids[0], &kids[1]), (&kids[1], &kids[0])];
-    for (one, other) in orders {
+    let orders = [(&kids[0], &kids[1], false), (&kids[1], &kids[0], true)];
+    for (one, other, turned) in orders {
         if !(one.notation() == APPLICATION
             && one.children.len() == 2
             && one.children[0].is_name()
@@ -1331,14 +1360,18 @@ pub(super) fn recursion_equation(
                 why = Some(reason.to_string());
                 continue;
             }
-            Case::Value { value: got, .. } => {
+            Case::Value { value: got, passed } => {
                 if known.alike(&got, other) {
-                    return None;
+                    return Ok(RecursionTaken {
+                        passed,
+                        turned,
+                        meeting: known.alike_how(&got, other),
+                    });
                 }
             }
         }
     }
-    Some(match why {
+    Err(match why {
         Some(why) if !why.is_empty() => {
             format!("claims a value it does not give: {why}")
         }
@@ -1570,41 +1603,212 @@ pub fn define_cases(
     known: &Known,
 ) -> IndexMap<usize, TakenCase> {
     let wrappers = wrappers(library.env);
+    let defines = define_labels(thm, known.env.scopes);
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
         let label = step.just.defined.as_deref().unwrap_or_default();
-        if recursion_cited(thm, label).is_some() {
+        let parts = known.parts(step, library);
+        if let Some((recursion, line)) = recursion_cited(thm, label) {
+            // A recursion's rule by cases, in the case the lines say.
+            let Ok(taken) = recursion_taken(
+                &parts.claims,
+                &parts.facts,
+                &recursion,
+                line,
+                known,
+                &wrappers,
+                &library.ctx.equations,
+            ) else {
+                continue;
+            };
+            if !taken.passed.is_empty() {
+                out.insert(
+                    step.just.line,
+                    TakenCase {
+                        passed: placed_conditions(step, &taken.passed, known),
+                        turned: taken.turned,
+                        meeting: taken.meeting,
+                    },
+                );
+            }
             continue;
         }
-        let parts = known.parts(step, library);
         let [claim] = parts.claims.as_slice() else {
             continue;
         };
-        if !library.ctx.equations.contains(&claim.notation()) {
-            continue;
+        if let Some(taken) =
+            case_of(step, claim, &parts.facts, &wrappers, library, known)
+        {
+            out.insert(step.just.line, taken);
         }
-        let Given::Taken { passed, meeting } = value_given(
-            &claim.children[0],
-            &claim.children[1],
-            &parts.facts,
-            &wrappers,
-            known,
-        ) else {
-            continue;
-        };
-        if passed.is_empty() {
-            continue;
+    }
+    // A calculation link citing a define by cases is read as such a step is:
+    // its equation's two sides, the conditions in the step's facts.
+    for step in &thm.steps {
+        for link in chain_links(&step.just, &thm.path) {
+            let cite = link.line.cite.as_str();
+            if !defines.contains(cite) || recursion_cited(thm, cite).is_some() {
+                continue;
+            }
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            let parts = known.parts(step, library);
+            if let Some(taken) =
+                case_of(step, &claim, &parts.facts, &wrappers, library, known)
+            {
+                out.insert(link.line.line, taken);
+            }
         }
-        let passed = passed
-            .iter()
-            .map(|p| PassedCondition {
-                holds: p.holds,
-                said_by: fact_placed(step, &p.fact, known),
-            })
-            .collect();
-        out.insert(step.just.line, TakenCase { passed, meeting });
     }
     out
+}
+
+/// Which side of the equation each step citing a define of a name or a
+/// function has the define at (`CheckedTheorem::define_sides`), by the
+/// step's line; `check_define_citation` reads the same claim. The name is a
+/// side's head where the side is the name or the name applied.
+pub fn define_sides(thm: &Theorem, known: &Known) -> IndexMap<usize, DefineSide> {
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
+        let label = step.just.defined.as_deref().unwrap_or_default();
+        // A recursion names each sequence it defines.
+        let names = match recursion_cited(thm, label) {
+            Some((recursion, _)) => recursion.names,
+            None => match define_named(thm, label, known.env.scopes) {
+                Some(name) => vec![name],
+                None => continue,
+            },
+        };
+        let sentences = step.claim.sentences();
+        let [sentence] = sentences.as_slice() else {
+            continue;
+        };
+        let Ok(written) = known.parse(sentence) else {
+            continue;
+        };
+        // The equation a "for all" says of each member is the one.
+        let Some((left, right)) = equation_sides(&written) else {
+            continue;
+        };
+        let heads = |side: &Node| match side.notation() {
+            APPLICATION => side
+                .children
+                .first()
+                .is_some_and(|f| f.is_name() && names.contains(&f.text.to_string())),
+            _ => side.is_name() && names.contains(&side.text.to_string()),
+        };
+        let side = match (heads(left), heads(right)) {
+            (true, _) => DefineSide::Left,
+            (false, true) => DefineSide::Right,
+            (false, false) => DefineSide::Inside,
+        };
+        out.insert(step.just.line, side);
+    }
+    out
+}
+
+/// Which way `claim` faces the equation a define of a name says
+/// (`define_equation`), as `facing_of` meets the two. None for a define of
+/// a function or a recursion, which says no one equation, and where no side
+/// meets.
+pub(in crate::checker) fn define_named_facing(
+    thm: &Theorem,
+    step: &Step,
+    label: &str,
+    claim: &Node,
+    known: &Known,
+) -> Option<Facing> {
+    let named = define_equation(thm, step, label, known)?;
+    super::super::citations::facing_of(&named, claim, known)
+}
+
+/// Which way each calculation link citing a define of a name, and each step
+/// citing one, faces the define's equation (`CheckedTheorem::define_facings`),
+/// by the link's line or the line of the step's justification.
+pub fn define_facings(thm: &Theorem, known: &Known) -> IndexMap<usize, Facing> {
+    let defines = define_labels(thm, known.env.scopes);
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        for link in chain_links(&step.just, &thm.path) {
+            let cite = link.line.cite.as_str();
+            if !defines.contains(cite) {
+                continue;
+            }
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            if let Some(facing) = define_named_facing(thm, step, cite, &claim, known) {
+                out.insert(link.line.line, facing);
+            }
+        }
+        if step.just.head != Head::Define {
+            continue;
+        }
+        let label = step.just.defined.as_deref().unwrap_or_default();
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        if let Some(facing) = define_named_facing(thm, step, label, &claim, known) {
+            out.insert(step.just.line, facing);
+        }
+    }
+    out
+}
+
+/// The case of a define by cases that `claim`, one equation, takes as
+/// `value_given` reads it, with each condition it passes placed among the
+/// lines `step` cites (`fact_placed`); None where the claim is no equation,
+/// takes no case, or passes no condition.
+fn case_of(
+    step: &Step,
+    claim: &Node,
+    facts: &[Node],
+    wrappers: &FxIndexSet<NotationId>,
+    library: &Library,
+    known: &Known,
+) -> Option<TakenCase> {
+    if !library.ctx.equations.contains(&claim.notation()) {
+        return None;
+    }
+    let Given::Taken {
+        passed,
+        turned,
+        meeting,
+    } = value_given(
+        &claim.children[0],
+        &claim.children[1],
+        facts,
+        wrappers,
+        known,
+    )
+    else {
+        return None;
+    };
+    if passed.is_empty() {
+        return None;
+    }
+    Some(TakenCase {
+        passed: placed_conditions(step, &passed, known),
+        turned,
+        meeting,
+    })
+}
+
+/// Each condition passed, placed in the line the step cites that says it
+/// holds or fails (`fact_placed`).
+fn placed_conditions(
+    step: &Step,
+    passed: &[Passed],
+    known: &Known,
+) -> Vec<PassedCondition> {
+    passed
+        .iter()
+        .map(|p| PassedCondition {
+            holds: p.holds,
+            said_by: fact_placed(step, &p.fact, known),
+        })
+        .collect()
 }
 
 /// Where in a line the step cites the fact stands, the first line that says

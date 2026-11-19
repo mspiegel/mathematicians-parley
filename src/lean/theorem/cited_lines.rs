@@ -36,7 +36,11 @@ impl<'a> Proof<'a> {
         line: usize,
     ) -> Route<super::super::doc::Proof> {
         let (Some(said), Some(met)) = (
-            self.rec.define_domains.get(&line),
+            self.rec
+                .define_domains
+                .get(&line)
+                .and_then(|applied| applied.first())
+                .map(|first| &first.said),
             self.rec.define_links.get(&line),
         ) else {
             return Route::no("a claim \"for all\" with no domain or meeting recorded");

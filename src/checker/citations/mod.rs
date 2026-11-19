@@ -52,7 +52,7 @@ use self::cited_facts::*;
 pub use self::cited_facts::{
     cited, cited_requires, obtained_there, requires_cited, restatements,
 };
-pub(super) use self::cited_facts::{facing_of, fact_at, placed};
+pub(super) use self::cited_facts::{define_facing, facing_of, fact_at, placed};
 use self::defined::*;
 pub use self::defined::{
     applied_domains, check_cited_domains, check_conclusion_domains,

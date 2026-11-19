@@ -292,13 +292,21 @@ pub struct Chain {
 }
 
 impl Chain {
+    /// Whether the chain goes down: one of its orders is ≥ or >, so that
+    /// `upward` reads its links from the last term.
+    pub fn falls(&self) -> bool {
+        self.lines
+            .iter()
+            .any(|l| DOWNWARD.iter().any(|(d, _)| *d == l.relation))
+    }
+
     /// The chain read going up: one whose orders go down, t₀ ≥ t₁ > t₂,
     /// is the same links read from its last term, t₂ < t₁ ≤ t₀, and
     /// concludes the same, since t₀ > t₂ is t₂ < t₀. A chain going up is
     /// itself.
     pub fn upward(&self) -> Chain {
         let down = |r: &str| DOWNWARD.iter().find(|(d, _)| *d == r).map(|(_, u)| *u);
-        if !self.lines.iter().any(|l| down(&l.relation).is_some()) {
+        if !self.falls() {
             return self.clone();
         }
         let terms: Vec<&Written> = iter::once(&self.start)

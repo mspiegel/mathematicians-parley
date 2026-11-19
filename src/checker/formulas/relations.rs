@@ -895,6 +895,12 @@ pub fn transitivity_links(
                     said: link.said.clone(),
                     at: order_line(thm, s, r, &link.said, known, library),
                     turned: read.turned,
+                    define_facing: thm
+                        .defines
+                        .iter()
+                        .any(|d| d.label == *r)
+                        .then(|| define_named_facing(thm, s, r, &link.said, known))
+                        .flatten(),
                 })
                 .collect();
             // The claim runs from the chain's first left side, or from its
@@ -1524,6 +1530,69 @@ pub fn calculation_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Mee
         };
         if let Some(met) = known.alike_how(&claim, &chained) {
             out.insert(step.just.line, met);
+        }
+    }
+    out
+}
+
+/// Where the first row of each `substitute` step with rows stands in the
+/// line it cites, and how its last row meets the claim, by the line of the
+/// step's justification (`CheckedTheorem::substitute_ends`), as
+/// `check_substitute_rows` reads the rows. A step whose first row no line
+/// says or whose last row does not meet the claim is left out; that check
+/// reports it.
+pub fn substitute_row_ends(
+    thm: &Theorem,
+    known: &Known,
+) -> IndexMap<usize, super::super::record::RowEnds> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let just = &step.just;
+        if !just.head.is(Method::Substitute) || just.equation.is_some() {
+            continue;
+        }
+        let Some(Ok(rows)) = substitute_rows(just, &thm.path) else {
+            continue;
+        };
+        let (Some(first), Some(last)) = (rows.first(), rows.last()) else {
+            continue;
+        };
+        let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
+        let (Some(start), Some(ends), Some(claim)) = (
+            read(&first.formula),
+            read(&last.formula),
+            known.whole_as_written(&step.claim),
+        ) else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let first_at = scope.get(&first.cite).and_then(|stated| {
+            let says = known.says(stated, &known.citing_step(step));
+            let s = says.iter().find(|s| known.alike(&s.cited, &start))?;
+            super::super::citations::placed(
+                &first.cite,
+                s,
+                &says,
+                known.sentence_count(stated),
+            )
+        });
+        let other = said_otherwise(&ends, known.env, &known.sorts);
+        let met = known
+            .alike_how(&ends, &claim)
+            .map(|m| (m, false))
+            .or_else(|| {
+                let other = other.as_ref()?;
+                Some((known.alike_how(other, &claim)?, true))
+            });
+        if let Some((last, last_other_form)) = met {
+            out.insert(
+                just.line,
+                super::super::record::RowEnds {
+                    first: first_at,
+                    last,
+                    last_other_form,
+                },
+            );
         }
     }
     out

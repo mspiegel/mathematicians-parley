@@ -68,8 +68,8 @@ pub(super) use self::closures::{
 pub use self::closures::{
     check_chain_links, check_closed_arithmetic, check_closed_by_arithmetic,
     check_closed_by_real_arithmetic, check_define_citation, check_membership_claims,
-    check_real_arithmetic_holds, check_recursions, define_cases, define_link_meetings,
-    link_places, pairs_apart,
+    check_real_arithmetic_holds, check_recursions, define_cases, define_facings,
+    define_link_meetings, define_sides, link_places, pairs_apart,
 };
 use self::ends::*;
 pub(super) use self::ends::{
@@ -91,7 +91,7 @@ use self::relations::*;
 pub use self::relations::{
     antisymmetries, calculation_meetings, check_calculation_claims, check_define_names,
     check_substitute_rows, check_transitivity, divided_by, finite_under, order_steps,
-    transitivity_links,
+    substitute_row_ends, transitivity_links,
 };
 use self::rows::*;
 pub use self::rows::{

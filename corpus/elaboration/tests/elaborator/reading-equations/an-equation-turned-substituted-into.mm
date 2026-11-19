@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.reading-equations.an-equation-turned-substituted-into $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( A + 1 ) = B ) /\ A = 2 ) -> B = ( 2 + 1 ) ) $=
-    ( cr wcel wa c1 caddc co wceq c2 simpl simpr syl eqcomd oveq1d eqeq2d mpbid ) ACDZBCDZEZAFGHZBIZEZAJIZEZBUAIBJFGHZIUEUABUEUCUBUCUDKTUBLMNUEUAUFBUEAJFGUCUDLOPQ $.
+    ( cr wcel wa c1 caddc co wceq c2 simpl simpr syl oveq1d eqeq1d mpbid eqcomd ) ACDZBCDZEZAFGHZBIZEZAJIZEZJFGHZBUEUBUFBIUEUCUBUCUDKTUBLMUEUAUFBUEAJFGUCUDLNOPQ $.
 $}

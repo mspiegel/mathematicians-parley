@@ -194,7 +194,7 @@ pub fn define_domains(
     library: &Library,
     known: &Known,
     substituted: &IndexMap<usize, Substituted>,
-) -> IndexMap<usize, DomainSaid> {
+) -> IndexMap<usize, Vec<AppliedDomain>> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let Some(claim) = known.whole_as_written(&step.claim) else {
@@ -218,13 +218,7 @@ pub fn define_domains(
             continue;
         };
         let parts = known.parts(step, library);
-        let said = applied.walk().into_iter().find_map(|n| {
-            let [f, arg] = n.children.as_slice() else {
-                return None;
-            };
-            if n.notation() != APPLICATION || !f.is_name() || f.text != rule.name {
-                return None;
-            }
+        let said_of = |arg: &Node| -> Option<DomainSaid> {
             let cited = parts.facts.iter().find(|fact| {
                 fact.notation() == MEMBERSHIP
                     && fact.children.len() == 2
@@ -242,9 +236,26 @@ pub fn define_domains(
             let fact =
                 page::made(library.env.g, IN, vec![arg.clone(), rule.domain.clone()]);
             introduced_placed(thm, step, &fact, known).map(DomainSaid::Line)
-        });
-        if let Some(said) = said {
-            out.insert(step.just.line, said);
+        };
+        let found: Vec<AppliedDomain> = applied
+            .walk()
+            .into_iter()
+            .filter_map(|n| {
+                let [f, arg] = n.children.as_slice() else {
+                    return None;
+                };
+                if n.notation() != APPLICATION || !f.is_name() || f.text != rule.name {
+                    return None;
+                }
+                Some(AppliedDomain {
+                    label: label.to_string(),
+                    arg: arg.clone(),
+                    said: said_of(arg)?,
+                })
+            })
+            .collect();
+        if !found.is_empty() {
+            out.insert(step.just.line, found);
         }
     }
     out
@@ -269,14 +280,7 @@ pub fn applied_domains(
     let functions = defined_functions(&proof::in_scope(thm, scopes));
     let mut out = IndexMap::new();
     for step in &thm.steps {
-        let asks = match &step.just.head {
-            Head::Method(m) => !matches!(
-                m,
-                Method::Substitute | Method::Calculation | Method::Membership
-            ),
-            Head::Item { .. } => true,
-            _ => false,
-        };
+        let asks = matches!(&step.just.head, Head::Method(_) | Head::Item { .. });
         if !asks {
             continue;
         }

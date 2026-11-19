@@ -2,6 +2,15 @@
 
 use super::*;
 
+/// The side of a substitution's equation put for the other, the term that
+/// stands in the line and the term put in its place
+/// (`SubstitutionPlaces::turned`).
+#[derive(Clone, Copy)]
+pub(super) struct PutFor<'t> {
+    pub(super) was: &'t Rpn,
+    pub(super) now: &'t Rpn,
+}
+
 impl<'a> Elaborator<'a> {
     /// A hypothesis of the theorem as its one sentence reads in the proof,
     /// carried from the hypothesis as it is held. Where the theorem is
@@ -73,8 +82,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         start: &Rpn,
         other: &Rpn,
-        old: &Rpn,
-        new: &Rpn,
+        put: PutFor<'_>,
         scope: &Rpn,
         equation: &Facts,
         facts: &Facts,
@@ -83,52 +91,49 @@ impl<'a> Elaborator<'a> {
         let bare =
             |me: &Self, rpn: &Rpn| me.rpn(&me.without_identities(&me.to_term(rpn)));
         let goal = bare(self, other);
-        for (was, now) in [(old, new), (new, old)] {
-            let now_term = self.to_term(now);
-            let made = self.replaced(&self.to_term(start), was, &now_term);
-            let literal = self.rpn(&made);
-            if literal == *start || bare(self, &literal) != goal {
-                continue;
-            }
-            let Built(put) = self.congruence(
-                &self.to_term(start),
-                &made,
-                scope,
-                equation,
-                Some(step),
-                &Leaf::Rows(vec![super::super::tables::Row::Held]),
-            )?
-            else {
-                continue;
-            };
-            let Built(across) = self.congruence(
-                &made,
-                &self.to_term(other),
-                scope,
-                facts,
-                None,
-                &Leaf::Rows(vec![super::super::tables::Row::Identity]),
-            )?
-            else {
-                continue;
-            };
-            return Ok(Some(self.chained(
-                scope,
-                &[
-                    ChainLink {
-                        from: self.to_term(start),
-                        to: made.clone(),
-                        proof: put,
-                    },
-                    ChainLink {
-                        from: made,
-                        to: self.to_term(other),
-                        proof: across,
-                    },
-                ],
-            )));
+        let now_term = self.to_term(put.now);
+        let made = self.replaced(&self.to_term(start), put.was, &now_term);
+        let literal = self.rpn(&made);
+        if literal == *start || bare(self, &literal) != goal {
+            return Ok(None);
         }
-        Ok(None)
+        let Built(put) = self.congruence(
+            &self.to_term(start),
+            &made,
+            scope,
+            equation,
+            Some(step),
+            &Leaf::Rows(vec![super::super::tables::Row::Held]),
+        )?
+        else {
+            return Ok(None);
+        };
+        let Built(across) = self.congruence(
+            &made,
+            &self.to_term(other),
+            scope,
+            facts,
+            None,
+            &Leaf::Rows(vec![super::super::tables::Row::Identity]),
+        )?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(self.chained(
+            scope,
+            &[
+                ChainLink {
+                    from: self.to_term(start),
+                    to: made.clone(),
+                    proof: put,
+                },
+                ChainLink {
+                    from: made,
+                    to: self.to_term(other),
+                    proof: across,
+                },
+            ],
+        )))
     }
 
     /// A substitution whose claim leaves out an identity element it makes
@@ -144,8 +149,7 @@ impl<'a> Elaborator<'a> {
         start: &Rpn,
         aim: &Rpn,
         given: &Proof,
-        old: &Rpn,
-        new: &Rpn,
+        put: PutFor<'_>,
         scope: &Rpn,
         equation: &Facts,
         facts: &Facts,
@@ -154,31 +158,25 @@ impl<'a> Elaborator<'a> {
         let bare =
             |me: &Self, rpn: &Rpn| me.rpn(&me.without_identities(&me.to_term(rpn)));
         let goal = bare(self, aim);
-        // Either side of the equation may be the one the line holds.
-        for (was, now) in [(old, new), (new, old)] {
-            let now_term = self.to_term(now);
-            let made = self.replaced(&self.to_term(start), was, &now_term);
-            let literal = self.rpn(&made);
-            if literal == *start || bare(self, &literal) != goal {
-                continue;
-            }
-            let Built(alike) = self.congruence(
-                &self.to_term(start),
-                &made,
-                scope,
-                equation,
-                Some(step),
-                &Leaf::Rows(vec![super::super::tables::Row::Held]),
-            )?
-            else {
-                continue;
-            };
-            let reached = pf!(self.b; scope, start, literal, given, alike, "mpbid");
-            if let Some(p) = self.tidied(&reached, &literal, aim, scope, facts)? {
-                return Ok(Some(p));
-            }
+        let now_term = self.to_term(put.now);
+        let made = self.replaced(&self.to_term(start), put.was, &now_term);
+        let literal = self.rpn(&made);
+        if literal == *start || bare(self, &literal) != goal {
+            return Ok(None);
         }
-        Ok(None)
+        let Built(alike) = self.congruence(
+            &self.to_term(start),
+            &made,
+            scope,
+            equation,
+            Some(step),
+            &Leaf::Rows(vec![super::super::tables::Row::Held]),
+        )?
+        else {
+            return Ok(None);
+        };
+        let reached = pf!(self.b; scope, start, literal, given, alike, "mpbid");
+        self.tidied(&reached, &literal, aim, scope, facts)
     }
 
     /// A definition whose right side is not an existence claim, read the way
