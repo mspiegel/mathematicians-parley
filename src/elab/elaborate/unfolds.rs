@@ -384,7 +384,7 @@ impl<'a> Elaborator<'a> {
     /// What the line `at` names says there, as the checker read it
     /// (`FirstAt::written`): the sentence, the part of one, or a "for all"
     /// of it read at a block's letter.
-    pub(super) fn recorded_statement(&mut self, at: &FirstAt) -> Checked<Rpn> {
+    pub(in crate::elab) fn recorded_statement(&mut self, at: &FirstAt) -> Checked<Rpn> {
         self.term(&at.written)
     }
 

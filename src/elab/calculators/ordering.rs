@@ -717,7 +717,7 @@ impl<'a> Elaborator<'a> {
         let found = self.writing(scope, &known, false, |me| {
             let rewritten = me.algebra_rows(step, refs, scope, facts_out, lines_out)?;
             let skip = if plain {
-                me.not_combined(&rewritten.refs, term_out, facts_out, &rewritten.lines)?
+                me.not_combined(step, &rewritten.refs, lines, &rewritten.lines)?
             } else {
                 Vec::new()
             };

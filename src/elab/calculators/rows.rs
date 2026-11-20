@@ -3,7 +3,8 @@
 use std::mem;
 
 use super::*;
-use crate::methods::inequalities;
+use crate::checker::record::{FirstAt, OrderFact};
+use crate::elab::provenance::requirement;
 
 impl<'a> Elaborator<'a> {
     /// What an inequalities step with rows is proved from: the lines it
@@ -327,54 +328,96 @@ impl<'a> Elaborator<'a> {
         named.iter().any(|body| written.contains(body))
     }
 
-    /// The parts of the cited lines a plain step leaves out: those outside
-    /// the combination the checker decided it by (`inequalities::combined`),
-    /// whose facts added as they stand are the claim. Another combination
-    /// that contradicts the claim denied may rest on more lines and ask more
-    /// of its atoms, as `2/p < m` with `0 < 2/p` asks p ≠ 0 where `m ∈ ℕ`
-    /// gives `0 < m` alone.
+    /// The parts of the cited lines a plain step leaves out: each written
+    /// part `linear` reads that none of its claim's parts adds, takes both
+    /// ways or restates in the combination the checker decided it by
+    /// (`CheckedTheorem::orders`), whose facts added as they stand are the
+    /// claim. Another combination that contradicts the claim denied may
+    /// rest on more lines and ask more of its atoms, as `2/p < m` with
+    /// `0 < 2/p` asks p ≠ 0 where `m ∈ ℕ` gives `0 < m` alone. The record
+    /// places each fact in the line as the page writes it (`written`); the
+    /// step adds the same part of the line as `lines` writes it, with its
+    /// names written out.
     pub(super) fn not_combined(
         &mut self,
+        step: &Step,
         refs: &[String],
-        term: &Rpn,
-        facts: &Facts,
+        written: &Lines,
         lines: &Lines,
     ) -> Checked<Vec<Rpn>> {
-        let labels = self.b.flabel.clone();
-        let mut parts: Vec<Rpn> = Vec::new();
-        let mut cited: Vec<Term> = Vec::new();
-        let mut line_of: Vec<usize> = Vec::new();
-        let mut implied: Vec<Term> = Vec::new();
-        for (at, r) in refs.iter().enumerate() {
-            for said in self.line_writes(r, lines) {
-                let one = self.to_term(&said);
-                if linear::fact(&one, &labels).is_some() {
-                    parts.push(said);
-                    cited.push(one);
-                    line_of.push(at);
-                }
-            }
-            for said in &self.stated_claims(r, facts, lines) {
-                for (extra, _lemmas) in self.implied_terms(said) {
-                    implied.push(self.to_term(&extra));
+        let Some(order) = self.checked.orders.get(&step.just.line).cloned() else {
+            return Err(self.unreached(
+                self.at,
+                "the checker recorded no combination for a step adding its facts",
+            ));
+        };
+        // Each fact the combination adds as a line writes it, by the line and
+        // its place among the parts the line writes; a requires line above,
+        // which a requires line made a step cites (`as_a_step`), whole.
+        let mut used: Vec<(String, Option<usize>)> = Vec::new();
+        let mut placed: Vec<&FirstAt> = Vec::new();
+        for part in order.sentences.iter().flatten() {
+            let restated = part.restates.as_ref().map(|r| &r.by);
+            for fact in part.uses.iter().chain(&part.split).chain(restated) {
+                match fact {
+                    OrderFact::Line(at) if at.implied.is_none() => placed.push(at),
+                    OrderFact::Requires {
+                        line,
+                        implied: None,
+                    } => {
+                        let owner = self.step_now.and_then(|i| self.thm.steps.get(i));
+                        let Some(above) = owner.and_then(|s| s.requires.get(*line))
+                        else {
+                            return Err(self.unreached(
+                                self.at,
+                                "a requires line the checker combined is not among its step's",
+                            ));
+                        };
+                        used.push((requirement(above.line), None));
+                    }
+                    _ => {}
                 }
             }
         }
-        let goal = self.to_term(term);
-        let Some(used) =
-            inequalities::combined(&goal, &cited, &line_of, &implied, &labels)
-        else {
-            return Err(self.unreached(
-                self.at,
-                "the checker took this step as adding its facts, and no combination of them adds to its claim",
-            ));
-        };
-        Ok(parts
-            .into_iter()
-            .enumerate()
-            .filter(|(i, _)| !used.cited.contains(i))
-            .map(|(_, p)| p)
-            .collect())
+        for at in placed {
+            let recorded = self.recorded_statement(at)?;
+            let mut found = None;
+            for (k, part) in self.line_writes(&at.line, written).into_iter().enumerate()
+            {
+                let same = part == recorded
+                    || self
+                        .renaming(&self.to_term(&recorded), &self.to_term(&part))?
+                        .is_some();
+                if same {
+                    found = Some(k);
+                    break;
+                }
+            }
+            let Some(k) = found else {
+                return Err(self.unreached(
+                    self.at,
+                    "a fact the checker combined is no part of the line it placed it in",
+                ));
+            };
+            used.push((at.line.clone(), Some(k)));
+        }
+        let labels = self.b.flabel.clone();
+        let mut out = Vec::new();
+        for r in refs {
+            for (k, said) in self.line_writes(r, lines).into_iter().enumerate() {
+                let one = self.to_term(&said);
+                if linear::fact(&one, &labels).is_none() {
+                    continue;
+                }
+                let combined = used
+                    .iter()
+                    .any(|(line, at)| line == r && at.is_none_or(|at| at == k));
+                if !combined {
+                    out.push(said);
+                }
+            }
+        }
+        Ok(out)
     }
 
     /// An `inequalities` claim, by whichever route reaches it. `skip` names

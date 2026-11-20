@@ -1648,6 +1648,9 @@ The checker records, for each step, the page facts it settled
   `joined_claim`, `restated`);
 - of a requires line reasoned from lines, how the lines give it
   (`restated`);
+- of a plain `inequalities` step, or a requires line it checks, which
+  written parts of the cited lines its combination adds, takes both ways
+  or restates (`orders`), the rest being left out of its proof;
 - of a cited "for all", the block letter it is read at (`read_at`).
 
 A recorded fact is read where it stands (`FirstAt::written`) and matched to

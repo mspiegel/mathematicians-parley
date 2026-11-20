@@ -308,7 +308,9 @@ line's own. A list holds one entry for each step, in the proof's order.
   both ways, and for a `≠` claim the fact that says it. A step with rows
   adds the line its first row writes out, and records which way a final
   `weakening` to `≠` runs. Lean proves each part by `linarith only` over
-  those facts.
+  those facts; the Metamath writer leaves out of a plain step's proof each
+  written part of its cited lines that no part of the claim adds, takes
+  both ways or restates.
 - `antisymmetric`: for each `antisymmetry` step, the line that says the
   claim's left side is at most its right, and the line that says the
   converse. Lean writes `le_antisymm` of the two.
