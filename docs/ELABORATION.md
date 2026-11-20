@@ -770,16 +770,14 @@ from a line that states the existence itself — `g ∈ ⋃(Y ∈ K) Y` from
 `there is Y ∈ K with g ∈ Y` — is read right to left as any other is, and
 one reached from lines naming the witness takes the witness route; which of
 the two is decided once, by whether a cited line states the existence
-(`reading`). A definition's metamath-proof may name more
-than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
-differ only in what they ask — and a definition stated in clauses is one
-theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
+(`reading`). A definition stated in clauses names one theorem per clause, as
+`def:stdlib/numbers/abs` names `absid, absnid`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
 the same. Each use pays a flip and a commutation — `eqcomd` and `mulcomd` —
-that appear nowhere in the readable proof. A `metamath-proof` says `equation reversed`
-where the orientation is neither the readable line's nor the label's.
+that appear nowhere in the readable proof. Its record's `metamath-reads` says
+`turned` (`DATABASE.md`).
 
 ## Names
 

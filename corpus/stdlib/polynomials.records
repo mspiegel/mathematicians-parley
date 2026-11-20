@@ -19,7 +19,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 theorem remainder

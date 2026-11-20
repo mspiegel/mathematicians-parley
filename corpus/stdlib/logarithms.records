@@ -20,7 +20,8 @@
 #                   a set.mm label
 #
 # Other fields: note, and for a function, sort, metamath-builds, reads and
-# decided.
+# decided; and where the lemma meets the item otherwise, metamath-reads and
+# metamath-hypotheses (DATABASE.md).
 
 
 definition ln

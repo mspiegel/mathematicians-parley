@@ -9,7 +9,8 @@ use unicode_names2::name as character_name;
 use super::library::Known;
 use super::Report;
 use crate::corpus::records::{
-    allowed_fields, Provided, LEAN_PROOF, METAMATH_PROOF, NOTHING_TO_PROVE, NOT_YET,
+    allowed_fields, Provided, LEAN_PROOF, METAMATH_HYPOTHESES, METAMATH_PROOF,
+    METAMATH_READS, NOTHING_TO_PROVE, NOT_YET,
 };
 use crate::corpus::{in_stdlib, Intro, Record, RecordKind, Theorem, PART_MARKERS};
 use crate::formula::notation_id::NotationId;
@@ -150,6 +151,24 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                         );
                     }
                 }
+            }
+            // How the lemma meets the item is said in the record, one reading
+            // to a sentence and the lemma's order of the hypotheses, and a
+            // field that says it wrongly is refused here, before any build
+            // reads it.
+            if let Err(why) = targets::sentence_lemmas(r) {
+                report.say(
+                    &r.path,
+                    r.lines.get(METAMATH_READS).copied().unwrap_or(r.line),
+                    format!("{} {}: {why}", r.header(), r.name),
+                );
+            }
+            if let Err(why) = r.metamath_hypotheses() {
+                report.say(
+                    &r.path,
+                    r.lines.get(METAMATH_HYPOTHESES).copied().unwrap_or(r.line),
+                    format!("{} {}'s metamath-hypotheses: {why}", r.header(), r.name),
+                );
             }
             // A definition that introduces a symbol says what it stands for
             // in `defines`, and that is its statement: what follows from it

@@ -281,6 +281,51 @@ pub(super) fn cases() -> Vec<Case> {
             ],
             "theorem archimedean has a field 'metamath-prof', which a theorem record does not have",
         ),
+        // How the lemma meets the item is read by position, so a field
+        // naming a hypothesis the item lacks, or one reading too few, would
+        // have a build place a fact where the lemma asks another.
+        case(
+            "name a hypothesis the item lacks in metamath-hypotheses",
+            vec![
+                edit("corpus/stdlib/functions.records", Some("  metamath-hypotheses H2, H1\n".to_string()), "  metamath-hypotheses H3, H1\n".to_string()),
+            ],
+            "composition-function's metamath-hypotheses: 'H3' is none of its hypotheses' labels",
+        ),
+        case(
+            "name a hypothesis twice in metamath-hypotheses",
+            vec![
+                edit("corpus/stdlib/functions.records", Some("  metamath-hypotheses H2, H1\n".to_string()), "  metamath-hypotheses H2, H2\n".to_string()),
+            ],
+            "composition-function's metamath-hypotheses: 'H2' is said twice",
+        ),
+        case(
+            "give fewer readings than the item has sentences",
+            vec![
+                edit("corpus/stdlib/trigonometry.records", Some("  metamath-proof sinbnd\n  metamath-reads part 1, part 2\n".to_string()), "  metamath-proof sinbnd\n  metamath-reads part 1\n".to_string()),
+            ],
+            "sin-bounded: it gives 1 readings, and the item says 2 sentences",
+        ),
+        case(
+            "misspell a reading",
+            vec![
+                edit("corpus/stdlib/numbers.records", Some("  metamath-proof sqeq0\n  metamath-reads right side\n".to_string()), "  metamath-proof sqeq0\n  metamath-reads righter side\n".to_string()),
+            ],
+            "square-zero: 'righter side' is no reading",
+        ),
+        case(
+            "read two sentences as one part, taking a lemma the item lacks",
+            vec![
+                edit("corpus/stdlib/divisibility.records", Some("  metamath-reads as stated, part 1, part 2\n  note".to_string()), "  metamath-reads as stated, part 1, part 1\n  note".to_string()),
+            ],
+            "gcd-integer: its 3 sentences take more lemmas than its metamath-proof names",
+        ),
+        case(
+            "leave out a witness's reading, leaving lemmas no sentence takes",
+            vec![
+                edit("corpus/stdlib/calculus.records", Some("  metamath-reads witness\n".to_string()), "".to_string()),
+            ],
+            "completeness: its 1 sentences take fewer lemmas than its metamath-proof names",
+        ),
         // A record states what it says; one with nothing to say is a
         // record of nothing.
         case(

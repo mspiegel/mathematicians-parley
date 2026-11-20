@@ -18,7 +18,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 definition factorial
@@ -67,6 +68,7 @@ mundane theorem card-zero
   assume |X| = 0                                                      (H2)
   then        X = ∅
   metamath-proof hasheq0
+  metamath-reads right side
   lean-proof  Set.encard_eq_zero.mp (by simpa using h1)
 
 mundane theorem card-singleton
@@ -108,6 +110,7 @@ mundane theorem card-bijection
   assume there is a bijection from X to Y                             (H5)
   then        |Y| = m
   metamath-proof hashen with A := X, B := Y
+  metamath-reads left side
   lean-proof  by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
 mundane theorem card-disjoint-union
@@ -303,6 +306,7 @@ mundane theorem partition-count
   assume for all Y ∈ K, |Y| = m                                       (H7)
   then        |A| = |K| · m
   metamath-proof metamath-bridges/sets/gpartcnt
+  metamath-hypotheses H4, H5, H6, H7, H3
   note        A finite set split into parts that each have m elements has
               (number of parts) · m of them. The parts make up A, and two
               that share a point are the same part.

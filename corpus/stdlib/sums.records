@@ -19,7 +19,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 mundane theorem sum-divisible
@@ -311,6 +312,7 @@ mundane theorem range-end
   let n ∈ ℕ                                                           (H1)
   then        n ∈ {1, …, n}
   metamath-proof elfz1end
+  metamath-reads right side
   note        The last of the numbers from 1 to n is n.
   lean-proof  by aesop
 
@@ -333,6 +335,7 @@ mundane theorem range-inside
   assume b ≤ d                                                        (H6)
   then        {a, …, b} ⊆ {c, …, d}
   metamath-proof metamath-bridges/ranges/gfzss with K := c, M := a, N := b, L := d
+  metamath-hypotheses H3, H1, H2, H4, H5, H6
   note        A range whose ends lie within another's lies inside it.
   lean-proof  Set.Icc_subset_Icc h5 h6
 
@@ -448,6 +451,7 @@ mundane theorem sum-zero-terms
   assume Σ(k = a to b) t(k) = 0                                       (H5)
   then        for all k ∈ {a, …, b}, t(k) = 0
   metamath-proof fsum00
+  metamath-reads right side
   note        A sum of terms none of them negative is 0 only where every
               term is.
   lean-proof  by exact (Finset.sum_eq_zero_iff_of_nonneg h3).mp h4
@@ -489,6 +493,7 @@ mundane theorem product-split
   let t : X → ℝ                                                       (H5)
   then        ∏(x ∈ X) t(x) = (∏(x ∈ Y) t(x))·∏(x ∈ Z) t(x)
   metamath-proof fprodsplit
+  metamath-hypotheses H4, H3, H2
   note        A finite set made of two parts with nothing in common: the
               product over it is the product over one part times the
               product over the other.

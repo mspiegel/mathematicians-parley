@@ -18,7 +18,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 axiom extensionality
@@ -114,7 +115,7 @@ definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
-  metamath-proof rabid, elrab
+  metamath-proof elrab
   note        P(t) says the property holds of t. The line above says what P is
               a property of and never mentions t, because the braces are what
               introduce t: it does not exist until they open. See the
@@ -292,6 +293,7 @@ mundane theorem subset-of-difference
   assume Y ⊆ X ∖ {a}                                                  (H2)
   then        a ∉ Y
   metamath-proof ssdifsn
+  metamath-reads right side part 2
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
   lean-proof  fun h => (h1 h).2 rfl
@@ -312,6 +314,7 @@ mundane theorem singleton-outside
   let a ∉ Y                                                           (H1)
   then        Y ∩ {a} = ∅
   metamath-proof disjsn
+  metamath-reads left side
   note        What is not in Y shares nothing with Y.
   lean-proof  by simp_all
 
@@ -332,6 +335,7 @@ mundane theorem intersection-of-part
   assume Y ⊆ X                                                        (H1)
   then        X ∩ Y = Y
   metamath-proof sseqin2
+  metamath-reads right side
   note        A part of X shares all of itself with X.
   lean-proof  by simp_all
 
@@ -340,6 +344,7 @@ mundane theorem not-in-subset
   assume Y ⊆ Z                                                        (H2)
   then        a ∉ Y
   metamath-proof ssneld
+  metamath-hypotheses H2, H1
   lean-proof  by tauto
 
 mundane theorem in-union-singleton
@@ -358,6 +363,7 @@ mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅
   metamath-proof disjr
+  metamath-reads left side
   note        Two sets are disjoint when nothing in one is in the other, which
               is what a reader proves. set.mm says it twice, over the first set
               in `disj` and over the second in `disjr`, and the second is the
@@ -380,6 +386,7 @@ mundane theorem union-subset
   assume Y ⊆ Z                                                        (H2)
   then        X ∪ Y ⊆ Z
   metamath-proof unss
+  metamath-reads right side
   lean-proof  Set.union_subset h1 h2
 
 mundane theorem in-union-left
@@ -411,6 +418,7 @@ mundane theorem subset-into-difference
   assume a ∉ Y                                                        (H3)
   then        Y ⊆ X ∖ {a}
   metamath-proof ssdifsn
+  metamath-reads left side
   note        The other half of `ssdifsn` from `mun:stdlib/sets/subset-of-difference`:
               inside X and without a is inside X ∖ {a}.
   lean-proof  Set.subset_sdiff_singleton h1 h2
@@ -637,12 +645,14 @@ mundane theorem union-within
   assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
   metamath-proof iunss
+  metamath-reads left side
   lean-proof  by (simp_all; done)
 
 mundane theorem intersection-within
   assume for all X ∈ D, Z ⊆ X                                         (H1)
   then        Z ⊆ ⋂(X ∈ D) X
   metamath-proof ssiin
+  metamath-reads left side
   note        A set within every set of D is within their intersection. It
               holds for an empty D too, the intersection then being everything.
   lean-proof  Set.subset_iInter₂ h1

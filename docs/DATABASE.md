@@ -223,9 +223,9 @@ which one's conclusion is what the step claims. It names the theorem that
 unfolds the word to what the page says, not set.mm's own definition of it:
 `def:stdlib/divisibility/odd` is set.mm's "not 2 ∥ n", and its
 `metamath-proof` is `odd2np1`, which unfolds it to the existential the
-`then` line states. A second entry, `equation
-reversed`, says the theorem writes its equation the other way round from the
-`then` line, which `odd2np1` and `divides` both do. `corpus/db/notation.records`
+`then` line states. Where the theorem writes its equation the other way
+round from the `then` line, as `odd2np1` and `divides` both do, its
+`metamath-reads` says `turned` (below). `corpus/db/notation.records`
 documents the notation side, `metamath-builds`.
 
 A `metamath-proof` may end `with v := t, …`, saying what the lemma's variables stand
@@ -234,6 +234,46 @@ there that is none of the lemmas' variables is the claim's own binder, and
 what it is given is the witness: `axi:stdlib/calculus/completeness`'s `metamath-proof` is `suprcl,
 suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
+
+**How the lemma meets the item.** A lemma states what its item states, but
+may state it otherwise, and two fields say how, so that no build has to find
+it out. Each is left out where the lemma and the item agree, as they do for
+most items.
+
+`metamath-reads` says, for each `then` sentence in order, what part of its
+lemma's conclusion the sentence is:
+
+- `as stated`: the lemma's conclusion;
+- `right side` or `left side`: that side of the lemma's `↔`, whose other
+  side the item's hypotheses give. `square-zero` assumes x² = 0 and concludes
+  x = 0, and `sqeq0` states x² = 0 ↔ x = 0, so its entry is `right side`;
+- `part N`: part N, counted from 1, of the lemma's "and". `gcd-integer`'s
+  three sentences are `gcdcl`'s conclusion and the two parts of `gcddvds`'s,
+  `as stated, part 1, part 2`. A side and a part may be said together:
+  `subset-of-difference` concludes a ∉ Y, the second part of `ssdifsn`'s
+  right side, `right side part 2`;
+- `turned`: the lemma writes the equation, or a definition's `↔`, the other
+  way round from the `then` line;
+- `witness`: the item's one sentence is a "there is" whose witness the
+  `with` names, and each lemma gives one part of what it says of the
+  witness. `completeness` names suprcl, suprub and suprleub `with c := sup S`.
+
+Each sentence takes the next lemma `metamath-proof` names, but a `part N`
+that follows `part N − 1` of the same side is a further part of the lemma
+before it, and takes none of its own: `gcd-integer`'s `as stated, part 1,
+part 2` reads `gcdcl`, then `gcddvds` twice. The checker refuses readings
+that take more or fewer lemmas than the record names.
+
+`metamath-hypotheses` lists the item's hypotheses, by label, in the order the
+lemma asks for them. Each `$e` hypothesis counts as one, and so does each
+part of an antecedent that joins several. `composition-function`'s `fco` asks
+g's type before f's: `H2, H1`. A fact set.mm asks that the page never writes,
+such as a class being a set, a point being in ℂ, or ℂ where the item says ℝ,
+is not listed. The build supplies it (`ELABORATION.md`).
+
+The gate's restatement stage cites each item from its own hypotheses, read
+through both fields. A field that misstates its lemma fails there, at the
+record.
 
 **A word a method decides says so in its record.** A definition may carry a
 `decided` field naming the methods that decide its word where every term it

@@ -19,7 +19,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 definition divides
@@ -27,7 +28,8 @@ definition divides
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
   decided     arithmetic, inspection
-  metamath-proof divides, equation reversed
+  metamath-proof divides
+  metamath-reads turned
   lean-proof Iff.rfl
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
               dull fact. This is the principle recorded by the primes pilot: a
@@ -37,7 +39,8 @@ definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   decided     arithmetic, inspection
-  metamath-proof divides, equation reversed
+  metamath-proof divides
+  metamath-reads turned
   lean-proof even_iff_exists_two_mul
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.
@@ -51,7 +54,8 @@ definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
-  metamath-proof metamath-bridges/parity/godd2np1, equation reversed
+  metamath-proof metamath-bridges/parity/godd2np1
+  metamath-reads turned
   lean-proof Iff.rfl
   note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
               godd2np1 is odd2np1 with the membership joined, and is proved
@@ -226,6 +230,7 @@ definition gcd
               For all e ∈ ℕ, if e divides a and e divides b then
               e ≤ gcd(a, b).
   metamath-proof gcdnncl, gcddvds, dvdslegcd
+  metamath-reads as stated, part 1, part 2, as stated
   lean-proof  lean-bridges/divisibility/gcd-1 ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; lean-bridges/divisibility/gcd-4
   lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2
   note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
@@ -246,6 +251,7 @@ definition lcm
               For all k ∈ ℤ, if a divides k and b divides k then
               lcm(a, b) divides k.
   metamath-proof lcmcl, dvdslcm, lcmdvds
+  metamath-reads as stated, part 1, part 2, as stated
   lean-proof  lean-bridges/divisibility/lcm-1 ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; lean-bridges/divisibility/lcm-4
   note        As gcd: four sentences from three lemmas, dvdslcm saying the
               second and third in one conjunction and lcmdvds the fourth of
@@ -296,6 +302,7 @@ mundane theorem divides-one
   assume d divides 1                                                  (H2)
   then        d = 1
   metamath-proof dvds1
+  metamath-reads right side
   lean-proof  lean-bridges/divisibility/divides-one
 
 mundane theorem divides-combination
@@ -364,6 +371,7 @@ mundane theorem gcd-integer
   let b ∈ ℤ                                                           (H2)
   then        gcd(a, b) ∈ ℕ₀. gcd(a, b) divides a. gcd(a, b) divides b.
   metamath-proof gcdcl, gcddvds
+  metamath-reads as stated, part 1, part 2
   note        The gcd over the integers, where the definition says it over
               ℕ: it is at least 0, being 0 only for gcd(0, 0), and divides
               both arguments.
@@ -527,6 +535,7 @@ mundane theorem prime-coprime
   assume not (p divides a)                                            (H4)
   then        gcd(p, a) = 1
   metamath-proof coprm
+  metamath-reads right side
   note        A prime shares a factor with a only by dividing it, since its
               only divisors are 1 and itself.
   lean-proof  lean-bridges/divisibility/prime-coprime

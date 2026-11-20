@@ -10,6 +10,7 @@
 
 use indexmap::IndexMap;
 
+use crate::corpus::records::LemmaReading;
 use crate::corpus::{Record, RecordKind};
 use crate::formula::symbol::Symbol;
 use crate::mm::{Rpn, Spell};
@@ -27,13 +28,11 @@ regex!(CONTEXT_WHOLE, r"^@[a-z]+$");
 regex!(CONTEXT, r"@[a-z]+");
 
 pub const FOLDED: &str = "folded";
-pub const REVERSED: &str = "equation reversed";
 
-/// What a `metamath-builds` or `metamath-proof` may say that is not a lemma: that a pattern builds
-/// another notation's tree, and that the lemma writes its equation the other
-/// way round from the `then` line. `DATABASE.md` documents both.
+/// What a `metamath-builds` may say that is not a template: that a pattern
+/// builds another notation's tree. `DATABASE.md` documents it.
 pub fn is_marker(entry: &str) -> bool {
-    entry == FOLDED || entry == REVERSED
+    entry == FOLDED
 }
 
 /// Whether a token is a hole, `_1`.
@@ -125,14 +124,16 @@ pub fn terms(records: &[Record]) -> IndexMap<String, Vec<Option<String>>> {
 }
 
 /// The theorem that unfolds a definition, and whether it faces the other way
-/// from the `then` line.
+/// from the `then` line (`metamath-reads` says `turned`).
 pub fn unfolding(record: &Record) -> (Option<String>, bool) {
     let Some(value) = record.metamath_target().filter(|v| !v.is_empty()) else {
         return (None, false);
     };
     let entries = lemma_entries(value);
-    let reversed = entries.iter().skip(1).any(|e| e.contains("reversed"));
-    (entries.first().map(|e| e.to_string()), reversed)
+    let turned = record
+        .metamath_reads()
+        .is_ok_and(|readings| readings.first().is_some_and(|r| r.turned));
+    (entries.first().map(|e| e.to_string()), turned)
 }
 
 /// The set.mm theorem an item corresponds to, and what fills it.
@@ -396,14 +397,81 @@ pub fn clauses(record: &Record) -> Vec<String> {
     } else {
         value.to_string()
     };
-    // `equation reversed` says how the lemmas write their equation, and is
-    // not one of them: a route that reached it would ask set.mm for a label
-    // it does not have.
     lemma_entries(&listed)
         .into_iter()
-        .filter(|e| !is_marker(e))
         .map(String::from)
         .collect()
+}
+
+/// The lemmas one `then` sentence of an item is read off, and how
+/// (`metamath-reads`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SentenceLemma {
+    /// The lemma, as `clauses` names it; for a witness, every lemma, each
+    /// giving one part of what the sentence says of it.
+    pub labels: Vec<String>,
+    pub reading: LemmaReading,
+}
+
+/// The lemmas each `then` sentence of an item is read off, in order, with how
+/// it is read (`Record::metamath_reads`). Each sentence takes the next lemma
+/// `clauses` names, but one that is the next part of the same lemma as the
+/// sentence before it (`LemmaReading::continues`): `gcd-integer`'s `as
+/// stated, part 1, part 2` reads gcdcl, then gcddvds twice. A witness, the
+/// item's one sentence, takes every lemma. Empty for an item with no
+/// target; Err with what is wrong where the readings take more or fewer
+/// lemmas than the target names.
+pub fn sentence_lemmas(record: &Record) -> Result<Vec<SentenceLemma>, String> {
+    let labels = clauses(record);
+    if labels.is_empty() {
+        return Ok(Vec::new());
+    }
+    let readings = record.metamath_reads()?;
+    if let [reading] = readings.as_slice() {
+        if reading.witness {
+            return Ok(vec![SentenceLemma {
+                labels,
+                reading: *reading,
+            }]);
+        }
+    }
+    if readings.iter().any(|r| r.witness) {
+        return Err(
+            "a witness is the item's one sentence, and takes every lemma its metamath-proof names"
+                .to_string(),
+        );
+    }
+    let mut out: Vec<SentenceLemma> = Vec::new();
+    let mut next = labels.iter();
+    for (i, reading) in readings.iter().enumerate() {
+        let labels = match out.last() {
+            Some(before) if i > 0 && reading.continues(&readings[i - 1]) => {
+                before.labels.clone()
+            }
+            _ => match next.next() {
+                Some(label) => vec![label.clone()],
+                None => {
+                    return Err(format!(
+                        "its {} sentences take more lemmas than its metamath-proof names, {}: a sentence that is a further part of the lemma before it says so in `metamath-reads`",
+                        readings.len(),
+                        labels.join(", ")
+                    ))
+                }
+            },
+        };
+        out.push(SentenceLemma {
+            labels,
+            reading: *reading,
+        });
+    }
+    if next.next().is_some() {
+        return Err(format!(
+            "its {} sentences take fewer lemmas than its metamath-proof names, {}",
+            readings.len(),
+            labels.join(", ")
+        ));
+    }
+    Ok(out)
 }
 
 /// A target with each hole, a token `_1` of its own, replaced by the term

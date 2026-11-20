@@ -20,7 +20,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 definition rational
@@ -144,6 +145,7 @@ mundane theorem pos-int-nat
   assume 0 < m                                                        (H2)
   then        m ∈ ℕ
   metamath-proof elnnz
+  metamath-reads left side
   lean-proof h2
 
 mundane theorem nat0-nonzero
@@ -151,6 +153,7 @@ mundane theorem nat0-nonzero
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
   metamath-proof elnnne0
+  metamath-reads left side
   lean-proof  lean-bridges/numbers/nat0-nonzero
 
 mundane theorem integer-step
@@ -159,6 +162,7 @@ mundane theorem integer-step
   assume m < n                                                        (H3)
   then        m + 1 ≤ n
   metamath-proof zltp1le
+  metamath-reads right side
   lean-proof  lean-bridges/numbers/integer-step
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
@@ -580,6 +584,7 @@ mundane theorem max-real
   let y ∈ ℝ                                                           (H2)
   then        max(x, y) ∈ ℝ
   metamath-proof ifcl
+  metamath-hypotheses H2, H1
   note        No proof cites it yet; it is here beside `min-real`, which
               the intermediate value proof cites.
   lean-proof  trivial
@@ -623,6 +628,7 @@ mundane theorem square-zero
   assume x² = 0                                                       (H2)
   then        x = 0
   metamath-proof sqeq0
+  metamath-reads right side
   lean-proof  lean-bridges/numbers/square-zero
 
 mundane theorem multiply-le
@@ -633,6 +639,7 @@ mundane theorem multiply-le
   assume c > 0                                                        (H5)
   then        c·x ≤ c·y
   metamath-proof lemul2
+  metamath-reads right side
   lean-proof mul_le_mul_of_nonneg_left h4 h5.le
   note        `inequalities` multiplies a line only by a number, so a step
               multiplying both sides by a positive term cites this.
@@ -886,6 +893,7 @@ mundane theorem divide-le
   assume c > 0                                                        (H5)
   then        x/c ≤ y/c
   metamath-proof lediv1
+  metamath-reads right side
   lean-proof  lean-bridges/numbers/divide-le
   note        As multiply-le, for dividing both sides by a positive term.
 
@@ -897,6 +905,7 @@ mundane theorem multiply-cancel
   assume c ≠ 0                                                        (H5)
   then        a = b
   metamath-proof mulcan2ad
+  metamath-hypotheses H5, H4
   lean-proof mul_right_cancel₀ h5 h4
   note        A common factor that is not 0 cancels. `algebra` multiplies
               equations together but never divides one by a factor, so the

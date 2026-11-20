@@ -108,6 +108,86 @@ pub const METAMATH_PROOF: &str = "metamath-proof";
 pub const METAMATH_BUILDS: &str = "metamath-builds";
 /// What the Lean build proves an item with (`Provided`).
 pub const LEAN_PROOF: &str = "lean-proof";
+/// How each `then` sentence of an item is read off its lemma's conclusion
+/// (`LemmaReading`).
+pub const METAMATH_READS: &str = "metamath-reads";
+/// The item's hypotheses in the order its lemma asks for them.
+pub const METAMATH_HYPOTHESES: &str = "metamath-hypotheses";
+
+/// Which side of a lemma's `↔` a sentence is.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Side {
+    Left,
+    Right,
+}
+
+/// How one `then` sentence of an item is read off the conclusion of the
+/// lemma its `metamath-proof` names (`DATABASE.md`, "How the lemma meets the
+/// item"): the conclusion as it stands, a side of its `↔`, a part of its
+/// "and", or the conclusion turned. `right side part 2` is the second part of
+/// the right side.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct LemmaReading {
+    /// The side of the lemma's `↔` the sentence is; None for the whole.
+    pub side: Option<Side>,
+    /// The part of the lemma's "and" the sentence is, counted from 0; None
+    /// for the whole.
+    pub part: Option<usize>,
+    /// Whether the lemma writes the equation, or the `↔`, the other way
+    /// round.
+    pub turned: bool,
+    /// Whether the sentence is a "there is" whose witness the target's
+    /// `with` names, and each lemma gives one part of what it says of the
+    /// witness: `completeness` at c := sup S, from suprcl, suprub and
+    /// suprleub.
+    pub witness: bool,
+}
+
+impl LemmaReading {
+    /// One entry of `metamath-reads`; None where it says none of the forms.
+    pub fn read(entry: &str) -> Option<LemmaReading> {
+        let words: Vec<&str> = entry.split_whitespace().collect();
+        if words == ["as", "stated"] {
+            return Some(LemmaReading::default());
+        }
+        if words == ["witness"] {
+            return Some(LemmaReading {
+                witness: true,
+                ..LemmaReading::default()
+            });
+        }
+        let mut out = LemmaReading::default();
+        let mut rest = words.as_slice();
+        if let [which @ ("left" | "right"), "side", more @ ..] = rest {
+            out.side = Some(if *which == "left" {
+                Side::Left
+            } else {
+                Side::Right
+            });
+            rest = more;
+        }
+        if let ["part", n, more @ ..] = rest {
+            let n: usize = n.parse().ok().filter(|n| *n >= 1)?;
+            out.part = Some(n - 1);
+            rest = more;
+        }
+        if let ["turned", more @ ..] = rest {
+            out.turned = true;
+            rest = more;
+        }
+        (rest.is_empty() && out != LemmaReading::default()).then_some(out)
+    }
+
+    /// Whether the sentence read so is the next part of the same lemma as
+    /// the sentence before it, read `before`, and so takes no lemma of its
+    /// own: `part 2` after `part 1`.
+    pub fn continues(&self, before: &LemmaReading) -> bool {
+        match (self.part, before.part) {
+            (Some(p), Some(q)) => p == q + 1 && self.side == before.side,
+            _ => false,
+        }
+    }
+}
 /// A proof field's value for a build that has nothing to prove: the record
 /// states nothing, or its two sides are one formula in that library.
 pub const NOTHING_TO_PROVE: &str = "none";
@@ -223,6 +303,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             METAMATH_BUILDS,
             "reads",
             METAMATH_PROOF,
+            METAMATH_READS,
+            METAMATH_HYPOTHESES,
             "symbol",
             "defines",
             "decided",
@@ -231,8 +313,26 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "note",
         ],
     ),
-    (RecordKind::Axiom, &[METAMATH_PROOF, LEAN_PROOF, "note"]),
-    (RecordKind::Theorem, &[METAMATH_PROOF, LEAN_PROOF, "note"]),
+    (
+        RecordKind::Axiom,
+        &[
+            METAMATH_PROOF,
+            METAMATH_READS,
+            METAMATH_HYPOTHESES,
+            LEAN_PROOF,
+            "note",
+        ],
+    ),
+    (
+        RecordKind::Theorem,
+        &[
+            METAMATH_PROOF,
+            METAMATH_READS,
+            METAMATH_HYPOTHESES,
+            LEAN_PROOF,
+            "note",
+        ],
+    ),
 ];
 
 /// One record of a database file.
@@ -301,6 +401,69 @@ impl Record {
             RecordKind::Notation => self.field(METAMATH_BUILDS),
             _ => self.metamath_provided().and_then(Provided::by),
         }
+    }
+
+    /// How many sentences its `then` lines say together.
+    pub fn sentence_count(&self) -> usize {
+        self.stated().iter().map(|w| w.sentences().len()).sum()
+    }
+
+    /// How each `then` sentence is read off its lemma (`metamath-reads`),
+    /// one entry to a sentence in order; each as stated where the record
+    /// says nothing. Err with what is wrong where the field is not one
+    /// reading to a sentence.
+    pub fn metamath_reads(&self) -> Result<Vec<LemmaReading>, String> {
+        let count = self.sentence_count();
+        let Some(value) = self.field(METAMATH_READS) else {
+            return Ok(vec![LemmaReading::default(); count]);
+        };
+        let mut out = Vec::new();
+        for entry in value.split(',') {
+            match LemmaReading::read(entry) {
+                Some(reading) => out.push(reading),
+                None => {
+                    return Err(format!(
+                        "{} is no reading: say `as stated`, `left side`, `right side`, `part N`, `turned` or `witness`, or a side, a part and `turned` together",
+                        repr(entry.trim())
+                    ))
+                }
+            }
+        }
+        if out.len() != count {
+            return Err(format!(
+                "it gives {} readings, and the item says {count} sentences: one reading to a sentence",
+                out.len()
+            ));
+        }
+        Ok(out)
+    }
+
+    /// The labels of its hypotheses in the order its lemma asks for them
+    /// (`metamath-hypotheses`); empty where the record says nothing, and the
+    /// lemma asks for them in the item's order. Err with what is wrong where
+    /// a label is none of the item's hypotheses, or is said twice.
+    pub fn metamath_hypotheses(&self) -> Result<Vec<String>, String> {
+        let Some(value) = self.field(METAMATH_HYPOTHESES) else {
+            return Ok(Vec::new());
+        };
+        let mut out: Vec<String> = Vec::new();
+        for entry in value.split(',').map(str::trim) {
+            if !self
+                .hypotheses
+                .iter()
+                .any(|h| h.label.as_deref() == Some(entry))
+            {
+                return Err(format!(
+                    "{} is none of its hypotheses' labels",
+                    repr(entry)
+                ));
+            }
+            if out.iter().any(|o| o == entry) {
+                return Err(format!("{} is said twice", repr(entry)));
+            }
+            out.push(entry.to_string());
+        }
+        Ok(out)
     }
 
     /// What its `metamath-proof` says; None where it has none.

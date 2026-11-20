@@ -19,7 +19,8 @@
 #                   a set.mm label
 #
 # Other fields: note, and for the one definition that
-# introduces a symbol, symbol and defines.
+# introduces a symbol, symbol and defines; and where the lemma meets the item
+# otherwise, metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 definition point
@@ -56,6 +57,7 @@ mundane theorem angle-real
   assume P ≠ R                                                        (H6)
   then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
   metamath-proof metamath-bridges/geometry/gangbnd3
+  metamath-reads part 1, part 2
   note        ∠PQR is an absolute value, so it is real and at least 0; what
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
@@ -81,6 +83,7 @@ mundane theorem signed-angle-real
   assume R ≠ Q                                                        (H5)
   then        ∡PQR ∈ ℝ. −π < ∡PQR. ∡PQR ≤ π.
   metamath-proof metamath-bridges/geometry/gsangcl
+  metamath-reads part 1, part 2, part 3
   lean-proof  trivial ; Complex.neg_pi_lt_arg _ ; Complex.arg_le_pi _
 
 mundane theorem signed-angle-reverse
@@ -584,6 +587,7 @@ mundane theorem between-apart
   assume R is between S and T                                         (H4)
   then        S ≠ R. T ≠ R.
   metamath-proof metamath-bridges/plane/gbetne0
+  metamath-reads part 1, part 2
   note        A point between two others is apart from both, so the
               angles and triangles at it are defined.
   lean-proof  h1.ne_left.symm ; h1.ne_right.symm
@@ -903,6 +907,7 @@ axiom angle-measure
   assume P, Q, R form a triangle                                      (H4)
   then        ∠PQR > 0°. ∠PQR < 180°.
   metamath-proof metamath-bridges/postulates/gangmeas
+  metamath-reads part 1, part 2
   note        SMSG's postulate 11: an angle, two rays from one point not on
               one line, has a measure strictly between 0° and 180°.
               mun:stdlib/geometry/angle-real and

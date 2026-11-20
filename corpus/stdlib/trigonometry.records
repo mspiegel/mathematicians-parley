@@ -18,7 +18,9 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note, and for a function, sort, metamath-builds and reads.
+# Other fields: note, and for a function, sort, metamath-builds and reads;
+# and where the lemma meets the item otherwise, metamath-reads and
+# metamath-hypotheses (DATABASE.md).
 
 
 definition cos
@@ -150,6 +152,7 @@ mundane theorem sin-bounded
   let a ∈ ℝ                                                           (H1)
   then        −1 ≤ sin(a). sin(a) ≤ 1.
   metamath-proof sinbnd
+  metamath-reads part 1, part 2
   note        A point of the unit circle is at most 1 from its centre in
               each direction.
   lean-proof  Real.neg_one_le_sin a ; Real.sin_le_one a
@@ -158,6 +161,7 @@ mundane theorem cos-bounded
   let a ∈ ℝ                                                           (H1)
   then        −1 ≤ cos(a). cos(a) ≤ 1.
   metamath-proof cosbnd
+  metamath-reads part 1, part 2
   lean-proof  Real.neg_one_le_cos a ; Real.cos_le_one a
 
 mundane theorem cos-decreasing

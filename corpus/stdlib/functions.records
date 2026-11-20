@@ -18,7 +18,8 @@
 #   lean-proof      the same for the Lean build, a Mathlib proof in place of
 #                   a set.mm label
 #
-# Other fields: note.
+# Other fields: note, and where the lemma meets the item otherwise,
+# metamath-reads and metamath-hypotheses (DATABASE.md).
 
 
 definition set-image
@@ -38,6 +39,7 @@ mundane theorem added-elements-are-new
   assume for all s ∈ Y, s ∪ {a} ∉ Z                                   (H3)
   then        for all u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Z
   metamath-proof ralrnmpt
+  metamath-reads left side
   note        Running over the sets with a added is running over the sets and
               adding a, which `ralrnmpt` says of the range of any map written
               on the spot and of any property of its members. Both are
@@ -120,6 +122,7 @@ mundane theorem function-into
   assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
   metamath-proof ffnfv
+  metamath-reads left side
   lean-proof  fun x hx => h2 x hx
 
 mundane theorem function-on-domain
@@ -195,6 +198,7 @@ mundane theorem composition-function
   let g : Y → W                                                       (H2)
   then        g ∘ f : X → W
   metamath-proof fco
+  metamath-hypotheses H2, H1
   note        f takes X into Y, where g takes over.
   lean-proof  hg.comp hf
 
