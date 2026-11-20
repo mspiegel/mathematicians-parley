@@ -494,6 +494,7 @@ mundane theorem nonempty-member
   assume Y ≠ ∅                                                        (H1)
   then        there is a ∈ Y
   metamath-proof n0
+  metamath-reads right side
   note        A set that is not empty has an element, which an obtain names.
   lean-proof  by obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty.2 h1; exact ⟨a, ha, trivial⟩
 

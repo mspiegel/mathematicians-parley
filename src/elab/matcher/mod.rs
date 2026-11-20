@@ -25,7 +25,8 @@ use indexmap::{IndexMap, IndexSet};
 use super::elaborate::Sides;
 use super::provenance::{from_requires, may_rest_on, MEMBERSHIP};
 use super::state::{
-    fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
+    fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, LemmaSide, Role,
+    Shape, Vars,
 };
 use super::tables::{Leaf, Row};
 use super::{Facts, Lines, WrittenFact};

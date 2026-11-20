@@ -529,6 +529,10 @@ impl<'a> Elaborator<'a> {
         crossing: bool,
         seed: Option<&Binding>,
     ) -> Checked<Route<Proof>> {
+        // The part of the conclusion the record reads the claim as, for the
+        // lemma a citation applies; taken here so that no application made
+        // inside this one reads it.
+        let side = self.lemma_side.take();
         let sig = self.sig(label).clone();
         let whole = self.statement(label);
         let variables = names_of(&whole);
@@ -558,6 +562,75 @@ impl<'a> Elaborator<'a> {
             // A biconditional says one thing and reaching it either way is
             // reaching it; tried only where the forward read has already
             // failed, and with the seed, as the forward read is.
+            // Where the record says which part of the biconditional the
+            // claim is, that part is fitted and no other.
+            if let (Some("wb"), Some(side)) = (reads.label(), side) {
+                let (near, far) =
+                    (reads.children()[0].clone(), reads.children()[1].clone());
+                let (claimed, given, join) = match side {
+                    LemmaSide::Whole => {
+                        if crossing {
+                            return self.reached_across(
+                                label, &whole, &reads, goal, scope, facts, step, seed,
+                            );
+                        }
+                        return Ok(Route::no(format!(
+                            "{label} does not conclude the claim"
+                        )));
+                    }
+                    LemmaSide::Right => (far, near, Join::Iff),
+                    LemmaSide::Left => (near, far, Join::Turned),
+                };
+                if let Some(fitted) = fit(&claimed, goal, &start, &variables) {
+                    antecedents.push(given);
+                    joins.push(join);
+                    reads = claimed;
+                    break fitted;
+                }
+                if crossing {
+                    // The side may be the claim in other words, as the
+                    // standard form reads the two (`fits_as`): the side is
+                    // reached at the instance that fits, and carried to the
+                    // claim by `same`, the page's x ≠ y for set.mm's x =/= y.
+                    if let Some(fitted) =
+                        self.fits_as(&claimed, goal, &variables, Some(&start))
+                    {
+                        let instance = claimed.substitute(&fitted);
+                        if self.rpn(&instance) != self.rpn(goal) {
+                            self.lemma_side = Some(side);
+                            let made = self.apply_lemma(
+                                label, &instance, scope, facts, step, false, seed,
+                            )?;
+                            if let Built(made) = made {
+                                if let Built(alike) =
+                                    self.same(&instance, goal, scope, facts, None)?
+                                {
+                                    let (i, g) = (self.rpn(&instance), self.rpn(goal));
+                                    return Ok(Built(
+                                        pf!(self.b; scope, i, g, made, alike, "mpbid"),
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                    // The side may be the claim said differently, which only
+                    // a full seed tells, or written without an identity
+                    // element it has (`as_tidied`).
+                    let seeded = self
+                        .as_seeded(label, &claimed, goal, scope, facts, step, seed)?;
+                    if !seeded.is_declined() {
+                        return Ok(seeded);
+                    }
+                    let tidy = self
+                        .as_tidied(label, &claimed, goal, scope, facts, step, seed)?;
+                    if !tidy.is_declined() {
+                        return Ok(tidy);
+                    }
+                }
+                return Ok(Route::no(format!(
+                    "the side of {label} the record reads the claim as is not the claim"
+                )));
+            }
             if reads.label() == Some("wb") {
                 // Where both sides fit, the claim is the side that says more
                 // of it: `A <_ B` fits any inequality, `( C x. A ) <_ ( C x.

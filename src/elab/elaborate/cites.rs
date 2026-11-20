@@ -1,6 +1,7 @@
 //! Citing a claim's reasons.
 
 use super::*;
+use crate::corpus::records::{LemmaReading, Side};
 use crate::formula::{page, Sort};
 use crate::matching;
 use crate::notations::PROPERTY_OF;
@@ -583,6 +584,61 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
+    /// The part of its lemma's conclusion the claim of a step citing a
+    /// record is (`LemmaSide`): the item's sentence read the way the checker
+    /// recorded (`Concluded::way`), through the side its `metamath-reads`
+    /// names, the two sides swapped where it says `turned`. None where the
+    /// claim is more than one conclusion of the item.
+    pub(super) fn side_read(&self, step: &Step) -> Checked<Option<LemmaSide>> {
+        let Some(cited) = self.citation_read(step) else {
+            return Ok(None);
+        };
+        let [concluded] = cited.concluded.as_slice() else {
+            return Ok(None);
+        };
+        let Some(Item::Record(record)) = self.items.get(&cited.item).copied() else {
+            return Ok(None);
+        };
+        let paired = targets::sentence_lemmas(record)
+            .map_err(|why| self.defect(step.line, format!("{}: {why}", cited.item)))?;
+        let Some(reading) = paired.get(concluded.sentence).map(|p| p.reading) else {
+            return Ok(None);
+        };
+        if reading.part.is_some() || concluded.part.is_some() {
+            return Ok(None);
+        }
+        self.side_of(step, concluded.way, reading).map(Some)
+    }
+
+    /// The part of its lemma's conclusion a sentence read `way` is, through
+    /// the side its `metamath-reads` names (`LemmaSide`), the two sides
+    /// swapped where it says `turned`.
+    fn side_of(
+        &self,
+        step: &Step,
+        way: citing::Way,
+        reading: LemmaReading,
+    ) -> Checked<LemmaSide> {
+        let side = match (way, reading.side) {
+            (citing::Way::AsWritten, None) => LemmaSide::Whole,
+            (citing::Way::AsWritten, Some(Side::Left)) => LemmaSide::Left,
+            (citing::Way::AsWritten, Some(Side::Right)) => LemmaSide::Right,
+            (citing::Way::Forward, None) => LemmaSide::Right,
+            (citing::Way::Backward, None) => LemmaSide::Left,
+            (_, Some(_)) => {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker read through a sentence the record says is a side of its lemma",
+                ))
+            }
+        };
+        Ok(match (side, reading.turned) {
+            (LemmaSide::Left, true) => LemmaSide::Right,
+            (LemmaSide::Right, true) => LemmaSide::Left,
+            (side, _) => side,
+        })
+    }
+
     /// What one clause of an item gives, or what several give together, one
     /// to a sentence of the claim.
     pub(super) fn by_clause(
@@ -597,7 +653,9 @@ impl<'a> Elaborator<'a> {
         // Why each clause did not reach the claim, said in order, so that a
         // message names what the clause that came closest lacked.
         let mut why: Vec<String> = Vec::new();
+        let side = self.side_read(step)?;
         for label in labels {
+            self.lemma_side = side;
             let found = self.apply_lemma(
                 label,
                 &self.to_term(term),

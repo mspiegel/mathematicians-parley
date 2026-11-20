@@ -74,6 +74,21 @@ pub type Binding = IndexMap<Symbol, Term>;
 /// The variables a lemma's statement mentions, which a match may bind.
 pub type Vars = BTreeSet<Symbol>;
 
+/// Which part of a lemma's conclusion a citation's claim is, as the record
+/// reads it: the item's sentence read the way the checker recorded
+/// (`Concluded::way`), through the side its `metamath-reads` names. "A ↔
+/// B" read forwards is the lemma's right side; as written, with the record
+/// saying `left side`, its left.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LemmaSide {
+    /// The conclusion as it stands.
+    Whole,
+    /// The left side of its `↔`, whose right side is given.
+    Left,
+    /// The right side of its `↔`, whose left side is given.
+    Right,
+}
+
 /// One scope frame: the scope with an assumption conjoined, the assumption,
 /// and what is known there.
 #[derive(Clone)]
@@ -406,6 +421,10 @@ pub struct Elaborator<'a> {
     /// (`recorded_hypotheses`): what an antecedent that is one of them is
     /// discharged by.
     pub hypotheses_given: Option<super::Facts>,
+    /// For the next lemma a record's citation applies, the part of its
+    /// conclusion the claim is, as the record reads it (`LemmaSide`): taken
+    /// by that application alone, and by none it makes inside itself.
+    pub lemma_side: Option<LemmaSide>,
     /// How many searches for a divisor's `≠ 0` enclose this point. That a
     /// divisor is not zero is the page's to say, so no membership said once
     /// is offered on the way to it (`introduced_membership`, `not_zero`).
@@ -593,6 +612,7 @@ impl<'a> Elaborator<'a> {
             resting: None,
             kept_named: BTreeSet::new(),
             hypotheses_given: None,
+            lemma_side: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),
             let_lines: BTreeSet::new(),

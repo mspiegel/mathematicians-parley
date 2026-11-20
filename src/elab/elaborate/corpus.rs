@@ -684,12 +684,14 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let mut pieces = self.claim_parts(step)?;
-        // A group that concludes one statement letter stands for the claim
-        // whole, however many parts it has (`citing::taken`).
-        if cited.concluded.len() == 1 && pieces.len() > 1 {
-            pieces = vec![term.clone()];
-        }
+        // One conclusion gives the claim whole, however many parts it has:
+        // a group concluding one statement letter (`citing::taken`), and a
+        // claim proved where the page's sentence is not what is proved, a
+        // chain link under a sum or a step at one member.
+        let pieces = match cited.concluded.len() {
+            1 => vec![term.clone()],
+            _ => self.claim_parts(step)?,
+        };
         if pieces.len() != cited.concluded.len() || readings.len() != pieces.len() {
             return Err(self.unreached(
                 step.line,

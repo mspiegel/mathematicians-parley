@@ -30,7 +30,7 @@ use super::reading::{is_subgroup, CLASS_NAMES};
 use super::scopes::written_parts;
 use super::state::{
     fit, names_of, number_of, Binding, Block, ByPart, Closer, Contradicted, Elaborator,
-    PartEnd, ProvedClaim, Vars,
+    LemmaSide, PartEnd, ProvedClaim, Vars,
 };
 use super::tables::Leaf;
 use super::{linear, Facts, Line, Lines};
