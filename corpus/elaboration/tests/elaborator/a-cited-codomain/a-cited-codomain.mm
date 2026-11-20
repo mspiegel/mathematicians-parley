@@ -12,5 +12,5 @@ ${
   $d C s t $.
   $d D s t $.
   tests.elaborator.a-cited-codomain.a-cited-codomain $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ D : A --> { C } ) -> ( D : A -1-1-> B -> A. s e. A A. t e. A ( ( D ` s ) = ( D ` t ) -> s = t ) ) ) $=
-    ( cvv wcel wa csn wf wf1 cv cfv wceq wi wral simpr wb dff13 a1i mpbid syl ex ) BGHZCGHZIZDGHZIZBDJZEKZIZBCELZFMZENZAMZENZOZUNUPOZPZABQZFBQZULUMIZBCEKZVBIZVBVCUMVEULUMRUMVESVCFABCETUAUBVDVBRUCUD $.
+    ( cvv wcel wa csn wf wf1 cv cfv wceq wi wral simpr wb dff13 a1i mpbid simprd ex ) BGHZCGHZIZDGHZIZBDJZEKZIZBCELZFMZENZAMZENZOZUNUPOZPZABQZFBQZULUMIZBCEKZVBVCUMVDVBIZULUMRUMVESVCFABCETUAUBUCUD $.
 $}

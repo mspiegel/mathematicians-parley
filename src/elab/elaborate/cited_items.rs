@@ -1,10 +1,22 @@
 //! Citing items and substituting.
 
+use std::iter::Peekable;
+use std::vec;
+
 use super::unfolds::PutFor;
 use super::*;
-use crate::checker::record::{Facing, Instantiated, SubstitutedInto, SuppliedBy};
+use crate::checker::record::{
+    Exhibit, Facing, Instantiated, SubstitutedInto, Supplied, SuppliedBy,
+};
 use crate::corpus::Source;
 use crate::matching::Meeting;
+
+/// One fact an exhibit asks of its values, at those values, with its proof
+/// (`shown_body`).
+pub(in crate::elab) struct ShownPart {
+    pub(in crate::elab) want: Rpn,
+    pub(in crate::elab) proof: Proof,
+}
 
 impl<'a> Elaborator<'a> {
     /// What an item states, however the database says it is supplied.
@@ -209,20 +221,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         step: &Step,
     ) -> Checked<IndexMap<Rpn, Rpn>> {
-        let values = self
-            .checked
-            .exhibited
-            .get(&step.just.line)
-            .and_then(|v| v.last())
-            .cloned()
-            .flatten()
-            .map(|e| e.values);
-        let Some(values) = values else {
-            return Err(self.unreached(
-                step.line,
-                "the checker reads no value this exhibit shows",
-            ));
-        };
+        let values = self.exhibit_read(step)?.values;
         let mut out = IndexMap::new();
         for (letter, value) in &values {
             let mark = t!(self.binder_var(letter)?, "cv");
@@ -235,6 +234,124 @@ impl<'a> Elaborator<'a> {
     /// The checker's reading of the citation `step` makes, whatever it
     /// cites: a step's own, or a requires line's read as the step it would
     /// be. None where it cites no item.
+    /// What the checker read an `exhibit` step as showing (`Exhibit`): of
+    /// the first sentence of its claim it read a "there is" in, as the Lean
+    /// writer reads it.
+    pub(in crate::elab) fn exhibit_read(&self, step: &Step) -> Checked<Exhibit> {
+        self.checked
+            .exhibited
+            .get(&step.just.line)
+            .and_then(|all| all.iter().flatten().next())
+            .cloned()
+            .ok_or_else(|| {
+                self.unreached(
+                    step.line,
+                    "the checker reads no value this exhibit shows",
+                )
+            })
+    }
+
+    /// ( scope -> want ), one fact an exhibit asks of its values, from what
+    /// the checker recorded as showing it (`Exhibit::shown`), carried as
+    /// the record says the two meet (`supplied_proof`).
+    pub(in crate::elab) fn shown_proof(
+        &mut self,
+        step: &Step,
+        shown: &Supplied,
+        want: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        match self.supplied_proof(
+            step,
+            &shown.by,
+            shown.meeting.as_ref(),
+            want,
+            scope,
+            facts,
+        )? {
+            Some(p) => Ok(p),
+            None => Err(self.unreached(
+                step.line,
+                format!(
+                    "what the checker recorded as showing {} does not give it",
+                    self.render(want)
+                ),
+            )),
+        }
+    }
+
+    /// ( scope -> body ), what an exhibit's "there is" says of its values,
+    /// from the facts the checker recorded for the parts of its "and" in
+    /// turn (`shown_proof`), each the recorded statement at the exhibited
+    /// `values`. The body is taken apart as far as the parts go and no
+    /// further: "n is odd" is one part, though set.mm writes it as an "and".
+    /// A body that says nothing, "there is s ∈ S", holds outright.
+    pub(in crate::elab) fn shown_body(
+        &mut self,
+        step: &Step,
+        body: &Term,
+        shown: &[Supplied],
+        values: &NodeBinding,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        if self.rpn(body).alone() == Some("wtru") && shown.is_empty() {
+            return Ok(pf!(self.b; "wtru", scope, "tru", "a1i"));
+        }
+        let library = self.item_library();
+        let mut parts = Vec::new();
+        for s in shown {
+            let at = filled(&s.want, values, &library.ctx);
+            let want = self.term(&at)?;
+            let proof = self.shown_proof(step, s, &want, scope, facts)?;
+            parts.push(ShownPart { want, proof });
+        }
+        let mut parts = parts.into_iter().peekable();
+        match self.joined_from(body, &mut parts, scope) {
+            Some(p) if parts.peek().is_none() => Ok(p),
+            _ => Err(self.unreached(
+                step.line,
+                format!(
+                    "the body {} is not the parts the checker recorded for it",
+                    self.render(&self.rpn(body))
+                ),
+            )),
+        }
+    }
+
+    /// ( scope -> term ) from `parts` in order: `term` itself where it is
+    /// the next part, and otherwise an "and" whose sides are made of the
+    /// parts in turn, joined by `jca` or `3jca`. None where the parts do
+    /// not make it.
+    pub(in crate::elab) fn joined_from(
+        &mut self,
+        term: &Term,
+        parts: &mut Peekable<vec::IntoIter<ShownPart>>,
+        scope: &Rpn,
+    ) -> Option<Proof> {
+        let rpn = self.rpn(term);
+        if parts.peek().is_some_and(|p| p.want == rpn) {
+            return parts.next().map(|p| p.proof);
+        }
+        let kids: Vec<Term> = term.children().to_vec();
+        let joined = match (term.label(), kids.len()) {
+            (Some("wa"), 2) => "jca",
+            (Some("w3a"), 3) => "3jca",
+            _ => return None,
+        };
+        let mut proofs = Vec::new();
+        for kid in &kids {
+            proofs.push(self.joined_from(kid, parts, scope)?);
+        }
+        let written: Vec<Rpn> = kids.iter().map(|k| self.rpn(k)).collect();
+        let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
+        all.extend(written.iter().map(|k| super::super::part(k)));
+        all.extend(proofs.iter().map(|p| super::super::part(p)));
+        all.push(super::super::part(joined));
+        Some(self.b.proof(&all))
+    }
+
     pub(in crate::elab) fn citation_read(&self, step: &Step) -> Option<&Cited> {
         match self.thm.steps.iter().position(|s| s.line == step.line) {
             Some(i) => self.checked.cited[i].as_ref(),
@@ -606,6 +723,15 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
+        // Three points named in another order, "B, C, A are collinear" for
+        // "A, B, C are collinear", are turned by the notation's own swap and
+        // rotation (`held_reordered`), which `same` does not make; each is
+        // an implication once the points are numbers, which the facts say.
+        if !met.flips.is_empty() && met.identities.is_empty() {
+            let with = facts.copy();
+            self.know(&with, said.clone(), proof);
+            return self.held(&with, wanted, scope);
+        }
         if met.identities.is_empty() {
             return self.same_carried(said, proof, wanted, scope, facts);
         }
@@ -628,7 +754,7 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> wanted ) from a proof of `said`, the two one claim in
     /// other words (`same`); None where they are not.
-    fn same_carried(
+    pub(in crate::elab) fn same_carried(
         &mut self,
         said: &Rpn,
         proof: Proof,

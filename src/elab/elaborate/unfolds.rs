@@ -383,6 +383,62 @@ impl<'a> Elaborator<'a> {
             .collect())
     }
 
+    /// ( scope -> wanted ), a function's membership in a set of maps, from
+    /// its type as the line `at` the checker recorded writes it, held among
+    /// the facts as each step types its functions: a function from A to B
+    /// is a member of the functions from A to B (`elmapg`), A and B being
+    /// sets, carried to `wanted` where that spells the sets otherwise
+    /// (`same_carried`). None where `wanted` is no membership in a set of
+    /// maps, or the line writes no type that is held.
+    fn member_of_maps(
+        &mut self,
+        at: &FirstAt,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let whole = self.to_term(wanted);
+        let (Some("wcel"), [_, maps]) = (whole.label(), whole.children()) else {
+            return Ok(None);
+        };
+        if !self.rpn(maps).ends_with(&["cmap", "co"]) {
+            return Ok(None);
+        }
+        let typed = self.recorded_statement(at)?;
+        let said = self.to_term(&typed);
+        let (Some("wf"), [domain, codomain, f]) = (said.label(), said.children())
+        else {
+            return Ok(None);
+        };
+        let (domain, codomain, f) = (self.rpn(domain), self.rpn(codomain), self.rpn(f));
+        let Some(type_proof) = self.held(facts, &typed, scope)? else {
+            return Ok(None);
+        };
+        let member = t!(f, t!(codomain, domain, "cmap", "co"), "wcel");
+        let mut sets = Vec::new();
+        for set in [&codomain, &domain] {
+            let said = t!(set, "cvv", "wcel");
+            let proof = match self.held(facts, &said, scope)? {
+                Some(p) => p,
+                None => match self.made_a_set(&self.to_term(&said), scope, facts)? {
+                    Built(p) => p,
+                    Declined(_) => return Ok(None),
+                },
+            };
+            sets.push((said, proof));
+        }
+        let [(set_b, proof_b), (set_a, proof_a)] = [sets[0].clone(), sets[1].clone()];
+        let both = pf!(self.b; scope, set_b, set_a, proof_b, proof_a, "jca");
+        let law = self.b.ap(
+            "elmapg",
+            &binds! {"A" => &codomain, "B" => &domain, "C" => &f, "V" => "cvv", "W" => "cvv"},
+            &[],
+        );
+        let iff = pf!(self.b; scope, t!(set_b, set_a, "wa"), t!(member, typed, "wb"), both, law, "syl");
+        let made = pf!(self.b; scope, member, typed, type_proof, iff, "mpbird");
+        self.same_carried(&member, made, wanted, scope, facts)
+    }
+
     /// ( scope -> wanted ) for a hypothesis of a cited item, from what the
     /// checker recorded as supplying it (`SuppliedBy`): a line, as the
     /// record places the fact in it (`placed_proof`), or a "for all" of it
@@ -410,13 +466,24 @@ impl<'a> Elaborator<'a> {
         if typed && matches!(by, SuppliedBy::Line(_) | SuppliedBy::SaidOnce(_)) {
             return self.held(facts, wanted, scope);
         }
+        // set.mm asks a function's membership in the set of maps where the
+        // page writes its type: "there is g : {1, …, n} → ℕ" is a "there
+        // is" over ℕ ↑m (1 ... n).
+        if let SuppliedBy::Line(at) = by {
+            if let Some(member) = self.member_of_maps(at, wanted, scope, facts)? {
+                return Ok(Some(member));
+            }
+        }
         match by {
             SuppliedBy::Line(at) => {
                 // What the line says, and what rests on it alone: the domain
-                // an obtain on it put in the scope.
+                // an obtain on it put in the scope, and the membership of a
+                // point or a function it obtains, which rests on the line's
+                // sort (`{line}∈`) as a `let` does.
                 let held = self.line_supplies(&at.line, scope, facts, &lines)?;
+                let sort = format!("{}∈", at.line);
                 for (said, proof) in facts.entries() {
-                    if rests_on_only(&proof, &at.line) {
+                    if rests_on_only(&proof, &at.line) || rests_on_only(&proof, &sort) {
                         self.know_default(&held, said, proof);
                     }
                 }
@@ -1015,50 +1082,68 @@ impl<'a> Elaborator<'a> {
             None
         )?);
         let proof = pf!(self.b; scope, left, right, given, made, "mpbid");
-        let known = Facts::new();
-        self.know(&known, right.clone(), proof.clone());
-        self.unpack_all(&right, &proof, scope, &known);
-        if let Some(p) = self.held(&known, term, scope)? {
-            return Ok(Built(p));
+        self.unfolded_to_claim(step, &right, proof, term, scope, &facts)
+    }
+
+    /// ( scope -> term ) from a proof of `right`, the right side a
+    /// definition unfolds to, as the checker recorded the citation reads it
+    /// (`claim_from_readings`): each part of the claim the right side, or
+    /// the part of it the record names, carried as the record says the two
+    /// meet. An obtain records no conclusion, and takes the right side's
+    /// "there is" whole, over the letters the step obtains: the right side
+    /// where it is one, or its one part that is.
+    fn unfolded_to_claim(
+        &mut self,
+        step: &Step,
+        right: &Rpn,
+        proof: Proof,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        if right == term {
+            return Ok(Built(proof));
         }
-        // Or it is, once what the lemma says is put in the page's words, or
-        // once its identity elements are dropped, as the checker reads it.
-        for (said, shown) in known.entries() {
-            if let Built(alike) =
-                self.same(&self.to_term(&said), &target, scope, &facts, None)?
-            {
-                return Ok(Built(
-                    pf!(self.b; scope, said, term, shown, alike, "mpbid"),
-                ));
-            }
-            if let Some(tidy) = self.tidied(&shown, &said, term, scope, &facts)? {
-                return Ok(Built(tidy));
-            }
-            // Both at once: the identity elements dropped first, and what is
-            // left put in the page's words, `-. x = 0` for `x =/= 0` and the
-            // page's own bound letters.
-            let bare = self.rpn(&self.without_identities(&self.to_term(&said)));
-            if bare != said {
-                if let Some(tidy) = self.tidied(&shown, &said, &bare, scope, &facts)? {
-                    if let Built(alike) =
-                        self.same(&self.to_term(&bare), &target, scope, &facts, None)?
-                    {
-                        return Ok(Built(
-                            pf!(self.b; scope, bare, term, tidy, alike, "mpbid"),
-                        ));
-                    }
-                }
-            }
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        if !cited.concluded.is_empty() {
+            let readings = vec![(right.clone(), proof); cited.concluded.len()];
+            return self
+                .claim_from_readings(step, term, &cited, readings, scope, facts)
+                .map(Built);
         }
-        // What the unfolding says and how the readable line spells it are
-        // allowed to differ, so long as set.mm says they are the same claim.
-        let offered = facts.with(&known);
-        match self.settle(&target, scope, &offered, 3, Some(step), Some(lines))? {
-            Built(p) => Ok(Built(p)),
-            Declined(d) => {
-                let inner = self.say(&d);
-                Ok(self.no(format!("{lemma} does not say {{}}: {inner}"), &[term]))
-            }
+        let parts = self.conjuncts_proved(right, proof, scope);
+        let there_is: Vec<(Rpn, Proof)> = parts
+            .into_iter()
+            .filter(|(p, _)| self.to_term(p).label() == Some("wrex"))
+            .collect();
+        let [(there, shown)] = there_is.as_slice() else {
+            return Err(self.unreached(
+                step.line,
+                format!(
+                    "the definition's right side {} has no one \"there is\" to obtain from",
+                    self.render(right)
+                ),
+            ));
+        };
+        let renamed = Meeting {
+            renamed: true,
+            ..Meeting::default()
+        };
+        match self.met_as(there, shown.clone(), term, &renamed, scope, facts)? {
+            Some(p) => Ok(Built(p)),
+            None => Err(self.unreached(
+                step.line,
+                format!(
+                    "the \"there is\" the checker obtains from says {}, and the step obtains {}",
+                    self.render(there),
+                    self.render(term)
+                ),
+            )),
         }
     }
 }

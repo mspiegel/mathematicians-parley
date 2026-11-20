@@ -2679,8 +2679,9 @@ $}
 
 ${
 $( Divisors: the sum of the divisors of a number, and of a prime's powers,
-   and a sum of some divisors. $)
+   a sum of some divisors, and a prime by its divisors. $)
 $d k p B $.
+$d z P $.
 $d k p N $.
 $d k P $.
 $d k Y $.
@@ -2733,6 +2734,11 @@ $d k ph $.
     subcld subnegd npcand eqtrd breqtrrd )
     ABBBDEFZDGZEFZHABIJBBHKABCLBMNAUEUCDOFBAUCDABDABCPZAQZRUGSABDUFUGTUAUB $.
   $}
+
+  gisprm $p |- ( P e. NN -> ( P e. Prime <-> ( 1 < P /\ A. z e. NN ( z || P -> ( z = 1 \/ z = P ) ) ) ) ) $=
+    ( cn wcel c1 clt wbr cv cdvds wceq wo wi wral wa cprime c2 cuz cfv ibar
+    eluz2b2 bitr4di anbi1d isprm2 bicomd )
+    BCDZEBFGZAHZBIGZUGEJZUGBJZKZLZACMZNZBODZUEUNBPQRZDZUMNUOUEUFUQUMUEUFUEUFNUQUEUFSBTUAUBABUCUAUD $.
 
 $}
 
@@ -3325,10 +3331,11 @@ $d t H $.
   ${
     gcncfre.1 $e |- ( ph -> A C_ RR ) $.
     gcncfre.2 $e |- ( ph -> F : A --> RR ) $.
-  gcncfre $p |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) ) $=
+  gcncfre $p |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) $=
     ( cres cr ccncf co wcel wf cv cmin cabs cfv clt wbr wi wral crp wrex wa
-    gcncfres cc wss wb ax-resscn a1i sstrd elcncf2 syl2anc bitrd )
-    AGFJFKLMZNGUQNZFKGOZEPZBPZQMZRSZDPZTUAZUTGSZVAGSZQMZRSZCPZTUAZUBZEFUCZDUDUEZCUDUCZBFUCZUFZAFGIUGAFUHUIKUHUIZURVQUJAFKUHHVRAUKULZUMVSBCDEFKGUNUOUP $.
+    gcncfres cc wss wb ax-resscn a1i sstrd elcncf2 syl2anc bitrd biantrurd
+    bitr4d )
+    AGFJZFKLMZNZFKGOZEPZBPZQMZRSZDPZTUAZVCGSZVDGSZQMZRSZCPZTUAZUBZEFUCZDUDUEZCUDUCZBFUCZUFZVSAVAGUTNZVTAFGIUGAFUHUIKUHUIZWAVTUJAFKUHHWBAUKULZUMWCBCDEFKGUNUOUPAVBVSIUQUR $.
   $}
 
   ${

@@ -3,11 +3,13 @@
 use std::collections::VecDeque;
 use std::iter;
 
+use super::cited_items::ShownPart;
 use super::*;
 use crate::checker::record::Supplied;
 use crate::citing::Way as Read;
 use crate::corpus::Hypothesis;
 use crate::matching::Meeting;
+use crate::notations::FOR_ALL;
 use crate::sorts;
 
 impl<'a> Elaborator<'a> {
@@ -647,17 +649,47 @@ impl<'a> Elaborator<'a> {
                 )),
             };
         }
-        if cited.within.iter().any(Option::is_some) {
-            return Err(self.unreached(
-                step.line,
-                "the checker read a claim inside a property applied, which a cited theorem does not state",
-            ));
+        let mut readings = Vec::new();
+        for concluded in &cited.concluded {
+            let Some((sentence, shown)) = said.get(concluded.sentence).cloned() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker concluded a sentence the cited theorem does not have",
+                ));
+            };
+            readings.push(self.read_way(
+                step,
+                &sentence,
+                shown,
+                concluded.way,
+                scope,
+                facts,
+            )?);
         }
-        let pieces: Vec<Rpn> = conjuncts_of(&self.to_term(term))
-            .iter()
-            .map(|p| self.rpn(p))
-            .collect();
-        if pieces.len() != cited.concluded.len() {
+        self.claim_from_readings(step, term, &cited, readings, scope, facts)
+    }
+
+    /// ( scope -> term ), the claim taken apart as the checker takes it
+    /// apart (`claim_parts`), each part from the reading the checker
+    /// concluded it from, `readings[k]` for `Cited::concluded[k]`: that
+    /// reading, or the part of it the record names (`concluded_part`),
+    /// carried as the record says the two meet (`met_as`).
+    pub(in crate::elab) fn claim_from_readings(
+        &mut self,
+        step: &Step,
+        term: &Rpn,
+        cited: &Cited,
+        readings: Vec<(Rpn, Proof)>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Proof> {
+        let mut pieces = self.claim_parts(step)?;
+        // A group that concludes one statement letter stands for the claim
+        // whole, however many parts it has (`citing::taken`).
+        if cited.concluded.len() == 1 && pieces.len() > 1 {
+            pieces = vec![term.clone()];
+        }
+        if pieces.len() != cited.concluded.len() || readings.len() != pieces.len() {
             return Err(self.unreached(
                 step.line,
                 format!(
@@ -668,30 +700,28 @@ impl<'a> Elaborator<'a> {
             ));
         }
         let mut proved = Vec::new();
-        for (k, (piece, concluded)) in pieces.iter().zip(&cited.concluded).enumerate() {
-            let Some((sentence, shown)) = said.get(concluded.sentence).cloned() else {
-                return Err(self.unreached(
-                    step.line,
-                    "the checker concluded a sentence the cited theorem does not have",
-                ));
-            };
-            let (read, shown) =
-                self.read_way(step, &sentence, shown, concluded.way, scope, facts)?;
-            let (part, shown) = match concluded.part {
+        for (k, (piece, (read, shown))) in pieces.into_iter().zip(readings).enumerate()
+        {
+            let (part, shown) = match self.concluded_part(step, cited, k)? {
                 None => (read, shown),
-                Some(i) => match self.conjuncts_proved(&read, shown, scope).get(i) {
-                    Some(at) => at.clone(),
+                Some(target) => match self.conjunct_proof(&read, shown, &target, scope)
+                {
+                    Some(at) => at,
                     None => {
                         return Err(self.unreached(
                             step.line,
-                            "the checker concluded a part the cited sentence does not have",
+                            format!(
+                                "the checker concluded {} from a part, {}, the reading does not have",
+                                self.render(&piece),
+                                self.render(&target)
+                            ),
                         ));
                     }
                 },
             };
             let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
-            match self.met_as(&part, shown, piece, &met, scope, facts)? {
-                Some(p) => proved.push(p),
+            match self.met_as(&part, shown, &piece, &met, scope, facts)? {
+                Some(proof) => proved.push(ShownPart { want: piece, proof }),
                 None => {
                     return Err(self.unreached(
                         step.line,
@@ -699,14 +729,159 @@ impl<'a> Elaborator<'a> {
                             "{} gives {}, and the checker read it as the claim's {}",
                             step.just.head,
                             self.render(&part),
-                            self.render(piece)
+                            self.render(&piece)
                         ),
                     ));
                 }
             }
         }
-        let mut proved = proved.into_iter();
-        Ok(self.conjoined_proof(&self.to_term(term), &mut proved, scope))
+        let mut proved = proved.into_iter().peekable();
+        match self.joined_from(&self.to_term(term), &mut proved, scope) {
+            Some(p) if proved.peek().is_none() => Ok(p),
+            _ => Err(self.unreached(
+                step.line,
+                format!(
+                    "the claim {} is not the parts the checker took it apart into",
+                    self.render(term)
+                ),
+            )),
+        }
+    }
+
+    /// Each part of the step's claim as the checker takes it apart, sentence
+    /// by sentence (`citing::conjuncts`), as a term: "P, Q, R form a
+    /// triangle" is one part, though set.mm writes it as an "and". While a
+    /// step said of every member is proved at one (`Elaborator::member`),
+    /// what is proved is the body of its "for all", and that is taken
+    /// apart.
+    fn claim_parts(&mut self, step: &Step) -> Checked<Vec<Rpn>> {
+        let library = self.item_library();
+        let mut out = Vec::new();
+        for sentence in step.claim.sentences() {
+            let mut node = self.read(&sentence)?;
+            if self.member.is_some() && node.notation() == FOR_ALL {
+                if let Some(body) = node.children.last() {
+                    node = body.clone();
+                }
+            }
+            for part in citing::conjuncts(&node, &library) {
+                out.push(self.term(&part)?);
+            }
+        }
+        Ok(out)
+    }
+
+    /// The part of the item's sentence the checker concluded the claim's
+    /// part `k` from, as a term at the citation's values
+    /// (`Cited::binding_with_written`): the sentence read the recorded way
+    /// (`citing::readings`), the part of that reading the record names
+    /// (`Concluded::part`), and the part of that a property applied gives,
+    /// read as its body (`Cited::within`). None where the record takes the
+    /// reading whole.
+    fn concluded_part(
+        &mut self,
+        step: &Step,
+        cited: &Cited,
+        k: usize,
+    ) -> Checked<Option<Rpn>> {
+        let Some(concluded) = cited.concluded.get(k) else {
+            return Ok(None);
+        };
+        let within = cited.within.get(k).copied().flatten();
+        if concluded.part.is_none() && within.is_none() {
+            return Ok(None);
+        }
+        let library = self.item_library();
+        let unread = |me: &Self| {
+            me.unreached(
+                step.line,
+                "the checker concluded a part the item does not have",
+            )
+        };
+        let Some(groups) = library.groups(&cited.item) else {
+            return Err(unread(self));
+        };
+        let Some(sentence) = groups
+            .iter()
+            .flat_map(|g| g.gives.iter())
+            .nth(concluded.sentence)
+        else {
+            return Err(unread(self));
+        };
+        let Some(reading) = citing::readings(sentence, &library)
+            .into_iter()
+            .find(|r| r.way == concluded.way)
+        else {
+            return Err(unread(self));
+        };
+        let mut node = reading.claimed;
+        if let Some(i) = concluded.part {
+            let Some(part) = citing::conjuncts(&node, &library).get(i).cloned() else {
+                return Err(unread(self));
+            };
+            node = part;
+        }
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        node = filled(&node, &binding, &library.ctx);
+        if let Some(w) = within {
+            let Some(part) = citing::conjuncts(&node, &library).get(w).cloned() else {
+                return Err(unread(self));
+            };
+            node = part;
+        }
+        Ok(Some(self.term(&node)?))
+    }
+
+    /// The part of the "and" `whole` that is `target` up to the letters each
+    /// binds (`rebound`), with its proof from a proof of `whole`, found from
+    /// the outside in: the reading's own bound letters may be spelt apart
+    /// from the item's. None where it is no part.
+    fn conjunct_proof(
+        &mut self,
+        whole: &Rpn,
+        proof: Proof,
+        target: &Rpn,
+        scope: &Rpn,
+    ) -> Option<(Rpn, Proof)> {
+        if whole == target || self.rebound(whole, target) {
+            return Some((whole.clone(), proof));
+        }
+        let node = self.to_term(whole);
+        let (Some("wa" | "w3a"), 2 | 3) = (node.label(), node.children().len()) else {
+            return None;
+        };
+        for (kid, kid_proof) in self.conjuncts_once(whole, proof, scope) {
+            if let Some(found) = self.conjunct_proof(&kid, kid_proof, target, scope) {
+                return Some(found);
+            }
+        }
+        None
+    }
+
+    /// The sides of the "and" `term`, one level down, each with its proof
+    /// from `proof`.
+    fn conjuncts_once(
+        &mut self,
+        term: &Rpn,
+        proof: Proof,
+        scope: &Rpn,
+    ) -> Vec<(Rpn, Proof)> {
+        let node = self.to_term(term);
+        let kids: Vec<Rpn> = node.children().iter().map(|c| self.rpn(c)).collect();
+        let lemmas: &[&str] = match (node.label(), kids.len()) {
+            (Some("wa"), 2) => &["simpld", "simprd"],
+            (Some("w3a"), 3) => &["simp1d", "simp2d", "simp3d"],
+            _ => return vec![(term.clone(), proof)],
+        };
+        let mut out = Vec::new();
+        for (kid, lemma) in kids.iter().zip(lemmas) {
+            let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
+            all.extend(kids.iter().map(|k| super::super::part(k)));
+            all.push(super::super::part(&proof));
+            all.push(super::super::part(*lemma));
+            out.push((kid.clone(), self.b.proof(&all)));
+        }
+        out
     }
 
     /// Each of the `count` sentences `whole` joins by "and", left to right,
@@ -737,55 +912,23 @@ impl<'a> Elaborator<'a> {
 
     /// Each conjunct of `term`, every "and" taken apart left to right
     /// (`conjuncts_of`), with its proof under `scope` from `proof`.
-    fn conjuncts_proved(
+    pub(in crate::elab) fn conjuncts_proved(
         &mut self,
         term: &Rpn,
         proof: Proof,
         scope: &Rpn,
     ) -> Vec<(Rpn, Proof)> {
-        let node = self.to_term(term);
-        let kids: Vec<Rpn> = node.children().iter().map(|c| self.rpn(c)).collect();
-        let lemmas: &[&str] = match (node.label(), kids.len()) {
-            (Some("wa"), 2) => &["simpld", "simprd"],
-            (Some("w3a"), 3) => &["simp1d", "simp2d", "simp3d"],
-            _ => return vec![(term.clone(), proof)],
-        };
+        let once = self.conjuncts_once(term, proof, scope);
+        if let [(one, _)] = once.as_slice() {
+            if one == term {
+                return once;
+            }
+        }
         let mut out = Vec::new();
-        for (kid, lemma) in kids.iter().zip(lemmas) {
-            let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
-            all.extend(kids.iter().map(|k| super::super::part(k)));
-            all.push(super::super::part(&proof));
-            all.push(super::super::part(*lemma));
-            let taken = self.b.proof(&all);
-            out.extend(self.conjuncts_proved(kid, taken, scope));
+        for (kid, taken) in once {
+            out.extend(self.conjuncts_proved(&kid, taken, scope));
         }
         out
-    }
-
-    /// ( scope -> term ), each conjunct of `term` (`conjuncts_of`) proved by
-    /// the next of `proved`, in order, joined by `jca` and `3jca`.
-    fn conjoined_proof(
-        &mut self,
-        term: &Term,
-        proved: &mut impl Iterator<Item = Proof>,
-        scope: &Rpn,
-    ) -> Proof {
-        let kids: Vec<Term> = term.children().to_vec();
-        let joined = match (term.label(), kids.len()) {
-            (Some("wa"), 2) => "jca",
-            (Some("w3a"), 3) => "3jca",
-            _ => return proved.next().expect("a proof for each conjunct"),
-        };
-        let parts: Vec<Proof> = kids
-            .iter()
-            .map(|k| self.conjoined_proof(k, proved, scope))
-            .collect();
-        let written: Vec<Rpn> = kids.iter().map(|k| self.rpn(k)).collect();
-        let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
-        all.extend(written.iter().map(|k| super::super::part(k)));
-        all.extend(parts.iter().map(|p| super::super::part(p)));
-        all.push(super::super::part(joined));
-        self.b.proof(&all)
     }
 
     /// A cited sentence read the way the checker recorded (`Way`): as it

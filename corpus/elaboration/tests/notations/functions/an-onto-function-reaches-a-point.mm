@@ -12,5 +12,5 @@ ${
   $d C x y $.
   $d D x y $.
   tests.notations.functions.an-onto-function-reaches-a-point $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ ( C : A --> B /\ C : A -onto-> B ) ) /\ D e. B ) -> E. x e. A D = ( C ` x ) ) $=
-    ( cvv wcel wa wf wfo vy cv cfv wceq wrex wral simpl simpr syl wb dffo3 a1i mpbid wi id eqeq1d rexbidva rspcv mpd ) BFGZCFGZHZBCDIZBCDJZHZHZECGZHZKLZALZDMZNZABOZKCPZEVANZABOZURUMVDHZVDURUNVGURUOUNURUPUOUPUQQULUORSUMUNRSUNVGTURAKBCDUAUBUCUMVDRSURUQVDVFUDUPUQRVCVFKECUSENZVBVEABVHUTBGZHZUSEVAVJVHVHVHVIQVHUESUFUGUHSUI $.
+    ( cvv wcel wa wf wfo vy cv cfv wceq wrex wral simpl simpr syl wb dffo3 a1i mpbid simprd wi id eqeq1d rexbidva rspcv mpd ) BFGZCFGZHZBCDIZBCDJZHZHZECGZHZKLZALZDMZNZABOZKCPZEVBNZABOZUSUNVEUSUOUNVEHZUSUPUOUSUQUPUQURQUMUPRSUNUORSUOVHTUSAKBCDUAUBUCUDUSURVEVGUEUQURRVDVGKECUTENZVCVFABVIVABGZHZUTEVBVKVIVIVIVJQVIUFSUGUHUISUJ $.
 $}

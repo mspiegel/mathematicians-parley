@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.geometry.right-angled $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) /\ ( ( ( C = A /\ ( abs ` ( ( B - A ) ang ( C - A ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) \/ ( C = B /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) \/ ( C = C /\ ( abs ` ( ( A - C ) ang ( B - C ) ) ) = ( ( ; 9 0 x. _pi ) / ; ; 1 8 0 ) ) ) ) ) -> ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) $=
-    ( cc wcel wa wceq wn cmin co cdiv cr cang cabs cfv c9 cc0 cdc cpi cmul c1 c8 wo simpr wb biid a1i mpbid simpl syl ) ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZCAGZVEVDMJZNOZPQRZSTJZUAUBRZQRZKJZGZFZCBGZABIJZCBIJZMJZNOZVQGZFZUCZCCGZACIJZBCIJZMJZNOZVQGZFZUCZFZFZWPVIWQWPWPUOWPUDWPWPUEWQWPUFUGUHVIWOUIUJ $.
+    ( cc wcel wa wceq wn cmin co cdiv cr cang cabs cfv c9 cc0 cdc cpi cmul c1 c8 wo simpr wb biid a1i mpbid simpld ) ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZCAGZVDVCMJZNOZPQRZSTJZUAUBRZQRZKJZGZFZCBGZABIJZCBIJZMJZNOZVPGZFZUCZCCGZACIJZBCIJZMJZNOZVPGZFZUCZFZFZVHWNWPWOWOUNWOUDWOWOUEWPWOUFUGUHUI $.
 $}

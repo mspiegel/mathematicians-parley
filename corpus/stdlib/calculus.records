@@ -107,7 +107,7 @@ definition continuous-on
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε > 0 with ε
               ranging over ℝ, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
-              in the hypothesis, and that conjunct is set aside.
+              in the hypothesis, and the bridge gcncfre drops it there.
   lean-proof  lean-bridges/calculus/continuous-on
 
 definition limit-at

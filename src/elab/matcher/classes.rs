@@ -1,12 +1,12 @@
 //! Classes, renaming within and witnesses.
 
 use std::iter;
-use std::slice::Iter;
 
 use super::*;
-use crate::checker::record::SuppliedBy;
+use crate::checker::record::Supplied;
 use crate::citing;
-use crate::matching::FxIndexSet;
+use crate::corpus::Method;
+use crate::matching::{Binding as NodeBinding, FxIndexSet};
 use crate::notations::PROPERTY_OF;
 
 impl<'a> Elaborator<'a> {
@@ -471,9 +471,6 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let layers = self.layers_of(wanted);
         let sources = self.witness_sources(step, scope, facts, lines)?;
-        if let Some(p) = self.claim_cited(&sources, wanted, scope, facts)? {
-            return Ok(Built(p));
-        }
         let found = self.exhibited_here(step)?;
         if layers
             .iter()
@@ -740,25 +737,31 @@ impl<'a> Elaborator<'a> {
         let inner_rpn = self.rpn(&innermost);
         let turned = turned_equation(&innermost).map(|t| self.rpn(&t));
         let said = |want: &Rpn| sources.iter().find(|(s, _)| s == want).map(|(_, p)| p);
-        // The facts the checker recorded the exhibit as shown by
-        // (`Exhibit::shown`): each letter in its domain, outermost first,
+        // An exhibit's facts are the ones the checker recorded it as shown
+        // by (`Exhibit::shown`): each letter in its domain, outermost first,
         // then each part of the body joined by "and".
-        let shown: Vec<SuppliedBy> = self
-            .checked
-            .exhibited
-            .get(&step.just.line)
-            .and_then(|v| v.last())
-            .cloned()
-            .flatten()
-            .map(|e| e.shown.into_iter().map(|s| s.by).collect())
+        let read = match step.just.head.is(Method::Exhibit) {
+            true => Some(self.exhibit_read(step)?),
+            false => None,
+        };
+        let values: NodeBinding = read
+            .as_ref()
+            .map(|r| r.values.clone().into_iter().collect())
             .unwrap_or_default();
-        let mut recorded = Vec::new();
-        for by in &shown {
-            recorded.push(self.recorded_fact(step, by, scope, facts, lines)?);
-        }
-        let (in_domains, in_body) = recorded.split_at(layers.len().min(recorded.len()));
-        let body_parts = conjuncts_of(&innermost).len();
-        let mut proof = if inner_rpn.alone() == Some("wtru") {
+        let recorded: Option<Vec<Supplied>> = read.map(|r| r.shown);
+        let (in_domains, in_body): (&[Supplied], &[Supplied]) = match &recorded {
+            Some(all) if all.len() >= layers.len() => all.split_at(layers.len()),
+            Some(_) => {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker recorded fewer facts than the exhibit's letters",
+                ))
+            }
+            None => (&[], &[]),
+        };
+        let mut proof = if recorded.is_some() {
+            self.shown_body(step, &innermost, in_body, &values, scope, facts)?
+        } else if inner_rpn.alone() == Some("wtru") {
             // A body that says nothing of its variable holds outright, by
             // the one lemma that states truth.
             pf!(self.b; "wtru", scope, "tru", "a1i")
@@ -770,12 +773,6 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&innermost.children()[1]),
             );
             pf!(self.b; scope, b, a, p, "eqcomd")
-        } else if !in_body.is_empty() && in_body.len() == body_parts {
-            // Each part from the line the checker recorded it in, and one no
-            // line writes worked out where it stands.
-            let mut parts = in_body.iter();
-            take!(self
-                .body_from_record(&innermost, &mut parts, scope, facts, step, lines)?)
         } else {
             take!(self.settle_or_bare(
                 &innermost,
@@ -817,43 +814,14 @@ impl<'a> Elaborator<'a> {
             };
             let member = t!(witness, over, "wcel");
             let supplied = match in_domains.get(i) {
-                Some(Some((said, p))) if *said == member => p.clone(),
-                _ => self.required(step, &member, scope, facts)?,
+                Some(shown) => self.shown_proof(step, shown, &member, scope, facts)?,
+                None => self.required(step, &member, scope, facts)?,
             };
             let both = pf!(self.b; scope, member, ps, supplied, proof, "jca");
             proof = pf!(self.b; scope, t!(member, ps, "wa"), t!(ph, var, over, "wrex"), both,
                 ph, ps, var, witness, over, instance, "rspcev", "syl");
         }
         Ok(Built(proof))
-    }
-
-    /// The proof of `term`, an "and" of parts, each from the fact the checker
-    /// recorded for it in turn (`recorded_fact`): the fact where it is the
-    /// part, and the part worked out where it stands where no line writes it
-    /// (`settle_or_bare`).
-    pub(super) fn body_from_record(
-        &mut self,
-        term: &Term,
-        parts: &mut Iter<'_, Option<(Rpn, Proof)>>,
-        scope: &Rpn,
-        facts: &Facts,
-        step: &Step,
-        lines: &Lines,
-    ) -> Checked<Route<Proof>> {
-        if term.label() == Some("wa") {
-            let (l, r) = (term.children()[0].clone(), term.children()[1].clone());
-            let left =
-                take!(self.body_from_record(&l, parts, scope, facts, step, lines)?);
-            let right =
-                take!(self.body_from_record(&r, parts, scope, facts, step, lines)?);
-            let (lr, rr) = (self.rpn(&l), self.rpn(&r));
-            return Ok(Built(pf!(self.b; scope, lr, rr, left, right, "jca")));
-        }
-        let want = self.rpn(term);
-        match parts.next() {
-            Some(Some((said, p))) if *said == want => Ok(Built(p.clone())),
-            _ => self.settle_or_bare(term, scope, facts, Some(step), Some(lines)),
-        }
     }
 
     /// `term` with every occurrence of the subterm `was` reading `now`, both

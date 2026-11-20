@@ -1148,10 +1148,12 @@ lemma gcncfres
   4 eleq1d 3 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) )
 
 # The ε–δ condition of `elcncf2`, said of the restriction to the domain.
+# `elcncf2` also says F : A → RR on its right, which the page puts in the
+# hypothesis, and `biantrurd` drops it there.
 lemma gcncfre
   hypothesis gcncfre.1 |- ( ph -> A C_ RR )
   hypothesis gcncfre.2 |- ( ph -> F : A --> RR )
-  |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) )
   1 ax-resscn |- RR C_ CC
   2 a1i 1 |- ( ph -> RR C_ CC )
   3 sstrd gcncfre.1 2 |- ( ph -> A C_ CC )
@@ -1159,6 +1161,8 @@ lemma gcncfre
   5 syl2anc 3 2 4 |- ( ph -> ( F e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
   6 gcncfres gcncfre.2 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> F e. ( A -cn-> RR ) ) )
   7 bitrd 6 5 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  8 biantrurd gcncfre.2 |- ( ph -> ( A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) <-> ( F : A --> RR /\ A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) ) )
+  9 bitr4d 7 8 |- ( ph -> ( ( F |` A ) e. ( A -cn-> RR ) <-> A. x e. A A. y e. RR+ E. z e. RR+ A. t e. A ( ( abs ` ( t - x ) ) < z -> ( abs ` ( ( F ` t ) - ( F ` x ) ) ) < y ) ) )
 
 lemma grolleres
   hypothesis grolleres.1 |- ( ph -> A e. RR )

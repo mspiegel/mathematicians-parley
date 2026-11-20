@@ -105,26 +105,21 @@ impl<'a> Elaborator<'a> {
         self.cited_parts(step, scope, &known, lines)?;
         let member = t!(witness, self.rpn(&domain), "wcel");
         // What is left is that the witness lies in the domain and that the
-        // body holds of it, and both are the text's to supply.
-        let mut shown = Vec::new();
-        for want in [&member, &here] {
-            // The body at the witness may hold an identity element the line
-            // naming the witness leaves out, and is that line carried to it.
-            match self.settle_or_bare(&self.to_term(want), scope, &known, None, None)? {
-                Built(p) => shown.push(p),
-                Declined(d) => {
-                    return Err(self.defect(
-                        step.line,
-                        format!(
-                            "exhibiting that witness wants {}, which step {} does not supply: {}",
-                            self.render(want),
-                            step.number,
-                            self.say(&d)
-                        ),
-                    ));
-                }
-            }
-        }
+        // body holds of it, each from what the checker recorded as showing
+        // it (`Exhibit::shown`): the membership, then the body's parts.
+        let read = self.exhibit_read(step)?;
+        let values: NodeBinding = read.values.into_iter().collect();
+        let recorded = read.shown;
+        let Some((first, rest)) = recorded.split_first() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded nothing showing the witness in its domain",
+            ));
+        };
+        let in_domain = self.shown_proof(step, first, &member, scope, &known)?;
+        let said =
+            self.shown_body(step, &self.to_term(&here), rest, &values, scope, &known)?;
+        let shown = [in_domain, said];
         let spare = apart.clone().unwrap_or(binder);
         let claimed = match &renamed {
             Some(r) => self.rpn(r),

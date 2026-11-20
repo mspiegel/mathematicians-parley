@@ -10,5 +10,5 @@ ${
   $d A m p $.
   $d B m p $.
   tests.elaborator.sets-a-define-names.a-conjunct-of-a-property $p |- ( ( ( A e. NN /\ B e. _V ) /\ B e. { m e. ~P ( 1 ... A ) | ( A e. m /\ A. p e. m p <_ A ) } ) -> A. p e. B p <_ A ) $=
-    ( cn wcel cvv wa cv cle wbr wral c1 cfz co cpw crab wss simpr wb ovex a1i wceq id eleq2d raleqdv anbi12d gelrabpw syl mpbid simpl jca simprd ) AEFZBGFZHZBACIZFZDIZAJKZDUQLZHZCMANOZPZQZFZHZBVCRZUTDBLZVGVHVIVGVHABFZVIHZHZVHVGVFVLUPVFSZVGVCGFZVFVLTZVNVGMANUAZUBZVBVKCBVCGUQBUCZURVJVAVIVRUQBAVRUDZUEZVRUTDUQBVSUFZUGZUHZUIZUJZVHVKUKUIVGVKVIVGVLVKWEVHVKSUIVJVISUIULUM $.
+    ( cn wcel cvv wa cv cle wbr wral c1 cfz co cpw crab wss simpr wb ovex a1i wceq id eleq2d raleqdv anbi12d gelrabpw syl mpbid simpld simprd jca ) AEFZBGFZHZBACIZFZDIZAJKZDUQLZHZCMANOZPZQZFZHZBVCRZUTDBLZVGVHVIVGVHABFZVIHZVGVFVHVKHZUPVFSZVGVCGFZVFVLTZVNVGMANUAZUBZVBVKCBVCGUQBUCZURVJVAVIVRUQBAVRUDZUEZVRUTDUQBVSUFZUGZUHZUIZUJZUKVGVJVIVGVHVKWEULULUMUL $.
 $}

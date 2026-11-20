@@ -9,5 +9,5 @@ ${
   $d A m $.
   $d B m $.
   proofs.hammack.set-meets-its-complement-in-nothing.set-meets-what-it-lacks-in-nothing $p |- ( ( A e. _V /\ B e. _V ) -> ( A i^i ( B \ A ) ) = (/) ) $=
-    ( cvv wcel wa vm cv wn cdif wral cin c0 wceq simpr wb eldif a1i mpbid syl ralrimiva disjr sylibr ) ACDZBCDZEZFGZADZHZFBAIZJAUIKLMUEUHFUIUEUFUIDZEZUFBDZUHEZUHUKUJUMUEUJNUJUMOUKUFBAPQRULUHNSTFAUIUAUB $.
+    ( cvv wcel wa vm cv wn cdif wral cin c0 wceq simpr wb eldif a1i mpbid simprd ralrimiva disjr sylibr ) ACDZBCDZEZFGZADZHZFBAIZJAUIKLMUEUHFUIUEUFUIDZEZUFBDZUHUKUJULUHEZUEUJNUJUMOUKUFBAPQRSTFAUIUAUB $.
 $}
