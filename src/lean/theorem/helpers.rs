@@ -367,8 +367,6 @@ pub(super) struct PowerForms {
 /// What a definition's sentence read backwards is asked for
 /// (`Proof::definition_backwards`).
 pub(super) struct Backwards<'b> {
-    /// The step's reason, which names the lines the witness is found in.
-    pub(super) reason: Reason<'b>,
     /// The claim's sentence the citation proves.
     pub(super) k: usize,
     /// The claim.
