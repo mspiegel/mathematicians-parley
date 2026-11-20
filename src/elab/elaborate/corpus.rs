@@ -7,9 +7,10 @@ use super::cited_items::ShownPart;
 use super::*;
 use crate::checker::record::Supplied;
 use crate::citing::Way as Read;
+use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
 use crate::matching::Meeting;
-use crate::notations::FOR_ALL;
+use crate::notations::{EQUALITY, FOR_ALL, THERE_IS, TIMES};
 use crate::sorts;
 
 impl<'a> Elaborator<'a> {
@@ -842,6 +843,78 @@ impl<'a> Elaborator<'a> {
         })
     }
 
+    /// The reading of the cited item the checker took the claim from, as a
+    /// term at the citation's values (`Cited::binding_with_written`): the
+    /// sentence of its first conclusion read the recorded way, or the
+    /// sentence an obtain obtains from, read forwards; written as `spelt`
+    /// says its lemma writes it, in the item's letters before the values
+    /// are put in, so a product a value holds is left as it stands.
+    pub(in crate::elab) fn concluded_reading(
+        &mut self,
+        step: &Step,
+        cited: &Cited,
+        spelt: LemmaReading,
+    ) -> Checked<Term> {
+        let (sentence, way) = match (cited.concluded.first(), cited.obtained) {
+            (Some(c), _) => (c.sentence, c.way),
+            (None, Some(k)) => {
+                let library = self.item_library();
+                let before: usize = library
+                    .groups(&cited.item)
+                    .map(|g| g[..cited.group].iter().map(|g| g.gives.len()).sum())
+                    .unwrap_or(0);
+                (before + k, Read::Forward)
+            }
+            (None, None) => {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker recorded no reading of this citation",
+                ))
+            }
+        };
+        let mut node = self.reading_node(step, cited, sentence, way)?;
+        if spelt.turned {
+            node = equation_turned(&node);
+        }
+        if spelt.factors_swapped {
+            node = factors_swapped(&node);
+        }
+        let library = self.item_library();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let filled = filled(&node, &binding, &library.ctx);
+        // A letter the reading binds whose variable a name of the proof
+        // holds is read as one nothing holds (`unheld_for`): the item's k
+        // is spelt with the variable the proof's obtained q is, and read so
+        // it would capture q.
+        let held = self.names_held();
+        let mut bound = Vec::new();
+        let mut rest = vec![filled.clone()];
+        while let Some(node) = rest.pop() {
+            if let Some(at) = self.binders.get(&node.notation()).cloned() {
+                for at in at {
+                    let letter = &node.children[at];
+                    if letter.is_name()
+                        && held.contains(&self.binder_var(&letter.text)?)
+                    {
+                        bound.push(letter.text);
+                    }
+                }
+            }
+            rest.extend(node.children.iter().cloned());
+        }
+        let Some(letters) = self.unheld_for(bound, &[]) else {
+            return Err(self.defect(step.line, "no letter left to read the item by"));
+        };
+        let kept = self.bound_as.clone();
+        for (name, letter) in &letters {
+            self.bound_as
+                .insert(name.to_string(), self.rpn(letter).to_string());
+        }
+        let read = self.term(&filled);
+        self.bound_as = kept;
+        Ok(self.to_term(&read?))
+    }
+
     /// The part of the "and" `whole` that is `target` up to the letters each
     /// binds (`rebound`), with its proof from a proof of `whole`, found from
     /// the outside in: the reading's own bound letters may be spelt apart
@@ -997,4 +1070,33 @@ impl<'a> Elaborator<'a> {
         };
         Ok((got, reached))
     }
+}
+
+/// `node` with the equation under its "there is" turned round, as a lemma
+/// may write it (`metamath-reads turned`).
+fn equation_turned(node: &Node) -> Node {
+    match (node.notation(), node.children.as_slice()) {
+        (THERE_IS, [letter, domain, body]) => node.with_children(vec![
+            letter.clone(),
+            domain.clone(),
+            equation_turned(body),
+        ]),
+        (EQUALITY, [left, right]) => {
+            node.with_children(vec![right.clone(), left.clone()])
+        }
+        _ => node.clone(),
+    }
+}
+
+/// `node` with the two factors of each product the other way round, as a
+/// lemma may write them (`metamath-reads factors swapped`).
+fn factors_swapped(node: &Node) -> Node {
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    let mut kids: Vec<Node> = node.children.iter().map(factors_swapped).collect();
+    if node.spelling() == TIMES && kids.len() == 2 {
+        kids.swap(0, 1);
+    }
+    node.with_children(kids)
 }

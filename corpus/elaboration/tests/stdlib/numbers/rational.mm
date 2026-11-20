@@ -6,8 +6,8 @@ $( tests/stdlib/numbers/rational, elaborated from tests/stdlib/numbers.proof by 
 $[ stdlib/definitions.mm $]
 
 ${
-  $d p q $.
-  $d A p q $.
+  $d k m p q x y $.
+  $d A k m p q x y $.
   tests.stdlib.numbers.rational $p |- ( ( A e. RR /\ A e. QQ ) -> E. p e. ZZ E. q e. NN A = ( p / q ) ) $=
-    ( cr wcel cq wa cv cdiv co wceq cn wrex cz simpr wb elq a1i mpbid ) ADEZAFEZGZUAACHZBHZIJZKZBLMZCNMZTUAOUAUHPUBCBAQRS $.
+    ( cr wcel cq wa vx cv vy cdiv co wceq cn wrex cz simpr wb elq a1i mpbid vm vk id oveq2d eqeq2d cbvrexvw rexbii simpl syl oveq1d rexbidva bitri ) ADEZAFEZGZAHIZJIZKLZMZJNOZHPOZACIZBIZKLZMZBNOZCPOZUPUOVBUNUOQUOVBRUPHJASTUAVBVHRUPVBAUBIZUCIZKLZMZUCNOZUBPOZVHVBAUQVJKLZMZUCNOZHPOVNVAVQHPUTVPJUCNURVJMZUSVOAVRURVJUQKVRUDUEUFUGUHVQVMHUBPUQVIMZVPVLUCNVSVJNEZGZVOVKAWAUQVIVJKWAVSVSVSVTUIVSUDUJUKUFULUGUMVNAVIVDKLZMZBNOZUBPOVHVMWDUBPVLWCUCBNVJVDMZVKWBAWEVJVDVIKWEUDUEUFUGUHWDVGUBCPVIVCMZWCVFBNWFVDNEZGZWBVEAWHVIVCVDKWHWFWFWFWGUIWFUDUJUKUFULUGUMUMTUA $.
 $}

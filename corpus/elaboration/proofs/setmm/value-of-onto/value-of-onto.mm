@@ -6,11 +6,11 @@ $( proofs/setmm/value-of-onto/value-of-onto, elaborated from proofs/setmm/value-
 $[ stdlib/proved.mm $]
 
 ${
-  $d m x $.
-  $d A m x $.
-  $d B m x $.
-  $d C m x $.
-  $d D m x $.
+  $d k m x $.
+  $d A k m x $.
+  $d B k m x $.
+  $d C k m x $.
+  $d D k m x $.
   proofs.setmm.value-of-onto.value-of-onto $p |- ( ( ( ( ( A e. _V /\ B e. _V ) /\ C : A --> B ) /\ ( C " A ) = B ) /\ D e. B ) -> E. x e. A D = ( C ` x ) ) $=
-    ( cvv wcel wa wf cima wceq vm cv cfv wrex simpr simpl syl eqcomd eleq2d mpbid wss wb ssid a1i jca gfvelima id fveq2d eqeq2d rspcev ex rexlimdva mpd ) BFGZCFGZHZBCDIZHZDBJZCKZHZECGZHZELMZDNZKZLBOZEAMZDNZKZABOZVDEUTGZVHVDVCVMVBVCPVDCUTEVDUTCVDVBVAVBVCQZUSVAPRSTUAVDURBBUBZHVMVHUCVDURVOVDVBURVNVBUSURUSVAQUQURPRRVOVDBUDUEUFLBCEBDUGRUAVDVGVLLBVDVEBGZHZVGVLVQVGHZVPVGHVLVRVPVGVRVQVPVQVGQVDVPPRVQVGPUFVKVGAVEBVIVEKZVJVFEVSVIVEDVSUHUIUJUKRULUMUN $.
+    ( cvv wcel wa wf cima wceq vm cv cfv wrex simpr simpl syl eqcomd eleq2d mpbid wss wb ssid a1i jca gfvelima vk id fveq2d eqeq2d cbvrexvw bitri rspcev ex rexlimdva mpd ) BFGZCFGZHZBCDIZHZDBJZCKZHZECGZHZELMZDNZKZLBOZEAMZDNZKZABOZVGVOVKVGEVCGZVOVGVFVPVEVFPVGCVCEVGVCCVGVEVDVEVFQZVBVDPRSTUAVGVABBUBZHVPVOUCVGVAVRVGVEVAVQVEVBVAVBVDQUTVAPRRVRVGBUDUEUFABCEBDUGRUAVOVKUCVGVOEUHMZDNZKZUHBOVKVNWAAUHBVLVSKZVMVTEWBVLVSDWBUIUJUKULWAVJUHLBVSVHKZVTVIEWCVSVHDWCUIUJUKULUMUEUAVGVJVOLBVGVHBGZHZVJVOWEVJHZWDVJHVOWFWDVJWFWEWDWEVJQVGWDPRWEVJPUFVNVJAVHBVLVHKZVMVIEWGVLVHDWGUIUJUKUNRUOUPUQ $.
 $}

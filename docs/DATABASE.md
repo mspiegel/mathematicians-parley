@@ -254,6 +254,11 @@ lemma's conclusion the sentence is:
   right side, `right side part 2`;
 - `turned`: the lemma writes the equation, or a definition's `↔`, the other
   way round from the `then` line;
+- `factors swapped`: the lemma writes each product of two factors in its
+  sentence the other way round from the `then` line, k·d where the page
+  writes d·k. It may follow `turned`: `def:stdlib/divisibility/divides`
+  says "there is k ∈ ℤ with n = d·k", and set.mm's `divides` says
+  k·d = n, so its entry is `turned factors swapped`;
 - `witness`: the item's one sentence is a "there is" whose witness the
   `with` names, and each lemma gives one part of what it says of the
   witness. `completeness` names suprcl, suprub and suprleub `with c := sup S`.

@@ -29,7 +29,7 @@ definition divides
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
   decided     arithmetic, inspection
   metamath-proof divides
-  metamath-reads turned
+  metamath-reads turned factors swapped
   lean-proof Iff.rfl
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
               dull fact. This is the principle recorded by the primes pilot: a
@@ -40,7 +40,7 @@ definition even
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   decided     arithmetic, inspection
   metamath-proof divides
-  metamath-reads turned
+  metamath-reads turned factors swapped
   lean-proof even_iff_exists_two_mul
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.

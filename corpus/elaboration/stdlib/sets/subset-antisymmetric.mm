@@ -6,8 +6,9 @@ $( stdlib/sets/subset-antisymmetric, elaborated from corpus/stdlib/sets.proof by
 $[ stdlib/proved.mm $]
 
 ${
-  $d A t $.
-  $d B t $.
+  $d m t x $.
+  $d A m t x $.
+  $d B m t x $.
   stdlib.sets.subset-antisymmetric $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ A C_ B ) /\ B C_ A ) -> A = B ) $=
-    ( cvv wcel wa wss vt cv wral wceq simpl simpr syl wb dfss3 a1i mpbid jca gext ) ACDZBCDZEZABFZEZBAFZEZGHZBDZGAIZUGADZGBIZEABJUFUIUKUFUCUIUFUDUCUDUEKUBUCLMUCUINUFGABOPQUFUEUKUDUELUEUKNUFGBAOPQRGABSM $.
+    ( cvv wcel wa wss vt cv wral wceq vx simpl simpr syl wb dfss3 a1i mpbid vm id eleq1d cbvralvw bitri jca gext ) ACDZBCDZEZABFZEZBAFZEZGHZBDZGAIZUMADZGBIZEABJULUOUQULKHZBDZKAIZUOULUIUTULUJUIUJUKLUHUIMNUIUTOULKABPQRUTUOOULUTSHZBDZSAIUOUSVBKSAURVAJZURVABVCTZUAUBVBUNSGAVAUMJZVAUMBVETZUAUBUCQRULURADZKBIZUQULUKVHUJUKMUKVHOULKBAPQRVHUQOULVHVAADZSBIUQVGVIKSBVCURVAAVDUAUBVIUPSGBVEVAUMAVFUAUBUCQRUDGABUEN $.
 $}

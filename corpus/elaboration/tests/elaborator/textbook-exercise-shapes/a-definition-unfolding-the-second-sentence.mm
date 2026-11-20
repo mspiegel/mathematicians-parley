@@ -6,8 +6,8 @@ $( tests/elaborator/textbook-exercise-shapes/a-definition-unfolding-the-second-s
 $[ stdlib/definitions.mm $]
 
 ${
-  $d m n $.
-  $d A m n $.
+  $d m n s $.
+  $d A m n s $.
   tests.elaborator.textbook-exercise-shapes.a-definition-unfolding-the-second-sentence $p |- ( A e. ( ran ( n e. ZZ |-> ( 2 x. n ) ) i^i ran ( n e. ZZ |-> ( 3 x. n ) ) ) -> E. n e. ZZ A = ( 3 x. n ) ) $=
-    ( cz c2 cv cmul co cmpt crn c3 cin wcel wceq wrex wa id wb elin a1i mpbid simpr syl cvv wral vm ovex ralrimiva oveq2d eleq1d cbvralvw sylib eqid elrnmptg ) ABCDBEZFGZHZIZBCJUNFGZHZIZKZLZAUTLZAURMZBCNZVBAUQLZVCOZVCVBVBVGVBPVBVGQVBAUQUTRSTVFVCUAUBVBURUCLZBCUDZVCVEQVBJUEEZFGZUCLZUECUDVIVBVLUECVLVBVJCLOJVJFUFSUGVLVHUEBCVJUNMZVKURUCVMVJUNJFVMPUHUIUJUKBCURAUSUCUSULUMUBT $.
+    ( cz c2 cv cmul co cmpt crn c3 cin wcel vs wceq wrex wa id wb elin a1i mpbid simpr syl cvv wral ovex ralrimiva oveq2d cbvmptv elrnmptg vm eqeq2d cbvrexvw bitri ) ABCDBEZFGZHZIZBCJUOFGZHZIZKZLZAJMEZFGZNZMCOZAUSNZBCOZVCAVALZVGVCAURLZVJPZVJVCVCVLVCQVCVLRVCAURVASTUAVKVJUBUCVCVEUDLZMCUEVJVGRVCVMMCVMVCVDCLPJVDFUFTUGMCVEAUTUDBMCUSVEUOVDNZUOVDJFVNQUHUIUJUCUAVGVIRVCVGAJUKEZFGZNZUKCOVIVFVQMUKCVDVONZVEVPAVRVDVOJFVRQUHULUMVQVHUKBCVOUONZVPUSAVSVOUOJFVSQUHULUMUNTUA $.
 $}

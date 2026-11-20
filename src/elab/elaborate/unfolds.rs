@@ -1,6 +1,7 @@
 //! Unfolding definitions and hypotheses.
 
 use super::*;
+use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::matching::Meeting;
 
@@ -263,6 +264,19 @@ impl<'a> Elaborator<'a> {
         Ok(Built(
             pf!(self.b; scope, term, right, under, says, "mpbird"),
         ))
+    }
+
+    /// How the cited item's definition is written in its lemma, as its
+    /// record says (`metamath-reads`): a definition says one sentence. As
+    /// stated where the record says nothing.
+    fn lemma_reading(&self, cited: &Cited) -> LemmaReading {
+        let Some(Item::Record(record)) = self.items.get(&cited.item) else {
+            return LemmaReading::default();
+        };
+        match record.metamath_reads() {
+            Ok(all) => all.first().copied().unwrap_or_default(),
+            Err(_) => LemmaReading::default(),
+        }
     }
 
     /// The fact a definition is unfolded from, as the checker recorded it
@@ -791,67 +805,48 @@ impl<'a> Elaborator<'a> {
         )?);
         let (mut binding, given) = chosen;
         // What the left side fixes need not be everything the right side
-        // holds: the rest is what the claim says there, fitted as written and
-        // then as the standard form reads the two, as `unfolding` fits its
-        // hint (the page's ε > 0 is set.mm's ε ∈ ℝ⁺).
-        let target = self.to_term(term);
-        // A claim of the whole right side, its bound letters spelt apart, is
-        // what the left side and the lemma's own hypotheses fix, and no part
-        // of it is fitted to the claim alone.
-        let mut whole_fixed = binding.clone();
+        // holds: what the lemma's own hypotheses say fixes more
+        // (`substituted_slot`), and a variable still open is what the item's
+        // sentence the checker read the claim from says there
+        // (`concluded_reading`), put in the lemma's spelling as the record
+        // says it differs (`lemma_spelt`) and fitted as written and then as
+        // the standard form reads the two (`fits_as`): the page's ε > 0 is
+        // set.mm's ε ∈ ℝ⁺.
         for essential in &sig.essentials {
             let asked = self.essential(essential);
-            if let Some(more) = self.substituted_slot(&asked, &whole_fixed) {
-                whole_fixed.extend(more);
+            if let Some(more) = self.substituted_slot(&asked, &binding) {
+                binding.extend(more);
             }
         }
         let right_side = &reads.children()[1];
-        let whole_claimed = names_of(right_side)
+        // A letter the lemma binds needs no fitting: one left open is moved
+        // apart from what the values spell below. Where a class or formula
+        // is open too, the two are fitted together, a body its letter is
+        // free in.
+        let binds = self.letters_bound(right_side);
+        let open = names_of(right_side)
             .iter()
-            .all(|v| whole_fixed.contains_key(v))
-            && !self
-                .same(
-                    &right_side.substitute(&whole_fixed),
-                    &target,
-                    scope,
-                    &named,
-                    None,
-                )?
-                .is_declined();
-        if whole_claimed {
-            binding = whole_fixed;
-        }
-        for part in self.parts(&self.rpn(&reads.children()[1])) {
-            if whole_claimed {
-                break;
-            }
-            let part = self.to_term(&part);
-            // A part the left side has already fixed whole is the claim
-            // where the two are one claim, its bound letters spelt apart:
-            // the rest of the right side is then left to the lemma's own
-            // hypothesis, and fitted to nothing.
-            if names_of(&part).iter().all(|v| binding.contains_key(v))
-                && !self
-                    .same(&part.substitute(&binding), &target, scope, facts, None)?
-                    .is_declined()
-            {
-                break;
-            }
-            // As written, in the standard form, and with identity elements
-            // dropped, as `unfolding` fits its hint: the page's |x| < δ is a
-            // limit's |x − c| < δ at c := 0.
-            let filled = fit(&part, &target, &binding, &variables)
-                .or_else(|| self.fits_as(&part, &target, &variables, Some(&binding)))
-                .or_else(|| {
-                    let bare = self.identities_dropped(&part, &binding);
-                    let held = self.without_identities(&target);
-                    fit(&bare, &held, &binding, &variables).or_else(|| {
-                        self.fits_as(&bare, &held, &variables, Some(&binding))
-                    })
-                });
-            if let Some(filled) = filled {
-                binding = filled;
-                break;
+            .any(|v| !binding.contains_key(v) && !binds.contains(v));
+        if open {
+            let Some(cited) = self.citation_read(step).cloned() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker recorded no reading of this citation",
+                ));
+            };
+            let spelt = self.lemma_reading(&cited);
+            let read = self.concluded_reading(step, &cited, spelt)?;
+            match self.fits_as(right_side, &read, &variables, Some(&binding)) {
+                Some(fitted) => binding = fitted,
+                None => {
+                    return Err(self.unreached(
+                        step.line,
+                        format!(
+                            "{lemma}'s right side is not {}, which the record says it states",
+                            self.render(&self.rpn(&read))
+                        ),
+                    ))
+                }
             }
         }
         // The claim of the membership half leaves the property half

@@ -136,6 +136,9 @@ pub struct LemmaReading {
     /// Whether the lemma writes the equation, or the `↔`, the other way
     /// round.
     pub turned: bool,
+    /// Whether the lemma writes each product of two factors the other way
+    /// round, k·d where the page writes d·k.
+    pub factors_swapped: bool,
     /// Whether the sentence is a "there is" whose witness the target's
     /// `with` names, and each lemma gives one part of what it says of the
     /// witness: `completeness` at c := sup S, from suprcl, suprub and
@@ -173,6 +176,10 @@ impl LemmaReading {
         }
         if let ["turned", more @ ..] = rest {
             out.turned = true;
+            rest = more;
+        }
+        if let ["factors", "swapped", more @ ..] = rest {
+            out.factors_swapped = true;
             rest = more;
         }
         (rest.is_empty() && out != LemmaReading::default()).then_some(out)
@@ -423,7 +430,7 @@ impl Record {
                 Some(reading) => out.push(reading),
                 None => {
                     return Err(format!(
-                        "{} is no reading: say `as stated`, `left side`, `right side`, `part N`, `turned` or `witness`, or a side, a part and `turned` together",
+                        "{} is no reading: say `as stated`, `left side`, `right side`, `part N`, `turned`, `factors swapped` or `witness`, or a side, a part, `turned` and `factors swapped` together, in that order",
                         repr(entry.trim())
                     ))
                 }

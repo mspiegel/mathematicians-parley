@@ -6,8 +6,8 @@ $( tests/elaborator/unfolding-a-let/a-rational-letter-unfolded, elaborated from 
 $[ stdlib/definitions.mm $]
 
 ${
-  $d p q $.
-  $d A p q $.
+  $d k m p q x y $.
+  $d A k m p q x y $.
   tests.elaborator.unfolding-a-let.a-rational-letter-unfolded $p |- ( A e. QQ -> E. p e. ZZ E. q e. NN A = ( p / q ) ) $=
-    ( cq wcel cv cdiv co wceq cn wrex cz id wb elq a1i mpbid ) ADEZRACFZBFZGHZIZBJKZCLKZRMRUDNRCBAOPQ $.
+    ( cq wcel vx cv vy cdiv co wceq cn wrex cz id wb elq a1i mpbid vm vk oveq2d eqeq2d cbvrexvw rexbii wa simpl syl oveq1d rexbidva bitri ) ADEZAFGZHGZIJZKZHLMZFNMZACGZBGZIJZKZBLMZCNMZULULURULOULURPULFHAQRSURVDPULURATGZUAGZIJZKZUALMZTNMZVDURAUMVFIJZKZUALMZFNMVJUQVMFNUPVLHUALUNVFKZUOVKAVNUNVFUMIVNOUBUCUDUEVMVIFTNUMVEKZVLVHUALVOVFLEZUFZVKVGAVQUMVEVFIVQVOVOVOVPUGVOOUHUIUCUJUDUKVJAVEUTIJZKZBLMZTNMVDVIVTTNVHVSUABLVFUTKZVGVRAWAVFUTVEIWAOUBUCUDUEVTVCTCNVEUSKZVSVBBLWBUTLEZUFZVRVAAWDVEUSUTIWDWBWBWBWCUGWBOUHUIUCUJUDUKUKRS $.
 $}
