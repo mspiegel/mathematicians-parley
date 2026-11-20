@@ -10,7 +10,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, NodeId};
 use crate::matching::{
-    alike, match_every_way, match_tree, substitute_apart, Binding, Context,
+    alike, match_every_way, match_tree, standard, substitute_apart, Binding, Context,
 };
 use crate::notations::{
     FOR_ALL, FUNCTIONS_FROM, FUNCTION_TYPE, INTEGER_RANGE, NUMBER_SYSTEMS, NUMERAL,
@@ -52,7 +52,8 @@ pub fn supply(
 ) -> Option<Binding> {
     let mut used = vec![false; facts.len()];
     search(
-        patterns, facts, &mut used, binding, variables, library, sites, reuse, None,
+        patterns, facts, &mut used, binding, variables, library, sites, reuse, false,
+        None,
     )
 }
 
@@ -69,7 +70,7 @@ pub fn supplier<'f>(
 ) -> Option<&'f Node> {
     let used = vec![false; facts.len()];
     fits(
-        pattern, facts, &used, binding, variables, library, sites, true,
+        pattern, facts, &used, binding, variables, library, sites, true, false,
     )
     .into_iter()
     .find_map(|fit| fit.fact)
@@ -95,6 +96,10 @@ pub struct Ways<'v> {
 /// Given `ways`, it does not stop at the first way that works: each is
 /// handed to `ways.found` with the facts it took, and the search goes on, so
 /// it gives back None having tried everything.
+///
+/// `as_written` takes only a fact that states its hypothesis as the
+/// hypothesis reads at the binding, spelt alike: no equation turned, no
+/// notation's places swapped (`fits`).
 #[allow(clippy::too_many_arguments)]
 pub fn search(
     patterns: &[Node],
@@ -105,13 +110,14 @@ pub fn search(
     library: &Library,
     sites: &Sites,
     reuse: bool,
+    as_written: bool,
     ways: Option<&mut Ways>,
 ) -> Option<Binding> {
     let patterns: Vec<&Node> = patterns.iter().collect();
     let mut asked = 0;
     let out = searched(
-        &patterns, facts, used, binding, variables, library, sites, reuse, ways,
-        &mut asked,
+        &patterns, facts, used, binding, variables, library, sites, reuse, as_written,
+        ways, &mut asked,
     );
     LARGEST.fetch_max(asked, Ordering::Relaxed);
     out
@@ -162,6 +168,7 @@ fn searched(
     library: &Library,
     sites: &Sites,
     reuse: bool,
+    as_written: bool,
     mut ways: Option<&mut Ways>,
     asked: &mut usize,
 ) -> Option<Binding> {
@@ -174,7 +181,9 @@ fn searched(
     }
     *asked += 1;
     let fitting = |p: &Node, used: &[bool]| {
-        fits(p, facts, used, binding, variables, library, sites, reuse)
+        fits(
+            p, facts, used, binding, variables, library, sites, reuse, as_written,
+        )
     };
     let mut fewest: Option<(usize, Vec<Fit>)> = None;
     for (at, p) in patterns.iter().enumerate() {
@@ -235,6 +244,7 @@ fn searched(
             library,
             sites,
             reuse,
+            as_written,
             ways.as_deref_mut(),
             asked,
         );
@@ -288,7 +298,9 @@ struct Fit {
 }
 
 /// Every way the facts `used` does not mark supply one hypothesis under the
-/// binding, in the order they are tried.
+/// binding, in the order they are tried. `as_written` keeps only a fact
+/// matched with the hypothesis as the item writes it and spelt alike with
+/// it at the binding (`search`).
 #[allow(clippy::too_many_arguments)]
 fn fits(
     first: &Node,
@@ -299,6 +311,7 @@ fn fits(
     library: &Library,
     sites: &Sites,
     reuse: bool,
+    as_written: bool,
 ) -> Vec<Fit> {
     let mut out = Vec::new();
     let ctx = &library.ctx;
@@ -372,7 +385,13 @@ fn fits(
     // An equation, or the denial of one, is searched for each way round
     // (`either_way`): which way the hypothesis is read is decided by the
     // hypotheses after it as much as by the fact it is matched with.
-    for first in either_way(&first, library) {
+    let readings = either_way(&first, library);
+    let read = if as_written {
+        &readings[..1]
+    } else {
+        &readings[..]
+    };
+    for first in read.iter().cloned() {
         let mut body_form: Option<(Node, BTreeSet<String>)> = None;
         // The letters a "there is" binds are its own, though the item may
         // write the same letter elsewhere: set-image's s in {E(s) : s ∈ Y}
@@ -400,7 +419,13 @@ fn fits(
                 // may hold only under one of them: `{a, b} ⊆ X` fits
                 // `{v, w} ⊆ X` with a := v and with a := w.
                 let mut found = match_every_way(form, fact, at, seen, sites, ctx);
-                if found.is_empty()
+                // A fact matched only otherwise than as written is not read
+                // again as an instance or over a smaller set.
+                let matched = !found.is_empty();
+                if as_written && is_first {
+                    found.retain(|b| written_alike(form, fact, b, library));
+                }
+                if !matched
                     && is_first
                     && library.exists.contains(&first.notation())
                     && first.children.len() == 2
@@ -418,7 +443,7 @@ fn fits(
                 }
                 // A "for all" said of a set is said of every set inside it
                 // (`SYNTAX.md`).
-                if found.is_empty() && is_first {
+                if found.is_empty() && !matched && is_first {
                     if let Some(smaller) = narrowed(&first, fact, binding, ctx) {
                         found =
                             match_every_way(form, &smaller, binding, seen, sites, ctx);
@@ -499,6 +524,20 @@ fn fits(
         }
     }
     out
+}
+
+/// Whether `pattern` at `binding` is `ground` as written: the two spelt
+/// alike once each is in its standard form, with no equation turned and no
+/// notation's places swapped.
+pub(super) fn written_alike(
+    pattern: &Node,
+    ground: &Node,
+    binding: &Binding,
+    library: &Library,
+) -> bool {
+    let ctx = &library.ctx;
+    standard(&substitute_apart(pattern, binding, ctx), ctx)
+        .spelt_alike(&standard(ground, ctx))
 }
 
 /// The equation L = L, where `body` is an equation one side of which, L

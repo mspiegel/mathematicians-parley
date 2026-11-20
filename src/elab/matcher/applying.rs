@@ -1241,9 +1241,15 @@ impl<'a> Elaborator<'a> {
                 .iter()
                 .any(|p| self.to_term(p).label() == Some("wrex"));
             // A hypothesis of the cited record, by the fact the checker
-            // recorded as supplying it (`hypotheses_given`).
+            // recorded as supplying it (`hypotheses_given`), at the values
+            // the checker read: only an antecedent of that hypothesis's
+            // standard form, which keeps its places in order, since a lemma
+            // applied at other values asks another fact.
             let recorded = match self.hypotheses_given.clone() {
-                Some(given) if where_ == *scope => {
+                Some(given)
+                    if where_ == *scope
+                        && !given.under(&self.fact_key(&asks_rpn)).is_empty() =>
+                {
                     self.held(&given, &asks_rpn, &where_)?
                 }
                 _ => None,

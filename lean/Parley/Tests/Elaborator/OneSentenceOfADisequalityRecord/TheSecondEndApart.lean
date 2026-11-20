@@ -33,6 +33,6 @@ namespace Parley.Tests.Elaborator.OneSentenceOfADisequalityRecord.TheSecondEndAp
 theorem the_second_end_apart (R : ℂ) (S : ℂ) (T : ℂ) (hH4 : Sbtw ℝ S R T) :
     T ≠ R := by
   -- 1. mun:between-apart, from H4
-  exact (Parley.Items.Stdlib.Geometry.mun_between_apart_1 (R := R) (S := T) (T := S) (by (have h := hH4; rw [sbtw_comm (x := S) (y := R) (z := T)] at h; exact h) : Sbtw ℝ T R S))
+  exact (Parley.Items.Stdlib.Geometry.mun_between_apart_2 (R := R) (S := S) (T := T) hH4)
 
 end Parley.Tests.Elaborator.OneSentenceOfADisequalityRecord.TheSecondEndApart

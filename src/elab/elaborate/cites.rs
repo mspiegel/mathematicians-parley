@@ -476,9 +476,14 @@ impl<'a> Elaborator<'a> {
         let seed = self.filling(step, item)?;
         let facts = &self.with_reflexive(step, item, scope, facts)?;
         let facts = &self.with_defined_types(step, item, scope, facts)?;
-        match self
-            .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
-        {
+        // The facts the checker recorded as supplying the item's hypotheses,
+        // which discharge the lemma's antecedents that are those hypotheses.
+        let given = self.recorded_hypotheses(step, item, scope, facts)?;
+        let kept = self.hypotheses_given.replace(given);
+        let found =
+            self.by_clause_or_instance(item, &labels, term, scope, facts, step, &seed);
+        self.hypotheses_given = kept;
+        match found? {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
                 step.line,

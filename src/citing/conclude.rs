@@ -19,7 +19,8 @@ use super::library::{conjuncts, either_way, readings, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
 use super::parts::{bound_in, Bound};
 use super::supply::{
-    body_reading, search, supplier, supply, unwitnessed, Sites, Unwitnessed, Ways,
+    body_reading, search, supplier, supply, unwitnessed, written_alike, Sites,
+    Unwitnessed, Ways,
 };
 use crate::matching;
 use crate::notations::NUMBER_SYSTEMS;
@@ -37,7 +38,10 @@ use crate::notations::NUMBER_SYSTEMS;
 /// those taken first included; it gives back None having tried everything.
 ///
 /// `chosen` holds, sentence by sentence, the candidate each sentence of the
-/// claim took, for the way it gives back.
+/// claim took, for the way it gives back. `as_written`, which says of each
+/// candidate whether it is its conjunct turned round, takes only a
+/// candidate that is not, met by the claim spelt alike, and facts that
+/// state the hypotheses as written (`search`).
 #[allow(clippy::too_many_arguments)]
 fn take(
     claims: &[Node],
@@ -50,6 +54,7 @@ fn take(
     free: &BTreeSet<String>,
     library: &Library,
     sites: &Sites,
+    as_written: Option<&[bool]>,
     mut ways: Option<&mut Ways>,
     chosen: &mut Vec<usize>,
 ) -> Option<Binding> {
@@ -58,10 +63,22 @@ fn take(
         all.extend(used.iter().cloned());
         let mut marks = vec![false; given.len()];
         return search(
-            &all, given, &mut marks, binding, variables, library, sites, true, ways,
+            &all,
+            given,
+            &mut marks,
+            binding,
+            variables,
+            library,
+            sites,
+            true,
+            as_written.is_some(),
+            ways,
         );
     };
     for (taking, (cand, first)) in candidates.iter().enumerate() {
+        if as_written.is_some_and(|turned| turned[taking]) {
+            continue;
+        }
         // What a property stands for is decided inside the braces, so a
         // requirement holding them is matched before the claim that uses it;
         // where the claim holds them itself, `t ∈ {2n : n ∈ ℤ}` for set-image,
@@ -113,6 +130,11 @@ fn take(
             if !identities_on_numbers(cand, claim, &found, given, library) {
                 continue;
             }
+            // Read as written, the claim is the conclusion at the binding,
+            // spelt alike: not turned, its places not swapped.
+            if as_written.is_some() && !written_alike(cand, claim, &found, library) {
+                continue;
+            }
             // A letter the item binds, the k of Σ(k = a to b), is matched
             // afresh in each hypothesis, which may say the same over another
             // letter (`ELABORATION.md`), as `Taken::of` keeps only the free.
@@ -142,6 +164,7 @@ fn take(
                 free,
                 library,
                 sites,
+                as_written,
                 ways.as_deref_mut(),
                 chosen,
             );
@@ -538,6 +561,7 @@ fn supplied_first(
         library,
         sites,
         false,
+        false,
         Some(&mut every),
     );
     starts
@@ -773,6 +797,11 @@ pub fn concludes(
 /// The first group of an item's conclusions that covers what is claimed,
 /// with the binding the claim and the facts fix; declined where no group
 /// does.
+///
+/// Within a group, a reading whose hypotheses the facts state as written is
+/// taken before one whose facts state them turned or with places swapped:
+/// "T ≠ R" from "R is between S and T" is between-apart's T ≠ R, and not
+/// its S ≠ R at S := T, which asks R between T and S.
 pub fn taken(
     groups: &[Group],
     claims: &[Node],
@@ -783,21 +812,29 @@ pub fn taken(
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     for (group, of) in groups.iter().enumerate() {
         let offer = Offer::of(of, library);
+        let take_read = |as_written: Option<&[bool]>, chosen: &mut Vec<usize>| {
+            take(
+                offer.claims_read(&whole, &split),
+                &offer.candidates,
+                seed,
+                &[],
+                &offer.need,
+                facts,
+                &offer.variables,
+                &offer.free,
+                library,
+                &offer.sites,
+                as_written,
+                None,
+                chosen,
+            )
+        };
         let mut chosen = Vec::new();
-        if let Some(binding) = take(
-            offer.claims_read(&whole, &split),
-            &offer.candidates,
-            seed,
-            &[],
-            &offer.need,
-            facts,
-            &offer.variables,
-            &offer.free,
-            library,
-            &offer.sites,
-            None,
-            &mut chosen,
-        ) {
+        let found = take_read(Some(&offer.turned), &mut chosen).or_else(|| {
+            chosen.clear();
+            take_read(None, &mut chosen)
+        });
+        if let Some(binding) = found {
             let concluded = chosen
                 .iter()
                 .map(|&c| Concluded {
@@ -851,6 +888,7 @@ pub fn taken_ways(
             &offer.free,
             library,
             &offer.sites,
+            None,
             Some(&mut ways),
             &mut Vec::new(),
         );
@@ -903,6 +941,8 @@ struct Offer {
     ways: Vec<Way>,
     /// Of a reading that is an "and", the part each candidate is.
     parts: Vec<Option<usize>>,
+    /// Whether each candidate is its conjunct turned round (`either_way`).
+    turned: Vec<bool>,
     /// The group's hypotheses, conjunct by conjunct.
     need: Vec<Node>,
     /// The item's letters, which the claim and the facts bind.
@@ -921,6 +961,7 @@ impl Offer {
         let mut from = Vec::new();
         let mut ways = Vec::new();
         let mut parts = Vec::new();
+        let mut turned_round = Vec::new();
         let mut sites = Sites::new();
         for (sentence, concl) in gives.iter().enumerate() {
             binding_sites(concl, &library.ctx, &[], &mut sites);
@@ -933,11 +974,14 @@ impl Offer {
                 let claimed = conjuncts(&reading.claimed, library);
                 let several = claimed.len() > 1;
                 for (part, c) in claimed.iter().enumerate() {
-                    for turned in either_way(c, library) {
+                    for (round, turned) in
+                        either_way(c, library).into_iter().enumerate()
+                    {
                         candidates.push((turned, first.clone()));
                         from.push(sentence);
                         ways.push(reading.way);
                         parts.push(several.then_some(part));
+                        turned_round.push(round > 0);
                     }
                 }
             }
@@ -961,6 +1005,7 @@ impl Offer {
             from,
             ways,
             parts,
+            turned: turned_round,
             need,
             variables,
             free,

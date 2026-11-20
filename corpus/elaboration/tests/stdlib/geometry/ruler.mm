@@ -10,5 +10,5 @@ ${
   $d A f k m u $.
   $d B f k m u $.
   tests.stdlib.geometry.ruler $p |- ( ( ( A e. CC /\ B e. CC ) /\ -. A = B ) -> E. f e. ( RR ^m { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) ( f : { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } -1-1-onto-> RR /\ A. m e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } A. k e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ( abs ` ( m - k ) ) = ( abs ` ( ( f ` m ) - ( f ` k ) ) ) ) ) $=
-    ( cc wcel wa wceq wn wne cv cmin co cdiv cr wo crab wf1o cabs cfv wral cmap wrex simpr neqcomd wb df-ne a1i eqcom bicomd notbid bitrd mpbid wi simpl syl id gruler mpd ) BGHZCGHZIZBCJZKZIZBCLZVEAMZBNOZCBNOZPOZQHZRZAGSZQDMZTZFMZEMZNOZUAUBZVRVPUBZVSVPUBZNOZUAUBZJZEVOUCZFVOUCZIZDQVOUDOZUEZVGCBJZKZVHVGBCVDVFUFUGVGVHWMVGVHVFWMVHVFUHVGBCUIUJVGVEWLVGWLVEWLVEUHVGCBUKUJULUMUNULUOVGVCVHWKUPZVGVDVCVDVFUQZVBVCUFURVGVBVCWNUPVGVDVBWOVDVBVBVBVCUQVBUSURURFEABCDUTURVAVA $.
+    ( cc wcel wa wceq wn wne cv cmin co cdiv cr wo crab wf1o cabs cfv wral cmap wrex simpr wb df-ne a1i bicomd mpbid wi simpl syl id gruler mpd ) BGHZCGHZIZBCJZKZIZBCLZVAAMZBNOZCBNOZPOZQHZRZAGSZQDMZTZFMZEMZNOZUAUBZVNVLUBZVOVLUBZNOZUAUBZJZEVKUCZFVKUCZIZDQVKUDOZUEZVCVBVDUTVBUFVCVDVBVDVBUGVCBCUHUIUJUKVCUSVDWGULZVCUTUSUTVBUMZURUSUFUNVCURUSWHULVCUTURWIUTURURURUSUMURUOUNUNFEABCDUPUNUQUQ $.
 $}

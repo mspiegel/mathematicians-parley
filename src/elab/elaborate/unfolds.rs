@@ -464,6 +464,16 @@ impl<'a> Elaborator<'a> {
                         self.know_default(&held, said, proof);
                     }
                 }
+                // Places the record says the line swaps, the ends of a
+                // segment between, are turned by the notation's own swap
+                // (`met_as`).
+                if let Some(met) = meeting.filter(|m| !m.flips.is_empty()) {
+                    if let Some((said, proof)) =
+                        self.line_fact(at, scope, facts, &lines)?
+                    {
+                        return self.met_as(&said, proof, wanted, met, scope, facts);
+                    }
+                }
                 if let Some(p) = self.placed_proof(at, wanted, &held, scope, facts)? {
                     return Ok(Some(p));
                 }
@@ -592,10 +602,10 @@ impl<'a> Elaborator<'a> {
 
     /// Each hypothesis of the step's citation of `item`, in set.mm at the
     /// citation's values, with the proof of the fact the checker recorded
-    /// as supplying it (`Cited::supplied`, `recorded_fact`): the fact as it
-    /// stands where it is the hypothesis, and carried by `same` where the
-    /// line says it otherwise. A hypothesis the record gives no line for,
-    /// said once or unstated, is not among them.
+    /// as supplying it (`Cited::supplied`, `supplied_proof`), carried to the
+    /// hypothesis the way the record says the two met (`Supplied::meeting`).
+    /// Only a fact a line or a requires line writes is among them, and not
+    /// one what the record names does not give.
     pub(in crate::elab) fn recorded_hypotheses(
         &mut self,
         step: &Step,
@@ -609,23 +619,29 @@ impl<'a> Elaborator<'a> {
         };
         let binding = self.matched_here(step, item)?;
         let library = self.item_library();
-        let lines = self.lines.clone();
         for supplied in &cited.supplied {
-            let Some((said, proof)) =
-                self.recorded_fact(step, &supplied.by, scope, facts, &lines)?
-            else {
-                continue;
-            };
-            let node = filled(&supplied.want, &binding, &library.ctx);
-            let wanted = self.term(&node)?;
-            if said == wanted {
-                self.know(&given, wanted, proof);
+            // A fact said once, walked to or unstated is settled where the
+            // lemma asks it, and only a fact a line writes is carried here.
+            if !matches!(
+                supplied.by,
+                SuppliedBy::Line(_) | SuppliedBy::Requires { implied: None, .. }
+            ) {
                 continue;
             }
-            let (from, to) = (self.to_term(&said), self.to_term(&wanted));
-            if let Built(alike) = self.same(&from, &to, scope, facts, Some(step))? {
-                let carried = pf!(self.b; scope, said, wanted, proof, alike, "mpbid");
-                self.know(&given, wanted, carried);
+            // A function's type, and a finite group's `let`, are held among
+            // the step's facts, as each step types its functions, and the
+            // group the binding is read from leaves out the letters only
+            // they name.
+            if supplied.at.is_some_and(|at| typed_line(item, at.line)) {
+                continue;
+            }
+            let node = filled(&supplied.want, &binding, &library.ctx);
+            let wanted = self.term(&node)?;
+            let meeting = supplied.meeting.as_ref();
+            if let Some(proof) =
+                self.supplied_proof(step, &supplied.by, meeting, &wanted, scope, facts)?
+            {
+                self.know(&given, wanted, proof);
             }
         }
         Ok(given)
@@ -971,4 +987,19 @@ impl<'a> Elaborator<'a> {
             )),
         }
     }
+}
+
+/// Whether the hypothesis on line `line` of `item` is a `let` that types a
+/// function, `f : X → W`, or says a group is finite: lines a citation's
+/// group leaves out (`Library::function_type_lines`,
+/// `Library::group_assertion_lines`).
+fn typed_line(item: &Record, line: usize) -> bool {
+    let Some(h) = item.hypotheses.get(line) else {
+        return false;
+    };
+    h.kind == Intro::Let
+        && matches!(
+            Introduction::read(h.body(&item.path)).form,
+            Form::Function | Form::Group { finite: true, .. }
+        )
 }

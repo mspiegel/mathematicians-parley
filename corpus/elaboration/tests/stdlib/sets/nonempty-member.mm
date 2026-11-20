@@ -8,5 +8,5 @@ $[ stdlib/definitions.mm $]
 ${
   $d A a $.
   tests.stdlib.sets.nonempty-member $p |- ( ( A e. _V /\ -. A = (/) ) -> E. a e. A T. ) $=
-    ( cvv wcel c0 wceq wn wa cv wex wtru wrex wne simpr neqcomd wb df-ne a1i eqcom notbid bitrd bicomd mpbid n0 sylib rextru ) ACDZAEFZGZHZBIZADZBJZKBALZUJAEMZUMUJEAFZGZUOUJAEUGUINOUJUOUQUJUOUIUQUOUIPUJAEQRUJUHUPUHUPPUJAESRTUAUBUCBAUDUEUMUNPUJBAUFRUC $.
+    ( cvv wcel c0 wceq wn wa cv wex wtru wrex wne simpr wb df-ne a1i bicomd mpbid n0 sylib rextru ) ACDZAEFZGZHZBIZADZBJZKBALZUFAEMZUIUFUEUKUCUENUFUKUEUKUEOUFAEPQRSBATUAUIUJOUFBAUBQS $.
 $}

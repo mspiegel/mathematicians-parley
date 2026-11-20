@@ -669,6 +669,7 @@ pub(super) fn ways_supplied(
             library,
             &sites,
             false,
+            false,
             Some(&mut ways),
         );
     }

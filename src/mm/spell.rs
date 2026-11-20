@@ -54,6 +54,33 @@ pub struct Step {
 
 pub type StepRef = Rc<Step>;
 
+/// set.mm's lemmas that turn a fact's two sides round, each from the one
+/// fact it takes, and each undone by itself.
+const TURNS: [&str; 7] = [
+    "eqcomd", "eqcomi", "bicomd", "bicomi", "necomd", "necomi", "neqcomd",
+];
+
+/// The one proof a step takes, of the fact's statement; None where it takes
+/// none or more than one.
+fn proof_taken(step: &Step) -> Option<&StepRef> {
+    let mut proofs = step.kids.iter().filter(|k| k.typecode.as_str() == "|-");
+    let one = proofs.next()?;
+    proofs.next().is_none().then_some(one)
+}
+
+/// Where `step` turns round a fact a step of the same lemma turned, the
+/// proof that one turned, which states what `step` states; else None.
+fn turned_back(step: &StepRef) -> Option<StepRef> {
+    if !TURNS.contains(&step.label.as_str()) {
+        return None;
+    }
+    let inner = proof_taken(step)?;
+    if inner.label != step.label {
+        return None;
+    }
+    proof_taken(inner).cloned()
+}
+
 /// Steps in normal format, written without recursion: these run to millions
 /// of labels and deeper than a stack is deep.
 pub fn spelt(items: &[StepRef]) -> String {
@@ -737,6 +764,13 @@ impl Builder {
                 }
                 Part::Text(t) => self.read_onto(t, &mut stack),
                 Part::Tokens(r) => self.read_tokens_onto(r, &mut stack),
+            }
+        }
+        // A fact turned round and turned back is the fact as it was proved:
+        // `eqcomd` of a proof that ends in `eqcomd` is what that one turned.
+        if let Some(last) = stack.last_mut() {
+            if let Some(before) = turned_back(last) {
+                *last = before;
             }
         }
         Proof {

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.sets.a-part-of-a-set $p |- { 1 } e. ~P { 1 , 2 } $=
-    ( c1 csn c2 cpr cpw wcel wtru wss wceq wo eqid a1i eqcomd orc syl cvv wb 1ex elprg mpbird snssi snex elpwg mptru ) ABZACDZEZFZGUHUEUFHZGAUFFZUIGUJAAIZACIZJZGUKUMGAAGAAUKGAKLMMUKULNOGAPFZUJUMQUNGRLAACPSOTAUFUAOGUEPFZUHUIQUOGAUBLUEUFPUCOTUD $.
+    ( c1 csn c2 cpr cpw wcel wtru wss wceq wo eqid a1i orc syl cvv wb 1ex elprg mpbird snssi snex elpwg mptru ) ABZACDZEZFZGUGUDUEHZGAUEFZUHGUIAAIZACIZJZGUJULUJGAKLUJUKMNGAOFZUIULPUMGQLAACORNSAUETNGUDOFZUGUHPUNGAUALUDUEOUBNSUC $.
 $}

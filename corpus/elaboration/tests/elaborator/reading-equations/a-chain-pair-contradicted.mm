@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.reading-equations.a-chain-pair-contradicted $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ C e. RR ) /\ ( A = B /\ B = C ) ) -> A = C ) $=
-    ( cr wcel wa wceq wn simpl simpr syl simpld simprd eqtrd eqcomd pm2.21dd ex pm2.18d ) ADEZBDEZFZCDEZFZABGZBCGZFZFZACGZUGUHHZUHUGUIFZUHUHUJCAUJACUJABCUJUDUEUJUGUFUGUIIZUCUFJZKZLUJUDUEUMMNOOUGUIJPQR $.
+    ( cr wcel wa wceq wn simpl simpr syl simpld simprd eqtrd pm2.21dd ex pm2.18d ) ADEZBDEZFZCDEZFZABGZBCGZFZFZACGZUFUGHZUGUFUHFZUGUGUIABCUIUCUDUIUFUEUFUHIZUBUEJZKZLUIUCUDULMNUFUHJOPQ $.
 $}

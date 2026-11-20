@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.sets.two-in-a-listed-set $p |- 2 e. { 1 , 2 , 3 } $=
-    ( c2 c1 c3 ctp wcel wtru vm cv wceq wex cvv tpex a1i elisset syl wa csn cun 2ex snidg elun2 elun1 simpr eqcomd cpr df-tp df-pr uneq1i eqtri eqtrdi eleqtrrd eleq2d mpbid ex exlimdv mpd mptru ) ABACDZEZFGHZURIZGJZUSFURKEZVBVCFBACLMGURKNOFVAUSGFVAUSFVAPZAUTEUSVDABQZAQZRZCQZRZUTVDAVGEZAVIEVDAVFEZVJVDAKEZVKVLVDSMAKTOAVFVEUAOAVGVHUBOVDUTURVIVDURUTVDUTURFVAUCZUDUDURBAUEZVHRVIBACUFVNVGVHBAUGUHUIUJUKVDUTURAVMULUMUNUOUPUQ $.
+    ( c2 c1 c3 ctp wcel wtru vm cv wceq wex cvv tpex a1i elisset syl wa csn cun 2ex snidg elun2 elun1 simpr cpr df-tp df-pr uneq1i eqtri eqtrdi eleqtrrd eleq2d mpbid ex exlimdv mpd mptru ) ABACDZEZFGHZUQIZGJZURFUQKEZVAVBFBACLMGUQKNOFUTURGFUTURFUTPZAUSEURVCABQZAQZRZCQZRZUSVCAVFEZAVHEVCAVEEZVIVCAKEZVJVKVCSMAKTOAVEVDUAOAVFVGUBOVCUSUQVHFUTUCZUQBAUDZVGRVHBACUEVMVFVGBAUFUGUHUIUJVCUSUQAVLUKULUMUNUOUP $.
 $}
