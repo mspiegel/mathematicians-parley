@@ -694,7 +694,7 @@ const SITES: &[Site] = &[
         step: "4.5.2",
         holds: "simpa only [mul_one] using s4_5_1.symm",
         list: false,
-        why: "a restatement the line meets turned and with an identity element dropped (`restated_meetings`)",
+        why: "a restatement the line meets turned and with an identity element dropped (`Restated::Stated`)",
     },
     Site {
         file: "lean/Parley/Tests/Elaborator/AMembershipABareFromBuilds/AProductMembershipFromALine.lean",

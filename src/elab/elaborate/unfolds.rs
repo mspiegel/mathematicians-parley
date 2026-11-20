@@ -446,20 +446,7 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Option<(Rpn, Proof)>> {
         match by {
-            SuppliedBy::Line(at) if at.implied.is_none() => {
-                let recorded = self.recorded_statement(at)?;
-                let says = self.line_says(&at.line, scope, facts, lines)?;
-                for (said, held) in says.entries() {
-                    let same = said == recorded
-                        || self
-                            .renaming(&self.to_term(&recorded), &self.to_term(&said))?
-                            .is_some();
-                    if same {
-                        return Ok(Some((said, held)));
-                    }
-                }
-                Ok(None)
-            }
+            SuppliedBy::Line(at) => self.line_fact(at, scope, facts, lines),
             SuppliedBy::Requires {
                 line,
                 implied: None,
@@ -472,6 +459,91 @@ impl<'a> Elaborator<'a> {
             }
             _ => Ok(None),
         }
+    }
+
+    /// The fact a line states where the checker placed it (`FirstAt`), as the
+    /// line says it in set.mm up to a renamed bound variable, with its proof;
+    /// None for a fact the line implies without writing it, and where the
+    /// line says nothing the checker read there.
+    pub(in crate::elab) fn line_fact(
+        &mut self,
+        at: &FirstAt,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Option<(Rpn, Proof)>> {
+        if at.implied.is_some() {
+            return Ok(None);
+        }
+        let recorded = self.recorded_statement(at)?;
+        let says = self.line_says(&at.line, scope, facts, lines)?;
+        for (said, held) in says.entries() {
+            let same = said == recorded
+                || self
+                    .renaming(&self.to_term(&recorded), &self.to_term(&said))?
+                    .is_some();
+            if same {
+                return Ok(Some((said, held)));
+            }
+        }
+        Ok(None)
+    }
+
+    /// ( scope -> term ) from the line the checker placed it in (`at`): as
+    /// `held` holds it, the line's claim or a conjunct of it, written so or
+    /// over other bound letters; that line's statement there, carried by
+    /// `same` where the line spells it otherwise, or with an identity
+    /// element the claim leaves out, K divides M for K divides M^1, by
+    /// `tidied`; a fact the line implies without writing it, `k ≥ 1` of
+    /// `k ∈ ℕ`, worked out from what is held (`settle`). None where none
+    /// of these gives it.
+    pub(in crate::elab) fn placed_proof(
+        &mut self,
+        at: &FirstAt,
+        term: &Rpn,
+        held: &Facts,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if let Some(p) = self.held(held, term, scope)? {
+            return Ok(Some(p));
+        }
+        if let Some(p) = self.held_rebound(held, term, scope)? {
+            return Ok(Some(p));
+        }
+        let lines = self.lines.clone();
+        if let Some((said, proof)) = self.line_fact(at, scope, facts, &lines)? {
+            if said == *term {
+                return Ok(Some(proof));
+            }
+            if let Built(alike) = self.same(
+                &self.to_term(&said),
+                &self.to_term(term),
+                scope,
+                facts,
+                None,
+            )? {
+                return Ok(Some(pf!(self.b; scope, said, term, proof, alike, "mpbid")));
+            }
+            return self.tidied(&proof, &said, term, scope, facts);
+        }
+        // What the line says implies it: `k ∈ {1, …, n}` says 1 ≤ k, and
+        // `C ∈ 𝒫A` says C ⊆ A, the other spelling of a part of a set.
+        for (said, proof) in held.entries() {
+            let more = self.implied(&said, &proof, scope, facts)?;
+            if let Some(p) = self.held(&more, term, scope)? {
+                return Ok(Some(p));
+            }
+        }
+        if at.implied.is_none() {
+            return Ok(None);
+        }
+        Ok(
+            match self.settle(&self.to_term(term), scope, facts, 3, None, None)? {
+                Built(p) => Some(p),
+                Declined(_) => None,
+            },
+        )
     }
 
     /// What the line `at` names says there, with its proof and the parts of

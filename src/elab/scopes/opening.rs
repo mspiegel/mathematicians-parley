@@ -1,6 +1,7 @@
 //! Opening the outermost scope, blocks and cases.
 
 use super::*;
+use crate::checker::record::ReadAt;
 use crate::elab;
 use crate::notations::MEMBERSHIP;
 
@@ -474,10 +475,38 @@ impl<'a> Elaborator<'a> {
         self.unpack(term, proof, scope, facts, depth);
     }
 
+    /// The readings at a block's letter (`CheckedTheorem::read_at`) of the
+    /// first step written below the line `below`: what the lines in scope
+    /// say at the letters let there, as the `let` on that line opens.
+    pub fn readings_below(&self, below: usize) -> Vec<ReadAt> {
+        self.thm
+            .steps
+            .iter()
+            .position(|s| s.line > below)
+            .and_then(|i| self.checked.read_at.get(i))
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    /// The readings at a block's letter of the step being elaborated
+    /// (`CheckedTheorem::read_at`).
+    pub fn step_readings(&self) -> Vec<ReadAt> {
+        self.step_now
+            .and_then(|i| self.checked.read_at.get(i))
+            .cloned()
+            .unwrap_or_default()
+    }
+
     /// Record a block's `let x ∈ X` as a letter the lines cited inside the
-    /// block are read at (`know_at_letters`). A `let` saying no membership
-    /// records none.
-    pub fn add_block_letter(&mut self, member: &Rpn, proof: &Proof, at: &Rpn) {
+    /// block are read at (`know_at_letters`), with the `let` line's
+    /// reference. A `let` saying no membership records none.
+    pub fn add_block_letter(
+        &mut self,
+        member: &Rpn,
+        proof: &Proof,
+        at: &Rpn,
+        opened_by: &str,
+    ) {
         let node = self.to_term(member);
         if node.label() != Some("wcel") || node.children().len() != 2 {
             return;
@@ -485,6 +514,7 @@ impl<'a> Elaborator<'a> {
         let letter = BlockLetter {
             letter: self.rpn(&node.children()[0]),
             set: self.rpn(&node.children()[1]),
+            opened_by: opened_by.to_string(),
             member: member.clone(),
             proof: proof.clone(),
             at: at.clone(),
@@ -495,14 +525,20 @@ impl<'a> Elaborator<'a> {
     /// What a line's sentence "for all a ∈ X, P(a)" says inside a block that
     /// opened with `let x ∈ X` (`SYNTAX.md`): P(x), known in `facts` with the
     /// line's own origin, so that it is what a step citing the line has.
-    /// Where two blocks around the step let letters of X, the line is read
-    /// at neither, as the checker reads it. The instance known, if any.
+    /// The letter is the one the checker read the line `line` at
+    /// (`CheckedTheorem::read_at`) among `readings`, those of the step the
+    /// reading is for, by the `let` line that lets it; where two blocks let
+    /// letters of X, the checker reads it at neither. The instance known, if
+    /// any.
+    #[allow(clippy::too_many_arguments)]
     pub fn know_at_letters(
         &mut self,
         term: &Rpn,
         proof: &Proof,
         scope: &Rpn,
         facts: &Facts,
+        line: &str,
+        readings: &[ReadAt],
     ) -> Checked<Option<Rpn>> {
         let whole = self.to_term(term);
         if whole.label() != Some("wral") || whole.children().len() != 3 {
@@ -511,22 +547,57 @@ impl<'a> Elaborator<'a> {
         let body = whole.children()[0].clone();
         let var = self.rpn(&whole.children()[1]).to_string();
         let domain = self.rpn(&whole.children()[2]);
+        // The `let` lines whose letter the checker read this "for all" of
+        // the line at. The line as elaborated may bind another letter than
+        // the sentence read afresh: one claim with its bound variable
+        // renamed.
+        let mut lets: Vec<String> = Vec::new();
+        for reading in readings.iter().filter(|r| r.line == line) {
+            if lets.contains(&reading.opened_by.line) {
+                continue;
+            }
+            let recorded = self.term(&reading.said)?;
+            let same = recorded == *term
+                || self
+                    .renaming(&self.to_term(&recorded), &self.to_term(term))?
+                    .is_some();
+            if same {
+                lets.push(reading.opened_by.line.clone());
+            }
+        }
         let fitting: Vec<BlockLetter> = self
             .block_letters
             .iter()
-            .filter(|l| l.set == domain)
+            .filter(|l| lets.contains(&l.opened_by))
             .cloned()
             .collect();
         let [letter] = fitting.as_slice() else {
             return Ok(None);
         };
-        let Some(required) =
+        let Some(lifted) =
             self.lifted_to(&letter.member, &letter.proof, &letter.at, scope)
         else {
             return Ok(None);
         };
+        // Where the block's set is the "for all"'s in another spelling, the
+        // letter's membership of it as the line writes it, carried from its
+        // own.
+        let required = if letter.set == domain {
+            lifted
+        } else {
+            let wider = self.to_term(&t!(letter.letter, domain, "wcel"));
+            let held = Facts::new();
+            self.know(&held, letter.member.clone(), lifted);
+            match self.settle(&wider, scope, &held, 3, None, None)? {
+                Built(p) => p,
+                Declined(_) => return Ok(None),
+            }
+        };
         let at = letter.letter.clone();
-        let member = letter.member.clone();
+        let member = match letter.set == domain {
+            true => letter.member.clone(),
+            false => t!(at, domain, "wcel"),
+        };
         let mark = t!(var, "cv");
         // A body binding the block's letter itself would capture it.
         let named = self.to_term(&at).names();
@@ -775,10 +846,17 @@ impl<'a> Elaborator<'a> {
                         None => held,
                     };
                     if o.kind == Intro::Let && function.is_none() {
-                        self.add_block_letter(&added, &held, &block.scope.clone());
+                        self.add_block_letter(
+                            &added,
+                            &held,
+                            &block.scope.clone(),
+                            &o.label,
+                        );
+                        let readings = self.readings_below(o.line);
                         self.know_in_scope_at_letters(
                             &block.scope.clone(),
                             &block.facts,
+                            &readings,
                         )?;
                     }
                     if !o.label.is_empty() {
@@ -956,8 +1034,13 @@ impl<'a> Elaborator<'a> {
                 .held(&block.facts.clone(), &added, &block.scope.clone())?
                 .expect("the assumption just laid down");
             if o.kind == Intro::Let && !o.is_hypothesis {
-                self.add_block_letter(&added, &proof, &block.scope.clone());
-                self.know_in_scope_at_letters(&block.scope.clone(), &block.facts)?;
+                self.add_block_letter(&added, &proof, &block.scope.clone(), &o.label);
+                let readings = self.readings_below(o.line);
+                self.know_in_scope_at_letters(
+                    &block.scope.clone(),
+                    &block.facts,
+                    &readings,
+                )?;
             }
             self.lines
                 .set(o.label.clone(), Line::new(added, proof, vec![node]));

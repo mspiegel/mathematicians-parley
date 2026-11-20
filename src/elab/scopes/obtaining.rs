@@ -3,6 +3,7 @@
 use std::vec::IntoIter;
 
 use super::*;
+use crate::checker::record::{FirstAt, JoinedWhole};
 use crate::elab;
 use crate::mm::Kind;
 
@@ -1507,89 +1508,154 @@ impl<'a> Elaborator<'a> {
             self.know_conjuncts(&held, &line.claim, &proof, scope);
             self.know(&held, line.claim, proof);
         }
-        // A line joined is the claim, or a part of it, as it stands or over
-        // other bound letters; and where the step cites a define, with the
-        // name it gives read as what it names, since the two are one
-        // formula in a step that cites it (`SYNTAX.md`).
-        let defines: Vec<String> = step
-            .just
-            .refs
-            .iter()
-            .filter(|r| self.thm.defines.iter().any(|d| &d.label == *r))
-            .cloned()
-            .collect();
-        // And a line is the claim where the two are one in standard form,
-        // as the checker compares them: a map applied is its rule there
-        // (`SYNTAX.md`, a map).
-        let mut joined_terms: Vec<(Rpn, Proof)> = Vec::new();
-        for r in step.just.refs.iter().filter(|r| !defines.contains(r)) {
-            if let Some(l) = self.line_written(r, &lines) {
-                joined_terms.push((l.claim, self.carried(r, facts, &lines)));
-            }
-        }
-        let found = |me: &mut Elaborator,
-                     held: &Facts,
-                     term: &Rpn,
-                     scope: &Rpn|
-         -> Checked<Option<Proof>> {
-            if let Some(p) = me.held(held, term, scope)? {
-                return Ok(Some(p));
-            }
-            if let Some(p) = me.held_rebound(held, term, scope)? {
-                return Ok(Some(p));
-            }
-            for (said, proof) in &joined_terms {
-                let (was, now) = (me.to_term(said), me.to_term(term));
-                if let Built(across) = me.same(&was, &now, scope, facts, None)? {
-                    return Ok(Some(
-                        pf!(me.b; scope, said, term, proof.clone(), across, "mpbid"),
-                    ));
-                }
-            }
-            Ok(None)
+        // The checker recorded where each part of the claim stands
+        // (`CheckedTheorem::joined`, by sentence and part, of a join or a
+        // restate of several sentences; `restated`, the claim of a restate
+        // of one, whole). Each is that line's statement there, carried by
+        // `same` where the line spells it otherwise, a define's name read as
+        // what it names, and the parts are put together as the claim nests
+        // them.
+        let restated = self
+            .checked
+            .restated
+            .get(&step.just.line)
+            .filter(|_| step.just.head.is(Method::Restate))
+            .and_then(|r| r.at())
+            .map(|at| vec![at.clone()]);
+        let parts_placed = self
+            .checked
+            .joined
+            .get(&step.just.line)
+            .map(|sentences| sentences.iter().flatten().cloned().collect());
+        let restate = restated.is_some();
+        let Some(parts) = restated.or(parts_placed) else {
+            return Err(self.defect(
+                step.line,
+                "the checker recorded no place for the claim among the lines joined",
+            ));
         };
-        // One line joined is that line restated.
-        if step.just.refs.len() == 1 {
-            return match found(self, &held, &wanted, scope)? {
-                Some(p) => Ok(Some(p)),
-                None => Err(self
-                    .defect(step.line, "the joined line is not what the step claims")),
-            };
-        }
-        // Several lines joined are one conjunction, nested as the claim nests
-        // it: each side is a line joined, or itself lines joined.
-        type Found<'f> =
-            dyn Fn(&mut Elaborator, &Facts, &Rpn, &Rpn) -> Checked<Option<Proof>> + 'f;
-        fn joined(
-            me: &mut Elaborator,
-            held: &Facts,
-            term: &Rpn,
-            scope: &Rpn,
-            found: &Found,
-        ) -> Checked<Option<Proof>> {
-            if let Some(p) = found(me, held, term, scope)? {
-                return Ok(Some(p));
+        {
+            let wholes = self
+                .checked
+                .joined_wholes
+                .get(&step.just.line)
+                .cloned()
+                .unwrap_or_default();
+            let count = parts.len();
+            let written = self
+                .checked
+                .joined_claim
+                .get(&step.just.line)
+                .cloned()
+                .unwrap_or_default();
+            let mut claim = Vec::new();
+            for part in &written {
+                claim.push(self.term(part)?);
             }
-            let node = me.to_term(term);
-            if node.label() != Some("wa") {
-                return Ok(None);
-            }
-            let pair: Vec<Rpn> = node.children().iter().map(|c| me.rpn(c)).collect();
-            let first = joined(me, held, &pair[0], scope, found)?;
-            let second = joined(me, held, &pair[1], scope, found)?;
-            let (Some(first), Some(second)) = (first, second) else {
-                return Ok(None);
+            let mut places = JoinPlaces {
+                parts,
+                wholes,
+                next: 0,
+                held: held.clone(),
+                claim,
             };
-            Ok(Some(
-                pf!(me.b; scope, pair[0], pair[1], first, second, "jca"),
-            ))
-        }
-        match joined(self, &held, &wanted, scope, &found)? {
-            Some(p) => Ok(Some(p)),
-            None => {
-                Err(self
-                    .defect(step.line, "the joined lines are not what the step claims"))
+            let built =
+                self.joined_by_places(&wanted, &mut places, restate, scope, facts)?;
+            match (built, places.next == count) {
+                (Some(p), true) => Ok(Some(p)),
+                _ => Err(self.defect(
+                    step.line,
+                    "the lines the checker placed the claim's parts in do not make it",
+                )),
             }
         }
     }
+
+    /// ( scope -> term ) from the places the checker recorded, taken in
+    /// order: the whole of `term` from the first where `whole`, a `restate`;
+    /// otherwise a run of the claim's parts one line states whole
+    /// (`JoinedWhole`) from that line, and each other conjunct, as the
+    /// claim nests them, from its own place, paired by `jca`. None where a
+    /// place does not say its part.
+    fn joined_by_places(
+        &mut self,
+        term: &Rpn,
+        places: &mut JoinPlaces,
+        whole: bool,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let node = self.to_term(term);
+        if !whole {
+            let count = self.parts_spanned(term, &places.claim, places.next);
+            let run = places
+                .wholes
+                .iter()
+                .find(|w| Some(w.count) == count && w.first == places.next)
+                .map(|w| w.at.clone());
+            if let (Some(at), Some(count)) = (run, count) {
+                places.next += count;
+                let held = places.held.clone();
+                return self.placed_proof(&at, term, &held, scope, facts);
+            }
+            // A part of the claim as the record has it is one part, though
+            // its meaning be an "and", `a is odd`; an "and" of several parts
+            // is taken apart.
+            let one_part = places.claim.get(places.next) == Some(term);
+            if !one_part && node.label() == Some("wa") {
+                let pair: Vec<Rpn> =
+                    node.children().iter().map(|c| self.rpn(c)).collect();
+                let first =
+                    self.joined_by_places(&pair[0], places, false, scope, facts)?;
+                let second =
+                    self.joined_by_places(&pair[1], places, false, scope, facts)?;
+                let (Some(first), Some(second)) = (first, second) else {
+                    return Ok(None);
+                };
+                return Ok(Some(
+                    pf!(self.b; scope, pair[0], pair[1], first, second, "jca"),
+                ));
+            }
+        }
+        let Some(at) = places.parts.get(places.next).cloned() else {
+            return Ok(None);
+        };
+        places.next += 1;
+        let held = places.held.clone();
+        self.placed_proof(&at, term, &held, scope, facts)
+    }
+
+    /// How many of the claim's parts as the record has them (`claim`) `term`
+    /// holds, from part `first` on: one where it is that part, the sum of
+    /// its two sides where it is an "and" of them; None where it is neither.
+    fn parts_spanned(&self, term: &Rpn, claim: &[Rpn], first: usize) -> Option<usize> {
+        if claim.get(first) == Some(term) {
+            return Some(1);
+        }
+        let node = self.to_term(term);
+        if node.label() != Some("wa") {
+            return None;
+        }
+        let left = self.rpn(&node.children()[0]);
+        let right = self.rpn(&node.children()[1]);
+        let one = self.parts_spanned(&left, claim, first)?;
+        let other = self.parts_spanned(&right, claim, first + one)?;
+        Some(one + other)
+    }
+}
+
+/// The places the checker recorded for a `join` or `restate` step's claim,
+/// and how many of its parts are taken so far (`joined_by_places`).
+struct JoinPlaces {
+    /// Where each part stands, in the order the claim writes them.
+    parts: Vec<FirstAt>,
+    /// The runs of parts one line states whole.
+    wholes: Vec<JoinedWhole>,
+    /// The next part to take.
+    next: usize,
+    /// What the lines joined hold: each line's claim and its conjuncts.
+    held: Facts,
+    /// Each part of the claim as the record has it, in set.mm
+    /// (`CheckedTheorem::joined_claim`); empty for a `restate`.
+    claim: Vec<Rpn>,
 }

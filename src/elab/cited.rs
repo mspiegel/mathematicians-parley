@@ -15,6 +15,7 @@
 
 use super::state::{Elaborator, ProvedClaim};
 use super::{Facts, Lines};
+use crate::checker::record::ReadAt;
 use crate::corpus::Step;
 use crate::formula::Node;
 use crate::mm::spell::Proof;
@@ -132,7 +133,15 @@ impl<'a> Elaborator<'a> {
                 // Read at a block's letter, as a "for all" the line writes is
                 // (`know_in_scope_at_letters`); one that does not fit gives
                 // nothing.
-                self.know_at_letters(&members.claim, &members.proof, scope, &out)?;
+                let readings = self.step_readings();
+                self.know_at_letters(
+                    &members.claim,
+                    &members.proof,
+                    scope,
+                    &out,
+                    cite,
+                    &readings,
+                )?;
             }
         }
         Ok(out)
@@ -283,6 +292,7 @@ impl<'a> Elaborator<'a> {
         &mut self,
         scope: &Rpn,
         facts: &Facts,
+        readings: &[ReadAt],
     ) -> Checked<()> {
         for (label, line) in self.lines.entries() {
             let Some(whole) = facts.line_proof(&label, &line.term) else {
@@ -298,7 +308,8 @@ impl<'a> Elaborator<'a> {
                 let Some(held) = self.held(&parts, &part, scope)? else {
                     continue;
                 };
-                let Some(at) = self.know_at_letters(&part, &held, scope, &parts)?
+                let Some(at) = self
+                    .know_at_letters(&part, &held, scope, &parts, &label, readings)?
                 else {
                     continue;
                 };

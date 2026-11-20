@@ -1636,17 +1636,31 @@ The checker records, for each step, the page facts it settled
   (`start`, `into`), which way round it is put (`put.turned`), whether an
   identity element is dropped (`meeting`), and whether it makes the claim's
   other form (`made_other_form`); of one with rows, where the first row
-  stands and how the last meets the claim (`substitute_ends`).
+  stands and how the last meets the claim (`substitute_ends`);
+- of an `instantiate` step, each condition taken off and each value's
+  domain membership, by the line that supplies it
+  (`Instantiated::conditions`, `guards`), and how the instance meets the
+  claim (`meeting`);
+- of a `transitivity` step, the chain as the checker read it: each link's
+  facing, the joints, the ends and whether it goes down (`links`);
+- of a `join` or `restate`, where each part of the claim stands, which runs
+  a line states whole and each part as written (`joined`, `joined_wholes`,
+  `joined_claim`, `restated`);
+- of a requires line reasoned from lines, how the lines give it
+  (`restated`);
+- of a cited "for all", the block letter it is read at (`read_at`).
 
 A recorded fact is read where it stands (`FirstAt::written`) and matched to
 what the line says in set.mm up to a renamed bound variable. A fact said once,
-or written by no line, is settled as before. Three things stay with the
+or written by no line, is settled as before. Four things stay with the
 elaborator. `congruence` walks the term a substitution puts the equation
 into against the aim, which the record fixes, and builds the proof at each
 place they differ. `define_makes` carries a define's equation, the facts
 resting on that define alone, by `held_rebound` where the record gives a
 facing, because the elaborator's stored equation may bind a letter the page
-spells otherwise. And the membership of an applied function's argument in its
+spells otherwise. `by_antisymmetry` looks up its two bounds, `a ≤ b` and
+`b ≤ a`, among the facts by their statement; the record names the lines
+but adds nothing the lookup does not find. And the membership of an applied function's argument in its
 domain is taken from the line the record names (`applied_domains`,
 `define_domains`, `DomainSaid::Line`); where the argument is in the domain by
 the claim's member, a sum's range or a limit's index, or the line is not held

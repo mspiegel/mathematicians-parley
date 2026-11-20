@@ -186,12 +186,14 @@ pub struct ByPart {
 }
 
 /// A letter a block's `let x ∈ X` introduces: the letter as a kernel term,
-/// the set, and its membership with the proof laid down for it and the
-/// scope that proof is under.
+/// the set, the `let` line that lets it, by its reference, and its
+/// membership with the proof laid down for it and the scope that proof is
+/// under.
 #[derive(Clone)]
 pub struct BlockLetter {
     pub letter: Rpn,
     pub set: Rpn,
+    pub opened_by: String,
     pub member: Rpn,
     pub proof: Proof,
     pub at: Rpn,

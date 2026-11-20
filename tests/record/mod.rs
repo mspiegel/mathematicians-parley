@@ -10,7 +10,8 @@ use std::fmt::Write as _;
 use std::slice;
 
 use parley::checker::record::{
-    Cited, DomainSaid, Facing, FirstAt, OrderFact, OrderPart, SuppliedBy, Unfolded,
+    Cited, DomainSaid, Facing, FirstAt, OrderFact, OrderPart, Restated, SuppliedBy,
+    Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -204,8 +205,11 @@ pub fn printed_but(
     for (line, at) in &record.link_places {
         writeln!(out, "{} links from {}", reason_at(*line), place(at)).unwrap();
     }
-    for (line, at) in &record.restated {
-        writeln!(out, "{} restates {}", reason_at(*line), place(at)).unwrap();
+    for (line, restated) in &record.restated {
+        if let Restated::Stated { at, .. } | Restated::UnderClaim { at, .. } = restated
+        {
+            writeln!(out, "{} restates {}", reason_at(*line), place(at)).unwrap();
+        }
     }
     for (line, order) in &record.orders {
         for (k, parts) in order.sentences.iter().enumerate() {

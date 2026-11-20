@@ -941,7 +941,11 @@ impl<'a> Known<'a> {
     /// Each "for all" a cited line says that is read at a block's letter
     /// (`at_block_letters`), a sentence of it or one "and" part of one, with
     /// that letter (`CheckedTheorem::read_at`).
-    pub fn letters_read_at(&self, stated: &Stated) -> Vec<super::record::ReadAt> {
+    pub fn letters_read_at(
+        &self,
+        line: &str,
+        stated: &Stated,
+    ) -> Vec<super::record::ReadAt> {
         let placed = self.block_members(stated, None);
         if placed.is_empty() {
             return Vec::new();
@@ -953,11 +957,19 @@ impl<'a> Known<'a> {
             if parts.len() > 1 {
                 sentences.extend(parts);
             }
+            // A part of a set said as `X ⊆ A` says "for all x ∈ X, x ∈ A",
+            // which a block letting a member of X reads (`subset_members`).
+            let members: Vec<Node> = sentences
+                .iter()
+                .filter_map(|s| subset_members(s, self.env, &self.sorts))
+                .collect();
+            sentences.extend(members);
             for said in sentences {
                 let Some(k) = self.block_letter(&placed, &said) else {
                     continue;
                 };
                 out.push(super::record::ReadAt {
+                    line: line.to_string(),
                     said,
                     letter: placed[k].member.children[0].clone(),
                     opened_by: placed[k].at.clone(),

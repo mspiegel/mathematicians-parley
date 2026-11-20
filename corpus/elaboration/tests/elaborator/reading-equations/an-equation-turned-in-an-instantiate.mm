@@ -8,5 +8,5 @@ $[ stdlib/definitions.mm $]
 ${
   $d A x $.
   tests.elaborator.reading-equations.an-equation-turned-in-an-instantiate $p |- ( ( A e. RR /\ A. x e. RR x = ( x x. 1 ) ) -> ( A x. 1 ) = A ) $=
-    ( cr wcel cv c1 cmul co wceq wral wa simpr wi simpl id syl oveq1d eqeq12d rspcv mpd wb eqcom a1i bicomd mpbid ) BCDZAEZUGFGHZIZACJZKZBBFGHZIZULBIZUKUJUMUFUJLUKUFUJUMMUKUFUFUFUJNUFOPUIUMABCUGBIZUGBUHULUOOZUOUGBFGUPQRSPTUKUNUMUNUMUAUKULBUBUCUDUE $.
+    ( cr wcel cv c1 cmul co wceq wral wa simpr wi simpl id syl oveq1d eqeq12d rspcv mpd cc recn mulrid eqcomd mpbid ) BCDZAEZUGFGHZIZACJZKZBBFGHZIZULBIZUKUJUMUFUJLUKUFUJUMMUKUFUFUFUJNZUFOZPZUIUMABCUGBIZUGBUHULUROZURUGBFGUSQRSPTUKBULULBUKULBUKBUADZUNUKUFUTUQBUBZPZBUCZPZUDVDRUE $.
 $}

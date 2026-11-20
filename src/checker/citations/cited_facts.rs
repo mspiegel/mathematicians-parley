@@ -1030,14 +1030,18 @@ pub(super) fn line_at(
 /// read at a block's letter, or what a line implies (`fact_at`). By the
 /// line of the justification; one no line it names states, a fact only the
 /// lines together give, is left out.
-pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatements {
-    let mut out = Restatements::default();
+pub fn restatements(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Restated> {
+    let mut out = IndexMap::new();
     for step in &thm.steps {
         if step.just.head.is(Method::Restate) && step.claim.sentences().len() == 1 {
             if let Some(found) =
                 restated_at(step, &step.just.refs, &step.claim, known, library)
             {
-                out.add(step.just.line, found);
+                out.insert(step.just.line, stated(found));
             }
         }
         // A requires line of a letter the claim says "for all" of, which no
@@ -1053,29 +1057,54 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
             if let Some(found) =
                 restated_at(step, req.lines(), &req.fact, known, library)
             {
-                out.add(req.line, found);
+                out.insert(req.line, stated(found));
                 continue;
             }
-            let Some(claim) = claimed.as_ref() else {
-                continue;
-            };
             let Some(fact) = known.whole_as_written(&req.fact) else {
                 continue;
             };
-            if !citing::speaks_of_claim_letter(claim, &fact) {
+            let under_claim = claimed
+                .as_ref()
+                .filter(|claim| citing::speaks_of_claim_letter(claim, &fact));
+            if let Some(claim) = under_claim {
+                let under =
+                    standard(&citing::under_claim_binders(claim, &fact), &library.ctx);
+                if let Some(at) =
+                    fact_at(step, req.lines(), None, &under, known, library)
+                {
+                    let meeting = known
+                        .alike_how(&under, &at.written)
+                        .filter(|m| !m.as_written());
+                    out.insert(
+                        req.line,
+                        Restated::UnderClaim {
+                            at,
+                            meeting,
+                            part: None,
+                        },
+                    );
+                    continue;
+                }
+                if let Some((at, part)) =
+                    part_under_claim(step, req.lines(), &under, known, library)
+                {
+                    out.insert(
+                        req.line,
+                        Restated::UnderClaim {
+                            at,
+                            meeting: None,
+                            part: Some(part),
+                        },
+                    );
+                    continue;
+                }
+            }
+            if let Some(found) = narrowed_at(step, req, &fact, known, library) {
+                out.insert(req.line, found);
                 continue;
             }
-            let under =
-                standard(&citing::under_claim_binders(claim, &fact), &library.ctx);
-            if let Some(at) = fact_at(step, req.lines(), None, &under, known, library) {
-                let meeting = known.alike_how(&under, &at.written);
-                out.add(req.line, (at, meeting));
-                out.under_claim.insert(req.line, None);
-            } else if let Some((at, part)) =
-                part_under_claim(step, req.lines(), &under, known, library)
-            {
-                out.add(req.line, (at, None));
-                out.under_claim.insert(req.line, Some(part));
+            if let Some(by) = lines_give(step, req, &fact, known, library) {
+                out.insert(req.line, Restated::Lines(by));
             }
         }
     }
@@ -1099,22 +1128,80 @@ pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatem
         };
         if let Some(found) = restated_at(&under, req.lines(), &req.fact, known, library)
         {
-            out.add(by.line, found);
+            out.insert(by.line, stated(found));
         }
     }
     out
 }
 
-/// Where each restatement stands (`CheckedTheorem::restated`) and how the
-/// line met it where not as written (`CheckedTheorem::restated_meetings`),
-/// by the line of the justification.
-#[derive(Default)]
-pub struct Restatements {
-    pub places: IndexMap<usize, FirstAt>,
-    pub meetings: IndexMap<usize, Meeting>,
-    /// The requires lines found stated under the claim's "for all"
-    /// (`CheckedTheorem::restated_under_claim`).
-    pub under_claim: IndexMap<usize, Option<BodyPart>>,
+/// A line stating a restatement (`Restated::Stated`), with how it met it
+/// where not as written.
+fn stated((at, meeting): (FirstAt, Option<Meeting>)) -> Restated {
+    Restated::Stated {
+        at,
+        meeting: meeting.filter(|m| !m.as_written()),
+    }
+}
+
+/// Where a line a requires line names says its "for all" over a set that
+/// holds the requires line's (`narrowed_of`), the body the same once read
+/// over the wider set: the line's place and the two sets
+/// (`Restated::Narrowed`). None where no line does.
+fn narrowed_at(
+    step: &Step,
+    req: &Requires,
+    fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<Restated> {
+    let ctx = &library.ctx;
+    let asked = standard(fact, ctx);
+    let scope = known.scope(step);
+    let defined = known.citing_item(req.lines(), None);
+    req.lines().iter().find_map(|r| {
+        let stated = scope.get(r)?;
+        let says = known.says(stated, &defined);
+        let own = known.sentence_count(stated);
+        says.iter().find_map(|s| {
+            let narrowed = narrowed_of(&asked, &s.cited, ctx)?;
+            // The asked "for all" over the line's set is the line's.
+            let [letter, _, body] = asked.children.as_slice() else {
+                return None;
+            };
+            let widened = asked.with_children(vec![
+                letter.clone(),
+                narrowed.from.clone(),
+                body.clone(),
+            ]);
+            if !known.alike(&widened, &s.cited) {
+                return None;
+            }
+            let at = placed(r, s, &says, own)?;
+            Some(Restated::Narrowed { at, narrowed })
+        })
+    })
+}
+
+/// What supplies the fact of a requires line reasoned from lines that no one
+/// of them states (`CheckedTheorem::restated_by`): what the lines it names
+/// give together, a function's value in its codomain from its type and its
+/// argument's membership, before the said-once walk, since the requires line
+/// is reasoned from them (`Suppliers::derived`, `Suppliers::by`). None where
+/// nothing supplies it.
+fn lines_give(
+    step: &Step,
+    req: &Requires,
+    fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<SuppliedBy> {
+    let suppliers =
+        Suppliers::new(step, req.lines(), None, Some(req.line), known, library);
+    let standard_fact = standard(fact, &library.ctx);
+    let by = suppliers
+        .derived(&standard_fact)
+        .unwrap_or_else(|| suppliers.by(&standard_fact));
+    (!matches!(by, SuppliedBy::Unstated)).then_some(by)
 }
 
 /// Where a line `refs` names says `under`, a fact under the claim's "for
@@ -1164,19 +1251,6 @@ fn part_under_claim(
                 ))
             })
     })
-}
-
-impl Restatements {
-    pub(super) fn add(
-        &mut self,
-        line: usize,
-        (at, meeting): (FirstAt, Option<Meeting>),
-    ) {
-        if let Some(met) = meeting.filter(|m| !m.as_written()) {
-            self.meetings.insert(line, met);
-        }
-        self.places.insert(line, at);
-    }
 }
 
 /// Where `said`, a restatement, stands among the lines `refs` names

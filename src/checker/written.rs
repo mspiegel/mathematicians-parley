@@ -274,16 +274,30 @@ pub fn written_out(
         .values_mut()
         .flat_map(|a| [&mut a.below, &mut a.above]);
     let joined = written.joined.values_mut().flatten().flatten();
+    let joined_wholes = written
+        .joined_wholes
+        .values_mut()
+        .flatten()
+        .map(|w| &mut w.at);
     for at in written
         .link_places
         .values_mut()
-        .chain(written.restated.values_mut())
+        .chain(written.restated.values_mut().filter_map(|r| r.at_mut()))
         .chain(chained)
         .chain(ordered)
         .chain(antisymmetric)
         .chain(joined)
+        .chain(joined_wholes)
     {
         at.written = out(&at.written);
+    }
+    for part in written.joined_claim.values_mut().flatten() {
+        *part = out(part);
+    }
+    for r in written.restated.values_mut() {
+        if let super::record::Restated::Lines(by) = r {
+            supplied_written(by, &out);
+        }
     }
     for i in written.instantiated.values_mut() {
         i.at.written = out(&i.at.written);

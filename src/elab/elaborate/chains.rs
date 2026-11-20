@@ -3,6 +3,7 @@
 use std::mem;
 
 use super::*;
+use crate::matching::Meeting;
 
 impl<'a> Elaborator<'a> {
     /// Use the lemma of the sentence the checker read the citation as
@@ -277,12 +278,17 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Proof> {
         let mut links = Vec::new();
-        let chosen = self
-            .checked
-            .links
-            .get(&step.just.line)
-            .map(|chain| chain.links.clone())
-            .unwrap_or_default();
+        // The chain as the checker read it (`CheckedTheorem::links`): each
+        // link's relation, whether the chain reads it from its right side,
+        // where it meets the link before, and whether the chain goes down.
+        let Some(recorded) = self.checked.links.get(&step.just.line).cloned() else {
+            return Err(self.defect(
+                step.line,
+                "the checker recorded no chain for the lines the step cites",
+            ));
+        };
+        let chosen = recorded.links.clone();
+        let falls = recorded.falls;
         for (i, r) in step.just.refs.iter().enumerate() {
             let held = self
                 .line_written(r, lines)
@@ -340,73 +346,81 @@ impl<'a> Elaborator<'a> {
                 Some("wceq") => None,
                 _ => Some(self.rpn(&kids[2]).to_string()),
             };
-            links.push(ChainRun {
+            let mut run = ChainRun {
                 left: self.rpn(&kids[0]),
                 right: self.rpn(&kids[1]),
                 relation,
                 proof,
-            });
+            };
+            // An equation is read from its right side where the chain reads
+            // it so; a chain going down is walked from its last link, which
+            // reads each equation the other way round. An order is held low
+            // side first, and walked going up, whichever way it is written.
+            let turned = chosen.get(i).is_some_and(|l| l.turned);
+            if run.relation.is_none() && turned != falls {
+                run.proof =
+                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
+                mem::swap(&mut run.left, &mut run.right);
+            }
+            links.push(run);
+        }
+        // A chain going down is its links going up taken from the last
+        // (`Chain::upward`); the meeting at each joint, in the order walked,
+        // is that of the cited link after it where the chain is reversed.
+        let mut joints: Vec<Meeting> = chosen.iter().map(|l| l.joint.clone()).collect();
+        if falls {
+            links.reverse();
+            let last = joints.len();
+            joints = (0..last)
+                .map(|w| match w {
+                    0 => Meeting::default(),
+                    w => joints[last - w].clone(),
+                })
+                .collect();
         }
         // A term a join asks to be real is settled from the step's requires
         // lines, offered to the membership lookup, as for an inequalities
         // step.
         let known = self.supplied(Some(step), scope, facts)?;
-        let up = self.writing(scope, &known, false, |me| {
-            me.folded_up(step, scope, &known, lines, links.clone())
-        })?;
-        // The chain goes the way that starts from the claim's low side: an
-        // order claim's ends may be one term, ∠A > ∠A from ∠A > 90° and
-        // 90° > ∠A, which the links folded up from 90° would reach as
-        // 90° < 90°.
-        let run = match up {
-            Some(run) if self.starts_low(&run, term) => run,
-            up => {
-                links.reverse();
-                let down = self.writing(scope, &known, false, |me| {
-                    me.folded_up(step, scope, &known, lines, links)
-                })?;
-                // Folded up, the chain may start from a term the claim writes
-                // with an identity element left out, n·1 for n, which is
-                // carried to the claim below; folded down it is taken only
-                // where it starts at the claim's low side as written.
-                match (down, up) {
-                    (Some(run), _) if self.starts_low(&run, term) => run,
-                    (_, Some(run)) => run,
-                    (Some(run), None) => run,
-                    (None, None) => {
-                        return Err(self.defect(
-                            step.line,
-                            "the lines the step chains do not meet",
-                        ))
-                    }
-                }
-            }
+        let Some(run) = self.writing(scope, &known, false, |me| {
+            me.folded_up(step, scope, &known, lines, links, &joints)
+        })?
+        else {
+            return Err(self.defect(
+                step.line,
+                "the lines the step chains do not meet as the checker read them",
+            ));
         };
-        let reached = match &run.relation {
+        let mut reached = match &run.relation {
             None => t!(&run.left, &run.right, "wceq"),
             Some(r) => t!(&run.left, &run.right, r, "wbr"),
         };
+        let mut proof = run.proof.clone();
+        // The claim writes the equation the other way round from the chain
+        // (`Chain::claim_turned`).
+        if recorded.claim_turned && run.relation.is_none() {
+            proof = self.turned_equation(scope, &run.left, &run.right, &run.proof);
+            reached = t!(&run.right, &run.left, "wceq");
+        }
         if reached == *term {
-            return Ok(run.proof);
+            return Ok(proof);
         }
-        if run.relation.is_none() && t!(&run.right, &run.left, "wceq") == *term {
-            return Ok(self.turned_equation(scope, &run.left, &run.right, &run.proof));
-        }
-        // An identity element goes without saying (`SYNTAX.md`): n·1 ≤ n² is
-        // the claim n ≤ n².
-        if let Some(tidy) = self.tidied(&run.proof, &reached, term, scope, facts)? {
-            return Ok(tidy);
-        }
-        // An equation is the claim either way round, the identity dropped
-        // from the side the claim writes it on.
-        if run.relation.is_none() {
-            let turned = self.turned_equation(scope, &run.left, &run.right, &run.proof);
-            let reached_turned = t!(&run.right, &run.left, "wceq");
-            if let Some(tidy) =
-                self.tidied(&turned, &reached_turned, term, scope, facts)?
-            {
-                return Ok(tidy);
-            }
+        // How the chain's ends meet the claim's (`Chain::ends`): with an
+        // identity element dropped, n·1 ≤ n² for the claim n ≤ n²
+        // (`SYNTAX.md`), carried by `tidied`; otherwise the two in other
+        // words, by `same`.
+        let ends = &recorded.ends;
+        if !ends.first.identities.is_empty() || !ends.last.identities.is_empty() {
+            return match self.tidied(&proof, &reached, term, scope, facts)? {
+                Some(tidy) => Ok(tidy),
+                None => Err(self.defect(
+                    step.line,
+                    format!(
+                        "the chain reaches {}, which is not the claim with its identity elements dropped",
+                        self.render(&reached)
+                    ),
+                )),
+            };
         }
         let alike = match self.same(
             &self.to_term(&reached),
@@ -427,21 +441,15 @@ impl<'a> Elaborator<'a> {
                 ))
             }
         };
-        Ok(pf!(self.b; scope, reached, term, run.proof, alike, "mpbid"))
+        Ok(pf!(self.b; scope, reached, term, proof, alike, "mpbid"))
     }
 
-    /// Whether a folded chain starts where the claim `term` does: an order's
-    /// low side, held first; any equation, which is turned to the claim.
-    pub(super) fn starts_low(&self, run: &ChainRun, term: &Rpn) -> bool {
-        let claim = self.to_term(term);
-        match (claim.label(), claim.children()) {
-            (Some("wbr"), [low, ..]) => self.rpn(low) == run.left,
-            _ => true,
-        }
-    }
-
-    /// The links of a chain folded in the order given, each going up from
-    /// where the one before ends; None where one does not begin there.
+    /// The links of a chain folded in the order given, each oriented to go up
+    /// from where the one before ends; `joints[w]` is how link `w` meets the
+    /// one before it (`ChainLink::joint`). A middle term the page writes two
+    /// ways, |AB| and |BA|, is joined by the equation proving them one,
+    /// folded in as a link of its own. None where a link does not begin
+    /// where the one before ends and the record names no bridge.
     pub(super) fn folded_up(
         &mut self,
         step: &Step,
@@ -449,40 +457,33 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
         links: Vec<ChainRun>,
+        joints: &[Meeting],
     ) -> Checked<Option<ChainRun>> {
         let mut links = links.into_iter();
         let Some(mut run) = links.next() else {
             return Ok(None);
         };
-        for mut link in links {
-            // A middle term the checker reads as one and the page writes two
-            // ways, |AB| and |BA|, is joined by the equation proving them one,
-            // folded in as a link of its own.
-            if let Some(bridge) =
-                self.middle_joined(step, scope, facts, &mut run, &mut link)?
-            {
+        for (w, link) in links.enumerate() {
+            let bridged = joints.get(w + 1).is_some_and(|joint| !joint.as_written());
+            if bridged {
+                let (from, to) = (self.to_term(&run.right), self.to_term(&link.left));
+                let Built(proof) = self.alike(&from, &to, scope, facts, Some(step))?
+                else {
+                    return Ok(None);
+                };
+                let bridge = ChainRun {
+                    left: run.right.clone(),
+                    right: link.left.clone(),
+                    relation: None,
+                    proof,
+                };
                 let Some(joined) =
                     self.folded_link(step, scope, facts, lines, run, bridge)?
                 else {
                     return Ok(None);
                 };
                 run = joined;
-            }
-            let meets = |t: &Rpn| *t == link.left || *t == link.right;
-            if run.relation.is_none() && !meets(&run.right) && meets(&run.left) {
-                run.proof =
-                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
-                mem::swap(&mut run.left, &mut run.right);
-            }
-            if link.relation.is_none()
-                && link.left != run.right
-                && link.right == run.right
-            {
-                link.proof =
-                    self.turned_equation(scope, &link.left, &link.right, &link.proof);
-                mem::swap(&mut link.left, &mut link.right);
-            }
-            if link.left != run.right {
+            } else if link.left != run.right {
                 return Ok(None);
             }
             let Some(joined) =
@@ -493,62 +494,6 @@ impl<'a> Elaborator<'a> {
             run = joined;
         }
         Ok(Some(run))
-    }
-
-    /// Where no end of `link` is written as an end of `run` is, the
-    /// equation between one end of each that the checker reads as one term
-    /// (`alike`), each turned so that the equation goes from where `run`
-    /// ends to where `link` begins; an order is not turned. None where an end
-    /// is written alike, or no two ends read as one.
-    pub(super) fn middle_joined(
-        &mut self,
-        step: &Step,
-        scope: &Rpn,
-        facts: &Facts,
-        run: &mut ChainRun,
-        link: &mut ChainRun,
-    ) -> Checked<Option<ChainRun>> {
-        let ends_run = [&run.left, &run.right];
-        if ends_run
-            .iter()
-            .any(|e| **e == link.left || **e == link.right)
-        {
-            return Ok(None);
-        }
-        let run_turns = run.relation.is_none();
-        let link_turns = link.relation.is_none();
-        let pairs = [(false, false), (false, true), (true, false), (true, true)];
-        for (turn_run, turn_link) in pairs {
-            if (turn_run && !run_turns) || (turn_link && !link_turns) {
-                continue;
-            }
-            let from = if turn_run { &run.left } else { &run.right };
-            let to = if turn_link { &link.right } else { &link.left };
-            let (from_term, to_term) = (self.to_term(from), self.to_term(to));
-            let Built(proof) =
-                self.alike(&from_term, &to_term, scope, facts, Some(step))?
-            else {
-                continue;
-            };
-            let bridge = ChainRun {
-                left: from.clone(),
-                right: to.clone(),
-                relation: None,
-                proof,
-            };
-            if turn_run {
-                run.proof =
-                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
-                mem::swap(&mut run.left, &mut run.right);
-            }
-            if turn_link {
-                link.proof =
-                    self.turned_equation(scope, &link.left, &link.right, &link.proof);
-                mem::swap(&mut link.left, &mut link.right);
-            }
-            return Ok(Some(bridge));
-        }
-        Ok(None)
     }
 
     /// `run` and then `link`, which begins where `run` ends, folded into one

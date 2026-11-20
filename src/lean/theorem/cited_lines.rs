@@ -12,6 +12,7 @@ use super::super::{doc, tactics as t};
 use super::*;
 use crate::checker::record::{
     AppliedDomain, BodyPart, ChainTerms, DomainSaid, Instantiated, ObtainedPart,
+    Restated,
 };
 use crate::citing::{claimed_member, Implication};
 use crate::formula::node::Sort;
@@ -91,7 +92,14 @@ impl<'a> Proof<'a> {
         line: usize,
         node: &Node,
     ) -> Option<super::super::doc::Proof> {
-        let at = self.rec.restated.get(&line)?;
+        // A line that states it, alone or under the claim's "for all"; Lean
+        // proves a narrowed "for all" or what lines give together its own
+        // way.
+        let (at, meeting) = match self.rec.restated.get(&line)? {
+            Restated::Stated { at, meeting }
+            | Restated::UnderClaim { at, meeting, .. } => (at, meeting.as_ref()),
+            Restated::Narrowed { .. } | Restated::Lines(_) => return None,
+        };
         let (proof, says) = self.line_says(at).built()?;
         // A limit of a function the header lets, S(n) → K, restated with the
         // function's rule, at a sequence's index (`DomainSaid::LimitIndex`):
@@ -104,8 +112,8 @@ impl<'a> Proof<'a> {
             return None;
         }
         // The line met otherwise than as written, as the record says:
-        // turned, identities dropped (`restated_meetings`, `met_proof`).
-        let proved = match self.rec.restated_meetings.get(&line) {
+        // turned, identities dropped (`Restated::Stated`, `met_proof`).
+        let proved = match meeting {
             Some(met) => self.met_proof(proof, &says, &claim, met),
             None => self.proof_meeting(proof, &says, &claim),
         };
@@ -185,7 +193,7 @@ impl<'a> Proof<'a> {
         wrapped: &Node,
         part: BodyPart,
     ) -> Route<super::super::doc::Proof> {
-        let Some(at) = self.rec.restated.get(&line) else {
+        let Some(Restated::UnderClaim { at, .. }) = self.rec.restated.get(&line) else {
             return Route::no("a requires line under the claim no line was found for");
         };
         let found = match self.line_part(at) {

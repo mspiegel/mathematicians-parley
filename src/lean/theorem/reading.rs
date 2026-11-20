@@ -8,7 +8,7 @@ use super::super::doc::{LeanType, Location, Op, Quant, Tactic, TacticArg, TermKi
 use super::super::templates::Num;
 use super::super::{doc, expr, tactics as t};
 use super::*;
-use crate::checker::record::{HeldByLines, LinesHold, NonzeroBy, ShownBy};
+use crate::checker::record::{HeldByLines, LinesHold, NonzeroBy, Restated, ShownBy};
 use crate::citing::{
     bounds, finite, nonzero_said_once, reason_within, speaks_of_claim_letter,
     under_claim_binders, Introduced, OnceReason,
@@ -453,18 +453,19 @@ impl<'a> Proof<'a> {
                     self.proof_named_from(reason, 0, &node, i, &facts)
                 }
                 // A line that says it of every member, the claim's "for all"
-                // and all (`restated_under_claim`): that line; or a part of
+                // and all (`Restated::UnderClaim`): that line; or a part of
                 // its "for all"'s body, taken at each member, `(h x).1`.
                 Some(wrapped)
-                    if self.rec.restated_under_claim.contains_key(&just.line) =>
+                    if matches!(
+                        self.rec.restated.get(&just.line),
+                        Some(Restated::UnderClaim { .. })
+                    ) =>
                 {
-                    match self
-                        .rec
-                        .restated_under_claim
-                        .get(&just.line)
-                        .copied()
-                        .flatten()
-                    {
+                    let part = match self.rec.restated.get(&just.line) {
+                        Some(Restated::UnderClaim { part, .. }) => *part,
+                        _ => None,
+                    };
+                    match part {
                         None => match self.restated_proof(just.line, wrapped) {
                             Some(p) => Route::Built(p),
                             None => Route::no(

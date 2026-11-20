@@ -347,6 +347,16 @@ pub struct CheckedTheorem {
     /// (`citations::join_places`). A step with a part found in no one line,
     /// one said only with a define's name read out, is left out.
     pub joined: IndexMap<usize, Vec<Vec<FirstAt>>>,
+    /// Of each `join` step in `joined`, each run of its claim's parts, a
+    /// sentence or an "and" of several parts, that one line it cites states
+    /// whole, by the line of its justification (`citations::join_wholes`):
+    /// the page joins that line as it stands.
+    pub joined_wholes: IndexMap<usize, Vec<JoinedWhole>>,
+    /// Of each `join` step in `joined`, each part of its claim as the page
+    /// writes it, in the order `joined` places them
+    /// (`citations::join_claim_parts`): a phrase whose meaning is an "and",
+    /// `a is odd`, is one part.
+    pub joined_claim: IndexMap<usize, Vec<Node>>,
     /// What each `exhibit` step shows, by the line of its justification: for each
     /// sentence of its claim, the values of its "there is" and where each
     /// fact it says of them stands (`citations::exhibit_values`).
@@ -360,22 +370,10 @@ pub struct CheckedTheorem {
     /// justification
     /// (`citations::instantiations`).
     pub instantiated: IndexMap<usize, Instantiated>,
-    /// Where each `restate` step's claim, and each requires line reasoned
-    /// from lines alone, stands in a line it names, a "for all" read at a
-    /// block's letter among them, by the line of its justification
-    /// (`citations::restatements`).
-    pub restated: IndexMap<usize, FirstAt>,
-    /// How the line met each restatement it does not state as written:
-    /// turned, identity elements dropped, bound letters renamed, `d = n` of
-    /// `n = d·1`. By the line of the justification (`restatements`).
-    pub restated_meetings: IndexMap<usize, Meeting>,
-    /// The requires lines of `restated` whose line states the fact under the
-    /// claim's leading "for all", not the fact alone: `g′(x) ≠ 0: from H11`
-    /// of a claim "for all x ∈ D" and H11 "for all x ∈ D, g′(x) ≠ 0". With
-    /// the part of the line's own "for all" body the fact is, where it is
-    /// one part of several. By the requires line's line
-    /// (`citations::restatements`).
-    pub restated_under_claim: IndexMap<usize, Option<BodyPart>>,
+    /// How the lines give each `restate` step's claim of one sentence, and
+    /// each requires line reasoned from lines alone (`Restated`), by the
+    /// line of its justification (`citations::restatements`).
+    pub restated: IndexMap<usize, Restated>,
     /// How each calculation link citing a define, and each step whose reason
     /// is defines, meets the defines written out: its equation's two sides
     /// once each define's name is its value, a "for all"'s at its body; None
@@ -409,7 +407,7 @@ pub struct CheckedTheorem {
     /// reads as `written`.
     pub link_places: IndexMap<usize, FirstAt>,
     /// How the line met each calculation link it does not state as written,
-    /// as `restated_meetings`: `F(0) + G(0) = G(1)` of `G(0 + 1) = F(0) +
+    /// as a restatement's (`Restated::Stated`): `F(0) + G(0) = G(1)` of `G(0 + 1) = F(0) +
     /// G(0)`. By the link's line (`formulas::link_places`).
     pub link_meetings: IndexMap<usize, Meeting>,
     /// Which way each calculation link that cites a line faces what the line
@@ -574,6 +572,8 @@ pub struct CheckedTheorem {
 /// (`CheckedTheorem::read_at`).
 #[derive(Clone, Debug)]
 pub struct ReadAt {
+    /// The line that says the "for all", by the reference that names it.
+    pub line: String,
     /// The "for all", as the line says it.
     pub said: Node,
     /// The letter of the block around the step that its set holds.
@@ -991,7 +991,7 @@ pub struct ChainTerms {
 }
 
 /// A part of the body of a line's "for all", joined by "and"
-/// (`CheckedTheorem::restated_under_claim`): s(x) ∈ ℕ₀, the first of two, of
+/// (`Restated::UnderClaim`): s(x) ∈ ℕ₀, the first of two, of
 /// "for all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = …".
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BodyPart {
@@ -1074,6 +1074,21 @@ pub struct Chain {
     /// the checker met them only with identity elements dropped, `n·1`
     /// beside `n`.
     pub as_written: bool,
+    /// Whether the chain goes down as the lines are cited, an order link of
+    /// it `≥` or `>` as the chain reads it, so that a writer that builds an
+    /// order low side first folds the links from the last.
+    pub falls: bool,
+    /// How the chain's first term meets the claim's first, and its last the
+    /// claim's last (`Known::alike_how`), the claim read as `claim_turned`
+    /// says.
+    pub ends: ChainEnds,
+}
+
+/// How a chain's ends meet the claim's (`Chain::ends`).
+#[derive(Clone, Debug, Default)]
+pub struct ChainEnds {
+    pub first: Meeting,
+    pub last: Meeting,
 }
 
 /// One link of a `transitivity` step's chain (`CheckedTheorem::links`).
@@ -1088,6 +1103,12 @@ pub struct ChainLink {
     /// Whether the chain reads it from its right side: `b = a` as `a = b`,
     /// `b > a` as `a < b`.
     pub turned: bool,
+    /// How the chain's term before this link, the previous link's right
+    /// side as the chain reads it, meets this link's left side
+    /// (`Known::alike_how`): as written for the first link, and where the
+    /// two are written alike. A middle term the page writes two ways, |AB|
+    /// and |BA|, meets by a flip.
+    pub joint: Meeting,
     /// Where the link cites a define of a name, which way `said` faces the
     /// define's equation (`formulas::define_named_facing`); None where no
     /// side meets or the link cites no such define.
@@ -1164,6 +1185,20 @@ pub enum OrderFact {
     /// What the member a claim said of every member is read at implies,
     /// `i ≥ 1` of `i ∈ ℕ`: the rule, and the fact as the page writes it.
     Member { implied: Implication, written: Node },
+}
+
+/// A run of a `join` step's claim's parts that one line it cites states as
+/// one fact (`CheckedTheorem::joined_wholes`): `a > 0 and b > 0` of the
+/// claim `a > 0 and b > 0 and c > 0`, from a line saying it whole.
+#[derive(Clone, Debug)]
+pub struct JoinedWhole {
+    /// The run's first part, by its place among the claim's parts, counted
+    /// from 0 across its sentences (`citing::conjuncts`).
+    pub first: usize,
+    /// How many parts the run holds, more than one.
+    pub count: usize,
+    /// Where the line states the run.
+    pub at: FirstAt,
 }
 
 /// How an `antisymmetry` step's two lines make its equation
@@ -1345,6 +1380,62 @@ pub struct Narrowed {
     pub from: Node,
     /// The set the hypothesis asks, {1, …, n}.
     pub to: Node,
+}
+
+/// How the lines a `restate` step or a requires line names give its fact
+/// (`CheckedTheorem::restated`).
+#[derive(Clone, Debug)]
+pub enum Restated {
+    /// A line states it, a "for all" read at a block's letter or what a line
+    /// implies among them, `k ≥ 1: from K` of K saying `k ∈ ℕ`; with how the
+    /// line met it where not as written: turned, identity elements dropped,
+    /// bound letters renamed, `d = n` of `n = d·1`.
+    Stated {
+        at: FirstAt,
+        meeting: Option<Meeting>,
+    },
+    /// A requires line a line states under the claim's leading "for all",
+    /// not alone: `g′(x) ≠ 0: from H11` of a claim "for all x ∈ D" and H11
+    /// "for all x ∈ D, g′(x) ≠ 0"; with how the line met it, and the part of
+    /// the line's own "for all" body the fact is, where it is one part of
+    /// several.
+    UnderClaim {
+        at: FirstAt,
+        meeting: Option<Meeting>,
+        part: Option<BodyPart>,
+    },
+    /// A requires line saying "for all" over a set inside the one a line
+    /// says it over, `for all k ∈ {1, …, n}, F(k) ∈ ℝ` from `for all k ∈ ℕ,
+    /// F(k) ∈ ℝ`: where the line says it, and the two sets.
+    Narrowed { at: FirstAt, narrowed: Narrowed },
+    /// A requires line no one line states, given by what the lines give
+    /// together (`SuppliedBy`): a function's value in its codomain from its
+    /// type and its argument's membership, each on its line
+    /// (`SuppliedBy::Through`), or a membership said once.
+    Lines(SuppliedBy),
+}
+
+impl Restated {
+    /// Where the one line that gives the fact says it; None where the lines
+    /// give it together.
+    pub fn at(&self) -> Option<&FirstAt> {
+        match self {
+            Restated::Stated { at, .. }
+            | Restated::UnderClaim { at, .. }
+            | Restated::Narrowed { at, .. } => Some(at),
+            Restated::Lines(_) => None,
+        }
+    }
+
+    /// `at`, to rewrite.
+    pub fn at_mut(&mut self) -> Option<&mut FirstAt> {
+        match self {
+            Restated::Stated { at, .. }
+            | Restated::UnderClaim { at, .. }
+            | Restated::Narrowed { at, .. } => Some(at),
+            Restated::Lines(_) => None,
+        }
+    }
 }
 
 /// Where the fact a hypothesis is supplied by stands.

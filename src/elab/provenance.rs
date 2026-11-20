@@ -15,6 +15,7 @@ use std::{iter, mem};
 
 use super::state::{number_of, Elaborator};
 use super::Facts;
+use crate::checker::record::{Restated, SuppliedBy};
 use crate::corpus::proof::{Justification, Requires};
 use crate::corpus::{proof, Head, Item, Method, Step};
 use crate::formula::Node;
@@ -710,138 +711,151 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// What a line a `requires` line names says, taken apart: a definition
-    /// the database gives no target for is one the notation folds away, so
-    /// the unfolding is the line itself, and a `from H1` reason asks the same
-    /// of the line it names. With `above`, a requires line written above
-    /// this one is such a line too.
+    /// What the lines a `requires` line on `line` names give it, as the
+    /// checker recorded (`recorded_requires`); a decline where the record
+    /// names nothing that does, which the routes after it are asked.
     pub fn unfolded_at(
         &mut self,
         term: &Rpn,
         scope: &Rpn,
         facts: &Facts,
-        refs: &[String],
-        above: bool,
+        line: usize,
     ) -> Checked<Route<Proof>> {
-        if above {
-            for (said, proof) in facts.entries() {
-                if proof.origin.is_empty()
-                    || !proof.origin.iter().all(|o| o.starts_with(REQUIRES))
-                {
-                    continue;
+        Ok(self
+            .recorded_requires(line, term, scope, facts)?
+            .unwrap_or_else(|| Route::no("the record names no line that gives it")))
+    }
+
+    /// What the record says of the requires line on `line`
+    /// (`CheckedTheorem::restated`) made the proof of `term`: the line that
+    /// states it, read there (`placed_proof`), or its "for all" read at the
+    /// member or over a set inside its own (`line_for_all`); a membership
+    /// said once, built as one; or a function's value in a number system
+    /// from the function's type and its argument's membership, each on its
+    /// line (`SuppliedBy::Through`), by `function_value` over those two.
+    /// None where the record names none of these, or it does not give it.
+    fn recorded_requires(
+        &mut self,
+        line: usize,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        let lines = self.lines.clone();
+        let by = match self.checked.restated.get(&line).cloned() {
+            None => return Ok(None),
+            Some(Restated::Stated { at, .. } | Restated::UnderClaim { at, .. }) => {
+                // What the line says, and what rests on it alone: the domain
+                // an obtain on it put in the scope.
+                let held = self.line_supplies(&at.line, scope, facts, &lines)?;
+                for (said, proof) in facts.entries() {
+                    if rests_on_only(&proof, &at.line) {
+                        self.know_default(&held, said, proof);
+                    }
                 }
-                let held = Facts::new();
-                self.know(&held, said.clone(), proof.clone());
-                self.unpack_all(&said, &proof, scope, &held);
-                if let Some(p) = self.held(&held, term, scope)? {
-                    return Ok(Built(p));
+                if let Some(p) = self.placed_proof(&at, term, &held, scope, facts)? {
+                    return Ok(Some(Built(p)));
                 }
+                return self.line_for_all(&at.line, term, scope, facts);
             }
-        }
-        // What each line cited supplies, a part of a conjunction it says
-        // among it, for the value a type and a point give together below.
-        let supplied = facts.copy();
-        for r in refs {
-            let lines = self.lines.clone();
-            let Some(line) = self.line_written(r, &lines) else {
-                continue;
-            };
-            // The line states the fact where one of its sentences, as the
-            // page writes it, is the fact; how the kernel spells the two is
-            // then the elaborator's to bridge. A line keeps each sentence as
-            // the page writes it, but for a let, which keeps the formula it
-            // is read as, and `let X ⊆ A` is read as X ∈ 𝒫A.
-            let mut says_it = false;
-            for s in &self.line_sentences(r, &lines) {
-                let said = self.term(s)?;
-                if self.as_written(&said) == *term {
-                    says_it = true;
-                }
+            // A "for all" a line says over a set holding the requires line's.
+            Some(Restated::Narrowed { at, .. }) => {
+                return self.line_for_all(&at.line, term, scope, facts);
             }
-            // A define cited with the line reads its name in the line as
-            // what it names (`SYNTAX.md`, What a cited line says), so the
-            // line's sentence is the fact in other words.
-            let read_through = refs
-                .iter()
-                .any(|x| self.thm.defines.iter().any(|d| &d.label == x));
-            let says_it = says_it || read_through;
-            let whole = self.carried(r, facts, &lines);
-            let held = self.line_supplies(r, scope, facts, &lines)?;
-            if let Some(p) = self.held(&held, term, scope)? {
-                return Ok(Built(p));
-            }
-            for (said, proof) in held.entries() {
-                self.know_default(&supplied, said, proof);
-            }
-            // Or what a membership it states says as well: `let k ∈ ℕ` says
-            // k ∈ ℝ and k ≠ 0, each one lemma from it.
-            let stated = held.copy();
-            for (said, proof) in facts.entries() {
-                if rests_on_only(&proof, r) {
-                    self.know_default(&stated, said, proof);
-                }
-            }
-            for (said, proof) in stated.entries() {
-                let more = self.implied(&said, &proof, scope, facts)?;
-                if let Some(p) = self.held(&more, term, scope)? {
-                    return Ok(Built(p));
-                }
-                if !says_it {
-                    continue;
-                }
-                let (was, now) = (self.to_term(&said), self.to_term(term));
-                if let Built(across) = self.same(&was, &now, scope, facts, None)? {
-                    return Ok(Built(
-                        pf!(self.b; scope, said, term, proof, across, "mpbid"),
-                    ));
-                }
-            }
-            // The line with its own letters bound: one claim, spelt apart.
-            let label = self.to_term(&line.claim).label().map(str::to_string);
-            let label = label.as_deref();
-            if label.is_some_and(|l| lookup(rules::BOUND, l).is_some()) {
-                if let Some(spelt) = self.respelt(&whole, &line.claim, term, scope)? {
-                    return Ok(Built(spelt));
-                }
-            }
-            if label == Some("wral") {
-                if let Some(p) =
-                    self.part_at_a_member(&line.claim, &whole, term, scope, facts)?
-                {
-                    return Ok(Built(p));
-                }
-                if let Built(p) =
-                    self.narrowed(&line.claim, &whole, term, scope, facts)?
-                {
-                    return Ok(Built(p));
-                }
-            }
-            // What the line says beyond its recorded term: an obtain records
-            // the body it obtained, and the name's domain went into the scope
-            // with the line as its origin.
-            if let Some(found) = self.held(facts, term, scope)? {
-                if rests_on_only(&found, r) {
-                    return Ok(Built(found));
-                }
-            }
-        }
-        // What two of the lines say together: a function's type and a
-        // membership of its domain put its value there in its codomain.
-        let wanted = self.to_term(term);
-        if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
-            let (value, system) = (
-                self.rpn(&wanted.children()[0]),
-                self.rpn(&wanted.children()[1]),
+            Some(Restated::Lines(by)) => by,
+        };
+        // A membership the page says once, on a `let` line or by the walk
+        // from one (`SuppliedBy::SaidOnce`, `Walked`): `k + 1 ∈ ℕ₀` of a k
+        // in ℕ₀, built as any membership said once is.
+        if let SuppliedBy::SaidOnce(_) | SuppliedBy::Walked(_) = &by {
+            return Ok(
+                match self.said_once_proof(&self.to_term(term), scope, facts)? {
+                    Built(p) => Some(Built(p)),
+                    Declined(_) => None,
+                },
             );
-            if lookup(rules::SYSTEMS, system.alone().unwrap_or_default()).is_some() {
-                if let Some(p) =
-                    self.function_value(&value, &system, scope, &supplied)?
-                {
-                    return Ok(Built(p));
+        }
+        let SuppliedBy::Through { carrier, member } = by else {
+            return Ok(None);
+        };
+        let wanted = self.to_term(term);
+        if wanted.label() != Some("wcel") || wanted.children().len() != 2 {
+            return Ok(None);
+        }
+        let (value, system) = (
+            self.rpn(&wanted.children()[0]),
+            self.rpn(&wanted.children()[1]),
+        );
+        if lookup(rules::SYSTEMS, system.alone().unwrap_or_default()).is_none() {
+            return Ok(None);
+        }
+        // The two facts the record names, offered with the scope's: a line's
+        // as the line says it; a membership the page says once, or walks to
+        // from one, built as a said-once membership is, which a requires
+        // line may rest on without naming the `let` line.
+        let supplied = facts.copy();
+        for by in [&*carrier, &*member] {
+            let said_once = match by {
+                SuppliedBy::Line(at) => {
+                    if let Some((said, proof)) =
+                        self.line_fact(at, scope, facts, &lines)?
+                    {
+                        self.know(&supplied, said, proof);
+                    }
+                    continue;
                 }
+                SuppliedBy::SaidOnce(at) => at.written.clone(),
+                SuppliedBy::Walked(walked) => walked.fact.clone(),
+                _ => continue,
+            };
+            let said = self.term(&said_once)?;
+            if let Built(proof) =
+                self.said_once_proof(&self.to_term(&said), scope, facts)?
+            {
+                self.know(&supplied, said, proof);
             }
         }
-        Ok(Route::no("no line this names says it"))
+        if let Some(p) = self.function_value(&value, &system, scope, &supplied)? {
+            return Ok(Some(Built(p)));
+        }
+        // A "for all" the carrier's line says of each member: `for all k ∈
+        // ℕ₀, F(k) ∈ ℝ` at m.
+        match &*carrier {
+            SuppliedBy::Line(at) => self.line_for_all(&at.line, term, scope, facts),
+            _ => Ok(None),
+        }
+    }
+
+    /// ( scope -> term ) from the "for all" the line `cite` says, read at
+    /// the member `term` is of (`part_at_a_member`), or over a set inside
+    /// its own (`narrowed`); None where the line says no "for all" or
+    /// neither reading gives it.
+    fn line_for_all(
+        &mut self,
+        cite: &str,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        let lines = self.lines.clone();
+        let Some(cited) = self.line_written(cite, &lines) else {
+            return Ok(None);
+        };
+        if self.to_term(&cited.claim).label() != Some("wral") {
+            return Ok(None);
+        }
+        let whole = self.carried(cite, facts, &lines);
+        if let Some(p) =
+            self.part_at_a_member(&cited.claim, &whole, term, scope, facts)?
+        {
+            return Ok(Some(Built(p)));
+        }
+        Ok(
+            match self.narrowed(&cited.claim, &whole, term, scope, facts)? {
+                Built(p) => Some(Built(p)),
+                Declined(_) => None,
+            },
+        )
     }
 
     /// A proof of what one `requires` line asks for.
@@ -941,13 +955,12 @@ impl<'a> Elaborator<'a> {
         // Read from the lines it cites before the scope is asked, since the
         // scope may hold the same claim for another reason.
         if req.is_some_and(|r| self.rests_on_lines(r)) {
-            // A definition folded into the line it is unfolded at may be
-            // unfolded at a requires line above this one, which the line
-            // rests on as it rests on a cited one (R2). A reason that is only
-            // `from` names its lines, and is read from those.
-            let above = !req.is_some_and(Requires::is_lines);
-            if let Built(p) = self.unfolded_at(&term, scope, facts, &refs, above)? {
-                return Ok(Built(p));
+            // The line, or the lines together, the checker recorded as giving
+            // the fact (`unfolded_at`).
+            if let Some(r) = req {
+                if let Built(p) = self.unfolded_at(&term, scope, facts, r.line)? {
+                    return Ok(Built(p));
+                }
             }
             // A membership the lines give together is built from them as
             // `membership` builds one, which the checker reads a bare `from`

@@ -152,20 +152,24 @@ line's own. A list holds one entry for each step, in the proof's order.
   condition from the line that states it, and closes the step by that
   meeting.
 - `restated`: for each `restate` step whose claim is one sentence, and each
-  requires line reasoned from lines alone, where the claim stands in a line
-  it names (`FirstAt`), by the line of the justification: a sentence, a
-  part of one, a "for all" read at a block's letter, or what a line
-  implies. The fact is read in the standard order, as the line is, so
-  `k ≥ 1: from K` finds `K` saying `k ∈ ℕ`. A fact only the lines
-  together give has no entry. Lean proves
-  the step by that line, `s5_9 a hK8`. Where the line meets the fact
-  otherwise than as written, turned round or with identity elements
-  dropped, how it meets it is kept in `restated_meetings`, by the same
-  line, and Lean adds `.symm` or `simpa only`. A requires line of the
-  claim's own "for all" letter that no line states as written, but a line
-  states under the claim's "for all", or as a part of its own "for all"'s
-  body, is recorded in `restated_under_claim`, with the part (`BodyPart`);
-  Lean proves the fact said of every member from that line, `(s4 x).1`.
+  requires line reasoned from lines alone, by the line of the
+  justification, how the lines it names give its fact (`Restated`):
+  - `Stated`: a line states it, a sentence, a part of one, a "for all"
+    read at a block's letter or what a line implies; `k ≥ 1: from K` finds
+    `K` saying `k ∈ ℕ`. With how the line meets it where not as written,
+    turned round or with identity elements dropped (`meeting`).
+  - `UnderClaim`: a requires line of the claim's own "for all" letter that
+    a line states under the claim's "for all", or as a part of its own "for
+    all"'s body (`part`).
+  - `Narrowed`: a requires line saying "for all" over a set inside the one
+    a line says it over, with the two sets.
+  - `Lines`: what the lines give together (`SuppliedBy`), a function's
+    value in its codomain from its type and its argument's membership
+    (`Through`), or a membership said once.
+
+  Lean proves `Stated` and `UnderClaim` from that line, `s5_9 a hK8`,
+  adding `.symm` or `simpa only` by the meeting, and `(s4 x).1` for a part;
+  the Metamath writer reads all four.
 - `link_places`: for each link of a calculation that cites a line, where in
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
@@ -281,8 +285,14 @@ line's own. A list holds one entry for each step, in the proof's order.
   it from its right side, `b = a` as `a = b`, `b > a` as `a < b`; whether
   the claim writes the chain the other way round, `c = a` of `a = b = c`;
   and whether the links meet each other and the claim as the page writes
-  them, not only with identity elements dropped (`as_written`). Metamath
-  reads the relations; Lean composes the chain from the links, or adds
+  them, not only with identity elements dropped (`as_written`); whether
+  the chain goes down as cited, an order link `≥` or `>` as the chain reads
+  it (`falls`), so that a writer building orders low side first folds it
+  from the last link; how each link meets the one before it
+  (`ChainLink::joint`), a middle term written two ways, `|AB|` and `|BA|`,
+  meeting by a flip; and how the chain's ends meet the claim's (`ends`).
+  Metamath reads the relations, the facings, the joints and the ends;
+  Lean composes the chain from the links, or adds
   them by `linarith only` where they meet only with identities dropped.
 - `orders`: for each `inequalities` step, each requires line whose reason
   is `inequalities`, and each requires line naming one manipulation, by the
@@ -302,11 +312,15 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `antisymmetric`: for each `antisymmetry` step, the line that says the
   claim's left side is at most its right, and the line that says the
   converse. Lean writes `le_antisymm` of the two.
-- `joined`: for each `join` step, by the line of its justification, where
-  each part of each sentence of its claim stands among the lines it cites
-  (`FirstAt`), as `check_joins` matches them. A step with a part said only
-  with a define's name read out is left out. Lean puts the lines together,
-  `⟨s3_5, s3_8⟩`.
+- `joined`: for each `join` step, and each `restate` step whose claim has
+  several sentences, by the line of its justification, where each part of
+  each sentence of its claim stands among the lines it cites (`FirstAt`),
+  as `check_joins` matches them; a part said with a define's name the step
+  cites, where the line states it with the name written out.
+  `joined_claim` holds each part as the claim writes it, a phrase whose
+  meaning is an "and", `a is odd`, being one part; `joined_wholes` holds
+  each run of parts one line states whole, which the page joins as it
+  stands. Lean puts the lines together, `⟨s3_5, s3_8⟩`.
 
 ## Blocks
 
@@ -419,6 +433,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   reads a cited "for all" at that letter and at no other. Each reading
   records the `let` line that puts the letter in its set
   (`ReadAt::opened_by`), which Lean passes as the reading's guard, `hK7`.
+  Each reading names the line that says the "for all" (`ReadAt::line`). A
+  part of a set said as `X ⊆ A` is read as "for all x ∈ X, x ∈ A". The
+  Metamath writer reads a line at a block's letter only where a reading
+  says so: at a block's opening, those of the first step below its `let`.
 - `statement_bounds`, `bounds`: what the statement's hypotheses, and the
   lines in scope above each step, bound below, y − 3 ≥ 0 of `y ≥ 3` or
   x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope,

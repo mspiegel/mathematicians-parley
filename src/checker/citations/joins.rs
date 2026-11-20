@@ -3,6 +3,7 @@
 use super::*;
 use crate::citing;
 use crate::corpus::{proof, DefineLine, Recursion};
+use crate::formula::page::chain_links;
 use crate::formula::Sorts;
 use crate::methods::membership;
 use crate::methods::membership::Range;
@@ -277,15 +278,17 @@ pub fn check_subjects(
 /// Where each part of each `join` step's claim stands among the lines it
 /// cites (`CheckedTheorem::joined`): for each sentence of the claim, each
 /// of its parts joined by "and", by `fact_at` over the step's references,
-/// as `check_joins` matches them. A step with a part no one line states,
-/// one said only with a define's name read out, is left out.
+/// as `check_joins` matches them; a part said with a define's name the step
+/// cites, where the line states it with the name written out. A `restate`
+/// whose claim has several sentences is read as a join is. A step with a
+/// part no one line states is left out.
 pub fn join_places(
     thm: &Theorem,
     library: &Library,
     known: &Known,
 ) -> IndexMap<usize, Vec<Vec<FirstAt>>> {
     let mut out = IndexMap::new();
-    for step in thm.steps.iter().filter(|s| s.just.head.is(Method::Join)) {
+    for step in thm.steps.iter().filter(|s| puts_parts_together(s)) {
         let placed = step
             .claim
             .sentences()
@@ -295,8 +298,30 @@ pub fn join_places(
                 conjuncts(&sentence, library)
                     .iter()
                     .map(|part| {
-                        let part = standard(part, &library.ctx);
-                        fact_at(step, &step.just.refs, None, &part, known, library)
+                        let standard_part = standard(part, &library.ctx);
+                        fact_at(
+                            step,
+                            &step.just.refs,
+                            None,
+                            &standard_part,
+                            known,
+                            library,
+                        )
+                        .or_else(|| {
+                            // A part said with a define's name the step
+                            // cites, read with the name written out, as
+                            // `check_joins` compares it.
+                            let defined = known.citing_step(step);
+                            let written_out = known.as_cited(part, &defined);
+                            fact_at(
+                                step,
+                                &step.just.refs,
+                                None,
+                                &written_out,
+                                known,
+                                library,
+                            )
+                        })
                     })
                     .collect::<Option<Vec<FirstAt>>>()
             })
@@ -306,6 +331,92 @@ pub fn join_places(
         }
     }
     out
+}
+
+/// Of each `join` step, each run of its claim's parts that one line it cites
+/// states whole (`CheckedTheorem::joined_wholes`): a sentence of several
+/// parts, or an "and" of several within one, as the claim groups them, by
+/// the place of its first part among the claim's parts, counted across its
+/// sentences as `join_places` counts them.
+pub fn join_wholes(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Vec<JoinedWhole>> {
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| puts_parts_together(s)) {
+        let mut found = Vec::new();
+        let mut first = 0;
+        for s in step.claim.sentences() {
+            let Some(sentence) = known.read_as_written(&s) else {
+                break;
+            };
+            first += whole_groups(step, &sentence, first, library, known, &mut found);
+        }
+        if !found.is_empty() {
+            out.insert(step.just.line, found);
+        }
+    }
+    out
+}
+
+/// Whether a step's claim is put together part by part from the lines it
+/// cites (`join_places`): a `join`, or a `restate` whose claim has several
+/// sentences, which `restatements` does not place whole.
+fn puts_parts_together(step: &Step) -> bool {
+    step.just.head.is(Method::Join)
+        || (step.just.head.is(Method::Restate) && step.claim.sentences().len() > 1)
+}
+
+/// Of each `join` step, each part of its claim as the page writes it, in
+/// the order `join_places` places them (`CheckedTheorem::joined_claim`).
+pub fn join_claim_parts(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Vec<Node>> {
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| puts_parts_together(s)) {
+        let parts: Option<Vec<Node>> = step
+            .claim
+            .sentences()
+            .iter()
+            .map(|s| known.read_as_written(s).map(|n| conjuncts(&n, library)))
+            .collect::<Option<Vec<_>>>()
+            .map(|each| each.into_iter().flatten().collect());
+        if let Some(parts) = parts {
+            out.insert(step.just.line, parts);
+        }
+    }
+    out
+}
+
+/// `join_wholes` of one node of a claim whose first part is part `first`:
+/// each "and" within it, then the node itself, where one line states it and
+/// it holds more than one part. The number of parts it holds.
+fn whole_groups(
+    step: &Step,
+    node: &Node,
+    first: usize,
+    library: &Library,
+    known: &Known,
+    out: &mut Vec<JoinedWhole>,
+) -> usize {
+    let count = citing::conjuncts(node, library).len();
+    let joined_by_and = chain_links(library.env.g, node).is_none()
+        && library.ctx.conjunctions.contains(&node.notation())
+        && node.children.len() == 2;
+    if joined_by_and {
+        let left = whole_groups(step, &node.children[0], first, library, known, out);
+        whole_groups(step, &node.children[1], first + left, library, known, out);
+    }
+    if count > 1 {
+        let whole = standard(node, &library.ctx);
+        if let Some(at) = fact_at(step, &step.just.refs, None, &whole, known, library) {
+            out.push(JoinedWhole { first, count, at });
+        }
+    }
+    count
 }
 
 /// A `join` claims the sentences of the lines it cites put together and

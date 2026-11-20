@@ -913,13 +913,12 @@ fn theorem_record(
     record.orders = formulas::order_steps(thm, &c.known[i], c.library);
     record.antisymmetric = formulas::antisymmetries(thm, &c.known[i], c.library);
     record.joined = citations::join_places(thm, c.library, &c.known[i]);
+    record.joined_wholes = citations::join_wholes(thm, c.library, &c.known[i]);
+    record.joined_claim = citations::join_claim_parts(thm, c.library, &c.known[i]);
     record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
     record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
-    let restated = citations::restatements(thm, c.library, &c.known[i]);
-    record.restated = restated.places;
-    record.restated_meetings = restated.meetings;
-    record.restated_under_claim = restated.under_claim;
+    record.restated = citations::restatements(thm, c.library, &c.known[i]);
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
     record.define_cases = formulas::define_cases(thm, c.library, &c.known[i]);
     let links = formulas::link_places(thm, c.library, &c.known[i]);
@@ -982,8 +981,8 @@ fn theorem_record(
             let known = &c.known[i];
             known
                 .scope(step)
-                .values()
-                .flat_map(|stated| known.letters_read_at(stated))
+                .iter()
+                .flat_map(|(line, stated)| known.letters_read_at(line, stated))
                 .collect()
         })
         .collect();

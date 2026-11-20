@@ -891,10 +891,17 @@ pub fn transitivity_links(
             let chain = faced(thm, s, &links, known).ok()?;
             let each = links.iter().zip(&chain).zip(&s.just.refs);
             let linked = each
-                .map(|((link, read), r)| ChainLink {
+                .enumerate()
+                .map(|(i, ((link, read), r))| ChainLink {
                     said: link.said.clone(),
                     at: order_line(thm, s, r, &link.said, known, library),
                     turned: read.turned,
+                    joint: match i.checked_sub(1).map(|before| &chain[before]) {
+                        Some(before) => known
+                            .alike_how(&before.right, &read.left)
+                            .unwrap_or_default(),
+                        None => Meeting::default(),
+                    },
                     define_facing: thm
                         .defines
                         .iter()
@@ -916,12 +923,20 @@ pub fn transitivity_links(
             let as_written = chain.windows(2).all(|w| same(&w[0].right, &w[1].left))
                 && same(left, &ends.left)
                 && same(right, &ends.right);
+            let falls = chain.iter().any(|l| matches!(l.rel, Rel::Gt | Rel::Ge));
+            let meets = |a: &Node, b: &Node| known.alike_how(a, b).unwrap_or_default();
+            let ends = super::super::record::ChainEnds {
+                first: meets(left, &ends.left),
+                last: meets(right, &ends.right),
+            };
             Some((
                 s.just.line,
                 Chain {
                     links: linked,
                     claim_turned,
                     as_written,
+                    falls,
+                    ends,
                 },
             ))
         })

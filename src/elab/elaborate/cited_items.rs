@@ -2,7 +2,7 @@
 
 use super::unfolds::PutFor;
 use super::*;
-use crate::checker::record::{Facing, SubstitutedInto};
+use crate::checker::record::{Facing, Instantiated, SubstitutedInto, SuppliedBy};
 use crate::corpus::Source;
 
 impl<'a> Elaborator<'a> {
@@ -353,17 +353,13 @@ impl<'a> Elaborator<'a> {
         // The sentence, or the part of one, the checker instantiated
         // (`CheckedTheorem::instantiated`), which the checker records of
         // every instantiate it accepts.
-        let Some(at) = self
-            .checked
-            .instantiated
-            .get(&step.just.line)
-            .map(|r| r.at.clone())
-        else {
+        let Some(inst) = self.checked.instantiated.get(&step.just.line).cloned() else {
             return Err(self.defect(
                 step.line,
                 format!("the checker recorded no instance of {where_} on this line"),
             ));
         };
+        let at = inst.at.clone();
         // The line as elaborated may bind another letter than the sentence
         // read afresh: one claim with its bound variable renamed
         // (`renaming`), a set.mm question.
@@ -484,7 +480,15 @@ impl<'a> Elaborator<'a> {
                         &[],
                     );
                     let turned = pf!(self.b; w, member, ph, read, "com12");
-                    let required = self.required(step, &member, scope, &from_lines)?;
+                    let required = self.guard_supplied(
+                        step,
+                        &inst,
+                        &named,
+                        &member,
+                        scope,
+                        &from_lines,
+                        lines,
+                    )?;
                     let carried = pf!(self.b; scope, member, t!(w, ph, "wi"), required, turned, "syl");
                     pf!(self.b; scope, w, ph, proof, carried, "mpd")
                 } else {
@@ -515,7 +519,15 @@ impl<'a> Elaborator<'a> {
                 binds! {"ph" => &ph, "ps" => &ps, "x" => &letter, "A" => &at};
             binds.insert(slot.to_string(), domain.clone());
             let applied = self.b.ap(lemma, &binds, &[&asked]);
-            let required = self.required(step, &member, scope, &from_lines)?;
+            let required = self.guard_supplied(
+                step,
+                &inst,
+                &named,
+                &member,
+                scope,
+                &from_lines,
+                lines,
+            )?;
             let carried =
                 pf!(self.b; scope, member, t!(w, ps, "wi"), required, applied, "syl");
             proof = pf!(self.b; scope, w, ps, proof, carried, "mpd");
@@ -524,51 +536,18 @@ impl<'a> Elaborator<'a> {
         // What a universal says of one name is often a conditional, and the
         // step claims what it concludes: each thing asked on the way is a
         // line the step cites.
+        // The checker recorded each condition taken off on the way to the
+        // claim (`Instantiated::conditions`), outermost first, and how what
+        // is left meets the claim (`Instantiated::meeting`).
         let mut reached = self.rpn(&whole);
-        while reached != *term {
+        for condition in &inst.conditions {
             let reads = self.to_term(&reached);
-            // What the universal says may be the claim in other words.
-            if let Built(alike) =
-                self.same(&reads, &self.to_term(term), scope, facts, None)?
-            {
-                return Ok(Built(
-                    pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
-                ));
-            }
-            // Or the claim with its identity elements dropped, as the checker
-            // compares the two (`SYNTAX.md`, "An identity element goes without
-            // saying"): the line at k := 0 says F(0 + 2), and the step F(2).
-            if let Some(tidy) = self.tidied(&proof, &reached, term, scope, facts)? {
-                return Ok(Built(tidy));
-            }
-            // Or both: the instance with its identity elements dropped, and
-            // that the claim in other words, as a(1) = a(0) + 2 is the step's
-            // a(0) + 2 = a(1).
-            let bare = self.rpn(&self.without_identities(&reads));
-            if bare != reached {
-                if let Some(dropped) =
-                    self.tidied(&proof, &reached, &bare, scope, facts)?
-                {
-                    if let Built(alike) = self.same(
-                        &self.to_term(&bare),
-                        &self.to_term(term),
-                        scope,
-                        facts,
-                        None,
-                    )? {
-                        return Ok(Built(
-                            pf!(self.b; scope, bare, term, dropped, alike, "mpbid"),
-                        ));
-                    }
-                }
-            }
             if reads.label() != Some("wi") {
                 return Err(self.defect(
                     step.line,
                     format!(
-                        "{where_} at those terms says {}, and the step claims {}",
-                        self.render(&reached),
-                        self.render(term)
+                        "{where_} at those terms says {}, which asks no condition",
+                        self.render(&reached)
                     ),
                 ));
             }
@@ -576,48 +555,179 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&reads.children()[0]),
                 self.rpn(&reads.children()[1]),
             );
-            // An `instantiate` is the head of a step, so what the universal
-            // asks at this term is the text's to supply: a requires line of
-            // the step, as `0 < 1/2` for "for all ε > 0" at 1/2, or a line
-            // it cites.
-            let written = self
-                .written
-                .entries()
-                .into_iter()
-                .find(|(said, _)| *said == asks)
-                .and_then(|(said, w)| self.lifted_to(&said, &w.proof, &w.at, scope));
-            if let Some(supplied) = written {
-                proof = pf!(self.b; scope, asks, rest, supplied, proof, "mpd");
-                reached = rest;
-                continue;
-            }
-            // A line the step cites supplies each part of a conjunction it
-            // says, as `from_lines` holds them.
-            let supplied = match self.settle(
-                &self.to_term(&asks),
+            let supplied = self.condition_supplied(
+                step,
+                &condition.by,
+                &asks,
                 scope,
                 &from_lines,
-                3,
-                None,
-                None,
-            )? {
-                Built(p) => p,
-                Declined(d) => {
-                    return Err(self.defect(
-                        step.line,
-                        format!(
-                            "instantiating at that term wants {}, which step {} does not supply: {}",
-                            self.render(&asks),
-                            step.number,
-                            self.say(&d)
-                        ),
-                    ));
-                }
-            };
+                lines,
+            )?;
             proof = pf!(self.b; scope, asks, rest, supplied, proof, "mpd");
             reached = rest;
         }
-        Ok(Built(proof))
+        if reached == *term {
+            return Ok(Built(proof));
+        }
+        let met = &inst.meeting;
+        let other = met.turned
+            || met.permuted
+            || met.renamed
+            || met.respelled
+            || !met.flips.is_empty();
+        let reads = self.to_term(&reached);
+        let said_wrong = |me: &Self| {
+            me.defect(
+                step.line,
+                format!(
+                    "{where_} at those terms says {}, and the step claims {}",
+                    me.render(&reached),
+                    me.render(term)
+                ),
+            )
+        };
+        if met.identities.is_empty() {
+            // What the universal says is the claim in other words.
+            let alike =
+                match self.same(&reads, &self.to_term(term), scope, facts, None)? {
+                    Built(alike) => alike,
+                    Declined(_) => return Err(said_wrong(self)),
+                };
+            return Ok(Built(
+                pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
+            ));
+        }
+        if !other {
+            // The claim with its identity elements dropped, as the checker
+            // compares the two (`SYNTAX.md`, "An identity element goes
+            // without saying"): the line at k := 0 says F(0 + 2), and the
+            // step F(2).
+            return match self.tidied(&proof, &reached, term, scope, facts)? {
+                Some(tidy) => Ok(Built(tidy)),
+                None => Err(said_wrong(self)),
+            };
+        }
+        // Both: the instance with its identity elements dropped, and that
+        // the claim in other words, as a(1) = a(0) + 2 is the step's
+        // a(0) + 2 = a(1).
+        let bare = self.rpn(&self.without_identities(&reads));
+        let Some(dropped) = self.tidied(&proof, &reached, &bare, scope, facts)? else {
+            return Err(said_wrong(self));
+        };
+        match self.same(
+            &self.to_term(&bare),
+            &self.to_term(term),
+            scope,
+            facts,
+            None,
+        )? {
+            Built(alike) => Ok(Built(
+                pf!(self.b; scope, bare, term, dropped, alike, "mpbid"),
+            )),
+            Declined(_) => Err(said_wrong(self)),
+        }
+    }
+
+    /// What supplies a membership an instantiation's value is put in a
+    /// domain by: the line the checker recorded for the value's letter
+    /// (`Instantiated::guards`), carried to the membership the lemma asks
+    /// by `same`; otherwise what the step's requires lines and the facts
+    /// supply (`required`), for a membership said once or implied.
+    #[allow(clippy::too_many_arguments)]
+    fn guard_supplied(
+        &mut self,
+        step: &Step,
+        inst: &Instantiated,
+        letter: &str,
+        member: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Proof> {
+        if let Some(guard) = inst.guards.iter().find(|g| g.letter == letter) {
+            if let Some(proof) =
+                self.recorded_as(step, &guard.by, member, scope, facts, lines)?
+            {
+                return Ok(proof);
+            }
+        }
+        self.required(step, member, scope, facts)
+    }
+
+    /// What supplies a condition an instantiation takes off, `asks`: the
+    /// line the checker recorded (`Condition::by`), carried to `asks` by
+    /// `same`; otherwise what the step writes (a requires line, as `0 <
+    /// 1/2` for "for all ε > 0" at 1/2) or the lines it cites say.
+    fn condition_supplied(
+        &mut self,
+        step: &Step,
+        by: &SuppliedBy,
+        asks: &Rpn,
+        scope: &Rpn,
+        from_lines: &Facts,
+        lines: &Lines,
+    ) -> Checked<Proof> {
+        if let Some(proof) =
+            self.recorded_as(step, by, asks, scope, from_lines, lines)?
+        {
+            return Ok(proof);
+        }
+        let written = self
+            .written
+            .entries()
+            .into_iter()
+            .find(|(said, _)| said == asks)
+            .and_then(|(said, w)| self.lifted_to(&said, &w.proof, &w.at, scope));
+        if let Some(supplied) = written {
+            return Ok(supplied);
+        }
+        // A line the step cites supplies each part of a conjunction it says,
+        // as `from_lines` holds them.
+        match self.settle(&self.to_term(asks), scope, from_lines, 3, None, None)? {
+            Built(p) => Ok(p),
+            Declined(d) => Err(self.defect(
+                step.line,
+                format!(
+                    "instantiating at that term wants {}, which step {} does not supply: {}",
+                    self.render(asks),
+                    step.number,
+                    self.say(&d)
+                ),
+            )),
+        }
+    }
+
+    /// The proof of `wanted` from the fact the checker recorded as supplying
+    /// it (`recorded_fact`), carried by `same` where the line spells it
+    /// otherwise; None where the record names no line for it.
+    pub(in crate::elab) fn recorded_as(
+        &mut self,
+        step: &Step,
+        by: &SuppliedBy,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Option<Proof>> {
+        let Some((said, proof)) = self.recorded_fact(step, by, scope, facts, lines)?
+        else {
+            return Ok(None);
+        };
+        if said == *wanted {
+            return Ok(Some(proof));
+        }
+        match self.same(
+            &self.to_term(&said),
+            &self.to_term(wanted),
+            scope,
+            facts,
+            None,
+        )? {
+            Built(alike) => Ok(Some(
+                pf!(self.b; scope, said, wanted, proof, alike, "mpbid"),
+            )),
+            Declined(_) => Ok(None),
+        }
     }
 
     /// One equation put into one claim, at the place the tree names: the

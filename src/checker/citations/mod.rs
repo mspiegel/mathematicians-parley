@@ -13,7 +13,7 @@ use super::library::{
 };
 use super::record::{
     Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated, ItemLetter,
-    Narrowed, ObtainedPart, Supplied, SuppliedBy, Unfolded,
+    JoinedWhole, Narrowed, ObtainedPart, Restated, Supplied, SuppliedBy, Unfolded,
 };
 use super::structure::letters_in_scope;
 use super::Report;
@@ -69,7 +69,7 @@ pub use self::exhibits::{
 use self::joins::*;
 pub use self::joins::{
     check_function_types, check_joins, check_recursions_cited, check_subjects,
-    join_places,
+    join_claim_parts, join_places, join_wholes,
 };
 pub(super) use self::kinds::domains_asked;
 use self::kinds::*;
