@@ -3,11 +3,35 @@
 use std::iter;
 
 use super::*;
-use crate::checker::record::Supplied;
+use crate::checker::record::{Supplied, SuppliedBy, Unfolded};
 use crate::citing;
-use crate::corpus::Method;
 use crate::matching::{Binding as NodeBinding, FxIndexSet};
 use crate::notations::PROPERTY_OF;
+
+/// What the checker recorded as showing a "there is" (`Exhibit::shown`,
+/// `Cited::unfolded`): each letter's membership in its domain, from the
+/// outermost in, then each part of the body, and the values the facts are
+/// said at where they are written in the claim's letters.
+pub(in crate::elab) struct WitnessFacts {
+    pub(in crate::elab) facts: Vec<Supplied>,
+    pub(in crate::elab) values: NodeBinding,
+    /// Whether set.mm writes the body's equation the other way round from
+    /// the page, as a definition's lemma may (`metamath-reads turned`).
+    pub(in crate::elab) turned: bool,
+}
+
+/// A fact of a definition's right side as `Cited::unfolded` records it, as
+/// a hypothesis's supplier is recorded: no item's hypothesis, and met as
+/// it stands.
+fn unfolded_supplied(fact: &Node, by: &SuppliedBy) -> Supplied {
+    Supplied {
+        want: fact.clone(),
+        by: by.clone(),
+        at: None,
+        meeting: None,
+        narrowed: None,
+    }
+}
 
 impl<'a> Elaborator<'a> {
     /// The closed `lemma` applied so that it states `one` against `other`,
@@ -455,7 +479,9 @@ impl<'a> Elaborator<'a> {
         // quantifier in (`witnesses_read`).
         let found = take!(self.witnesses_read(step, wanted, &layers)?);
         let layers = &layers[..found.len()];
-        self.witnessed_at(step, wanted, layers, &found, scope, facts, lines, &sources)
+        self.witnessed_at(
+            step, wanted, layers, &found, scope, facts, lines, &sources, None,
+        )
     }
 
     /// What an `exhibit` step of several letters proves: `witnessed`, with
@@ -481,7 +507,111 @@ impl<'a> Elaborator<'a> {
                 "the checker reads no value for a letter this exhibit binds",
             ));
         }
-        self.witnessed_at(step, wanted, &layers, &found, scope, facts, lines, &sources)
+        let read = self.exhibit_read(step)?;
+        let recorded = WitnessFacts {
+            facts: read.shown,
+            values: read.values.into_iter().collect(),
+            turned: false,
+        };
+        self.witnessed_at(
+            step,
+            wanted,
+            &layers,
+            &found,
+            scope,
+            facts,
+            lines,
+            &sources,
+            Some(&recorded),
+        )
+    }
+
+    /// A definition's right side read backwards, a "there is" the checker
+    /// shows at the witnesses it read (`witnesses_read`), each fact of it
+    /// from where the checker recorded it (`Cited::unfolded`): each
+    /// letter's membership in its domain, from the outermost in, then each
+    /// part of the body, turned where the lemma writes its equation the
+    /// other way round (`turned`).
+    pub fn folded_at_witness(
+        &mut self,
+        step: &Step,
+        wanted: &Term,
+        turned: bool,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let Some(parts) = cited.unfolded.iter().flatten().next() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no unfolding of the right side",
+            ));
+        };
+        let mut members = Vec::new();
+        let mut body = Vec::new();
+        let mut at: &[Unfolded] = parts;
+        loop {
+            match at {
+                [Unfolded::Witness {
+                    member,
+                    body: inner,
+                    ..
+                }] => {
+                    let Unfolded::Fact { fact, by } = member.as_ref() else {
+                        return Err(self.unreached(
+                            step.line,
+                            "the checker recorded a witness's domain as no fact",
+                        ));
+                    };
+                    members.push(unfolded_supplied(fact, by));
+                    at = inner;
+                }
+                rest => {
+                    for part in rest {
+                        let Unfolded::Fact { fact, by } = part else {
+                            return Err(self.unreached(
+                                step.line,
+                                "the checker recorded a \"there is\" inside the body beside other parts",
+                            ));
+                        };
+                        body.push(unfolded_supplied(fact, by));
+                    }
+                    break;
+                }
+            }
+        }
+        let layers = self.layers_of(wanted);
+        let found = take!(self.witnesses_read(step, wanted, &layers)?);
+        if found.len() != members.len() {
+            return Err(self.unreached(
+                step.line,
+                "the checker read as many witnesses as it recorded domains for",
+            ));
+        }
+        let layers = &layers[..found.len()];
+        members.extend(body);
+        let recorded = WitnessFacts {
+            facts: members,
+            values: NodeBinding::new(),
+            turned,
+        };
+        self.witnessed_at(
+            step,
+            wanted,
+            layers,
+            &found,
+            scope,
+            facts,
+            lines,
+            &[],
+            Some(&recorded),
+        )
     }
 
     /// The witnesses the checker read the citation `step` makes as naming
@@ -665,7 +795,9 @@ impl<'a> Elaborator<'a> {
 
     /// `witnessed` with the witnesses `found` for the claim's letters, by
     /// the variable each stands for, and the lines the step cites and
-    /// requires, with their proofs.
+    /// requires, with their proofs. Where the checker recorded what shows
+    /// the "there is" (`recorded`), each fact is taken from there and from
+    /// nowhere else.
     #[allow(clippy::too_many_arguments)]
     pub(super) fn witnessed_at(
         &mut self,
@@ -677,6 +809,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
         sources: &[(Rpn, Proof)],
+        recorded: Option<&WitnessFacts>,
     ) -> Checked<Route<Proof>> {
         // A witness may spell a letter the claim binds, as the n obtained
         // for "there are m, n ∈ ℕ with …" does, and `rspcev` keeps its
@@ -713,7 +846,8 @@ impl<'a> Elaborator<'a> {
                 })
                 .collect();
             let made = take!(self.witnessed_at(
-                step, &renamed, &apart, &carried, scope, facts, lines, sources
+                step, &renamed, &apart, &carried, scope, facts, lines, sources,
+                recorded
             )?);
             let Some(back) = self.renaming(&renamed, wanted)? else {
                 return Err(self.defect(
@@ -740,16 +874,10 @@ impl<'a> Elaborator<'a> {
         // An exhibit's facts are the ones the checker recorded it as shown
         // by (`Exhibit::shown`): each letter in its domain, outermost first,
         // then each part of the body joined by "and".
-        let read = match step.just.head.is(Method::Exhibit) {
-            true => Some(self.exhibit_read(step)?),
-            false => None,
-        };
-        let values: NodeBinding = read
-            .as_ref()
-            .map(|r| r.values.clone().into_iter().collect())
-            .unwrap_or_default();
-        let recorded: Option<Vec<Supplied>> = read.map(|r| r.shown);
-        let (in_domains, in_body): (&[Supplied], &[Supplied]) = match &recorded {
+        let values = recorded.map(|r| r.values.clone()).unwrap_or_default();
+        let lemma_turned = recorded.is_some_and(|r| r.turned);
+        let recorded: Option<&Vec<Supplied>> = recorded.map(|r| &r.facts);
+        let (in_domains, in_body): (&[Supplied], &[Supplied]) = match recorded {
             Some(all) if all.len() >= layers.len() => all.split_at(layers.len()),
             Some(_) => {
                 return Err(self.unreached(
@@ -760,7 +888,15 @@ impl<'a> Elaborator<'a> {
             None => (&[], &[]),
         };
         let mut proof = if recorded.is_some() {
-            self.shown_body(step, &innermost, in_body, &values, scope, facts)?
+            self.shown_body(
+                step,
+                &innermost,
+                in_body,
+                &values,
+                lemma_turned,
+                scope,
+                facts,
+            )?
         } else if inner_rpn.alone() == Some("wtru") {
             // A body that says nothing of its variable holds outright, by
             // the one lemma that states truth.

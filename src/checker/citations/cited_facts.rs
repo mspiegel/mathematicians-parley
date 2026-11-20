@@ -402,6 +402,28 @@ pub(super) fn unfolded_parts(
             let Some(value) = bound.get(&letter.text) else {
                 return fact(part.clone(), outer);
             };
+            // A "there is" a cited line states whole, where the reading
+            // gives its letter that line's own bound letter, which names
+            // nothing in scope, is taken from the line, and no witness is
+            // shown for it.
+            if value.is_name() {
+                let whole = fact(part.clone(), outer);
+                if let Unfolded::Fact {
+                    by: SuppliedBy::Line(at),
+                    ..
+                } = &whole
+                {
+                    let bound_there = at.written.notation() == THERE_IS
+                        && at
+                            .written
+                            .children
+                            .first()
+                            .is_some_and(|l| l.text == value.text);
+                    if bound_there {
+                        return whole;
+                    }
+                }
+            }
             let value = substitute_apart(value, outer, &library.ctx);
             let mut inner = outer.clone();
             inner.insert(letter.text, value.clone());

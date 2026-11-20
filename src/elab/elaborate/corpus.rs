@@ -798,23 +798,8 @@ impl<'a> Elaborator<'a> {
                 "the checker concluded a part the item does not have",
             )
         };
-        let Some(groups) = library.groups(&cited.item) else {
-            return Err(unread(self));
-        };
-        let Some(sentence) = groups
-            .iter()
-            .flat_map(|g| g.gives.iter())
-            .nth(concluded.sentence)
-        else {
-            return Err(unread(self));
-        };
-        let Some(reading) = citing::readings(sentence, &library)
-            .into_iter()
-            .find(|r| r.way == concluded.way)
-        else {
-            return Err(unread(self));
-        };
-        let mut node = reading.claimed;
+        let mut node =
+            self.reading_node(step, cited, concluded.sentence, concluded.way)?;
         if let Some(i) = concluded.part {
             let Some(part) = citing::conjuncts(&node, &library).get(i).cloned() else {
                 return Err(unread(self));
@@ -830,6 +815,31 @@ impl<'a> Elaborator<'a> {
             node = part;
         }
         Ok(Some(self.term(&node)?))
+    }
+
+    /// Sentence `sentence` of the cited item, counted across its groups,
+    /// read `way` (`citing::readings`), in the item's letters.
+    fn reading_node(
+        &mut self,
+        step: &Step,
+        cited: &Cited,
+        sentence: usize,
+        way: Read,
+    ) -> Checked<Node> {
+        let library = self.item_library();
+        let found = library.groups(&cited.item).and_then(|groups| {
+            let said = groups.iter().flat_map(|g| g.gives.iter()).nth(sentence)?;
+            citing::readings(said, &library)
+                .into_iter()
+                .find(|r| r.way == way)
+                .map(|r| r.claimed)
+        });
+        found.ok_or_else(|| {
+            self.unreached(
+                step.line,
+                "the checker read a sentence the item does not have",
+            )
+        })
     }
 
     /// The part of the "and" `whole` that is `target` up to the letters each

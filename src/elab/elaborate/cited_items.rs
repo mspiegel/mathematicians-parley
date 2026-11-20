@@ -123,24 +123,35 @@ impl<'a> Elaborator<'a> {
 
     /// The lemmas that prove what the step's citation of `item` takes: the
     /// lemma of each sentence the checker read the claim as taking
-    /// (`Cited::sentences`), or of each sentence of the group an obtain
-    /// takes whole. An item whose target names fewer lemmas than it has
-    /// sentences proves several with one lemma (gcd: "four sentences from
-    /// three lemmas"), and which one is set.mm's to say: every lemma is
-    /// offered.
+    /// (`Cited::concluded`), or of each sentence of the group an obtain
+    /// takes whole, as the record pairs its sentences with its lemmas
+    /// (`targets::sentence_lemmas`): gcd's four sentences from three
+    /// lemmas, its second and third two parts of gcddvds. Each lemma once,
+    /// in order.
     pub(super) fn cited_labels(
         &self,
         step: &Step,
         item: &Record,
     ) -> Checked<Vec<String>> {
         let labels = self.target_labels(step, item)?;
+        let paired = targets::sentence_lemmas(item).map_err(|why| {
+            self.defect(step.line, format!("{}: {why}", item.qualified()))
+        })?;
         let library = self.item_library();
         let Some(groups) = library.groups(&item.qualified()) else {
             return Ok(labels);
         };
         let sentences: usize = groups.iter().map(|g| g.gives.len()).sum();
-        if labels.len() != sentences {
-            return Ok(labels);
+        if paired.len() != sentences {
+            return Err(self.unreached(
+                step.line,
+                format!(
+                    "{} says {} sentences to the checker, and its record pairs {} with lemmas",
+                    item.qualified(),
+                    sentences,
+                    paired.len()
+                ),
+            ));
         }
         let cited = self.cited_here(step, &item.qualified())?;
         let taken: Vec<usize> = if cited.concluded.is_empty() {
@@ -150,7 +161,13 @@ impl<'a> Elaborator<'a> {
         } else {
             cited.concluded.iter().map(|c| c.sentence).collect()
         };
-        Ok(taken.into_iter().map(|s| labels[s].clone()).collect())
+        let mut out: Vec<String> = Vec::new();
+        for label in taken.into_iter().flat_map(|s| paired[s].labels.clone()) {
+            if !out.contains(&label) {
+                out.push(label);
+            }
+        }
+        Ok(out)
     }
 
     pub(super) fn untargeted(&self, step: &Step, item: &Record) -> Problem {
@@ -284,15 +301,18 @@ impl<'a> Elaborator<'a> {
     /// ( scope -> body ), what an exhibit's "there is" says of its values,
     /// from the facts the checker recorded for the parts of its "and" in
     /// turn (`shown_proof`), each the recorded statement at the exhibited
-    /// `values`. The body is taken apart as far as the parts go and no
+    /// `values`, its equation turned where set.mm writes it the other way
+    /// round (`turned`). The body is taken apart as far as the parts go and no
     /// further: "n is odd" is one part, though set.mm writes it as an "and".
     /// A body that says nothing, "there is s ∈ S", holds outright.
+    #[allow(clippy::too_many_arguments)]
     pub(in crate::elab) fn shown_body(
         &mut self,
         step: &Step,
         body: &Term,
         shown: &[Supplied],
         values: &NodeBinding,
+        turned: bool,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
@@ -303,7 +323,10 @@ impl<'a> Elaborator<'a> {
         let mut parts = Vec::new();
         for s in shown {
             let at = filled(&s.want, values, &library.ctx);
-            let want = self.term(&at)?;
+            let mut want = self.term(&at)?;
+            if turned {
+                want = self.rpn(&Self::body_turned(&self.to_term(&want)));
+            }
             let proof = self.shown_proof(step, s, &want, scope, facts)?;
             parts.push(ShownPart { want, proof });
         }

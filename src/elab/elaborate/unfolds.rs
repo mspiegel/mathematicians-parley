@@ -265,122 +265,85 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// `(binding, proof of the left side at it)` from one of the things a
-    /// cited line says: matched as written, with only defined names read,
-    /// and as the standard form reads it; no one of the three covers the
-    /// others.
-    pub(super) fn unfolds_from(
+    /// The fact a definition is unfolded from, as the checker recorded it
+    /// (`Cited::firsts`), with the binding of the lemma's left side `left`
+    /// to it and its proof: the line, or the sentence of one, it stands in,
+    /// or the membership a `let` says once (`supplied_proof`); or the membership
+    /// a step said of every member is proved at (`Elaborator::member`).
+    /// The lemma's left side is fitted to the fact as set.mm writes it, and
+    /// where a defined name there keeps it from fitting, to the fact read
+    /// through its defined names, a defined function where it is applied
+    /// read as its rule there (`read_out`), carried there by `same`: u ∈
+    /// I(k), I a define, says u is in what I's rule gives at k, which is
+    /// set.mm's spelling and none of the page's. Declined where the left side is
+    /// not the fact, as a clause of a definition by cases is not.
+    fn unfolded_from(
         &mut self,
+        step: &Step,
         left: &Term,
-        held: &Facts,
         variables: &Vars,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<(Binding, Proof)>> {
-        let entries = held.entries();
-        for (said, shown) in &entries {
-            if let Some(binding) =
-                fit(left, &self.to_term(said), &Binding::new(), variables)
-            {
-                if !binding.is_empty() {
-                    return Ok(Built((binding, shown.clone())));
-                }
-            }
-        }
-        // Then with only the defined names read as what they name, and then
-        // with a defined function read where it is applied as well: u ∈ I(k),
-        // I a define, says u is in what I's rule gives at k.
-        let mut readings: Vec<(Rpn, Proof, Term)> = Vec::new();
-        for (said, shown) in &entries {
-            let read = self.names_read(&self.to_term(said), None);
-            readings.push((said.clone(), shown.clone(), read));
-        }
-        for (said, shown) in &entries {
-            let read = self.read_through(&self.to_term(said), true, None);
-            readings.push((said.clone(), shown.clone(), read));
-        }
-        for (said, shown, read) in &readings {
-            let read_rpn = self.rpn(read);
-            if read_rpn == *said {
-                continue;
-            }
-            let Some(binding) =
-                fit(left, read, &Binding::new(), variables).filter(|b| !b.is_empty())
-            else {
-                continue;
-            };
-            if let Built(alike) =
-                self.same(&self.to_term(said), read, scope, facts, None)?
-            {
-                return Ok(Built((
-                    binding,
-                    pf!(self.b; scope, said, read_rpn, shown, alike, "mpbid"),
-                )));
-            }
-        }
-        for (said, shown) in &entries {
-            let Some(binding) = self
-                .fits_as(left, &self.to_term(said), variables, None)
-                .filter(|b| !b.is_empty())
-            else {
-                continue;
-            };
-            let instance = left.substitute(&binding);
-            if let Built(alike) =
-                self.same(&self.to_term(said), &instance, scope, facts, None)?
-            {
-                let i = self.rpn(&instance);
-                return Ok(Built((
-                    binding,
-                    pf!(self.b; scope, said, i, shown, alike, "mpbid"),
-                )));
-            }
-        }
-        // Then with a defined function applied read as its rule at what it
-        // is applied to, as `c ∈ G(m, n)` is a member of G's rule at m, n.
-        for (said, shown) in &entries {
-            let read = self.read_out(&self.to_term(said));
-            let read_rpn = self.rpn(&read);
-            if read_rpn == *said {
-                continue;
-            }
-            let Some(binding) =
-                fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
-            else {
-                continue;
-            };
-            if let Built(alike) =
-                self.same(&self.to_term(said), &read, scope, facts, None)?
-            {
-                return Ok(Built((
-                    binding,
-                    pf!(self.b; scope, said, read_rpn, shown, alike, "mpbid"),
-                )));
-            }
-        }
-        Ok(Route::no("nothing the line says is what the lemma unfolds"))
-    }
-
-    /// Where the checker read the step's citation of a record as taken from
-    /// (`Cited::firsts`): the cited line, or the sentence of one, a
-    /// definition is unfolded from.
-    pub(super) fn firsts_here(&self, step: &Step) -> Checked<Vec<FirstAt>> {
-        let Some(cited) = step.just.cited_item() else {
-            return Ok(Vec::new());
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
         };
-        let name = self.thm.names.full(&cited);
-        let Some(Item::Record(item)) = self.items.get(&name).copied() else {
-            return Ok(Vec::new());
+        let Some(first) = cited.firsts.first() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded nothing the definition is unfolded from",
+            ));
         };
-        Ok(self
-            .cited_here(step, &item.qualified())?
-            .firsts
-            .into_iter()
-            .filter_map(|by| match by {
-                SuppliedBy::Line(at) => Some(at),
-                _ => None,
-            })
-            .collect())
+        let found = match first {
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
+                let said = self.recorded_statement(at)?;
+                self.supplied_proof(step, first, None, &said, scope, facts)?
+                    .map(|p| (said, p))
+            }
+            SuppliedBy::Bound { .. } => match self.member.clone() {
+                Some(member) => self.held(facts, &member, scope)?.map(|p| (member, p)),
+                None => None,
+            },
+            _ => None,
+        };
+        let Some((said, shown)) = found else {
+            return Err(self.unreached(
+                step.line,
+                "the fact the checker recorded the definition as unfolded from is not in hand",
+            ));
+        };
+        let written = self.to_term(&said);
+        if let Some(binding) =
+            fit(left, &written, &Binding::new(), variables).filter(|b| !b.is_empty())
+        {
+            return Ok(Built((binding, shown)));
+        }
+        let read = self.read_out(&written);
+        let Some(binding) =
+            fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
+        else {
+            return Ok(Route::no(format!(
+                "{} is not what the lemma unfolds",
+                self.render(&said)
+            )));
+        };
+        let read_rpn = self.rpn(&read);
+        if read_rpn == said {
+            return Ok(Built((binding, shown)));
+        }
+        match self.same(&self.to_term(&said), &read, scope, facts, None)? {
+            Built(alike) => Ok(Built((
+                binding,
+                pf!(self.b; scope, said, read_rpn, shown, alike, "mpbid"),
+            ))),
+            Declined(_) => Err(self.unreached(
+                step.line,
+                "the fact read through its defined names is not the fact",
+            )),
+        }
     }
 
     /// ( scope -> wanted ), a function's membership in a set of maps, from
@@ -771,66 +734,6 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// What the line `at` names says there, with its proof and the parts of
-    /// it: the sentence `at` names, or the whole line.
-    pub(super) fn stated_at(
-        &mut self,
-        at: &FirstAt,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<Facts> {
-        let held = Facts::new();
-        let Some(cited) = self.line_written(&at.line, lines) else {
-            return Ok(held);
-        };
-        // A sentence past the line's own is a "for all" of it read at a
-        // block's letter, which the line inside the block says with the
-        // rest (`know_in_scope_at_letters`).
-        let sentences = self.line_sentences(&at.line, lines);
-        let own = sentences.len();
-        let sentence = match at.sentence {
-            Some(i) => sentences.get(i),
-            None if own == 1 => sentences.first(),
-            None => None,
-        };
-        let said = match at.sentence {
-            Some(i) if i < own => Some(self.term(&sentences[i])?),
-            Some(i) => self
-                .at_letters_of
-                .get(&cited.claim)
-                .and_then(|at| at.get(i - own))
-                .cloned(),
-            None => None,
-        };
-        let (said, proof) = match said {
-            Some(said) => {
-                let Some(proof) = self.held(facts, &said, scope)? else {
-                    return Ok(held);
-                };
-                (said, proof)
-            }
-            None => (cited.claim.clone(), self.carried(&at.line, facts, lines)),
-        };
-        self.know(&held, said.clone(), proof.clone());
-        self.unpack_all(&said, &proof, scope, &held);
-        let Some(j) = at.part else {
-            return Ok(held);
-        };
-        let parts = match sentence {
-            Some(node) => parts_along(node, &self.to_term(&said)),
-            None => conjunction_parts(&self.to_term(&said)),
-        };
-        let Some(part) = parts.get(j).map(|p| self.rpn(p)) else {
-            return Ok(Facts::new());
-        };
-        let one = Facts::new();
-        if let Some(proof) = self.held(&held, &part, scope)? {
-            self.know(&one, part, proof);
-        }
-        Ok(one)
-    }
-
     /// What a substitution hypothesis says its property half is, where the
     /// claim already put one of that half's conjuncts in the slot: `elrab`'s
     /// ψ is the whole of "k ∈ S and for all p ∈ S, …" at the element, and a
@@ -856,7 +759,6 @@ impl<'a> Elaborator<'a> {
     /// A definition unfolded to reach one part of what it says: read left to
     /// right, from what the checker read it as taken from, and what it gives
     /// taken apart.
-    #[allow(clippy::too_many_arguments)]
     pub fn one_unfolded(
         &mut self,
         lemma: &str,
@@ -864,7 +766,6 @@ impl<'a> Elaborator<'a> {
         term: &Rpn,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let sig = self.sig(lemma).clone();
         let whole = self.statement(lemma);
@@ -881,85 +782,14 @@ impl<'a> Elaborator<'a> {
         // cited line applies one, comes from these.
         let supplied = self.supplied(Some(step), scope, facts)?;
         let named = self.with_cited(Some(step), scope, &supplied, None)?;
-        // A line may say several things at once, and what the definition
-        // unfolds is the one the checker took the reading from (`firsts_here`).
-        let mut chosen = None;
-        for at in self.firsts_here(step)? {
-            let held = self.stated_at(&at, scope, facts, lines)?;
-            if let Built(found) = self.unfolds_from(
-                &reads.children()[0],
-                &held,
-                &variables,
-                scope,
-                &named,
-            )? {
-                chosen = Some(found);
-                break;
-            }
-        }
-        // A step said of every member unfolds the membership its claim's
-        // "for all" gives, as it would a cited line saying it.
-        if chosen.is_none() {
-            if let Some(member) = self.member.clone() {
-                if let Some(p) = self.held(facts, &member, scope)? {
-                    let held = Facts::new();
-                    self.know(&held, member, p);
-                    if let Built(found) = self.unfolds_from(
-                        &reads.children()[0],
-                        &held,
-                        &variables,
-                        scope,
-                        facts,
-                    )? {
-                        chosen = Some(found);
-                    }
-                }
-            }
-        }
-        // A letter's membership in the set its `let` names is said once and
-        // never cited (`SYNTAX.md`, "A membership in a number system is said
-        // once"), and a definition unfolds it as it would a cited line saying
-        // it: `let A ∈ ℚ` unfolds by the definition of a rational. The letter
-        // is one the claim speaks of.
-        if chosen.is_none() {
-            let claimed = self.rpn(&self.to_term(term));
-            let introduced: Vec<(Rpn, Rpn)> = self
-                .sets
-                .iter()
-                .filter_map(|(letter, set)| {
-                    let said = self.names.get(letter)?;
-                    let spoken = !said.is_empty()
-                        && claimed
-                            .tokens()
-                            .windows(said.len())
-                            .any(|w| w == said.tokens());
-                    spoken.then(|| (said.clone(), set.clone()))
-                })
-                .collect();
-            for (said, set) in introduced {
-                let member = t!(said, set, "wcel");
-                let Built(p) =
-                    self.said_once_proof(&self.to_term(&member), scope, facts)?
-                else {
-                    continue;
-                };
-                let held = Facts::new();
-                self.know(&held, member, p);
-                if let Built(found) = self.unfolds_from(
-                    &reads.children()[0],
-                    &held,
-                    &variables,
-                    scope,
-                    facts,
-                )? {
-                    chosen = Some(found);
-                    break;
-                }
-            }
-        }
-        let Some((mut binding, given)) = chosen else {
-            return Ok(Route::no(format!("no cited line is what {lemma} unfolds")));
-        };
+        let chosen = take!(self.unfolded_from(
+            step,
+            &reads.children()[0],
+            &variables,
+            scope,
+            &named
+        )?);
+        let (mut binding, given) = chosen;
         // What the left side fixes need not be everything the right side
         // holds: the rest is what the claim says there, fitted as written and
         // then as the standard form reads the two, as `unfolding` fits its

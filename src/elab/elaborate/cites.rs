@@ -117,8 +117,15 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let in_domain = self.shown_proof(step, first, &member, scope, &known)?;
-        let said =
-            self.shown_body(step, &self.to_term(&here), rest, &values, scope, &known)?;
+        let said = self.shown_body(
+            step,
+            &self.to_term(&here),
+            rest,
+            &values,
+            false,
+            scope,
+            &known,
+        )?;
         let shown = [in_domain, said];
         let spare = apart.clone().unwrap_or(binder);
         let claimed = match &renamed {
@@ -281,7 +288,9 @@ impl<'a> Elaborator<'a> {
             self.rpn(&whole.children()[2]),
         );
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let p_ex = take!(self.witnessed(step, &whole, scope, &supplied, lines)?);
+        let p_ex = take!(
+            self.folded_at_witness(step, &whole, flipped, scope, &supplied, lines)?
+        );
         let (made, _) = take!(self.unfolding(
             step,
             &lemma,

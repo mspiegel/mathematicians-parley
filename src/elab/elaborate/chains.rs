@@ -3,6 +3,7 @@
 use std::mem;
 
 use super::*;
+use crate::checker::record::Unfolded;
 use crate::matching::Meeting;
 
 impl<'a> Elaborator<'a> {
@@ -30,7 +31,7 @@ impl<'a> Elaborator<'a> {
                 Way::Equivalent => {
                     self.one_equivalent(&lemma, step, term, scope, facts, lines)?
                 }
-                _ => self.one_unfolded(&lemma, step, term, scope, facts, lines)?,
+                _ => self.one_unfolded(&lemma, step, term, scope, facts)?,
             };
             match found {
                 Built(p) => return Ok(Built(p)),
@@ -82,13 +83,15 @@ impl<'a> Elaborator<'a> {
         Ok(match way {
             citing::Way::AsWritten => Way::AsStated,
             citing::Way::Forward => Way::Unfolded,
+            // Read backwards, a right side that is a "there is" the checker
+            // shows at a witness it read (`Cited::unfolded`) is exhibited
+            // there; one a line states, or one with more parts than its
+            // "there is", is read back part by part.
             citing::Way::Backward => {
-                let there_is = whole.children()[1].label() == Some("wrex");
-                let said = step.just.refs.iter().any(|r| {
-                    self.line_written(r, &self.lines)
-                        .is_some_and(|l| self.to_term(&l.claim).label() == Some("wrex"))
-                });
-                if there_is && !said {
+                let witnessed = cited.unfolded.iter().flatten().all(|parts| {
+                    matches!(parts.as_slice(), [Unfolded::Witness { .. }])
+                }) && cited.unfolded.iter().any(Option::is_some);
+                if witnessed {
                     Way::Conclude
                 } else {
                     Way::Equivalent
