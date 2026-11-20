@@ -1,6 +1,8 @@
 //! Unfolding definitions and hypotheses.
 
 use super::*;
+use crate::elab::provenance::rests_on_only;
+use crate::matching::Meeting;
 
 /// The side of a substitution's equation put for the other, the term that
 /// stands in the line and the term put in its place
@@ -379,6 +381,162 @@ impl<'a> Elaborator<'a> {
                 _ => None,
             })
             .collect())
+    }
+
+    /// ( scope -> wanted ) for a hypothesis of a cited item, from what the
+    /// checker recorded as supplying it (`SuppliedBy`): a line, as the
+    /// record places the fact in it (`placed_proof`), or a "for all" of it
+    /// over a wider set; one of the step's requires lines; a membership
+    /// said once or walked to; one a function's type or a subset carries;
+    /// the membership the claim's "for all" gives; an identity, or a fact
+    /// the values make true, which hold by the values alone; an "and",
+    /// part by part. `meeting` is how the line's fact met the hypothesis
+    /// (`Supplied::meeting`). None where what the record names does not
+    /// give it.
+    pub(in crate::elab) fn supplied_proof(
+        &mut self,
+        step: &Step,
+        by: &SuppliedBy,
+        meeting: Option<&Meeting>,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let lines = self.lines.clone();
+        // A function's type the line or the `let` writes is kept among the
+        // step's facts, as each step types its functions, and not in the
+        // line's claim.
+        let typed = self.to_term(wanted).label() == Some("wf");
+        if typed && matches!(by, SuppliedBy::Line(_) | SuppliedBy::SaidOnce(_)) {
+            return self.held(facts, wanted, scope);
+        }
+        match by {
+            SuppliedBy::Line(at) => {
+                // What the line says, and what rests on it alone: the domain
+                // an obtain on it put in the scope.
+                let held = self.line_supplies(&at.line, scope, facts, &lines)?;
+                for (said, proof) in facts.entries() {
+                    if rests_on_only(&proof, &at.line) {
+                        self.know_default(&held, said, proof);
+                    }
+                }
+                if let Some(p) = self.placed_proof(at, wanted, &held, scope, facts)? {
+                    return Ok(Some(p));
+                }
+                Ok(self
+                    .line_for_all(&at.line, wanted, scope, facts)?
+                    .and_then(Route::built))
+            }
+            SuppliedBy::Requires { line, implied } => {
+                let owner = match step.requires.is_empty() {
+                    true => self.step_now.and_then(|i| self.thm.steps.get(i)),
+                    false => Some(step),
+                };
+                let Some(r) = owner.and_then(|s| s.requires.get(*line)) else {
+                    return Ok(None);
+                };
+                let said = self.claim_of(&r.fact)?;
+                let Some(proof) = self.held(facts, &said, scope)? else {
+                    return Ok(None);
+                };
+                if said == *wanted {
+                    return Ok(Some(proof));
+                }
+                if implied.is_none() {
+                    return self
+                        .carried_to(&said, &proof, wanted, meeting, scope, facts);
+                }
+                // What the line implies: read off it where the reading
+                // gives it, and otherwise worked out from it (`settle`).
+                let more = self.implied(&said, &proof, scope, facts)?;
+                if let Some(p) = self.held(&more, wanted, scope)? {
+                    return Ok(Some(p));
+                }
+                let held = facts.copy();
+                self.know(&held, said, proof);
+                Ok(self
+                    .settle(&self.to_term(wanted), scope, &held, 3, None, None)?
+                    .built())
+            }
+            SuppliedBy::SaidOnce(_) | SuppliedBy::Walked(_) => Ok(self
+                .said_once_proof(&self.to_term(wanted), scope, facts)?
+                .built()),
+            SuppliedBy::Through { carrier, member } => Ok(self
+                .through_proof(carrier, member, wanted, scope, facts)?
+                .and_then(Route::built)),
+            SuppliedBy::Bound { .. } => self.held(facts, wanted, scope),
+            SuppliedBy::Identity(_) | SuppliedBy::Unstated => Ok(self
+                .settle_or_bare(&self.to_term(wanted), scope, facts, None, None)?
+                .built()),
+            SuppliedBy::Parts(parts) => {
+                // A chain is its equations joined, besides itself.
+                let asked: Vec<Rpn> = self
+                    .parts(wanted)
+                    .into_iter()
+                    .filter(|p| p != wanted)
+                    .collect();
+                if asked.len() != parts.len() {
+                    return Ok(None);
+                }
+                let mut joined: Option<(Rpn, Proof)> = None;
+                for (part, by) in asked.iter().zip(parts) {
+                    let Some(p) =
+                        self.supplied_proof(step, by, None, part, scope, facts)?
+                    else {
+                        return Ok(None);
+                    };
+                    joined = Some(match joined {
+                        None => (part.clone(), p),
+                        Some((left, q)) => (
+                            t!(left, part, "wa"),
+                            pf!(self.b; scope, left, part, q, p, "jca"),
+                        ),
+                    });
+                }
+                let Some((made, proof)) = joined else {
+                    return Ok(None);
+                };
+                if made == *wanted {
+                    return Ok(Some(proof));
+                }
+                self.carried_to(&made, &proof, wanted, meeting, scope, facts)
+            }
+        }
+    }
+
+    /// ( scope -> wanted ) from `proof` of `said`, the fact a line writes,
+    /// where the two are one fact spelt otherwise (`same`) or with an
+    /// identity element dropped (`tidied`); where the record says the two
+    /// met with their members in another order (`Meeting::permuted`), a
+    /// triangle's points, worked out from it (`settle`).
+    fn carried_to(
+        &mut self,
+        said: &Rpn,
+        proof: &Proof,
+        wanted: &Rpn,
+        meeting: Option<&Meeting>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if let Built(alike) = self.same(
+            &self.to_term(said),
+            &self.to_term(wanted),
+            scope,
+            facts,
+            None,
+        )? {
+            return Ok(Some(
+                pf!(self.b; scope, said, wanted, proof, alike, "mpbid"),
+            ));
+        }
+        if !meeting.is_some_and(|m| m.permuted) {
+            return self.tidied(proof, said, wanted, scope, facts);
+        }
+        let held = facts.copy();
+        self.know(&held, said.clone(), proof.clone());
+        Ok(self
+            .settle(&self.to_term(wanted), scope, &held, 3, None, None)?
+            .built())
     }
 
     /// What the line `at` names says there, as the checker read it

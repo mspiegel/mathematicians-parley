@@ -4,9 +4,120 @@ use std::collections::VecDeque;
 use std::iter;
 
 use super::*;
+use crate::checker::record::Supplied;
+use crate::citing::Way as Read;
+use crate::corpus::Hypothesis;
+use crate::matching::Meeting;
 use crate::sorts;
 
 impl<'a> Elaborator<'a> {
+    /// ( scope -> one ) for the hypothesis `h` of a cited theorem, read as
+    /// this elaborator states it (`hypothesis_node`), from what the checker
+    /// recorded as supplying it (`entry`). What only set.mm asks of a `let`
+    /// is the elaborator's own (`own_hypothesis`): that a point, a set, an
+    /// element, a group or a graph is one, whatever the record names; and
+    /// beside what `a ∉ X` and `let f : A → B be one-to-one` say, that a is
+    /// a set and f's type, the left of the "and" the reading makes.
+    #[allow(clippy::too_many_arguments)]
+    fn hypothesis_supplied(
+        &mut self,
+        step: &Step,
+        h: &Hypothesis,
+        path: &str,
+        entry: Option<&Supplied>,
+        one: &Rpn,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Proof> {
+        let form =
+            (h.kind == Intro::Let).then(|| Introduction::read(h.body(path)).form);
+        let kind_only = matches!(
+            form,
+            Some(
+                Form::Point(_)
+                    | Form::Set(_)
+                    | Form::Element(_)
+                    | Form::Group { .. }
+                    | Form::Graph(_)
+                    | Form::GraphListed(_)
+            )
+        );
+        if kind_only {
+            return self.own_hypothesis(step, one, scope, known);
+        }
+        let Some(entry) = entry else {
+            return Err(self.unreached(
+                step.line,
+                format!(
+                    "the checker recorded nothing supplying {}",
+                    self.render(one)
+                ),
+            ));
+        };
+        let split = matches!(form, Some(Form::NotIn(_) | Form::FunctionBeing { .. }));
+        let node = self.to_term(one);
+        let (own, recorded) = match (split, node.label(), node.children()) {
+            (true, Some("wa"), [left, right]) => {
+                (Some(self.rpn(left)), self.rpn(right))
+            }
+            _ => (None, one.clone()),
+        };
+        let Some(given) = self.supplied_proof(
+            step,
+            &entry.by,
+            entry.meeting.as_ref(),
+            &recorded,
+            scope,
+            known,
+        )?
+        else {
+            return Err(self.unreached(
+                step.line,
+                format!(
+                    "what the checker recorded as supplying {} does not give it",
+                    self.render(&recorded)
+                ),
+            ));
+        };
+        let Some(own) = own else {
+            return Ok(given);
+        };
+        let left = self.own_hypothesis(step, &own, scope, known)?;
+        Ok(pf!(self.b; scope, own, recorded, left, given, "jca"))
+    }
+
+    /// ( scope -> one ) for what only set.mm asks of a cited theorem's
+    /// hypothesis, which no page line writes: that a point is a complex
+    /// number, a class a set, a structure a group, and a function's type a
+    /// line keeps apart from its claim. Said once where the page lets the
+    /// letter, held among the step's facts, or built from the term's
+    /// structure (`settle_or_bare`).
+    fn own_hypothesis(
+        &mut self,
+        step: &Step,
+        one: &Rpn,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Proof> {
+        if let Built(p) = self.said_once_proof(&self.to_term(one), scope, known)? {
+            return Ok(p);
+        }
+        if let Some(p) = self.held(known, one, scope)? {
+            return Ok(p);
+        }
+        match self.settle_or_bare(&self.to_term(one), scope, known, None, None)? {
+            Built(p) => Ok(p),
+            Declined(_) => Err(self.defect(
+                step.line,
+                format!(
+                    "nothing supplies {}, which {} assumes",
+                    self.render(one),
+                    step.just.head
+                ),
+            )),
+        }
+    }
+
     /// Apply a theorem this corpus proves, as this elaborator states it: its
     /// hypotheses became the antecedent of one implication, so citing it is
     /// conjoining the facts the step supplies and applying one label.
@@ -52,15 +163,12 @@ impl<'a> Elaborator<'a> {
                 // Every value is read in the step's own names before any
                 // letter of the theorem is given one: `a := b/k, b := a/k`
                 // swaps the two, and reading the second after the first is
-                // given would read a/k as (b/k)/k.
-                let values: IndexMap<String, Rpn> =
-                    me.instantiated(&step.just)?.into_iter().collect();
-                // What the citation does not write is found by matching the
-                // theorem against what the step claims and cites, as the
-                // checker finds it (`citing::taken`, SYNTAX.md "No pair says
-                // what goes without saying"): `A ⊆ B ∪ A` cited for
-                // `B ⊆ A ∪ B` puts B for A and A for B.
-                let matched = me.corpus_matched(step, other)?;
+                // given would read a/k as (b/k)/k. What the citation does
+                // not write is what the checker's match gives it
+                // (`citing::taken`, SYNTAX.md "No pair says what goes
+                // without saying"): `A ⊆ B ∪ A` cited for `B ⊆ A ∪ B` puts
+                // B for A and A for B.
+                let values = me.corpus_matched(step, other)?;
                 // A letter read apart stands for a class no value and no name
                 // of the step writes, since the value is put back in for that
                 // class over the whole reading: the citing proof's own first
@@ -68,7 +176,6 @@ impl<'a> Elaborator<'a> {
                 let held: BTreeSet<&str> = saved
                     .values()
                     .chain(values.values())
-                    .chain(matched.values())
                     .flat_map(|t| t.tokens().iter().map(|s| s.as_str()))
                     .collect();
                 let mut unheld = CLASS_NAMES
@@ -163,10 +270,8 @@ impl<'a> Elaborator<'a> {
                         // that a letter the theorem binds is moved off what
                         // it stands for (`apart_from_values`): grow-by-one's
                         // v may be a point the citing proof holds as w.
-                        if let Some(term) = values
-                            .get(&name)
-                            .or_else(|| matched.get(&name))
-                            .or_else(|| saved.get(&name))
+                        if let Some(term) =
+                            values.get(&name).or_else(|| saved.get(&name))
                         {
                             let class = if apart.contains(&name) {
                                 let Some(own) = unheld.next() else {
@@ -273,42 +378,32 @@ impl<'a> Elaborator<'a> {
         let (wanted, whole) = self.apart_from_values(first, |me, apart| {
             me.names_and_sets_kept(|me| read(me, apart))
         })?;
-        // A cited theorem asks for what it asks for, and a hypothesis a
-        // reader would not think to write as a line is written as a
-        // `requires` instead, or settled as a side condition. What the step
-        // cites is laid over the scope, as `apply_lemma` lays it: a line and
-        // a hypothesis may state one claim, and the step names the line.
-        // What a cited line says beyond itself is read as `apply_lemma`
-        // reads it: `let j ∈ ℕ` also says j ≥ 1 (`with_implied`).
+        // Each hypothesis from what the checker recorded as supplying it
+        // (`Cited::supplied`, by the hypothesis's place), with what a cited
+        // line says beyond itself read as `apply_lemma` reads it: `let j ∈
+        // ℕ` also says j ≥ 1 (`with_implied`).
         let known = self.known_implied(Some(step), scope, facts)?;
-        for one in &wanted {
-            // A membership the page says once is taken from where it says
-            // it, and not from the scope's copy of a line the step does not
-            // name.
-            if let Built(p) = self.said_once_proof(&self.to_term(one), scope, &known)? {
-                self.know(&known, one.clone(), p);
-                continue;
-            }
-            // Held where the step may rest on it, as everything in `known`
-            // is (`in_hand`).
-            if self.holds(&known, one) {
-                continue;
-            }
-            // A hypothesis that is an identity once its identity elements
-            // are dropped, 1 = 0 + 1 at i := 0, needs no line (`SYNTAX.md`).
-            match self.settle_or_bare(&self.to_term(one), scope, &known, None, None)? {
-                Built(p) => self.know(&known, one.clone(), p),
-                Declined(_) => {
-                    return Err(self.defect(
-                        step.line,
-                        format!(
-                            "nothing supplies {}, which {} assumes",
-                            self.render(one),
-                            step.just.head
-                        ),
-                    ));
-                }
-            }
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        for (i, (one, h)) in wanted.iter().zip(&other.hypotheses).enumerate() {
+            let entry = cited
+                .supplied
+                .iter()
+                .find(|s| s.at.is_some_and(|a| a.line == i));
+            let proof = self.hypothesis_supplied(
+                step,
+                h,
+                &other.path,
+                entry,
+                one,
+                scope,
+                &known,
+            )?;
+            self.know(&known, one.clone(), proof);
         }
         let mut pair = wanted.first().cloned();
         let mut proof = match &pair {
@@ -411,7 +506,9 @@ impl<'a> Elaborator<'a> {
         // the step's own terms may ask: e(n) ∈ ℤ, to read s at e(n).
         let read = self.with_cited(Some(step), scope, &known, None)?;
         let offered = self.in_hand(&facts.with(&read));
-        let concluded = self.concluded(step, term, &whole, proof, scope, &offered);
+        let sentences = other.stated().sentences().len();
+        let concluded =
+            self.concluded(step, term, &whole, sentences, proof, scope, &offered);
         self.resting = kept;
         concluded
     }
@@ -498,157 +595,253 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// ( scope -> term ) from the cited theorem's statement `whole`, proved
-    /// by `proof`: the statement itself, over other bound letters, or one
-    /// sentence of it said in other words.
-    pub(super) fn concluded(
+    /// ( scope -> term ) from the cited theorem's statement `whole`, of
+    /// `sentences` sentences, proved by `proof`, as the checker recorded the
+    /// citation reads it (`Cited::concluded`). The claim is taken apart
+    /// into its conjuncts, as the checker takes it apart (`conjuncts`), and
+    /// each is the sentence the record names, or the part of that sentence,
+    /// read the way it names, and carried as the record says the two meet
+    /// (`met_as`). An obtain takes its "there is" whole, the sentence the
+    /// record names (`Cited::obtained`), over the letters the step obtains.
+    #[allow(clippy::too_many_arguments)]
+    fn concluded(
         &mut self,
         step: &Step,
         term: &Rpn,
         whole: &Rpn,
+        sentences: usize,
         proof: Proof,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let whole = whole.clone();
-        if *term == whole {
+        if term == whole {
             return Ok(proof);
         }
-        // The claim over other bound letters: one claim, renamed closed by
-        // way of letters nothing holds (`renaming_apart`).
-        if self.rebound(&whole, term) {
-            if let Some(across) = self.renaming_apart(&whole, term)? {
-                let turned = pf!(self.b; t!(whole, term, "wb"), scope, across, "a1i");
-                return Ok(pf!(self.b; scope, whole, term, proof, turned, "mpbid"));
-            }
-        }
-        // The claim over other bound letters and with a defined name where
-        // the statement has what it names, as J(n + 1) the statement writes
-        // as its integral: renamed onto the claim read through its names,
-        // and that read back to the claim as written.
-        let claim = self.to_term(term);
-        let read = self.read_out(&claim);
-        let read_rpn = self.rpn(&read);
-        if read_rpn != *term && self.rebound(&whole, &read_rpn) {
-            if let Some(across) = self.renaming_apart(&whole, &read_rpn)? {
-                if let Built(alike) = self.same(&read, &claim, scope, facts, None)? {
-                    let turned =
-                        pf!(self.b; t!(whole, read_rpn, "wb"), scope, across, "a1i");
-                    let there =
-                        pf!(self.b; scope, whole, read_rpn, proof, turned, "mpbid");
-                    return Ok(
-                        pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
-                    );
-                }
-            }
-        }
-        let taken = Facts::new();
-        self.know(&taken, whole.clone(), proof.clone());
-        self.unpack_all(&whole, &proof, scope, &taken);
-        if let Some(p) = self.held(&taken, term, scope)? {
-            return Ok(p);
-        }
-        for (one, shown) in taken.entries() {
-            if let Built(alike) =
-                self.same(&self.to_term(&one), &self.to_term(term), scope, facts, None)?
-            {
-                return Ok(pf!(self.b; scope, one, term, shown, alike, "mpbid"));
-            }
-        }
-        // Or the claim with its identity elements dropped, as the checker
-        // compares the two (`SYNTAX.md`, "An identity element goes without
-        // saying"): at n := 0 the statement says J(0 + 1), and the step J(1).
-        // Where the statement writes a defined name out, the claim is read
-        // through its names too.
-        for (one, shown) in taken.entries() {
-            if let Some(p) = self.tidied(&shown, &one, term, scope, facts)? {
-                return Ok(p);
-            }
-            // The statement's identity elements dropped where it stands,
-            // over its own bound letters, then renamed onto the claim read
-            // through its names: J(0 + 1) written out binds t, and the
-            // claim's J(1) read out binds a letter of its own.
-            // Both are compared bare, since dropping may take more from the
-            // statement than the claim leaves out: t^(2·(0 + 1)) is t² bare,
-            // where the claim read out says i^(2·1).
-            let bare = self.rpn(&self.without_identities(&self.to_term(&one)));
-            let bare_read = self.rpn(&self.without_identities(&read));
-            if bare != one && read_rpn != *term && self.rebound(&bare, &bare_read) {
-                if let Some(dropped) = self.tidied(&shown, &one, &bare, scope, facts)? {
-                    if let Some(across) = self.renaming_apart(&bare, &bare_read)? {
-                        let turned = pf!(self.b; t!(bare, bare_read, "wb"), scope, across, "a1i");
-                        let renamed = pf!(self.b; scope, bare, bare_read, dropped, turned, "mpbid");
-                        if let Some(there) =
-                            self.tidied(&renamed, &bare_read, &read_rpn, scope, facts)?
-                        {
-                            if let Built(alike) =
-                                self.same(&read, &claim, scope, facts, None)?
-                            {
-                                return Ok(
-                                    pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-            if read_rpn != *term {
-                if let Some(there) =
-                    self.tidied(&shown, &one, &read_rpn, scope, facts)?
-                {
-                    if let Built(alike) =
-                        self.same(&read, &claim, scope, facts, None)?
-                    {
-                        return Ok(
-                            pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
-                        );
-                    }
-                }
-            }
-        }
-        // A sentence "A ↔ B" with a line stating A gives B, and B gives A;
-        // "if A then B" with A gives B (`SYNTAX.md`, the conventions at
-        // every citation).
-        for (one, shown) in taken.entries() {
-            let node = self.to_term(&one);
-            let label = node.label().map(String::from);
-            let [a, b] = node.children() else {
-                continue;
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let said = self.sentences_proved(whole, proof, sentences, scope);
+        if let Some(k) = cited.obtained {
+            let Some((there, shown)) = said.get(k).cloned() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker obtains from a sentence the cited theorem does not have",
+                ));
             };
-            let (a, b) = (self.rpn(a), self.rpn(b));
-            let ways: Vec<(&Rpn, &Rpn, &str)> = match label.as_deref() {
-                Some("wb") => vec![(&a, &b, "mpbid"), (&b, &a, "mpbird")],
-                Some("wi") => vec![(&a, &b, "mpd")],
-                _ => continue,
+            let renamed = Meeting {
+                renamed: true,
+                ..Meeting::default()
             };
-            for (given, got, rule) in ways {
-                let Some(held) = self.held(facts, given, scope)? else {
-                    continue;
-                };
-                let reached = match rule {
-                    "mpbird" => pf!(self.b; scope, got, given, held, shown, "mpbird"),
-                    _ => pf!(self.b; scope, given, got, held, shown, rule),
-                };
-                if got == term {
-                    return Ok(reached);
-                }
-                if let Built(alike) = self.same(
-                    &self.to_term(got),
-                    &self.to_term(term),
-                    scope,
-                    facts,
-                    None,
-                )? {
-                    return Ok(pf!(self.b; scope, got, term, reached, alike, "mpbid"));
+            return match self.met_as(&there, shown, term, &renamed, scope, facts)? {
+                Some(p) => Ok(p),
+                None => Err(self.unreached(
+                    step.line,
+                    format!(
+                        "the sentence the checker obtains from says {}, and the step obtains {}",
+                        self.render(&there),
+                        self.render(term)
+                    ),
+                )),
+            };
+        }
+        if cited.within.iter().any(Option::is_some) {
+            return Err(self.unreached(
+                step.line,
+                "the checker read a claim inside a property applied, which a cited theorem does not state",
+            ));
+        }
+        let pieces: Vec<Rpn> = conjuncts_of(&self.to_term(term))
+            .iter()
+            .map(|p| self.rpn(p))
+            .collect();
+        if pieces.len() != cited.concluded.len() {
+            return Err(self.unreached(
+                step.line,
+                format!(
+                    "the claim has {} parts, and the checker concluded {}",
+                    pieces.len(),
+                    cited.concluded.len()
+                ),
+            ));
+        }
+        let mut proved = Vec::new();
+        for (k, (piece, concluded)) in pieces.iter().zip(&cited.concluded).enumerate() {
+            let Some((sentence, shown)) = said.get(concluded.sentence).cloned() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker concluded a sentence the cited theorem does not have",
+                ));
+            };
+            let (read, shown) =
+                self.read_way(step, &sentence, shown, concluded.way, scope, facts)?;
+            let (part, shown) = match concluded.part {
+                None => (read, shown),
+                Some(i) => match self.conjuncts_proved(&read, shown, scope).get(i) {
+                    Some(at) => at.clone(),
+                    None => {
+                        return Err(self.unreached(
+                            step.line,
+                            "the checker concluded a part the cited sentence does not have",
+                        ));
+                    }
+                },
+            };
+            let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
+            match self.met_as(&part, shown, piece, &met, scope, facts)? {
+                Some(p) => proved.push(p),
+                None => {
+                    return Err(self.unreached(
+                        step.line,
+                        format!(
+                            "{} gives {}, and the checker read it as the claim's {}",
+                            step.just.head,
+                            self.render(&part),
+                            self.render(piece)
+                        ),
+                    ));
                 }
             }
         }
-        Err(self.defect(
-            step.line,
-            format!(
-                "{} does not conclude what step {} claims",
-                step.just.head, step.number
-            ),
-        ))
+        let mut proved = proved.into_iter();
+        Ok(self.conjoined_proof(&self.to_term(term), &mut proved, scope))
+    }
+
+    /// Each of the `count` sentences `whole` joins by "and", left to right,
+    /// with its proof under `scope` from `proof` of the whole (`claim_of`
+    /// joins them so).
+    fn sentences_proved(
+        &mut self,
+        whole: &Rpn,
+        proof: Proof,
+        count: usize,
+        scope: &Rpn,
+    ) -> Vec<(Rpn, Proof)> {
+        if count <= 1 {
+            return vec![(whole.clone(), proof)];
+        }
+        let node = self.to_term(whole);
+        if node.label() != Some("wa") {
+            return vec![(whole.clone(), proof)];
+        }
+        let (rest, last) =
+            (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
+        let first = pf!(self.b; scope, rest, last, proof.clone(), "simpld");
+        let second = pf!(self.b; scope, rest, last, proof, "simprd");
+        let mut out = self.sentences_proved(&rest, first, count - 1, scope);
+        out.push((last, second));
+        out
+    }
+
+    /// Each conjunct of `term`, every "and" taken apart left to right
+    /// (`conjuncts_of`), with its proof under `scope` from `proof`.
+    fn conjuncts_proved(
+        &mut self,
+        term: &Rpn,
+        proof: Proof,
+        scope: &Rpn,
+    ) -> Vec<(Rpn, Proof)> {
+        let node = self.to_term(term);
+        let kids: Vec<Rpn> = node.children().iter().map(|c| self.rpn(c)).collect();
+        let lemmas: &[&str] = match (node.label(), kids.len()) {
+            (Some("wa"), 2) => &["simpld", "simprd"],
+            (Some("w3a"), 3) => &["simp1d", "simp2d", "simp3d"],
+            _ => return vec![(term.clone(), proof)],
+        };
+        let mut out = Vec::new();
+        for (kid, lemma) in kids.iter().zip(lemmas) {
+            let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
+            all.extend(kids.iter().map(|k| super::super::part(k)));
+            all.push(super::super::part(&proof));
+            all.push(super::super::part(*lemma));
+            let taken = self.b.proof(&all);
+            out.extend(self.conjuncts_proved(kid, taken, scope));
+        }
+        out
+    }
+
+    /// ( scope -> term ), each conjunct of `term` (`conjuncts_of`) proved by
+    /// the next of `proved`, in order, joined by `jca` and `3jca`.
+    fn conjoined_proof(
+        &mut self,
+        term: &Term,
+        proved: &mut impl Iterator<Item = Proof>,
+        scope: &Rpn,
+    ) -> Proof {
+        let kids: Vec<Term> = term.children().to_vec();
+        let joined = match (term.label(), kids.len()) {
+            (Some("wa"), 2) => "jca",
+            (Some("w3a"), 3) => "3jca",
+            _ => return proved.next().expect("a proof for each conjunct"),
+        };
+        let parts: Vec<Proof> = kids
+            .iter()
+            .map(|k| self.conjoined_proof(k, proved, scope))
+            .collect();
+        let written: Vec<Rpn> = kids.iter().map(|k| self.rpn(k)).collect();
+        let mut all: Vec<crate::mm::spell::Part> = vec![super::super::part(scope)];
+        all.extend(written.iter().map(|k| super::super::part(k)));
+        all.extend(parts.iter().map(|p| super::super::part(p)));
+        all.push(super::super::part(joined));
+        self.b.proof(&all)
+    }
+
+    /// A cited sentence read the way the checker recorded (`Way`): as it
+    /// stands; "A ↔ B" or "if A then B" with A held, giving B; or "A ↔ B"
+    /// with B held, giving A.
+    fn read_way(
+        &mut self,
+        step: &Step,
+        sentence: &Rpn,
+        shown: Proof,
+        way: Read,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<(Rpn, Proof)> {
+        if way == Read::AsWritten {
+            return Ok((sentence.clone(), shown));
+        }
+        let node = self.to_term(sentence);
+        let label = node.label().map(String::from);
+        let [a, b] = node.children() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker read a sentence through, which is no ↔ or if",
+            ));
+        };
+        let (a, b) = (self.rpn(a), self.rpn(b));
+        let (given, got) = match way {
+            Read::Backward => (b.clone(), a.clone()),
+            _ => (a.clone(), b.clone()),
+        };
+        let Some(held) = self.held(facts, &given, scope)? else {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "{} gives {} where {} holds, and nothing here says it",
+                    step.just.head,
+                    self.render(&got),
+                    self.render(&given)
+                ),
+            ));
+        };
+        let reached = match (label.as_deref(), way) {
+            (Some("wb"), Read::Forward) => {
+                pf!(self.b; scope, a, b, held, shown, "mpbid")
+            }
+            (Some("wb"), Read::Backward) => {
+                pf!(self.b; scope, a, b, held, shown, "mpbird")
+            }
+            (Some("wi"), Read::Forward) => pf!(self.b; scope, a, b, held, shown, "mpd"),
+            _ => {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker read a sentence through, which is no ↔ or if",
+                ));
+            }
+        };
+        Ok((got, reached))
     }
 }

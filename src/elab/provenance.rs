@@ -778,6 +778,22 @@ impl<'a> Elaborator<'a> {
         let SuppliedBy::Through { carrier, member } = by else {
             return Ok(None);
         };
+        self.through_proof(&carrier, &member, term, scope, facts)
+    }
+
+    /// ( scope -> term ) for a membership a function's type or a subset
+    /// carries (`SuppliedBy::Through`), from the two facts the record names:
+    /// the carrier and the member's membership; None where the record's
+    /// facts do not give it.
+    pub(in crate::elab) fn through_proof(
+        &mut self,
+        carrier: &SuppliedBy,
+        member: &SuppliedBy,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Route<Proof>>> {
+        let lines = self.lines.clone();
         let wanted = self.to_term(term);
         if wanted.label() != Some("wcel") || wanted.children().len() != 2 {
             return Ok(None);
@@ -794,7 +810,7 @@ impl<'a> Elaborator<'a> {
         // from one, built as a said-once membership is, which a requires
         // line may rest on without naming the `let` line.
         let supplied = facts.copy();
-        for by in [&*carrier, &*member] {
+        for by in [carrier, member] {
             let said_once = match by {
                 SuppliedBy::Line(at) => {
                     if let Some((said, proof)) =
@@ -820,7 +836,7 @@ impl<'a> Elaborator<'a> {
         }
         // A "for all" the carrier's line says of each member: `for all k ∈
         // ℕ₀, F(k) ∈ ℝ` at m.
-        match &*carrier {
+        match carrier {
             SuppliedBy::Line(at) => self.line_for_all(&at.line, term, scope, facts),
             _ => Ok(None),
         }
@@ -830,7 +846,7 @@ impl<'a> Elaborator<'a> {
     /// the member `term` is of (`part_at_a_member`), or over a set inside
     /// its own (`narrowed`); None where the line says no "for all" or
     /// neither reading gives it.
-    fn line_for_all(
+    pub(in crate::elab) fn line_for_all(
         &mut self,
         cite: &str,
         term: &Rpn,

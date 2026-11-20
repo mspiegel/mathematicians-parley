@@ -4,6 +4,7 @@ use super::unfolds::PutFor;
 use super::*;
 use crate::checker::record::{Facing, Instantiated, SubstitutedInto, SuppliedBy};
 use crate::corpus::Source;
+use crate::matching::Meeting;
 
 impl<'a> Elaborator<'a> {
     /// What an item states, however the database says it is supplied.
@@ -569,63 +570,85 @@ impl<'a> Elaborator<'a> {
         if reached == *term {
             return Ok(Built(proof));
         }
-        let met = &inst.meeting;
-        let other = met.turned
-            || met.permuted
-            || met.renamed
-            || met.respelled
-            || !met.flips.is_empty();
-        let reads = self.to_term(&reached);
-        let said_wrong = |me: &Self| {
-            me.defect(
+        match self.met_as(&reached, proof, term, &inst.meeting, scope, facts)? {
+            Some(carried) => Ok(Built(carried)),
+            None => Err(self.defect(
                 step.line,
                 format!(
                     "{where_} at those terms says {}, and the step claims {}",
-                    me.render(&reached),
-                    me.render(term)
+                    self.render(&reached),
+                    self.render(term)
                 ),
-            )
-        };
-        if met.identities.is_empty() {
-            // What the universal says is the claim in other words.
-            let alike =
-                match self.same(&reads, &self.to_term(term), scope, facts, None)? {
-                    Built(alike) => alike,
-                    Declined(_) => return Err(said_wrong(self)),
-                };
-            return Ok(Built(
-                pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
-            ));
-        }
-        if !other {
-            // The claim with its identity elements dropped, as the checker
-            // compares the two (`SYNTAX.md`, "An identity element goes
-            // without saying"): the line at k := 0 says F(0 + 2), and the
-            // step F(2).
-            return match self.tidied(&proof, &reached, term, scope, facts)? {
-                Some(tidy) => Ok(Built(tidy)),
-                None => Err(said_wrong(self)),
-            };
-        }
-        // Both: the instance with its identity elements dropped, and that
-        // the claim in other words, as a(1) = a(0) + 2 is the step's
-        // a(0) + 2 = a(1).
-        let bare = self.rpn(&self.without_identities(&reads));
-        let Some(dropped) = self.tidied(&proof, &reached, &bare, scope, facts)? else {
-            return Err(said_wrong(self));
-        };
-        match self.same(
-            &self.to_term(&bare),
-            &self.to_term(term),
-            scope,
-            facts,
-            None,
-        )? {
-            Built(alike) => Ok(Built(
-                pf!(self.b; scope, bare, term, dropped, alike, "mpbid"),
             )),
-            Declined(_) => Err(said_wrong(self)),
         }
+    }
+
+    /// ( scope -> wanted ) from a proof of `said`, carried as the checker
+    /// recorded the two meet (`Meeting`). Where no identity element was
+    /// dropped, `wanted` is `said` in other words: turned, renamed,
+    /// respelled, its parts in another order, a defined name read for what
+    /// it names (`same`). Where identity elements were dropped, as at k :=
+    /// 0 a line says F(0 + 2) and the step F(2), the record does not say
+    /// where, and the claim may keep some (1 · C(m + 1, 1)). So both are
+    /// taken bare (`without_identities`), `said` as it stands and `wanted`
+    /// with its defined names read out (`read_out`), since a cited theorem
+    /// writes its defines out; the two bare forms meet by `same`, and
+    /// `tidied` puts back what `wanted` keeps. The cited 2 · (0 + 1) = 2 ·
+    /// 0 + 2 is bare 2 = 2 · 0 + 2, which is the step's d(1) = d(0) + 2
+    /// read out, 2 · 1 = 2 · 0 + 2, bare. None where the two do not meet
+    /// that way.
+    pub(in crate::elab) fn met_as(
+        &mut self,
+        said: &Rpn,
+        proof: Proof,
+        wanted: &Rpn,
+        met: &Meeting,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if met.identities.is_empty() {
+            return self.same_carried(said, proof, wanted, scope, facts);
+        }
+        let read_out = self.read_out(&self.to_term(wanted));
+        let read = self.rpn(&read_out);
+        let bare = self.rpn(&self.without_identities(&self.to_term(said)));
+        let bare_read = self.rpn(&self.without_identities(&self.to_term(&read)));
+        let Some(dropped) = self.tidied(&proof, said, &bare, scope, facts)? else {
+            return Ok(None);
+        };
+        let Some(met) = self.same_carried(&bare, dropped, &bare_read, scope, facts)?
+        else {
+            return Ok(None);
+        };
+        let Some(kept) = self.tidied(&met, &bare_read, &read, scope, facts)? else {
+            return Ok(None);
+        };
+        self.same_carried(&read, kept, wanted, scope, facts)
+    }
+
+    /// ( scope -> wanted ) from a proof of `said`, the two one claim in
+    /// other words (`same`); None where they are not.
+    fn same_carried(
+        &mut self,
+        said: &Rpn,
+        proof: Proof,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if said == wanted {
+            return Ok(Some(proof));
+        }
+        Ok(self
+            .same(
+                &self.to_term(said),
+                &self.to_term(wanted),
+                scope,
+                facts,
+                None,
+            )?
+            .built()
+            .map(|alike| pf!(self.b; scope, said, wanted, proof, alike, "mpbid")))
     }
 
     /// What supplies a membership an instantiation's value is put in a

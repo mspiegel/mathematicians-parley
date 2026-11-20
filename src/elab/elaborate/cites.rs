@@ -853,10 +853,13 @@ impl<'a> Elaborator<'a> {
     }
 
     /// What each letter of a cited corpus theorem stands for where the
-    /// citation's match fixes it, as a term in the step's own names: the
-    /// binding the checker reads the citation with (`cited_here`). An
-    /// obtain's is read off the lines it cites, as `obtain B:
-    /// thm:convergent-bounded, from 1.1` finds x in 1.1.
+    /// citation fixes it, as a term in the step's own names, each read in
+    /// the names as they stand before any is given, as the checker read the
+    /// citation (`cited_here`): first what the citation's own pairs give
+    /// (`Cited::written`), `a := b/k, b := a/k` swapping the two, then what
+    /// its match gives the rest (`Cited::binding`). An obtain's is read off
+    /// the lines it cites, as `obtain B: thm:convergent-bounded, from 1.1`
+    /// finds x in 1.1.
     pub(in crate::elab) fn corpus_matched(
         &mut self,
         step: &Step,
@@ -865,16 +868,13 @@ impl<'a> Elaborator<'a> {
         let mut out = IndexMap::new();
         let obtain = step.just.head.is(Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
-        // A name the citation writes a value for takes that value, and a
-        // name the match gives itself, as a library function's C in C(m, k)
-        // is, stands as it already does.
-        let written: BTreeSet<String> = self
-            .instantiated_nodes(&step.just)?
-            .into_iter()
-            .map(|v| v.name)
-            .collect();
+        for (name, node) in &taken.written {
+            out.insert(name.to_string(), self.term(node)?);
+        }
+        // A name the match gives itself, as a library function's C in
+        // C(m, k) is, stands as it already does.
         for (name, node) in &taken.binding {
-            if written.contains(name.as_str()) || (node.is_name() && node.text == *name)
+            if out.contains_key(name.as_str()) || (node.is_name() && node.text == *name)
             {
                 continue;
             }

@@ -392,18 +392,11 @@ impl<'a> Elaborator<'a> {
                     // already what it stands for (`item_sentence_here`), in
                     // the proof's names. A theorem's is read in its own
                     // letters, which the values name, read in the proof's
-                    // names as they stand, before anything is obtained.
-                    // A letter the citation does not write is what the
-                    // checker's reading of it fixes (`corpus_matched`).
-                    let values = match item {
+                    // names as they stand, before anything is obtained, as
+                    // the checker read the citation (`corpus_matched`).
+                    let values: Vec<(String, Rpn)> = match item {
                         Item::Theorem(theorem) => {
-                            let mut values = me.instantiated(&step.just)?;
-                            for (name, term) in me.corpus_matched(step, theorem)? {
-                                if !values.iter().any(|(n, _)| *n == name) {
-                                    values.push((name, term));
-                                }
-                            }
-                            values
+                            me.corpus_matched(step, theorem)?.into_iter().collect()
                         }
                         Item::Record(_) => Vec::new(),
                     };

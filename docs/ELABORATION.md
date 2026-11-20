@@ -1623,6 +1623,11 @@ The checker records, for each step, the page facts it settled
 - for an obtain, which part of the body each part of each sentence is
   (`obtained_parts`);
 - for a cited record, the line supplying each hypothesis (`Cited::supplied`);
+- for a cited corpus theorem, its letters (`Cited::written`, then `binding`),
+  the line supplying each hypothesis (`supplied`), and for each part of the
+  claim, the sentence or part of one that gives it, which way it is read and
+  how the two meet (`concluded`, `meetings`); for an obtain from one, the
+  sentence it obtains from (`obtained`);
 - how a calculation link meets the line it cites (`link_meetings`) and which
   way it faces it (`link_facings`), read with the chain's direction: a chain
   going down is built going up (`Chain::falls`);
@@ -1654,8 +1659,10 @@ The checker records, for each step, the page facts it settled
 - of a cited "for all", the block letter it is read at (`read_at`).
 
 A recorded fact is read where it stands (`FirstAt::written`) and matched to
-what the line says in set.mm up to a renamed bound variable. A fact said once,
-or written by no line, is settled as before. Four things stay with the
+what the line says in set.mm up to a renamed bound variable. Where the record
+says identity elements were dropped but not where, both sides are taken
+without them, meet by `same`, and `tidied` puts back what the claim keeps
+(`met_as`). A fact said once, or written by no line, is settled as before. Four things stay with the
 elaborator. `congruence` walks the term a substitution puts the equation
 into against the aim, which the record fixes, and builds the proof at each
 place they differ. `define_makes` carries a define's equation, the facts

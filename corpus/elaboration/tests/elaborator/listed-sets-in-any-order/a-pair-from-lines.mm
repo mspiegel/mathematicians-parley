@@ -7,5 +7,5 @@ $[ stdlib/sets/subset-antisymmetric.mm $]
 
 ${
   tests.elaborator.listed-sets-in-any-order.a-pair-from-lines $p |- ( ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ { B , C } C_ A ) /\ A C_ { B , C } ) -> A = { C , B } ) $=
-    ( cvv wcel wa cpr wss wceq simpl id syl prex a1i jca simpr stdlib.sets.subset-antisymmetric eqcomd wb eqcom prcom eqeq2d bitrd mpbid ) ADEZBDEZFZCDEZFZBCGZAHZFZAUJHZFZUJAIZACBGZIZUNAUJUNUEUJDEZFZUMFZUKFAUJIZUNUTUKUNUSUMUNUEURUNULUEULUMJZULUIUEUIUKJUIUGUEUGUHJUGUEUEUEUFJUEKLLLLURUNBCMNOULUMPOUNULUKVBUIUKPLOAUJQLRUNUOVAUQUOVASUNUJATNUNUJUPAUNUPUJUPUJIUNCBUANRUBUCUD $.
+    ( cvv wcel wa cpr wss wceq simpl id syl prex a1i jca simpr stdlib.sets.subset-antisymmetric prcom eqcomd eqeq2d mpbid ) ADEZBDEZFZCDEZFZBCGZAHZFZAUGHZFZAUGIZACBGZIUKUBUGDEZFZUJFZUHFULUKUPUHUKUOUJUKUBUNUKUIUBUIUJJZUIUFUBUFUHJUFUDUBUDUEJUDUBUBUBUCJUBKLLLLUNUKBCMNOUIUJPOUKUIUHUQUFUHPLOAUGQLUKUGUMAUKUMUGUMUGIUKCBRNSTUA $.
 $}

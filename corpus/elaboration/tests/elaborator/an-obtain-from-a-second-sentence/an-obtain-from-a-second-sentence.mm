@@ -8,5 +8,5 @@ $[ tests/elaborator/an-obtain-from-a-second-sentence/four-positive-and-even.mm $
 ${
   $d i j k m $.
   tests.elaborator.an-obtain-from-a-second-sentence.an-obtain-from-a-second-sentence $p |- E. j e. ZZ 4 = ( 2 x. j ) $=
-    ( c4 c2 cv cmul co wceq cz wrex wtru vm vk cc0 clt wbr wa tests.elaborator.an-obtain-from-a-second-sentence.four-positive-and-even a1i simpr syl wb vi id oveq2d eqeq2d cbvrexvw bitri mpbid wcel simpl jca rspcev ex rexlimdva mpd mptru ) BCADZEFZGZAHIZJBCKDZEFZGZKHIZUTJBCLDZEFZGZLHIZVDJMBNOZVHPZVHVJJLQRVIVHSTVHVDUAJVHBCUBDZEFZGZUBHIVDVGVMLUBHVEVKGZVFVLBVNVEVKCEVNUCUDUEUFVMVCUBKHVKVAGZVLVBBVOVKVACEVOUCUDUEUFUGRUHJVCUTKHJVAHUIZPZVCUTVQVCPZVPVCPUTVRVPVCVRVQVPVQVCUJJVPSTVQVCSUKUSVCAVAHUQVAGZURVBBVSUQVACEVSUCUDUEULTUMUNUOUP $.
+    ( c4 c2 cv cmul co wceq cz wrex wtru vm vk cc0 clt wbr wa tests.elaborator.an-obtain-from-a-second-sentence.four-positive-and-even a1i simprd wb vi id oveq2d eqeq2d cbvrexvw bitri mpbid wcel simpl simpr syl jca rspcev ex rexlimdva mpd mptru ) BCADZEFZGZAHIZJBCKDZEFZGZKHIZVAJBCLDZEFZGZLHIZVEJMBNOZVIVJVIPJLQRSVIVETJVIBCUADZEFZGZUAHIVEVHVMLUAHVFVKGZVGVLBVNVFVKCEVNUBUCUDUEVMVDUAKHVKVBGZVLVCBVOVKVBCEVOUBUCUDUEUFRUGJVDVAKHJVBHUHZPZVDVAVQVDPZVPVDPVAVRVPVDVRVQVPVQVDUIJVPUJUKVQVDUJULUTVDAVBHURVBGZUSVCBVSURVBCEVSUBUCUDUMUKUNUOUPUQ $.
 $}
