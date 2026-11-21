@@ -17,6 +17,7 @@ use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
 use parley::corpus::Theorem;
 use parley::formula::Grammar;
+use parley::matching::Meeting;
 
 /// What a rewrite of requires lines changes in the record, by the place of
 /// each requires line, `requires line 1 of step 2`.
@@ -292,6 +293,9 @@ pub fn printed_but(
             .collect();
         writeln!(out, "{} obtains {}", reason_at(*line), pairs.join(", ")).unwrap();
     }
+    for (line, at) in &record.obtained_from {
+        writeln!(out, "{} obtains from {}", reason_at(*line), place(at)).unwrap();
+    }
     out
 }
 
@@ -378,24 +382,51 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
     let concluded: Vec<String> = cited
         .concluded
         .iter()
-        .map(|c| format!("{} {:?}", c.sentence, c.way))
+        .map(|c| match c.part {
+            Some(p) => format!("{} {:?} part {p}", c.sentence, c.way),
+            None => format!("{} {:?}", c.sentence, c.way),
+        })
         .collect();
-    let firsts: Vec<String> = cited.firsts.iter().map(supplier).collect();
+    // Each line read from, and how it met what the reading asks first
+    // where it took anything (`Cited::firsts_meetings`).
+    let firsts: Vec<String> = cited
+        .firsts
+        .iter()
+        .enumerate()
+        .map(
+            |(k, by)| match cited.firsts_meetings.get(k).cloned().flatten() {
+                Some(m) if !m.as_written() => {
+                    format!("{} met {}", supplier(by), meeting_words(&m))
+                }
+                _ => supplier(by),
+            },
+        )
+        .collect();
     let from = if firsts.is_empty() {
         "no line".to_string()
     } else {
         firsts.join(", ")
     };
     // Each by where the item writes it: hypothesis line, then sentence,
-    // each from 1.
+    // each from 1; with how the fact met it where that took anything, and
+    // the set a "for all" was narrowed to.
     let supplied: Vec<String> = cited
         .supplied
         .iter()
-        .map(|s| match s.at {
-            Some(at) => {
-                format!("{}.{} {}", at.line + 1, at.sentence + 1, supplier(&s.by))
+        .map(|s| {
+            let mut said = match s.at {
+                Some(at) => {
+                    format!("{}.{} {}", at.line + 1, at.sentence + 1, supplier(&s.by))
+                }
+                None => supplier(&s.by),
+            };
+            if let Some(m) = s.meeting.as_ref().filter(|m| !m.as_written()) {
+                write!(said, " met {}", meeting_words(m)).unwrap();
             }
-            None => supplier(&s.by),
+            if let Some(n) = &s.narrowed {
+                write!(said, " narrowed to {}", g.print(&n.to)).unwrap();
+            }
+            said
         })
         .collect();
     // Each letter's number systems, the item's then its value's, in no
@@ -435,24 +466,7 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .iter()
         .map(|m| match m {
             None => "apart".to_string(),
-            Some(m) => {
-                let mut took: Vec<&str> = Vec::new();
-                for (flag, word) in [
-                    (m.turned, "turned"),
-                    (m.permuted, "permuted"),
-                    (m.renamed, "renamed"),
-                    (m.respelled, "respelled"),
-                    (!m.identities.is_empty(), "identities dropped"),
-                ] {
-                    if flag {
-                        took.push(word);
-                    }
-                }
-                match took.is_empty() {
-                    true => "as written".to_string(),
-                    false => took.join(" and "),
-                }
-            }
+            Some(m) => meeting_words(m),
         })
         .collect();
     // What a definition read backwards asks of its right side, where one is.
@@ -470,8 +484,13 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         }
         false => String::new(),
     };
+    // The sentence an obtain takes its "there is" from, counted across the
+    // item's groups.
+    let obtained = cited
+        .obtained
+        .map_or(String::new(), |k| format!("; obtains sentence {k}"));
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}; met {}{within}{unfolded}",
+        "cites {} group {}; {}; concludes {}{obtained}; from {from}; supplied by {}; letters {}; facing {}; met {}{within}{unfolded}",
         cited.item,
         cited.group,
         binding.join(", "),
@@ -481,6 +500,29 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         facings.join(", "),
         met.join(", "),
     )
+}
+
+/// What a meeting took to meet two trees, in words; "as written" where it
+/// took nothing.
+fn meeting_words(m: &Meeting) -> String {
+    let mut took: Vec<&str> = Vec::new();
+    for (flag, word) in [
+        (m.turned, "turned"),
+        (m.permuted, "permuted"),
+        (m.renamed, "renamed"),
+        (m.respelled, "respelled"),
+        (m.defines_read, "defines read"),
+        (!m.identities.is_empty(), "identities dropped"),
+        (!m.flips.is_empty(), "flipped"),
+    ] {
+        if flag {
+            took.push(word);
+        }
+    }
+    match took.is_empty() {
+        true => "as written".to_string(),
+        false => took.join(" and "),
+    }
 }
 
 /// The parts of a definition's right side (`Cited::unfolded`): each fact
