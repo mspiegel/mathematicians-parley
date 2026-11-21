@@ -554,15 +554,17 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let mut members = Vec::new();
+        let mut values = Vec::new();
         let mut body = Vec::new();
         let mut at: &[Unfolded] = parts;
         loop {
             match at {
                 [Unfolded::Witness {
+                    value,
                     member,
                     body: inner,
-                    ..
                 }] => {
+                    values.push(value.clone());
                     let Unfolded::Fact { fact, by } = member.as_ref() else {
                         return Err(self.unreached(
                             step.line,
@@ -586,15 +588,20 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // The witnesses are the values the checker recorded each "there is"
+        // unfolded at, from the outermost in.
         let layers = self.layers_of(wanted);
-        let found = take!(self.witnesses_read(step, wanted, &layers)?);
-        if found.len() != members.len() {
+        if values.len() > layers.len() {
             return Err(self.unreached(
                 step.line,
-                "the checker read as many witnesses as it recorded domains for",
+                "the checker recorded more witnesses than the \"there is\" binds letters",
             ));
         }
-        let layers = &layers[..found.len()];
+        let layers = &layers[..values.len()];
+        let mut found = IndexMap::new();
+        for ((_, variable, _), value) in layers.iter().zip(&values) {
+            found.insert(t!(variable, "cv"), self.term(value)?);
+        }
         members.extend(body);
         let recorded = WitnessFacts {
             facts: members,

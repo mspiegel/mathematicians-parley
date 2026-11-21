@@ -756,11 +756,11 @@ impl<'a> Elaborator<'a> {
                 if let Some(p) = self.placed_proof(&at, term, &held, scope, facts)? {
                     return Ok(Some(Built(p)));
                 }
-                return self.line_for_all(&at.line, term, scope, facts);
+                return self.line_for_all(&at.line, term, false, scope, facts);
             }
             // A "for all" a line says over a set holding the requires line's.
             Some(Restated::Narrowed { at, .. }) => {
-                return self.line_for_all(&at.line, term, scope, facts);
+                return self.line_for_all(&at.line, term, true, scope, facts);
             }
             Some(Restated::Lines(by)) => by,
         };
@@ -837,19 +837,23 @@ impl<'a> Elaborator<'a> {
         // A "for all" the carrier's line says of each member: `for all k ∈
         // ℕ₀, F(k) ∈ ℝ` at m.
         match carrier {
-            SuppliedBy::Line(at) => self.line_for_all(&at.line, term, scope, facts),
+            SuppliedBy::Line(at) => {
+                self.line_for_all(&at.line, term, false, scope, facts)
+            }
             _ => Ok(None),
         }
     }
 
     /// ( scope -> term ) from the "for all" the line `cite` says, read at
-    /// the member `term` is of (`part_at_a_member`), or over a set inside
-    /// its own (`narrowed`); None where the line says no "for all" or
-    /// neither reading gives it.
+    /// the member `term` is of (`part_at_a_member`), or, where the checker
+    /// met it over a set inside its own (`narrowed`, as `Supplied::narrowed`
+    /// and `Restated::Narrowed` record), over that set; None where the line
+    /// says no "for all" or the reading does not give it.
     pub(in crate::elab) fn line_for_all(
         &mut self,
         cite: &str,
         term: &Rpn,
+        narrowed: bool,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
@@ -861,10 +865,10 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         let whole = self.carried(cite, facts, &lines);
-        if let Some(p) =
-            self.part_at_a_member(&cited.claim, &whole, term, scope, facts)?
-        {
-            return Ok(Some(Built(p)));
+        if !narrowed {
+            return Ok(self
+                .part_at_a_member(&cited.claim, &whole, term, scope, facts)?
+                .map(Built));
         }
         Ok(
             match self.narrowed(&cited.claim, &whole, term, scope, facts)? {

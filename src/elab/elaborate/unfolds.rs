@@ -521,8 +521,9 @@ impl<'a> Elaborator<'a> {
                 if let Some(p) = self.placed_proof(at, wanted, &held, scope, facts)? {
                     return Ok(Some(p));
                 }
+                let narrowed = recorded.is_some_and(|r| r.supplied.narrowed.is_some());
                 Ok(self
-                    .line_for_all(&at.line, wanted, scope, facts)?
+                    .line_for_all(&at.line, wanted, narrowed, scope, facts)?
                     .and_then(Route::built))
             }
             SuppliedBy::Requires { line, implied } => {
@@ -564,7 +565,8 @@ impl<'a> Elaborator<'a> {
                 .through_proof(carrier, member, wanted, scope, facts)?
                 .and_then(Route::built)),
             SuppliedBy::Bound { .. } => self.held(facts, wanted, scope),
-            SuppliedBy::Identity(_) | SuppliedBy::Unstated => Ok(self
+            SuppliedBy::Identity(met) => self.identity_proof(wanted, met, scope, facts),
+            SuppliedBy::Unstated => Ok(self
                 .settle_or_bare(&self.to_term(wanted), scope, facts, None, None)?
                 .built()),
             SuppliedBy::Parts(parts) => {
@@ -601,6 +603,30 @@ impl<'a> Elaborator<'a> {
                 self.carried_to(step, &made, &proof, wanted, meeting, scope, facts)
             }
         }
+    }
+
+    /// ( scope -> wanted ) for an equation whose two sides are one at the
+    /// citation's values (`SuppliedBy::Identity`): its left side equal to
+    /// itself (`eqidd`), carried to the equation as the record says the
+    /// two sides met (`met_as`), `1 · P = P` with the identity element
+    /// dropped. None where `wanted` is no equation.
+    fn identity_proof(
+        &mut self,
+        wanted: &Rpn,
+        met: &Meeting,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let whole = self.to_term(wanted);
+        let (Some("wceq"), [left, _]) = (whole.label(), whole.children()) else {
+            return Ok(None);
+        };
+        let left = self.rpn(left);
+        let same = t!(left, left, "wceq");
+        let proof = self
+            .b
+            .ap("eqidd", &binds! {"ph" => scope, "A" => &left}, &[]);
+        self.met_as(&same, proof, wanted, met, Tree::First, scope, facts)
     }
 
     /// ( scope -> wanted ) from `proof` of `said`, the fact the line `at`
