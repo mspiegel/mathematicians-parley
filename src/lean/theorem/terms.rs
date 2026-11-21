@@ -9,6 +9,7 @@ use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
 use crate::checker::record::Narrowed;
+use crate::citing::part_at;
 use crate::formula::Whole;
 use crate::matching::{Context, Dropped, Flip, Meeting};
 use crate::methods::terms::Targets;
@@ -916,6 +917,30 @@ pub(super) fn leaf_path(
         }
         _ => (i == 0).then(Vec::new),
     }
+}
+
+/// The projection that takes the part the record numbers `i` of a reading,
+/// counted as the checker counts the parts of what an item gives
+/// (`citing::part_at`), `.1.2`; None where it has no part `i`, or that
+/// part is a link of a chain of equations, which no projection takes.
+pub(super) fn recorded_part_path(
+    node: &Node,
+    i: usize,
+    w: &Writer,
+) -> Option<Vec<&'static str>> {
+    let at = part_at(node, i, w.ands)?;
+    if at.link.is_some() {
+        return None;
+    }
+    Some(
+        at.sides
+            .iter()
+            .map(|&side| match side {
+                0 => "1",
+                _ => "2",
+            })
+            .collect(),
+    )
 }
 
 /// A recursion's rules as one hypothesis: its starts, then for every k

@@ -365,6 +365,13 @@ pub struct CheckedTheorem {
     /// of the "there is" it obtains from, by the line of its justification
     /// (`citations::obtained_parts`).
     pub obtained_parts: IndexMap<usize, Vec<ObtainedPart>>,
+    /// Where on the line it names the "there is" each obtain step that
+    /// cites no item obtains from stands, by the line of its justification:
+    /// the line's one "there is" among what it says, a sentence, a part of
+    /// one, or a "for all" read at a block's letter (`Known::says`); or, of
+    /// a line of one sentence that says it otherwise, "there is a ∈ A" with
+    /// no body, that sentence.
+    pub obtained_from: IndexMap<usize, FirstAt>,
     /// How each instantiation's instance reaches its claim, a step's, a
     /// calculation row's or a requires line's, by the line of its
     /// justification
@@ -764,8 +771,10 @@ pub struct Cited {
     /// The item, by its full name.
     pub item: String,
     pub group: usize,
-    /// For an obtain, the sentence of the group that says the "there is",
-    /// by its place among the group's sentences (`Taken::obtained`).
+    /// For an obtain, the sentence that says the "there is", by its place
+    /// among the sentences of all the item's groups, counted across them in
+    /// order as `Concluded::sentence` is (`Taken::obtained` gives its place
+    /// in its group).
     pub obtained: Option<usize>,
     pub binding: Binding,
     /// What the reading gave each letter a binder of the item holds

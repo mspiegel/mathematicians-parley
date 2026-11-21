@@ -322,6 +322,9 @@ pub fn written_out(
     for p in written.obtained_parts.values_mut().flatten() {
         p.owed_written = out(&p.owed_written);
     }
+    for at in written.obtained_from.values_mut() {
+        at.written = out(&at.written);
+    }
     // A substitution's places are paths into what it is put into, which
     // writing a define out moves, s(n + (j + 1)) becoming a sum over its
     // range: they are found again between the start written out and what

@@ -916,7 +916,9 @@ fn theorem_record(
     record.joined_wholes = citations::join_wholes(thm, c.library, &c.known[i]);
     record.joined_claim = citations::join_claim_parts(thm, c.library, &c.known[i]);
     record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
-    record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
+    let obtains = citations::obtained_parts(thm, c.library, &c.known[i]);
+    record.obtained_parts = obtains.parts;
+    record.obtained_from = obtains.from;
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
     record.restated = citations::restatements(thm, c.library, &c.known[i]);
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);

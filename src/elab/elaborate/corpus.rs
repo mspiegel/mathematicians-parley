@@ -894,14 +894,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Term> {
         let (sentence, way) = match (cited.concluded.first(), cited.obtained) {
             (Some(c), _) => (c.sentence, c.way),
-            (None, Some(k)) => {
-                let library = self.item_library();
-                let before: usize = library
-                    .groups(&cited.item)
-                    .map(|g| g[..cited.group].iter().map(|g| g.gives.len()).sum())
-                    .unwrap_or(0);
-                (before + k, Read::Forward)
-            }
+            (None, Some(k)) => (k, Read::Forward),
             (None, None) => {
                 return Err(self.unreached(
                     step.line,

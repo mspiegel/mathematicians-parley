@@ -18,7 +18,7 @@ use crate::matching::{
 };
 use crate::methods::terms::Targets;
 use crate::notations::{
-    APPLICATION, APPLICATION_TO_TWO, EQUALITY, MEMBERSHIP, NUMBER_SYSTEMS,
+    APPLICATION, APPLICATION_TO_TWO, EQUALITY, EQUAL_CHAIN, MEMBERSHIP, NUMBER_SYSTEMS,
 };
 use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
@@ -997,6 +997,65 @@ pub fn conjuncts_in(node: &Node, ctx: &Context, g: &Grammar) -> Vec<Node> {
         return out;
     }
     vec![node.clone()]
+}
+
+/// Where a part of a node stands, as `conjuncts` counts its parts: the side
+/// of each "and" taken to reach it from the root, 0 the left and 1 the
+/// right, and where it is one link of a chain of equations standing there,
+/// which link, from 0.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PartAt {
+    pub sides: Vec<usize>,
+    pub link: Option<usize>,
+}
+
+/// Where part `i` of `node` stands, counted as `conjuncts_in` counts the
+/// parts: every "and" taken apart, and a chain of equations read as its
+/// links, with `conjunctions` the notations read as "and"
+/// (`Context::conjunctions`). None where the node has no part `i`. Each
+/// backend projects the part from its own form of the node by this one
+/// count.
+pub fn part_at(
+    node: &Node,
+    i: usize,
+    conjunctions: &FxIndexSet<NotationId>,
+) -> Option<PartAt> {
+    if node.notation() == EQUAL_CHAIN {
+        let links = node.children.len().saturating_sub(1);
+        return (i < links).then_some(PartAt {
+            sides: Vec::new(),
+            link: Some(i),
+        });
+    }
+    if conjunctions.contains(&node.notation()) && node.children.len() == 2 {
+        let left = part_count(&node.children[0], conjunctions);
+        let (side, at) = match i < left {
+            true => (0, part_at(&node.children[0], i, conjunctions)?),
+            false => (1, part_at(&node.children[1], i - left, conjunctions)?),
+        };
+        let mut sides = vec![side];
+        sides.extend(at.sides);
+        return Some(PartAt {
+            sides,
+            link: at.link,
+        });
+    }
+    (i == 0).then_some(PartAt {
+        sides: Vec::new(),
+        link: None,
+    })
+}
+
+/// How many parts `conjuncts_in` takes `node` apart into.
+fn part_count(node: &Node, conjunctions: &FxIndexSet<NotationId>) -> usize {
+    if node.notation() == EQUAL_CHAIN {
+        return node.children.len().saturating_sub(1);
+    }
+    if conjunctions.contains(&node.notation()) && node.children.len() == 2 {
+        return part_count(&node.children[0], conjunctions)
+            + part_count(&node.children[1], conjunctions);
+    }
+    1
 }
 
 /// The ways a pattern may be read: as written, and where it is an equation

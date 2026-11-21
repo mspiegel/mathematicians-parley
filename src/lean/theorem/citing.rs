@@ -1956,7 +1956,7 @@ impl<'a> Proof<'a> {
         };
         let mut says = says;
         let path = match (whole, part) {
-            (false, Some(at)) => match leaf_path(read, at, &self.writer) {
+            (false, Some(at)) => match recorded_part_path(read, at, &self.writer) {
                 Some(path) => Some(path),
                 None => {
                     return Route::no(
@@ -1983,7 +1983,7 @@ impl<'a> Proof<'a> {
                 };
                 let inner = part
                     .map(|p| self.at_values(p, &cited.binding))
-                    .and_then(|at| leaf_path(&at, j, &self.writer));
+                    .and_then(|at| recorded_part_path(&at, j, &self.writer));
                 let Some(inner) = inner else {
                     return Route::no(
                         "a property's body whose \"and\" has fewer parts than the part the claim met",
@@ -3248,32 +3248,18 @@ impl<'a> Proof<'a> {
     pub(super) fn obtained_from(&self, i: usize) -> Route<Obtained> {
         let step = &self.thm.steps[i];
         if self.rec.cited[i].is_none() && step.just.obtained_from.is_none() {
-            // The sentence, or the part of one, of the lines named that
-            // says "there is".
-            // A "for all" line is read at the block's letter, as the checker
-            // reads it.
-            let mut names = BTreeSet::new();
-            for s in step.claim.sentences() {
-                if let Some(n) = self.rec.page.get(&s) {
-                    names.extend(n.names());
-                }
-            }
-            names.retain(|n| !step.just.obtained.contains(n));
-            return match self
-                .cited_parts(&step.just.from)
-                .into_iter()
-                .map(|c| self.at_recorded_letter(&c, &names).unwrap_or(c))
-                .find(|c| {
-                    c.node.notation() == THERE_IS || c.node.notation() == THERE_IS_SOME
-                }) {
-                Some(c) => Route::Built(Obtained {
-                    term: c.proof,
-                    says: c.node,
-                    binding: Binding::new(),
-                    lean: None,
-                }),
-                None => Route::no("an obtain from no line that says \"there is\""),
+            // The "there is" where the checker found it among what the line
+            // says: a sentence, a part of one, or a "for all" read at the
+            // block's letter (`CheckedTheorem::obtained_from`).
+            let Some(at) = self.rec.obtained_from.get(&step.just.line) else {
+                return Route::no("an obtain from no line that says \"there is\"");
             };
+            return self.line_says(at).map(|(term, _)| Obtained {
+                term,
+                says: at.written.clone(),
+                binding: Binding::new(),
+                lean: None,
+            });
         }
         let reason = Reason {
             just: &step.just,
@@ -3286,13 +3272,7 @@ impl<'a> Proof<'a> {
         let Some(at) = cited.obtained else {
             return Route::no("an obtain that takes no sentence of its item");
         };
-        let before: usize = match self.sources.checked.library.groups.get(&cited.item) {
-            Some(Some(groups)) => {
-                groups[..cited.group].iter().map(|g| g.gives.len()).sum()
-            }
-            _ => 0,
-        };
-        let Some(sentence) = item.sentences.get(before + at) else {
+        let Some(sentence) = item.sentences.get(at) else {
             return Route::no("an obtain of a sentence the item does not have in Lean");
         };
         let binding = cited.binding_with_written();

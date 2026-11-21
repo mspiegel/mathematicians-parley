@@ -718,23 +718,45 @@ pub fn check_obtained_claims(
     }
 }
 
-/// How each obtain step's sentences after its memberships meet the parts of
-/// the "there is" it obtains from (`record::ObtainedPart`), by the line of
-/// its justification; none for a step whose sentences do not meet them.
-pub fn obtained_parts(
-    thm: &Theorem,
-    library: &Library,
-    known: &Known,
-) -> IndexMap<usize, Vec<ObtainedPart>> {
-    thm.steps
-        .iter()
-        .filter_map(|step| {
-            let read = obtained_reading(step, thm, library, known)?;
-            read.faults
-                .is_empty()
-                .then_some((step.just.line, read.parts))
-        })
-        .collect()
+/// What the checker records of the obtain steps, each by the line of its
+/// justification (`obtained_parts`).
+pub struct Obtains {
+    /// How each step's sentences after its memberships meet the parts of
+    /// the "there is" it obtains from (`record::ObtainedPart`).
+    pub parts: IndexMap<usize, Vec<ObtainedPart>>,
+    /// Of a step that obtains from a line, where on it the "there is"
+    /// stands: a sentence, a part of one, or a "for all" read at a block's
+    /// letter (`CheckedTheorem::obtained_from`).
+    pub from: IndexMap<usize, FirstAt>,
+}
+
+/// `Obtains` of each obtain step; no parts for a step whose sentences do
+/// not meet the "there is" it obtains from.
+pub fn obtained_parts(thm: &Theorem, library: &Library, known: &Known) -> Obtains {
+    let mut out = Obtains {
+        parts: IndexMap::new(),
+        from: IndexMap::new(),
+    };
+    for step in &thm.steps {
+        let just = &step.just;
+        let from_line = just.head.is(Method::Obtain)
+            && !just.obtained.is_empty()
+            && just.cited_item().is_none();
+        if from_line {
+            if let Some(LineExistence::Found { at: Some(at), .. }) =
+                line_existence(step, library, known)
+            {
+                out.from.insert(just.line, at);
+            }
+        }
+        let Some(read) = obtained_reading(step, thm, library, known) else {
+            continue;
+        };
+        if read.faults.is_empty() {
+            out.parts.insert(just.line, read.parts);
+        }
+    }
+    out
 }
 
 /// An obtain step read against the "there is" it obtains from: what is
@@ -742,6 +764,63 @@ pub fn obtained_parts(
 pub(super) struct ObtainedReading {
     pub(super) faults: Vec<(usize, String)>,
     pub(super) parts: Vec<ObtainedPart>,
+}
+
+/// The "there is" an obtain that cites no item takes from the line it
+/// names (`line_existence`).
+enum LineExistence {
+    /// The one the line says, and where on the line it stands; None where
+    /// no one place on the line states it.
+    Found { node: Node, at: Option<FirstAt> },
+    /// Why the line states no one existence to obtain from.
+    Fault(&'static str),
+}
+
+/// The line's one "there is" among what it says (`Known::says`): a
+/// sentence, a part of one, or a "for all" read at a block's letter; or, of
+/// a line of one sentence that says no "there is" in the notations read as
+/// one, that sentence, which a part or a function said otherwise is, read
+/// on. A fault where the line says none or several. None for a step that
+/// names no line, or a line that does not read, which `check_formulas`
+/// says.
+fn line_existence(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) -> Option<LineExistence> {
+    let just = &step.just;
+    let stated = just
+        .refs
+        .first()
+        .and_then(|r| known.scope(step).get(r).cloned())?;
+    if !known.reads(&stated) {
+        return None;
+    }
+    let defined = known.citing_step(step);
+    let said = known.says(&stated, &defined);
+    let existences: Vec<&Node> = said
+        .iter()
+        .map(|s| &s.cited)
+        .filter(|s| library.ctx.existences.contains(&s.notation()))
+        .collect();
+    let sentences: Vec<&Node> = said
+        .iter()
+        .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+        .map(|s| &s.cited)
+        .collect();
+    let one = match (existences.as_slice(), sentences.as_slice()) {
+        ([], [one]) | ([one], _) => *one,
+        ([], _) => return Some(LineExistence::Fault("says no \"there is\"")),
+        _ => {
+            return Some(LineExistence::Fault(
+                "says more than one \"there is\"; obtain from a line that says one",
+            ))
+        }
+    };
+    Some(LineExistence::Found {
+        node: one.clone(),
+        at: fact_at(step, &just.refs, None, one, known, library),
+    })
 }
 
 /// `check_obtained_claims` of one step; None for a step that is no obtain,
@@ -765,57 +844,20 @@ pub(super) fn obtained_reading(
     }
     let names: Vec<&str> = just.obtained.iter().map(String::as_str).collect();
     let existence = match just.cited_item() {
-        None => {
-            let stated = just
-                .refs
-                .first()
-                .and_then(|r| known.scope(step).get(r).cloned())?;
-            if !known.reads(&stated) {
-                return None; // `check_formulas` says a sentence does not read
+        None => match line_existence(step, library, known)? {
+            LineExistence::Found { node, .. } => Some(node),
+            LineExistence::Fault(says) => {
+                reading.faults.push((
+                    just.line,
+                    format!(
+                        "step {} obtains {} from a line, which {says}",
+                        step.number,
+                        names.join(", ")
+                    ),
+                ));
+                return Some(reading);
             }
-            // The line's one "there is" among what it says
-            // (`Known::says`): a sentence, a part of one, or a "for all"
-            // read at a block's letter; with none or several the line
-            // states no one existence to obtain from.
-            let defined = known.citing_step(step);
-            let said = known.says(&stated, &defined);
-            let existences: Vec<&Node> = said
-                .iter()
-                .map(|s| &s.cited)
-                .filter(|s| library.ctx.existences.contains(&s.notation()))
-                .collect();
-            let sentences: Vec<&Node> = said
-                .iter()
-                .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
-                .map(|s| &s.cited)
-                .collect();
-            // A line of one sentence with no "there is" is read on: a
-            // part or a function said otherwise is the elaborator's to
-            // read, and a line saying none is told below.
-            if let ([], [one]) = (existences.as_slice(), sentences.as_slice()) {
-                Some((*one).clone())
-            } else {
-                match existences.as_slice() {
-                    [one] => Some((*one).clone()),
-                    none_or_more => {
-                        let says = if none_or_more.is_empty() {
-                            "says no \"there is\""
-                        } else {
-                            "says more than one \"there is\"; obtain from a line that says one"
-                        };
-                        reading.faults.push((
-                            just.line,
-                            format!(
-                                "step {} obtains {} from a line, which {says}",
-                                step.number,
-                                names.join(", ")
-                            ),
-                        ));
-                        return Some(reading);
-                    }
-                }
-            }
-        }
+        },
         Some(item) => {
             let name = just.item(&item);
             let groups = library.groups(&name)?;

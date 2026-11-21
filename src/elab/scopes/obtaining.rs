@@ -32,17 +32,6 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// How many "there is" layers open `term`, each over a set.
-    pub(super) fn there_is_depth(&self, term: &Rpn) -> usize {
-        let mut depth = 0;
-        let mut rest = self.to_term(term);
-        while rest.label() == Some("wrex") && rest.children().len() == 3 {
-            depth += 1;
-            rest = rest.children()[0].clone();
-        }
-        depth
-    }
-
     /// Names introduced from an existence claim, which opens a scope.
     ///
     /// This is the step that changes the shape of every step after it: the
@@ -263,21 +252,22 @@ impl<'a> Elaborator<'a> {
                 };
                 ex = held.claim.clone();
                 p_ex = self.carried(&where_, facts, &self.lines.clone());
-                // A line says each of its sentences and their parts apart, and
-                // a "for all" of it read at a block's letter (`line_says`), so
-                // the "there is" is the one of those that binds as many names
-                // as the step obtains, as the checker takes it.
-                if self.there_is_depth(&ex) < got.len() {
+                // The "there is" stands where the checker found it among
+                // what the line says, a sentence, a part of one, or a "for
+                // all" read at a block's letter (`obtained_from`).
+                if let Some(at) =
+                    self.checked.obtained_from.get(&step.just.line).cloned()
+                {
                     let lines = self.lines.clone();
-                    let says = self.line_says(&where_, scope, facts, &lines)?;
-                    let found = says
-                        .entries()
-                        .into_iter()
-                        .find(|(one, _)| self.there_is_depth(one) >= got.len());
-                    if let Some((one, p)) = found {
-                        ex = one;
-                        p_ex = p;
-                    }
+                    let Some((one, p)) = self.line_fact(&at, scope, facts, &lines)?
+                    else {
+                        return Err(self.unreached(
+                            step.line,
+                            "the \"there is\" the checker obtains from is not where it placed it",
+                        ));
+                    };
+                    ex = one;
+                    p_ex = p;
                 }
                 // Eliminating an existential puts the name it binds into the
                 // scope, and the lemma that does it forbids that name in what

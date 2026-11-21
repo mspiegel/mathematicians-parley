@@ -1213,11 +1213,11 @@ impl<'a> Elaborator<'a> {
         cited: &Cited,
         line: usize,
     ) -> Checked<Written> {
-        let stated = match item {
-            Item::Theorem(t) => Some(t.stated()),
-            Item::Record(r) => r.stated().get(cited.group).cloned(),
+        // The record counts the sentence across all the item's groups.
+        let sentences = match item {
+            Item::Theorem(t) => t.stated().sentences(),
+            Item::Record(r) => r.stated().iter().flat_map(|s| s.sentences()).collect(),
         };
-        let sentences = stated.map(|s| s.sentences()).unwrap_or_default();
         match cited.obtained.and_then(|i| sentences.get(i)) {
             Some(s) => Ok(Written::new(s.text(), s.path(), s.line())),
             None => Err(self.unreached(

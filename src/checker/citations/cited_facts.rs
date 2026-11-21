@@ -252,7 +252,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let mut out = Cited {
         item,
         group: taken.group,
-        obtained: taken.obtained,
+        obtained: taken.obtained.map(|k| before + k),
         concluded: across_groups(taken, before),
         firsts,
         firsts_meetings,
@@ -855,7 +855,7 @@ pub fn cited_requires(
     let mut out = Cited {
         item,
         group: taken.group,
-        obtained: taken.obtained,
+        obtained: taken.obtained.map(|k| before + k),
         concluded: across_groups(&taken, before),
         firsts,
         firsts_meetings,
