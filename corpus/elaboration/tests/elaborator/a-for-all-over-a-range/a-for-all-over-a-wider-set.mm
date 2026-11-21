@@ -6,9 +6,9 @@ $( tests/elaborator/a-for-all-over-a-range/a-for-all-over-a-wider-set, elaborate
 $[ stdlib/definitions.mm $]
 
 ${
-  $d i j $.
-  $d A i j $.
-  $d B i j $.
+  $d b i j m $.
+  $d A b i j m $.
+  $d B b i j m $.
   tests.elaborator.a-for-all-over-a-range.a-for-all-over-a-wider-set $p |- ( ( ( A e. NN /\ B e. RR ) /\ A. i e. NN ( i / B ) e. RR ) -> sum_ j e. ( 1 ... ( A + 1 ) ) ( j / B ) = ( sum_ j e. ( 1 ... A ) ( j / B ) + ( ( A + 1 ) / B ) ) ) $=
-    ( cn wcel cr wa cv cdiv co wral c1 caddc cuz cfv simpl id syl elnnuz sylib cfz cc simpr wi elfznn wceq oveq1d eleq1d rspcv mpd recn fsump1 ) AEFZBGFZHZCIZBJKZGFZCELZHZDIZBJKZAMNKZBJKDMAVAUNAMOPFVAUPUNUPUTQUPUNUNUNUOQUNRSSATUAVAVBMVDUBKZFZHZVCGFZVCUCFVGUTVHVGVAUTVAVFQUPUTUDSVGVBEFZUTVHUEVGVFVIVAVFUDVBVDUFSUSVHCVBEUQVBUGZURVCGVJUQVBBJVJRUHUIUJSUKVCULSVBVDUGZVBVDBJVKRUHUM $.
+    ( cn wcel cr wa cv cdiv co wral c1 caddc cfz vb csu wceq cuz cfv simpl id syl elnnuz sylib cc simpr wi elfznn oveq1d eleq1d rspcv mpd recn fsump1 wb vm cbvsumv eqeq1i oveq1i eqeq2i bitri a1i mpbid ) AEFZBGFZHZCIZBJKZGFZCELZHZMAMNKZOKZPIZBJKZPQZMAOKZVPPQZVMBJKZNKZRZVNDIZBJKZDQZVRWDDQZVTNKZRZVLVPVTPMAVLVEAMSTFVLVGVEVGVKUAVGVEVEVEVFUAVEUBUCUCAUDUEVLVOVNFZHZVPGFZVPUFFWJVKWKWJVLVKVLWIUAVGVKUGUCWJVOEFZVKWKUHWJWIWLVLWIUGVOVMUIUCVJWKCVOEVHVORZVIVPGWMVHVOBJWMUBUJUKULUCUMVPUNUCVOVMRZVOVMBJWNUBUJUOWBWHUPVLWBVNUQIZBJKZUQQZVRWPUQQZVTNKZRZWHWBWQWARWTVQWQWAVNVPWPPUQVOWORZVOWOBJXAUBZUJZURUSWAWSWQVSWRVTNVRVPWPPUQXCURUTVAVBWTWEWSRWHWQWEWSVNWPWDUQDWOWCRZWOWCBJXDUBZUJZURUSWSWGWEWRWFVTNVRWPWDUQDXFURUTVAVBVBVCVD $.
 $}

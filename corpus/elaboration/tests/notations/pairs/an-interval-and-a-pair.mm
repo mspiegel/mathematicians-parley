@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.pairs.an-interval-and-a-pair $p |- ( ( ( A e. RR /\ A e. ( 0 (,) 1 ) ) /\ <. A , 2 >. = <. 1 , 2 >. ) -> A = 1 ) $=
-    ( cr wcel cc0 c1 cioo co wa c2 cop wceq simpr cvv wb simpl id syl elex 2ex a1i jca opthg mpbid simpld ) ABCZADEFGZCZHZAIJZEIJZKZHZAEKZIIKZULUKUMUNHZUHUKLULAMCZIMCZHUKUONULUPUQULUEUPULUHUEUHUKOUHUEUEUEUGOUEPQQABRQUQULSTUAAIEIMMUBQUCUD $.
+    ( cr wcel cc0 c1 cioo co wa c2 cop wceq simpr cvv wb simpl id syl elex 2ex a1i jca opthg mpbid simpld simprd ) ABCZADEFGZCZHZAIJZEIJZKZHZAEKZIIKZUMUNUOUMUNUOUMULUNUOHZUIULLZUMAMCZIMCZHZULUPNZUMURUSUMUFURUMUIUFUIULOZUIUFUFUFUHOZUFPZQZQZABRZQZUSUMSTZUAZAIEIMMUBZQZUCZUDUMUNUOVMUEUAUD $.
 $}

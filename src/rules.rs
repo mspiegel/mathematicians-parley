@@ -197,6 +197,22 @@ pub fn function_law(label: &str, slots: &[usize]) -> Option<&'static str> {
         .map(|(_, law)| *law)
 }
 
+// A function's type whose domain, codomain or function changes, in any of
+// the three: each law takes the three equations, function first, then
+// domain, then codomain.
+pub const TYPE_LAWS: &[(&str, &str)] = &[
+    ("wf", "feq123d"),
+    ("wf1", "f1eq123d"),
+    ("wfo", "foeq123d"),
+    ("wf1o", "f1oeq123d"),
+];
+
+/// The law carrying equations of the domain, codomain and function into
+/// `label`'s statement of a function's type, where `TYPE_LAWS` has one.
+pub fn type_law(label: &str) -> Option<&'static str> {
+    lookup(TYPE_LAWS, label)
+}
+
 /// The constructors that take a function, operation or relation as an
 /// operand.
 pub const WRAPS: [&str; 3] = ["co", "wbr", "cfv"];
@@ -243,6 +259,7 @@ pub const CLASS_BOUND: &[(&str, &str)] = &[
     ("csu", "cbvsumv"),
     ("cprod", "cbvprodv"),
     ("ciun", "cbviunv"),
+    ("ciin", "cbviinv"),
     ("cdit", "cbvditgv"),
 ];
 
@@ -255,6 +272,7 @@ pub const CLASS_BODY: &[(&str, &str)] = &[
     ("csu", "sumeq2i"),
     ("cprod", "prodeq2i"),
     ("ciun", "iuneq2i"),
+    ("ciin", "iineq2i"),
 ];
 
 // The lemmas that carry a change into an indexed sum's or product's term,

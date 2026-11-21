@@ -154,9 +154,9 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// A definition stated as an equation, one clause per `then` group: the
-    /// clause is chosen by which lemma's conclusion is what the step claims.
-    /// None reaching it is a defect, since the database named these lemmas.
+    /// A definition stated as an equation, one clause per `then` group,
+    /// cited as a library record is (`cite_library`): the clause is the one
+    /// the checker recorded, and its hypotheses are carried as it recorded.
     pub(super) fn unfold_equation(
         &mut self,
         step: &Step,
@@ -168,25 +168,7 @@ impl<'a> Elaborator<'a> {
         let Item::Record(item) = self.item_cited(&head)? else {
             panic!("a definition of the database");
         };
-        let labels: Vec<String> =
-            targets::lemma_entries(item.metamath_target_or_empty())
-                .into_iter()
-                .map(String::from)
-                .collect();
-        let seed = self.filling(step, item)?;
-        match self
-            .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
-        {
-            Built(p) => Ok(Built(p)),
-            Declined(d) => Err(self.defect(
-                step.line,
-                format!(
-                    "no clause of {head} gives what step {} claims: {}",
-                    step.number,
-                    self.say(&d)
-                ),
-            )),
-        }
+        self.cite_library(step, term, scope, facts, item)
     }
 
     /// Each hypothesis line read again once the names its statement wrote

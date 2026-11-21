@@ -6,8 +6,9 @@ $( tests/notations/families/a-sum-over-subsets, elaborated from tests/notations/
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A s $.
-  $d B s $.
+  $d m s x $.
+  $d A m s x $.
+  $d B m s x $.
   tests.notations.families.a-sum-over-subsets $p |- ( ( ( A e. _V /\ B e. ~P ~P A ) /\ B e. Fin ) -> sum_ s e. B 1 = ( ( # ` B ) x. 1 ) ) $=
-    ( cvv wcel cpw wa cfn c1 cc csu chash cfv cmul co wceq simpr ax-1cn a1i jca fsumconst syl ) ADEZBAFZFZEZGZBHEZGZUHIJEZGBICKBLMINOPUIUHUJUGUHQUJUIRSTBICUAUB $.
+    ( cvv wcel cpw wa cfn c1 vx csu chash cfv cmul co wceq cc simpr ax-1cn a1i jca fsumconst syl wb vm cv eqid cbvsumv eqeq1i bitri mpbid ) ADEZBAFZFZEZGZBHEZGZBIJKZBLMZINOZPZBICKZVAPZURUQIQEZGVBURUQVEUPUQRVEURSTUABIJUBUCVBVDUDURVBBIUEKZVAPVDUSVFVABIIJUEIIPZJUFUEUFZPIUGZTUHUIVFVCVABIIUECVGVHCUFPVITUHUIUJTUK $.
 $}

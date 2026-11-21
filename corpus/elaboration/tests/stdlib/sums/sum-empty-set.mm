@@ -6,6 +6,7 @@ $( tests/stdlib/sums/sum-empty-set, elaborated from tests/stdlib/sums.proof by p
 $[ stdlib/definitions.mm $]
 
 ${
+  $d a k m $.
   tests.stdlib.sums.sum-empty-set $p |- sum_ k e. (/) ( k ^ 2 ) = 0 $=
-    ( c0 cv c2 cexp co csu cc0 wceq wtru sum0 a1i mptru ) BACZDEFZAGZHIZQJOAKLM $.
+    ( c0 cv c2 cexp co csu cc0 wceq wtru va sum0 a1i wb vm id oveq1d cbvsumv eqeq1i bitri mpbid mptru ) BACZDEFZAGZHIZJBKCZDEFZKGZHIZUFUJJUHKLMUJUFNJUJBOCZDEFZOGZHIUFUIUMHBUHULKOUGUKIZUGUKDEUNPQRSUMUEHBULUDOAUKUCIZUKUCDEUOPQRSTMUAUB $.
 $}

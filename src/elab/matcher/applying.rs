@@ -856,6 +856,18 @@ impl<'a> Elaborator<'a> {
                 cited.extend(conjuncts_of(&self.to_term(&said)));
             }
         }
+        // The cited record's hypotheses at the values the checker read, as
+        // its lines supply them (`hypotheses_given`), come first: a line
+        // that says one turned round or spelt otherwise fixes the letter
+        // as the hypothesis does.
+        if let Some(given) = self.hypotheses_given.clone() {
+            let recorded: Vec<Term> = given
+                .entries()
+                .into_iter()
+                .flat_map(|(said, _)| conjuncts_of(&self.to_term(&said)))
+                .collect();
+            cited.splice(0..0, recorded);
+        }
         for text in &sig.essentials {
             let said = self.essential(text);
             if said.label() != Some("wi") || said.children()[0].variable().is_none() {

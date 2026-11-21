@@ -4,6 +4,7 @@ use super::*;
 use crate::checker::record::Supplied;
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
+use crate::elab::tables::Row;
 use crate::matching::{standard, Meeting, Tree};
 use crate::notations::FOR_ALL;
 
@@ -528,8 +529,9 @@ impl<'a> Elaborator<'a> {
                     return Ok(Some(proof));
                 }
                 if implied.is_none() {
-                    return self
-                        .carried_to(&said, &proof, wanted, meeting, scope, facts);
+                    return self.carried_to(
+                        step, &said, &proof, wanted, meeting, scope, facts,
+                    );
                 }
                 // What the line implies: read off it where the reading
                 // gives it, and otherwise worked out from it (`settle`).
@@ -584,7 +586,7 @@ impl<'a> Elaborator<'a> {
                 if made == *wanted {
                     return Ok(Some(proof));
                 }
-                self.carried_to(&made, &proof, wanted, meeting, scope, facts)
+                self.carried_to(step, &made, &proof, wanted, meeting, scope, facts)
             }
         }
     }
@@ -673,8 +675,10 @@ impl<'a> Elaborator<'a> {
     /// identity element dropped (`tidied`); where the record says the two
     /// met with their members in another order (`Meeting::permuted`), a
     /// triangle's points, worked out from it (`settle`).
+    #[allow(clippy::too_many_arguments)]
     fn carried_to(
         &mut self,
+        step: &Step,
         said: &Rpn,
         proof: &Proof,
         wanted: &Rpn,
@@ -682,12 +686,19 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        if let Built(alike) = self.same(
+        // The hypothesis is at the checker's values, which read out a
+        // define the step cites where the line names it, `g : S → T` for
+        // S's set: each place the two differ is one spelling of a term, or
+        // one an equation the step cites makes equal (`Row::Held`).
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let held = self.with_cited(Some(step), scope, &supplied, None)?;
+        if let Built(alike) = self.congruence(
             &self.to_term(said),
             &self.to_term(wanted),
             scope,
-            facts,
+            &held,
             None,
+            &Leaf::Rows(vec![Row::Standard, Row::Held]),
         )? {
             return Ok(Some(
                 pf!(self.b; scope, said, wanted, proof, alike, "mpbid"),
@@ -731,6 +742,10 @@ impl<'a> Elaborator<'a> {
         // own pairs among them (`citations::with_seed`).
         let binding = cited.binding_with_written();
         let library = self.item_library();
+        // The step's requires lines, each proved with the ones above it
+        // (`supplied`), which a hypothesis the record places in one is
+        // carried from.
+        let facts = &facts.with(&self.supplied(Some(step), scope, facts)?);
         for supplied in &cited.supplied {
             // A fact said once, walked to or unstated is settled where the
             // lemma asks it, and only a fact a line writes is carried here.
@@ -753,14 +768,15 @@ impl<'a> Elaborator<'a> {
                 supplied,
                 values: &binding,
             };
-            if let Some(proof) = self.supplied_proof(
+            let carried = self.supplied_proof(
                 step,
                 &supplied.by,
                 Some(recorded),
                 &wanted,
                 scope,
                 facts,
-            )? {
+            )?;
+            if let Some(proof) = carried {
                 self.know(&given, wanted, proof);
             }
         }

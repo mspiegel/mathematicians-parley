@@ -6,6 +6,7 @@ $( tests/stdlib/sums/sum-empty-range, elaborated from tests/stdlib/sums.proof by
 $[ stdlib/proved.mm $]
 
 ${
+  $d c k m $.
   tests.stdlib.sums.sum-empty-range $p |- sum_ k e. ( 1 ... 0 ) ( ( 2 x. k ) - 1 ) = 0 $=
-    ( c1 cc0 cfz co c2 cv cmul cmin csu wceq wtru cz wcel 1z a1i 0z clt wbr 0lt1 gfsum0 mptru ) BCDEFAGZHEZBIEZAJCKLUEABCBMNLOPCMNLQPCBRSLTPUAUB $.
+    ( c1 cc0 cfz co c2 cv cmul cmin csu wceq wtru vc cz wcel 1z a1i 0z clt wbr 0lt1 gfsum0 wb vm id oveq2d oveq1d cbvsumv eqeq1i bitri mpbid mptru ) BCDEZFAGZHEZBIEZAJZCKZLUMFMGZHEZBIEZMJZCKZURLVAMBCBNOLPQCNOLRQCBSTLUAQUBVCURUCLVCUMFUDGZHEZBIEZUDJZCKURVBVGCUMVAVFMUDUSVDKZUTVEBIVHUSVDFHVHUEUFUGUHUIVGUQCUMVFUPUDAVDUNKZVEUOBIVIVDUNFHVIUEUFUGUHUIUJQUKUL $.
 $}

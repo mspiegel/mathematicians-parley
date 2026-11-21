@@ -6,8 +6,9 @@ $( tests/stdlib/sets/separation, elaborated from tests/stdlib/sets.proof by parl
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A x $.
-  $d B x $.
+  $d m t x $.
+  $d A m t x $.
+  $d B m t x $.
   tests.stdlib.sets.separation $p |- ( ( ( A e. _V /\ A e. _V ) /\ B e. _V ) -> { x e. A | -. x e. B } e. _V ) $=
-    ( cvv wcel wa cv wn crab simpl simpr syl rabexg ) BDEZNFZCDEZFZNAGZCEZHZABIDEQONOPJNNKLTABDML $.
+    ( cvv wcel wa vt cv wn crab simpl simpr syl rabexg wb vm wceq id eleq1d notbid cbvrabv eleq1i bitri a1i mpbid ) BDEZUFFZCDEZFZGHZCEZIZGBJZDEZAHZCEZIZABJZDEZUIUFUNUIUGUFUGUHKUFUFLMULGBDNMUNUSOUIUNPHZCEZIZPBJZDEUSUMVCDULVBGPBUJUTQZUKVAVDUJUTCVDRSTUAUBVCURDVBUQPABUTUOQZVAUPVEUTUOCVERSTUAUBUCUDUE $.
 $}

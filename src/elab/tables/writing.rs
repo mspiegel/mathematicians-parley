@@ -472,10 +472,10 @@ impl<'a> Elaborator<'a> {
         // forms (`rules::CONGRUENCE`), and for one-to-one or onto alone the
         // closed `f1eq1` or `foeq1` after the equation by `syl`
         // (`rules::FUNCTION_LAWS`). A function's type whose domain or codomain
-        // changes, the function too or not: `feq123d` and `f1eq123d` take
-        // the three equations, a part that stays the same carried by
-        // `eqidd`.
-        if matches!(label.as_str(), "wf" | "wf1") && slots != [2] {
+        // changes, the function too or not: `feq123d`, `f1eq123d`,
+        // `foeq123d` and `f1oeq123d` take the three equations, a part that
+        // stays the same carried by `eqidd`.
+        if let Some(lemma) = rules::type_law(&label).filter(|_| slots != [2]) {
             let mut equal = Vec::new();
             for i in [2, 0, 1] {
                 let one = if slots.contains(&i) {
@@ -488,7 +488,6 @@ impl<'a> Elaborator<'a> {
                 };
                 equal.push(one);
             }
-            let lemma = if label == "wf" { "feq123d" } else { "f1eq123d" };
             return Ok(Built(self.b.ap(
                 lemma,
                 &binds! {"ph" => scope, "A" => &spelt[0], "B" => &other[0],

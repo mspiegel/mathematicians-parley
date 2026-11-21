@@ -6,7 +6,8 @@ $( tests/elaborator/a-product-from-a-to-b-cited-over-a-set/a-product-from-a-to-b
 $[ stdlib/proved.mm $]
 
 ${
-  $d A k $.
+  $d k m x $.
+  $d A k m x $.
   tests.elaborator.a-product-from-a-to-b-cited-over-a-set.a-product-from-a-to-b-cited-over-a-set $p |- ( A e. ZZ -> prod_ k e. ( 2 ... A ) k e. ZZ ) $=
-    ( cz wcel c2 cfz co cfn cv cprod fzfi a1i cpw wi cvv wss wa zex fzssz jca gsspw syl gfprodz mpd ) ACDZEAFGZHDZUFBIZBJZCDZUGUEEAKLUEUFCMZDZUGUJNUECODZUFCPZQULUEUMUNUMUERLUNUEEASLTUFCOUAUBBUFUCUBUD $.
+    ( cz wcel c2 cfz co vx cv cprod cfn fzfi a1i cpw wi cvv wss wa zex fzssz jca gsspw syl gfprodz mpd wb vm wceq id cbvprodv eleq1i bitri mpbid ) ACDZEAFGZHIZHJZCDZUOBIZBJZCDZUNUOKDZURVBUNEALMUNUOCNZDZVBUROUNCPDZUOCQZRVDUNVEVFVEUNSMVFUNEATMUAUOCPUBUCHUOUDUCUEURVAUFUNURUOUGIZUGJZCDVAUQVHCUOUPVGHUGUPVGUHUIUJUKVHUTCUOVGUSUGBVGUSUHUIUJUKULMUM $.
 $}

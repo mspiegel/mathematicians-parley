@@ -6,8 +6,9 @@ $( tests/stdlib/calculus/integral-over-a-point, elaborated from tests/stdlib/cal
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A s $.
-  $d B s $.
+  $d m s t $.
+  $d A m s t $.
+  $d B m s t $.
   tests.stdlib.calculus.integral-over-a-point $p |- ( ( A e. RR /\ B : RR --> RR ) -> S_ [ A -> A ] ( B ` s ) _d s = 0 ) $=
-    ( cv cfv cdit cc0 wceq cr wcel wf wa ditg0 a1i ) CAACDZBEZFGHAIJIIBKLCAPMN $.
+    ( cr wcel wf wa vt cv cfv cdit cc0 wceq ditg0 a1i wb vm id fveq2d cbvditgv eqeq1i bitri mpbid ) ADEZDDBFZGZHAAHIZBJZKZLMZCAACIZBJZKZLMZUJUFHAUHNOUJUNPUFUJQAAQIZBJZKZLMUNUIUQLHQAAUHUPUGUOMZUGUOBURRSTUAUQUMLQCAAUPULUOUKMZUOUKBUSRSTUAUBOUC $.
 $}

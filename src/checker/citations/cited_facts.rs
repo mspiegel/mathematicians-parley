@@ -544,6 +544,7 @@ pub(super) fn meetings(
     library: &Library,
 ) -> Vec<Option<Meeting>> {
     let group = &groups[taken.group];
+    let claims = &citing::claims_taken(group, claims, library);
     taken
         .concluded
         .iter()
@@ -593,6 +594,7 @@ pub(super) fn parts_within(
     library: &Library,
 ) -> Vec<Option<usize>> {
     let group = &groups[taken.group];
+    let claims = &citing::claims_taken(group, claims, library);
     taken
         .concluded
         .iter()

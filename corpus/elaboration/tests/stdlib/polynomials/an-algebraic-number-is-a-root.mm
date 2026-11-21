@@ -6,7 +6,8 @@ $( tests/stdlib/polynomials/an-algebraic-number-is-a-root, elaborated from tests
 $[ stdlib/proved.mm $]
 
 ${
-  $d A m $.
+  $d j k m $.
+  $d A j k m $.
   tests.stdlib.polynomials.an-algebraic-number-is-a-root $p |- ( ( A e. CC /\ A e. AA ) -> E. m e. ( CC ^m CC ) ( ( m e. ( Poly ` ZZ ) /\ ( deg ` m ) e. NN ) /\ ( m ` A ) = 0 ) ) $=
-    ( cc wcel caa wa simpr galgroot ) ACDZAEDZFABIJGH $.
+    ( cc wcel caa wa vk cv cz cply cfv cdgr cn cc0 wceq cmap co wrex simpr galgroot wb vj id eleq1d fveq2d anbi12d fveq1d eqeq1d cbvrexvw bitri a1i mpbid ) ACDZAEDZFZGHZIJKZDZUPLKZMDZFZAUPKZNOZFZGCCPQZRZBHZUQDZVGLKZMDZFZAVGKZNOZFZBVERZUOAGUMUNSTVFVOUAUOVFUBHZUQDZVPLKZMDZFZAVPKZNOZFZUBVERVOVDWCGUBVEUPVPOZVAVTVCWBWDURVQUTVSWDUPVPUQWDUCZUDWDUSVRMWDUPVPLWEUEUDUFWDVBWANWDAUPVPWEUGUHUFUIWCVNUBBVEVPVGOZVTVKWBVMWFVQVHVSVJWFVPVGUQWFUCZUDWFVRVIMWFVPVGLWGUEUDUFWFWAVLNWFAVPVGWGUGUHUFUIUJUKUL $.
 $}

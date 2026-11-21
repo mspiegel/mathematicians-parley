@@ -6,9 +6,10 @@ $( tests/stdlib/sets/replacement, elaborated from tests/stdlib/sets.proof by par
 $[ stdlib/proved.mm $]
 
 ${
-  $d A x $.
-  $d B x $.
-  $d C x $.
+  $d m s x $.
+  $d A m s x $.
+  $d B m s x $.
+  $d C m s x $.
   tests.stdlib.sets.replacement $p |- ( ( ( ( A e. _V /\ A e. _V ) /\ B e. _V ) /\ C : A --> B ) -> ran ( x e. A |-> ( C ` x ) ) e. _V ) $=
-    ( cvv wcel wa wf cv cfv cmpt crn simpl simpr syl grnmptex ) BEFZQGZCEFZGZBCDHZGZQABAIZDJZKLEFUBTQTUAMTRQRSMQQNOOABUDEPO $.
+    ( cvv wcel wa wf vs cv cfv cmpt crn simpl simpr syl grnmptex wb vm wceq id fveq2d cbvmptv rneqi eleq1i bitri a1i mpbid ) BEFZUIGZCEFZGZBCDHZGZIBIJZDKZLZMZEFZABAJZDKZLZMZEFZUNUIUSUNULUIULUMNULUJUIUJUKNUIUIOPPIBUPEQPUSVDRUNUSSBSJZDKZLZMZEFVDURVHEUQVGISBUPVFUOVETZUOVEDVIUAUBUCUDUEVHVCEVGVBSABVFVAVEUTTZVEUTDVJUAUBUCUDUEUFUGUH $.
 $}

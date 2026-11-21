@@ -353,6 +353,7 @@ impl<'a> Elaborator<'a> {
         slots.is_empty()
             || rules::congruence(label, &slots).is_some()
             || rules::function_law(label, &slots).is_some()
+            || rules::type_law(label).is_some()
     }
 
     /// `one` carried to `other`, its standard form: where only the parts

@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.geometry.angle-measure $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) -> ( ( ( 0 x. _pi ) / ; ; 1 8 0 ) < ( abs ` ( ( A - B ) ang ( C - B ) ) ) /\ ( abs ` ( ( A - B ) ang ( C - B ) ) ) < ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) $=
-    ( gangmeas ) ABCD $.
+    ( cc wcel wa wceq wn cmin co cdiv cr cc0 cpi cmul c1 c8 cdc cang cabs cfv clt wbr gangmeas simpld simprd jca ) ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZFZMNOJZPQRZMRZKJZABIJZCBIJZSJZTUAZUBUCZVOVJNOJZVJKJZUBUCZVGVPVSABCUDZUEVGVPVSVTUFUG $.
 $}

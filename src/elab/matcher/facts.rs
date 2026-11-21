@@ -700,6 +700,14 @@ impl<'a> Elaborator<'a> {
                 )));
             }
         }
+        // A define's name is a function on the domain the define gives it,
+        // which no line writes and set.mm alone asks, as a function on a set
+        // a cited item asks of it (`define_on`).
+        if label == Some("wfn") && kids.len() == 2 && kids[0].variable().is_none() {
+            if let Built(p) = self.define_on(wanted, scope, facts)? {
+                return Ok(Built(p));
+            }
+        }
         // A term equals itself, which no line need write.
         if label == Some("wceq")
             && kids.len() == 2

@@ -6,9 +6,10 @@ $( tests/stdlib/calculus/a-map-continuous-on-a-part, elaborated from tests/stdli
 $[ stdlib/proved.mm $]
 
 ${
-  $d A y $.
-  $d B y $.
-  $d C y $.
+  $d m x y $.
+  $d A m x y $.
+  $d B m x y $.
+  $d C m x y $.
   tests.stdlib.calculus.a-map-continuous-on-a-part $p |- ( ( ( ( A e. ~P RR /\ B e. ~P A ) /\ C : A --> RR ) /\ ( C |` B ) e. ( B -cn-> RR ) ) -> ( ( y e. B |-> ( C ` y ) ) |` B ) e. ( B -cn-> RR ) ) $=
-    ( cr cpw wcel wa wf cres ccncf co simpl simpr syl wss elpwi gcncfmappart ) BEFZGZCBFZGZHZBEDIZHZDCJZCEKLZGZHZABCDUIUEUDUEUHMZUCUDNOUIUBCBPUIUEUBUJUEUCUBUCUDMTUBNOOCBQOUEUHNR $.
+    ( cr cpw wcel wa wf cres ccncf co vx cv cfv cmpt simpl simpr syl wss elpwi gcncfmappart wb vm wceq id fveq2d cbvmptv reseq1i eleq1i bitri a1i mpbid ) BEFZGZCBFZGZHZBEDIZHZDCJZCEKLZGZHZMCMNZDOZPZCJZVBGZACANZDOZPZCJZVBGZVDMBCDVDUTUSUTVCQZURUSRSVDUQCBTVDUTUQVOUTURUQURUSQUOUQRSSCBUASUTVCRUBVIVNUCVDVIUDCUDNZDOZPZCJZVBGVNVHVSVBVGVRCMUDCVFVQVEVPUEZVEVPDVTUFUGUHUIUJVSVMVBVRVLCUDACVQVKVPVJUEZVPVJDWAUFUGUHUIUJUKULUM $.
 $}

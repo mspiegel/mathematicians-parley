@@ -10,5 +10,5 @@ ${
   $d A j k m $.
   $d B j k m $.
   tests.notations.families.an-intersection-with-its-letter-renamed $p |- ( ( ( A e. _V /\ B e. _V ) /\ A. m e. A B C_ m ) -> B C_ |^|_ k e. A k ) $=
-    ( cvv wcel wa cv wss wral ciin simpr wb vj wceq id sseq2d cbvralvw bitri a1i mpbid ssiin sylibr ) AEFZBEFZGZBDHZIZDAJZGZBCHZIZCAJZBCAUKKIUJUIUMUFUILUIUMMUJUIBNHZIZNAJUMUHUODNAUGUNOZUGUNBUPPQRUOULNCAUNUKOZUNUKBUQPQRSTUACAUKBUBUC $.
+    ( cvv wcel wa cv wss wral ciin simpr ssiin sylibr wb vj wceq id cbviinv sseq2i bitri a1i mpbid ) AEFZBEFZGZBDHZIZDAJZGZBDAUGKZIZBCACHZKZIZUJUIULUFUILDAUGBMNULUOOUJULBPAPHZKZIUOUKUQBDPAUGUPUGUPQRSTUQUNBPCAUPUMUPUMQRSTUAUBUC $.
 $}

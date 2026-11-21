@@ -895,6 +895,28 @@ pub fn taken_ways(
     }
 }
 
+/// The claim as a group of an item takes it, one part to each conclusion
+/// the citation records (`Taken::concluded`): conjunct by conjunct, except
+/// where the group concludes one statement letter, which stands for the
+/// claim whole (`Offer::claims_read`).
+pub fn claims_taken(group: &Group, claims: &[Node], library: &Library) -> Vec<Node> {
+    match concludes_letter(group) {
+        true => whole_claim(claims, library),
+        false => split_claims(claims, library),
+    }
+}
+
+/// Whether the group concludes one statement letter and nothing else: a
+/// conclusion is a sentence, so one that is a bare letter of the item's is
+/// a statement letter.
+fn concludes_letter(group: &Group) -> bool {
+    let mut trees = group.gives.clone();
+    trees.extend(group.asked().cloned());
+    let variables = group.letters(&trees);
+    matches!(group.gives.as_slice(), [one]
+        if one.is_name() && variables.contains(one.text.as_str()))
+}
+
 /// A claim conjunct by conjunct, as a conclusion is offered: `u ∈ Y and
 /// u ∈ Z` is the two facts a reading gives.
 fn split_claims(claims: &[Node], library: &Library) -> Vec<Node> {
@@ -995,12 +1017,8 @@ impl Offer {
         trees.extend(group.asked().cloned());
         let variables = group.letters(&trees);
         let free = group.free_names(&library.ctx.binders);
-        // A conclusion is a sentence, so one that is a bare letter of the
-        // item's is a statement letter.
-        let letter = matches!(gives.as_slice(), [one]
-            if one.is_name() && variables.contains(one.text.as_str()));
         Offer {
-            letter,
+            letter: concludes_letter(group),
             candidates,
             from,
             ways,

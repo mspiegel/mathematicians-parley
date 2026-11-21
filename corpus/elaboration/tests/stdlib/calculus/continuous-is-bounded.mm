@@ -6,10 +6,10 @@ $( tests/stdlib/calculus/continuous-is-bounded, elaborated from tests/stdlib/cal
 $[ stdlib/proved.mm $]
 
 ${
-  $d m y $.
-  $d A m y $.
-  $d B m y $.
-  $d C m y $.
+  $d k m x y $.
+  $d A k m x y $.
+  $d B k m x y $.
+  $d C k m x y $.
   tests.stdlib.calculus.continuous-is-bounded $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ C : ( A [,] B ) --> RR ) /\ ( C |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) -> E. m e. RR A. y e. ( A [,] B ) ( abs ` ( C ` y ) ) <_ m ) $=
-    ( cr wcel wa cicc co wf cres ccncf simpl id syl simpr gcncfbdd ) BFGZCFGZHZBCIJZFDKZHZDUBLZUBFMJZGZHZEABCDUHUDSUDUGNZUDUASUAUCNZUASSSTNSOPPPUHUDTUIUDUATUJSTQPPUHUDUCUIUAUCQPUDUGQR $.
+    ( cr wcel wa cicc co wf cres ccncf vx cv cfv cabs cle wbr wral wrex simpl id syl simpr gcncfbdd wb vk wceq fveq2d breq1d cbvralvw rexbii bitri a1i mpbid ) BFGZCFGZHZBCIJZFDKZHZDUTLZUTFMJZGZHZNOZDPZQPZEOZRSZNUTTZEFUAZAOZDPZQPZVJRSZAUTTZEFUAZVFENBCDVFVBUQVBVEUBZVBUSUQUSVAUBZUSUQUQUQURUBUQUCUDUDUDVFVBURVTVBUSURWAUQURUEUDUDVFVBVAVTUSVAUEUDVBVEUEUFVMVSUGVFVMUHOZDPZQPZVJRSZUHUTTZEFUAVSVLWFEFVKWENUHUTVGWBUIZVIWDVJRWGVHWCQWGVGWBDWGUCUJUJUKULUMWFVREFWEVQUHAUTWBVNUIZWDVPVJRWHWCVOQWHWBVNDWHUCUJUJUKULUMUNUOUP $.
 $}

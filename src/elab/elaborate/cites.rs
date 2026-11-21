@@ -307,107 +307,6 @@ impl<'a> Elaborator<'a> {
         Ok(Built(pf!(self.b; scope, term, ex, p_ex, made, "mpbird")))
     }
 
-    /// `by_clause`, with an equation one claim either way round, as the
-    /// checker reads an item's conclusion (`citing::either_way`): `b = a` is
-    /// what an item concluding `a = b` gives, turned. A "there is" the
-    /// clauses give together at the witness the `with` target names is
-    /// assembled as `cite_item` assembles it for an obtain: completeness's
-    /// "there is c ∈ ℝ with c is a least upper bound of S" from suprcl,
-    /// suprub and suprleub at sup S.
-    pub(super) fn by_clause_either_way(
-        &mut self,
-        labels: &[String],
-        term: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        step: &Step,
-        seed: Option<&Binding>,
-    ) -> Checked<Route<Proof>> {
-        let found = self.by_clause(labels, term, scope, facts, step, seed)?;
-        if !found.is_declined() {
-            return Ok(found);
-        }
-        if let Built(p) = self.by_lemmas(labels, term, scope, facts, step, seed)? {
-            return Ok(Built(p));
-        }
-        let Some((turned, flip)) = self.turned_claim(term) else {
-            return Ok(found);
-        };
-        match self.by_clause(labels, &turned, scope, facts, step, seed)? {
-            Built(p) => {
-                let Sides { left, right } = self.equation_sides(&turned);
-                Ok(Built(pf!(self.b; scope, left, right, p, flip)))
-            }
-            Declined(_) => Ok(found),
-        }
-    }
-
-    /// `by_clause_either_way`, and where no clause reaches the claim, the
-    /// instance of the item the checker compared it with: a claim that
-    /// leaves out an identity element the instance has is that instance
-    /// (`SYNTAX.md`, "An identity element goes without saying"), so the
-    /// instance is reached and carried to the claim with its identity
-    /// elements dropped (`tidied`). `q·N = A` from mod-remainder at r := 0,
-    /// whose instance is q·N + 0 = A.
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn by_clause_or_instance(
-        &mut self,
-        item: &'a Record,
-        labels: &[String],
-        term: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        step: &Step,
-        seed: &Binding,
-    ) -> Checked<Route<Proof>> {
-        let found =
-            self.by_clause_either_way(labels, term, scope, facts, step, Some(seed))?;
-        if !found.is_declined() {
-            return Ok(found);
-        }
-        let bare =
-            |me: &Self, rpn: &Rpn| me.rpn(&me.without_identities(&me.to_term(rpn)));
-        let goal = bare(self, term);
-        // A biconditional is reached a side at a time, as a step citing it
-        // claims one side from the other.
-        let mut instances = Vec::new();
-        for said in self.concluded_here(step, item)? {
-            let whole = self.to_term(&said);
-            if whole.label() == Some("wb") {
-                instances.extend(whole.children().iter().map(|side| self.rpn(side)));
-            }
-            instances.push(said);
-        }
-        for instance in instances {
-            let bare_instance = bare(self, &instance);
-            if instance == *term
-                || (bare_instance != goal
-                    && !self.rebound(&bare_instance, &goal)
-                    && !self.reorders(&instance, term)
-                    && !self.one_with_names_read(&instance, term)
-                    && !self.one_with_names_read(&bare_instance, &goal)
-                    && !self.one_read_through(&instance, term))
-            {
-                continue;
-            }
-            let Built(reached) = self.by_clause_either_way(
-                labels,
-                &instance,
-                scope,
-                facts,
-                step,
-                Some(seed),
-            )?
-            else {
-                continue;
-            };
-            if let Some(p) = self.reached(&reached, &instance, term, scope, facts)? {
-                return Ok(Built(p));
-            }
-        }
-        Ok(found)
-    }
-
     /// An equation or disequation with its sides the other way round, and
     /// the lemma that turns a proof of it back: `B = A` and `eqcomd`, `B ≠ A`
     /// and `necomd`, or `¬ B = A`, as the page's ≠ is read, and `neqcomd`.
@@ -480,9 +379,18 @@ impl<'a> Elaborator<'a> {
         // The facts the checker recorded as supplying the item's hypotheses,
         // which discharge the lemma's antecedents that are those hypotheses.
         let given = self.recorded_hypotheses(step, item, scope, facts)?;
+        // The facts carried to the hypotheses are the step's own, which a
+        // lemma asking one under its own context, `( ph /\ k e. A ) -> B = C`
+        // of a sum's term, settles from as from a line.
+        let facts = &facts.with(&given);
         let kept = self.hypotheses_given.replace(given);
-        let found =
-            self.by_clause_or_instance(item, &labels, term, scope, facts, step, &seed);
+        // The claim as the record reads it, and where the record names a
+        // witness the item's lemmas build together, as they build it.
+        let found = match self.recorded_library(step, term, scope, facts, item, &seed) {
+            Ok(Some(p)) => Ok(Built(p)),
+            Ok(None) => self.by_lemmas(&labels, term, scope, facts, step, Some(&seed)),
+            Err(e) => Err(e),
+        };
         self.hypotheses_given = kept;
         match found? {
             Built(p) => Ok(Built(p)),
@@ -590,32 +498,6 @@ impl<'a> Elaborator<'a> {
         Ok(out)
     }
 
-    /// The part of its lemma's conclusion the claim of a step citing a
-    /// record is (`LemmaSide`): the item's sentence read the way the checker
-    /// recorded (`Concluded::way`), through the side its `metamath-reads`
-    /// names, the two sides swapped where it says `turned`. None where the
-    /// claim is more than one conclusion of the item.
-    pub(super) fn side_read(&self, step: &Step) -> Checked<Option<LemmaSide>> {
-        let Some(cited) = self.citation_read(step) else {
-            return Ok(None);
-        };
-        let [concluded] = cited.concluded.as_slice() else {
-            return Ok(None);
-        };
-        let Some(Item::Record(record)) = self.items.get(&cited.item).copied() else {
-            return Ok(None);
-        };
-        let paired = targets::sentence_lemmas(record)
-            .map_err(|why| self.defect(step.line, format!("{}: {why}", cited.item)))?;
-        let Some(reading) = paired.get(concluded.sentence).map(|p| p.reading) else {
-            return Ok(None);
-        };
-        if reading.part.is_some() || concluded.part.is_some() {
-            return Ok(None);
-        }
-        self.side_of(step, concluded.way, reading).map(Some)
-    }
-
     /// The part of its lemma's conclusion a sentence read `way` is, through
     /// the side its `metamath-reads` names (`LemmaSide`), the two sides
     /// swapped where it says `turned`.
@@ -645,117 +527,202 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// What one clause of an item gives, or what several give together, one
-    /// to a sentence of the claim.
-    pub(super) fn by_clause(
+    /// A step citing a record, read as the checker recorded it: for each
+    /// conclusion the record names (`Cited::concluded`), the item's sentence
+    /// read the recorded way at the citation's values (`sentence_read`),
+    /// proved by the lemma the record pairs it with (`sentence_lemmas`), at
+    /// the side and the part its `metamath-reads` names (`lemma_instance`);
+    /// and the claim made of those as `claim_from_readings` makes it, each
+    /// part of it carried as the record says it meets the claim. None where
+    /// the record names a witness the lemmas build together, which is read
+    /// otherwise (`by_lemmas`).
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn recorded_library(
         &mut self,
-        labels: &[String],
+        step: &Step,
         term: &Rpn,
         scope: &Rpn,
         facts: &Facts,
+        item: &'a Record,
+        seed: &Binding,
+    ) -> Checked<Option<Proof>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let paired = targets::sentence_lemmas(item)
+            .map_err(|why| self.defect(step.line, format!("{}: {why}", cited.item)))?;
+        // Each concluded sentence is applied at the record's reading of it,
+        // in the item's letters; `claim_from_readings` carries the readings
+        // to the claim as the record's meetings say they meet.
+        let mut readings = Vec::new();
+        for concluded in &cited.concluded {
+            let Some(paired) = paired.get(concluded.sentence) else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker concluded a sentence the record pairs with no lemma",
+                ));
+            };
+            if paired.reading.witness {
+                return Ok(None);
+            }
+            let side = self.side_of(step, concluded.way, paired.reading)?;
+            let instance = self.sentence_read(
+                step,
+                &cited,
+                concluded.sentence,
+                concluded.way,
+                LemmaReading::default(),
+            )?;
+            let label = paired.labels[0].clone();
+            let proof = self.lemma_instance(
+                &label,
+                &instance,
+                side,
+                paired.reading.part,
+                scope,
+                facts,
+                step,
+                seed,
+            )?;
+            let proof = match proof {
+                Built(p) => p,
+                Declined(d) => {
+                    return Err(self.defect(
+                        step.line,
+                        format!(
+                            "{label}, which {} names, does not give {}: {}",
+                            cited.item,
+                            self.render(&self.rpn(&instance)),
+                            self.say(&d)
+                        ),
+                    ));
+                }
+            };
+            readings.push((self.rpn(&instance), proof));
+        }
+        self.claim_from_readings(step, term, &cited, readings, scope, facts)
+            .map(Some)
+    }
+
+    /// ( scope -> instance ) by `label`: the lemma applied at the side of
+    /// its conclusion `side` names, or, where its conclusion is an "and"
+    /// the sentence is part `part` of (`metamath-reads part N`), applied at
+    /// the whole that part fits and the part taken out of it.
+    #[allow(clippy::too_many_arguments)]
+    fn lemma_instance(
+        &mut self,
+        label: &str,
+        instance: &Term,
+        side: LemmaSide,
+        part: Option<usize>,
+        scope: &Rpn,
+        facts: &Facts,
         step: &Step,
-        seed: Option<&Binding>,
+        seed: &Binding,
     ) -> Checked<Route<Proof>> {
-        // Why each clause did not reach the claim, said in order, so that a
-        // message names what the clause that came closest lacked.
-        let mut why: Vec<String> = Vec::new();
-        let side = self.side_read(step)?;
-        for label in labels {
-            self.lemma_side = side;
-            let found = self.apply_lemma(
+        let Some(q) = part else {
+            self.lemma_side = Some(side);
+            return self.apply_lemma(
                 label,
-                &self.to_term(term),
+                instance,
                 scope,
                 facts,
                 Some(step),
                 true,
-                seed,
-            )?;
-            match found {
-                Declined(d) => why.push(self.say(&d)),
-                built => return Ok(built),
-            }
-        }
-        for label in labels {
-            if let Built(p) = self.by_conjunct(label, term, scope, facts, step, seed)? {
-                return Ok(Built(p));
-            }
-        }
-        let node = self.to_term(term);
-        if node.label() != Some("wa") {
-            return Ok(Route::no(why.join("; ")));
-        }
-        let halves: Vec<Rpn> = node.children().iter().map(|c| self.rpn(c)).collect();
-        // Each sentence is reached as a whole claim is, an equation either
-        // way round.
-        let mut made = Vec::new();
-        for one in &halves {
-            made.push(
-                self.by_clause_either_way(labels, one, scope, facts, step, seed)?,
+                Some(seed),
             );
-        }
-        let mut proofs = Vec::new();
-        for one in made {
-            proofs.push(take!(one));
-        }
-        Ok(Built(
-            pf!(self.b; scope, halves[0], halves[1], proofs[0], proofs[1], "jca"),
-        ))
-    }
-
-    /// One of the things a lemma concludes together, as a record of several
-    /// sentences states them: the claim fixes the lemma's variables by the
-    /// conjunct it is, the lemma is applied at that instance of its whole
-    /// conclusion, and the conjunct taken out of it. `∡PQR ≤ π` from a lemma
-    /// concluding ∡PQR ∈ ℝ, −π < ∡PQR and ∡PQR ≤ π.
-    pub(super) fn by_conjunct(
-        &mut self,
-        label: &str,
-        term: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        step: &Step,
-        seed: Option<&Binding>,
-    ) -> Checked<Route<Proof>> {
+        };
         let statement = self.statement(label);
         let variables = names_of(&statement);
         let mut concluded = statement;
         while concluded.label() == Some("wi") {
             concluded = concluded.children()[1].clone();
         }
-        if !matches!(concluded.label(), Some("wa") | Some("w3a")) {
-            return Ok(Route::no(format!("{label} concludes one thing")));
-        }
-        let goal = self.to_term(term);
-        let start = seed.cloned().unwrap_or_default();
-        for piece in conjuncts_of(&concluded) {
-            let Some(binding) = fit(&piece, &goal, &start, &variables) else {
-                continue;
-            };
-            let instance = concluded.substitute(&binding);
-            let Built(proof) = self.apply_lemma(
-                label,
-                &instance,
-                scope,
-                facts,
-                Some(step),
-                true,
-                seed,
-            )?
-            else {
-                continue;
-            };
-            let whole = self.rpn(&instance);
-            let parts = Facts::new();
-            self.know(&parts, whole.clone(), proof.clone());
-            self.unpack_all(&whole, &proof, scope, &parts);
-            if let Some(p) = self.held(&parts, term, scope)? {
-                return Ok(Built(p));
+        let whole = match (side, concluded.label()) {
+            (LemmaSide::Left, Some("wb")) => concluded.children()[0].clone(),
+            (LemmaSide::Right, Some("wb")) => concluded.children()[1].clone(),
+            _ => concluded,
+        };
+        let Some(piece) = conjuncts_of(&whole).get(q).cloned() else {
+            return Ok(Route::no(format!("{label} concludes no part {}", q + 1)));
+        };
+        let Some(mut binding) = self.fits_as(&piece, instance, &variables, Some(seed))
+        else {
+            return Ok(Route::no(format!(
+                "part {} of {label} is not the sentence",
+                q + 1
+            )));
+        };
+        // A part need not name every variable of the whole: what is left
+        // open is what the item's hypotheses say at the citation's values,
+        // as the lemma's antecedents and its given side ask them.
+        if names_of(&whole).iter().any(|v| !binding.contains_key(v)) {
+            let mut asks = Vec::new();
+            let mut walk = self.statement(label);
+            while matches!(walk.label(), Some("wi") | Some("wb")) {
+                asks.push(walk.children()[0].clone());
+                asks.push(walk.children()[1].clone());
+                walk = walk.children()[1].clone();
+            }
+            let hypotheses = self.item_hypotheses_read(step)?;
+            for ask in asks {
+                for said in &hypotheses {
+                    if let Some(filled) = fit(&ask, said, &binding, &variables) {
+                        binding = filled;
+                        break;
+                    }
+                }
             }
         }
-        Ok(Route::no(format!(
-            "no conjunct of what {label} concludes is the claim"
-        )))
+        let at = whole.substitute(&binding);
+        self.lemma_side = Some(side);
+        let proved = take!(self.apply_lemma(
+            label,
+            &at,
+            scope,
+            facts,
+            Some(step),
+            true,
+            Some(seed)
+        )?);
+        // The part by its place, carried to the sentence where set.mm spells
+        // it otherwise, x =/= y for the page's x ≠ y.
+        let at = self.rpn(&at);
+        let Some((taken, proof)) =
+            self.conjuncts_proved(&at, proved, scope).get(q).cloned()
+        else {
+            return Ok(Route::no(format!("{label} concludes no part {}", q + 1)));
+        };
+        let target = self.rpn(instance);
+        Ok(
+            match self.same_carried(&taken, proof, &target, scope, facts)? {
+                Some(p) => Built(p),
+                None => {
+                    Route::no(format!("part {} of {label} is not the sentence", q + 1))
+                }
+            },
+        )
+    }
+
+    /// What each hypothesis of the item a step cites says at the citation's
+    /// values (`Cited::supplied`, `binding_with_written`), as terms in the
+    /// step's names.
+    fn item_hypotheses_read(&mut self, step: &Step) -> Checked<Vec<Term>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Ok(Vec::new());
+        };
+        let library = self.item_library();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let mut out = Vec::new();
+        for supplied in cited.supplied.iter().filter(|s| s.at.is_some()) {
+            let at = filled(&supplied.want, &binding, &library.ctx);
+            let read = self.term(&at)?;
+            out.push(self.to_term(&read));
+        }
+        Ok(out)
     }
 
     /// What a `with` target says the lemma's variables stand for, read under

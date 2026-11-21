@@ -400,36 +400,6 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// What the clause a step's citation takes concludes there, each
-    /// sentence a term with every letter the citation fixes put in: the
-    /// instance the checker compared the claim with (`cited_here`). Empty
-    /// for an obtain, which claims the witness and no conclusion of the item.
-    pub(super) fn concluded_here(
-        &mut self,
-        step: &Step,
-        item: &'a Record,
-    ) -> Checked<Vec<Rpn>> {
-        if step.just.head.is(Method::Obtain) {
-            return Ok(Vec::new());
-        }
-        let taken = self.cited_here(step, &item.qualified())?;
-        let library = self.item_library();
-        let Some(groups) = library.groups(&item.qualified()) else {
-            return Ok(Vec::new());
-        };
-        let binding: NodeBinding = taken.binding.into_iter().collect();
-        let mut out = Vec::new();
-        // The instance holds the proof's values, so it is a term in the
-        // proof's names, as a `with` fill is (`filling`): read in the item's,
-        // a value's letters lose the sorts the proof gives them, and |PQ| of
-        // two points is no longer a distance.
-        for node in &groups[taken.group].gives {
-            let instance = filled(node, &binding, &library.ctx);
-            out.push(self.term(&instance)?);
-        }
-        Ok(out)
-    }
-
     /// The values a citation gives its item's letters, `name := value`, as
     /// kernel terms, each read in the names as they stand before any is
     /// given (`instantiated_nodes`).
@@ -793,7 +763,17 @@ impl<'a> Elaborator<'a> {
             return self.held(&with, wanted, scope);
         }
         if met.identities.is_empty() {
-            return self.same_carried(said, proof, wanted, scope, facts);
+            if said == wanted {
+                return Ok(Some(proof));
+            }
+            // The two are one but for its spelling: an order respelt, a
+            // letter it binds renamed, as the record says, or a define's
+            // name where the checker read its rule (`same_through_names`).
+            let (from, to) = (self.to_term(said), self.to_term(wanted));
+            return Ok(self
+                .same_through_names(&from, &to, scope, facts, None)?
+                .built()
+                .map(|alike| pf!(self.b; scope, said, wanted, proof, alike, "mpbid")));
         }
         let read_out = self.read_out(&self.to_term(wanted));
         let read = self.rpn(&read_out);

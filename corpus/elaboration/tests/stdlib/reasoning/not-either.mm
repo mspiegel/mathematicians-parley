@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.reasoning.not-either $p |- ( ( A e. RR /\ -. ( A = 0 \/ A = 1 ) ) -> ( -. A = 0 /\ -. A = 1 ) ) $=
-    ( cr wcel cc0 wceq c1 wo wn wa simpr ioran sylib ) ABCZADEZAFEZGZHZIQNHOHIMQJNOKL $.
+    ( cr wcel cc0 wceq c1 wo wn wa simpr ioran sylib simpld simprd jca ) ABCZADEZAFEZGZHZIZQHZRHZUAUBUCUATUBUCIZPTJZQRKZLZMUAUBUCUGNO $.
 $}

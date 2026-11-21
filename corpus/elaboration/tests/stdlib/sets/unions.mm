@@ -6,7 +6,8 @@ $( tests/stdlib/sets/unions, elaborated from tests/stdlib/sets.proof by parley b
 $[ stdlib/proved.mm $]
 
 ${
-  $d A m $.
+  $d j k m $.
+  $d A j k m $.
   tests.stdlib.sets.unions $p |- ( ( A e. _V /\ A e. _V ) -> U_ m e. A m e. _V ) $=
-    ( cvv wcel wa cv ciun simpr giunex syl ) ACDZKEKBABFGCDKKHBACIJ $.
+    ( cvv wcel wa vk cv ciun simpr giunex syl wb vj wceq id cbviunv eleq1i bitri a1i mpbid ) ACDZUAEZFAFGZHZCDZBABGZHZCDZUBUAUEUAUAIFACJKUEUHLUBUEMAMGZHZCDUHUDUJCFMAUCUIUCUINOPQUJUGCMBAUIUFUIUFNOPQRST $.
 $}

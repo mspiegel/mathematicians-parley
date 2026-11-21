@@ -10,5 +10,5 @@ ${
   $d B x $.
   $d C x $.
   tests.elaborator.an-exhibit-from-an-and.one-witness-from-an-and $p |- ( ( ( A e. _V /\ B e. A ) /\ C e. ( A \ { B } ) ) -> E. x e. A -. x = B ) $=
-    ( cvv wcel wa csn cdif wceq wn cv wrex wne simpr eldifsn sylib wb df-ne a1i anbi2d mpbid simpl syl jca id eqeq1d notbid rspcev ) BEFZCBFZGZDBCHZIZFZGZDBFZDCJZKZGZALZCJZKZABMUPUQUSUPUTUQUPUQDCNZGZUTUPUOVEULUOOZDBCPZQZUPVDUSUQVDUSRZUPDCSZTZUAZUBZUQUSUCUDUPUTUSVMUQUSOUDUEVCUSADBVADJZVBURVNVADCVNUFUGUHUIUD $.
+    ( cvv wcel wa csn cdif wceq wn cv wrex wne simpr eldifsn sylib wb df-ne a1i anbi2d mpbid simpld simprd jca simpl syl id eqeq1d notbid rspcev ) BEFZCBFZGZDBCHZIZFZGZDBFZDCJZKZGZALZCJZKZABMURUSVAURVBUSURUSVAURUSVAURUSDCNZGZVBURUQVGUNUQOZDBCPZQZURVFVAUSVFVARZURDCSZTZUAZUBZUCZURUSVAVOUDZUEZUSVAUFUGURVBVAVRUSVAOUGUEVEVAADBVCDJZVDUTVSVCDCVSUHUIUJUKUG $.
 $}

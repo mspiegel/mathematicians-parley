@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.an-equation-turned-inside.an-equation-turned-inside $p |- ( ( ( ( A e. RR /\ B e. RR ) /\ ( A = 1 <-> ( B + 0 ) = 2 ) ) /\ -. 2 = B ) -> -. A = 1 ) $=
-    ( cr wcel wa c1 wceq cc0 caddc co c2 wb wn simpr simpl syl cc recn addrid eqeq1d bibi2d mpbid eqcom a1i mtbird ) ACDZBCDZEZAFGZBHIJZKGZLZEZKBGZMZEZUIUNUMUONUPUIBKGZLZUIUNLUPULURUPUMULUMUOOZUHULNPUPUKUQUIUPUJBKUPBQDZUJBGUPUGUTUPUMUGUSUMUHUGUHULOUFUGNPPBRPBSPTUAUBUPUQUNUIUQUNLUPBKUCUDUAUBUE $.
+    ( cr wcel wa c1 wceq cc0 caddc co c2 wb wn simpr neqcomd simpl syl cc recn addrid eqeq1d bibi2d mpbid mtbird ) ACDZBCDZEZAFGZBHIJZKGZLZEZKBGZMZEZUHBKGZUOKBULUNNOUOUKUHUPLUOULUKULUNPZUGUKNQUOUJUPUHUOUIBKUOBRDZUIBGUOUFURUOULUFUQULUGUFUGUKPUEUFNQQBSQBTQUAUBUCUD $.
 $}

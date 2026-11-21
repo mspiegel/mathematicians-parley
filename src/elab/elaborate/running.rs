@@ -1114,7 +1114,7 @@ impl<'a> Elaborator<'a> {
         // way (`SYNTAX.md`, a step said of every member). The requires lines
         // are then about that member, and are proved where it is in scope.
         let at_a_member = match how {
-            How::Cite | How::Reading(_) => {
+            How::Cite | How::Reading(_) | How::UnfoldEquation => {
                 !self.item_cited(&step.just.head.to_string())?.says_for_all()
             }
             How::Define => true,

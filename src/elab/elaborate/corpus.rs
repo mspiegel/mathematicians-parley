@@ -717,6 +717,11 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
+        // What carries a reading to the claim asks as a lemma does, from
+        // what the step names: a define read at its arguments asks each is
+        // a set.
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let held = self.with_cited(Some(step), scope, &supplied, None)?;
         let mut proved = Vec::new();
         for (k, (piece, (read, shown))) in pieces.into_iter().zip(readings).enumerate()
         {
@@ -738,7 +743,7 @@ impl<'a> Elaborator<'a> {
                 },
             };
             let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
-            match self.met_as(&part, shown, &piece, &met, Tree::First, scope, facts)? {
+            match self.met_as(&part, shown, &piece, &met, Tree::First, scope, &held)? {
                 Some(proof) => proved.push(ShownPart { want: piece, proof }),
                 None => {
                     return Err(self.unreached(
@@ -772,7 +777,7 @@ impl<'a> Elaborator<'a> {
     /// step said of every member is proved at one (`Elaborator::member`),
     /// what is proved is the body of its "for all", and that is taken
     /// apart.
-    fn claim_parts(&mut self, step: &Step) -> Checked<Vec<Rpn>> {
+    pub(in crate::elab) fn claim_parts(&mut self, step: &Step) -> Checked<Vec<Rpn>> {
         let library = self.item_library();
         let mut out = Vec::new();
         for sentence in step.claim.sentences() {
@@ -889,6 +894,21 @@ impl<'a> Elaborator<'a> {
                 ))
             }
         };
+        self.sentence_read(step, cited, sentence, way, spelt)
+    }
+
+    /// Sentence `sentence` of the cited item read `way`, as a term at the
+    /// citation's values (`Cited::binding_with_written`), written as
+    /// `spelt` says its lemma writes it, in the item's letters before the
+    /// values are put in, so a product a value holds is left as it stands.
+    pub(in crate::elab) fn sentence_read(
+        &mut self,
+        step: &Step,
+        cited: &Cited,
+        sentence: usize,
+        way: Read,
+        spelt: LemmaReading,
+    ) -> Checked<Term> {
         let mut node = self.reading_node(step, cited, sentence, way)?;
         if spelt.turned {
             node = equation_turned(&node);

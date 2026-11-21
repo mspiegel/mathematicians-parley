@@ -6,8 +6,9 @@ $( proofs/hammack/sum-of-factorial-quotients/next-term-sum, elaborated from proo
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A j $.
-  $d B j $.
+  $d b j m $.
+  $d A b j m $.
+  $d B b j m $.
   proofs.hammack.sum-of-factorial-quotients.next-term-sum $p |- ( ( A e. NN /\ B : NN --> RR ) -> sum_ j e. ( 1 ... ( A + 1 ) ) ( B ` j ) = ( sum_ j e. ( 1 ... A ) ( B ` j ) + ( B ` ( A + 1 ) ) ) ) $=
-    ( cn wcel cr wf wa cv cfv c1 caddc co cuz simpl id syl elnnuz sylib cfz cc simpr elfznn ffvelcdm syl2anc recn wceq fveq2d fsump1 ) ADEZDFBGZHZCIZBJZAKLMZBJCKAULUJAKNJEULUJUJUJUKOUJPQARSULUMKUOTMZEZHZUNFEZUNUAEURUKUMDEZUSURULUKULUQOUJUKUBQURUQUTULUQUBUMUOUCQDFUMBUDUEUNUFQUMUOUGZUMUOBVAPUHUI $.
+    ( cn wcel cr wf wa c1 caddc co cfz vb cv cfv csu wceq cuz simpl id syl elnnuz sylib cc simpr elfznn ffvelcdm syl2anc recn fveq2d fsump1 wb vm cbvsumv eqeq1i oveq1i eqeq2i bitri a1i mpbid ) ADEZDFBGZHZIAIJKZLKZMNZBOZMPZIALKZVGMPZVDBOZJKZQZVECNZBOZCPZVIVOCPZVKJKZQZVCVGVKMIAVCVAAIROEVCVAVAVAVBSVATUAAUBUCVCVFVEEZHZVGFEZVGUDEWAVBVFDEZWBWAVCVBVCVTSVAVBUEUAWAVTWCVCVTUEVFVDUFUADFVFBUGUHVGUIUAVFVDQZVFVDBWDTUJUKVMVSULVCVMVEUMNZBOZUMPZVIWFUMPZVKJKZQZVSVMWGVLQWJVHWGVLVEVGWFMUMVFWEQZVFWEBWKTZUJZUNUOVLWIWGVJWHVKJVIVGWFMUMWMUNUPUQURWJVPWIQVSWGVPWIVEWFVOUMCWEVNQZWEVNBWNTZUJZUNUOWIVRVPWHVQVKJVIWFVOUMCWPUNUPUQURURUSUT $.
 $}

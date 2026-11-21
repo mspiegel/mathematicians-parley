@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.products-of-two-types.a-set-of-pairs $p |- ( ( ( ( ( ( ( A e. _V /\ B e. _V ) /\ C e. _V ) /\ D e. _V ) /\ E e. _V ) /\ C C_ ( A X. B ) ) /\ <. D , E >. e. C ) -> ( D e. A /\ E e. B ) ) $=
-    ( cvv wcel wa cxp wss cop simpl simpr syl jca ssel2 opelxp sylib ) AFGZBFGZHZCFGZHZDFGZHZEFGZHZCABIZJZHZDEKZCGZHZUKUHGZDAGEBGHUMUIULHUNUMUIULUMUJUIUJULLUGUIMNUJULMOCUHUKPNDEABQR $.
+    ( cvv wcel wa cxp wss cop simpl simpr syl jca ssel2 opelxp sylib simpld simprd ) AFGZBFGZHZCFGZHZDFGZHZEFGZHZCABIZJZHZDEKZCGZHZDAGZEBGZUOUPUQUOUMUJGZUPUQHZUOUKUNHZURUOUKUNUOULUKULUNLZUIUKMZNZULUNMZOZCUJUMPZNZDEABQZRZSUOUPUQVITO $.
 $}

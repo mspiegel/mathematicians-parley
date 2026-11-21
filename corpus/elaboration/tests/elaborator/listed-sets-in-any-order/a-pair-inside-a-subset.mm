@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.listed-sets-in-any-order.a-pair-inside-a-subset $p |- ( ( ( A e. _V /\ B e. A ) /\ C e. A ) -> { C , B } C_ A ) $=
-    ( cvv wcel wa cpr wss simpr simpl syl jca prssi ) ADEZBAEZFZCAEZFZQOFCBGAHRQOPQIRPOPQJNOIKLCBAMK $.
+    ( cvv wcel wa cpr wss simpl simpr syl jca prssi wceq prcom a1i eqcomd sseq1d mpbid ) ADEZBAEZFZCAEZFZBCGZAHZCBGZAHUDUAUCFUFUDUAUCUDUBUAUBUCITUAJKUBUCJLBCAMKUDUEUGAUDUGUEUGUENUDCBOPQRS $.
 $}

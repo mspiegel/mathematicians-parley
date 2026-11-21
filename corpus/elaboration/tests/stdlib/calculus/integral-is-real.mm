@@ -6,10 +6,11 @@ $( tests/stdlib/calculus/integral-is-real, elaborated from tests/stdlib/calculus
 $[ stdlib/proved.mm $]
 
 ${
-  $d A s $.
-  $d B s $.
-  $d C s $.
-  $d D s $.
+  $d m s t $.
+  $d A m s t $.
+  $d B m s t $.
+  $d C m s t $.
+  $d D m s t $.
   tests.stdlib.calculus.integral-is-real $p |- ( ( ( ( ( ( A e. RR /\ B e. RR ) /\ A < B ) /\ C : ( A [,] B ) --> RR ) /\ ( C |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) /\ D e. ( A [,] B ) ) -> S_ [ A -> D ] ( C ` s ) _d s e. RR ) $=
-    ( cr wcel wa clt wbr cicc co wf cres ccncf simpl id syl simpr gditgreres ) AFGZBFGZHZABIJZHZABKLZFCMZHZCUFNZUFFOLZGZHZDUFGZHZEABDCUNULUAULUMPZULUHUAUHUKPZUHUEUAUEUGPZUEUCUAUCUDPZUCUAUAUAUBPUAQRRRRRUNULUBUOULUHUBUPUHUEUBUQUEUCUBURUAUBSRRRRUNULUDUOULUHUDUPUHUEUDUQUCUDSRRRUNULUGUOULUHUGUPUEUGSRRUNULUKUOUHUKSRULUMST $.
+    ( cr wcel wa clt wbr cicc co wf cres ccncf vt cv cfv cdit simpl id syl simpr gditgreres wb vm wceq fveq2d cbvditgv eleq1i bitri a1i mpbid ) AFGZBFGZHZABIJZHZABKLZFCMZHZCUSNZUSFOLZGZHZDUSGZHZPADPQZCRZSZFGZEADEQZCRZSZFGZVGPABDCVGVEUNVEVFTZVEVAUNVAVDTZVAURUNURUTTZURUPUNUPUQTZUPUNUNUNUOTUNUAUBUBUBUBUBVGVEUOVPVEVAUOVQVAURUOVRURUPUOVSUNUOUCUBUBUBUBVGVEUQVPVEVAUQVQVAURUQVRUPUQUCUBUBUBVGVEUTVPVEVAUTVQURUTUCUBUBVGVEVDVPVAVDUCUBVEVFUCUDVKVOUEVGVKUFADUFQZCRZSZFGVOVJWBFPUFADVIWAVHVTUGZVHVTCWCUAUHUIUJWBVNFUFEADWAVMVTVLUGZVTVLCWDUAUHUIUJUKULUM $.
 $}

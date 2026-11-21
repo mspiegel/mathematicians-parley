@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.reading-memberships.a-membership-bound-filling-an-item $p |- ( A e. NN -> 0 < ( A ^ 2 ) ) $=
-    ( cn wcel cr cc0 wne wa c2 cexp co clt wbr id nnre syl nnne0 jca sqgt0 ) ABCZADCZAEFZGEAHIJKLSTUASSTSMZANOSSUAUBAPOQARO $.
+    ( cn wcel cr cc0 wne wa c2 cexp co clt wbr id nnre syl wceq wn nnne0 neneqd wb df-ne a1i bicomd mpbid jca sqgt0 ) ABCZADCZAEFZGEAHIJKLUGUHUIUGUGUHUGMZANOUGAEPZQZUIUGAEUGUGUIUJAROSUGUIULUIULTUGAEUAUBUCUDUEAUFO $.
 $}
