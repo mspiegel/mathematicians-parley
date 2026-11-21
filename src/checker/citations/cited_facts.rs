@@ -556,28 +556,51 @@ pub(super) fn meetings(
                 .into_iter()
                 .find(|r| r.way == c.way)?;
             let claim = claims.get(k)?;
-            let whole = filled(&read.claimed, &taken.binding, &library.ctx);
-            if let Some(met) = known.alike_how(&whole, claim) {
-                return Some(met);
-            }
-            let item = match c.part {
-                Some(j) => {
-                    let part = conjuncts(&read.claimed, library).into_iter().nth(j)?;
-                    filled(&part, &taken.binding, &library.ctx)
-                }
-                None => whole,
-            };
-            if let Some(met) = known.alike_how(&item, claim) {
-                return Some(met);
-            }
-            let parts = conjuncts(&item, library);
-            let mut met = parts.iter().filter_map(|p| known.alike_how(p, claim));
-            match (parts.len() > 1, met.next(), met.next()) {
-                (true, Some(m), None) => Some(m),
-                _ => None,
-            }
+            meeting_of(&read.claimed, c.part, taken, claim, known, library)
         })
         .collect()
+}
+
+/// How `claim` meets what an item's sentence `claimed` gives at the
+/// citation's values: the whole, or part `part` of it, or the one part of
+/// that which meets it.
+fn meeting_of(
+    claimed: &Node,
+    part: Option<usize>,
+    taken: &Taken,
+    claim: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<Meeting> {
+    let binding = &taken.binding;
+    let whole = filled(claimed, binding, &library.ctx);
+    if let Some(met) = known.alike_how(&whole, claim) {
+        return Some(met);
+    }
+    // A letter bound to a rule standing alone, function-into's f at x ↦
+    // f(x) where the claim reads the define g it names as that rule (`g : L
+    // → U`), is the rule there, as the claim has it.
+    if let Some(met) =
+        known.alike_how(&substitute_apart(claimed, binding, &library.ctx), claim)
+    {
+        return Some(met);
+    }
+    let item = match part {
+        Some(j) => {
+            let part = conjuncts(claimed, library).into_iter().nth(j)?;
+            filled(&part, binding, &library.ctx)
+        }
+        None => whole,
+    };
+    if let Some(met) = known.alike_how(&item, claim) {
+        return Some(met);
+    }
+    let parts = conjuncts(&item, library);
+    let mut met = parts.iter().filter_map(|p| known.alike_how(p, claim));
+    match (parts.len() > 1, met.next(), met.next()) {
+        (true, Some(m), None) => Some(m),
+        _ => None,
+    }
 }
 
 /// For each sentence `taken` concludes, where the claim's sentence it gives
@@ -864,7 +887,7 @@ pub fn cited_requires(
         facings,
         meetings,
         within,
-        binding: taken.binding,
+        binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound,
         written: parts.seed,
         unfolded,

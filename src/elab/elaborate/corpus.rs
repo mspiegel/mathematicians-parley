@@ -757,7 +757,12 @@ impl<'a> Elaborator<'a> {
                 }
                 _ => (part, shown),
             };
-            let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
+            let Some(met) = cited.meetings.get(k).cloned().flatten() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker recorded no meeting of the reading with the claim",
+                ));
+            };
             match self.met_as(&part, shown, &piece, &met, Tree::First, scope, &held)? {
                 Some(proof) => proved.push(ShownPart { want: piece, proof }),
                 None => {
