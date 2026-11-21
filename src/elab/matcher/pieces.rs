@@ -157,6 +157,9 @@ pub(super) struct Reached<'l> {
 }
 
 pub(super) struct Reorder {
+    /// The notation whose claim it reorders, as a flip names it
+    /// (`matching::Flip::notation`).
+    pub(super) notation: &'static str,
     /// A, C, B from A, B, C.
     pub(super) swap: &'static str,
     /// B, C, A from A, B, C.
@@ -173,19 +176,39 @@ pub(super) struct ThreePoints {
     pub(super) points: Vec<Term>,
 }
 
+impl ThreePoints {
+    /// The claim with its points in `order`: `order[k]` is the place among
+    /// `points` of the point put at the k-th letter.
+    pub(super) fn named(&self, me: &Elaborator, order: &[usize]) -> Rpn {
+        let mut put = Binding::new();
+        for (&letter, &i) in self.letters.iter().zip(order) {
+            put.insert(letter, self.points[i].clone());
+        }
+        me.rpn(&self.shape.substitute(&put))
+    }
+}
+
 /// The claims about three points that `commutes any order` says are one in any
 /// order, by the lemmas that reorder them: a triangle (`forms-a-triangle`)
 /// and collinearity (`collinear`).
 pub(super) const REORDERS: [Reorder; 2] = [
     Reorder {
+        notation: "forms-a-triangle",
         swap: "gtriswap",
         rotate: "gtrirotate",
     },
     Reorder {
+        notation: "collinear",
         swap: "gcolswap",
         rotate: "gcolrotate",
     },
 ];
+
+/// Whether a pair of `REORDERS` reorders the claim of this notation, as a
+/// flip names it (`matching::Flip::notation`).
+pub(in crate::elab) fn reorders(notation: &str) -> bool {
+    REORDERS.iter().any(|r| r.notation == notation)
+}
 
 /// A listed set of three or more elements taken apart at its last element
 /// (`listing_step`).

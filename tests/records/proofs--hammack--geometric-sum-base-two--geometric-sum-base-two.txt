@@ -53,6 +53,6 @@ read 47: Σ(k = 0 to n) 2^k  as  sum:Σ(=to)(name:k, numeral:0, name:n, power:^(
 read 48: 2^(n + 1) − 1  as  additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1)  a number
 read 48: S(n) = 2^(n + 1) − 1  as  equality:=(application:()(name:S, name:n), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
 read 48: n  as  name:n  a number
-step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 0, element: "0" }], flips: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 0, element: "0", pattern: 0, tree: Second, at: [1, 0, 1] }], flips: [] }]
 step 1.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
 step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]

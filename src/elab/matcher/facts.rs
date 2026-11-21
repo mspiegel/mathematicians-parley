@@ -392,77 +392,109 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         by: &Reorder,
     ) -> Checked<Option<Proof>> {
-        let (swap_label, rotate_label) = (by.swap, by.rotate);
-        let Some(ThreePoints {
-            shape,
-            letters,
-            points,
-        }) = self.three_points(by, &self.to_term(wanted))
-        else {
+        let Some(points) = self.three_points(by, &self.to_term(wanted)) else {
             return Ok(None);
         };
-        let named = |me: &Self, order: &[usize]| -> Rpn {
-            let mut put = Binding::new();
-            for (&letter, &i) in letters.iter().zip(order) {
-                put.insert(letter, points[i].clone());
-            }
-            me.rpn(&shape.substitute(&put))
-        };
-        let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
-        let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
-        let goal = vec![0, 1, 2];
         for start in [[0, 2, 1], [1, 2, 0], [2, 0, 1], [1, 0, 2], [2, 1, 0]] {
-            let said = named(self, &start);
+            let said = points.named(self, &start);
             if facts.under(&self.fact_key(&said)).is_empty() {
                 continue;
             }
-            let Some(mut proof) = self.held(facts, &said, scope)? else {
+            let Some(proof) = self.held(facts, &said, scope)? else {
                 continue;
             };
-            // The fewest moves from the order held to the order wanted.
-            let mut paths: Vec<(Vec<usize>, Vec<&str>)> =
-                vec![(start.to_vec(), Vec::new())];
-            let moves = loop {
-                let Some((order, path)) = paths.first().cloned() else {
-                    break None;
-                };
-                paths.remove(0);
-                if order == goal {
-                    break Some(path);
-                }
-                if path.len() < 3 {
-                    for (label, next) in
-                        [(swap_label, swap(&order)), (rotate_label, rotate(&order))]
-                    {
-                        let mut longer = path.clone();
-                        longer.push(label);
-                        paths.push((next, longer));
-                    }
-                }
-            };
-            let Some(moves) = moves else {
-                continue;
-            };
-            let known = facts.copy();
-            let mut order = start.to_vec();
-            for label in moves {
-                self.know(&known, named(self, &order), proof);
-                order = if label == swap_label {
-                    swap(&order)
-                } else {
-                    rotate(&order)
-                };
-                let next = self.to_term(&named(self, &order));
-                let Built(made) =
-                    self.apply_lemma(label, &next, scope, &known, None, false, None)?
-                else {
-                    return Ok(None);
-                };
-                proof = made;
-            }
-            return Ok(Some(proof));
+            return self.moved_to(proof, &start, &points, by, scope, facts);
         }
         Ok(None)
+    }
+
+    /// `wanted`, a claim about three points as `by` reads it, from `proof`
+    /// of the same claim with its points in the order `start` gives:
+    /// `start[k]` is the place in `wanted` of the point it names k-th. The
+    /// order comes from the record (`matching::Flip::order`), and only the
+    /// moves to the order wanted are this backend's. None where `wanted` is
+    /// not the claim of a notation `REORDERS` names, or `start` does not
+    /// name what `proof` proves, which its caller reports.
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::elab) fn reordered_from(
+        &mut self,
+        said: &Rpn,
+        proof: Proof,
+        start: &[usize],
+        wanted: &Rpn,
+        notation: &str,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let Some(by) = REORDERS.iter().find(|r| r.notation == notation) else {
+            return Ok(None);
+        };
+        let Some(points) = self.three_points(by, &self.to_term(wanted)) else {
+            return Ok(None);
+        };
+        if start.len() != 3 || points.named(self, start) != *said {
+            return Ok(None);
+        }
+        self.moved_to(proof, start, &points, by, scope, facts)
+    }
+
+    /// From `proof` of the claim `points` reads with its points in `start`'s
+    /// order, the claim in theirs, by as few swaps and rotations as reach it.
+    fn moved_to(
+        &mut self,
+        mut proof: Proof,
+        start: &[usize],
+        points: &ThreePoints,
+        by: &Reorder,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let (swap_label, rotate_label) = (by.swap, by.rotate);
+        let swap = |o: &[usize]| vec![o[0], o[2], o[1]];
+        let rotate = |o: &[usize]| vec![o[1], o[2], o[0]];
+        let goal = vec![0, 1, 2];
+        // The fewest moves from the order held to the order wanted.
+        let mut paths: Vec<(Vec<usize>, Vec<&str>)> =
+            vec![(start.to_vec(), Vec::new())];
+        let moves = loop {
+            let Some((order, path)) = paths.first().cloned() else {
+                break None;
+            };
+            paths.remove(0);
+            if order == goal {
+                break Some(path);
+            }
+            if path.len() < 3 {
+                for (label, next) in
+                    [(swap_label, swap(&order)), (rotate_label, rotate(&order))]
+                {
+                    let mut longer = path.clone();
+                    longer.push(label);
+                    paths.push((next, longer));
+                }
+            }
+        };
+        let Some(moves) = moves else {
+            return Ok(None);
+        };
+        let known = facts.copy();
+        let mut order = start.to_vec();
+        for label in moves {
+            self.know(&known, points.named(self, &order), proof);
+            order = if label == swap_label {
+                swap(&order)
+            } else {
+                rotate(&order)
+            };
+            let next = self.to_term(&points.named(self, &order));
+            let Built(made) =
+                self.apply_lemma(label, &next, scope, &known, None, false, None)?
+            else {
+                return Ok(None);
+            };
+            proof = made;
+        }
+        Ok(Some(proof))
     }
 
     /// `wanted` from a fact that says it over other bound letters, under any

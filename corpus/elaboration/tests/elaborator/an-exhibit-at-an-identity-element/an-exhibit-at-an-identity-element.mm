@@ -10,5 +10,5 @@ ${
   $d B r $.
   $d C r $.
   tests.elaborator.an-exhibit-at-an-identity-element.an-exhibit-at-an-identity-element $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ C = ( A + B ) ) -> E. r e. { 1 , 2 , 3 } C = ( A + ( r x. B ) ) ) $=
-    ( cc wcel wa caddc co wceq c1 c2 c3 ctp cmul cv wrex cvv 1ex a1i tpid1g syl simpr eqcomd simpl mullid oveq2d eqeq1d mpbid jca id oveq1d eqeq2d rspcev ) AEFZBEFZGZCEFZGZCABHIZJZGZKKLMNZFZCAKBOIZHIZJZGCADPZBOIZHIZJZDVCQVBVDVGVBKRFZVDVLVBSTKRLMUAUBVBVFCVBUTCJVFCJVBCUTUSVAUCUDVBUTVFCVBVFUTVBVEBAHVBUPVEBJVBUSUPUSVAUEUSUQUPUQURUEUOUPUCUBUBBUFUBUGUDUHUIUDUJVKVGDKVCVHKJZVJVFCVMVIVEAHVMVHKBOVMUKULUGUMUNUB $.
+    ( cc wcel wa caddc co wceq c1 c2 c3 ctp cmul cv wrex cvv 1ex a1i tpid1g syl simpr simpl mullid oveq2d eqcomd eqeq2d mpbid jca id oveq1d rspcev ) AEFZBEFZGZCEFZGZCABHIZJZGZKKLMNZFZCAKBOIZHIZJZGCADPZBOIZHIZJZDVBQVAVCVFVAKRFZVCVKVASTKRLMUAUBVAUTVFURUTUCVAUSVECVAVEUSVAVDBAHVAUOVDBJVAURUOURUTUDURUPUOUPUQUDUNUOUCUBUBBUEUBUFUGUHUIUJVJVFDKVBVGKJZVIVECVLVHVDAHVLVGKBOVLUKULUFUHUMUB $.
 $}

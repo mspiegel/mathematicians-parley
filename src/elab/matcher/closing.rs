@@ -191,7 +191,7 @@ impl<'a> Elaborator<'a> {
         let spelt = self.rpn(term);
         self.identities
             .iter()
-            .any(|law| super::super::field::numeral(law.element) == spelt)
+            .any(|law| super::super::field::numeral(law.law.element) == spelt)
     }
 
     /// A lemma's `pattern` as the checker reads it against a cited line,
@@ -222,8 +222,8 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
-            let element = super::super::field::numeral(law.element);
-            for &hole in &law.holes {
+            let element = super::super::field::numeral(law.law.element);
+            for &hole in &law.law.holes {
                 let (at, other) = if hole == 0 {
                     (law.places.0, law.places.1)
                 } else {

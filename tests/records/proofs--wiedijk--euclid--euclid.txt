@@ -210,7 +210,7 @@ step 4.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false,
 step 4.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
 step 4.3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
 step 4.3.9 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 5.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0" }], flips: [] }]
+step 5.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0", pattern: 0, tree: Second, at: [0, 0] }], flips: [] }]
 step 5.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
 step 5.4.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
 step 5.4.14 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]

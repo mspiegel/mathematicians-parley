@@ -806,7 +806,7 @@ pub(super) fn ascribed(proof: Printed, says: Printed) -> Printed {
 /// identity element dropped or a respelling is arithmetic left for
 /// `norm_num`.
 pub(super) fn unfolds_alone(met: &Meeting) -> bool {
-    met.identities.is_empty() && !met.respelled && !met.turned && !met.permuted
+    met.renamed_only()
 }
 
 /// The equations of the defines `defines` applied, `simp (disch := omega)

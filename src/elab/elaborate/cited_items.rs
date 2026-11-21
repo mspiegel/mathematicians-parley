@@ -3,13 +3,15 @@
 use std::iter::Peekable;
 use std::vec;
 
-use super::unfolds::PutFor;
+use super::unfolds::{PutFor, RecordedSupply};
 use super::*;
 use crate::checker::record::{
     Exhibit, Facing, Instantiated, SubstitutedInto, Supplied, SuppliedBy,
 };
 use crate::corpus::Source;
+use crate::elab::matcher::reorders;
 use crate::matching::Meeting;
+use crate::matching::Tree;
 
 /// One fact an exhibit asks of its values, at those values, with its proof
 /// (`shown_body`).
@@ -270,19 +272,25 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> want ), one fact an exhibit asks of its values, from what
     /// the checker recorded as showing it (`Exhibit::shown`), carried as
-    /// the record says the two meet (`supplied_proof`).
+    /// the record says the two meet (`supplied_proof`); `values` are the
+    /// ones the checker read the fact at.
     pub(in crate::elab) fn shown_proof(
         &mut self,
         step: &Step,
         shown: &Supplied,
+        values: &NodeBinding,
         want: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
+        let recorded = RecordedSupply {
+            supplied: shown,
+            values,
+        };
         match self.supplied_proof(
             step,
             &shown.by,
-            shown.meeting.as_ref(),
+            Some(recorded),
             want,
             scope,
             facts,
@@ -327,7 +335,7 @@ impl<'a> Elaborator<'a> {
             if turned {
                 want = self.rpn(&Self::body_turned(&self.to_term(&want)));
             }
-            let proof = self.shown_proof(step, s, &want, scope, facts)?;
+            let proof = self.shown_proof(step, s, values, &want, scope, facts)?;
             parts.push(ShownPart { want, proof });
         }
         let mut parts = parts.into_iter().peekable();
@@ -710,7 +718,15 @@ impl<'a> Elaborator<'a> {
         if reached == *term {
             return Ok(Built(proof));
         }
-        match self.met_as(&reached, proof, term, &inst.meeting, scope, facts)? {
+        match self.met_as(
+            &reached,
+            proof,
+            term,
+            &inst.meeting,
+            Tree::First,
+            scope,
+            facts,
+        )? {
             Some(carried) => Ok(Built(carried)),
             None => Err(self.defect(
                 step.line,
@@ -736,20 +752,41 @@ impl<'a> Elaborator<'a> {
     /// `tidied` puts back what `wanted` keeps. The cited 2 · (0 + 1) = 2 ·
     /// 0 + 2 is bare 2 = 2 · 0 + 2, which is the step's d(1) = d(0) + 2
     /// read out, 2 · 1 = 2 · 0 + 2, bare. None where the two do not meet
-    /// that way.
+    /// that way. `said_in` is which of the two trees the checker compared
+    /// `said` is, which the order of a flip is counted from.
+    #[allow(clippy::too_many_arguments)]
     pub(in crate::elab) fn met_as(
         &mut self,
         said: &Rpn,
         proof: Proof,
         wanted: &Rpn,
         met: &Meeting,
+        said_in: Tree,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         // Three points named in another order, "B, C, A are collinear" for
         // "A, B, C are collinear", are turned by the notation's own swap and
-        // rotation (`held_reordered`), which `same` does not make; each is
-        // an implication once the points are numbers, which the facts say.
+        // rotation, which `same` does not make, from the order the record
+        // gives (`Flip::order`, `reordered_from`); each is an implication
+        // once the points are numbers, which the facts say.
+        if let ([flip], true) = (met.flips.as_slice(), met.identities.is_empty()) {
+            if flip.at.is_empty() && reorders(&flip.notation) {
+                let start = match said_in {
+                    Tree::Second => flip.order.clone(),
+                    Tree::First => inverse_order(&flip.order),
+                };
+                return self.reordered_from(
+                    said,
+                    proof,
+                    &start,
+                    wanted,
+                    &flip.notation,
+                    scope,
+                    facts,
+                );
+            }
+        }
         if !met.flips.is_empty() && met.identities.is_empty() {
             let with = facts.copy();
             self.know(&with, said.clone(), proof);
@@ -1400,4 +1437,17 @@ impl<'a> Elaborator<'a> {
             }
         }
     }
+}
+
+/// The order a flip gives read from the other tree: where `order[k]` is
+/// the place in one tree of the part against the other's k-th, the place in
+/// the other of the part against the one's k-th.
+fn inverse_order(order: &[usize]) -> Vec<usize> {
+    let mut back = vec![0; order.len()];
+    for (k, &j) in order.iter().enumerate() {
+        if let Some(slot) = back.get_mut(j) {
+            *slot = k;
+        }
+    }
+    back
 }

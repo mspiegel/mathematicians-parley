@@ -1558,12 +1558,7 @@ impl<'a> Proof<'a> {
         // instance with its casts, as a citation so given is closed.
         let met = &recorded.meeting;
         let through_named = !self.specs_in(node, &self.said_used.borrow()).is_empty();
-        if through_named
-            && met.identities.is_empty()
-            && !met.turned
-            && !met.permuted
-            && !met.respelled
-        {
+        if through_named && met.renamed_only() {
             return Route::Built(super::super::doc::Proof::By(
                 super::super::tactics::exact_mod_cast(proof),
             ));

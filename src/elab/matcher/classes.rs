@@ -950,7 +950,9 @@ impl<'a> Elaborator<'a> {
             };
             let member = t!(witness, over, "wcel");
             let supplied = match in_domains.get(i) {
-                Some(shown) => self.shown_proof(step, shown, &member, scope, facts)?,
+                Some(shown) => {
+                    self.shown_proof(step, shown, &values, &member, scope, facts)?
+                }
                 None => self.required(step, &member, scope, facts)?,
             };
             let both = pf!(self.b; scope, member, ps, supplied, proof, "jca");

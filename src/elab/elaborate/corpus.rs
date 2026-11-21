@@ -4,12 +4,13 @@ use std::collections::VecDeque;
 use std::iter;
 
 use super::cited_items::ShownPart;
+use super::unfolds::RecordedSupply;
 use super::*;
 use crate::checker::record::Supplied;
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
-use crate::matching::Meeting;
+use crate::matching::{Meeting, Tree};
 use crate::notations::{EQUALITY, FOR_ALL, THERE_IS, TIMES};
 use crate::sorts;
 
@@ -28,6 +29,7 @@ impl<'a> Elaborator<'a> {
         h: &Hypothesis,
         path: &str,
         entry: Option<&Supplied>,
+        values: &NodeBinding,
         one: &Rpn,
         scope: &Rpn,
         known: &Facts,
@@ -68,7 +70,10 @@ impl<'a> Elaborator<'a> {
         let Some(given) = self.supplied_proof(
             step,
             &entry.by,
-            entry.meeting.as_ref(),
+            Some(RecordedSupply {
+                supplied: entry,
+                values,
+            }),
             &recorded,
             scope,
             known,
@@ -392,6 +397,7 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no reading of this citation",
             ));
         };
+        let values = cited.binding_with_written();
         for (i, (one, h)) in wanted.iter().zip(&other.hypotheses).enumerate() {
             let entry = cited
                 .supplied
@@ -402,6 +408,7 @@ impl<'a> Elaborator<'a> {
                 h,
                 &other.path,
                 entry,
+                &values,
                 one,
                 scope,
                 &known,
@@ -638,7 +645,15 @@ impl<'a> Elaborator<'a> {
                 renamed: true,
                 ..Meeting::default()
             };
-            return match self.met_as(&there, shown, term, &renamed, scope, facts)? {
+            return match self.met_as(
+                &there,
+                shown,
+                term,
+                &renamed,
+                Tree::First,
+                scope,
+                facts,
+            )? {
                 Some(p) => Ok(p),
                 None => Err(self.unreached(
                     step.line,
@@ -723,7 +738,7 @@ impl<'a> Elaborator<'a> {
                 },
             };
             let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
-            match self.met_as(&part, shown, &piece, &met, scope, facts)? {
+            match self.met_as(&part, shown, &piece, &met, Tree::First, scope, facts)? {
                 Some(proof) => proved.push(ShownPart { want: piece, proof }),
                 None => {
                     return Err(self.unreached(

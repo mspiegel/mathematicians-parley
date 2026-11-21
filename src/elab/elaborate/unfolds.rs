@@ -1,9 +1,22 @@
 //! Unfolding definitions and hypotheses.
 
 use super::*;
+use crate::checker::record::Supplied;
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
-use crate::matching::Meeting;
+use crate::matching::{standard, Meeting, Tree};
+use crate::notations::FOR_ALL;
+
+/// What the checker recorded as supplying a fact (`Supplied`), with the
+/// values its hypothesis is read at: the citation's (`binding_with_written`)
+/// or an exhibit's. The hypothesis at those values and the line's fact are
+/// the two trees its meeting is of (`Supplied::meeting`), whose places a
+/// carry follows.
+#[derive(Clone, Copy)]
+pub(in crate::elab) struct RecordedSupply<'r> {
+    pub supplied: &'r Supplied,
+    pub values: &'r NodeBinding,
+}
 
 /// The side of a substitution's equation put for the other, the term that
 /// stands in the line and the term put in its place
@@ -430,11 +443,12 @@ impl<'a> Elaborator<'a> {
         &mut self,
         step: &Step,
         by: &SuppliedBy,
-        meeting: Option<&Meeting>,
+        recorded: Option<RecordedSupply>,
         wanted: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
+        let meeting = recorded.and_then(|r| r.supplied.meeting.as_ref());
         let lines = self.lines.clone();
         // A function's type the line or the `let` writes is kept among the
         // step's facts, as each step types its functions, and not in the
@@ -464,14 +478,31 @@ impl<'a> Elaborator<'a> {
                         self.know_default(&held, said, proof);
                     }
                 }
-                // Places the record says the line swaps, the ends of a
-                // segment between, are turned by the notation's own swap
-                // (`met_as`).
-                if let Some(met) = meeting.filter(|m| !m.flips.is_empty()) {
-                    if let Some((said, proof)) =
-                        self.line_fact(at, scope, facts, &lines)?
-                    {
-                        return self.met_as(&said, proof, wanted, met, scope, facts);
+                // The identity elements the record says the line or the
+                // hypothesis leaves out, |x| for |x − 0|, are dropped where
+                // it places them (`met_at_places`); places it says the line
+                // swaps, the ends of a segment between, are turned by the
+                // notation's own swap (`met_as`).
+                if let (Some(r), Some(met)) = (recorded, meeting) {
+                    if !met.flips.is_empty() || !met.identities.is_empty() {
+                        if let Some((said, proof)) =
+                            self.line_fact(at, scope, facts, &lines)?
+                        {
+                            if met.identities.is_empty() {
+                                return self.met_as(
+                                    &said,
+                                    proof,
+                                    wanted,
+                                    met,
+                                    Tree::Second,
+                                    scope,
+                                    facts,
+                                );
+                            }
+                            return self.met_at_places(
+                                step, &said, proof, wanted, at, r, scope, facts,
+                            );
+                        }
                     }
                 }
                 if let Some(p) = self.placed_proof(at, wanted, &held, scope, facts)? {
@@ -558,6 +589,85 @@ impl<'a> Elaborator<'a> {
         }
     }
 
+    /// ( scope -> wanted ) from `proof` of `said`, the fact the line `at`
+    /// writes, through the two trees its meeting is of (`RecordedSupply`):
+    /// the line's fact and the hypothesis, each in its standard form, each
+    /// with the identity elements the record drops from it taken out where
+    /// it places them (`Meeting::with_identities_dropped`). The line's fact
+    /// is carried to its tree, its elements are dropped (`tidied`), what is
+    /// left meets the hypothesis's as the rest of the meeting says
+    /// (`met_as`), the hypothesis's elements are put back (`tidied`), and
+    /// that is carried to `wanted`. None where a step does not carry.
+    #[allow(clippy::too_many_arguments)]
+    fn met_at_places(
+        &mut self,
+        step: &Step,
+        said: &Rpn,
+        proof: Proof,
+        wanted: &Rpn,
+        at: &FirstAt,
+        recorded: RecordedSupply,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let Some(met) = recorded.supplied.meeting.as_ref() else {
+            return self.same_carried(said, proof, wanted, scope, facts);
+        };
+        let library = self.item_library();
+        let ctx = &library.ctx;
+        let asked = filled(&recorded.supplied.want, recorded.values, ctx);
+        // A line narrowed to the set asked is met over that set, as the
+        // checker met it (`Supplied::narrowed`).
+        let written =
+            match (&recorded.supplied.narrowed, at.written.children.as_slice()) {
+                (Some(n), [letter, _, body]) if at.written.notation() == FOR_ALL => at
+                    .written
+                    .with_children(vec![letter.clone(), n.to.clone(), body.clone()]),
+                _ => at.written.clone(),
+            };
+        let (hypothesis, line) = (standard(&asked, ctx), standard(&written, ctx));
+        let (Some(hypothesis_bare), Some(line_bare)) = (
+            met.with_identities_dropped(&hypothesis, Tree::First),
+            met.with_identities_dropped(&line, Tree::Second),
+        ) else {
+            return Err(self.unreached(
+                step.line,
+                "the checker placed an identity element where the hypothesis or the line has none",
+            ));
+        };
+        let line = self.term(&line)?;
+        let line_bare = self.term(&line_bare)?;
+        let hypothesis_bare = self.term(&hypothesis_bare)?;
+        let hypothesis = self.term(&hypothesis)?;
+        let Some(p) = self.same_carried(said, proof, &line, scope, facts)? else {
+            return Ok(None);
+        };
+        let Some(p) = self.tidied(&p, &line, &line_bare, scope, facts)? else {
+            return Ok(None);
+        };
+        let rest = Meeting {
+            identities: Vec::new(),
+            ..met.clone()
+        };
+        let Some(p) = self.met_as(
+            &line_bare,
+            p,
+            &hypothesis_bare,
+            &rest,
+            Tree::Second,
+            scope,
+            facts,
+        )?
+        else {
+            return Ok(None);
+        };
+        let Some(p) = self.tidied(&p, &hypothesis_bare, &hypothesis, scope, facts)?
+        else {
+            return Ok(None);
+        };
+        self.same_carried(&hypothesis, p, wanted, scope, facts)
+    }
+
     /// ( scope -> wanted ) from `proof` of `said`, the fact a line writes,
     /// where the two are one fact spelt otherwise (`same`) or with an
     /// identity element dropped (`tidied`); where the record says the two
@@ -617,7 +727,9 @@ impl<'a> Elaborator<'a> {
         let Some(cited) = self.citation_read(step).cloned() else {
             return Ok(given);
         };
-        let binding = self.matched_here(step, item)?;
+        // The values the checker read each hypothesis at, the citation's
+        // own pairs among them (`citations::with_seed`).
+        let binding = cited.binding_with_written();
         let library = self.item_library();
         for supplied in &cited.supplied {
             // A fact said once, walked to or unstated is settled where the
@@ -637,10 +749,18 @@ impl<'a> Elaborator<'a> {
             }
             let node = filled(&supplied.want, &binding, &library.ctx);
             let wanted = self.term(&node)?;
-            let meeting = supplied.meeting.as_ref();
-            if let Some(proof) =
-                self.supplied_proof(step, &supplied.by, meeting, &wanted, scope, facts)?
-            {
+            let recorded = RecordedSupply {
+                supplied,
+                values: &binding,
+            };
+            if let Some(proof) = self.supplied_proof(
+                step,
+                &supplied.by,
+                Some(recorded),
+                &wanted,
+                scope,
+                facts,
+            )? {
                 self.know(&given, wanted, proof);
             }
         }
@@ -975,7 +1095,15 @@ impl<'a> Elaborator<'a> {
             renamed: true,
             ..Meeting::default()
         };
-        match self.met_as(there, shown.clone(), term, &renamed, scope, facts)? {
+        match self.met_as(
+            there,
+            shown.clone(),
+            term,
+            &renamed,
+            Tree::First,
+            scope,
+            facts,
+        )? {
             Some(p) => Ok(Built(p)),
             None => Err(self.unreached(
                 step.line,

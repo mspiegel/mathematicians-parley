@@ -409,8 +409,8 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
-            let element = self.to_term(&super::super::field::numeral(law.element));
-            for &hole in &law.holes {
+            let element = self.to_term(&super::super::field::numeral(law.law.element));
+            for &hole in &law.law.holes {
                 let (unit, kept) = if hole == 0 {
                     (law.places.0, law.places.1)
                 } else {

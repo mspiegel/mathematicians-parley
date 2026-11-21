@@ -313,21 +313,26 @@ pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
     out
 }
 
-/// An operation's identity element, from `identity`: the constructor, the
-/// positions its two holes occupy, what stands in every other position, the
-/// element, and which of the two holes it may stand in, 0 for the first.
-#[derive(Clone, Debug)]
-pub struct Identity {
-    pub constructor: String,
-    pub places: (usize, usize),
-    pub fixed: IndexMap<usize, String>,
+/// An identity element a notation record declares for one of its patterns,
+/// `0 on the right`: the one table of them, which the checker keys by the
+/// pattern's page spelling and the elaborator by its set.mm constructor. A
+/// law is named by its notation and `pattern`, so what the checker records
+/// dropping names the law the elaborator applies.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct IdentityLaw {
+    /// The notation record's name, `additive`.
+    pub notation: String,
+    /// The pattern, by its place in the record's lists: its `identity`
+    /// entries, its targets and the notation's spellings stand in one order.
+    pub pattern: usize,
     pub element: u32,
+    /// The holes the element may stand in, 0 for the first.
     pub holes: Vec<usize>,
 }
 
-/// The identity elements the notation records declare, one entry per
-/// pattern that has one: `0 on either side`, `0 on the right`.
-pub fn identities(records: &[Record]) -> Vec<Identity> {
+/// Every identity law the notation records declare (`IdentityLaw`), one
+/// per pattern whose `identity` entry names one.
+pub fn identity_laws(records: &[Record]) -> Vec<IdentityLaw> {
     let mut out = Vec::new();
     for r in records {
         if r.kind != RecordKind::Notation {
@@ -336,31 +341,68 @@ pub fn identities(records: &[Record]) -> Vec<Identity> {
         let Some(says) = r.field("identity") else {
             continue;
         };
-        let says = split_entries(says);
-        let patterns = r.metamath_target().map(split_entries).unwrap_or_default();
-        for (pattern, said) in patterns.iter().zip(says.iter()) {
-            let Some(law) = identity_said(said) else {
+        for (pattern, said) in split_entries(says).iter().enumerate() {
+            let Some((element, holes)) = identity_said(said) else {
                 continue;
             };
-            let places = slots(pattern);
-            if *pattern == FOLDED || places.len() != 2 {
-                continue;
-            }
-            let tokens: Vec<&str> = pattern.split_whitespace().collect();
-            let fixed = tokens[..tokens.len() - 1]
-                .iter()
-                .enumerate()
-                .filter(|(i, _)| !places.values().any(|p| p == i))
-                .map(|(i, t)| (i, t.to_string()))
-                .collect();
-            out.push(Identity {
-                constructor: tokens[tokens.len() - 1].to_string(),
-                places: (places[&0], places[&1]),
-                fixed,
-                element: law.0,
-                holes: law.1,
+            out.push(IdentityLaw {
+                notation: r.name.clone(),
+                pattern,
+                element,
+                holes,
             });
         }
+    }
+    out
+}
+
+/// An operation's identity element as set.mm writes it: the law
+/// (`IdentityLaw`), the constructor, the positions its two holes occupy, and
+/// what stands in every other position.
+#[derive(Clone, Debug)]
+pub struct Identity {
+    pub law: IdentityLaw,
+    pub constructor: String,
+    pub places: (usize, usize),
+    pub fixed: IndexMap<usize, String>,
+}
+
+/// The identity laws (`identity_laws`) with their set.mm form, each read
+/// from its pattern's target; a law whose target is folded or has other
+/// than two holes is left out.
+pub fn identities(records: &[Record]) -> Vec<Identity> {
+    let mut out = Vec::new();
+    for law in identity_laws(records) {
+        let Some(record) = records
+            .iter()
+            .find(|r| r.kind == RecordKind::Notation && r.name == law.notation)
+        else {
+            continue;
+        };
+        let patterns = record
+            .metamath_target()
+            .map(split_entries)
+            .unwrap_or_default();
+        let Some(pattern) = patterns.get(law.pattern) else {
+            continue;
+        };
+        let places = slots(pattern);
+        if *pattern == FOLDED || places.len() != 2 {
+            continue;
+        }
+        let tokens: Vec<&str> = pattern.split_whitespace().collect();
+        let fixed = tokens[..tokens.len() - 1]
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| !places.values().any(|p| p == i))
+            .map(|(i, t)| (i, t.to_string()))
+            .collect();
+        out.push(Identity {
+            constructor: tokens[tokens.len() - 1].to_string(),
+            places: (places[&0], places[&1]),
+            fixed,
+            law,
+        });
     }
     out
 }

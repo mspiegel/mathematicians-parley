@@ -12,6 +12,7 @@
 //! none is read the same way.
 
 use std::collections::BTreeSet;
+use std::slice;
 use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
@@ -116,6 +117,8 @@ fn ids_of(names: IndexSet<String>) -> FxIndexSet<NotationId> {
 pub struct IdentityElement {
     pub element: String,
     pub holes: Vec<usize>,
+    /// The law's pattern among its notation's (`targets::IdentityLaw`).
+    pub pattern: usize,
 }
 
 impl IdentityElement {
@@ -133,28 +136,22 @@ fn identities(
     records: &[Record],
 ) -> FxIndexMap<Spelling, IdentityElement> {
     let mut out = FxIndexMap::default();
-    for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
-        let Some(says) = r.field("identity") else {
+    for law in targets::identity_laws(records) {
+        let Some(pattern) = notations
+            .iter()
+            .filter(|n| n.name == law.notation)
+            .nth(law.pattern)
+        else {
             continue;
         };
-        let patterns: Vec<&Notation> =
-            notations.iter().filter(|n| n.name == r.name).collect();
-        let says = targets::split_entries(says);
-        if says.len() != patterns.len() {
-            continue;
-        }
-        for (pattern, said) in patterns.iter().zip(says) {
-            let Some((element, holes)) = targets::identity_said(said) else {
-                continue;
-            };
-            out.insert(
-                Spelling::new(pattern.key_id, pattern.literal_id),
-                IdentityElement {
-                    element: element.to_string(),
-                    holes,
-                },
-            );
-        }
+        out.insert(
+            Spelling::new(pattern.key_id, pattern.literal_id),
+            IdentityElement {
+                element: law.element.to_string(),
+                holes: law.holes,
+                pattern: law.pattern,
+            },
+        );
     }
     out
 }
@@ -874,19 +871,27 @@ pub fn universals(records: &[Record]) -> IndexSet<String> {
 /// where a is an equation. Where a's notation is unordered its parts are
 /// paired in any order instead (`fit_in_any_order`, `parts_related`).
 fn orders(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<Node>> {
+    order_places(a, b, ctx)
+        .iter()
+        .map(|places| places.iter().map(|&k| b.children[k].clone()).collect())
+        .collect()
+}
+
+/// `orders` as places: for each way, the place in b of the part against
+/// each of a's, in a's order.
+fn order_places(a: &Node, b: &Node, ctx: &Context) -> Vec<Vec<usize>> {
+    let written: Vec<usize> = (0..b.children.len()).collect();
     if ctx.equations.contains(&a.notation()) && b.children.len() == 2 {
-        let mut turned = b.children.clone();
-        turned.reverse();
-        return vec![b.children.clone(), turned];
+        return vec![written, vec![1, 0]];
     }
     if let Some(&(i, j)) = ctx.unordered_pairs.get(&a.notation()) {
         if i.max(j) < b.children.len() {
-            let mut turned = b.children.clone();
+            let mut turned = written.clone();
             turned.swap(i, j);
-            return vec![b.children.clone(), turned];
+            return vec![written, turned];
         }
     }
-    vec![b.children.clone()]
+    vec![written]
 }
 
 /// Bind the pattern's variables so that it becomes the ground tree.
@@ -1421,7 +1426,7 @@ fn paired_in_some_order(
             in_place
                 .into_iter()
                 .enumerate()
-                .map(|(i, m)| m.under(i))
+                .map(|(i, m)| m.under(i, i))
                 .fold(Meeting::default(), Meeting::with),
         );
     }
@@ -1441,7 +1446,7 @@ fn paired_in_some_order(
         let i = (*i)?;
         out.permuted |= i != j;
         order.push(i);
-        out = out.with(met[i][j].clone()?.under(i));
+        out = out.with(met[i][j].clone()?.under(i, j));
     }
     if out.permuted {
         out.flips.push(Flip {
@@ -1500,16 +1505,16 @@ fn parts_related_how(
     if ctx.unordered.contains(&a.notation()) {
         return paired_in_some_order(a, &a.children, &b.children, related);
     }
-    orders(a, b, ctx)
+    order_places(a, b, ctx)
         .iter()
         .enumerate()
-        .find_map(|(way, kids)| {
+        .find_map(|(way, places)| {
             let mut out = Meeting {
                 turned: way > 0,
                 ..Meeting::default()
             };
-            for (k, (x, y)) in a.children.iter().zip(kids.iter()).enumerate() {
-                out = out.with(related(x, y)?.under(k));
+            for (k, (x, &at)) in a.children.iter().zip(places.iter()).enumerate() {
+                out = out.with(related(x, &b.children[at])?.under(k, at));
             }
             // Two holes of a notation that stands in no order in those two
             // only, taken the other way round.
@@ -1710,11 +1715,24 @@ impl Flip {
 }
 
 impl Meeting {
-    /// The same meeting of two parts that stand as the `index`-th child of
-    /// the trees it is for: each flip's place gains that step.
-    fn under(mut self, index: usize) -> Meeting {
-        for flip in &mut self.flips {
-            flip.at.insert(0, index);
+    /// The same meeting of two parts that stand as the `first`-th child of
+    /// the first tree and the `second`-th of the second: each place gains
+    /// its tree's step.
+    fn under(self, first: usize, second: usize) -> Meeting {
+        self.within(Tree::First, first).within(Tree::Second, second)
+    }
+
+    /// The same meeting, with one of its trees the `index`-th child of a
+    /// larger one: each place in that tree gains the step. A flip's place is
+    /// in the first tree.
+    fn within(mut self, tree: Tree, index: usize) -> Meeting {
+        if tree == Tree::First {
+            for flip in &mut self.flips {
+                flip.at.insert(0, index);
+            }
+        }
+        for dropped in self.identities.iter_mut().filter(|d| d.tree == tree) {
+            dropped.at.insert(0, index);
         }
         self
     }
@@ -1722,6 +1740,20 @@ impl Meeting {
     /// Whether the two are written alike: nothing was taken to pair them.
     pub fn as_written(&self) -> bool {
         *self == Meeting::default()
+    }
+
+    /// Whether the two are one term up to the letters they bind: nothing
+    /// was taken to pair them but a bound letter renamed. A flip comes with
+    /// `turned` or `permuted`, so none is left.
+    pub fn renamed_only(&self) -> bool {
+        !self.turned && !self.permuted && !self.respelled && self.identities.is_empty()
+    }
+
+    /// Whether the parts of a notation that stand in any order were paired
+    /// out of their places, and nothing else was taken but a bound letter
+    /// renamed: no side turned, respelled or without an identity.
+    pub fn permuted_only(&self) -> bool {
+        self.permuted && !self.turned && !self.respelled && self.identities.is_empty()
     }
 
     /// Both meetings at once: what either took.
@@ -1733,6 +1765,21 @@ impl Meeting {
         self.identities.extend(other.identities);
         self.flips.extend(other.flips);
         self
+    }
+
+    /// `tree`, the one of the two trees the meeting is of that `which`
+    /// names, with each identity element dropped from it taken out at its
+    /// place, deepest first: what the elements leave, which a backend
+    /// reaches from the tree by its own identity laws. None where a place
+    /// is no operation of the tree, so `tree` is not the one met.
+    pub fn with_identities_dropped(&self, tree: &Node, which: Tree) -> Option<Node> {
+        let mut out = tree.clone();
+        for dropped in self.identities.iter().filter(|d| d.tree == which) {
+            let operation = node_at(&out, &dropped.at)?;
+            let kept = operation.children.get(1 - dropped.hole)?.clone();
+            out = put_at_places(&out, slice::from_ref(&dropped.at), &kept);
+        }
+        Some(out)
     }
 
     /// The same meeting, with a side read in another spelling where
@@ -1752,6 +1799,23 @@ pub struct Dropped {
     pub literal: String,
     pub hole: usize,
     pub element: String,
+    /// The law, by its pattern among the operation's
+    /// (`targets::IdentityLaw`).
+    pub pattern: usize,
+    /// The tree the element stands in, of the two `alike_how` compared.
+    pub tree: Tree,
+    /// Where the operation stands in that tree: the place of each child to
+    /// go down by from its root, counted from 0, as `Flip::at`. The
+    /// elements are listed deepest first, so each place is one in the tree
+    /// with the elements before it dropped.
+    pub at: Vec<usize>,
+}
+
+/// Which of the two trees `alike_how` compared a place is in.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Tree {
+    First,
+    Second,
 }
 
 /// `alike`, with how the two met; None where they are not alike.
@@ -1765,14 +1829,26 @@ pub fn alike_how(
     if let Some(met) = alike_as_written(a, b, ctx, ours, theirs) {
         return Some(met);
     }
-    // x + 0 is x wherever it stands (`Context::identities`).
-    if let Some((k, dropped)) = identity_kept_how(a, ctx) {
-        if let Some(met) = alike_how(&k, b, ctx, ours, theirs) {
-            return Some(met.with(dropped));
+    // x + 0 is x wherever it stands (`Context::identities`). What the kept
+    // operand meets is at its place under the operation, and the element is
+    // dropped after it, deepest first.
+    if let Some(kept) = identity_kept_how(a, Tree::First, ctx) {
+        if let Some(met) = alike_how(&kept.node, b, ctx, ours, theirs) {
+            return Some(met.within(Tree::First, kept.place).with(kept.met));
         }
     }
-    let (k, dropped) = identity_kept_how(b, ctx)?;
-    alike_how(a, &k, ctx, ours, theirs).map(|met| met.with(dropped))
+    let kept = identity_kept_how(b, Tree::Second, ctx)?;
+    alike_how(a, &kept.node, ctx, ours, theirs)
+        .map(|met| met.within(Tree::Second, kept.place).with(kept.met))
+}
+
+/// The operand an identity element leaves (`identity_kept_how`): the
+/// operand, its place among the operation's parts, and the elements
+/// dropped to leave it.
+struct Kept {
+    node: Node,
+    place: usize,
+    met: Meeting,
 }
 
 /// The operand an identity element leaves, where `node` is an operation
@@ -1780,30 +1856,38 @@ pub fn alike_how(
 /// otherwise. The identity may itself be written with one left out, so
 /// a^(0 + 1) leaves a.
 fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
-    identity_kept_how(node, ctx).map(|(kept, _)| kept)
+    identity_kept_how(node, Tree::First, ctx).map(|kept| kept.node)
 }
 
-/// `identity_kept`, with the elements dropped: the operation's, and one
-/// its identity was itself written with.
-fn identity_kept_how(node: &Node, ctx: &Context) -> Option<(Node, Meeting)> {
+/// `identity_kept`, with the elements dropped, `node` standing at the root
+/// of `tree`: one its identity was itself written with, then the
+/// operation's.
+fn identity_kept_how(node: &Node, tree: Tree, ctx: &Context) -> Option<Kept> {
     let law = identity_of(node, ctx)?;
     law.holes.iter().find_map(|&hole| {
         let at = &node.children[hole];
         let mut met = Meeting::default();
         if !law.is(at) {
-            let (inner, inner_met) = identity_kept_how(at, ctx)?;
-            if !law.is(&inner) {
+            let inner = identity_kept_how(at, tree, ctx)?;
+            if !law.is(&inner.node) {
                 return None;
             }
-            met = inner_met;
+            met = inner.met.within(tree, hole);
         }
         met.identities.push(Dropped {
             operation: node.notation_name().to_string(),
             literal: node.spelling().text().to_string(),
             hole,
             element: law.element.clone(),
+            pattern: law.pattern,
+            tree,
+            at: Vec::new(),
         });
-        Some((node.children[1 - hole].clone(), met))
+        Some(Kept {
+            node: node.children[1 - hole].clone(),
+            place: 1 - hole,
+            met,
+        })
     })
 }
 
@@ -1930,7 +2014,7 @@ fn alike_as_written(
             true => alike_how(p, q, ctx, &inner_ours, &inner_theirs),
             false => alike_how(p, q, ctx, ours, theirs),
         };
-        out = out.with(met?.under(i));
+        out = out.with(met?.under(i, i));
     }
     Some(out)
 }
@@ -2096,6 +2180,12 @@ pub fn places_alike(term: &Node, was: &Node, ctx: &Context) -> Vec<Vec<usize>> {
     let mut out = Vec::new();
     walk(term, was, ctx, &mut Vec::new(), &mut out);
     out
+}
+
+/// The node at `path`, a path of children from the top of `tree`; None
+/// where the tree has no such place.
+pub fn node_at<'n>(tree: &'n Node, path: &[usize]) -> Option<&'n Node> {
+    path.iter().try_fold(tree, |node, &k| node.children.get(k))
 }
 
 /// The term with `now` put at each of `places`, paths of children from the

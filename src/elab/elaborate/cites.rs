@@ -117,7 +117,8 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded nothing showing the witness in its domain",
             ));
         };
-        let in_domain = self.shown_proof(step, first, &member, scope, &known)?;
+        let in_domain =
+            self.shown_proof(step, first, &values, &member, scope, &known)?;
         let said = self.shown_body(
             step,
             &self.to_term(&here),

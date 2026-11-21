@@ -41,6 +41,7 @@ use crate::outcome::{Built, Checked, Decline, Declined, Route};
 use crate::rules::{self, discharge, lookup, Join, Side};
 use crate::{binds, pf, t, take};
 
+pub(in crate::elab) use self::pieces::reorders;
 use self::pieces::*;
 pub use self::pieces::{as_class, conjuncts_of, sethood};
 

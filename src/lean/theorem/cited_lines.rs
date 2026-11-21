@@ -1048,11 +1048,7 @@ impl<'a> Proof<'a> {
                 )
             });
             let only_permuted = meeting.is_some_and(|m| {
-                m.permuted
-                    && m.identities.is_empty()
-                    && !m.respelled
-                    && !m.turned
-                    && super::terms::permuted_only_listed(m)
+                m.permuted_only() && super::terms::permuted_only_listed(m)
             });
             if listed && only_permuted {
                 return Route::Built(super::super::doc::Proof::By(reordered(
@@ -1165,9 +1161,7 @@ impl<'a> Proof<'a> {
             // with each side cast up, which `norm_cast` takes back to the
             // item where the cast table says it moves a cast through the
             // relation (`casts::norm_cast_lifts_relation`).
-            let as_written = meeting.is_some_and(|m| {
-                m.identities.is_empty() && !m.respelled && !m.turned && !m.permuted
-            });
+            let as_written = meeting.is_some_and(Meeting::renamed_only);
             let through_named =
                 !self.specs_in(node, &self.said_used.borrow()).is_empty();
             if as_written && through_named {
@@ -1877,12 +1871,7 @@ impl<'a> Proof<'a> {
         if let Some(met) =
             meeting.filter(|m| m.permuted || m.turned || !m.identities.is_empty())
         {
-            if met.permuted
-                && met.identities.is_empty()
-                && !met.turned
-                && !met.respelled
-                && super::terms::permuted_only_listed(met)
-            {
+            if met.permuted_only() && super::terms::permuted_only_listed(met) {
                 let equation = relation_symbol(wanted) == Some("=");
                 return Route::Built(super::super::tactics::by_term(
                     super::super::doc::Proof::By(reordered(&proof, equation)),
