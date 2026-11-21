@@ -1097,8 +1097,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A cited sentence read the way the checker recorded (`Way`): as it
-    /// stands; "A ↔ B" or "if A then B" with A held, giving B; or "A ↔ B"
-    /// with B held, giving A.
+    /// stands; "A ↔ B" or "if A then B" with A, giving B; or "A ↔ B" with
+    /// B, giving A; the A or B from where the checker recorded it stands
+    /// (`Cited::firsts`).
     fn read_way(
         &mut self,
         step: &Step,
@@ -1124,11 +1125,26 @@ impl<'a> Elaborator<'a> {
             Read::Backward => (b.clone(), a.clone()),
             _ => (a.clone(), b.clone()),
         };
-        let Some(held) = self.held(facts, &given, scope)? else {
-            return Err(self.defect(
+        // The premise is the fact the checker read the reading from, where
+        // it recorded it stands (`Cited::firsts`).
+        let firsts = self
+            .citation_read(step)
+            .map(|c| c.firsts.clone())
+            .unwrap_or_default();
+        let mut found = None;
+        for by in &firsts {
+            if let Some(p) =
+                self.supplied_proof(step, by, None, &given, scope, facts)?
+            {
+                found = Some(p);
+                break;
+            }
+        }
+        let Some(held) = found else {
+            return Err(self.unreached(
                 step.line,
                 format!(
-                    "{} gives {} where {} holds, and nothing here says it",
+                    "{} gives {} where {} holds, and the line the checker read that from does not give it",
                     step.just.head,
                     self.render(&got),
                     self.render(&given)
