@@ -4,9 +4,7 @@ use std::iter;
 
 use super::*;
 use crate::checker::record::{Supplied, SuppliedBy, Unfolded};
-use crate::citing;
 use crate::matching::{Binding as NodeBinding, FxIndexSet};
-use crate::notations::PROPERTY_OF;
 
 /// What the checker recorded as showing a "there is" (`Exhibit::shown`,
 /// `Cited::unfolded`): each letter's membership in its domain, from the
@@ -625,12 +623,14 @@ impl<'a> Elaborator<'a> {
     /// for `wanted`, a "there is" the cited item asks or a definition it
     /// folds says (`Cited::bound`): what each of its letters is put to,
     /// from the outermost in, by the variable the letter stands for in
-    /// `layers`, the quantifiers of `wanted`. The item writes the "there is"
-    /// in its own letters, which the build may have renamed, so it is found
-    /// among the item's by how many letters it binds. A "there is" inside
-    /// the body that a line says whole, the "there is f" of "n ∈ ℕ₀ and
-    /// there is f with …", has no witness read, and the witnesses are of
-    /// the quantifiers outside it. Declined where the checker read no
+    /// `layers`, the quantifiers of `wanted`. They are taken from the
+    /// record: a nest of witnesses a definition read backwards was
+    /// unfolded at (`Cited::unfolded`), or the letters of a "there is" the
+    /// item asks (`Supplied::want`) at the values `Cited::bound` gives
+    /// them, whichever binds as many letters as `wanted`. A "there is"
+    /// inside the body that a line says whole, the "there is f" of "n ∈ ℕ₀
+    /// and there is f with …", has no witness read, and the witnesses are
+    /// of the quantifiers outside it. Declined where the checker read no
     /// witness for it: a step whose citation proves its "there is" another
     /// way, unfolding a definition, asks it as a side condition first.
     pub(super) fn witnesses_read(
@@ -643,50 +643,29 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the checker reads no citation on this line"));
         };
         let library = self.item_library();
-        let groups = library.groups(&cited.item).unwrap_or_default();
-        let Some(group) = groups.get(cited.group) else {
-            return Err(
-                self.unreached(step.line, "the checker reads a group the item has not")
-            );
-        };
-        // A "there is" is read in the letters the checker matched it in: the
-        // item's own, and where a letter standing for a rule is applied, the
-        // rule's at what it is applied to (`citing::filled`), which may keep
-        // its letter apart from a value. Nothing else is filled in, so a
-        // value that spells an item's letter does not rename it.
-        let ctx = &library.ctx;
-        let applied = |node: &Node| {
-            ctx.props.contains_key(&node.notation())
-                && node.children.len() == 2
-                && node.children[0].is_name()
-                && cited
-                    .binding
-                    .get(&node.children[0].text)
-                    .is_some_and(|v| v.notation() == PROPERTY_OF)
-        };
-        let mut nodes = Vec::new();
-        for s in group.asked().chain(&group.gives) {
-            for node in s.walk() {
-                if applied(&node) {
-                    nodes.extend(citing::filled(&node, &cited.binding, ctx).walk());
-                }
-                nodes.push(node);
-            }
+        // The witnesses the record holds: each nest of "there is" a
+        // definition read backwards unfolded at its values
+        // (`Unfolded::Witness`), and each "there is" the item asks that a
+        // line supplies at a witness, its letters given by `Cited::bound`.
+        let mut candidates: Vec<Vec<Node>> = Vec::new();
+        for parts in cited.unfolded.iter().flatten() {
+            witness_nests(parts, &mut candidates);
         }
-        let mut read: Vec<Vec<Node>> = Vec::new();
-        let mut shapes: IndexSet<Vec<ByShape>> = IndexSet::new();
-        for node in nodes {
-            let letters = Self::existential_letters(&node, &library.exists);
-            if letters.len() != layers.len() {
-                continue;
-            }
+        candidates.retain(|values| values.len() == layers.len());
+        for supplied in &cited.supplied {
+            let letters = Self::existential_letters(&supplied.want, &library.exists);
             let values: Vec<Node> = letters
                 .iter()
                 .map_while(|l| cited.bound.get(l).cloned())
                 .collect();
-            if !values.is_empty()
-                && shapes.insert(values.iter().map(Node::by_shape).collect())
-            {
+            if letters.len() == layers.len() && !values.is_empty() {
+                candidates.push(values);
+            }
+        }
+        let mut read: Vec<Vec<Node>> = Vec::new();
+        let mut shapes: IndexSet<Vec<ByShape>> = IndexSet::new();
+        for values in candidates {
+            if shapes.insert(values.iter().map(Node::by_shape).collect()) {
                 read.push(values);
             }
         }
@@ -1120,5 +1099,30 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
         self.same(given, want, scope, facts, step)
+    }
+}
+
+/// Each nest of "there is" among `parts` and the parts inside them, as the
+/// values its witnesses were unfolded at, from the outermost in: a witness
+/// whose body is one more witness continues its nest, and any other starts
+/// one of its own.
+fn witness_nests(parts: &[Unfolded], out: &mut Vec<Vec<Node>>) {
+    for part in parts {
+        let Unfolded::Witness { .. } = part else {
+            continue;
+        };
+        let mut values = Vec::new();
+        let mut at = part;
+        while let Unfolded::Witness { value, body, .. } = at {
+            values.push(value.clone());
+            match body.as_slice() {
+                [inner @ Unfolded::Witness { .. }] => at = inner,
+                rest => {
+                    witness_nests(rest, out);
+                    break;
+                }
+            }
+        }
+        out.push(values);
     }
 }
