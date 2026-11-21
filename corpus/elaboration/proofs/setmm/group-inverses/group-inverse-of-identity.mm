@@ -7,5 +7,5 @@ $[ proofs/setmm/group-inverses/group-left-identity.mm $]
 
 ${
   proofs.setmm.group-inverses.group-inverse-of-identity $p |- ( A e. Grp -> ( ( invg ` A ) ` ( 0g ` A ) ) = ( 0g ` A ) ) $=
-    ( cgrp wcel c0g cfv cminusg cplusg co wceq cbs wa id eqid grpidcl jca grpinvcl syl proofs.setmm.group-inverses.group-left-identity wb eqcom a1i bicomd mpbid grprinv eqtrd ) ABCZADEZAFEZEZUGUIAGEZHZUGUFUKUIIZUIUKIZUFUFUIAJEZCZKULUFUFUOUFLZUFUFUGUNCZKZUOUFUFUQUPUNAUGUNMZUGMZNZOZUNAUHUGUSUHMZPQOAUIRQUFUMULUMULSUFUIUKTUAUBUCUFURUKUGIVBUNUJAUHUGUGUSUJMUTVCUDQUE $.
+    ( cgrp wcel c0g cfv cminusg cplusg co cbs wa wceq id eqid grpidcl jca grpinvcl syl proofs.setmm.group-inverses.group-left-identity eqcomd grprinv eqtrd ) ABCZADEZAFEZEZUCUEAGEZHZUCUBUGUEUBUBUEAIEZCZJUGUEKUBUBUIUBLZUBUBUCUHCZJZUIUBUBUKUJUHAUCUHMZUCMZNZOZUHAUDUCUMUDMZPQOAUERQSUBULUGUCKUPUHUFAUDUCUCUMUFMUNUQTQUA $.
 $}

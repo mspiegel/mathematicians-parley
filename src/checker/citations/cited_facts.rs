@@ -455,6 +455,7 @@ pub(super) fn facings(
     library: &Library,
 ) -> Vec<Option<Facing>> {
     let group = &groups[taken.group];
+    let claims = &citing::claims_taken(group, claims, library);
     taken
         .concluded
         .iter()

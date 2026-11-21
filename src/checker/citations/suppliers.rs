@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::*;
-use crate::matching::Meeting;
+use crate::matching::{expand, Meeting};
 use crate::notations::FUNCTIONS_FROM;
 use crate::{citing, matching};
 
@@ -128,7 +128,19 @@ impl<'a> Suppliers<'a> {
             }
             _ => written,
         };
-        self.known.alike_how(asked, &written)
+        if let Some(met) = self.known.alike_how(asked, &written) {
+            return Some(met);
+        }
+        // A line found through the defines the citation cites, as the
+        // search reads the step's lines (`Known::read_citing`), met with
+        // them read out.
+        let defined = self.known.citing_item(self.refs, self.item);
+        let read = expand(&written, &defined);
+        let met = self.known.alike_how(asked, &read)?;
+        Some(Meeting {
+            defines_read: true,
+            ..met
+        })
     }
 
     /// Where `fact`, in its standard form, stands: on a line (`said`), else

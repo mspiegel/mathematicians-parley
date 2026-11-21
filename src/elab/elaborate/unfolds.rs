@@ -2,6 +2,7 @@
 
 use super::*;
 use crate::checker::record::Supplied;
+use crate::citing::HypothesisAt;
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::elab::tables::Row;
@@ -298,10 +299,11 @@ impl<'a> Elaborator<'a> {
     /// to it and its proof: the line, or the sentence of one, it stands in,
     /// or the membership a `let` says once (`supplied_proof`); or the membership
     /// a step said of every member is proved at (`Elaborator::member`).
-    /// The lemma's left side is fitted to the fact as set.mm writes it, and
-    /// where a defined name there keeps it from fitting, to the fact read
-    /// through its defined names, a defined function where it is applied
-    /// read as its rule there (`read_out`), carried there by `same`: u ∈
+    /// The lemma's left side is fitted to the fact as set.mm writes it, or,
+    /// where the checker met the two with the line's defined names read out
+    /// (`Cited::firsts_meetings`), to the fact read through them, a defined
+    /// function where it is applied read as its rule there (`read_out`),
+    /// carried there by `same`: u ∈
     /// I(k), I a define, says u is in what I's rule gives at k, which is
     /// set.mm's spelling and none of the page's. Declined where the left side is
     /// not the fact, as a clause of a definition by cases is not.
@@ -344,12 +346,22 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let written = self.to_term(&said);
-        if let Some(binding) =
-            fit(left, &written, &Binding::new(), variables).filter(|b| !b.is_empty())
-        {
-            return Ok(Built((binding, shown)));
-        }
-        let read = self.read_out(&written);
+        // The line met the definition's side with the defines the step
+        // cites read out where the record says so (`Meeting::defines_read`);
+        // the member a claim's "for all" gives is read as the claim is,
+        // through them.
+        let defines_read = match first {
+            SuppliedBy::Bound { .. } => true,
+            _ => cited
+                .firsts_meetings
+                .first()
+                .and_then(Option::as_ref)
+                .is_some_and(|m| m.defines_read),
+        };
+        let read = match defines_read {
+            true => self.read_out(&written),
+            false => written,
+        };
         let Some(binding) =
             fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
         else {
@@ -730,7 +742,6 @@ impl<'a> Elaborator<'a> {
     pub(in crate::elab) fn recorded_hypotheses(
         &mut self,
         step: &Step,
-        item: &'a Record,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Facts> {
@@ -742,6 +753,16 @@ impl<'a> Elaborator<'a> {
         // own pairs among them (`citations::with_seed`).
         let binding = cited.binding_with_written();
         let library = self.item_library();
+        // A function's type, and a finite group's `let`, are held among
+        // the step's facts, as each step types its functions, and the
+        // group the binding is read from leaves out the letters only they
+        // name.
+        let typed: Vec<HypothesisAt> = library
+            .function_type_lines(&cited.item)
+            .into_iter()
+            .chain(library.group_assertion_lines(&cited.item))
+            .map(|w| w.at)
+            .collect();
         // The step's requires lines, each proved with the ones above it
         // (`supplied`), which a hypothesis the record places in one is
         // carried from.
@@ -755,11 +776,7 @@ impl<'a> Elaborator<'a> {
             ) {
                 continue;
             }
-            // A function's type, and a finite group's `let`, are held among
-            // the step's facts, as each step types its functions, and the
-            // group the binding is read from leaves out the letters only
-            // they name.
-            if supplied.at.is_some_and(|at| typed_line(item, at.line)) {
+            if supplied.at.is_some_and(|at| typed.contains(&at)) {
                 continue;
             }
             let node = filled(&supplied.want, &binding, &library.ctx);
@@ -1131,19 +1148,4 @@ impl<'a> Elaborator<'a> {
             )),
         }
     }
-}
-
-/// Whether the hypothesis on line `line` of `item` is a `let` that types a
-/// function, `f : X → W`, or says a group is finite: lines a citation's
-/// group leaves out (`Library::function_type_lines`,
-/// `Library::group_assertion_lines`).
-fn typed_line(item: &Record, line: usize) -> bool {
-    let Some(h) = item.hypotheses.get(line) else {
-        return false;
-    };
-    h.kind == Intro::Let
-        && matches!(
-            Introduction::read(h.body(&item.path)).form,
-            Form::Function | Form::Group { finite: true, .. }
-        )
 }

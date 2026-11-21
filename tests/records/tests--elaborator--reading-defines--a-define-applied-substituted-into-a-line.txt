@@ -10,4 +10,4 @@ read 79: q(a) > 3  as  order:>(application:()(name:q, name:a), numeral:3)  a sta
 read 80: a + 1 > 3  as  order:>(additive:+(name:a, numeral:1), numeral:3)  a statement
 read 82: a + 1 > 3  as  order:>(additive:+(name:a, numeral:1), numeral:3)  a statement
 read 83: q(a) = a + 1  as  equality:=(application:()(name:q, name:a), additive:+(name:a, numeral:1))  a statement
-step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]

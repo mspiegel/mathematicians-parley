@@ -6,7 +6,7 @@ use std::iter;
 use super::cited_items::ShownPart;
 use super::unfolds::RecordedSupply;
 use super::*;
-use crate::checker::record::Supplied;
+use crate::checker::record::{Facing, Supplied};
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
@@ -741,6 +741,21 @@ impl<'a> Elaborator<'a> {
                         ));
                     }
                 },
+            };
+            // An equation the record says faces the claim's the other way
+            // round is turned first, by its own lemma (`Cited::facings`).
+            let (part, shown) = match cited.facings.get(k).copied().flatten() {
+                Some(Facing::Turned) => {
+                    let Some((turned, flip)) = self.turned_claim(&part) else {
+                        return Err(self.unreached(
+                            step.line,
+                            "the checker turned a reading that is no equation",
+                        ));
+                    };
+                    let Sides { left, right } = self.equation_sides(&part);
+                    (turned, pf!(self.b; scope, left, right, shown, flip))
+                }
+                _ => (part, shown),
             };
             let met = cited.meetings.get(k).cloned().flatten().unwrap_or_default();
             match self.met_as(&part, shown, &piece, &met, Tree::First, scope, &held)? {

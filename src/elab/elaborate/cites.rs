@@ -378,7 +378,7 @@ impl<'a> Elaborator<'a> {
         let facts = &self.with_defined_types(step, item, scope, facts)?;
         // The facts the checker recorded as supplying the item's hypotheses,
         // which discharge the lemma's antecedents that are those hypotheses.
-        let given = self.recorded_hypotheses(step, item, scope, facts)?;
+        let given = self.recorded_hypotheses(step, scope, facts)?;
         // The facts carried to the hypotheses are the step's own, which a
         // lemma asking one under its own context, `( ph /\ k e. A ) -> B = C`
         // of a sum's term, settles from as from a line.

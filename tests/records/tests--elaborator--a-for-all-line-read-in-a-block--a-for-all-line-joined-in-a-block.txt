@@ -12,6 +12,6 @@ read 44: x·1 = x  as  equality:=(multiplicative:·(name:x, numeral:1), name:x) 
 read 47: For all z ∈ ℤ, z·1 = z  as  for-all:forall∈,(name:z, number-systems:ℤ, equality:=(multiplicative:·(name:z, numeral:1), name:z))  a statement
 read 49: z ∈ ℤ  as  membership:∈(name:z, number-systems:ℤ)  a statement
 read 51: z·1 = z  as  equality:=(multiplicative:·(name:z, numeral:1), name:z)  a statement
-step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]

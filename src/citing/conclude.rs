@@ -775,7 +775,7 @@ fn first_facts(
                 .iter()
                 .any(|(_, f)| alike(f, fact, &library.ctx, &none, &none))
             {
-                let asked = substitute_apart(first, binding, &library.ctx);
+                let asked = filled(first, binding, &library.ctx);
                 out.push((asked, fact.clone()));
             }
         }

@@ -47,7 +47,7 @@ impl<'a> Elaborator<'a> {
         let seed = self.filling(step, record)?;
         // The facts the checker recorded as supplying the item's hypotheses,
         // which discharge the lemma's antecedents that are those hypotheses.
-        let given = self.recorded_hypotheses(step, record, scope, facts)?;
+        let given = self.recorded_hypotheses(step, scope, facts)?;
         let kept = self.hypotheses_given.replace(given);
         for label in &labels {
             let found = self.apply_lemma(

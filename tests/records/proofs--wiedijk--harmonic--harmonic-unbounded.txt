@@ -69,7 +69,7 @@ read 171: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
 read 171: N/2 > M  as  order:>(multiplicative:/(name:N, numeral:2), name:M)  a statement
 read 173: Σ(k = 1 to 2^N) 1/k > M  as  order:>(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:N), multiplicative:/(numeral:1, name:k)), name:M)  a statement
 read 176: There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
-step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 2.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 2.7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 2.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 2.7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]

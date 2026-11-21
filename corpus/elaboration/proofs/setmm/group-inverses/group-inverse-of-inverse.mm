@@ -7,5 +7,5 @@ $[ proofs/setmm/group-inverses/group-left-inverse.mm $]
 
 ${
   proofs.setmm.group-inverses.group-inverse-of-inverse $p |- ( ( A e. Grp /\ B e. ( Base ` A ) ) -> ( ( invg ` A ) ` ( ( invg ` A ) ` B ) ) = B ) $=
-    ( cgrp wcel cbs cfv wa cminusg cplusg co wceq c0g simpl id syl eqid grpinvcl jca grprinv simpr proofs.setmm.group-inverses.group-left-inverse wb eqcom a1i mpbid eqtrd w3a 3jca grplcan ) ACDZBAEFZDZGZBAHFZFZUOUNFZAIFZJZUOBUQJZKZUPBKZUMURALFZUSUMUJUOUKDZGZURVBKUMUJVCUMUJUJUJULMZUJNZOZUKAUNBUKPZUNPZQZRZUKUQAUNUOVBVHUQPZVBPVISOUMUSVBKZVBUSKZUMUMVMUMUJULVGUJULTZRABUAOVMVNUBUMUSVBUCUDUEUFUMUJUPUKDZULVCUGZGUTVAUBUMUJVQVGUMVPULVCUMVDVPVKUKAUNUOVHVIQOVOVJUHRUKUQAUPBUOVHVLUIOUE $.
+    ( cgrp wcel cbs cfv wa cminusg cplusg co wceq c0g simpl id syl eqid grpinvcl jca grprinv simpr proofs.setmm.group-inverses.group-left-inverse eqcomd eqtrd w3a wb 3jca grplcan mpbid ) ACDZBAEFZDZGZBAHFZFZUNUMFZAIFZJZUNBUPJZKZUOBKZULUQALFZURULUIUNUJDZGZUQVAKULUIVBULUIUIUIUKMZUINZOZUJAUMBUJPZUMPZQZRZUJUPAUMUNVAVGUPPZVAPVHSOULURVAULULURVAKULUIUKVFUIUKTZRABUAOUBUCULUIUOUJDZUKVBUDZGUSUTUEULUIVNVFULVMUKVBULVCVMVJUJAUMUNVGVHQOVLVIUFRUJUPAUOBUNVGVKUGOUH $.
 $}

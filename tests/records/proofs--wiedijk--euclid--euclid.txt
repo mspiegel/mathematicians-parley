@@ -202,18 +202,18 @@ read 270: gcd(a(N), b(N))  as  application-to-two:(,)(name:gcd, application:()(n
 read 271: N  as  name:N  a number
 read 271: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
 read 271: gcd(a(N), b(N)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
-step 3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 3.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 3.5.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 3.5.12 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 4.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 4.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 4.3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 4.3.9 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 5.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0", pattern: 0, tree: Second, at: [0, 0] }], flips: [] }]
-step 5.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 5.4.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 5.4.14 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-step 9 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }]
-suppose on line 256: ClaimDenied, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }
-step 8.3 contradicts 8.1: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [] }
+step 3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 3.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 3.5.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 3.5.12 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 4.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 4.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 4.3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 4.3.9 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 5.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0", pattern: 0, tree: Second, at: [0, 0] }], flips: [] }]
+step 5.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 5.4.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 5.4.14 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 9 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+suppose on line 256: ClaimDenied, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }
+step 8.3 contradicts 8.1: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }

@@ -1662,6 +1662,10 @@ pub struct Meeting {
     /// `0 < x` or x² as x^2, or a map applied read as its rule
     /// (`standard`).
     pub respelled: bool,
+    /// The line's defined names read as what they name, as the citation
+    /// reads a define it cites: `i ∈ S` met as `i ∈ {i ∈ … : …}`, S the
+    /// define (`Known::read_citing`).
+    pub defines_read: bool,
     /// Each identity element dropped, x + 0 read as x.
     pub identities: Vec<Dropped>,
     /// Each notation whose parts stand in no order that met with its parts
@@ -1746,14 +1750,22 @@ impl Meeting {
     /// was taken to pair them but a bound letter renamed. A flip comes with
     /// `turned` or `permuted`, so none is left.
     pub fn renamed_only(&self) -> bool {
-        !self.turned && !self.permuted && !self.respelled && self.identities.is_empty()
+        !self.turned
+            && !self.permuted
+            && !self.respelled
+            && !self.defines_read
+            && self.identities.is_empty()
     }
 
     /// Whether the parts of a notation that stand in any order were paired
     /// out of their places, and nothing else was taken but a bound letter
     /// renamed: no side turned, respelled or without an identity.
     pub fn permuted_only(&self) -> bool {
-        self.permuted && !self.turned && !self.respelled && self.identities.is_empty()
+        self.permuted
+            && !self.turned
+            && !self.respelled
+            && !self.defines_read
+            && self.identities.is_empty()
     }
 
     /// Both meetings at once: what either took.
@@ -1762,6 +1774,7 @@ impl Meeting {
         self.permuted |= other.permuted;
         self.renamed |= other.renamed;
         self.respelled |= other.respelled;
+        self.defines_read |= other.defines_read;
         self.identities.extend(other.identities);
         self.flips.extend(other.flips);
         self
