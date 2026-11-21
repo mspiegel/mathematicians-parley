@@ -3,7 +3,7 @@
 use std::mem;
 
 use super::*;
-use crate::checker::record::Unfolded;
+use crate::checker::record::Unfolding;
 use crate::matching::Meeting;
 
 impl<'a> Elaborator<'a> {
@@ -84,13 +84,15 @@ impl<'a> Elaborator<'a> {
             citing::Way::AsWritten => Way::AsStated,
             citing::Way::Forward => Way::Unfolded,
             // Read backwards, a right side that is a "there is" the checker
-            // shows at a witness it read (`Cited::unfolded`) is exhibited
-            // there; one a line states, or one with more parts than its
-            // "there is", is read back part by part.
+            // shows at a witness it read (`Unfolding::Witnessed`) is
+            // exhibited there; one a line states, or one with more parts
+            // than its "there is", is read back part by part.
             citing::Way::Backward => {
-                let witnessed = cited.unfolded.iter().flatten().all(|parts| {
-                    matches!(parts.as_slice(), [Unfolded::Witness { .. }])
-                }) && cited.unfolded.iter().any(Option::is_some);
+                let shown: Vec<Unfolding> = (0..cited.unfolded.len())
+                    .filter_map(|k| cited.unfolding(k))
+                    .collect();
+                let witnessed = !shown.is_empty()
+                    && shown.iter().all(|u| *u == Unfolding::Witnessed);
                 if witnessed {
                     Way::Conclude
                 } else {

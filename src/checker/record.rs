@@ -25,6 +25,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{Binding, Definitions, Flip, Meeting, SubstitutionPlaces};
 use crate::methods::pairs::Coordinate;
+use crate::notations::{THERE_IS, THERE_IS_SOME};
 use crate::outcome::{Checked, Problem};
 use crate::rules::System;
 use crate::sorts::CitedStatement;
@@ -858,6 +859,38 @@ impl Cited {
         }
         out
     }
+
+    /// How the right side the `k`th concluded sentence reads backwards was
+    /// shown (`unfolded`); None for a sentence read otherwise.
+    pub fn unfolding(&self, k: usize) -> Option<Unfolding> {
+        let parts = self.unfolded.get(k)?.as_ref()?;
+        let stated = parts.iter().all(|p| matches!(p, Unfolded::Fact { .. }))
+            && parts.iter().any(|p| {
+                matches!(
+                    p,
+                    Unfolded::Fact { fact, by: SuppliedBy::Line(_) }
+                        if matches!(fact.notation(), THERE_IS | THERE_IS_SOME)
+                )
+            });
+        Some(match parts.as_slice() {
+            _ if stated => Unfolding::Stated,
+            [Unfolded::Witness { .. }] => Unfolding::Witnessed,
+            _ => Unfolding::Parts,
+        })
+    }
+}
+
+/// How a definition's right side read backwards was shown, as the checker
+/// unfolded it (`Cited::unfolding`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Unfolding {
+    /// Its "there is" a cited line states whole, with no witness shown: the
+    /// line says what the right side asks.
+    Stated,
+    /// It is one "there is", shown at the witness the citation gives it.
+    Witnessed,
+    /// Its parts, each where the checker found it supplied.
+    Parts,
 }
 
 /// One part of what a definition's right side asks, at a citation's values

@@ -9,15 +9,13 @@ use super::super::expr::Members;
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::{ChainTerms, LinesHold, SuppliedBy, Unfolded};
+use crate::checker::record::{ChainTerms, LinesHold, SuppliedBy, Unfolded, Unfolding};
 use crate::corpus::proof::ChainLine;
 use crate::corpus::{proof, RecordKind};
 use crate::formula::page;
 use crate::formula::symbol::Symbol;
 use crate::matching::Binding;
-use crate::notations::{
-    EMPTY_SET, FOR_ALL, MEMBERSHIP, PROPERTY_OF, THERE_IS, THERE_IS_SOME,
-};
+use crate::notations::{EMPTY_SET, FOR_ALL, MEMBERSHIP, PROPERTY_OF};
 use crate::{matching, rules};
 
 impl<'a> Proof<'a> {
@@ -1825,8 +1823,10 @@ impl<'a> Proof<'a> {
         let wanted = self.writer.formula(node).built()?;
         let concluded = cited.concluded.get(k)?;
         // A "there is" the line cited states whole, with no witness shown:
-        // that line says the meaning (`there_is_stated_by_line`).
-        if concluded.way == Way::Backward && self.there_is_stated_by_line(cited, k) {
+        // that line says the meaning (`Unfolding::Stated`).
+        if concluded.way == Way::Backward
+            && cited.unfolding(k) == Some(Unfolding::Stated)
+        {
             return self.first_proof(cited, &wanted);
         }
         if concluded.way == Way::Backward {
@@ -2792,8 +2792,7 @@ impl<'a> Proof<'a> {
     /// by the line the checker read it from (`Cited::firsts`), as Lean has
     /// it in `statement`, the definition at the citation's values, where
     /// the checker recorded the line as stating its "there is" with no
-    /// witness shown (`there_is_stated_by_line`). Declined where no line
-    /// says it.
+    /// witness shown (`Unfolding::Stated`). Declined where no line says it.
     pub(super) fn witnesses(
         &self,
         statement: &Printed,
@@ -2807,7 +2806,7 @@ impl<'a> Proof<'a> {
                 Route::no("a definition's right side no line the checker found says")
             }
         };
-        if self.there_is_stated_by_line(cited, k) {
+        if cited.unfolding(k) == Some(Unfolding::Stated) {
             return whole();
         }
         let (Some(Some(parts)), Some(lean)) = (cited.unfolded.get(k), &lean_body)
@@ -2821,25 +2820,6 @@ impl<'a> Proof<'a> {
             Some(proof) => Route::Built(proof),
             None => whole(),
         }
-    }
-
-    /// Whether the checker recorded the right side that concluded sentence
-    /// `k` reads backwards with its "there is" a cited line states whole and
-    /// no witness shown (`Cited::unfolded`): the line says what the right
-    /// side asks of a witness.
-    pub(super) fn there_is_stated_by_line(&self, cited: &Cited, k: usize) -> bool {
-        let Some(Some(parts)) = cited.unfolded.get(k) else {
-            return false;
-        };
-        let no_witness = parts.iter().all(|p| matches!(p, Unfolded::Fact { .. }));
-        let stated = parts.iter().any(|p| {
-            matches!(
-                p,
-                Unfolded::Fact { fact, by: SuppliedBy::Line(_) }
-                    if matches!(fact.notation(), THERE_IS | THERE_IS_SOME)
-            )
-        });
-        no_witness && stated
     }
 
     /// The proof of `lean`, Lean's statement of a definition's right side or
