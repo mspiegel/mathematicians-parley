@@ -1620,7 +1620,17 @@ The checker records, for each step, the page facts it settled
   (`Exhibit::shown`);
 - for an obtain, which part of the body each part of each sentence is
   (`obtained_parts`);
-- for a cited record, the line supplying each hypothesis (`Cited::supplied`);
+- for an obtain from a line, where on it the "there is" stands
+  (`obtained_from`);
+- of a definition read backwards, how its right side was shown and at which
+  witnesses (`unfolding`, `Unfolded::Witness`), and how the line it is
+  unfolded from met it (`firsts_meetings`);
+- for a cited record, the lemma the record pairs with each concluded
+  sentence, applied at the record's reading of that sentence in the item's
+  letters and carried to the claim as the record says the two face and meet
+  (`concluded`, `facings`, `meetings`); and the line supplying each
+  hypothesis, with how it met and over which set (`Cited::supplied`,
+  `Supplied::meeting`, `narrowed`);
 - for a cited corpus theorem, its letters (`Cited::written`, then `binding`),
   the line supplying each hypothesis (`supplied`), and for each part of the
   claim, the sentence or part of one that gives it, which way it is read and
@@ -1928,11 +1938,11 @@ The orders follow five rules, and each search below is one of them applied.
    - `apply_lemma`, where the conclusion does not fit as written: through an
      existential, at the seed the metamath-proof gives, through a conjunct, a
      universal generalised, in other words, and last with an identity
-     element left out (`as_tidied`). A cited item that reaches no claim this
-     way reaches the instance the checker compared the claim with, which is
-     then carried to the claim with its identity elements dropped
-     (`by_clause_or_instance`): mod-remainder at r := 0 gives q·N + 0 = A,
-     and the claim says q·N = A.
+     element left out (`as_tidied`). A cited record is applied at the
+     record's reading of the sentence, in the item's letters, and carried to
+     the claim as the record's meetings say (`recorded_library`):
+     mod-remainder at r := 0 gives q·N + 0 = A, and the meeting drops the
+     + 0 to give the claim q·N = A.
    - `prove_field`: the two sides as one polynomial, then a cited line
      scaled, crossed, or summed.
    - a `requires` line (`by_its_reason`): read from the lines it cites before

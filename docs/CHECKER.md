@@ -42,8 +42,14 @@ line's own. A list holds one entry for each step, in the proof's order.
   it again.
   Each concluded sentence also records, where the item's reading is an
   "and", which part of it met the claim's sentence (`Concluded::part`),
-  counted from 0 left to right with every conjunction taken apart. Lean
-  takes that part of the reading by its projection.
+  counted from 0 left to right with every conjunction taken apart and a
+  chain of equations read as its links (`citing::part_at`). Both backends
+  take that part by this one count. For an obtain, the sentence it obtains
+  from (`Cited::obtained`) is counted across the item's groups, as each
+  concluded sentence is. Within a group, the reading whose hypotheses and
+  claim meet as written is taken before one that meets them turned or with
+  places swapped: "T ≠ R" from "R is between S and T" is between-apart's
+  T ≠ R, and not its S ≠ R at S := T.
 - `Cited::supplied`: for each hypothesis of the group a citation takes, in
   the group's order, where the fact stands (`SuppliedBy`). It is one of: a
   line the citation names, a sentence or part of one, or what one implies
@@ -72,7 +78,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   met the hypothesis. Lean proves the hypothesis
   from the line by it. Where the line says a "for all" over a wider set
   than asked, the entry says over which set it is read
-  (`Supplied::narrowed`). A hypothesis is looked for as the citation
+  (`Supplied::narrowed`). Metamath reads the line over that set there, and
+  at the member otherwise. It proves an `Identity` from its meeting: the
+  left side equal to itself, with the identity elements dropped. A
+  hypothesis is looked for as the citation
   writes it, at the citation's values. Of the said-once memberships alike
   it, the one written the same is taken: `m + 1 ∈ ℕ₀`, not `1·(m + 1) ∈
   ℕ₀`. The comparison reads those two as one, but the second's reason is
@@ -88,7 +97,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   are read, with the defines the step cites written out. For `def:set-builder
   u := L(k)` with P "there is a ∈ ℕ₀ with y = N(a)/10^a" and witness k:
   L(k) ∈ ℝ, unstated; then k, with k ∈ ℕ₀ by the `let` line, and L(k) =
-  N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it.
+  N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it. How the right
+  side was shown is one method both backends ask (`Cited::unfolding`): a
+  "there is" a cited line states whole (`Stated`), one "there is" at its
+  witness (`Witnessed`), or part by part (`Parts`). Metamath takes the
+  witnesses from the values recorded (`Unfolded::Witness`).
 - `Cited::item_letters`: for each letter of a cited item the binding fills,
   the Parley number system the item takes it in, by its own hypothesis
   `x ∈ S`, and the narrowest the page says its value is in once
@@ -98,7 +111,8 @@ line's own. A list holds one entry for each step, in the proof's order.
   (`ItemLetter::value_set`).
 - `Cited::facings`: for each conclusion a citation takes, whether the item's
   equation, read at the citation's values, meets the claim's equation
-  straight or turned round.
+  straight or turned round. Both backends read it; Metamath turns the
+  reading by the equation's own lemma before carrying it.
 - `Cited::meetings`: for each conclusion a citation takes, how the item's
   sentence, read at the citation's values, met the claim's
   (`Known::alike_how`). That covers the identity elements dropped on the
@@ -107,7 +121,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   one part of the item's "and" (`Concluded::part`, `within`), it is how that
   part met it. Lean rewrites by those identities (`sub_zero`, `zero_add`,
   …) where it converts a power at the step, and turns each flip by an exact
-  instance of the notation's swap lemma, `dist_comm C A`.
+  instance of the notation's swap lemma, `dist_comm C A`. Every conclusion
+  has one. A letter bound to a rule standing alone, function-into's f at
+  x ↦ f(x), is met with the rule where it stands, as the claim reads the
+  define g that names it.
 - `Cited::within`: for each conclusion a citation takes, where the claim's
   sentence is one part of what the item's part gives read at the values, a
   property applied taken as its body, which part of that "and". `P(u)` at
@@ -121,7 +138,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   among them; Lean gives each to `.mp`, and to `.mpr` for the witnesses'
   facts. How the line met each fact is kept beside it
   (`Cited::firsts_meetings`), as `Cited::meetings` keeps it for a
-  conclusion.
+  conclusion. Where the line meets the fact only with the defines the
+  citation cites read out, `i ∈ S` for `i ∈ {i ∈ … : …}`, the meeting says
+  so (`Meeting::defines_read`), and Metamath fits the definition to the
+  line read that way.
 - `FirstAt`: where a fact stands in a line. Its sentence is counted by its
   place among the sentences the line writes, from 0. Past those come the
   line's "for all" sentences read at a block's letter, in order. Its part is
@@ -141,6 +161,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   (`ObtainedPart`). Lean restates a part the checker met otherwise than as
   written. Each pairing carries the body's part as the checker read it
   (`owed_written`), since the checker counts parts as the page writes them.
+- `obtained_from`: for each obtain from a line, where on it the "there is"
+  stands (`FirstAt`): the line's one "there is" among what it says, a
+  sentence, a part of one or a "for all" read at a block's letter; or the
+  line's one sentence where it says it another way, "there is a ∈ A" with
+  no body. Both backends obtain from it.
 - `instantiated`: for each instantiation, a step's, a calculation row's or a
   requires line's, four facts (`Instantiated`). The first is the sentence
   of the line instantiated (`FirstAt`). The second is each condition taken
