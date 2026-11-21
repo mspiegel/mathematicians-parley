@@ -7,7 +7,7 @@ use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::elab::tables::Row;
 use crate::matching::{standard, Meeting, Tree};
-use crate::notations::FOR_ALL;
+use crate::notations::{FOR_ALL, PROPERTY_OF};
 
 /// What the checker recorded as supplying a fact (`Supplied`), with the
 /// values its hypothesis is read at: the citation's (`binding_with_written`)
@@ -18,6 +18,15 @@ use crate::notations::FOR_ALL;
 pub(in crate::elab) struct RecordedSupply<'r> {
     pub supplied: &'r Supplied,
     pub values: &'r NodeBinding,
+}
+
+/// The two trees a recorded meeting is of, as the record gives them: the
+/// one `said`, the fact a proof is in hand for, is the meeting's `said_in`
+/// tree, and `wanted` is the other (`carried_at_places`).
+pub(in crate::elab) struct PlacedTrees {
+    pub(in crate::elab) said: Node,
+    pub(in crate::elab) wanted: Node,
+    pub(in crate::elab) said_in: Tree,
 }
 
 /// The side of a substitution's equation put for the other, the term that
@@ -631,13 +640,8 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> wanted ) from `proof` of `said`, the fact the line `at`
     /// writes, through the two trees its meeting is of (`RecordedSupply`):
-    /// the line's fact and the hypothesis, each in its standard form, each
-    /// with the identity elements the record drops from it taken out where
-    /// it places them (`Meeting::with_identities_dropped`). The line's fact
-    /// is carried to its tree, its elements are dropped (`tidied`), what is
-    /// left meets the hypothesis's as the rest of the meeting says
-    /// (`met_as`), the hypothesis's elements are put back (`tidied`), and
-    /// that is carried to `wanted`. None where a step does not carry.
+    /// the line's fact, the second, and the hypothesis at the citation's
+    /// values, the first (`carried_at_places`).
     #[allow(clippy::too_many_arguments)]
     fn met_at_places(
         &mut self,
@@ -665,24 +669,59 @@ impl<'a> Elaborator<'a> {
                     .with_children(vec![letter.clone(), n.to.clone(), body.clone()]),
                 _ => at.written.clone(),
             };
-        let (hypothesis, line) = (standard(&asked, ctx), standard(&written, ctx));
-        let (Some(hypothesis_bare), Some(line_bare)) = (
-            met.with_identities_dropped(&hypothesis, Tree::First),
-            met.with_identities_dropped(&line, Tree::Second),
+        let trees = PlacedTrees {
+            said: written,
+            wanted: asked,
+            said_in: Tree::Second,
+        };
+        self.carried_at_places(step, said, proof, wanted, &trees, met, scope, facts)
+    }
+
+    /// ( scope -> wanted ) from `proof` of `said`, through the two trees
+    /// `met` is a meeting of (`PlacedTrees`), each in its standard form and
+    /// with the identity elements the record drops from it taken out where
+    /// it places them (`Meeting::with_identities_dropped`). `said` is
+    /// carried to its tree, its elements are dropped (`tidied`), what is
+    /// left meets the other tree's as the rest of the meeting says
+    /// (`met_as`), that tree's elements are put back (`tidied`), and that
+    /// is carried to `wanted`. None where a step does not carry.
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::elab) fn carried_at_places(
+        &mut self,
+        step: &Step,
+        said: &Rpn,
+        proof: Proof,
+        wanted: &Rpn,
+        trees: &PlacedTrees,
+        met: &Meeting,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let library = self.item_library();
+        let ctx = &library.ctx;
+        let wanted_in = match trees.said_in {
+            Tree::First => Tree::Second,
+            Tree::Second => Tree::First,
+        };
+        let (said_tree, wanted_tree) =
+            (standard(&trees.said, ctx), standard(&trees.wanted, ctx));
+        let (Some(said_bare), Some(wanted_bare)) = (
+            met.with_identities_dropped(&said_tree, trees.said_in),
+            met.with_identities_dropped(&wanted_tree, wanted_in),
         ) else {
             return Err(self.unreached(
                 step.line,
-                "the checker placed an identity element where the hypothesis or the line has none",
+                "the checker placed an identity element where one of the two it met has none",
             ));
         };
-        let line = self.term(&line)?;
-        let line_bare = self.term(&line_bare)?;
-        let hypothesis_bare = self.term(&hypothesis_bare)?;
-        let hypothesis = self.term(&hypothesis)?;
-        let Some(p) = self.same_carried(said, proof, &line, scope, facts)? else {
+        let said_tree = self.term(&said_tree)?;
+        let said_bare = self.term(&said_bare)?;
+        let wanted_bare = self.term(&wanted_bare)?;
+        let wanted_tree = self.term(&wanted_tree)?;
+        let Some(p) = self.same_carried(said, proof, &said_tree, scope, facts)? else {
             return Ok(None);
         };
-        let Some(p) = self.tidied(&p, &line, &line_bare, scope, facts)? else {
+        let Some(p) = self.tidied(&p, &said_tree, &said_bare, scope, facts)? else {
             return Ok(None);
         };
         let rest = Meeting {
@@ -690,22 +729,21 @@ impl<'a> Elaborator<'a> {
             ..met.clone()
         };
         let Some(p) = self.met_as(
-            &line_bare,
+            &said_bare,
             p,
-            &hypothesis_bare,
+            &wanted_bare,
             &rest,
-            Tree::Second,
+            trees.said_in,
             scope,
             facts,
         )?
         else {
             return Ok(None);
         };
-        let Some(p) = self.tidied(&p, &hypothesis_bare, &hypothesis, scope, facts)?
-        else {
+        let Some(p) = self.tidied(&p, &wanted_bare, &wanted_tree, scope, facts)? else {
             return Ok(None);
         };
-        self.same_carried(&hypothesis, p, wanted, scope, facts)
+        self.same_carried(&wanted_tree, p, wanted, scope, facts)
     }
 
     /// ( scope -> wanted ) from `proof` of `said`, the fact a line writes,
@@ -794,6 +832,29 @@ impl<'a> Elaborator<'a> {
         // carried from.
         let facts = &facts.with(&self.supplied(Some(step), scope, facts)?);
         for supplied in &cited.supplied {
+            let node = filled(&supplied.want, &binding, &library.ctx);
+            // A function's type, or a finite group's, is the one the step
+            // holds, as each step types its functions; it is given as it is
+            // held, and not carried from a line. One naming a letter the
+            // binding leaves out, the W of `f : X → W`, or binds to a rule,
+            // which stands for no term alone, says nothing at the values
+            // (`citing::asked`).
+            if supplied.at.is_some_and(|at| typed.contains(&at)) {
+                let unfixed = supplied.want.names().iter().any(|n| {
+                    let fixed = binding
+                        .get(n.as_str())
+                        .is_some_and(|v| v.notation() != PROPERTY_OF);
+                    !fixed && !library.env.g.functions.contains_key(n)
+                });
+                if unfixed {
+                    continue;
+                }
+                let wanted = self.term(&node)?;
+                if let Some(proof) = self.held(facts, &wanted, scope)? {
+                    self.know(&given, wanted, proof);
+                }
+                continue;
+            }
             // A fact said once, walked to or unstated is settled where the
             // lemma asks it, and only a fact a line writes is carried here.
             if !matches!(
@@ -802,10 +863,6 @@ impl<'a> Elaborator<'a> {
             ) {
                 continue;
             }
-            if supplied.at.is_some_and(|at| typed.contains(&at)) {
-                continue;
-            }
-            let node = filled(&supplied.want, &binding, &library.ctx);
             let wanted = self.term(&node)?;
             let recorded = RecordedSupply {
                 supplied,
@@ -1046,12 +1103,18 @@ impl<'a> Elaborator<'a> {
         }
         // The claim of the membership half leaves the property half
         // standing as the lemma's own name, and `elrab`'s hypothesis is what
-        // says what that half is.
+        // says what that half is; where the record says the claim is one
+        // part of what the property gives (`Cited::within`), it is that
+        // whole property (`property_whole`).
+        let within = self
+            .citation_read(step)
+            .is_some_and(|c| c.within.iter().any(Option::is_some));
         for essential in &sig.essentials {
             let asked = self.essential(essential);
-            let more = self
-                .substituted_slot(&asked, &binding)
-                .or_else(|| self.property_whole(&asked, &binding));
+            let more = match within {
+                true => self.property_whole(&asked, &binding),
+                false => self.substituted_slot(&asked, &binding),
+            };
             if let Some(more) = more {
                 for (k, v) in more {
                     binding.insert(k, v);

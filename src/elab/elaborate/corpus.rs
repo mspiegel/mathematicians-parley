@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::iter;
 
 use super::cited_items::ShownPart;
-use super::unfolds::RecordedSupply;
+use super::unfolds::{PlacedTrees, RecordedSupply};
 use super::*;
 use crate::checker::record::{Facing, Supplied};
 use crate::citing::Way as Read;
@@ -742,6 +742,44 @@ impl<'a> Elaborator<'a> {
                     }
                 },
             };
+            let Some(met) = cited.meetings.get(k).cloned().flatten() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the checker recorded no meeting of the reading with the claim",
+                ));
+            };
+            // Identity elements the record drops are dropped where it
+            // places them, in the two trees it met (`Cited::met_trees`),
+            // as the item writes its sentence (`carried_at_places`).
+            if !met.identities.is_empty() {
+                let Some(trees) = cited.met_trees.get(k).cloned().flatten() else {
+                    return Err(self.unreached(
+                        step.line,
+                        "the checker recorded no trees for a meeting it placed identities in",
+                    ));
+                };
+                let placed = PlacedTrees {
+                    said: trees.item,
+                    wanted: trees.claim,
+                    said_in: Tree::First,
+                };
+                let Some(proof) = self.carried_at_places(
+                    step, &part, shown, &piece, &placed, &met, scope, &held,
+                )?
+                else {
+                    return Err(self.unreached(
+                        step.line,
+                        format!(
+                            "{} gives {}, and the checker read it as the claim's {} with identity elements dropped",
+                            step.just.head,
+                            self.render(&part),
+                            self.render(&piece)
+                        ),
+                    ));
+                };
+                proved.push(ShownPart { want: piece, proof });
+                continue;
+            }
             // An equation the record says faces the claim's the other way
             // round is turned first, by its own lemma (`Cited::facings`).
             let (part, shown) = match cited.facings.get(k).copied().flatten() {
@@ -756,12 +794,6 @@ impl<'a> Elaborator<'a> {
                     (turned, pf!(self.b; scope, left, right, shown, flip))
                 }
                 _ => (part, shown),
-            };
-            let Some(met) = cited.meetings.get(k).cloned().flatten() else {
-                return Err(self.unreached(
-                    step.line,
-                    "the checker recorded no meeting of the reading with the claim",
-                ));
             };
             match self.met_as(&part, shown, &piece, &met, Tree::First, scope, &held)? {
                 Some(proof) => proved.push(ShownPart { want: piece, proof }),

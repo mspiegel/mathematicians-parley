@@ -1205,8 +1205,9 @@ line 1 says ⌊A⌋ ∈ ℤ, is refused by both tools: the difference's membersh
 a closure no line the step names states. A requires line citing a record is
 held to it as well, over what the checker reads such a line with: what its
 reason names, the requires lines above it, and the member its step's claim
-is said of, the record applied once or as often as it takes (`citing::taken`,
-`citing::derives`). `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0`, where H2
+is said of, the record applied once, as a step's citation is
+(`citing::taken`): a line that needs it applied again writes each use as its
+own line. `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0`, where H2
 lets k ∈ {0, …, N}, is taken by both with nothing cited: a letter introduced
 in a range is an integer said once (`SYNTAX.md`), as one introduced in ℤ is,
 and one introduced in an interval, with or without points taken out, a real

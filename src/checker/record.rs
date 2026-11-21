@@ -821,6 +821,9 @@ pub struct Cited {
     /// (`Concluded::part`, `within`); None where nothing of it meets the
     /// claim's sentence.
     pub meetings: Vec<Option<Meeting>>,
+    /// For each of `meetings`, the two trees it is a meeting of
+    /// (`MetTrees`), which its places are counted in.
+    pub met_trees: Vec<Option<MetTrees>>,
     /// For each of `concluded`, where the claim's sentence is one part of
     /// what the sentence's part gives once read at the binding, a property
     /// applied taken as its body: which part of that "and", counted from 0
@@ -878,6 +881,20 @@ impl Cited {
             _ => Unfolding::Parts,
         })
     }
+}
+
+/// The two trees a concluded sentence's meeting is of (`Cited::meetings`),
+/// each before its standard form, in which the meeting's places are
+/// counted (`matching::standard`, `Meeting::with_identities_dropped`).
+#[derive(Clone, Debug)]
+pub struct MetTrees {
+    /// What the item gives at the citation's values, as the checker
+    /// compared it: its sentence read the recorded way, or the part of it
+    /// that met; the first tree.
+    pub item: Node,
+    /// The claim's part, as the checker read it, with the defines the step
+    /// cites read out; the second tree.
+    pub claim: Node,
 }
 
 /// How a definition's right side read backwards was shown, as the checker

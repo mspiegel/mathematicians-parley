@@ -472,7 +472,9 @@ impl<'a> Elaborator<'a> {
 
     /// A claim reached from a lemma that does not conclude it as it stands,
     /// by whichever way fits first: through an existential, as the seed
-    /// says, as one conjunct, generalised, in other words, or tidied.
+    /// says, as one conjunct, generalised, in other words, or tidied; of a
+    /// lemma a citation applies (`cited`), only the ways set.mm's own
+    /// statement asks, and none the record says.
     #[allow(clippy::too_many_arguments)]
     fn reached_across(
         &mut self,
@@ -484,6 +486,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
         seed: Option<&Binding>,
+        cited: bool,
     ) -> Checked<Route<Proof>> {
         let through =
             self.through_existential(label, reads, goal, scope, facts, step, seed)?;
@@ -494,10 +497,17 @@ impl<'a> Elaborator<'a> {
         if !seeded.is_declined() {
             return Ok(seeded);
         }
-        let part =
-            self.as_conjunct(label, whole, reads, goal, scope, facts, step, seed)?;
-        if !part.is_declined() {
-            return Ok(part);
+        // The part of a conclusion a citation takes, and the identity
+        // elements its claim leaves out, are the record's to say
+        // (`Concluded::part`, `Cited::meetings`), and a cited lemma is
+        // applied at the part and carried as the meeting says; so only a
+        // lemma no citation names is tried as one conjunct or tidied.
+        if !cited {
+            let part =
+                self.as_conjunct(label, whole, reads, goal, scope, facts, step, seed)?;
+            if !part.is_declined() {
+                return Ok(part);
+            }
         }
         let every = self.as_generalised(label, goal, scope, facts, step, seed)?;
         if !every.is_declined() {
@@ -505,7 +515,7 @@ impl<'a> Elaborator<'a> {
         }
         let other =
             self.in_other_words(label, whole, reads, goal, scope, facts, step, seed)?;
-        if !other.is_declined() {
+        if !other.is_declined() || cited {
             return Ok(other);
         }
         let tidy = self.as_tidied(label, reads, goal, scope, facts, step, seed)?;
@@ -554,7 +564,15 @@ impl<'a> Elaborator<'a> {
             if !matches!(reads.label(), Some("wi") | Some("wb")) {
                 if crossing {
                     return self.reached_across(
-                        label, &whole, &reads, goal, scope, facts, step, seed,
+                        label,
+                        &whole,
+                        &reads,
+                        goal,
+                        scope,
+                        facts,
+                        step,
+                        seed,
+                        side.is_some(),
                     );
                 }
                 return Ok(Route::no(format!("{label} does not conclude the claim")));
@@ -572,6 +590,7 @@ impl<'a> Elaborator<'a> {
                         if crossing {
                             return self.reached_across(
                                 label, &whole, &reads, goal, scope, facts, step, seed,
+                                true,
                             );
                         }
                         return Ok(Route::no(format!(
@@ -614,17 +633,12 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                     // The side may be the claim said differently, which only
-                    // a full seed tells, or written without an identity
-                    // element it has (`as_tidied`).
+                    // a full seed tells. An identity element it is written
+                    // without is the record's meeting to carry.
                     let seeded = self
                         .as_seeded(label, &claimed, goal, scope, facts, step, seed)?;
                     if !seeded.is_declined() {
                         return Ok(seeded);
-                    }
-                    let tidy = self
-                        .as_tidied(label, &claimed, goal, scope, facts, step, seed)?;
-                    if !tidy.is_declined() {
-                        return Ok(tidy);
                     }
                 }
                 return Ok(Route::no(format!(
@@ -839,34 +853,32 @@ impl<'a> Elaborator<'a> {
         // requires line of the step is a line it names as surely, so what
         // it says is offered too: `If b = 0 then c = 0` as a requires line
         // fixes modus ponens's P as it does cited.
-        let mut cited: Vec<Term> = match step {
-            Some(step) => step
-                .just
-                .refs
-                .iter()
-                .filter_map(|r| self.line_written(r, &self.lines))
-                .flat_map(|l| conjuncts_of(&self.to_term(&l.claim)))
-                .collect(),
-            None => Vec::new(),
-        };
-        if let Some(step) = step {
-            for r in &step.requires {
-                let node = self.read_one(&r.fact)?;
-                let said = self.term(&node)?;
-                cited.extend(conjuncts_of(&self.to_term(&said)));
+        //
+        // A lemma a citation applies is fitted to the cited record's
+        // hypotheses at the values the checker read, as its lines supply
+        // them (`hypotheses_given`), and to nothing else: a line that says
+        // one turned round or spelt otherwise fixes the letter as the
+        // hypothesis does.
+        let mut cited: Vec<Term> = Vec::new();
+        match (self.hypotheses_given.clone(), step) {
+            (Some(given), _) => {
+                for (said, _) in given.entries() {
+                    cited.extend(conjuncts_of(&self.to_term(&said)));
+                }
             }
-        }
-        // The cited record's hypotheses at the values the checker read, as
-        // its lines supply them (`hypotheses_given`), come first: a line
-        // that says one turned round or spelt otherwise fixes the letter
-        // as the hypothesis does.
-        if let Some(given) = self.hypotheses_given.clone() {
-            let recorded: Vec<Term> = given
-                .entries()
-                .into_iter()
-                .flat_map(|(said, _)| conjuncts_of(&self.to_term(&said)))
-                .collect();
-            cited.splice(0..0, recorded);
+            (None, Some(step)) => {
+                for r in &step.just.refs {
+                    if let Some(l) = self.line_written(r, &self.lines) {
+                        cited.extend(conjuncts_of(&self.to_term(&l.claim)));
+                    }
+                }
+                for r in &step.requires {
+                    let node = self.read_one(&r.fact)?;
+                    let said = self.term(&node)?;
+                    cited.extend(conjuncts_of(&self.to_term(&said)));
+                }
+            }
+            (None, None) => {}
         }
         for text in &sig.essentials {
             let said = self.essential(text);

@@ -3,7 +3,7 @@
 use std::ptr;
 
 use super::*;
-use crate::checker::record::{BodyPart, ChainTerms};
+use crate::checker::record::{BodyPart, ChainTerms, MetTrees};
 use crate::matching::Meeting;
 use crate::{citing, matching};
 
@@ -36,17 +36,9 @@ pub(super) fn unconcluded(
         let Some(parts) = requires_parts(step, req, &[], known, library) else {
             continue;
         };
-        // One use of the item, read as `concludes` reads it, or the item
-        // applied as often as it takes (`derives`), which reads its
-        // conclusions only as they stand. Neither covers the other.
+        // One use of the item, as a step's citation is read: a line that
+        // needs the item applied again writes each use as its own line.
         if concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library) {
-            continue;
-        }
-        if parts
-            .claims
-            .iter()
-            .all(|c| derives(c, &groups, &parts.facts, library, 5))
-        {
             continue;
         }
         let alone = || Some(Rc::new(concluded_alone(&groups, &parts, library)));
@@ -234,7 +226,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, taken, &parts.claims, known, library);
-    let meetings = meetings(&groups, taken, &parts.claims, known, library);
+    let met = meetings(&groups, taken, &parts.claims, known, library);
     let within = parts_within(&groups, taken, &parts.claims, known, library);
     let sought = Sought {
         refs: &step.just.refs,
@@ -259,7 +251,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         supplied,
         item_letters,
         facings,
-        meetings,
+        meetings: met.meetings,
+        met_trees: met.trees,
         within,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
@@ -543,27 +536,46 @@ pub(super) fn meetings(
     claims: &[Node],
     known: &Known,
     library: &Library,
-) -> Vec<Option<Meeting>> {
+) -> Meetings {
     let group = &groups[taken.group];
     let claims = &citing::claims_taken(group, claims, library);
-    taken
-        .concluded
-        .iter()
-        .enumerate()
-        .map(|(k, c)| {
-            let said = group.gives.get(c.sentence)?;
+    let mut out = Meetings {
+        meetings: Vec::new(),
+        trees: Vec::new(),
+    };
+    for (k, c) in taken.concluded.iter().enumerate() {
+        let met = group.gives.get(c.sentence).and_then(|said| {
             let read = readings(said, library)
                 .into_iter()
                 .find(|r| r.way == c.way)?;
             let claim = claims.get(k)?;
-            meeting_of(&read.claimed, c.part, taken, claim, known, library)
-        })
-        .collect()
+            let (meeting, item) =
+                meeting_of(&read.claimed, c.part, taken, claim, known, library)?;
+            Some((
+                meeting,
+                MetTrees {
+                    item,
+                    claim: claim.clone(),
+                },
+            ))
+        });
+        let (meeting, trees) = met.unzip();
+        out.meetings.push(meeting);
+        out.trees.push(trees);
+    }
+    out
+}
+
+/// How each concluded sentence met the claim (`Cited::meetings`), and the
+/// two trees each meeting is of (`Cited::met_trees`).
+pub(super) struct Meetings {
+    pub(super) meetings: Vec<Option<Meeting>>,
+    pub(super) trees: Vec<Option<MetTrees>>,
 }
 
 /// How `claim` meets what an item's sentence `claimed` gives at the
 /// citation's values: the whole, or part `part` of it, or the one part of
-/// that which meets it.
+/// that which meets it; with that tree.
 fn meeting_of(
     claimed: &Node,
     part: Option<usize>,
@@ -571,19 +583,18 @@ fn meeting_of(
     claim: &Node,
     known: &Known,
     library: &Library,
-) -> Option<Meeting> {
+) -> Option<(Meeting, Node)> {
     let binding = &taken.binding;
+    let met = |item: Node| known.alike_how(&item, claim).map(|m| (m, item));
     let whole = filled(claimed, binding, &library.ctx);
-    if let Some(met) = known.alike_how(&whole, claim) {
-        return Some(met);
+    if let Some(found) = met(whole.clone()) {
+        return Some(found);
     }
     // A letter bound to a rule standing alone, function-into's f at x ↦
     // f(x) where the claim reads the define g it names as that rule (`g : L
     // → U`), is the rule there, as the claim has it.
-    if let Some(met) =
-        known.alike_how(&substitute_apart(claimed, binding, &library.ctx), claim)
-    {
-        return Some(met);
+    if let Some(found) = met(substitute_apart(claimed, binding, &library.ctx)) {
+        return Some(found);
     }
     let item = match part {
         Some(j) => {
@@ -592,13 +603,13 @@ fn meeting_of(
         }
         None => whole,
     };
-    if let Some(met) = known.alike_how(&item, claim) {
-        return Some(met);
+    if let Some(found) = met(item.clone()) {
+        return Some(found);
     }
     let parts = conjuncts(&item, library);
-    let mut met = parts.iter().filter_map(|p| known.alike_how(p, claim));
-    match (parts.len() > 1, met.next(), met.next()) {
-        (true, Some(m), None) => Some(m),
+    let mut each = parts.into_iter().filter_map(met);
+    match (each.next(), each.next()) {
+        (Some(one), None) => Some(one),
         _ => None,
     }
 }
@@ -860,7 +871,7 @@ pub fn cited_requires(
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, &taken, &parts.claims, known, library);
-    let meetings = meetings(&groups, &taken, &parts.claims, known, library);
+    let met = meetings(&groups, &taken, &parts.claims, known, library);
     let within = parts_within(&groups, &taken, &parts.claims, known, library);
     let sought = Sought {
         refs: req.lines(),
@@ -885,7 +896,8 @@ pub fn cited_requires(
         supplied,
         item_letters,
         facings,
-        meetings,
+        meetings: met.meetings,
+        met_trees: met.trees,
         within,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound,
