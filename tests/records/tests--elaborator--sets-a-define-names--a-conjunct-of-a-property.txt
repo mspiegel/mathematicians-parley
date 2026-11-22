@@ -12,4 +12,4 @@ read 17: For all p ∈ T, p ≤ N  as  for-all:forall∈,(name:p, name:T, order:
 read 17: T ⊆ {1, …, N}  as  subset:⊆(name:T, integer-range:{,…,}(numeral:1, name:N))  a statement
 read 18: T  as  name:T  a set of numbers
 read 20: For all p ∈ T, p ≤ N  as  for-all:forall∈,(name:p, name:T, order:≤(name:p, name:N))  a statement
-step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]

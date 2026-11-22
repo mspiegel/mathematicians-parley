@@ -7,4 +7,4 @@ read 6: j + 1  as  additive:+(name:j, numeral:1)  a number
 read 6: ℕ  as  number-systems:ℕ  a set
 read 8: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
 read 10: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
-step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]

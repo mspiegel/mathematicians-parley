@@ -37,4 +37,4 @@ read 38: 0 ≤ A − B·q  as  order:≤(numeral:0, additive:−(name:A, multipl
 read 38: −B·q  as  unary-minus:−(multiplicative:·(name:B, name:q))  a number
 read 40: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
 read 41: A mod B = A − B·q  as  equality:=(mod:mod(name:A, name:B), additive:−(name:A, multiplicative:·(name:B, name:q)))  a statement
-step 6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [] }]
+step 6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]

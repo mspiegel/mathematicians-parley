@@ -12,6 +12,7 @@
 //! none is read the same way.
 
 use std::collections::BTreeSet;
+use std::ops::Deref;
 use std::slice;
 use std::sync::Arc;
 
@@ -91,6 +92,45 @@ pub struct Context {
     /// records' `identity` field. It goes without saying wherever it
     /// stands, so every match and comparison reads x + 0 as x (`SYNTAX.md`).
     pub identities: FxIndexMap<Spelling, IdentityElement>,
+}
+
+/// The defines a comparison may read out where two trees differ, by the
+/// name each defines (`Reading`): what a citation cites, which the page
+/// writes by name and a comparison reads as what it names only where the
+/// other tree asks for that.
+#[derive(Clone, Debug, Default)]
+pub struct Unfolds {
+    pub defines: Definitions,
+}
+
+/// What a match or a comparison reads its trees with: the notations
+/// (`Context`), and the defines it may read out where the two differ
+/// (`Unfolds`), none deeper than `budget` on any one path. With no defines
+/// the trees are compared as they are written.
+#[derive(Clone, Copy)]
+pub struct Reading<'a> {
+    pub ctx: &'a Context,
+    pub unfolds: Option<&'a Unfolds>,
+    pub budget: u8,
+}
+
+impl<'a> Reading<'a> {
+    /// A reading with no defines to read out.
+    pub fn plain(ctx: &'a Context) -> Reading<'a> {
+        Reading {
+            ctx,
+            unfolds: None,
+            budget: 0,
+        }
+    }
+}
+
+impl Deref for Reading<'_> {
+    type Target = Context;
+
+    fn deref(&self) -> &Context {
+        self.ctx
+    }
 }
 
 /// The maps every match and comparison looks a notation up in, at each
@@ -908,6 +948,26 @@ pub fn match_tree(
     sites: &IndexSet<NodeId>,
     ctx: &Context,
 ) -> Option<Binding> {
+    match_tree_reading(
+        pattern,
+        ground,
+        binding,
+        variables,
+        sites,
+        Reading::plain(ctx),
+    )
+}
+
+/// `match_tree`, with the defines `ctx` holds read out where the pattern
+/// asks for what one names (`Reading`).
+pub fn match_tree_reading(
+    pattern: &Node,
+    ground: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: Reading<'_>,
+) -> Option<Binding> {
     // Most matches are refused at the root, by a notation that differs, and
     // the binding is copied only for one that is not.
     if refused_at_root(pattern, ground, binding, variables, ctx) {
@@ -947,13 +1007,13 @@ fn refused_at_root(
     ground: &Node,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    ctx: &Context,
+    ctx: Reading<'_>,
 ) -> bool {
     !is_variable(pattern, variables)
-        && !applies_variable(pattern, variables, ctx)
+        && !applies_variable(pattern, variables, &ctx)
         && differs(pattern, ground)
-        && !holds_identity(pattern, binding, variables, ctx)
-        && identity_kept(ground, ctx).is_none()
+        && !holds_identity(pattern, binding, variables, &ctx)
+        && identity_kept_reading(ground, ctx).is_none()
 }
 
 /// Whether a pattern's operation holds its identity element in a hole:
@@ -997,6 +1057,26 @@ pub fn match_every_way(
     sites: &IndexSet<NodeId>,
     ctx: &Context,
 ) -> Vec<Binding> {
+    match_every_way_reading(
+        pattern,
+        ground,
+        binding,
+        variables,
+        sites,
+        Reading::plain(ctx),
+    )
+}
+
+/// `match_every_way`, with the defines `ctx` holds read out where the
+/// pattern asks for what one names (`Reading`).
+pub fn match_every_way_reading(
+    pattern: &Node,
+    ground: &Node,
+    binding: &Binding,
+    variables: &BTreeSet<String>,
+    sites: &IndexSet<NodeId>,
+    ctx: Reading<'_>,
+) -> Vec<Binding> {
     let mut found: Vec<Binding> = Vec::new();
     if refused_at_root(pattern, ground, binding, variables, ctx) {
         return found;
@@ -1028,7 +1108,7 @@ fn fit(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
 ) -> bool {
     fit_each(pattern, ground, binding, variables, sites, ctx, &mut |_| {
         true
@@ -1049,19 +1129,26 @@ fn fit_each(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
     then: &mut Then,
 ) -> bool {
     let before = binding.len();
     if is_variable(pattern, variables) {
         if let Some(seen) = binding.get(&pattern.text) {
-            return alike(seen, ground, ctx, &IndexMap::new(), &IndexMap::new())
+            return alike_how_reading(
+                seen,
+                ground,
+                ctx,
+                &IndexMap::new(),
+                &IndexMap::new(),
+            )
+            .is_some()
                 && then(binding);
         }
         binding.insert(pattern.text, ground.clone());
         return then_kept(true, before, binding, then);
     }
-    if applies_variable(pattern, variables, ctx) {
+    if applies_variable(pattern, variables, &ctx) {
         if ctx.props.get(&pattern.notation()).map(String::as_str) != Some("function") {
             let fits = property(pattern, ground, binding, sites, ctx);
             return then_kept(fits, before, binding, then);
@@ -1069,19 +1156,19 @@ fn fit_each(
         // A rule or a map filled in is matched in the pattern's place, but
         // not one that names the page's letter of the pattern's
         // (`names_its_letter`).
-        let own = names_its_letter(pattern, binding, ctx);
+        let own = names_its_letter(pattern, binding, &ctx);
         if let Some(filled) =
-            rule_at_open_argument(pattern, binding, variables, ctx).filter(|_| !own)
+            rule_at_open_argument(pattern, binding, variables, &ctx).filter(|_| !own)
         {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
-        if let Some(filled) = map_at_argument(pattern, binding, ctx).filter(|_| !own) {
+        if let Some(filled) = map_at_argument(pattern, binding, &ctx).filter(|_| !own) {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
             return then_kept(fits, before, binding, then);
         }
-        if let Some(rule) = applied_as_rule(pattern, ground, binding, sites, ctx) {
+        if let Some(rule) = applied_as_rule(pattern, ground, binding, sites, &ctx) {
             // t is first the function the ground applies, and then the rule
             // that applies it: f stands for t only where the item's other
             // mentions of t say f's domain, and a product over a part of
@@ -1217,20 +1304,20 @@ fn fit_structure(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
     then: &mut Then,
 ) -> bool {
     // A product over a set whose set is still to be bound meets a product
     // from a to b as the product over {a, …, b}, the form it is the
     // standard of (`Context::filled`).
-    if let Some(open) = unfilled(pattern, ground, ctx) {
+    if let Some(open) = unfilled(pattern, ground, &ctx) {
         return fit_structure(pattern, &open, binding, variables, sites, ctx, then);
     }
     // Whether the pattern fitted as written, its parts against the ground's,
     // in some way. An identity element is read away only where it did not.
     let mut written = false;
     if !differs(pattern, ground) {
-        let pattern = bound_as(pattern, ground, binding, variables, ctx);
+        let pattern = bound_as(pattern, ground, binding, variables, &ctx);
         // The letters a binder binds are paired before what it binds them
         // over, wherever the notation writes them: ∫(a to x) f(t) dt names
         // its letter last, and f(t) read before t is paired would make f
@@ -1271,7 +1358,7 @@ fn fit_structure(
                 return true;
             }
         } else {
-            for children in orders(&pattern, ground, ctx) {
+            for children in orders(&pattern, ground, &ctx) {
                 let parts = Parts {
                     pattern: &pattern.children,
                     ground: &children,
@@ -1291,7 +1378,7 @@ fn fit_structure(
     if without_identity(pattern, ground, binding, variables, sites, ctx, then) {
         return true;
     }
-    match identity_kept(ground, ctx) {
+    match identity_kept_reading(ground, ctx) {
         Some(kept) => fit_each(pattern, &kept, binding, variables, sites, ctx, then),
         None => false,
     }
@@ -1330,7 +1417,7 @@ fn fit_parts(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
     then: &mut Then,
 ) -> bool {
     let Some(&i) = parts.order.get(at) else {
@@ -1371,7 +1458,7 @@ fn fit_in_any_order(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
     then: &mut Then,
 ) -> bool {
     let Some(&part) = pairing.order.get(at) else {
@@ -1550,10 +1637,10 @@ fn without_identity(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
     then: &mut Then,
 ) -> bool {
-    let Some(law) = identity_of(pattern, ctx) else {
+    let Some(law) = identity_of(pattern, ctx.ctx) else {
         return false;
     };
     for &hole in &law.holes {
@@ -1671,7 +1758,35 @@ pub struct Meeting {
     /// Each notation whose parts stand in no order that met with its parts
     /// paired other than in their places, where it stands.
     pub flips: Vec<Flip>,
+    /// Each define read out where the two differed and the other asked for
+    /// what it names (`Reading`), the outermost first.
+    pub unfolded: Vec<Unfold>,
 }
+
+/// A define read out where a comparison needed what it names: `S` of `i ∈
+/// S` read as `{i ∈ … : …}` where the other tree writes that. The name, the
+/// tree it stood in, its place there, counted in that tree with the
+/// unfoldings before it made, and what it was read as there, which a
+/// backend reaches from the name by the define's equation. A meeting's
+/// identities and flips are placed in the trees with every unfolding made.
+#[derive(Clone, Debug)]
+pub struct Unfold {
+    pub name: String,
+    pub tree: Tree,
+    pub at: Vec<usize>,
+    pub read: Node,
+}
+
+impl PartialEq for Unfold {
+    fn eq(&self, other: &Unfold) -> bool {
+        self.name == other.name
+            && self.tree == other.tree
+            && self.at == other.at
+            && self.read.shape() == other.read.shape()
+    }
+}
+
+impl Eq for Unfold {}
 
 /// A notation whose parts stand in no order (`commutes`), met with its
 /// parts in another order than the other tree writes them: |AB| against
@@ -1738,6 +1853,9 @@ impl Meeting {
         for dropped in self.identities.iter_mut().filter(|d| d.tree == tree) {
             dropped.at.insert(0, index);
         }
+        for unfold in self.unfolded.iter_mut().filter(|u| u.tree == tree) {
+            unfold.at.insert(0, index);
+        }
         self
     }
 
@@ -1755,6 +1873,7 @@ impl Meeting {
             && !self.respelled
             && !self.defines_read
             && self.identities.is_empty()
+            && self.unfolded.is_empty()
     }
 
     /// Whether the parts of a notation that stand in any order were paired
@@ -1766,6 +1885,7 @@ impl Meeting {
             && !self.respelled
             && !self.defines_read
             && self.identities.is_empty()
+            && self.unfolded.is_empty()
     }
 
     /// Both meetings at once: what either took.
@@ -1777,6 +1897,7 @@ impl Meeting {
         self.defines_read |= other.defines_read;
         self.identities.extend(other.identities);
         self.flips.extend(other.flips);
+        self.unfolded.extend(other.unfolded);
         self
     }
 
@@ -1791,6 +1912,20 @@ impl Meeting {
             let operation = node_at(&out, &dropped.at)?;
             let kept = operation.children.get(1 - dropped.hole)?.clone();
             out = put_at_places(&out, slice::from_ref(&dropped.at), &kept);
+        }
+        Some(out)
+    }
+
+    /// `tree`, the one of the two trees the meeting is of that `which`
+    /// names, with each define the meeting read out in it put as what it
+    /// was read as, at its place, the outermost first. None where a place
+    /// is no part of the tree, so `tree` is not the one met. What a
+    /// meeting's identities are dropped from (`with_identities_dropped`).
+    pub fn with_unfolded(&self, tree: &Node, which: Tree) -> Option<Node> {
+        let mut out = tree.clone();
+        for unfold in self.unfolded.iter().filter(|u| u.tree == which) {
+            node_at(&out, &unfold.at)?;
+            out = put_at_places(&out, slice::from_ref(&unfold.at), &unfold.read);
         }
         Some(out)
     }
@@ -1839,6 +1974,18 @@ pub fn alike_how(
     ours: &IndexMap<Symbol, Symbol>,
     theirs: &IndexMap<Symbol, Symbol>,
 ) -> Option<Meeting> {
+    alike_how_reading(a, b, Reading::plain(ctx), ours, theirs)
+}
+
+/// `alike_how`, with the defines `ctx` holds read out where the two trees
+/// differ (`Reading`).
+pub fn alike_how_reading(
+    a: &Node,
+    b: &Node,
+    ctx: Reading<'_>,
+    ours: &IndexMap<Symbol, Symbol>,
+    theirs: &IndexMap<Symbol, Symbol>,
+) -> Option<Meeting> {
     if let Some(met) = alike_as_written(a, b, ctx, ours, theirs) {
         return Some(met);
     }
@@ -1846,12 +1993,12 @@ pub fn alike_how(
     // operand meets is at its place under the operation, and the element is
     // dropped after it, deepest first.
     if let Some(kept) = identity_kept_how(a, Tree::First, ctx) {
-        if let Some(met) = alike_how(&kept.node, b, ctx, ours, theirs) {
+        if let Some(met) = alike_how_reading(&kept.node, b, ctx, ours, theirs) {
             return Some(met.within(Tree::First, kept.place).with(kept.met));
         }
     }
     let kept = identity_kept_how(b, Tree::Second, ctx)?;
-    alike_how(a, &kept.node, ctx, ours, theirs)
+    alike_how_reading(a, &kept.node, ctx, ours, theirs)
         .map(|met| met.within(Tree::Second, kept.place).with(kept.met))
 }
 
@@ -1869,14 +2016,19 @@ struct Kept {
 /// otherwise. The identity may itself be written with one left out, so
 /// a^(0 + 1) leaves a.
 fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
+    identity_kept_reading(node, Reading::plain(ctx))
+}
+
+/// `identity_kept`, read with the defines `ctx` holds (`Reading`).
+fn identity_kept_reading(node: &Node, ctx: Reading<'_>) -> Option<Node> {
     identity_kept_how(node, Tree::First, ctx).map(|kept| kept.node)
 }
 
 /// `identity_kept`, with the elements dropped, `node` standing at the root
 /// of `tree`: one its identity was itself written with, then the
 /// operation's.
-fn identity_kept_how(node: &Node, tree: Tree, ctx: &Context) -> Option<Kept> {
-    let law = identity_of(node, ctx)?;
+fn identity_kept_how(node: &Node, tree: Tree, ctx: Reading<'_>) -> Option<Kept> {
+    let law = identity_of(node, ctx.ctx)?;
     law.holes.iter().find_map(|&hole| {
         let at = &node.children[hole];
         let mut met = Meeting::default();
@@ -1973,7 +2125,7 @@ pub fn bare(node: &Node, ctx: &Context) -> Node {
 fn alike_as_written(
     a: &Node,
     b: &Node,
-    ctx: &Context,
+    ctx: Reading<'_>,
     ours: &IndexMap<Symbol, Symbol>,
     theirs: &IndexMap<Symbol, Symbol>,
 ) -> Option<Meeting> {
@@ -1995,8 +2147,8 @@ fn alike_as_written(
         return None;
     }
     let Some(shape) = ctx.binders.get(&a.notation()) else {
-        return parts_related_how(a, b, ctx, &|x, y| {
-            alike_how(x, y, ctx, ours, theirs)
+        return parts_related_how(a, b, &ctx, &|x, y| {
+            alike_how_reading(x, y, ctx, ours, theirs)
         });
     };
     let pairs: Vec<(&Node, &Node)> = shape
@@ -2024,8 +2176,8 @@ fn alike_as_written(
             continue;
         }
         let met = match shape.body.contains(&i) {
-            true => alike_how(p, q, ctx, &inner_ours, &inner_theirs),
-            false => alike_how(p, q, ctx, ours, theirs),
+            true => alike_how_reading(p, q, ctx, &inner_ours, &inner_theirs),
+            false => alike_how_reading(p, q, ctx, ours, theirs),
         };
         out = out.with(met?.under(i, i));
     }
@@ -2035,6 +2187,12 @@ fn alike_as_written(
 /// Whether two trees are one formula, compared from the top.
 pub fn alike_top(a: &Node, b: &Node, ctx: &Context) -> bool {
     alike(a, b, ctx, &IndexMap::new(), &IndexMap::new())
+}
+
+/// `alike_top`, with the defines `ctx` holds read out where the two
+/// differ (`Reading`).
+fn alike_top_reading(a: &Node, b: &Node, ctx: Reading<'_>) -> bool {
+    alike_how_reading(a, b, ctx, &IndexMap::new(), &IndexMap::new()).is_some()
 }
 
 /// Whether `aim` is `start` with one side of the equation `left = right`
@@ -2279,10 +2437,10 @@ fn property(
     ground: &Node,
     binding: &mut Binding,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
 ) -> bool {
     let name = &pattern.children[0].text;
-    let arg = read_at(&pattern.children[1], binding, ctx);
+    let arg = read_at(&pattern.children[1], binding, &ctx);
     let Some(stands) = binding.get(name) else {
         if !sites.contains(&pattern.id()) || !arg.is_name() {
             return false; // only the inside occurrence decides
@@ -2295,8 +2453,8 @@ fn property(
     }
     let mut at = Binding::new();
     at.insert(stands.text, arg);
-    let filled = substitute_apart(&stands.children[0], &at, ctx);
-    alike_top(&filled, ground, ctx)
+    let filled = substitute_apart(&stands.children[0], &at, &ctx);
+    alike_top_reading(&filled, ground, ctx)
 }
 
 /// What a pattern applying a property says, where the property is one of
@@ -2375,28 +2533,28 @@ fn family(
     binding: &mut Binding,
     variables: &BTreeSet<String>,
     sites: &IndexSet<NodeId>,
-    ctx: &Context,
+    ctx: Reading<'_>,
 ) -> Option<bool> {
     let name = &pattern.children[0].text;
-    let arg = read_at(&pattern.children[1], binding, ctx);
+    let arg = read_at(&pattern.children[1], binding, &ctx);
     let stands = binding.get(name).cloned();
     if let Some(stands) = &stands {
         if stands.notation() == PROPERTY_OF {
             let mut at = Binding::new();
             at.insert(stands.text, arg.clone());
-            let filled = substitute_apart(&stands.children[0], &at, ctx);
+            let filled = substitute_apart(&stands.children[0], &at, &ctx);
             // At a letter still to be bound, a "there is"'s own in u =
             // E(s), the rule there is matched, which binds it: E(s) with E
             // the map n ↦ 2n meets 2m at s := m. A rule naming the page's
             // letter of the pattern's is compared as written
             // (`names_its_letter`).
-            if !names_its_letter(pattern, binding, ctx)
+            if !names_its_letter(pattern, binding, &ctx)
                 && is_variable(&arg, variables)
                 && !binding.contains_key(&arg.text)
             {
                 return Some(fit(&filled, ground, binding, variables, sites, ctx));
             }
-            return Some(alike_top(&filled, ground, ctx));
+            return Some(alike_top_reading(&filled, ground, ctx));
         }
     }
     let plain = ground.notation() == pattern.notation()
