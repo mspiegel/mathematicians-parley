@@ -482,9 +482,17 @@ that may itself say "for all Y ∈ K", binding the same letter. So:
   scope's own spelt over the old, and where one binder sits inside another,
   as a sum inside a sequence, the inner is renamed first and carried up
   through the outer (`class_renamed_within`);
+- a value is put under a lemma's binder by one rule (`put_apart`): each
+  letter a binder binds that a value spells, or that the lemma keeps apart,
+  moves to a letter nothing holds, the same way across the lemma's
+  hypotheses and statement, as a set variable is one variable throughout a
+  theorem, and the values go in at once, so a value's own letter does not
+  move. A definition's lemma unfolded, a cited theorem read again with its
+  values as classes, a fill's own letters and a map's rule each take it;
 - a map's rule read at a value that spells the rule's own bound letters,
   bound there or not, is read in a second spelling of them, fixed once per
-  map (`rule_apart`), and the value taken from the map over that spelling,
+  map, every letter but the map's own moved apart (`rule_apart`,
+  `put_apart`), and the value taken from the map over that spelling,
   shown the same map closed (`class_alpha`, `mpteq12i`). Schröder–Bernstein
   reads M at C, and C written out is a union over sets whose condition is
   M's rule, so a map over its own letter would stand in the proof, which no
@@ -865,6 +873,12 @@ checker reads it (`stated_over`, which `cite_corpus` lets the comparison
 read and R1's `named` counts as rested on). A theorem of another file gives
 no such leave: its defines reach the step only through an import, which a
 step cites.
+
+A lemma's instance is fitted to the claim as the standard form reads it,
+with every define the step may rest on read out, and is met with the claim
+through that reading, its bound letters spelt as the instance spells them
+(`same_through_names`), by one route whether or not the claim names a
+define.
 
 **Sequences defined by recursion are one recursion over a state.** Euclid's
 `let a(0) = M, b(0) = N, a(k + 1) = …, b(k + 1) = …, for k ∈ ℕ₀`

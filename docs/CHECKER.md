@@ -20,6 +20,15 @@ A step's fact kept in a map is kept by the line of its justification: a
 step's reason, or a calculation row's, a substitute row's or a requires
 line's own. A list holds one entry for each step, in the proof's order.
 
+A citation's lines are read as the page writes them, and the record keeps
+the page's names: a value is `s`, not what `s` names. The defines a step
+cites travel with its lines (`Parts::unfolds`), and a comparison reads one
+out only where the two trees differ and the other asks for what it names
+(`matching::Reading`). Each meeting places every define it read out
+(`Meeting::unfolded`): which define, in which of the two trees, where in
+it, and what it read as. A backend reads a define out at those places and
+nowhere else on the citation's account.
+
 ## The reading
 
 - `page`: every formula on the page, read once, which both backends write
@@ -92,9 +101,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   gives a witness is the witness, that it is in the letter's domain, and the
   parts of its body at it; any other part is a fact. Each fact carries where
   it stands, placed as a hypothesis is (`SuppliedBy`). The right side is
-  read at the define's name where the citation's value is a define's rule,
-  g of g(x) = f(x) for x ∈ L, and each fact is sought as the step's lines
-  are read, with the defines the step cites written out. For `def:set-builder
+  read at the citation's values as the page writes them, g of g(x) = f(x)
+  for x ∈ L where the step names g, and each fact is sought among the
+  step's lines as written, a define the step cites read out only where the
+  fact and a line differ. For `def:set-builder
   u := L(k)` with P "there is a ∈ ℕ₀ with y = N(a)/10^a" and witness k:
   L(k) ∈ ℝ, unstated; then k, with k ∈ ℕ₀ by the `let` line, and L(k) =
   N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it. How the right
@@ -122,9 +132,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   part met it. Lean rewrites by those identities (`sub_zero`, `zero_add`,
   …) where it converts a power at the step, and turns each flip by an exact
   instance of the notation's swap lemma, `dist_comm C A`. Every conclusion
-  has one. A letter bound to a rule standing alone, function-into's f at
-  x ↦ f(x), is met with the rule where it stands, as the claim reads the
-  define g that names it.
+  has one. Where the two meet only once a define the citation cites is read
+  out, the meeting places it (`Meeting::unfolded`). A letter met first as a
+  rule standing alone, function-into's f at x ↦ f(x), and again as the
+  define g whose rule that is, is bound to g, which has a domain the rule
+  alone does not.
 - `Cited::within`: for each conclusion a citation takes, where the claim's
   sentence is one part of what the item's part gives read at the values, a
   property applied taken as its body, which part of that "and". `P(u)` at
@@ -138,10 +150,13 @@ line's own. A list holds one entry for each step, in the proof's order.
   among them; Lean gives each to `.mp`, and to `.mpr` for the witnesses'
   facts. How the line met each fact is kept beside it
   (`Cited::firsts_meetings`), as `Cited::meetings` keeps it for a
-  conclusion. Where the line meets the fact only with the defines the
-  citation cites read out, `i ∈ S` for `i ∈ {i ∈ … : …}`, the meeting says
-  so (`Meeting::defines_read`), and Metamath fits the definition to the
-  line read that way.
+  conclusion. Where the line meets the fact only with a define the citation
+  cites read out, `i ∈ S` for `i ∈ {i ∈ … : …}`, the meeting places it
+  (`Meeting::unfolded`), and Metamath fits the definition to the line read
+  out at those places. A hypothesis whose two sides are one once a define
+  is read out, `s = (|BC| + |AC| + |AB|)/2` of s := (|BC| + |CA| + |AB|)/2,
+  is an identity (`SuppliedBy::Identity`) whose meeting places the
+  read-out.
 - `FirstAt`: where a fact stands in a line. Its sentence is counted by its
   place among the sentences the line writes, from 0. Past those come the
   line's "for all" sentences read at a block's letter, in order. Its part is
