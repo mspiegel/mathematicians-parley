@@ -300,7 +300,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  metamath-proof absid, absnid\n",
             "  metamath-proof absid, absid\n",
-            "the build cannot yet prove this, which the checker accepts: no clause of def:abs gives what step 2.6 claims",
+            "the build cannot yet prove this, which the checker accepts: absid, which stdlib/numbers/abs names, does not give",
         )
         .at("proofs/wiedijk/triangle-inequality.proof", "2.6.  |x| = −x"),
         // Each part of what the claim asks of the witness is one of the
@@ -323,7 +323,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/counting.records",
             "  metamath-proof hashdifsnp1 with V := X, N := a, Y := k",
             "  metamath-proof hashdifsnp1 with V := X, N := a, Y := X",
-            "no clause of mun:card-remove reaches what step 1.7 claims",
+            "hashdifsnp1, which stdlib/counting/card-remove names, does not give",
         ),
         // A definition read with no pair for its subject is about the proof's
         // letter of the same name (`SYNTAX.md`). odd-square has an n, so

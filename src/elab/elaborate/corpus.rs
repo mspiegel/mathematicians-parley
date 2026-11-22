@@ -79,7 +79,9 @@ impl<'a> Elaborator<'a> {
             known,
         )?
         else {
-            return Err(self.unreached(
+            // The checker accepts the step and names what supplies the
+            // hypothesis; the build that cannot use it has a gap.
+            return Err(self.defect(
                 step.line,
                 format!(
                     "what the checker recorded as supplying {} does not give it",
@@ -767,7 +769,7 @@ impl<'a> Elaborator<'a> {
                     step, &part, shown, &piece, &placed, &met, scope, &held,
                 )?
                 else {
-                    return Err(self.unreached(
+                    return Err(self.defect(
                         step.line,
                         format!(
                             "{} gives {}, and the checker read it as the claim's {} with identity elements dropped",
@@ -1152,7 +1154,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let Some(held) = found else {
-            return Err(self.unreached(
+            return Err(self.defect(
                 step.line,
                 format!(
                     "{} gives {} where {} holds, and the line the checker read that from does not give it",

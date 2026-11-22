@@ -15,6 +15,7 @@ use parley::checker::record::{
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
+use parley::corpus::proof::chain_reasons;
 use parley::corpus::Theorem;
 use parley::formula::Grammar;
 use parley::matching::Meeting;
@@ -74,14 +75,39 @@ pub fn printed_but(
             writeln!(out, "  {part} owes {}", claim.join(". ")).unwrap();
         }
     }
+    // Whether the requires line at place `k` of the step numbered `step` is
+    // one the rewrite changed.
+    let rewritten_in = |step: String| {
+        move |k: usize| omitted(&format!("requires line {} of step {step}", k + 1))
+    };
     for (i, cited) in record.cited.iter().enumerate() {
         let Some(cited) = cited else { continue };
-        writeln!(out, "step {} {}", number(i), citation(cited, g)).unwrap();
+        let rewritten = rewritten_in(number(i));
+        writeln!(out, "step {} {}", number(i), citation(cited, g, &rewritten)).unwrap();
     }
     for (line, cited) in &record.cited_requires {
         let at = requires_at(thm, *line);
         if !omitted(&at) {
-            writeln!(out, "{at} {}", citation(cited, g)).unwrap();
+            // The step whose requires lines the citation reads, as
+            // `citations::requires_cited` files it: the step a requires
+            // line is of, or whose calculation row's reason it is. The
+            // citation of a `let` line's reason reads the let's own, which
+            // name no step.
+            let owner = thm
+                .steps
+                .iter()
+                .find(|s| {
+                    s.requires.iter().any(|r| r.line == *line)
+                        || chain_reasons(&s.just, &thm.path)
+                            .iter()
+                            .any(|r| r.line == *line)
+                })
+                .map(|s| s.number.to_string());
+            let printed = match owner {
+                Some(step) => citation(cited, g, &rewritten_in(step)),
+                None => citation(cited, g, &|_| false),
+            };
+            writeln!(out, "{at} {printed}").unwrap();
         }
     }
     for (i, sums) in record.said_sums.iter().enumerate() {
@@ -362,7 +388,10 @@ fn making(made: &Making, g: &Grammar) -> String {
     }
 }
 
-fn citation(cited: &Cited, g: &Grammar) -> String {
+/// A citation in one line. `rewritten` says whether the requires line at
+/// that place among the citing step's is one a rewrite changed, whose
+/// meeting with what it supplies is not compared.
+fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> String {
     // A binding says what each letter stands for, in no order.
     let mut binding: Vec<String> = cited
         .binding
@@ -420,7 +449,12 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
                 }
                 None => supplier(&s.by),
             };
-            if let Some(m) = s.meeting.as_ref().filter(|m| !m.as_written()) {
+            // How a requires line the rewrite changed meets is left out, as
+            // that line's own citation is (`RequiresRewrite::omitted`).
+            let changed =
+                matches!(s.by, SuppliedBy::Requires { line, .. } if rewritten(line));
+            if let Some(m) = s.meeting.as_ref().filter(|m| !m.as_written() && !changed)
+            {
                 write!(said, " met {}", meeting_words(m)).unwrap();
             }
             if let Some(n) = &s.narrowed {
