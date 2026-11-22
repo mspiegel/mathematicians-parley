@@ -3,6 +3,7 @@
 use std::borrow::Cow;
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
+use std::ops::Deref;
 use std::rc::Rc;
 use std::slice;
 use std::sync::Arc;
@@ -14,7 +15,8 @@ use crate::formula::notation_id::NotationId;
 use crate::formula::page::{chain_links, chain_pairs, Written};
 use crate::formula::{Binds, Grammar, Node, Sorts};
 use crate::matching::{
-    expand, free_names, standard, Context, Defined, Definitions, FxIndexMap, FxIndexSet,
+    expand, free_names, standard, Context, Defined, Definitions, FxIndexMap,
+    FxIndexSet, Unfolds,
 };
 use crate::methods::terms::Targets;
 use crate::notations::{
@@ -277,6 +279,41 @@ pub struct Library<'a> {
     pub targets: Targets,
     /// `place_systems`, read once.
     places: OnceCell<Rc<PlaceSystems>>,
+}
+
+/// The library as one citation reads it: with the defines the citing step
+/// cites, which a match or comparison reads out where the other tree asks
+/// for what one names (`matching::Reading`). It stands for the library
+/// wherever one is asked for, and its matches read through `reading`.
+#[derive(Clone, Copy)]
+pub struct Cite<'l, 'a> {
+    pub library: &'l Library<'a>,
+    pub unfolds: Option<&'l Unfolds>,
+}
+
+impl<'l, 'a> Cite<'l, 'a> {
+    /// The library read with no defines to read out.
+    pub fn plain(library: &'l Library<'a>) -> Cite<'l, 'a> {
+        Cite {
+            library,
+            unfolds: None,
+        }
+    }
+
+    /// What a match or comparison of this citation reads with.
+    pub fn reading(&self) -> matching::Reading<'l> {
+        match self.unfolds {
+            Some(unfolds) => matching::Reading::with(&self.library.ctx, unfolds),
+            None => matching::Reading::plain(&self.library.ctx),
+        }
+    }
+}
+
+impl<'a> Deref for Cite<'_, 'a> {
+    type Target = Library<'a>;
+    fn deref(&self) -> &Library<'a> {
+        self.library
+    }
 }
 
 /// The number system each place of a notation is in, by the definition

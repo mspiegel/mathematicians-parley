@@ -4,7 +4,7 @@ use super::super::record::{PlaceShown, ShownBy};
 use super::*;
 use std::iter;
 
-use crate::citing::PlaceSystems;
+use crate::citing::{Cite, PlaceSystems};
 use crate::corpus;
 use crate::matching::Context;
 use methods_membership::Held;
@@ -409,7 +409,7 @@ pub fn ends_asking(
         }
         let mut dropped = identities_dropped(&owed, &said, known.ctx);
         dropped.extend(identities_dropped(&said, &owed, known.ctx));
-        for left in not_numbers(dropped, &owed, &said, facts, library) {
+        for left in not_numbers(dropped, &owed, &said, facts, &Cite::plain(library)) {
             if !out.iter().any(|u| known.alike(&u.left, &left)) {
                 out.push(Unnumbered {
                     left,

@@ -1055,11 +1055,13 @@ pub fn check_chain_links(
             // What the link drops an identity element from is a number by
             // what the step names or the page says once, the link's own
             // letters among them.
+            let step_parts = known.parts(step, library);
             let mut parts = Parts {
-                facts: known.parts(step, library).facts.clone(),
+                facts: step_parts.facts.clone(),
                 claims: vec![said.clone()],
                 seed: Binding::new(),
                 said_once: Vec::new(),
+                unfolds: step_parts.unfolds.clone(),
             };
             let introduced = super::super::library::introduced(known, step);
             let typed = super::super::library::typed_in_scope(known, step);
@@ -1073,7 +1075,7 @@ pub fn check_chain_links(
                 &known.sorts,
             );
             if let Some(left) =
-                link_unsaid(&said, &lines, &parts.facts, library).first()
+                link_unsaid(&said, &lines, &parts.facts, &parts.cite(library)).first()
             {
                 report.say(
                     &thm.path,

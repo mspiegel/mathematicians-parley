@@ -22,8 +22,8 @@ use crate::citing::{
     finished, function_values, identities_unsaid, implied_by, index_system, obtained,
     obtains, range_system, readings, said_once, said_otherwise, search, stood_for,
     substitution_unsaid, supply, taken, taken_ways, type_said_otherwise, with_parts,
-    witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts,
-    Sites, Supplying, Taken, Way, Ways,
+    witnesses_unsaid, Bound, Cite, CodomainAsk, Concluded, Group, Introduced, Library,
+    Parts, Sites, Supplying, Taken, Way, Ways,
 };
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;

@@ -9,13 +9,13 @@ use indexmap::IndexMap;
 
 use crate::matching::{
     alike, alike_top, binding_sites, identities_dropped, match_every_way, match_tree,
-    property_said, put_everywhere, substitute_apart, Binding, Context, FxIndexSet,
+    property_said, put_everywhere, substitute_apart, Binding, FxIndexSet, Reading,
 };
 use crate::notations::{PROPERTY_OF, THERE_IS};
 use crate::outcome::{Built, Route};
 
 use super::asked::filled;
-use super::library::{conjuncts, either_way, readings, Group, Library, Way};
+use super::library::{conjuncts, either_way, readings, Cite, Group, Library, Way};
 use super::once::{a_number_said_once, Introduced};
 use super::parts::{bound_in, Bound};
 use super::supply::{
@@ -52,7 +52,7 @@ fn take(
     given: &[Node],
     variables: &BTreeSet<String>,
     free: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
     as_written: Option<&[bool]>,
     mut ways: Option<&mut Ways>,
@@ -198,14 +198,14 @@ fn claim_matched(
     binding: &Binding,
     variables: &BTreeSet<String>,
     sites: &Sites,
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Binding> {
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     let found = match_every_way(cand, claim, binding, variables, sites, ctx);
     if !found.is_empty() {
         return found;
     }
-    let Some(said) = property_said(cand, binding, variables, ctx) else {
+    let Some(said) = property_said(cand, binding, variables, &ctx) else {
         return Vec::new();
     };
     let parts = conjuncts(&said, library);
@@ -237,7 +237,7 @@ fn identities_on_numbers(
     claim: &Node,
     binding: &Binding,
     given: &[Node],
-    library: &Library,
+    library: &Cite,
 ) -> bool {
     unnumbered(cand, claim, binding, given, library).is_empty()
 }
@@ -249,11 +249,11 @@ fn unnumbered(
     claim: &Node,
     binding: &Binding,
     given: &[Node],
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
-    let ctx = &library.ctx;
-    let instance = filled(cand, binding, ctx);
-    let dropped = identities_dropped(&instance, claim, ctx);
+    let ctx = library.reading();
+    let instance = filled(cand, binding, &ctx);
+    let dropped = identities_dropped(&instance, claim, &ctx);
     not_numbers(dropped, &instance, claim, given, library)
 }
 
@@ -264,9 +264,9 @@ pub fn not_numbers(
     instance: &Node,
     claim: &Node,
     given: &[Node],
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     if dropped.is_empty() {
         return dropped;
     }
@@ -290,7 +290,7 @@ pub fn not_numbers(
     dropped
         .into_iter()
         .filter(|left| {
-            !a_number_said_once(left, given, &bound, ctx)
+            !a_number_said_once(left, given, &bound, &ctx)
                 && !given.iter().any(|f| {
                     library.members.contains(&f.notation())
                         && matches!(f.children.as_slice(), [term, set]
@@ -315,12 +315,12 @@ pub fn substitution_unsaid(
     left: &Node,
     right: &Node,
     facts: &[Node],
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     // Each read in the standard spelling, as whether the substitution holds
     // was decided (`Known::substituted`): ε > |x| is |x| < ε.
-    let s = |n: &Node| matching::standard(n, ctx);
+    let s = |n: &Node| matching::standard(n, &ctx);
     let (aim, left, right) = (&s(aim), &s(left), &s(right));
     let starts: Vec<Node> = starts.iter().map(s).collect();
     // What dropping an element leaves is asked first, wherever in the term
@@ -328,7 +328,7 @@ pub fn substitution_unsaid(
     // is a number, and a fit at some places would pass over that.
     for start in &starts {
         for (was, now) in [(left, right), (right, left)] {
-            let made = put_everywhere(start, was, now, ctx);
+            let made = put_everywhere(start, was, now, &ctx);
             if alike(&made, aim, ctx, &IndexMap::new(), &IndexMap::new()) {
                 let left_over = unnumbered(&made, aim, &Binding::new(), facts, library);
                 if !left_over.is_empty() {
@@ -354,17 +354,17 @@ pub fn substitution_unsaid(
 /// Whether a place in `start` that `was` stands at, as `put_everywhere`
 /// finds the places, is `was` only once an identity element is dropped:
 /// what is put there is then what is left of the place.
-fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
+fn dropped_at_sites(start: &Node, was: &Node, ctx: Reading<'_>) -> bool {
     // A place written as `was` is written is the place itself, and drops
     // nothing (`matching::put_places`).
     if start.spelt_alike(was) {
         return false;
     }
-    let inside = |c: &Node| matching::put_places(c, was, was, ctx).is_some();
+    let inside = |c: &Node| matching::put_places(c, was, was, &ctx).is_some();
     if start.children.iter().any(inside) {
         return start.children.iter().any(|c| dropped_at_sites(c, was, ctx));
     }
-    alike_top(start, was, ctx) && !identities_dropped(start, was, ctx).is_empty()
+    alike_top(start, was, ctx) && !identities_dropped(start, was, &ctx).is_empty()
 }
 
 /// What a calculation link leaves unsaid to be a number, where it is what
@@ -378,14 +378,15 @@ pub fn link_unsaid(
     link: &Node,
     says: &[Node],
     facts: &[Node],
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     let none = IndexMap::new();
     // A line saying the link as it stands, or the other way round, drops
     // nothing: `t + 0 = t` is `t = t + 0` read from its right.
     let as_it_stands = |s: &Node| {
-        identities_dropped(s, link, ctx).is_empty() && alike(s, link, ctx, &none, &none)
+        identities_dropped(s, link, &ctx).is_empty()
+            && alike(s, link, ctx, &none, &none)
     };
     if says
         .iter()
@@ -412,7 +413,7 @@ pub fn identities_unsaid(
     claims: &[Node],
     facts: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
     each_match(groups, claims, seed, library, &mut |at| {
         unnumbered(at.candidate, at.claim, &at.found, facts, library)
@@ -437,7 +438,7 @@ fn each_match(
     groups: &[Group],
     claims: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
     left: &mut dyn FnMut(Matched) -> Vec<Node>,
 ) -> Vec<Node> {
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
@@ -483,7 +484,7 @@ pub fn witnesses_unsaid(
     claims: &[Node],
     facts: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> Vec<Node> {
     each_match(groups, claims, seed, library, &mut |at| {
         let sites = &at.offer.sites;
@@ -534,7 +535,7 @@ fn supplied_first(
     given: &[Node],
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> Vec<Start> {
     // Every way, not the first: a line of two sentences supplies the
@@ -610,7 +611,7 @@ impl Taken {
         mut binding: Binding,
         concluded: Vec<Concluded>,
         of: &Group,
-        library: &Library,
+        library: &Cite,
     ) -> Taken {
         let free = of.free_names(&library.ctx.binders);
         let mut bound = binding.clone();
@@ -634,7 +635,7 @@ impl Taken {
         &self,
         groups: &[Group],
         facts: &[Node],
-        library: &Library,
+        library: &Cite,
     ) -> Vec<Node> {
         let Some(group) = groups.get(self.group) else {
             return Vec::new();
@@ -667,7 +668,7 @@ impl Taken {
         &self,
         groups: &[Group],
         facts: &[Node],
-        library: &Library,
+        library: &Cite,
     ) -> Vec<(Node, Node)> {
         let Some(group) = groups.get(self.group) else {
             return Vec::new();
@@ -699,7 +700,7 @@ impl Taken {
         &self,
         groups: &[Group],
         facts: &[Node],
-        library: &Library,
+        library: &Cite,
     ) -> Vec<Supplying> {
         let Some(group) = groups.get(self.group) else {
             return Vec::new();
@@ -764,7 +765,7 @@ fn first_facts(
     facts: &[Node],
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> Vec<(Node, Node)> {
     let none = IndexMap::new();
@@ -789,7 +790,7 @@ pub fn concludes(
     claims: &[Node],
     facts: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> bool {
     !taken(groups, claims, facts, seed, library).is_declined()
 }
@@ -807,7 +808,7 @@ pub fn taken(
     claims: &[Node],
     facts: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> Route<Taken> {
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
     for (group, of) in groups.iter().enumerate() {
@@ -866,7 +867,7 @@ pub fn taken_ways(
     claims: &[Node],
     facts: &[Node],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
     found: &mut dyn FnMut(&[usize]),
 ) {
     let (whole, split) = (whole_claim(claims, library), split_claims(claims, library));
@@ -977,7 +978,7 @@ struct Offer {
 }
 
 impl Offer {
-    fn of(group: &Group, library: &Library) -> Offer {
+    fn of(group: &Group, library: &Cite) -> Offer {
         let gives = &group.gives;
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut from = Vec::new();
@@ -1044,7 +1045,7 @@ pub fn obtains(
     claims: &[Node],
     names: &[String],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> bool {
     !obtained(groups, facts, claims, names, seed, library).is_declined()
 }
@@ -1066,7 +1067,7 @@ pub fn obtained(
     claims: &[Node],
     names: &[String],
     seed: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> Route<Taken> {
     for (group, of) in groups.iter().enumerate() {
         let gives = &of.gives;
@@ -1144,7 +1145,7 @@ fn fixed_by_claim(
     names: &[String],
     seed: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
 ) -> Binding {
     let said: Vec<Node> = claims.iter().flat_map(|c| conjuncts(c, library)).collect();
     let mut fixed = Binding::new();
@@ -1191,7 +1192,7 @@ fn fixed_by_claim(
 
 /// Whether one part of what a definition says is a "there is", with a
 /// property it applies read as what the binding says the property is.
-fn existential(part: &Node, binding: &Binding, library: &Library) -> bool {
+fn existential(part: &Node, binding: &Binding, library: &Cite) -> bool {
     let mut part = part.clone();
     if library.ctx.props.contains_key(&part.notation())
         && part.children.len() == 2

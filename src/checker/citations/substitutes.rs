@@ -285,9 +285,11 @@ pub(super) fn substitution_reading(
     // An identity element the putting makes and the claim leaves out is
     // dropped from a number, which a line says where the page does not say
     // it once.
-    let facts = known.parts(step, library).facts.clone();
+    let parts = known.parts(step, library);
     let starts: Vec<Node> = way.starts.iter().map(|s| s.start.clone()).collect();
-    let unsaid = substitution_unsaid(&starts, &way.aim, left, right, &facts, library);
+    let cite = parts.cite(library);
+    let unsaid =
+        substitution_unsaid(&starts, &way.aim, left, right, &parts.facts, &cite);
     let faults: Vec<String> = unsaid
         .first()
         .map(|left| {
@@ -678,7 +680,7 @@ pub fn check_obtained(
             &parts.claims,
             &just.obtained,
             &parts.seed,
-            library,
+            &parts.cite(library),
         ) && unsupplied(step, known, library).is_none()
         {
             report.say(

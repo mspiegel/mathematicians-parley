@@ -32,8 +32,8 @@ pub fn asked(name: &str, parts: &Parts, library: &Library) -> Route<Asked> {
     let Some(groups) = library.groups(name) else {
         return Route::no("no item has that name");
     };
-    let taken = match taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-    {
+    let cite = parts.cite(library);
+    let taken = match taken(&groups, &parts.claims, &parts.facts, &parts.seed, &cite) {
         Built(t) => t,
         Declined(d) => return Declined(d),
     };

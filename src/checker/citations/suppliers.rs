@@ -480,7 +480,7 @@ pub(super) fn missing_hypotheses(
             &parts.facts,
             &parts.seed,
             &variables,
-            library,
+            &parts.cite(library),
             &sites,
             false,
         )
@@ -535,16 +535,20 @@ pub fn searched(
         return Some(found.clone());
     }
     let made = Rc::new(match how {
-        Search::Takes => {
-            taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
-        }
+        Search::Takes => taken(
+            &groups,
+            &parts.claims,
+            &parts.facts,
+            &parts.seed,
+            &parts.cite(library),
+        ),
         Search::Obtains => obtained(
             &groups,
             &parts.facts,
             &parts.claims,
             &step.just.obtained,
             &parts.seed,
-            library,
+            &parts.cite(library),
         ),
         Search::Alone => concluded_alone(&groups, &parts, library),
     });
@@ -584,7 +588,7 @@ pub(super) fn concluded_alone(
         &parts.claims,
         &parts.facts,
         &parts.seed,
-        library,
+        &parts.cite(library),
     )
 }
 
@@ -606,7 +610,7 @@ pub(super) fn supplied_alone(
         &parts.facts,
         binding,
         &variables,
-        library,
+        &parts.cite(library),
         &sites,
         false,
     )
@@ -651,7 +655,7 @@ pub(super) fn ways_supplied(
             &parts.claims,
             &parts.facts,
             &parts.seed,
-            library,
+            &parts.cite(library),
             &mut |path| out.push(took(path)),
         );
         return Some(out);
@@ -678,7 +682,7 @@ pub(super) fn ways_supplied(
             &mut used,
             &parts.seed,
             &variables,
-            library,
+            &parts.cite(library),
             &sites,
             false,
             false,
@@ -932,7 +936,7 @@ pub fn check_conclusion(
                 &parts.claims,
                 &parts.facts,
                 &parts.seed,
-                library,
+                &parts.cite(library),
             );
             // A claim the item concludes from a "there is" whose witness
             // nothing named puts in its set is told which membership.
@@ -942,7 +946,7 @@ pub fn check_conclusion(
                     &parts.claims,
                     &parts.facts,
                     &parts.seed,
-                    library,
+                    &parts.cite(library),
                 )
             };
             let said = match unsaid.first() {

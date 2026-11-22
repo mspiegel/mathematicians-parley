@@ -18,7 +18,7 @@ use crate::notations::{
 };
 use crate::rules;
 
-use super::library::{either_way, Library};
+use super::library::{either_way, Cite};
 
 /// The places in a pattern where a binder applies a property or a function to
 /// what it binds, which decide what the property or function stands for
@@ -46,7 +46,7 @@ pub fn supply(
     facts: &[Node],
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
     reuse: bool,
 ) -> Option<Binding> {
@@ -65,7 +65,7 @@ pub fn supplier<'f>(
     facts: &'f [Node],
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> Option<&'f Node> {
     let used = vec![false; facts.len()];
@@ -107,7 +107,7 @@ pub fn search(
     used: &mut Vec<bool>,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
     reuse: bool,
     as_written: bool,
@@ -165,7 +165,7 @@ fn searched(
     used: &mut Vec<bool>,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
     reuse: bool,
     as_written: bool,
@@ -275,7 +275,7 @@ fn settled(
     pattern: &Node,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
 ) -> bool {
     if all_bound(pattern, variables, binding) {
         return true;
@@ -308,13 +308,13 @@ fn fits(
     used: &[bool],
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
     reuse: bool,
     as_written: bool,
 ) -> Vec<Fit> {
     let mut out = Vec::new();
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     let mut first = first.clone();
     // A property already bound stands for a formula, so what it asks of the
     // facts is that formula rather than the application. Filling it in first
@@ -334,10 +334,10 @@ fn fits(
                     .filter(|(_, t)| t.notation() != PROPERTY_OF)
                     .map(|(v, t)| (*v, t.clone()))
                     .collect();
-                let arg = substitute_apart(&first.children[1], &terms, ctx);
+                let arg = substitute_apart(&first.children[1], &terms, &ctx);
                 let mut at = Binding::new();
                 at.insert(stands.text, arg.clone());
-                first = substitute_apart(&stands.children[0], &at, ctx);
+                first = substitute_apart(&stands.children[0], &at, &ctx);
                 // The formula a property stands for is the step's own, so a
                 // name in it is the step's, even spelt as one of the item's.
                 // Only a letter of the argument still to be matched is the
@@ -366,7 +366,7 @@ fn fits(
             .filter(|(_, t)| t.notation() != PROPERTY_OF)
             .map(|(v, t)| (*v, t.clone()))
             .collect();
-        let put = |side: &Node| substitute_apart(side, &terms, ctx);
+        let put = |side: &Node| substitute_apart(side, &terms, &ctx);
         let none = IndexMap::new();
         if alike(
             &put(&first.children[0]),
@@ -444,7 +444,7 @@ fn fits(
                 // A "for all" said of a set is said of every set inside it
                 // (`SYNTAX.md`).
                 if found.is_empty() && !matched && is_first {
-                    if let Some(smaller) = narrowed(&first, fact, binding, ctx) {
+                    if let Some(smaller) = narrowed(&first, fact, binding, &ctx) {
                         found =
                             match_every_way(form, &smaller, binding, seen, sites, ctx);
                     }
@@ -490,7 +490,7 @@ fn fits(
         // and needs no line (`SYNTAX.md`, the literal-instance rule):
         // t = a·m + b·n at t := a·x + b·y is met by m := x and n := y.
         if let Some((body, seen)) = &body_form {
-            if let Some(same) = self_evident(body, binding, seen, ctx) {
+            if let Some(same) = self_evident(body, binding, seen, &ctx) {
                 if let Some(found) = match_tree(body, &same, binding, seen, sites, ctx)
                 {
                     let remaining: Vec<Node> = facts
@@ -513,7 +513,7 @@ fn fits(
     // An equation the item asks outright is met the same way, after every
     // fact: `a mod m = r` at m := 3 and r := x mod 3 is x mod 3 = x mod 3
     // with a := x, which needs no line.
-    if let Some(same) = self_evident(&first, binding, &open_names, ctx) {
+    if let Some(same) = self_evident(&first, binding, &open_names, &ctx) {
         if let Some(found) = match_tree(&first, &same, binding, &open_names, sites, ctx)
         {
             out.push(Fit {
@@ -533,11 +533,11 @@ pub(super) fn written_alike(
     pattern: &Node,
     ground: &Node,
     binding: &Binding,
-    library: &Library,
+    library: &Cite,
 ) -> bool {
-    let ctx = &library.ctx;
-    standard(&substitute_apart(pattern, binding, ctx), ctx)
-        .spelt_alike(&standard(ground, ctx))
+    let ctx = library.reading();
+    standard(&substitute_apart(pattern, binding, &ctx), &ctx)
+        .spelt_alike(&standard(ground, &ctx))
 }
 
 /// The equation L = L, where `body` is an equation one side of which, L
@@ -661,7 +661,7 @@ fn narrowed(
 /// of several names is read the same way as one of one.
 fn existential_levels<'n>(
     exists: &'n Node,
-    library: &Library,
+    library: &Cite,
 ) -> (Vec<(&'n Node, &'n Node)>, &'n Node) {
     let mut pairs = Vec::new();
     let mut body = exists;
@@ -682,7 +682,7 @@ fn typed_into(
     domain: &Node,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> bool {
     let ([from, to], [f, x, y]) =
@@ -696,7 +696,7 @@ fn typed_into(
     {
         return false;
     }
-    let ctx = &library.ctx;
+    let ctx = library.reading();
     match_tree(from, x, binding, variables, sites, ctx)
         .and_then(|at| match_tree(to, y, &at, variables, sites, ctx))
         .is_some()
@@ -709,7 +709,7 @@ fn witnessed_in(
     binding: &Binding,
     facts: &[Node],
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> bool {
     unwitnessed(exists, binding, facts, variables, library, sites).is_empty()
@@ -728,7 +728,7 @@ pub(super) fn unwitnessed<'n>(
     binding: &Binding,
     facts: &[Node],
     variables: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
     sites: &Sites,
 ) -> Vec<Unwitnessed<'n>> {
     let (pairs, _) = existential_levels(exists, library);
@@ -775,7 +775,7 @@ pub(super) fn body_reading<'n>(
     exists: &'n Node,
     binding: &Binding,
     open: &BTreeSet<String>,
-    library: &Library,
+    library: &Cite,
 ) -> BodyReading<'n> {
     let (pairs, body) = existential_levels(exists, library);
     let mut inside = binding.clone();

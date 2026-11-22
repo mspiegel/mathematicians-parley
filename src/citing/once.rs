@@ -24,7 +24,9 @@ use crate::formula::notation_id::NotationId;
 use crate::formula::page::template;
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
-use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
+use crate::matching::{
+    alike_top, expand, standard, substitute_apart, Binding, FxIndexSet,
+};
 use crate::notations::{
     ABSOLUTE_VALUE, APPLICATION, APPLICATION_TO_TWO, DEGREES, DISTANCE, DIVIDED, EULER,
     FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MAP, MEMBERSHIP, MINUS, MOD,
@@ -126,7 +128,38 @@ pub fn range_system(range: &Node) -> Option<System> {
 /// that `let k ∈ ℕ` gives k ∈ ℝ here and never k ≥ 1. A sum is said once
 /// by its term at every index, with the function types in scope, `typed`
 /// (`sum_said_once`).
+///
+/// What a term is said once to be is what the term it names is, so where
+/// the citation keeps its defines by name (`Parts::unfolds`) the walk reads
+/// the parts with each read out, and the memberships it finds are of the
+/// terms read out: s with s := (a + b)/2 is a number as (a + b)/2 is.
 pub fn said_once(
+    parts: &mut Parts,
+    introduced: &Introduced,
+    in_plane: &BTreeSet<String>,
+    typed: &[Node],
+    library: &Library,
+    sorts: &Sorts,
+) {
+    let Some(unfolds) = parts.unfolds.clone() else {
+        return said_once_read(parts, introduced, in_plane, typed, library, sorts);
+    };
+    let read = |n: &Node| standard(&expand(n, &unfolds.defines), &library.ctx);
+    let mut view = Parts {
+        facts: parts.facts.iter().map(read).collect(),
+        claims: parts.claims.iter().map(read).collect(),
+        seed: parts.seed.iter().map(|(k, v)| (*k, read(v))).collect(),
+        said_once: Vec::new(),
+        unfolds: None,
+    };
+    let before = view.facts.len();
+    said_once_read(&mut view, introduced, in_plane, typed, library, sorts);
+    parts.facts.extend(view.facts.drain(before..));
+    parts.said_once.extend(view.said_once);
+}
+
+/// `said_once` of parts whose terms are as the walk reads them.
+fn said_once_read(
     parts: &mut Parts,
     introduced: &Introduced,
     in_plane: &BTreeSet<String>,

@@ -7,7 +7,9 @@ use crate::formula::grammar::Grammar;
 use crate::formula::notation_id::NotationId;
 use crate::formula::symbol::Symbol;
 use crate::formula::{page, Node, Sort, Sorts, Whole};
-use crate::matching::{standard, substitute_apart_by, Binding};
+use std::rc::Rc;
+
+use crate::matching::{standard, substitute_apart_by, Binding, Unfolds};
 use crate::notations::{
     FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, INTEGER_RANGE, MEMBERSHIP,
     NUMBER_SYSTEMS, PROPERTY_OF, SUBSET_OF,
@@ -17,7 +19,7 @@ use crate::rules;
 use crate::sorts::{types_a_function, Env, TYPING};
 
 use super::conclude::taken;
-use super::library::{with_parts, Library};
+use super::library::{with_parts, Cite, Library};
 use crate::matching;
 
 /// A claim "for all k ∈ X, P" read at a member: the membership k ∈ X, which
@@ -133,7 +135,8 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
 pub fn stood_for(parts: &Parts, name: &str, library: &Library) -> Binding {
     let mut stands = parts.seed.clone();
     if let Some(groups) = &library.groups(name) {
-        let taken = taken(groups, &parts.claims, &parts.facts, &parts.seed, library);
+        let cite = parts.cite(library);
+        let taken = taken(groups, &parts.claims, &parts.facts, &parts.seed, &cite);
         if let Built(t) = taken {
             for (letter, value) in t.binding {
                 stands.entry(letter).or_insert(value);
@@ -152,6 +155,20 @@ pub struct Parts {
     /// The memberships the said-once walk adds to `facts`, each with why
     /// the walk gives it (`once::said_once`).
     pub said_once: Vec<SaidOnceFact>,
+    /// The defines the citation cites, where its parts keep them by name
+    /// and a match reads one out where the item asks for what it names
+    /// (`matching::Reading`).
+    pub unfolds: Option<Rc<Unfolds>>,
+}
+
+impl Parts {
+    /// The library as this citation reads it, with its defines (`Cite`).
+    pub fn cite<'l, 'a>(&'l self, library: &'l Library<'a>) -> Cite<'l, 'a> {
+        Cite {
+            library,
+            unfolds: self.unfolds.as_deref(),
+        }
+    }
 }
 
 /// A membership no line states that the page says once, `k + 1 ∈ ℕ₀` of a
@@ -202,6 +219,7 @@ pub fn finished(
         claims,
         seed,
         said_once: Vec::new(),
+        unfolds: None,
     }
 }
 

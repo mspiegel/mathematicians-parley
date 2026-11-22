@@ -99,7 +99,7 @@ pub(super) fn shows_value(
                     &said,
                     &Binding::new(),
                     &letters,
-                    library,
+                    &Cite::plain(library),
                     &sites,
                     true,
                 )
@@ -237,7 +237,7 @@ pub(super) fn exhibit_value(
             facts,
             &Binding::new(),
             &ex.letters,
-            library,
+            &Cite::plain(library),
             &sites,
             true,
         )
@@ -306,7 +306,7 @@ pub(super) fn most_said_value(
             facts,
             &Binding::new(),
             letters,
-            library,
+            &Cite::plain(library),
             &sites,
             true,
         ) else {

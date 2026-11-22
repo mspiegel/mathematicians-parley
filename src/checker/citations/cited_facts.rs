@@ -39,7 +39,8 @@ pub(super) fn unconcluded(
         };
         // One use of the item, as a step's citation is read: a line that
         // needs the item applied again writes each use as its own line.
-        if concludes(&groups, &parts.claims, &parts.facts, &parts.seed, library) {
+        let cite = parts.cite(library);
+        if concludes(&groups, &parts.claims, &parts.facts, &parts.seed, &cite) {
             continue;
         }
         let alone = || Some(Rc::new(concluded_alone(&groups, &parts, library)));
@@ -209,10 +210,11 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let stated = taken.first_pairs(&groups, &parts.facts, library);
+    let cite = parts.cite(library);
+    let stated = taken.first_pairs(&groups, &parts.facts, &cite);
     let (firsts, firsts_meetings) =
         firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
-    let mut supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let mut supplying = taken.supplying_facts(&groups, &parts.facts, &cite);
     supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
         step,
@@ -866,13 +868,13 @@ pub fn cited_requires(
     let item = step.just.item(&named);
     let groups = library.groups(&item)?;
     let parts = requires_parts(step, req, &[], known, library)?;
-    let Built(taken) =
-        taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
+    let cite = parts.cite(library);
+    let Built(taken) = taken(&groups, &parts.claims, &parts.facts, &parts.seed, &cite)
     else {
         return None;
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
-    let stated = taken.first_pairs(&groups, &parts.facts, library);
+    let stated = taken.first_pairs(&groups, &parts.facts, &cite);
     let (firsts, firsts_meetings) = firsts_at(
         step,
         req.lines(),
@@ -882,7 +884,7 @@ pub fn cited_requires(
         known,
         library,
     );
-    let mut supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let mut supplying = taken.supplying_facts(&groups, &parts.facts, &cite);
     supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
         step,
@@ -1056,7 +1058,7 @@ pub(super) fn witnessed_at(
     let states = |said: &Node| {
         let mut with: Vec<Node> = vec![said.clone()];
         with.extend(facts.iter().cloned());
-        citing::supplier(fact, &with, &none, &open, library, &sites)
+        citing::supplier(fact, &with, &none, &open, &Cite::plain(library), &sites)
             .is_some_and(|took| ptr::eq(took, &with[0]))
     };
     line_at(step, refs, item, &states, known, library)

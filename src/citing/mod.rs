@@ -16,7 +16,7 @@ pub use conclude::{
     Supplying, Taken,
 };
 pub use library::{
-    conjuncts, conjuncts_in, part_at, readings, supplies, with_parts, Group,
+    conjuncts, conjuncts_in, part_at, readings, supplies, with_parts, Cite, Group,
     HypothesisAt, Library, PartAt, PlaceSystems, Proved, Want, Way,
 };
 pub use once::{
