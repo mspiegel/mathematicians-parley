@@ -279,7 +279,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 10.2. def:upper-bound, from 10.1
     exact s10_1
   -- 11. instantiate k := 0 in line 10
-  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; exact (s10 (0 : ℤ) (by norm_num) s h_s)
+  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by exact (s10 (0 : ℤ) (by norm_num))
   -- 12. obtain c: axi:completeness, from 7, 9, 11
   obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 ⟨L 0, by (have h := s9; push_cast at h ⊢; exact_mod_cast h), trivial⟩ ⟨(U 0 : ℝ), s11⟩)
   -- 13. def:least-upper-bound, from 12

@@ -16,8 +16,8 @@ use crate::citing::{
 use crate::corpus::DefineParts;
 use crate::formula::{page, Sort};
 use crate::notations::{
-    CARDINALITY, DISJUNCTION, FOR_ALL, FUNCTION_TYPE, LOGICAL_NOT, MEMBERSHIP, PI,
-    POWER, PROPERTY_OF, SQUARE_ROOT, SUBSET,
+    CARDINALITY, DISJUNCTION, FUNCTION_TYPE, LOGICAL_NOT, MEMBERSHIP, PI, POWER,
+    SQUARE_ROOT, SUBSET,
 };
 use crate::rules::WHOLE;
 use crate::{corpus, matching, rules};
@@ -567,13 +567,12 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         for (k, (node, prop)) in claim.iter().enumerate() {
-            // A citation for a claim said "for all k ∈ …" of an item said of
-            // one k, its letters given values in the claim's k: the item
-            // cited at that k, given as a method takes it (`peel`). An item
-            // that says the "for all" itself is cited whole.
+            // A citation for a claim said "for all k ∈ …" the checker read at
+            // a member (`CheckedTheorem::at_member`): the item cited at that
+            // k, given as a method takes it (`peel`). An item that says the
+            // "for all" itself is cited whole.
             let cites_for_all = matches!(reason.just.head, Head::Item { .. })
-                && node.notation() == FOR_ALL
-                && self.cited_at_bound_letter(reason.cited, node);
+                && self.rec.at_member.contains_key(&reason.just.line);
             let proof = if cites_for_all {
                 let (intros, body, inner) = self.peel(node);
                 let outer = mem::replace(&mut self.writer, inner);
@@ -2173,36 +2172,6 @@ impl<'a> Proof<'a> {
         steps.extend(self.put_numbers_in_lines(&refs, &giving, &by_term));
         steps.push(tactic_of(&proof));
         Route::Built(doc::Proof::By(Tactic::Seq(steps)))
-    }
-
-    /// Whether a citation gives its item's letters values in a letter the
-    /// claim's leading "for all" binds: the item is cited at that letter.
-    pub(super) fn cited_at_bound_letter(
-        &self,
-        cited: Option<&Cited>,
-        claim: &Node,
-    ) -> bool {
-        let Some(cited) = cited else {
-            return false;
-        };
-        let mut bound = Vec::new();
-        let mut body = claim;
-        while let (FOR_ALL, [letter, _, inner]) =
-            (body.notation(), body.children.as_slice())
-        {
-            bound.push(letter.text);
-            body = inner;
-        }
-        // A letter free in a value: a value that binds it itself, Q := "for
-        // all x, …", says the "for all" whole, and so does a function by its
-        // values, t := k ↦ a(k)², whose k is its own.
-        let binders = self.sources.checked.grammar.binders();
-        cited.binding.values().any(|v| {
-            let own = |n: &str| v.notation() == PROPERTY_OF && *v.text == *n;
-            matching::free_names(v, &binders)
-                .iter()
-                .any(|n| !own(n) && bound.iter().any(|b| **b == **n))
-        })
     }
 
     /// The hypothesis of a function the theorem's header lets by its value,

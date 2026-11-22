@@ -473,11 +473,18 @@ const SITES: &[Site] = &[
         why: "a guard g ∈ (the functions from X to Y), written as the \"for all\" writes it, `Set.MapsTo g X Y`",
     },
     Site {
-        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
-        step: "11",
-        holds: "(s10 (0 : ℤ) (by norm_num) s h_s)",
+        file: "lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean",
+        step: "2",
+        holds: ":= by intro m h_m; exact (s1 n hH1 m h_m)",
         list: false,
-        why: "a letter Lean opens where the claim says a phrase, s of \"an upper bound of S\": the membership the claim was opened with",
+        why: "a step the checker read at a member (CheckedTheorem::at_member): an instantiation leaving m open, read at the claim's own m (Instantiated::at_claim), its guard the membership the claim is opened with",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/PrimeByTrialDivision/PrimeByTrialDivision.lean",
+        step: "2",
+        holds: "d = 1 ∨ d = p := s1",
+        list: false,
+        why: "a step the checker read whole, a join of a \"for all\" line (no CheckedTheorem::at_member): the line itself, no letter opened",
     },
     Site {
         file: "lean/Parley/Stdlib/Calculus/MonotoneLimit.lean",

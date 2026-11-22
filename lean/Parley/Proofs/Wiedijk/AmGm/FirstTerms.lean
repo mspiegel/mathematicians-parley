@@ -42,7 +42,7 @@ theorem first_terms (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
     -- 3.1. instantiate k := k in H3, from 1
     exact (hH3 k (Finset.mem_Icc.mpr (s1 (Finset.mem_Icc.mp hK2))))
   -- 4. join 2, 3
-  have s4 : ∀ k : ℤ, k ∈ Finset.Icc 1 m → a k ≥ 0 := by intro k h_k; exact s3 k h_k
+  have s4 : ∀ k : ℤ, k ∈ Finset.Icc 1 m → a k ≥ 0 := s3
   exact ⟨trivial, s4⟩
 
 end Parley.Proofs.Wiedijk.AmGm.FirstTerms

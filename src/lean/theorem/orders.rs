@@ -1284,60 +1284,20 @@ impl<'a> Proof<'a> {
             let [letter, set, inner] = body.children.as_slice() else {
                 break;
             };
-            // A letter given no value is read at the block's letter of its
-            // type the claim writes and the line does not, as the checker
-            // reads it.
+            // A letter given no value is read at the claim's own letter where
+            // the checker read it there (`Instantiated::at_claim`); otherwise
+            // the claim is itself a "for all" the line says at the values
+            // given, and keeps the letters given none.
             let value = match just.values.pairs().find(|(n, _)| *n == &*letter.text) {
                 Some((_, given)) => match self.tree(given) {
                     Route::Built(v) => v,
                     Route::Declined(d) => return Route::Declined(d),
                 },
-                None => {
-                    // The names the line writes free: a letter it binds
-                    // itself, as the block's may be named, is not one.
-                    let own = matching::free_names(
-                        line,
-                        &self.sources.checked.grammar.binders(),
-                    );
-                    // A range's letter is an integer.
-                    let ty = if set.notation() == INTEGER_RANGE {
-                        Some(super::super::templates::Num::Int)
-                    } else {
-                        super::super::expr::system_of(set)
-                            .map(super::super::expr::letter_type)
-                    };
-                    // A set's letter is a member of its kind.
-                    let member = writer.members_of(set).map(|m| m.letter());
-                    // Where several fit, a letter given to another of the
-                    // line's letters, the N of `m := N`, is that one's value
-                    // and not this one's.
-                    let given: Vec<String> = just
-                        .values
-                        .pairs()
-                        .filter_map(|(_, v)| self.tree(v).built())
-                        .flat_map(|v| v.names())
-                        .collect();
-                    let fits = |n: &String| {
-                        let has = writer.letters.get(n.as_str());
-                        !own.contains(n)
-                            && (ty.is_some_and(|t| has == Some(&LetterType::Number(t)))
-                                || (member.is_some() && has == member.as_ref()))
-                    };
-                    let mut at: Vec<String> =
-                        node.names().into_iter().filter(|n| fits(n)).collect();
-                    if at.len() > 1 {
-                        at.retain(|n| !given.contains(n));
-                    }
-                    // A claim that is itself a "for all" keeps the letters
-                    // given no value: the line is read at those given.
-                    let [at] = at.as_slice() else {
-                        if node.notation() == FOR_ALL {
-                            break;
-                        }
-                        return Route::no(format!("no value for {}", letter.text));
-                    };
-                    Node::name(letter.sort.clone(), at)
-                }
+                None => match &recorded.at_claim {
+                    Some(open) if open.letter == *letter.text => open.claim.clone(),
+                    _ if node.notation() == FOR_ALL => break,
+                    _ => return Route::no(format!("no value for {}", letter.text)),
+                },
             };
             binding.insert(Symbol::of(&letter.text), value.clone());
             // A member of a set: the value, and that it is in the set.
@@ -1349,8 +1309,7 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                let Some(guard) = self.value_guard(recorded, &letter.text, &value)
-                else {
+                let Some(guard) = self.value_guard(recorded, &letter.text) else {
                     return Route::no(UNSUPPLIED_GUARD);
                 };
                 args.push(guard);
@@ -1369,8 +1328,7 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                let Some(guard) = self.value_guard(recorded, &letter.text, &value)
-                else {
+                let Some(guard) = self.value_guard(recorded, &letter.text) else {
                     return Route::no(UNSUPPLIED_GUARD);
                 };
                 args.push(guard);
@@ -1412,7 +1370,7 @@ impl<'a> Proof<'a> {
                     given.push((p.clone(), guarded));
                     args.push(p);
                     if guarded {
-                        match self.value_guard(recorded, &letter.text, &value) {
+                        match self.value_guard(recorded, &letter.text) {
                             Some(g) => args.push(g),
                             None => return Route::no(UNSUPPLIED_GUARD),
                         }

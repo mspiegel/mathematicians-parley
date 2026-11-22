@@ -15,8 +15,8 @@ use crate::formula::Sort;
 use crate::matching::{Binding, Meeting};
 use crate::methods::pairs::Coordinate;
 use crate::notations::{
-    APPLICATION, BY_CASES, CARDINALITY, FOR_ALL, FOR_ALL_SETS, INTEGER_RANGE, JOINS,
-    LOGICAL_NOT, MAP, MEMBERSHIP, NUMERAL, SET_BUILDER,
+    APPLICATION, BY_CASES, CARDINALITY, FOR_ALL, INTEGER_RANGE, JOINS, LOGICAL_NOT,
+    MAP, MEMBERSHIP, NUMERAL, SET_BUILDER,
 };
 use crate::{corpus, matching};
 
@@ -303,27 +303,16 @@ impl<'a> Proof<'a> {
             Head::Item { .. } => self.citation(reason, k, node),
             Head::Method(m) => {
                 // A claim said of every member of a set is proved of one,
-                // taken as the method's letter. Substitute rows each say
-                // the whole claim, "for all" and all, and end on it; so does
-                // a substitution the checker found into a line's "for all"
-                // as a whole, its places counted from the top of it
-                // (`substituted`). So does an instance whose values name no
-                // letter of the claim's "for all", `L(i) is an upper bound of
-                // I(i)` at k := i, which says the "for all" itself.
-                let whole = self
-                    .substitution_record(reason.just.line, Some(k), false)
-                    .is_some_and(|r| r.start.notation() == FOR_ALL);
-                let rows = (*m == Method::Substitute
-                    && (!reason.just.rows.is_empty() || whole))
-                    || (*m == Method::Instantiate
-                        && self.instance_says_for_all(reason.just, node));
-                let (intros, body, writer) = match rows {
-                    true => (
+                // taken as the method's letter, where the checker read it at
+                // one (`CheckedTheorem::at_member`), and whole otherwise.
+                let at_member = self.rec.at_member.contains_key(&reason.just.line);
+                let (intros, body, writer) = match at_member {
+                    false => (
                         Vec::new(),
                         node,
                         self.writer.with_letters(self.writer.letters.clone()),
                     ),
-                    false => self.peel(node),
+                    true => self.peel(node),
                 };
                 let opened = !intros.is_empty();
                 if opened {
@@ -611,46 +600,9 @@ impl<'a> Proof<'a> {
         out
     }
 
-    /// A claim's leading "for all" taken off: the names its letters and
-    /// their guards are introduced by, the body, and the letters in scope
-    /// with the claim's own added.
-    /// Whether an instantiate's claim, said "for all", is said by the
-    /// instance itself: every letter the line's "for all" binds is given a
-    /// value, k := i of "for all k ∈ {1, …, N}, … L(k) is an upper bound of
-    /// I(k) …", so what is left of the line says the claim's "for all".
-    /// Where a letter of the line is given none, j of "for all N, for all
-    /// j ∈ {1, …, N}" at N := n, it is read at the claim's own letter, and
-    /// the claim is proved of one member.
-    pub(super) fn instance_says_for_all(
-        &self,
-        just: &Justification,
-        node: &Node,
-    ) -> bool {
-        if node.notation() != FOR_ALL || just.values.is_empty() {
-            return false;
-        }
-        let Some(recorded) = self.rec.instantiated.get(&just.line) else {
-            return false;
-        };
-        let Route::Built(part) = self.line_part(&recorded.at) else {
-            return false;
-        };
-        let mut body = &part.node;
-        while matches!(body.notation(), FOR_ALL | FOR_ALL_SETS) {
-            let Some(letter) = body.children.first() else {
-                return false;
-            };
-            if !just.values.pairs().any(|(n, _)| *n == *letter.text) {
-                return false;
-            }
-            body = match body.children.last() {
-                Some(inner) => inner,
-                None => return false,
-            };
-        }
-        true
-    }
-
+    /// A claim's outer "for all" taken off: the names its letter and its
+    /// guard are introduced by, the body, and the letters in scope with the
+    /// claim's own added.
     pub(super) fn peel<'n>(
         &self,
         node: &'n Node,
@@ -658,9 +610,11 @@ impl<'a> Proof<'a> {
         let mut writer = self.writer.with_letters(self.writer.letters.clone());
         let mut intros = Vec::new();
         let mut body = node;
-        while body.notation() == FOR_ALL {
+        // The claim's outer binder, as the checker takes it off
+        // (`CheckedTheorem::at_member`), and no other.
+        if body.notation() == FOR_ALL {
             let [letter, set, inner] = body.children.as_slice() else {
-                break;
+                return (intros, body, writer);
             };
             let name = super::super::names::letter(&letter.text);
             // Over a range, a number system or another set of numbers, [0,
@@ -687,7 +641,7 @@ impl<'a> Proof<'a> {
                         (Some(LetterType::Number(n)), true)
                     }
                     (None, Some(m)) => (Some(LetterType::Member(m)), true),
-                    (None, None) => break,
+                    (None, None) => return (intros, body, writer),
                 }
             };
             if let Some(ty) = ty {

@@ -2499,25 +2499,13 @@ impl<'a> Proof<'a> {
     /// domain, from where the checker found that supplied
     /// (`Instantiated::guards`), the membership as Lean writes it; None
     /// where no line supplies it, or the line says it otherwise than Lean
-    /// asks. A letter the page gives no value, one Lean
-    /// opens in the line where the claim says a phrase, `s` of "U(0) is an
-    /// upper bound of S", has none recorded: its value, `value`, is the
-    /// letter the claim's own "for all" binds, whose membership the claim
-    /// was opened with (`intros_now`).
+    /// asks.
     pub(super) fn value_guard(
         &self,
         recorded: &Instantiated,
         letter: &str,
-        value: &Node,
     ) -> Option<Printed> {
-        let opened = value.is_name()
-            && self
-                .intros_now
-                .borrow()
-                .contains(&super::super::names::letter(&value.text));
-        let Some(g) = recorded.guards.iter().find(|g| g.letter == letter) else {
-            return opened.then(|| bound_proof(&value.text));
-        };
+        let g = recorded.guards.iter().find(|g| g.letter == letter)?;
         // The claim's own membership, whatever Lean writes it as.
         if let SuppliedBy::Bound { letter } = &g.by {
             return Some(bound_proof(letter));

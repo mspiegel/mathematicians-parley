@@ -112,7 +112,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     exact s1_2b s1_11
   -- 2. join H2, 1
   have s2a : p > 1 := hH2
-  have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := by intro d h_d; exact s1 d h_d
+  have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := s1
   -- 3. def:prime, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) hH1)).mpr ⟨s2a, s2b⟩
 
