@@ -229,6 +229,21 @@ pub fn printed_but(
         )
         .unwrap();
     }
+    for (line, member) in &record.at_member {
+        let over = if member.part {
+            "parts of"
+        } else {
+            "members of"
+        };
+        writeln!(
+            out,
+            "{} is read at {}, over the {over} {}",
+            reason_at(*line),
+            member.letter,
+            g.print(&member.set)
+        )
+        .unwrap();
+    }
     for (line, at) in &record.link_places {
         writeln!(out, "{} links from {}", reason_at(*line), place(at)).unwrap();
     }

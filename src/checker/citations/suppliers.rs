@@ -240,10 +240,13 @@ impl<'a> Suppliers<'a> {
     }
 
     /// `Bound` where `fact` is the membership the step's claim, a "for all"
-    /// proved in one line, gives its letter (`Known::step_member`); None
-    /// otherwise.
+    /// proved in one line, gives its letter (`Known::step_member`), in a step
+    /// read at that member (`read_at_member`); None otherwise.
     pub(super) fn claimed(&self, fact: &Node) -> Option<SuppliedBy> {
         let ctx = &self.library.ctx;
+        if !read_at_member(self.step, self.known, self.library) {
+            return None;
+        }
         let member = self.known.step_member(self.step)?;
         let letter = member.children.first().filter(|l| l.is_name())?;
         self.alike(&standard(&member, ctx), fact)
@@ -318,6 +321,23 @@ impl<'a> Suppliers<'a> {
             .min_by_key(|s| !s.fact.spelt_alike(fact))
             .map(|s| SuppliedBy::Walked(s.clone()))
     }
+}
+
+/// Whether `step` is read at a member of its claim's "for all"
+/// (`CheckedTheorem::at_member`). An instantiation is where it reads a
+/// letter its line binds at the claim's own (`open_at_claim`), which asks
+/// only of the guard that letter's membership, so it is taken as read here.
+pub(super) fn read_at_member(step: &Step, known: &Known, library: &Library) -> bool {
+    if step.just.head.is(Method::Instantiate) {
+        return true;
+    }
+    let claims: Option<Vec<Node>> = step
+        .claim
+        .sentences()
+        .iter()
+        .map(|s| known.read_written(s))
+        .collect();
+    claims.is_some_and(|claims| citing::at_a_member(step, &claims, library).is_some())
 }
 
 /// Whether `carrier`, a "for all x ∈ A, P(x)", and `member`, `t ∈ A`, give

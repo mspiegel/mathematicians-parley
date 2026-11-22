@@ -2,7 +2,7 @@
 
 use indexmap::IndexMap;
 
-use crate::corpus::{Head, Step};
+use crate::corpus::{Head, Method, Step};
 use crate::formula::grammar::Grammar;
 use crate::formula::notation_id::NotationId;
 use crate::formula::symbol::Symbol;
@@ -38,6 +38,12 @@ pub fn at_a_member(
         return None;
     };
     let just = &step.just;
+    // `membership`, `algebra` and `inequalities` each prove one fact, so a
+    // "for all" they claim is proved at a member.
+    let one_fact = [Method::Membership, Method::Algebra, Method::Inequalities];
+    if one_fact.iter().any(|m| just.head.is(*m)) {
+        return claimed_member(claim, library.env.g);
+    }
     // A define says what its name is equal to, never a "for all", so a
     // step citing one for a "for all" is read at a member.
     if just.head != Head::Define {

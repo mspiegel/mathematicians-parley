@@ -27,6 +27,7 @@ step 6.2.4 chains 1 / (n + 1) ≤ 1 / N (6.2.2 sentence 0) | 1 / N < ε / 2 (6.1
 step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) (6.2.5 sentence 0) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) (5 sentence 1, turned)
 step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) (5 sentence 1) | 2 − 2 / (n + 1) < 2 + ε (6.2.8 sentence 0)
 step 6.3 exhibits in sentence 0 N := N; facts by once 6.1 sentence 0, 6.2 sentence 0
+requires line 1 of step 7 is read at n, over the members of ℕ
 requires line 1 of step 8 restates 2 sentence 0
 requires line 1 of step 5.1 sentence 0 part 0 adds [K5 sentence 0 implied by SystemFact { lemma: "nnge1" }]
 requires line 1 of step 6.1 sentence 0 part 0 adds [A1 sentence 0]

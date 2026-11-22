@@ -407,6 +407,9 @@ pub fn written_out(
             *from = out(from);
         }
     }
+    for member in written.at_member.values_mut() {
+        member.set = out(&member.set);
+    }
     for held in written.held_by_lines.values_mut().flatten() {
         held.term = out(&held.term);
         match &mut held.by {

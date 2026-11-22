@@ -12,8 +12,9 @@ use super::library::{
     SaidFrom, Search, Spelt,
 };
 use super::record::{
-    Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated, ItemLetter,
-    JoinedWhole, Narrowed, ObtainedPart, Restated, Supplied, SuppliedBy, Unfolded,
+    AtMember, Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated,
+    ItemLetter, JoinedWhole, Narrowed, ObtainedPart, Restated, Supplied, SuppliedBy,
+    Unfolded,
 };
 use super::structure::letters_in_scope;
 use super::Report;
@@ -50,7 +51,7 @@ use crate::sorts::{types_a_function, TYPING};
 
 use self::cited_facts::*;
 pub use self::cited_facts::{
-    cited, cited_requires, obtained_there, requires_cited, restatements,
+    at_member, cited, cited_requires, obtained_there, requires_cited, restatements,
 };
 pub(super) use self::cited_facts::{define_facing, facing_of, fact_at, placed};
 use self::defined::*;

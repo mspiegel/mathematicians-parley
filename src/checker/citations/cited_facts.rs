@@ -280,6 +280,73 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     Some(out)
 }
 
+/// Each step and requires line read at a member of its claim's "for all"
+/// (`CheckedTheorem::at_member`), by the line of its justification: what
+/// `citing::at_a_member` decides of it, or an instantiation reading a letter
+/// its line binds at the claim's own (`Instantiated::at_claim`), its claim
+/// read as written.
+pub fn at_member(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    instantiated: &IndexMap<usize, Instantiated>,
+) -> IndexMap<usize, AtMember> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        at_member_of(step, library, known, instantiated, &mut out);
+        for req in &step.requires {
+            if let Some(as_step) = requires_read_as_step(step, req) {
+                at_member_of(&as_step, library, known, instantiated, &mut out);
+            }
+        }
+    }
+    out
+}
+
+/// `at_member` of one step, added to `out` where it is read at a member.
+fn at_member_of(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+    instantiated: &IndexMap<usize, Instantiated>,
+    out: &mut IndexMap<usize, AtMember>,
+) {
+    let claims: Option<Vec<Node>> = step
+        .claim
+        .sentences()
+        .iter()
+        .map(|s| known.read_written(s))
+        .collect();
+    let Some(claims) = claims else {
+        return; // `check_formulas` says it does not read
+    };
+    let at_claim = instantiated
+        .get(&step.just.line)
+        .is_some_and(|i| i.at_claim.is_some());
+    let read = match (at_claim, claims.as_slice()) {
+        (true, [claim]) => citing::claimed_member(claim, library.env.g),
+        _ => citing::at_a_member(step, &claims, library),
+    };
+    let Some((member, _)) = read else {
+        return;
+    };
+    let part = match member.notation() {
+        MEMBERSHIP => false,
+        SUBSET => true,
+        _ => return,
+    };
+    if let [letter, set] = member.children.as_slice() {
+        out.insert(
+            step.just.line,
+            AtMember {
+                letter: letter.text.to_string(),
+                set: set.clone(),
+                part,
+            },
+        );
+    }
+}
+
 /// For each sentence `taken` concludes read backwards, what the right side
 /// of its `↔` asks at the citation's values, with where each fact stands
 /// among the lines `refs` names, the step's requires lines, or the `let`

@@ -1,4 +1,5 @@
 theorem tests/elaborator/a-define-at-every-member-of-a-range/a-define-at-every-member-of-a-range
+step 1 is read at j, over the members of {1, …, m}
 step 1 has its define's argument in the domain by the claim's member
 read 1: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
 read 5: m ∈ ℕ  as  membership:∈(name:m, number-systems:ℕ)  a statement

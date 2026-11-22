@@ -646,30 +646,51 @@ pub(super) fn at_claim_letter(
     library: &Library,
 ) -> Binding {
     let mut out = seed.clone();
-    let Some(member) = member else {
-        return out;
-    };
-    let [letter, set] = member.children.as_slice() else {
-        return out;
-    };
-    let none = IndexMap::new();
-    for b in binders_of(read) {
-        if out.contains_key(&b.letter.text) {
-            continue;
-        }
-        let domain = substitute_apart(&b.domain, &out, &library.ctx);
-        if alike(
-            &standard(&domain, &library.ctx),
-            &standard(set, &library.ctx),
-            &library.ctx,
-            &none,
-            &none,
-        ) {
-            out.insert(b.letter.text, letter.clone());
-        }
-        break;
+    if let Some(open) = open_at_claim(read, seed, member, library) {
+        out.insert(open.letter, open.claim);
     }
     out
+}
+
+/// The binder of `read` the values in `seed` leave open that a step reads
+/// at its claim's own letter (`at_claim_letter`): the first one they give
+/// no value, where its domain at the values before it is the set `member`
+/// ranges over.
+pub(super) fn open_at_claim(
+    read: &Node,
+    seed: &Binding,
+    member: Option<Node>,
+    library: &Library,
+) -> Option<OpenAtClaim> {
+    let member = member?;
+    let [letter, set] = member.children.as_slice() else {
+        return None;
+    };
+    let b = binders_of(read)
+        .into_iter()
+        .find(|b| !seed.contains_key(&b.letter.text))?;
+    let domain = substitute_apart(&b.domain, seed, &library.ctx);
+    let none = IndexMap::new();
+    alike(
+        &standard(&domain, &library.ctx),
+        &standard(set, &library.ctx),
+        &library.ctx,
+        &none,
+        &none,
+    )
+    .then(|| OpenAtClaim {
+        letter: b.letter.text,
+        claim: letter.clone(),
+    })
+}
+
+/// A binder an instantiation leaves open, read at the claim's letter
+/// (`open_at_claim`).
+pub(super) struct OpenAtClaim {
+    /// The letter the instantiated line binds.
+    pub(super) letter: Symbol,
+    /// The letter of the claim's own "for all".
+    pub(super) claim: Node,
 }
 
 /// Where each value `step` puts in a domain of `said`, the sentence it
@@ -892,6 +913,13 @@ pub(super) fn instance_reading(
                     conditions: conditions_supplied(step, conditions, known, library),
                     meeting: meeting.clone(),
                     guards: value_guards(step, said, seed, known, library),
+                    at_claim: open_at_claim(
+                        &said.cited,
+                        seed,
+                        known.step_member(step),
+                        library,
+                    )
+                    .map(|open| open.letter.to_string()),
                 });
             // A condition of several parts is met where each part is. An
             // equation whose two sides are then the same needs no line

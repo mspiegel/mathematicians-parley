@@ -520,6 +520,12 @@ pub struct CheckedTheorem {
     /// divisions knowing each, `3n − 1` by the line saying `3n − 1 ≠ 0`
     /// and N! as a positive integer.
     pub divided_by: IndexMap<usize, Vec<NotZero>>,
+    /// Each step and requires line the checker reads at a member of its
+    /// claim's "for all" (`SYNTAX.md`, a step said of every member;
+    /// `citing::at_a_member`), by the line of its justification, with the
+    /// binder taken off. A backend proves the body at that letter and
+    /// generalises; one not here is proved whole.
+    pub at_member: IndexMap<usize, AtMember>,
     /// Each "for all" a line a step may cite says that the step reads at a
     /// block's letter, with that letter, by the step's index
     /// (`Known::letters_read_at`): 5.6's "for all a ∈ {2, …, p − 2}, f(a) ∈
@@ -621,6 +627,17 @@ pub enum LinesHold {
 pub struct NotZero {
     pub term: Node,
     pub by: NonzeroBy,
+}
+
+/// The binder a step read at a member takes off its claim
+/// (`CheckedTheorem::at_member`): "for all k ∈ X" gives letter k over X, and
+/// "for all X ⊆ A" letter X over the parts of A.
+#[derive(Clone, Debug)]
+pub struct AtMember {
+    pub letter: String,
+    pub set: Node,
+    /// The letter runs over the parts of `set`, `X ⊆ A`, not its members.
+    pub part: bool,
 }
 
 /// Why a part a reason divides by is not zero.
@@ -1285,6 +1302,11 @@ pub struct Instantiated {
     /// their letters, with where its membership of the domain stands
     /// (`citations::value_guards`).
     pub guards: Vec<Guard>,
+    /// The letter of the line the values leave open that the step reads at
+    /// its claim's own letter (`citations::open_at_claim`): k of "for all N,
+    /// for all k ∈ {1, …, N}, P" at N := n, in a claim "for all k ∈ {1, …,
+    /// n}". Such a step is read at a member (`CheckedTheorem::at_member`).
+    pub at_claim: Option<String>,
 }
 
 /// A condition of an instance an instantiation takes off: `for all s ∈ S,
