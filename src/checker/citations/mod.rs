@@ -35,7 +35,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort};
 use crate::matching::{
     alike, binding_sites, expand, match_tree, standard, substitute_apart, Binding,
-    Context, FxIndexMap, FxIndexSet,
+    Context, FxIndexMap, FxIndexSet, Unfolds,
 };
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, CONGRUENT_MOD,

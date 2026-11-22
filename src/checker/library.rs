@@ -546,6 +546,19 @@ impl<'a> Known<'a> {
         self.citing(&citing_labels(self.thm, self.env.scopes, refs, item))
     }
 
+    /// A sentence read as written, in the standard order two trees are
+    /// compared in (`matching::standard`); None where it does not read.
+    pub fn read_written(&self, sentence: &Sentence) -> Option<Node> {
+        self.read_as_written(sentence)
+            .map(|n| standard(&n, self.ctx))
+    }
+
+    /// Everything a cited line says (`says`), each as the page writes it,
+    /// in the standard order.
+    pub fn says_written(&self, stated: &Stated) -> Vec<Said> {
+        self.says(stated, &Definitions::new())
+    }
+
     /// A sentence read with what `defined` writes out (`citing`), in the
     /// standard order two trees are compared in (`matching::standard`);
     /// None where it does not read.

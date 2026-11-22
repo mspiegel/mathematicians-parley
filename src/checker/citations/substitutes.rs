@@ -93,7 +93,6 @@ pub(super) fn substitution_reading(
     };
     let claim = known.whole_as_written(&step.claim)?;
     let scope = known.scope(step);
-    let defined = known.citing_step(step);
     let is_define = |r: &str| thm.defines.iter().any(|d| d.label == r);
     // The line the equation is taken from, as it says its facts. A define
     // of a name says its equation, as a link citing it reads it; a define of
@@ -105,7 +104,7 @@ pub(super) fn substitution_reading(
         .filter(|s| !is_define(s))
         .and_then(|s| scope.get(s).filter(|st| known.reads(st)).map(|st| (s, st)));
     let source_says: Vec<super::super::library::Said> = from_line
-        .map(|(_, st)| known.says(st, &defined))
+        .map(|(_, st)| known.says_written(st))
         .unwrap_or_default();
     let place_of = |s: &super::super::library::Said| {
         from_line.and_then(|(line, st)| {
@@ -209,7 +208,7 @@ pub(super) fn substitution_reading(
             // of a range, and a part of a set said as `X ⊆ A` or as `X ∈ 𝒫A`
             // either way, as a reader puts X = ∅ into `let X ⊆ A` to make
             // X ⊆ ∅.
-            let says = known.says(stated, &defined);
+            let says = known.says_written(stated);
             let own = known.sentence_count(stated);
             let starts = || -> Vec<PutInto> {
                 says.iter()
@@ -285,7 +284,7 @@ pub(super) fn substitution_reading(
     // An identity element the putting makes and the claim leaves out is
     // dropped from a number, which a line says where the page does not say
     // it once.
-    let parts = known.read_out_parts(step, library);
+    let parts = known.parts(step, library);
     let starts: Vec<Node> = way.starts.iter().map(|s| s.start.clone()).collect();
     let cite = parts.cite(library);
     let unsaid =
@@ -467,7 +466,7 @@ pub fn sentence_substitutions(
         let Some(stated) = scope.get(&at.line) else {
             continue;
         };
-        let says = known.says(stated, &known.citing_step(step));
+        let says = known.says_written(stated);
         let mut sentences: Vec<(usize, Node)> = says
             .iter()
             .filter_map(|said| match said.from {
@@ -670,7 +669,7 @@ pub fn check_obtained(
         let Some(groups) = library.groups(&just.item(&item)) else {
             continue;
         };
-        let parts = known.read_out_parts(step, library);
+        let parts = known.parts(step, library);
         // A hypothesis nothing supplies is `check_hypotheses`'s to name; the
         // way to the "there is" fails for it, and saying so again would
         // point at the line the step does cite.
@@ -798,17 +797,19 @@ fn line_existence(
     if !known.reads(&stated) {
         return None;
     }
+    // Each thing the line says is taken for a "there is" as the defines the
+    // step cites read it, and kept as the page writes it.
     let defined = known.citing_step(step);
     let said = known.says(&stated, &defined);
     let existences: Vec<&Node> = said
         .iter()
-        .map(|s| &s.cited)
-        .filter(|s| library.ctx.existences.contains(&s.notation()))
+        .filter(|s| library.ctx.existences.contains(&s.cited.notation()))
+        .map(|s| &s.written)
         .collect();
     let sentences: Vec<&Node> = said
         .iter()
         .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
-        .map(|s| &s.cited)
+        .map(|s| &s.written)
         .collect();
     let one = match (existences.as_slice(), sentences.as_slice()) {
         ([], [one]) | ([one], _) => *one,
@@ -819,9 +820,19 @@ fn line_existence(
             ))
         }
     };
+    let one = standard(one, &library.ctx);
+    let unfolds = known.parts(step, library).unfolds.clone();
     Some(LineExistence::Found {
-        node: one.clone(),
-        at: fact_at(step, &just.refs, None, one, known, library),
+        at: fact_at_through(
+            step,
+            &just.refs,
+            None,
+            &one,
+            unfolds.as_deref(),
+            known,
+            library,
+        ),
+        node: one,
     })
 }
 
@@ -891,9 +902,11 @@ pub(super) fn obtained_reading(
             }
         }
     };
-    // Read as the claim is (`Known::read`), with the defines the step
-    // cites read out.
-    let existence = known.as_cited(&existence?, &known.citing_step(step));
+    let existence = existence?;
+    // The claim and the "there is" are compared as written, a define the
+    // step cites read out where they differ (`Parts::unfolds`).
+    let unfolds = known.parts(step, library).unfolds.clone();
+    let meets = |a: &Node, b: &Node| known.alike_through(a, b, unfolds.as_deref());
     // The letters in the order the "there is" binds them, each the name
     // obtained in its place.
     let mut order: Vec<(&Node, &Node)> = Vec::new();
@@ -945,7 +958,7 @@ pub(super) fn obtained_reading(
         .claim
         .sentences()
         .iter()
-        .map(|s| known.read(step, s))
+        .map(|s| Some(standard(&known.read_as_written(s)?, &library.ctx)))
         .collect::<Option<Vec<Node>>>()
     else {
         return None; // `check_formulas` says it does not read
@@ -961,7 +974,8 @@ pub(super) fn obtained_reading(
             _ => bound_in(Bound::Member, letter, domain, library.env.g),
         };
         let member = substitute_apart(&member, &put, &library.ctx);
-        if claimed.notation() == member.notation() && !known.alike(claimed, &member) {
+        if claimed.notation() == member.notation() && meets(claimed, &member).is_none()
+        {
             reading.faults.push((
                 step.line,
                 format!(
@@ -997,11 +1011,11 @@ pub(super) fn obtained_reading(
     for (k, (sentence, part, c)) in claimed.iter().enumerate() {
         let ahead = left.iter().position(|&o| o == k);
         let found = ahead
-            .and_then(|at| Some((at, known.alike_how(c, &owes[k])?)))
+            .and_then(|at| Some((at, meets(c, &owes[k])?)))
             .or_else(|| {
                 left.iter()
                     .enumerate()
-                    .find_map(|(at, &o)| Some((at, known.alike_how(c, &owes[o])?)))
+                    .find_map(|(at, &o)| Some((at, meets(c, &owes[o])?)))
             });
         let Some((at, meeting)) = found else {
             all = false;

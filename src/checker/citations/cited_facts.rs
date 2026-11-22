@@ -517,7 +517,7 @@ pub(in crate::checker) fn define_facing(
 pub(in crate::checker) fn facing_of(
     item: &Node,
     claim: &Node,
-    unfolds: Option<&matching::Unfolds>,
+    unfolds: Option<&Unfolds>,
     known: &Known,
 ) -> Option<Facing> {
     let meets = |a: &Node, b: &Node| known.alike_through(a, b, unfolds).is_some();
@@ -606,7 +606,7 @@ fn meeting_of(
     part: Option<usize>,
     taken: &Taken,
     claim: &Node,
-    unfolds: Option<&matching::Unfolds>,
+    unfolds: Option<&Unfolds>,
     known: &Known,
     library: &Library,
 ) -> Option<(Meeting, Node)> {
@@ -991,7 +991,7 @@ pub(super) fn fact_at_through(
     refs: &[String],
     item: Option<&str>,
     fact: &Node,
-    unfolds: Option<&matching::Unfolds>,
+    unfolds: Option<&Unfolds>,
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
@@ -1338,7 +1338,7 @@ pub(super) fn said_once_at(
     step: &Step,
     item: Option<&str>,
     fact: &Node,
-    unfolds: Option<&matching::Unfolds>,
+    unfolds: Option<&Unfolds>,
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
@@ -1376,7 +1376,7 @@ pub(super) fn states(said: &Node, fact: &Node, library: &Library) -> bool {
 pub(super) fn states_through(
     said: &Node,
     fact: &Node,
-    unfolds: Option<&matching::Unfolds>,
+    unfolds: Option<&Unfolds>,
     library: &Library,
 ) -> bool {
     let ctx = &library.ctx;

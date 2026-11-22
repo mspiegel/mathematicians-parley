@@ -3,7 +3,7 @@
 use std::{iter, slice};
 
 use super::*;
-use crate::matching::Meeting;
+use crate::matching::{Definitions, Meeting};
 
 /// An exhibit's lines say every part of its body at one value.
 ///
@@ -73,8 +73,9 @@ pub(super) fn shows_value(
     let Some(written) = scope.get(r) else {
         return false;
     };
-    let said = known.supplied(written, &known.citing_step(step));
-    let parts = known.read_out_parts(step, library);
+    let said = known.supplied(written, &Definitions::new());
+    let parts = known.parts(step, library);
+    let cite = parts.cite(library);
     parts.claims.iter().any(|claim| {
         let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
             return false;
@@ -99,13 +100,14 @@ pub(super) fn shows_value(
                     &said,
                     &Binding::new(),
                     &letters,
-                    &Cite::plain(library),
+                    &cite,
                     &sites,
                     true,
                 )
                 .is_some_and(|at| {
                     let there = substitute_apart(w, &at, &library.ctx);
-                    said.iter().any(|s| known.alike(s, &there))
+                    said.iter()
+                        .any(|s| known.alike_through(s, &there, cite.unfolds).is_some())
                 })
             })
     })
@@ -120,7 +122,8 @@ pub(super) fn check_exhibit(
     library: &Library,
     known: &Known,
 ) {
-    let parts = known.read_out_parts(step, library);
+    let parts = known.parts(step, library);
+    let cite = parts.cite(library);
     let written: Vec<Node> = step
         .claim
         .sentences()
@@ -146,10 +149,10 @@ pub(super) fn check_exhibit(
                 );
             continue;
         };
-        if shown_value(&ex, &facts, library, known).is_some() {
+        if shown_value(&ex, &facts, &cite, known).is_some() {
             continue;
         }
-        let Some(at) = most_said_value(&ex, &facts, library, known) else {
+        let Some(at) = most_said_value(&ex, &facts, &cite, known) else {
             report.say(
                     &thm.path,
                     step.just.line,
@@ -173,7 +176,7 @@ pub(super) fn check_exhibit(
             })
             .collect();
         for (want, show) in wants.iter().zip(&shown) {
-            if holds_at(want, &at, &facts, library, known) {
+            if holds_at(want, &at, &facts, &cite, known) {
                 continue;
             }
             report.say(
@@ -213,11 +216,14 @@ pub(super) fn exhibit_sites(wants: &[Node], library: &Library) -> Sites {
 }
 
 /// A term equals itself, which no line need write: gH = aH at a = g is
-/// stated by nothing and needs nothing.
-pub(super) fn equal_to_itself(w: &Node, known: &Known) -> bool {
+/// stated by nothing and needs nothing; a define the citation cites is
+/// read out where the two sides differ (`Cite`).
+pub(super) fn equal_to_itself(w: &Node, cite: &Cite, known: &Known) -> bool {
     w.notation() == EQUALITY
         && w.children.len() == 2
-        && known.alike(&w.children[0], &w.children[1])
+        && known
+            .alike_through(&w.children[0], &w.children[1], cite.unfolds)
+            .is_some()
 }
 
 /// The value an exhibit shows, each letter bound: one under which the facts
@@ -227,9 +233,10 @@ pub(super) fn equal_to_itself(w: &Node, known: &Known) -> bool {
 pub(super) fn exhibit_value(
     ex: &Exhibited,
     facts: &[Node],
-    library: &Library,
+    cite: &Cite,
     known: &Known,
 ) -> Option<Binding> {
+    let library = cite.library;
     let sites = exhibit_sites(&ex.wants, library);
     let stated = |wants: &[Node]| {
         supply(
@@ -237,7 +244,7 @@ pub(super) fn exhibit_value(
             facts,
             &Binding::new(),
             &ex.letters,
-            &Cite::plain(library),
+            cite,
             &sites,
             true,
         )
@@ -252,9 +259,9 @@ pub(super) fn exhibit_value(
             return None;
         }
         stated(&rest).filter(|at| {
-            equations
-                .iter()
-                .all(|e| equal_to_itself(&substitute_apart(e, at, &library.ctx), known))
+            equations.iter().all(|e| {
+                equal_to_itself(&substitute_apart(e, at, &library.ctx), cite, known)
+            })
         })
     })
 }
@@ -262,16 +269,20 @@ pub(super) fn exhibit_value(
 /// Whether a part `w` of what an exhibit asks holds at the value `at`: it is
 /// then an equation of a term with itself, or a fact says it, alike but for
 /// what goes without saying (`Known::alike`), as x = −(b + T)/3 says
-/// x = −(b + 1·T)/3.
+/// x = −(b + 1·T)/3; a define the citation cites is read out where the two
+/// differ (`Cite`).
 pub(super) fn holds_at(
     w: &Node,
     at: &Binding,
     facts: &[Node],
-    library: &Library,
+    cite: &Cite,
     known: &Known,
 ) -> bool {
-    let w = substitute_apart(w, at, &library.ctx);
-    equal_to_itself(&w, known) || facts.iter().any(|f| known.alike(f, &w))
+    let w = substitute_apart(w, at, &cite.ctx);
+    equal_to_itself(&w, cite, known)
+        || facts
+            .iter()
+            .any(|f| known.alike_through(f, &w, cite.unfolds).is_some())
 }
 
 /// The value the most parts of what an exhibit asks are said of, each
@@ -280,11 +291,11 @@ pub(super) fn holds_at(
 pub(super) fn most_said_value(
     ex: &Exhibited,
     facts: &[Node],
-    library: &Library,
+    cite: &Cite,
     known: &Known,
 ) -> Option<Binding> {
     let Exhibited { wants, letters } = ex;
-    let sites = exhibit_sites(wants, library);
+    let sites = exhibit_sites(wants, cite.library);
     // A letter's bare membership, n ∈ ℕ, fits every number in ℕ, and
     // a numeral's membership is said once (`said_once`), so the value
     // it suggests is no reading of the claim: what the body says is
@@ -306,7 +317,7 @@ pub(super) fn most_said_value(
             facts,
             &Binding::new(),
             letters,
-            &Cite::plain(library),
+            cite,
             &sites,
             true,
         ) else {
@@ -317,7 +328,7 @@ pub(super) fn most_said_value(
         }
         let count = wants
             .iter()
-            .filter(|w| holds_at(w, &at, facts, library, known))
+            .filter(|w| holds_at(w, &at, facts, cite, known))
             .count();
         if best.as_ref().is_none_or(|(most, _)| count > *most) {
             best = Some((count, at));
@@ -333,15 +344,12 @@ pub(super) fn most_said_value(
 pub(super) fn shown_value(
     ex: &Exhibited,
     facts: &[Node],
-    library: &Library,
+    cite: &Cite,
     known: &Known,
 ) -> Option<Binding> {
-    exhibit_value(ex, facts, library, known).or_else(|| {
-        most_said_value(ex, facts, library, known).filter(|at| {
-            ex.wants
-                .iter()
-                .all(|w| holds_at(w, at, facts, library, known))
-        })
+    exhibit_value(ex, facts, cite, known).or_else(|| {
+        most_said_value(ex, facts, cite, known)
+            .filter(|at| ex.wants.iter().all(|w| holds_at(w, at, facts, cite, known)))
     })
 }
 
@@ -360,14 +368,15 @@ pub fn exhibit_values(
         .iter()
         .filter(|s| s.just.head.is(Method::Exhibit))
         .map(|step| {
-            let parts = known.read_out_parts(step, library);
+            let parts = known.parts(step, library);
+            let cite = parts.cite(library);
             let facts = exhibit_facts(&parts.facts, library);
             let values = parts
                 .claims
                 .iter()
                 .map(|claim| {
                     let ex = exhibited(claim, library)?;
-                    let values = shown_value(&ex, &facts, library, known)?;
+                    let values = shown_value(&ex, &facts, &cite, known)?;
                     let asked =
                         ex.wants.iter().cloned().map(Supplying::sought).collect();
                     let shown = supplied_at(
@@ -451,11 +460,12 @@ pub fn check_instantiated(
         let Some(line) = known.scope(step).get(&target).cloned() else {
             continue;
         };
-        let parts = known.read_out_parts(step, library);
+        let parts = known.parts(step, library);
+        let unfolds = parts.unfolds.as_deref();
+        let alike = |a: &Node, b: &Node| known.alike_through(a, b, unfolds).is_some();
         let written = values_written(step, known);
-        let defined = known.citing_step(step);
         let mut said: Vec<(Option<Node>, Option<Node>)> = known
-            .says(&line, &defined)
+            .says_written(&line)
             .into_iter()
             .map(|s| (Some(s.cited), Some(s.written)))
             .collect();
@@ -502,9 +512,9 @@ pub fn check_instantiated(
                 // between its sets (`type_said_otherwise`), so `g : X → Y`
                 // supplies g for "for all f : X → Y" (`SYNTAX.md`).
                 let supplied = parts.facts.iter().any(|f| {
-                    known.alike(f, &m.read)
+                    alike(f, &m.read)
                         || type_said_otherwise(f, library)
-                            .is_some_and(|member| known.alike(&member, &m.read))
+                            .is_some_and(|member| alike(&member, &m.read))
                 });
                 if supplied {
                     wants.push(m.read);
@@ -541,11 +551,12 @@ pub fn check_instantiated(
         {
             let mut lighter = step.clone();
             lighter.just.refs.retain(|x| x != r);
-            let left = known.read_out_parts(&lighter, library);
-            if wants
-                .iter()
-                .all(|w| left.facts.iter().any(|f| known.alike(f, w)))
-            {
+            let left = known.parts(&lighter, library);
+            if wants.iter().all(|w| {
+                left.facts.iter().any(|f| {
+                    known.alike_through(f, w, left.unfolds.as_deref()).is_some()
+                })
+            }) {
                 report.say(
                     &thm.path,
                     step.just.line,
@@ -728,11 +739,16 @@ pub(super) fn conditions_supplied(
     .collect()
 }
 
-/// Whether `part` is an equation whose two sides are one term.
-pub(super) fn sides_alike(part: &Node, known: &Known) -> bool {
+/// Whether `part` is an equation whose two sides are one term, a define of
+/// `unfolds` read out where they differ.
+pub(super) fn sides_alike(
+    part: &Node,
+    unfolds: Option<&Unfolds>,
+    known: &Known,
+) -> bool {
     match part.children.as_slice() {
         [left, right] if known.ctx.equations.contains(&part.notation()) => {
-            known.alike(left, right)
+            known.alike_through(left, right, unfolds).is_some()
         }
         _ => false,
     }
@@ -821,12 +837,12 @@ pub(super) fn instance_reading(
     let target = step.just.target.clone()?;
     // A line or claim that does not read is another check's to report.
     let line = known.scope(step).get(&target).cloned()?;
-    let claim = known.whole(step, &step.claim)?;
+    let claim = known.whole_as_written(&step.claim)?;
     {
-        let named = known.read_out_parts(step, library);
+        let named = known.parts(step, library);
         let seed = &named.seed;
-        let defined = known.citing_step(step);
-        let says = known.says(&line, &defined);
+        let unfolds = named.unfolds.as_deref();
+        let says = known.says_written(&line);
         let own = known.sentence_count(&line);
         let fits: Vec<Fit> =
             says.iter().map(|said| fit_of(&said.cited, seed)).collect();
@@ -863,7 +879,7 @@ pub(super) fn instance_reading(
             instances
                 .iter()
                 .filter_map(|(said, i)| {
-                    let (conditions, met) = concludes_claim(i, &claim, known)?;
+                    let (conditions, met) = concludes_claim(i, &claim, unfolds, known)?;
                     Some((*said, conditions, met))
                 })
                 .collect();
@@ -883,8 +899,11 @@ pub(super) fn instance_reading(
             // k = a + b is at k := a + b.
             let unmet = conditions.iter().find(|c| {
                 !conjuncts(c, library).iter().all(|part| {
-                    sides_alike(part, known)
-                        || named.facts.iter().any(|f| known.alike(f, part))
+                    sides_alike(part, unfolds, known)
+                        || named
+                            .facts
+                            .iter()
+                            .any(|f| known.alike_through(f, part, unfolds).is_some())
                 })
             });
             if let Some(unmet) = unmet {
@@ -981,16 +1000,18 @@ pub(super) fn instance_at(
 
 /// The conditions an instance asks on its way to the claim: none where it
 /// is the claim, and each implication's condition taken off until what is
-/// left is; None where it never is.
+/// left is; None where it never is. A define of `unfolds` is read out where
+/// the two differ, and the meeting records where.
 pub(super) fn concludes_claim(
     instance: &Node,
     claim: &Node,
+    unfolds: Option<&Unfolds>,
     known: &Known,
 ) -> Option<(Vec<Node>, Meeting)> {
     let mut at = instance.clone();
     let mut asked = Vec::new();
     loop {
-        if let Some(met) = known.alike_how(&at, claim) {
+        if let Some(met) = known.alike_through(&at, claim, unfolds) {
             return Some((asked, met));
         }
         match (at.notation(), at.children.as_slice()) {
