@@ -511,11 +511,19 @@ impl<'a> Elaborator<'a> {
         let mut whole = self.to_term(&said);
         // Each value is the one written for the name the line quantifies at
         // that level, whatever its place in the list.
-        let by_name: IndexMap<String, Node> = pairs
+        let mut by_name: IndexMap<String, Node> = pairs
             .iter()
             .map(|v| (v.name.clone(), v.value.clone()))
             .collect();
-        for _ in 0..pairs.len() {
+        // A letter the values leave open is read at the claim's own, where
+        // the step is proved at that member (`Instantiated::at_claim`,
+        // `CheckedTheorem::at_member`).
+        let at_member = self.member.is_some()
+            && self.checked.at_member.contains_key(&step.just.line);
+        if let (true, Some(open)) = (at_member, &inst.at_claim) {
+            by_name.insert(open.letter.clone(), open.claim.clone());
+        }
+        for _ in 0..by_name.len() {
             let label = whole.label().map(str::to_string);
             let found = label
                 .as_deref()

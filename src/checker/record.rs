@@ -1306,7 +1306,17 @@ pub struct Instantiated {
     /// its claim's own letter (`citations::open_at_claim`): k of "for all N,
     /// for all k ∈ {1, …, N}, P" at N := n, in a claim "for all k ∈ {1, …,
     /// n}". Such a step is read at a member (`CheckedTheorem::at_member`).
-    pub at_claim: Option<String>,
+    pub at_claim: Option<AtClaim>,
+}
+
+/// A letter an instantiation leaves open, read at the claim's own
+/// (`Instantiated::at_claim`).
+#[derive(Clone, Debug)]
+pub struct AtClaim {
+    /// The letter of the line, as the page writes it, as a guard names it.
+    pub letter: String,
+    /// The letter of the claim's "for all", which the step gives it.
+    pub claim: Node,
 }
 
 /// A condition of an instance an instantiation takes off: `for all s ∈ S,

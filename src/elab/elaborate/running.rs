@@ -1108,28 +1108,12 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Option<Proof>>> {
-        // Said of every member: an item whose conclusions say no "for all", a
-        // define, and a method proving one fact, are applied at a member and
-        // the claim generalised; the checker reads an item's citation the same
-        // way (`SYNTAX.md`, a step said of every member). The requires lines
-        // are then about that member, and are proved where it is in scope.
-        let at_a_member = match how {
-            How::Cite | How::Reading(_) | How::UnfoldEquation => {
-                !self.item_cited(&step.just.head.to_string())?.says_for_all()
-            }
-            How::Define => true,
-            How::Named(m) => {
-                matches!(
-                    m,
-                    Method::Membership
-                        | Method::Algebra
-                        | Method::Inequalities
-                        | Method::Transitivity
-                        | Method::Antisymmetry
-                )
-            }
-            _ => false,
-        };
+        // Said of every member: a step the checker read at a member of its
+        // claim's "for all" is proved there and the claim generalised
+        // (`CheckedTheorem::at_member`; `SYNTAX.md`, a step said of every
+        // member). The requires lines are then about that member, and are
+        // proved where it is in scope.
+        let at_a_member = self.checked.at_member.contains_key(&step.just.line);
         // The claim says "for all" on the page, and not in its kernel form
         // only: "1 is an upper bound of [0, 1]" is a "for all" in set.mm's
         // words and none in the page's, and is cited whole.

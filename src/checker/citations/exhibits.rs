@@ -3,6 +3,7 @@
 use std::{iter, slice};
 
 use super::*;
+use crate::checker::record::AtClaim;
 use crate::matching::{Definitions, Meeting};
 
 /// An exhibit's lines say every part of its body at one value.
@@ -666,9 +667,10 @@ pub(super) fn open_at_claim(
     let [letter, set] = member.children.as_slice() else {
         return None;
     };
-    let b = binders_of(read)
+    let (place, b) = binders_of(read)
         .into_iter()
-        .find(|b| !seed.contains_key(&b.letter.text))?;
+        .enumerate()
+        .find(|(_, b)| !seed.contains_key(&b.letter.text))?;
     let domain = substitute_apart(&b.domain, seed, &library.ctx);
     let none = IndexMap::new();
     alike(
@@ -679,6 +681,7 @@ pub(super) fn open_at_claim(
         &none,
     )
     .then(|| OpenAtClaim {
+        place,
         letter: b.letter.text,
         claim: letter.clone(),
     })
@@ -687,10 +690,28 @@ pub(super) fn open_at_claim(
 /// A binder an instantiation leaves open, read at the claim's letter
 /// (`open_at_claim`).
 pub(super) struct OpenAtClaim {
+    /// Its place among the line's binders, outermost first.
+    pub(super) place: usize,
     /// The letter the instantiated line binds.
     pub(super) letter: Symbol,
     /// The letter of the claim's own "for all".
     pub(super) claim: Node,
+}
+
+/// `open_at_claim` of the sentence an instantiation takes, with the line's
+/// letter as the page writes it (`Instantiated::at_claim`).
+pub(super) fn at_claim_written(
+    said: &super::super::library::Said,
+    seed: &Binding,
+    member: Option<Node>,
+    library: &Library,
+) -> Option<AtClaim> {
+    let open = open_at_claim(&said.cited, seed, member, library)?;
+    let written = binders_of(&said.written).into_iter().nth(open.place)?;
+    Some(AtClaim {
+        letter: written.letter.text.to_string(),
+        claim: open.claim,
+    })
 }
 
 /// Where each value `step` puts in a domain of `said`, the sentence it
@@ -913,13 +934,12 @@ pub(super) fn instance_reading(
                     conditions: conditions_supplied(step, conditions, known, library),
                     meeting: meeting.clone(),
                     guards: value_guards(step, said, seed, known, library),
-                    at_claim: open_at_claim(
-                        &said.cited,
+                    at_claim: at_claim_written(
+                        said,
                         seed,
                         known.step_member(step),
                         library,
-                    )
-                    .map(|open| open.letter.to_string()),
+                    ),
                 });
             // A condition of several parts is met where each part is. An
             // equation whose two sides are then the same needs no line
