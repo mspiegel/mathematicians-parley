@@ -52,27 +52,18 @@ theorem rounding_error (A : ℝ) :
   -- 8. inequalities
   have s8 : -e ≤ 1 / 2 := by linarith only [s7]
   -- 9. mun:nonneg-or-neg x := e, from D1
-  have s9 : e ≥ 0 ∨ e < 0 := by
-    simp only [hD1] at ⊢
-    push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)); push_cast at h; exact h)
+  have s9 : e ≥ 0 ∨ e < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := e))
   -- 10. cases, from 9
   have s10 : abs e ≤ 1 / 2 := by
     rcases s9 with hC1 | hC2
     · skip
       -- 10.1. def:abs x := e, from C1, D1
-      have s10_1 : abs e = e := by
-        simp only [hD1] at ⊢
-        push_cast at ⊢
-        (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1; push_cast at h; exact h)
+      have s10_1 : abs e = e := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := e)) hC1
       -- 10.2. transitivity, from 10.1, 5
       exact Eq.trans_le s10_1 s5
     · skip
       -- 10.3. def:abs x := e, from C2, D1
-      have s10_3 : abs e = -e := by
-        simp only [hD1] at ⊢
-        push_cast at ⊢
-        (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2; push_cast at h; exact h)
+      have s10_3 : abs e = -e := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := e)) hC2
       -- 10.4. transitivity, from 10.3, 8
       exact Eq.trans_le s10_3 s8
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10

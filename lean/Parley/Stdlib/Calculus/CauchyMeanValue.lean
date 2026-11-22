@@ -95,15 +95,9 @@ theorem cauchy_mean_value (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set ℝ)) (a : 
     have r115_1 : t ∈ (Set.Icc a b : Set ℝ) := by exact hK1
     exact trivial
   -- 13. mun:function-into, from D1, 11
-  have s13 : Set.MapsTo p (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
-    simp only [hD1] at ⊢
-    push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
+  have s13 : Set.MapsTo p (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := p) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 14. mun:function-into, from D2, 12
-  have s14 : Set.MapsTo q (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
-    simp only [hD2] at ⊢
-    push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => g t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
+  have s14 : Set.MapsTo q (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := q) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 15. D1
   have r125_1 : ∀ x ∈ (Set.Ioo a b : Set ℝ), x ∈ (Set.Icc a b : Set ℝ) := by intro x h_x; (exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s2 h_x))
   have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), p x = f x := by simp (disch := omega) only [hD1, implies_true]

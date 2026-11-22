@@ -225,9 +225,9 @@ impl<'a> Elaborator<'a> {
         item: &'a Record,
     ) -> Checked<NodeBinding> {
         let cited = self.cited_here(step, &item.qualified())?;
-        // The citation's own pairs as the page writes them, the defines it
-        // names kept, over the search's reading (`values_as_written`).
-        Ok(cited.values_as_written().into_iter().collect())
+        // The search's reading, which keeps the page's defined names, with
+        // what the citation's own pairs give the letters it leaves out.
+        Ok(cited.binding_with_written().into_iter().collect())
     }
 
     /// The checker's reading of the citation of `item`, by its full name,

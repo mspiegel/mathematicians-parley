@@ -60,7 +60,7 @@ pub fn check_defined_types(
         };
         if let Some(item) = step.just.cited_item() {
             let name = step.just.item(&item);
-            let parts = known.parts(step, library);
+            let parts = known.read_out_parts(step, library);
             for said in defined_types_unsaid(&parts, &name, &at, library, known) {
                 report.say(
                     &thm.path,
@@ -80,7 +80,9 @@ pub fn check_defined_types(
                 continue;
             };
             let name = step.just.item(&item);
-            let Some(parts) = requires_parts(step, req, &[], known, library) else {
+            let Some(parts) =
+                requires_parts(step, req, &[], known, library, Spelt::ReadOut)
+            else {
                 continue;
             };
             for said in defined_types_unsaid(&parts, &name, &at, library, known) {
@@ -217,7 +219,7 @@ pub fn define_domains(
         let Ok(Some(rule)) = DefinedRule::of(d, known) else {
             continue;
         };
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         let said_of = |arg: &Node| -> Option<DomainSaid> {
             let cited = parts.facts.iter().find(|fact| {
                 fact.notation() == MEMBERSHIP
@@ -295,7 +297,7 @@ pub fn applied_domains(
         let Some(claim) = known.whole_as_written(&step.claim) else {
             continue;
         };
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         let letters = super::super::library::introduced(known, step);
         // An argument that is the index of a sum or a sequence's limit in
         // `formula` whose range lies inside the domain.
@@ -1375,7 +1377,7 @@ pub(super) fn unsaid_by(
     library: &Library,
 ) -> Vec<Applied> {
     let links = chain_links(&step.just, &known.thm.path);
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     let mut facts = parts.facts.clone();
     let from_links: Vec<String> = links
         .iter()

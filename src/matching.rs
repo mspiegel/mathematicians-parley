@@ -1214,7 +1214,9 @@ fn fit(
 ///
 /// Matching only ever adds a variable the binding does not have, and adds it
 /// at the end, so an attempt that fails is undone by cutting the binding
-/// back to the length it had before. Copying the binding at every node of
+/// back to the length it had before; a value it puts in place of one the
+/// variable has, a define's name for what it reads out to, it puts back
+/// where the attempt fails. Copying the binding at every node of
 /// every attempt instead measured at a quarter of a check. When this gives
 /// back false, the binding is as it was.
 fn fit_each(
@@ -1228,10 +1230,28 @@ fn fit_each(
 ) -> bool {
     let before = binding.len();
     if is_variable(pattern, variables) {
-        if let Some(seen) = binding.get(&pattern.text) {
-            return alike_how(seen, ground, ctx, &IndexMap::new(), &IndexMap::new())
-                .is_some()
-                && then(binding);
+        if let Some(seen) = binding.get(&pattern.text).cloned() {
+            let none = IndexMap::new();
+            let Some(met) = alike_how(&seen, ground, ctx, &none, &none) else {
+                return false;
+            };
+            // A rule standing alone, met again as the name of a define that
+            // reads out to it, is that define: g of g(x) = f(x) for x ∈ L,
+            // met first as x ↦ f(x), is f on L, a domain the rule alone
+            // does not have. Any other value is kept as it was first met.
+            let named = seen.notation() == PROPERTY_OF
+                && ground.is_name()
+                && !met.unfolded.is_empty()
+                && met.unfolded.iter().all(|u| u.tree == Tree::Second);
+            if !named {
+                return then(binding);
+            }
+            binding.insert(pattern.text, ground.clone());
+            if then(binding) {
+                return true;
+            }
+            binding.insert(pattern.text, seen);
+            return false;
         }
         binding.insert(pattern.text, ground.clone());
         return then_kept(true, before, binding, then);
@@ -1869,10 +1889,6 @@ pub struct Meeting {
     /// `0 < x` or x² as x^2, or a map applied read as its rule
     /// (`standard`).
     pub respelled: bool,
-    /// The line's defined names read as what they name, as the citation
-    /// reads a define it cites: `i ∈ S` met as `i ∈ {i ∈ … : …}`, S the
-    /// define (`Known::read_citing`).
-    pub defines_read: bool,
     /// Each identity element dropped, x + 0 read as x.
     pub identities: Vec<Dropped>,
     /// Each notation whose parts stand in no order that met with its parts
@@ -1991,7 +2007,6 @@ impl Meeting {
         !self.turned
             && !self.permuted
             && !self.respelled
-            && !self.defines_read
             && self.identities.is_empty()
             && self.unfolded.is_empty()
     }
@@ -2003,7 +2018,6 @@ impl Meeting {
         self.permuted
             && !self.turned
             && !self.respelled
-            && !self.defines_read
             && self.identities.is_empty()
             && self.unfolded.is_empty()
     }
@@ -2014,7 +2028,6 @@ impl Meeting {
         self.permuted |= other.permuted;
         self.renamed |= other.renamed;
         self.respelled |= other.respelled;
-        self.defines_read |= other.defines_read;
         self.identities.extend(other.identities);
         self.flips.extend(other.flips);
         self.unfolded.extend(other.unfolded);
@@ -3296,6 +3309,49 @@ mod tests {
             gs,
             vec![name("f").shape().to_string(), name("F").shape().to_string()]
         );
+    }
+
+    #[test]
+    fn a_rule_met_again_as_its_define_is_bound_to_the_name() {
+        let ctx = Context::default();
+        // f(x) := F(x)
+        let rule = Rule {
+            params: vec![Param {
+                name: "x".to_string(),
+                domain: "ℝ".to_string(),
+                within: Within::Members,
+                said: "x ∈ ℝ".to_string(),
+            }],
+            read: Vec::new(),
+            body: applied("F", name("x")),
+            binders: Arc::new(FxIndexMap::default()),
+        };
+        let mut defines = Definitions::new();
+        defines.insert("f".to_string(), Defined::Rule(rule));
+        // e := a + 1
+        defines.insert("e".to_string(), Defined::Term(plus(name("a"), name("1"))));
+        let unfolds = Unfolds { defines };
+        let met_as = |first: Node, ground: &str| {
+            let mut seed = Binding::new();
+            seed.insert(Symbol::of("G"), first);
+            let ways = match_every_way(
+                &name("G"),
+                &name(ground),
+                &seed,
+                &variables(&["G"]),
+                &IndexSet::new(),
+                Reading::with(&ctx, &unfolds),
+            );
+            ways.iter().map(|b| bound(b, "G")).collect::<Vec<String>>()
+        };
+        // x ↦ F(x), which has no domain, is f on ℝ.
+        assert_eq!(
+            met_as(Node::property("x", applied("F", name("x"))), "f"),
+            vec![name("f").shape().to_string()]
+        );
+        // a + 1, met again as e, stays as it was first met.
+        let sum = plus(name("a"), name("1"));
+        assert_eq!(met_as(sum.clone(), "e"), vec![sum.shape().to_string()]);
     }
 
     #[test]

@@ -131,9 +131,7 @@ theorem degree_by_walk {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) 
   have r143_1 : Set.MapsTo g S T ∧ Set.SurjOn g S T := ((Parley.Items.Stdlib.Functions.def_onto (X := S) (Y := T) (f := g) s2)).mpr ⟨s2, by intro y h_y; exact_mod_cast s6 y h_y⟩
   have r143_2 : Set.MapsTo g S T ∧ Set.InjOn g S ∧ Set.SurjOn g S T := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := S) (Y := T) (f := g) s5.1)).mpr ⟨s5, r143_1⟩
   have s7 : ∃ g : ℤ → β, Set.BijOn g S T := by
-    simp only [hD1] at ⊢
-    push_cast at ⊢
-    have hI : ∃ g : ℤ → β, Set.BijOn g {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | x ∈ G (e i)} T := by exact ((Parley.Items.Stdlib.Functions.def_bijection (X := {i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | x ∈ G (e i)}) (Y := T) (f := g) r143_2))
+    have hI : ∃ g : ℤ → β, Set.BijOn g S T := by exact ((Parley.Items.Stdlib.Functions.def_bijection (X := S) (Y := T) (f := g) r143_2))
     exact hI
   -- 8. calculation
   have r148_1 : S ⊆ (Set.Icc (1 : ℤ) n : Set ℤ) := by

@@ -24,7 +24,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
     alike_how, expand, standard, standard_how, substitute_apart, substituted_in,
-    Binding, Context, Definitions, FxIndexMap, Meeting,
+    Binding, Context, Definitions, FxIndexMap, Meeting, Reading, Unfolds,
 };
 use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE, POWERSET, SUBSET, SUM};
 use crate::outcome::Route;
@@ -234,7 +234,7 @@ pub struct Known<'a> {
     /// place: a step's copies with a line taken away stand there too
     /// (`Known::in_scope`).
     in_scope: RefCell<FxIndexMap<(StepPlace, usize), Rc<InScope>>>,
-    parts: RefCell<FxIndexMap<PartsKey, Rc<Parts>>>,
+    parts: RefCell<FxIndexMap<(PartsKey, Spelt), Rc<Parts>>>,
     /// Each search a check has asked of a step's citation, which several
     /// checks ask alike: the parts and the groups are kept for the run
     /// (`parts`, `Library::groups`), so their addresses name them.
@@ -477,11 +477,27 @@ impl<'a> Known<'a> {
     /// `alike`, with how the two met (`matching::Meeting`): respelt where
     /// they meet only once a side is in the standard spelling.
     pub fn alike_how(&self, a: &Node, b: &Node) -> Option<Meeting> {
+        self.alike_through(a, b, None)
+    }
+
+    /// `alike_how`, reading out a define of `unfolds` where the two differ
+    /// and the other asks for what it names (`matching::Reading`); the
+    /// meeting records where.
+    pub fn alike_through(
+        &self,
+        a: &Node,
+        b: &Node,
+        unfolds: Option<&Unfolds>,
+    ) -> Option<Meeting> {
         let none = IndexMap::new();
+        let reading = match unfolds {
+            Some(u) => Reading::with(self.ctx, u),
+            None => Reading::plain(self.ctx),
+        };
         let (sa, ra) = standard_how(a, self.ctx);
         let (sb, rb) = standard_how(b, self.ctx);
-        let met = alike_how(&sa, &sb, self.ctx, &none, &none)?;
-        let respelt = (ra || rb) && alike_how(a, b, self.ctx, &none, &none).is_none();
+        let met = alike_how(&sa, &sb, reading, &none, &none)?;
+        let respelt = (ra || rb) && alike_how(a, b, reading, &none, &none).is_none();
         Some(met.respelt(respelt))
     }
 
@@ -1026,8 +1042,20 @@ impl<'a> Known<'a> {
         made
     }
 
-    /// What a step's justification supplies and claims.
+    /// What a step's justification supplies and claims, as the page writes
+    /// it, with the defines it cites carried to the matcher
+    /// (`Spelt::Written`).
     pub fn parts(&self, step: &Step, library: &Library) -> Rc<Parts> {
+        self.parts_spelt(step, library, Spelt::Written)
+    }
+
+    /// `parts` with every define the step cites read out
+    /// (`Spelt::ReadOut`).
+    pub fn read_out_parts(&self, step: &Step, library: &Library) -> Rc<Parts> {
+        self.parts_spelt(step, library, Spelt::ReadOut)
+    }
+
+    fn parts_spelt(&self, step: &Step, library: &Library, spelt: Spelt) -> Rc<Parts> {
         // A requires line read as a step has its step's number and its own
         // claim and reason, so those are part of what the parts depend on.
         let key = (
@@ -1040,10 +1068,11 @@ impl<'a> Known<'a> {
                 .map(|r| r.fact.text().to_string())
                 .collect(),
         );
+        let key = (key, spelt);
         if let Some(found) = self.parts.borrow().get(&key) {
             return found.clone();
         }
-        let made = Rc::new(citation_parts(step, library, self));
+        let made = Rc::new(citation_parts(step, library, self, spelt));
         self.parts.borrow_mut().insert(key, made.clone());
         made
     }
@@ -1223,16 +1252,34 @@ pub fn listed_seed(
     }
 }
 
+/// How a citation's lines are read (`citation_parts`). A defined name and
+/// the term it names are one formula where the step cites the define
+/// (`Known::citing`), in the facts, the claim and the written
+/// instantiation alike.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Spelt {
+    /// As the page writes them, with the defines the citation cites
+    /// carried beside them (`Parts::unfolds`): a match reads one out where
+    /// the item asks for what it names.
+    Written,
+    /// With every define the citation cites read out.
+    ReadOut,
+}
+
 /// What a citation supplies, what it claims, and what it says its variables
-/// stand for.
-///
-/// A defined name and the term it names are one formula where the step cites
-/// the define, so all three are expanded with what it cites
-/// (`Known::citing`): the facts, the claim, and the written instantiation
-/// alike.
-fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
+/// stand for, read as `spelt` says.
+fn citation_parts(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+    spelt: Spelt,
+) -> Parts {
     let scope = known.scope(step);
-    let defined = known.citing_step(step);
+    let cited = known.citing_step(step);
+    let defined = match spelt {
+        Spelt::Written => Rc::new(Definitions::new()),
+        Spelt::ReadOut => cited.clone(),
+    };
     let read = |s: &Sentence| known.read_citing(s, &defined);
     let mut facts: Vec<Node> = Vec::new();
     for r in &step.just.refs {
@@ -1274,6 +1321,11 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
         }
         None => finished(facts, claims, seed, library, &known.sorts),
     };
+    if spelt == Spelt::Written {
+        parts.unfolds = Some(Rc::new(Unfolds {
+            defines: (*cited).clone(),
+        }));
+    }
     let typed = typed_in_scope(known, step);
     let points = points_introduced(known, step);
     said_once(&mut parts, &letters, &points, &typed, library, &known.sorts);

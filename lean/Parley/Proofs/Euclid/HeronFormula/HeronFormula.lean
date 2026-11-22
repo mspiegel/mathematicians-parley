@@ -42,10 +42,7 @@ theorem heron_formula (A : ℂ) (B : ℂ) (C : ℂ) (hH4 : LeanBridges.Geometry.
     ((1 / 2 * (dist B C * dist A C) * abs (Real.sin (Complex.arg ((A - C) / (B - C)))) : ℝ) : ℂ) = (((dist B C : ℂ) + (dist C A : ℂ) + (dist A B : ℂ)) / 2 * (((dist B C : ℂ) + (dist C A : ℂ) + (dist A B : ℂ)) / 2 - (dist B C : ℂ)) * (((dist B C : ℂ) + (dist C A : ℂ) + (dist A B : ℂ)) / 2 - (dist C A : ℂ)) * (((dist B C : ℂ) + (dist C A : ℂ) + (dist A B : ℂ)) / 2 - (dist A B : ℂ))) ^ (1 / 2 : ℂ) := by
   set s : ℝ := (dist B C + dist C A + dist A B) / 2 with hD1
   -- 1. thm:heron P := A, Q := B, R := C, from D1, H4
-  have s1 : ((1 / 2 * (dist B C * dist A C) * abs (Real.sin (Complex.arg ((A - C) / (B - C)))) : ℝ) : ℂ) = ((s : ℂ) * ((s : ℂ) - (dist B C : ℂ)) * (((s : ℂ) - (dist A C : ℂ)) * ((s : ℂ) - (dist A B : ℂ)))) ^ (1 / 2 : ℂ) := by
-    simp only [hD1] at ⊢
-    push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Geometry.thm_heron (P := A) (Q := B) (R := C) (s := (dist B C + dist C A + dist A B) / 2) hH4.2.2.1 hH4.2.1 (by rw [dist_comm C A])); push_cast at h; exact h)
+  have s1 : ((1 / 2 * (dist B C * dist A C) * abs (Real.sin (Complex.arg ((A - C) / (B - C)))) : ℝ) : ℂ) = ((s : ℂ) * ((s : ℂ) - (dist B C : ℂ)) * (((s : ℂ) - (dist A C : ℂ)) * ((s : ℂ) - (dist A B : ℂ)))) ^ (1 / 2 : ℂ) := by exact (Parley.Items.Stdlib.Geometry.thm_heron (P := A) (Q := B) (R := C) (s := s) hH4.2.2.1 hH4.2.1 (by rw [hD1, dist_comm C A]))
   -- 2. algebra, from D1
   have s2 : s * (s - dist B C) * (s - dist C A) * (s - dist A B) = s * (s - dist B C) * ((s - dist A C) * (s - dist A B)) := by
     rw [dist_comm C A] at hD1

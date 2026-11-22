@@ -53,8 +53,8 @@ pub fn check_repeated(
             let mut uncited = lighter.clone();
             uncited.just.refs.clear();
             let bounded = bound_below(step, i, &said, known);
-            let repeated = (says(&known.parts(&uncited, library)) && !bounded)
-                || (says(&known.parts(&lighter, library))
+            let repeated = (says(&known.read_out_parts(&uncited, library)) && !bounded)
+                || (says(&known.read_out_parts(&lighter, library))
                     && !bounded
                     && !needed_below(step, i, &said, known, library));
             if repeated {
@@ -133,7 +133,8 @@ pub fn check_from_lines(
     for (step, reqs) in lines {
         for req in reqs.iter().filter(|r| r.is_lines()) {
             let read_off = |without: &[&str]| -> bool {
-                let Some(parts) = requires_parts(step, req, without, known, library)
+                let Some(parts) =
+                    requires_parts(step, req, without, known, library, Spelt::ReadOut)
                 else {
                     return false;
                 };
@@ -171,18 +172,20 @@ pub fn check_from_lines(
                     continue;
                 }
                 let supplied =
-                    requires_parts(step, req, &[], known, library).map(|parts| {
-                        parts.claims.iter().all(|c| {
-                            from_lines_give(
-                                c,
-                                &parts.facts,
-                                step,
-                                known,
-                                library,
-                                membership::holds,
-                            )
-                        })
-                    });
+                    requires_parts(step, req, &[], known, library, Spelt::ReadOut).map(
+                        |parts| {
+                            parts.claims.iter().all(|c| {
+                                from_lines_give(
+                                    c,
+                                    &parts.facts,
+                                    step,
+                                    known,
+                                    library,
+                                    membership::holds,
+                                )
+                            })
+                        },
+                    );
                 if supplied == Some(false) {
                     report.say(
                         &thm.path,
@@ -202,20 +205,26 @@ pub fn check_from_lines(
             // (`from_lines_give`): d(k) ∈ ℝ from d : ℕ₀ → ℤ at a k said once.
             let gives = |without: &[&str]| -> bool {
                 read_off(without)
-                    || requires_parts(step, req, without, known, library).is_some_and(
-                        |parts| {
-                            parts.claims.iter().all(|c| {
-                                from_lines_give(
-                                    c,
-                                    &parts.facts,
-                                    step,
-                                    known,
-                                    library,
-                                    membership::read_off,
-                                )
-                            })
-                        },
+                    || requires_parts(
+                        step,
+                        req,
+                        without,
+                        known,
+                        library,
+                        Spelt::ReadOut,
                     )
+                    .is_some_and(|parts| {
+                        parts.claims.iter().all(|c| {
+                            from_lines_give(
+                                c,
+                                &parts.facts,
+                                step,
+                                known,
+                                library,
+                                membership::read_off,
+                            )
+                        })
+                    })
             };
             let refs = req.lines();
             let spare: Vec<&str> = refs
@@ -429,7 +438,7 @@ pub(super) fn fails_without(
     let Some(ways) = ways.get_or_init(|| ways_supplied(step, known, library)) else {
         return false;
     };
-    let left = known.parts(lighter, library);
+    let left = known.read_out_parts(lighter, library);
     // What the argument rests on, asked rather than assumed: the facts left
     // are among these, and the claim and the seed are these, so the claim's
     // route is the one the ways were found by.
@@ -481,7 +490,8 @@ pub(super) fn needed_below(
         let Some((named, _)) = o.cited_item() else {
             return false;
         };
-        let Some(parts) = requires_parts(step, o, &[], known, library) else {
+        let Some(parts) = requires_parts(step, o, &[], known, library, Spelt::ReadOut)
+        else {
             return false;
         };
         match asked(&step.just.item(&named), &parts, library) {
@@ -528,7 +538,7 @@ pub fn check_surplus(
             || !unmet_codomains(
                 step,
                 &family_asks(step, known, library),
-                &known.parts(step, library).facts,
+                &known.read_out_parts(step, library).facts,
                 known,
             )
             .is_empty()
@@ -546,7 +556,7 @@ pub fn check_surplus(
         let Some(takes) = found(Search::Takes) else {
             return false;
         };
-        known.parts(step, library).claims.is_empty() || takes
+        known.read_out_parts(step, library).claims.is_empty() || takes
     };
     let holds = |step: &Step| holds_given(step, false);
 
@@ -566,7 +576,7 @@ pub fn check_surplus(
                 continue;
             }
             let ways: OnceCell<Option<Vec<Vec<Node>>>> = OnceCell::new();
-            let facts = known.parts(&as_step, library);
+            let facts = known.read_out_parts(&as_step, library);
             let mut named_refs: IndexSet<&String> = IndexSet::new();
             named_refs.extend(as_step.just.refs.iter());
             let asks = family_asks(&as_step, known, library);
@@ -617,7 +627,7 @@ pub fn check_surplus(
         // The ways the step supplies its item, searched once and only if a
         // line asks (`fails_without`).
         let ways: OnceCell<Option<Vec<Vec<Node>>>> = OnceCell::new();
-        let facts = known.parts(step, library);
+        let facts = known.read_out_parts(step, library);
         let lost_without = |lighter: &Step| {
             fails_without(step, lighter, &ways, &facts, known, library)
         };

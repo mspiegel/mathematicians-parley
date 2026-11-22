@@ -836,11 +836,6 @@ pub struct Cited {
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
     pub written: Binding,
-    /// The same pairs as the page writes them, with the defines the step
-    /// cites kept, `Y := A ∖ M(C)` where the checker reads C out
-    /// (`citations::pairs_as_written`), and what `written` gives a letter
-    /// they leave out.
-    pub pairs: Binding,
     /// For each of `concluded` read backwards, what the right side of its
     /// `↔` asks at the citation's values, its parts joined by "and" in
     /// order, and where each fact stands (`citations::unfolded`): `u ∈ X
@@ -864,18 +859,6 @@ impl Cited {
         let mut out = self.binding.clone();
         for (letter, value) in &self.written {
             out.entry(*letter).or_insert_with(|| value.clone());
-        }
-        out
-    }
-
-    /// The binding with what the citation's own pairs give each letter as
-    /// the page writes it (`pairs`), in place of the search's reading: Y of
-    /// `Y := A ∖ M(C)` as A ∖ M(C), the define C kept, which a backend
-    /// holding C by its name reads as written.
-    pub fn values_as_written(&self) -> Binding {
-        let mut out = self.binding.clone();
-        for (letter, value) in &self.pairs {
-            out.insert(*letter, value.clone());
         }
         out
     }

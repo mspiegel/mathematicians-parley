@@ -4,7 +4,6 @@ use std::ptr;
 
 use super::*;
 use crate::checker::record::{BodyPart, ChainTerms, MetTrees};
-use crate::corpus::Values;
 use crate::matching::{Definitions, Meeting};
 use crate::{citing, matching};
 
@@ -34,7 +33,9 @@ pub(super) fn unconcluded(
         let Some(groups) = library.groups(&step.just.item(&named)) else {
             continue;
         };
-        let Some(parts) = requires_parts(step, req, &[], known, library) else {
+        let Some(parts) =
+            requires_parts(step, req, &[], known, library, Spelt::Written)
+        else {
             continue;
         };
         // One use of the item, as a step's citation is read: a line that
@@ -56,21 +57,28 @@ pub(super) fn unconcluded(
 /// What a requires line's citation supplies and claims: the line's fact is
 /// its claim, and its facts are the lines its reason names, the requires
 /// lines above it, and the member a claim said of every member names, each
-/// read with the defines the line cites, all but those `without` names.
-/// None where the fact does not read, which `check_formulas` reports.
+/// read with the defines the line cites as `spelt` says, all but those
+/// `without` names. None where the fact does not read, which
+/// `check_formulas` reports.
 pub(super) fn requires_parts(
     step: &Step,
     req: &Requires,
     without: &[&str],
     known: &Known,
     library: &Library,
+    spelt: Spelt,
 ) -> Option<Parts> {
     let scope = known.scope(step);
     let mut refs = req.lines().to_vec();
     refs.retain(|r| !without.contains(&r.as_str()));
-    // A define is written out where the line cites it (`Known::citing`).
+    // A define is one formula with its name where the line cites it
+    // (`Known::citing`).
     let item = req.cited_item().map(|(named, _)| step.just.item(&named));
-    let defined = known.citing_item(&refs, item.as_deref());
+    let cited = known.citing_item(&refs, item.as_deref());
+    let defined = match spelt {
+        Spelt::Written => Rc::new(Definitions::new()),
+        Spelt::ReadOut => cited.clone(),
+    };
     let read_all = |written: &Written| -> Vec<Node> {
         written
             .sentences()
@@ -143,6 +151,11 @@ pub(super) fn requires_parts(
     // on a requires line reaches what it reaches cited by a step, the
     // memberships the page says once among them.
     let mut parts = finished(read, claims, seed, library, &known.sorts);
+    if spelt == Spelt::Written {
+        parts.unfolds = Some(Rc::new(matching::Unfolds {
+            defines: (*cited).clone(),
+        }));
+    }
     let typed = super::super::library::typed_in_scope(known, step);
     said_once(
         &mut parts,
@@ -228,9 +241,9 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     );
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
-    let facings = facings(&groups, taken, &parts.claims, known, library);
-    let met = meetings(&groups, taken, &parts.claims, known, library);
-    let within = parts_within(&groups, taken, &parts.claims, known, library);
+    let facings = facings(&groups, taken, &parts, known, library);
+    let met = meetings(&groups, taken, &parts, known, library);
+    let within = parts_within(&groups, taken, &parts, known, library);
     let sought = Sought {
         refs: &step.just.refs,
         requires: None,
@@ -244,7 +257,6 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         known,
         library,
     );
-    let pairs = pairs_as_written(&step.just.values, &item, &parts.seed, known, library);
     let mut out = Cited {
         item,
         group: taken.group,
@@ -258,10 +270,9 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         meetings: met.meetings,
         met_trees: met.trees,
         within,
-        binding: rules_by_name(&taken.binding, step, known, library),
+        binding: taken.binding.clone(),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
-        pairs,
         unfolded,
         recursions: IndexMap::new(),
     };
@@ -296,12 +307,7 @@ pub(super) fn unfolded(
             if said.notation() != BICONDITIONAL {
                 return None;
             }
-            // A value that is the rule of a define the step cites is that
-            // define's name (`rules_by_name`), as the record's binding has
-            // it: g, of g(x) = f(x) for x ∈ L, and not its rule standing
-            // alone, which reads as f and drops L.
-            let binding = rules_by_name(&taken.binding, step, known, library);
-            let at = filled(right, &binding, &library.ctx);
+            let at = filled(right, &taken.binding, &library.ctx);
             let witnesses = Binding::new();
             let bound = bound_renamed(right, &at, &taken.bound);
             Some(unfolded_parts(
@@ -446,17 +452,17 @@ pub(super) fn unfolded_parts(
 /// For each sentence `taken` concludes, which way the item's equation read
 /// at the binding faces the claim's sentence it gives, the claim's
 /// sentences by their place (`record::Cited::facings`). Sides are compared
-/// as `Known::alike_how` compares, bound letters renamed and spellings
-/// read alike.
+/// as `Known::alike_through` compares, bound letters renamed, spellings
+/// read alike, and the citation's defines read out where a side asks.
 pub(super) fn facings(
     groups: &[Group],
     taken: &Taken,
-    claims: &[Node],
+    parts: &Parts,
     known: &Known,
     library: &Library,
 ) -> Vec<Option<Facing>> {
     let group = &groups[taken.group];
-    let claims = &citing::claims_taken(group, claims, library);
+    let claims = &citing::claims_taken(group, &parts.claims, library);
     taken
         .concluded
         .iter()
@@ -467,7 +473,7 @@ pub(super) fn facings(
                 .into_iter()
                 .find(|r| r.way == c.way)?;
             let item = filled(&read.claimed, &taken.binding, &library.ctx);
-            facing_of(&item, claims.get(k)?, known)
+            facing_of(&item, claims.get(k)?, parts.unfolds.as_deref(), known)
         })
         .collect()
 }
@@ -485,7 +491,7 @@ pub(in crate::checker) fn define_facing(
     known: &Known,
 ) -> Option<Facing> {
     if let Some(named) = named {
-        return facing_of(named, equation, known);
+        return facing_of(named, equation, None, known);
     }
     let d = thm.defines.iter().find(|d| d.label == label)?;
     let rule = DefinedRule::of(d, known).ok()??;
@@ -505,14 +511,16 @@ pub(in crate::checker) fn define_facing(
 
 /// Which way one equation, or one congruence, faces another: a side of the
 /// one alike the same side of the other, or only the other side, as
-/// `Known::alike_how` compares them; None where the two are not both
-/// equations, or both congruences with moduli alike, or no side meets.
+/// `Known::alike_through` compares them with `unfolds`; None where the two
+/// are not both equations, or both congruences with moduli alike, or no
+/// side meets.
 pub(in crate::checker) fn facing_of(
     item: &Node,
     claim: &Node,
+    unfolds: Option<&matching::Unfolds>,
     known: &Known,
 ) -> Option<Facing> {
-    let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
+    let meets = |a: &Node, b: &Node| known.alike_through(a, b, unfolds).is_some();
     let sided = match (item.notation(), claim.notation()) {
         (EQUALITY, EQUALITY) => true,
         (CONGRUENT_MOD, CONGRUENT_MOD) => meets(&item.children[2], &claim.children[2]),
@@ -534,19 +542,21 @@ pub(in crate::checker) fn facing_of(
 
 /// For each sentence `taken` concludes, how the item's sentence read at the
 /// binding met the claim's sentence it gives (`record::Cited::meetings`), as
-/// `Known::alike_how` meets them: the whole, or else the part its reading's
-/// "and" gives (`Concluded::part`); and where that is an "and" of which the
-/// claim is one part (`parts_within`), that part. None where nothing of it
-/// meets the claim's sentence, or more than one part does.
+/// `Known::alike_through` meets them with the citation's defines: the
+/// whole, or else the part its reading's "and" gives (`Concluded::part`);
+/// and where that is an "and" of which the claim is one part
+/// (`parts_within`), that part. None where nothing of it meets the claim's
+/// sentence, or more than one part does.
 pub(super) fn meetings(
     groups: &[Group],
     taken: &Taken,
-    claims: &[Node],
+    parts: &Parts,
     known: &Known,
     library: &Library,
 ) -> Meetings {
     let group = &groups[taken.group];
-    let claims = &citing::claims_taken(group, claims, library);
+    let claims = &citing::claims_taken(group, &parts.claims, library);
+    let unfolds = parts.unfolds.as_deref();
     let mut out = Meetings {
         meetings: Vec::new(),
         trees: Vec::new(),
@@ -557,8 +567,15 @@ pub(super) fn meetings(
                 .into_iter()
                 .find(|r| r.way == c.way)?;
             let claim = claims.get(k)?;
-            let (meeting, item) =
-                meeting_of(&read.claimed, c.part, taken, claim, known, library)?;
+            let (meeting, item) = meeting_of(
+                &read.claimed,
+                c.part,
+                taken,
+                claim,
+                unfolds,
+                known,
+                library,
+            )?;
             Some((
                 meeting,
                 MetTrees {
@@ -589,11 +606,16 @@ fn meeting_of(
     part: Option<usize>,
     taken: &Taken,
     claim: &Node,
+    unfolds: Option<&matching::Unfolds>,
     known: &Known,
     library: &Library,
 ) -> Option<(Meeting, Node)> {
     let binding = &taken.binding;
-    let met = |item: Node| known.alike_how(&item, claim).map(|m| (m, item));
+    let met = |item: Node| {
+        known
+            .alike_through(&item, claim, unfolds)
+            .map(|m| (m, item))
+    };
     let whole = filled(claimed, binding, &library.ctx);
     if let Some(found) = met(whole.clone()) {
         return Some(found);
@@ -627,17 +649,20 @@ fn meeting_of(
 /// from 0 with every conjunction taken apart (`record::Cited::within`). The
 /// item's part is the one its reading's "and" gives (`Concluded::part`), a
 /// property applied in it read as the property's body at its argument; None
-/// where that meets the claim's sentence whole, as `Known::alike_how` meets
-/// them, or no part of it does, or more than one does.
+/// where that meets the claim's sentence whole, as `Known::alike_through`
+/// meets them with the citation's defines, or no part of it does, or more
+/// than one does.
 pub(super) fn parts_within(
     groups: &[Group],
     taken: &Taken,
-    claims: &[Node],
+    parts: &Parts,
     known: &Known,
     library: &Library,
 ) -> Vec<Option<usize>> {
     let group = &groups[taken.group];
-    let claims = &citing::claims_taken(group, claims, library);
+    let claims = &citing::claims_taken(group, &parts.claims, library);
+    let unfolds = parts.unfolds.as_deref();
+    let meets = |a: &Node, b: &Node| known.alike_through(a, b, unfolds).is_some();
     taken
         .concluded
         .iter()
@@ -653,14 +678,14 @@ pub(super) fn parts_within(
             };
             let item = filled(&part, &taken.binding, &library.ctx);
             let claim = claims.get(k)?;
-            if known.alike_how(&item, claim).is_some() {
+            if meets(&item, claim) {
                 return None;
             }
             let parts = conjuncts(&item, library);
             let mut meet = parts
                 .iter()
                 .enumerate()
-                .filter(|(_, p)| known.alike_how(p, claim).is_some())
+                .filter(|(_, p)| meets(p, claim))
                 .map(|(j, _)| j);
             match (parts.len() > 1, meet.next(), meet.next()) {
                 (true, Some(j), None) => Some(j),
@@ -743,74 +768,6 @@ pub(super) fn item_letters(
         .collect()
 }
 
-/// The binding with each value that is the rule of a define the step cites
-/// written as the define's name. A defined function standing alone is its
-/// rule where two formulas are compared (`matching::expand`), so the item's
-/// g of product-reindex is bound to x ↦ f(x) where the page's g is f on L.
-/// The build reads the name as the map its define makes, over the define's
-/// domain, which is the function the item needs; a rule alone has no
-/// domain to build one over.
-pub(super) fn rules_by_name(
-    binding: &Binding,
-    step: &Step,
-    known: &Known,
-    library: &Library,
-) -> Binding {
-    let defined = known.citing_step(step);
-    let named = |value: &Node| {
-        defined.iter().find_map(|(name, d)| {
-            let matching::Defined::Rule(rule) = d else {
-                return None;
-            };
-            let [param] = rule.params.as_slice() else {
-                return None;
-            };
-            let read = Node::property(&param.name, expand(&rule.body, &defined));
-            alike(
-                &read,
-                value,
-                &library.ctx,
-                &IndexMap::new(),
-                &IndexMap::new(),
-            )
-            .then(|| {
-                let sort = known.sorts.get(name.as_str()).cloned();
-                Node::name(sort.unwrap_or_else(Sort::none), name)
-            })
-        })
-    };
-    binding
-        .iter()
-        .map(|(letter, value)| {
-            let kept = match value.notation() == PROPERTY_OF {
-                true => named(value).unwrap_or_else(|| value.clone()),
-                false => value.clone(),
-            };
-            (*letter, kept)
-        })
-        .collect()
-}
-
-/// The citation's own pairs `v := t` as the page writes them, its defines
-/// kept, each read as its place in the item `item` wants it; and, for a
-/// letter the pairs leave out, what the seed `seed` gives it, a graph's
-/// listed name (`listed_seed`). The search reads the pairs with the defines
-/// the step cites read out; a backend holds a define by its name and reads
-/// it out only where it needs to.
-fn pairs_as_written(
-    values: &Values,
-    item: &str,
-    seed: &Binding,
-    known: &Known,
-    library: &Library,
-) -> Binding {
-    let mut out = known.seed(values, &Definitions::new(), library.item_sorts(item));
-    for (letter, value) in seed {
-        out.entry(*letter).or_insert_with(|| value.clone());
-    }
-    out
-}
-
 /// Each requires line's citation of an item, by the line it is on
 /// (`cited_requires`), and the citation of the reason under a let saying a
 /// kind of number, read as a requires line of the step below the let, as
@@ -867,7 +824,7 @@ pub fn cited_requires(
     let (named, _) = req.cited_item()?;
     let item = step.just.item(&named);
     let groups = library.groups(&item)?;
-    let parts = requires_parts(step, req, &[], known, library)?;
+    let parts = requires_parts(step, req, &[], known, library, Spelt::Written)?;
     let cite = parts.cite(library);
     let Built(taken) = taken(&groups, &parts.claims, &parts.facts, &parts.seed, &cite)
     else {
@@ -898,9 +855,9 @@ pub fn cited_requires(
     );
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
-    let facings = facings(&groups, &taken, &parts.claims, known, library);
-    let met = meetings(&groups, &taken, &parts.claims, known, library);
-    let within = parts_within(&groups, &taken, &parts.claims, known, library);
+    let facings = facings(&groups, &taken, &parts, known, library);
+    let met = meetings(&groups, &taken, &parts, known, library);
+    let within = parts_within(&groups, &taken, &parts, known, library);
     let sought = Sought {
         refs: req.lines(),
         requires: Some(req.line),
@@ -914,7 +871,6 @@ pub fn cited_requires(
         known,
         library,
     );
-    let pairs = pairs_as_written(req.values(), &item, &parts.seed, known, library);
     let mut out = Cited {
         item,
         group: taken.group,
@@ -928,10 +884,9 @@ pub fn cited_requires(
         meetings: met.meetings,
         met_trees: met.trees,
         within,
-        binding: rules_by_name(&taken.binding, step, known, library),
+        binding: taken.binding.clone(),
         bound: taken.bound,
         written: parts.seed,
-        pairs,
         unfolded,
         recursions: IndexMap::new(),
     };
@@ -1026,7 +981,21 @@ pub(in crate::checker) fn fact_at(
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
-    let states = |said: &Node| states(said, fact, library);
+    fact_at_through(step, refs, item, fact, None, known, library)
+}
+
+/// `fact_at`, with a define of `unfolds` read out where `fact` and a line
+/// differ (`states_through`).
+pub(super) fn fact_at_through(
+    step: &Step,
+    refs: &[String],
+    item: Option<&str>,
+    fact: &Node,
+    unfolds: Option<&matching::Unfolds>,
+    known: &Known,
+    library: &Library,
+) -> Option<FirstAt> {
+    let states = |said: &Node| states_through(said, fact, unfolds, library);
     line_at(step, refs, item, &states, known, library)
 }
 
@@ -1369,6 +1338,7 @@ pub(super) fn said_once_at(
     step: &Step,
     item: Option<&str>,
     fact: &Node,
+    unfolds: Option<&matching::Unfolds>,
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
@@ -1393,14 +1363,29 @@ pub(super) fn said_once_at(
     // A line in another case of the same "cases" is in no reach of the
     // step, 3.1's m ∈ ℕ of the first case for a step of the second.
     lines.retain(|n| known.in_reach(n, step));
-    fact_at(step, &lines, item, fact, known, library)
+    fact_at_through(step, &lines, item, fact, unfolds, known, library)
 }
 
 /// Whether `said`, read in the standard order, states `fact`.
 pub(super) fn states(said: &Node, fact: &Node, library: &Library) -> bool {
+    states_through(said, fact, None, library)
+}
+
+/// `states`, with a define of `unfolds` read out where the two differ and
+/// one asks for what it names (`matching::Reading`).
+pub(super) fn states_through(
+    said: &Node,
+    fact: &Node,
+    unfolds: Option<&matching::Unfolds>,
+    library: &Library,
+) -> bool {
     let ctx = &library.ctx;
     let none = IndexMap::new();
-    alike(&standard(said, ctx), fact, ctx, &none, &none)
+    let reading = match unfolds {
+        Some(u) => matching::Reading::with(ctx, u),
+        None => matching::Reading::plain(ctx),
+    };
+    alike(&standard(said, ctx), fact, reading, &none, &none)
 }
 
 /// Where `s`, one of the things the line `line` says (`says`, of a line

@@ -399,7 +399,7 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no reading of this citation",
             ));
         };
-        let values = cited.values_as_written();
+        let values = cited.binding_with_written();
         for (i, (one, h)) in wanted.iter().zip(&other.hypotheses).enumerate() {
             let entry = cited
                 .supplied
@@ -883,7 +883,7 @@ impl<'a> Elaborator<'a> {
             };
             node = part;
         }
-        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
         node = filled(&node, &binding, &library.ctx);
         if let Some(w) = within {
             let Some(part) = citing::conjuncts(&node, &library).get(w).cloned() else {
@@ -964,7 +964,7 @@ impl<'a> Elaborator<'a> {
             node = factors_swapped(&node);
         }
         let library = self.item_library();
-        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
         let filled = filled(&node, &binding, &library.ctx);
         self.read_apart(step, &filled)
     }

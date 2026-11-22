@@ -14,4 +14,4 @@ read 118: B ≤ A  as  order:≤(name:B, name:A)  a statement
 read 119: A  as  name:A  a number
 read 119: B  as  name:B  a number
 read 121: A = B  as  equality:=(name:A, name:B)  a statement
-step 3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
+step 3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]

@@ -19,5 +19,5 @@ read 32: c  as  name:c  a number
 read 32: n  as  name:n  a number
 read 33: 1  as  numeral:1  a number
 read 33: n  as  name:n  a number
-step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
-step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]

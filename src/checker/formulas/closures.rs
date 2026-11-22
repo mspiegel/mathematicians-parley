@@ -947,6 +947,7 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
                     super::super::citations::facing_of(
                         &reading.says[k].cited,
                         &reading.said,
+                        None,
                         known,
                     ),
                 );
@@ -1055,7 +1056,7 @@ pub fn check_chain_links(
             // What the link drops an identity element from is a number by
             // what the step names or the page says once, the link's own
             // letters among them.
-            let step_parts = known.parts(step, library);
+            let step_parts = known.read_out_parts(step, library);
             let mut parts = Parts {
                 facts: step_parts.facts.clone(),
                 claims: vec![said.clone()],
@@ -1501,7 +1502,7 @@ pub fn check_define_citation(
         let label = just.defined.clone().unwrap_or_default();
         let say = format!("step {} cites {label}", step.number);
         if let Some((recursion, line)) = recursion_cited(thm, &label) {
-            let parts = known.parts(step, library);
+            let parts = known.read_out_parts(step, library);
             if let Some(why) = recursion_equation(
                 &parts.claims,
                 &parts.facts,
@@ -1523,7 +1524,7 @@ pub fn check_define_citation(
             );
             continue;
         };
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         let written: Result<Vec<Node>, _> = step
             .claim
             .sentences()
@@ -1609,7 +1610,7 @@ pub fn define_cases(
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
         let label = step.just.defined.as_deref().unwrap_or_default();
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         if let Some((recursion, line)) = recursion_cited(thm, label) {
             // A recursion's rule by cases, in the case the lines say.
             let Ok(taken) = recursion_taken(
@@ -1655,7 +1656,7 @@ pub fn define_cases(
             let Some(claim) = link.claim(known) else {
                 continue;
             };
-            let parts = known.parts(step, library);
+            let parts = known.read_out_parts(step, library);
             if let Some(taken) =
                 case_of(step, &claim, &parts.facts, &wrappers, library, known)
             {
@@ -1681,7 +1682,7 @@ pub fn define_sides(
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
         let label = step.just.defined.as_deref().unwrap_or_default();
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         // A recursion names each sequence it defines.
         let (names, by_value) = match recursion_cited(thm, label) {
             Some((recursion, line)) => {
@@ -1763,7 +1764,7 @@ pub(in crate::checker) fn define_named_facing(
     known: &Known,
 ) -> Option<Facing> {
     let named = define_equation(thm, step, label, known)?;
-    super::super::citations::facing_of(&named, claim, known)
+    super::super::citations::facing_of(&named, claim, None, known)
 }
 
 /// Which way each calculation link citing a define of a name, and each step

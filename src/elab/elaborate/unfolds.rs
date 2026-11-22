@@ -354,22 +354,32 @@ impl<'a> Elaborator<'a> {
                 "the fact the checker recorded the definition as unfolded from is not in hand",
             ));
         };
-        let written = self.to_term(&said);
-        // The line met the definition's side with the defines the step
-        // cites read out where the record says so (`Meeting::defines_read`);
-        // the member a claim's "for all" gives is read as the claim is,
-        // through them.
-        let defines_read = match first {
-            SuppliedBy::Bound { .. } => true,
-            _ => cited
-                .firsts_meetings
-                .first()
-                .and_then(Option::as_ref)
-                .is_some_and(|m| m.defines_read),
-        };
-        let read = match defines_read {
-            true => self.read_out(&written),
-            false => written,
+        // The line met the definition's side with each define the record
+        // places read out there (`Meeting::unfolded`); the member a claim's
+        // "for all" gives is read as the claim is, through them.
+        let met = cited.firsts_meetings.first().and_then(Option::as_ref);
+        let read = match (first, met) {
+            (SuppliedBy::Bound { .. }, _) => {
+                let written = self.to_term(&said);
+                self.read_out(&written)
+            }
+            (SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at), Some(met))
+                if !met.unfolded.is_empty() =>
+            {
+                let ctx = &self.item_library().ctx;
+                let Some(node) =
+                    met.with_unfolded(&standard(&at.written, ctx), Tree::Second)
+                else {
+                    return Err(self.unreached(
+                        step.line,
+                        "the checker placed a define read out where the line has none",
+                    ));
+                };
+                // A letter the define's body binds that a name of the
+                // proof holds is read apart from it (`read_apart`).
+                self.read_apart(step, &node)?
+            }
+            _ => self.to_term(&said),
         };
         let Some(binding) =
             fit(left, &read, &Binding::new(), variables).filter(|b| !b.is_empty())
@@ -703,8 +713,17 @@ impl<'a> Elaborator<'a> {
             Tree::First => Tree::Second,
             Tree::Second => Tree::First,
         };
-        let (said_tree, wanted_tree) =
-            (standard(&trees.said, ctx), standard(&trees.wanted, ctx));
+        // Each define the record reads out is put as what it reads as, at
+        // its place (`Meeting::with_unfolded`), before the identities go.
+        let (Some(said_tree), Some(wanted_tree)) = (
+            met.with_unfolded(&standard(&trees.said, ctx), trees.said_in),
+            met.with_unfolded(&standard(&trees.wanted, ctx), wanted_in),
+        ) else {
+            return Err(self.unreached(
+                step.line,
+                "the checker placed a define read out where one of the two it met has none",
+            ));
+        };
         let (Some(said_bare), Some(wanted_bare)) = (
             met.with_identities_dropped(&said_tree, trees.said_in),
             met.with_identities_dropped(&wanted_tree, wanted_in),
@@ -815,7 +834,7 @@ impl<'a> Elaborator<'a> {
         };
         // The values the checker read each hypothesis at, the citation's
         // own pairs among them (`citations::with_seed`).
-        let binding = cited.values_as_written();
+        let binding = cited.binding_with_written();
         let library = self.item_library();
         // A function's type, and a finite group's `let`, are held among
         // the step's facts, as each step types its functions, and the

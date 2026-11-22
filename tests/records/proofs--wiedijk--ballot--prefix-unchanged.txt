@@ -61,6 +61,6 @@ read 231: p  as  name:p  a number
 read 231: {1, …, i} ∖ T  as  set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T)  a set
 read 233: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
 read 233: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
-step 7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
-suppose on line 205: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }
-step 1.2 contradicts 1.1: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }
+step 7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+suppose on line 205: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 1.2 contradicts 1.1: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }

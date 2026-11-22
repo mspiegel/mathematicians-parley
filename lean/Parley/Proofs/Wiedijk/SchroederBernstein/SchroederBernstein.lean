@@ -45,10 +45,7 @@ theorem schroeder_bernstein {α β : Type*} [Nonempty α] [Nonempty β] (A : Set
     have s3_1a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mp hK1).1
     have s3_1b : ¬ t ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mp hK1).2
     -- 3.2. mun:equal-subset, from D1, 2
-    have s3_2 : A \ C ⊆ g '' (B ∩ (B \ R)) := by
-      simp only [hD1] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Items.Stdlib.Sets.mun_equal_subset (X := A \ C) (Y := g '' (B ∩ (B \ f '' (A ∩ C)))) s2b.symm); push_cast at h; exact h)
+    have s3_2 : A \ C ⊆ g '' (B ∩ (B \ R)) := by exact (Parley.Items.Stdlib.Sets.mun_equal_subset (X := A \ C) (Y := g '' (B ∩ (B \ R))) s2b.symm)
     -- 3.3. mun:in-subset, from K1, 3.2
     have s3_3 : t ∈ g '' (B ∩ (B \ R)) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ C) (Y := g '' (B ∩ (B \ R))) (u := t) s3_2 hK1)
     -- 3.4. obtain y: def:image f := g, u := t, Y := B ∖ R, from 3.3
@@ -206,10 +203,7 @@ theorem schroeder_bernstein {α β : Type*} [Nonempty α] [Nonempty β] (A : Set
       have r400_1 : B \ R ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := R))
       have s8_2_7 : g b ∈ g '' (B ∩ (B \ R)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := B) (Y := B \ R) (f := g) (s := b) (W := A) r400_1 s8_2_6 hH4.1)
       -- 8.2.8. mun:equal-subset, from D1, 2
-      have s8_2_8 : g '' (B ∩ (B \ R)) ⊆ A \ C := by
-        simp only [hD1] at ⊢
-        push_cast at ⊢
-        (have h := (Parley.Items.Stdlib.Sets.mun_equal_subset (X := g '' (B ∩ (B \ f '' (A ∩ C)))) (Y := A \ C) s2b); push_cast at h; exact h)
+      have s8_2_8 : g '' (B ∩ (B \ R)) ⊆ A \ C := by exact (Parley.Items.Stdlib.Sets.mun_equal_subset (X := g '' (B ∩ (B \ R))) (Y := A \ C) s2b)
       -- 8.2.9. mun:in-subset, from 8.2.7, 8.2.8
       have s8_2_9 : g b ∈ A \ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := g '' (B ∩ (B \ R))) (Y := A \ C) (u := g b) s8_2_8 s8_2_7)
       -- 8.2.10. def:difference, from 8.2.9

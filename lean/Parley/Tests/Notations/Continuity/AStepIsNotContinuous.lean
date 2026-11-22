@@ -85,13 +85,13 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.11. def:interval a := 0, b := 1, x := x₁, from D3
   have r94_1 : 0 ≤ x₁ := by linarith only [s4_9, hD2, hD3]
   have r94_2 : x₁ ≤ 1 := by linarith only [s4_10]
-  have s4_11 : x₁ ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := 1 / 2 - m / 2) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, r94_1⟩, r94_2⟩
+  have s4_11 : x₁ ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x₁) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, r94_1⟩, r94_2⟩
   -- 4.12. inequalities
   have s4_12 : -δ ≤ -min δ (1 / 2) := by linarith only [s4_5a]
   -- 4.13. mun:abs-difference-lt x := x₁, c := 1/2, from D3
   have r106_1 : 1 / 2 - δ < x₁ := by linarith only [s4_6, s4_12, hD2, hD3]
   have r106_2 : x₁ < 1 / 2 + δ := by linarith only [s4_3a, s4_8]
-  have s4_13 : abs (x₁ - 1 / 2) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr ⟨r106_1, r106_2⟩
+  have s4_13 : abs (x₁ - 1 / 2) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := (1 / 2 : ℝ)) (δ := δ))).mpr ⟨r106_1, r106_2⟩
   -- 4.14. instantiate x := x₁ in line 4.3, from 4.11, 4.13
   have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by exact (s4_3b x₁ s4_11 s4_13)
   -- 4.15. D1, from 4.8, 4.11

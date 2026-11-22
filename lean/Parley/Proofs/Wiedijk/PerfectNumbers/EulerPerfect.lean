@@ -191,7 +191,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.1. inequalities, from 6
     have s23_1 : (2 ^ p.toNat - 1 - 1 : ℤ) > 0 := by linarith only [s6]
     -- 23.2. mun:product-positive x := 2^p − 1 − 1, y := c, from D3, 23.1
-    have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by exact_mod_cast gt_iff_lt.mp s23_1) (by exact_mod_cast gt_iff_lt.mp hD3_pos))
+    have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℤ)) (y := c) s23_1 hD3_pos)
     -- 23.3. substitute
     have s23_3 : m - c > 0 := by
       have c1 : (2 ^ p.toNat - 1 - 1) * c = m - c := by linear_combination (-1) * s20

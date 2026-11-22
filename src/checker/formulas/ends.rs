@@ -370,7 +370,7 @@ pub fn ends_unnumbered(
     known: &Known,
     library: &Library,
 ) {
-    let facts = known.parts(step, library).facts.clone();
+    let facts = known.read_out_parts(step, library).facts.clone();
     for Unnumbered { left, called } in ends_asking(thm, step, known, library, &facts) {
         report.say(
             &thm.path,

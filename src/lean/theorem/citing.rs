@@ -2403,8 +2403,23 @@ impl<'a> Proof<'a> {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        // A define the step cites is written out first, as for algebra.
+        // A define the step cites is written out first, as for algebra,
+        // where the record read it out in the claim to meet the item
+        // (`Meeting::unfolded`); one the item's values name is met by name.
+        let read_out: Vec<String> = cited
+            .meetings
+            .get(k)
+            .and_then(Option::as_ref)
+            .map(|m| {
+                m.unfolded
+                    .iter()
+                    .filter(|u| u.tree == matching::Tree::Second)
+                    .map(|u| u.name.clone())
+                    .collect()
+            })
+            .unwrap_or_default();
         let mut defines = self.cited_defines(&reason.just.refs);
+        defines.retain(|d| read_out.iter().any(|n| *n == *d.name.text));
         // A function a step has narrowed has its define's equation in the
         // wider type, `↑(f x) = F ↑x` (`narrowed_function`), which meets the
         // goal only where Lean writes f applied and cast up: in a goal of

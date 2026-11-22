@@ -9,7 +9,7 @@ use indexmap::{IndexMap, IndexSet};
 use super::formulas::chain_links;
 use super::library::{
     introduced, listed_seed, parts_in_scope, typed_in_scope, typed_seed, Known,
-    SaidFrom, Search,
+    SaidFrom, Search, Spelt,
 };
 use super::record::{
     Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated, ItemLetter,

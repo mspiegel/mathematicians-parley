@@ -113,7 +113,7 @@ theorem fixed_part {α β : Type*} [Nonempty α] [Nonempty β] (A : Set α) (B :
   have s15 : A \ M C ⊆ C := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := A \ M (⋃ X ∈ D, X)) s14); push_cast at h; exact h)
+    (have h := (Parley.Items.Stdlib.Sets.mun_union_contains_member (D := D) (Y := A \ M C) s14); push_cast at h; exact h)
   -- 16. mun:complement-swap-outside, from 15
   have s16 : A \ C ⊆ M C := by exact ((Parley.Items.Stdlib.Sets.mun_complement_swap_outside (X := C) (Y := M C) (Z := A))).mp s15
   -- 17. mun:subset-antisymmetric, from 8, 16

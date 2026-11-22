@@ -67,10 +67,7 @@ theorem mean_value_bound (f : ℝ → ℝ) (hH2 : ContinuousOn f (Set.univ : Set
   -- 5. membership, from D1, H1
   have s5 : ∀ t ∈ (Set.Icc a b : Set ℝ), True := by intro t h_t; exact by trivial
   -- 6. mun:function-into, from D1, 5
-  have s6 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by
-    simp only [hD1] at ⊢
-    push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := (fun t : ℝ => f t)) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _)); push_cast at h; exact h)
+  have s6 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 7. mun:open-within-closed
   have s7 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   -- 8. mun:open-interval-real

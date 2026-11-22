@@ -91,7 +91,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.10. inequalities, from 1.8
       have s1_10 : p - 1 > 0 := by linarith only [s1_8]
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10
-      have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by exact_mod_cast gt_iff_lt.mp hD2_pos))
+      have s1_11 : (p - 1) * r > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := p - 1) (y := r) s1_10 hD2_pos)
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
         have c1 : (p - 1) * r = m - r := by linear_combination (-1) * s1_9
@@ -106,7 +106,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.16. inequalities
       have s1_16 : r ≤ N := by linarith only [s1_15]
       -- 1.17. mun:le-cases x := 1, y := r, from D2
-      have s1_17 : 1 < r ∨ 1 = r := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by exact_mod_cast ge_iff_le.mp hD2_pos)
+      have s1_17 : 1 < r ∨ 1 = r := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := r))).mp hD2_pos
       -- 1.18. cases, from 1.17
       rcases s1_17 with hC1 | hC2
       · skip

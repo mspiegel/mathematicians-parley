@@ -241,7 +241,7 @@ pub fn check_subjects(
         {
             continue;
         }
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         let refs: Vec<&str> = just.refs.iter().map(String::as_str).collect();
         let cites_one = known
             .lines_say(step, &refs)
@@ -581,7 +581,7 @@ pub fn check_function_types(
             continue;
         }
         let asks = family_asks(step, known, library);
-        let cited = known.parts(step, library).facts.clone();
+        let cited = known.read_out_parts(step, library).facts.clone();
         codomains_unmet(report, thm, step, &item, &asks, &cited, known);
         let what = format!("step {}", step.number);
         let at = AskedAt {
@@ -640,7 +640,7 @@ pub(super) fn types_unstated(
     let Some(item) = at.step.just.cited_item() else {
         return;
     };
-    let parts = known.parts(at.step, library);
+    let parts = known.read_out_parts(at.step, library);
     let declared = typed_in_scope(known, at.step);
     for t in &asks.types {
         let function = &t.asked.children[0];
@@ -866,7 +866,7 @@ pub(super) fn terms_unsaid(
         return;
     };
     let asks = family_asks(step, known, library);
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     for t in &asks.types {
         let Some((letter, term)) = t.pointwise() else {
             continue;

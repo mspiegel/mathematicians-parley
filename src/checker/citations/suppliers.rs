@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::*;
-use crate::matching::{expand, Meeting};
+use crate::matching::{expand, Meeting, Reading, Unfolds};
 use crate::notations::FUNCTIONS_FROM;
 use crate::{citing, matching};
 
@@ -20,7 +20,13 @@ pub(super) struct Suppliers<'a> {
     pub(super) item: Option<&'a str>,
     /// The requires lines the citation reads, each as its sentences.
     pub(super) required: Vec<Vec<Node>>,
+    /// The citation's parts with its defines read out, as the lines are
+    /// read here (`Spelt::ReadOut`).
     pub(super) parts: Rc<Parts>,
+    /// The defines the citation cites: a fact is sought as it is written,
+    /// and one of these is read out where it and a line differ
+    /// (`matching::Reading`).
+    pub(super) unfolds: Unfolds,
     pub(super) known: &'a Known<'a>,
     pub(super) library: &'a Library<'a>,
 }
@@ -53,18 +59,29 @@ impl<'a> Suppliers<'a> {
         // the step, the step's.
         let parts = below
             .and_then(|line| step.requires.iter().find(|r| r.line == line))
-            .and_then(|req| requires_parts(step, req, &[], known, library))
+            .and_then(|req| {
+                requires_parts(step, req, &[], known, library, Spelt::ReadOut)
+            })
             .map(Rc::new)
-            .unwrap_or_else(|| known.parts(step, library));
+            .unwrap_or_else(|| known.read_out_parts(step, library));
         Suppliers {
             step,
             refs,
             item,
             required,
             parts,
+            unfolds: Unfolds {
+                defines: (*defined).clone(),
+            },
             known,
             library,
         }
+    }
+
+    /// The notations, with the citation's defines to read out where two
+    /// trees differ.
+    fn reading(&self) -> Reading<'_> {
+        Reading::with(&self.library.ctx, &self.unfolds)
     }
 
     /// How the line `by` names, as it writes `fact`, met `asked`, the
@@ -79,7 +96,7 @@ impl<'a> Suppliers<'a> {
         narrowed: Option<&Narrowed>,
     ) -> Option<Meeting> {
         let ctx = &self.library.ctx;
-        let none = IndexMap::new();
+        let states = |n: &Node| self.alike(&standard(n, ctx), fact);
         let written = match by {
             SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) if at.implied.is_none() => {
                 at.written.clone()
@@ -92,9 +109,7 @@ impl<'a> Suppliers<'a> {
                     .into_iter()
                     .filter(|(_, r)| *r == rule)
                     .map(|(implied, _)| implied)
-                    .find(|implied| {
-                        alike(&standard(implied, ctx), fact, ctx, &none, &none)
-                    })?
+                    .find(|implied| states(implied))?
             }
             // So of a fact one of the step's requires lines implies.
             SuppliedBy::Requires {
@@ -107,9 +122,7 @@ impl<'a> Suppliers<'a> {
                 .flat_map(|s| implied_by(s, self.known.env, &self.known.sorts))
                 .filter(|(_, r)| r == rule)
                 .map(|(implied, _)| implied)
-                .find(|implied| {
-                    alike(&standard(implied, ctx), fact, ctx, &none, &none)
-                })?,
+                .find(|implied| states(implied))?,
             SuppliedBy::Requires {
                 line,
                 implied: None,
@@ -117,7 +130,7 @@ impl<'a> Suppliers<'a> {
                 .required
                 .get(*line)?
                 .iter()
-                .find(|s| alike(&standard(s, ctx), fact, ctx, &none, &none))?
+                .find(|s| states(s))?
                 .clone(),
             _ => return None,
         };
@@ -128,19 +141,17 @@ impl<'a> Suppliers<'a> {
             }
             _ => written,
         };
-        if let Some(met) = self.known.alike_how(asked, &written) {
-            return Some(met);
-        }
-        // A line found through the defines the citation cites, as the
-        // search reads the step's lines (`Known::read_citing`), met with
-        // them read out.
-        let defined = self.known.citing_item(self.refs, self.item);
-        let read = expand(&written, &defined);
-        let met = self.known.alike_how(asked, &read)?;
-        Some(Meeting {
-            defines_read: true,
-            ..met
-        })
+        // The defines the citation cites read out where the two differ,
+        // and the meeting records where (`Meeting::unfolded`).
+        self.known
+            .alike_through(asked, &written, Some(&self.unfolds))
+    }
+
+    /// Whether `a` and `b` are alike, a define the citation cites read out
+    /// where they differ (`reading`).
+    fn alike(&self, a: &Node, b: &Node) -> bool {
+        let none = IndexMap::new();
+        alike(a, b, self.reading(), &none, &none)
     }
 
     /// Where `fact`, in its standard form, stands: on a line (`said`), else
@@ -159,8 +170,7 @@ impl<'a> Suppliers<'a> {
     /// stand apart (`Parts`). None where it is none of these.
     pub(super) fn derived(&self, fact: &Node) -> Option<SuppliedBy> {
         let (known, library, ctx) = (self.known, self.library, &self.library.ctx);
-        let none = IndexMap::new();
-        let alike_fact = |n: &Node| alike(n, fact, ctx, &none, &none);
+        let alike_fact = |n: &Node| self.alike(n, fact);
         // A function's membership of the functions from X to Y, which a line
         // says as its type, `g : X → Y` (`supply::typed_into`).
         if let (MEMBERSHIP, [f, set]) = (fact.notation(), fact.children.as_slice()) {
@@ -193,8 +203,8 @@ impl<'a> Suppliers<'a> {
                 let carried = function_values(&pair, known.env, &known.sorts)
                     .iter()
                     .any(|v| alike_fact(&standard(v, ctx)))
-                    || subset_carries(carrier, member, fact, ctx)
-                    || for_all_carries(carrier, member, fact, ctx);
+                    || subset_carries(carrier, member, fact, self.reading())
+                    || for_all_carries(carrier, member, fact, self.reading());
                 if !carried {
                     continue;
                 }
@@ -208,10 +218,12 @@ impl<'a> Suppliers<'a> {
                 }
             }
         }
-        // An equation whose two sides meet.
+        // An equation whose two sides meet, a define the citation cites
+        // read out where they differ (`Meeting::unfolded`): s = (a + b)/2
+        // with s := (a + b)/2.
         if ctx.equations.contains(&fact.notation()) {
             if let [lhs, rhs] = fact.children.as_slice() {
-                if let Some(met) = known.alike_how(lhs, rhs) {
+                if let Some(met) = known.alike_through(lhs, rhs, Some(&self.unfolds)) {
                     return Some(SuppliedBy::Identity(met));
                 }
             }
@@ -234,16 +246,10 @@ impl<'a> Suppliers<'a> {
         let ctx = &self.library.ctx;
         let member = self.known.step_member(self.step)?;
         let letter = member.children.first().filter(|l| l.is_name())?;
-        alike(
-            &standard(&member, ctx),
-            fact,
-            ctx,
-            &IndexMap::new(),
-            &IndexMap::new(),
-        )
-        .then(|| SuppliedBy::Bound {
-            letter: letter.text.to_string(),
-        })
+        self.alike(&standard(&member, ctx), fact)
+            .then(|| SuppliedBy::Bound {
+                letter: letter.text.to_string(),
+            })
     }
 
     /// Where `fact`, in its standard form, stands on a line: one the step
@@ -251,22 +257,24 @@ impl<'a> Suppliers<'a> {
     /// said-once walk's reason. None where no line says it.
     pub(super) fn said(&self, fact: &Node) -> Option<SuppliedBy> {
         let (known, library, ctx) = (self.known, self.library, &self.library.ctx);
-        let none = IndexMap::new();
-        let states = |s: &Node| alike(&standard(s, ctx), fact, ctx, &none, &none);
+        let unfolds = Some(&self.unfolds);
+        let states = |s: &Node| self.alike(&standard(s, ctx), fact);
         // A line that states the fact, or, of a "there is", its body at a
         // witness.
-        let line = fact_at(self.step, self.refs, self.item, fact, known, library)
-            .or_else(|| {
-                witnessed_at(
-                    self.step,
-                    self.refs,
-                    self.item,
-                    fact,
-                    &self.parts.facts,
-                    known,
-                    library,
-                )
-            });
+        let line = fact_at_through(
+            self.step, self.refs, self.item, fact, unfolds, known, library,
+        )
+        .or_else(|| {
+            witnessed_at(
+                self.step,
+                self.refs,
+                self.item,
+                fact,
+                &self.parts.facts,
+                known,
+                library,
+            )
+        });
         if let Some(at) = line {
             return Some(SuppliedBy::Line(at));
         }
@@ -294,7 +302,9 @@ impl<'a> Suppliers<'a> {
         if let Some(by) = written.or_else(implied) {
             return Some(by);
         }
-        if let Some(line) = said_once_at(self.step, self.item, fact, known, library) {
+        if let Some(line) =
+            said_once_at(self.step, self.item, fact, unfolds, known, library)
+        {
             return Some(SuppliedBy::SaidOnce(line));
         }
         // A membership the said-once walk gives, for its reason. Of those
@@ -304,7 +314,7 @@ impl<'a> Suppliers<'a> {
         self.parts
             .said_once
             .iter()
-            .filter(|s| alike(&s.fact, fact, ctx, &none, &none))
+            .filter(|s| self.alike(&s.fact, fact))
             .min_by_key(|s| !s.fact.spelt_alike(fact))
             .map(|s| SuppliedBy::Walked(s.clone()))
     }
@@ -316,10 +326,11 @@ pub(super) fn for_all_carries(
     carrier: &Node,
     member: &Node,
     fact: &Node,
-    ctx: &Context,
+    reading: Reading<'_>,
 ) -> bool {
     let none = IndexMap::new();
-    let same = |a: &Node, b: &Node| alike(a, b, ctx, &none, &none);
+    let ctx = reading.ctx;
+    let same = |a: &Node, b: &Node| alike(a, b, reading, &none, &none);
     let ([x, domain, body], [t, within]) =
         (carrier.children.as_slice(), member.children.as_slice())
     else {
@@ -354,10 +365,10 @@ pub(super) fn subset_carries(
     subset: &Node,
     member: &Node,
     fact: &Node,
-    ctx: &Context,
+    reading: Reading<'_>,
 ) -> bool {
     let none = IndexMap::new();
-    let same = |a: &Node, b: &Node| alike(a, b, ctx, &none, &none);
+    let same = |a: &Node, b: &Node| alike(a, b, reading, &none, &none);
     let Some((small, big)) = super::super::library::part_pair(subset) else {
         return false;
     };

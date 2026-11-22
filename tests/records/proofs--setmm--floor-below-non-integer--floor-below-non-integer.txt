@@ -17,6 +17,6 @@ read 21: A ∈ ℤ  as  membership:∈(name:A, number-systems:ℤ)  a statement
 read 22: ⌊A⌋ = A  as  equality:=(floor:⌊⌋(name:A), name:A)  a statement
 read 24: ⌊A⌋ < A  as  order:<(floor:⌊⌋(name:A), name:A)  a statement
 read 26: ⌊A⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(name:A), number-systems:ℝ)  a statement
-step 4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
-suppose on line 19: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }
-step 3.1 contradicts H2: Line, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }
+step 4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+suppose on line 19: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 3.1 contradicts H2: Line, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }

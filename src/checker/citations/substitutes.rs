@@ -285,7 +285,7 @@ pub(super) fn substitution_reading(
     // An identity element the putting makes and the claim leaves out is
     // dropped from a number, which a line says where the page does not say
     // it once.
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     let starts: Vec<Node> = way.starts.iter().map(|s| s.start.clone()).collect();
     let cite = parts.cite(library);
     let unsaid =
@@ -314,7 +314,7 @@ pub(super) fn substitution_reading(
         .and_then(|s| define_facing(thm, s, equation, source_define.as_ref(), known));
     let line_facing = from
         .as_ref()
-        .and_then(|at| facing_of(&at.written, equation, known));
+        .and_then(|at| facing_of(&at.written, equation, None, known));
     // A claim made by making its other form (`rules::OTHER_FORMS`), `Q ∉
     // line HK` for `Q is not on line HK`, is recorded with that form as what
     // the putting makes, which a backend that writes the two alike closes
@@ -415,7 +415,7 @@ pub fn substitute_cases(
             if !thm.defines.iter().any(|d| d.label == source) {
                 continue;
             }
-            let parts = known.parts(&at, library);
+            let parts = known.read_out_parts(&at, library);
             if let Some(taken) = super::super::formulas::case_of(
                 &at,
                 &recorded.equation,
@@ -670,7 +670,7 @@ pub fn check_obtained(
         let Some(groups) = library.groups(&just.item(&item)) else {
             continue;
         };
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         // A hypothesis nothing supplies is `check_hypotheses`'s to name; the
         // way to the "there is" fails for it, and saying so again would
         // point at the line the step does cite.
@@ -891,7 +891,9 @@ pub(super) fn obtained_reading(
             }
         }
     };
-    let existence = existence?;
+    // Read as the claim is (`Known::read`), with the defines the step
+    // cites read out.
+    let existence = known.as_cited(&existence?, &known.citing_step(step));
     // The letters in the order the "there is" binds them, each the name
     // obtained in its place.
     let mut order: Vec<(&Node, &Node)> = Vec::new();

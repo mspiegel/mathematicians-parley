@@ -126,14 +126,11 @@ theorem liouville_number :
     set N : ℤ := (LeanBridges.Polynomials.degree F : ℤ) with hD1
     have hD1_pos := hD1_kind
     -- 10.2. obtain c: thm:liouville F := F, α := L, from D1, 10.1
-    obtain ⟨c, ⟨s10_2a, s10_2b⟩⟩ := (Parley.Proofs.Wiedijk.Liouville.Liouville.liouville (F := F) s10_1.1.1 (N := (LeanBridges.Polynomials.degree F : ℤ)) hD1_pos rfl (α := L) s10_1.2)
+    obtain ⟨c, ⟨s10_2a, s10_2b⟩⟩ := (Parley.Proofs.Wiedijk.Liouville.Liouville.liouville (F := F) s10_1.1.1 (N := N) hD1_pos (by rw [hD1]) (α := L) s10_1.2)
     -- 10.3. obtain m: thm:archimedean-natural x := 2/c
     have r481_1 : c ≠ 0 := ne_of_gt (by linarith only [s10_2a])
     obtain ⟨m, s10_3a, s10_3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / c))
-    have hD2_kind : 0 < m + N := by
-      simp only [hD1] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := m) s10_3a (b := (LeanBridges.Polynomials.degree F : ℤ)) hD1_pos); push_cast at h; exact h)
+    have hD2_kind : 0 < m + N := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := m) s10_3a (b := N) hD1_pos)
     set r : ℤ := m + N with hD2
     have hD2_pos := hD2_kind
     -- 10.4. mun:factorial-nat n := r
@@ -159,15 +156,9 @@ theorem liouville_number :
         exact Eq.subst (motive := (fun t : ℝ => L = t ∨ c / (d : ℝ) ^ N.toNat < abs (L - t))) e_w s10_8
       exact row1
     -- 10.10. thm:later-at-least n := r, from D2
-    have s10_10 : ∀ i : ℤ, 0 < i → i ≥ r + 1 → (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by
-      simp only [hD2] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtLeast.later_at_least (n := m + N) hD2_pos); push_cast at h; exact h)
+    have s10_10 : ∀ i : ℤ, 0 < i → i ≥ r + 1 → (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtLeast.later_at_least (n := r) hD2_pos)
     -- 10.11. thm:partial-sum-step n := r, from D2
-    have s10_11 : (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (r + 1) := by
-      simp only [hD2] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := m + N) hD2_pos); push_cast at h; exact h)
+    have s10_11 : (∑ k ∈ Finset.Icc (1 : ℤ) (r + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (r + 1) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := r) hD2_pos)
     -- 10.12. mun:factorial-nat n := r + 1
     have s10_12 : 0 < (LeanBridges.Counting.factorial (r + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := r + 1) (add_nonneg (le_of_lt hD2_pos) (by norm_num)))
     have hD4_kind : (0 : ℤ) < 2 ^ LeanBridges.Counting.factorial (r + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := (LeanBridges.Counting.factorial (r + 1) : ℤ)) (le_of_lt s10_12))
@@ -190,10 +181,7 @@ theorem liouville_number :
     -- 10.17. inequalities
     have s10_17 : L ≠ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by linarith only [s10_16]
     -- 10.18. thm:later-at-most n := r, from D2
-    have s10_18 : ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / 2 ^ LeanBridges.Counting.factorial (r + 1) := by
-      simp only [hD2] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtMost.later_at_most (n := m + N) hD2_pos); push_cast at h; exact h)
+    have s10_18 : ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / 2 ^ LeanBridges.Counting.factorial (r + 1) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtMost.later_at_most (n := r) hD2_pos)
     -- 10.19. substitute 2^((r + 1)!) = e (D4) into line 10.18
     have s10_19 : ∀ i : ℤ, 0 < i → i ≥ r → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / (e : ℚ) := by
       have e_w : 2 ^ LeanBridges.Counting.factorial (r + 1) = (e : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD4.symm; push_cast at h; linear_combination h
@@ -215,10 +203,7 @@ theorem liouville_number :
       calc c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) (Q := c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)))) s10_9 s10_17)
         _ ≤ 2 / (e : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_le (x := L) (c := ∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) (δ := 2 / (e : ℝ)))).mpr ⟨s10_24, s10_20⟩
     -- 10.26. mun:nat-closure a := r!, b := N, from D1
-    have s10_26 : 0 < (LeanBridges.Counting.factorial r : ℤ) * N := by
-      simp only [hD1] at ⊢
-      push_cast at ⊢
-      (have h := (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := (LeanBridges.Counting.factorial r : ℤ)) (LeanBridges.Counting.factorial_nat (r) (le_of_lt hD2_pos)) (b := (LeanBridges.Polynomials.degree F : ℤ)) hD1_pos); push_cast at h; exact h)
+    have s10_26 : 0 < (LeanBridges.Counting.factorial r : ℤ) * N := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := (LeanBridges.Counting.factorial r : ℤ)) (LeanBridges.Counting.factorial_nat (r) (le_of_lt hD2_pos)) (b := N) hD1_pos)
     -- 10.27. mun:nat-closure a := r!, b := m + 1
     have s10_27 : 0 < (LeanBridges.Counting.factorial r : ℤ) * (m + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := (LeanBridges.Counting.factorial r : ℤ)) (LeanBridges.Counting.factorial_nat (r) (le_of_lt hD2_pos)) (b := m + 1) (add_pos (s10_3a) (by norm_num)))
     have hD5_kind : (0 : ℤ) < 2 ^ ((LeanBridges.Counting.factorial r : ℤ) * N).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := (LeanBridges.Counting.factorial r : ℤ) * N) (le_of_lt s10_26))

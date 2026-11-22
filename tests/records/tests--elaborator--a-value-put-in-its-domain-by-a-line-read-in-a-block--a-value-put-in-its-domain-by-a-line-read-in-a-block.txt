@@ -10,5 +10,5 @@ read 8: For all x ∈ {1, …, 9}, 10 − x ≤ 9  as  for-all:forall∈,(name:x
 read 10: x ∈ {1, …, 9}  as  membership:∈(name:x, integer-range:{,…,}(numeral:1, numeral:9))  a statement
 read 12: 10 − x ≤ 9  as  order:≤(additive:−(numeral:10, name:x), numeral:9)  a statement
 read 13: 10 − x  as  additive:−(numeral:10, name:x)  a number
-step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
-step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, defines_read: false, identities: [], flips: [], unfolded: [] }]
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]

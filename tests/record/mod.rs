@@ -545,7 +545,7 @@ fn meeting_words(m: &Meeting) -> String {
         (m.permuted, "permuted"),
         (m.renamed, "renamed"),
         (m.respelled, "respelled"),
-        (m.defines_read, "defines read"),
+        (!m.unfolded.is_empty(), "defines read out"),
         (!m.identities.is_empty(), "identities dropped"),
         (!m.flips.is_empty(), "flipped"),
     ] {

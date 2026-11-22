@@ -74,7 +74,7 @@ pub(super) fn shows_value(
         return false;
     };
     let said = known.supplied(written, &known.citing_step(step));
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     parts.claims.iter().any(|claim| {
         let Some(Exhibited { wants, letters }) = exhibited(claim, library) else {
             return false;
@@ -120,7 +120,7 @@ pub(super) fn check_exhibit(
     library: &Library,
     known: &Known,
 ) {
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     let written: Vec<Node> = step
         .claim
         .sentences()
@@ -360,7 +360,7 @@ pub fn exhibit_values(
         .iter()
         .filter(|s| s.just.head.is(Method::Exhibit))
         .map(|step| {
-            let parts = known.parts(step, library);
+            let parts = known.read_out_parts(step, library);
             let facts = exhibit_facts(&parts.facts, library);
             let values = parts
                 .claims
@@ -451,7 +451,7 @@ pub fn check_instantiated(
         let Some(line) = known.scope(step).get(&target).cloned() else {
             continue;
         };
-        let parts = known.parts(step, library);
+        let parts = known.read_out_parts(step, library);
         let written = values_written(step, known);
         let defined = known.citing_step(step);
         let mut said: Vec<(Option<Node>, Option<Node>)> = known
@@ -541,7 +541,7 @@ pub fn check_instantiated(
         {
             let mut lighter = step.clone();
             lighter.just.refs.retain(|x| x != r);
-            let left = known.parts(&lighter, library);
+            let left = known.read_out_parts(&lighter, library);
             if wants
                 .iter()
                 .all(|w| left.facts.iter().any(|f| known.alike(f, w)))
@@ -823,7 +823,7 @@ pub(super) fn instance_reading(
     let line = known.scope(step).get(&target).cloned()?;
     let claim = known.whole(step, &step.claim)?;
     {
-        let named = known.parts(step, library);
+        let named = known.read_out_parts(step, library);
         let seed = &named.seed;
         let defined = known.citing_step(step);
         let says = known.says(&line, &defined);

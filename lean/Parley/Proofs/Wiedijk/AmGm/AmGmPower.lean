@@ -175,10 +175,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       have s1_20 : (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by
         calc (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * a (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := a) (a := (1 : ℤ)) (n := j) r222_1)
           _ = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * x := by simp (disch := omega) only [hD1]
-          _ ≤ A ^ j.toNat * x := by
-              simp only [hD1, hD2] at ⊢
-              push_cast at ⊢
-              (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) (c := a (j + 1)) s1_7 s1_11); push_cast at h; exact h)
+          _ ≤ A ^ j.toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := A ^ j.toNat) (c := x) s1_7 s1_11)
           _ ≤ B ^ (j + 1).toNat := s1_19
           _ = ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by simp (disch := omega) only [hD3]
       (have h := s1_20; push_cast at h ⊢; exact h)

@@ -407,7 +407,7 @@ pub(super) fn family_asks(step: &Step, known: &Known, library: &Library) -> Fami
         .cited_item()
         .and_then(|item| library.groups(&just.item(&item)))
         .expect("a step whose item was just read");
-    let parts = known.parts(step, library);
+    let parts = known.read_out_parts(step, library);
     let mut held = BTreeSet::new();
     let mut values = Vec::new();
     // The item's function types under what the citation writes for its

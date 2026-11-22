@@ -1706,6 +1706,48 @@ impl<'a> Proof<'a> {
             SuppliedBy::Bound { letter } => return Route::Built(bound_proof(letter)),
             // An equation the same on both sides once the identity elements
             // the checker dropped are dropped (`identity_lemma`).
+            SuppliedBy::Identity(met) if !met.unfolded.is_empty() => {
+                // Its two sides one once the defines the checker read out
+                // are (`Meeting::unfolded`), `s = (a + b)/2` of s := (a +
+                // b)/2: each rewritten by the equation its `set` gives, then
+                // each flip as below, after which the two are one.
+                if !met.identities.is_empty() {
+                    return Route::no(
+                        "an equation met through a define with an identity element dropped",
+                    );
+                }
+                let values = self.set_values();
+                let mut names: Vec<String> = Vec::new();
+                for u in &met.unfolded {
+                    let Some(v) = values.get(&super::super::names::letter(&u.name))
+                    else {
+                        return Route::no(
+                            "an equation met through a define the proof does not set",
+                        );
+                    };
+                    if !names.contains(&v.equation) {
+                        names.push(v.equation.clone());
+                    }
+                }
+                let Some(flips) = super::terms::flip_rewrites(
+                    &self.writer,
+                    &met.flips,
+                    super::terms::Toward::FromFirst,
+                ) else {
+                    return Route::no(
+                        "an equation met through a define in an order no lemma turns",
+                    );
+                };
+                let rules = names
+                    .iter()
+                    .map(|n| t::hyp(n))
+                    .chain(flips)
+                    .map(t::forwards)
+                    .collect();
+                return Route::Built(t::by_term(super::super::doc::Proof::By(
+                    t::call("rw", vec![TacticArg::Rules(rules)]),
+                )));
+            }
             SuppliedBy::Identity(met) => {
                 // Its two sides alike but for the order of the parts of a
                 // notation that stands in no order, |CA| beside |AC|: the

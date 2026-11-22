@@ -715,7 +715,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Vec::new());
         };
         let library = self.item_library();
-        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
         let mut out = Vec::new();
         for supplied in cited.supplied.iter().filter(|s| s.at.is_some()) {
             let at = filled(&supplied.want, &binding, &library.ctx);
@@ -891,7 +891,7 @@ impl<'a> Elaborator<'a> {
     /// citation fixes it, as a term in the step's own names, each read in
     /// the names as they stand before any is given, as the checker read the
     /// citation (`cited_here`): first what the citation's own pairs give as
-    /// the page writes them (`Cited::pairs`), `a := b/k, b := a/k` swapping
+    /// the page writes them (`Cited::written`), `a := b/k, b := a/k` swapping
     /// the two, a define they name kept by its name, then what
     /// its match gives the rest (`Cited::binding`). An obtain's is read off
     /// the lines it cites, as `obtain B: thm:convergent-bounded, from 1.1`
@@ -904,7 +904,7 @@ impl<'a> Elaborator<'a> {
         let mut out = IndexMap::new();
         let obtain = step.just.head.is(Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
-        for (name, node) in &taken.pairs {
+        for (name, node) in &taken.written {
             let value = self.matched_value(other, name, node, &taken.binding)?;
             out.insert(name.to_string(), value);
         }
