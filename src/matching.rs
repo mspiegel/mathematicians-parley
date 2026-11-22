@@ -123,6 +123,122 @@ impl<'a> Reading<'a> {
             budget: 0,
         }
     }
+
+    /// A reading that may read out the defines `unfolds` holds, as deep
+    /// as `expand` reads them.
+    pub fn with(ctx: &'a Context, unfolds: &'a Unfolds) -> Reading<'a> {
+        Reading {
+            ctx,
+            unfolds: Some(unfolds),
+            budget: 8,
+        }
+    }
+
+    /// The reading one define deeper along a path, where it may read one
+    /// more; None where it has no defines or has read as deep as it may.
+    fn deeper(self) -> Option<Reading<'a>> {
+        let unfolds = self.unfolds?;
+        (self.budget > 0 && !unfolds.defines.is_empty()).then(|| Reading {
+            budget: self.budget - 1,
+            ..self
+        })
+    }
+
+    /// The define `node` names at its head, where this reading may read
+    /// it out: a name a term or a function of one argument defines, or a
+    /// defined function applied to as many values as it takes.
+    fn define_at(&self, node: &Node) -> Option<(&'a str, &'a Defined)> {
+        let unfolds = self.unfolds?;
+        if self.budget == 0 {
+            return None;
+        }
+        let head = match node.is_name() {
+            true => node,
+            false
+                if matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
+                    && node.children.len() >= 2
+                    && node.children[0].is_name() =>
+            {
+                &node.children[0]
+            }
+            false => return None,
+        };
+        let (name, defined) = unfolds.defines.get_key_value(head.text.as_str())?;
+        Some((name.as_str(), defined))
+    }
+}
+
+/// The define at the head of `node` read out one step and put in standard
+/// form, with the name it defines: a term for its name; a function of one
+/// argument standing alone as its rule, a property with the argument as
+/// its hole; a defined function applied, its rule at the values, each as
+/// `expand` reads it. None where the head is no define this reading may
+/// read out, or a function of several arguments stands alone.
+fn unfold_head(node: &Node, ctx: Reading<'_>) -> Option<(Node, String)> {
+    let (name, defined) = ctx.define_at(node)?;
+    let read = match (defined, node.is_name()) {
+        (Defined::Term(term), true) => term.clone(),
+        (Defined::Rule(rule), true) => {
+            let [param] = rule.params.as_slice() else {
+                return None;
+            };
+            Node::property(&param.name, rule.body.clone())
+        }
+        (Defined::Rule(rule), false) => rule.at(&node.children[1..])?,
+        (Defined::Term(_), false) => return None,
+    };
+    Some((standard(&read, ctx.ctx), name.to_string()))
+}
+
+/// `node` with each of its parts whose head is a define read out, put in
+/// standard form again, where reading a part out changes how the node
+/// itself is spelt: `∏(k ∈ R) k` with R := {1, …, n} is the product from 1
+/// to n, and `x + Z` with Z := 0 holds its identity. With each part read
+/// out, by its place in `tree`. None where no part's head is a define this
+/// reading may read out.
+fn parts_unfolded(
+    node: &Node,
+    tree: Tree,
+    ctx: Reading<'_>,
+) -> Option<(Node, Vec<Unfold>)> {
+    let mut read = Vec::new();
+    let mut kids = Vec::with_capacity(node.children.len());
+    for (i, child) in node.children.iter().enumerate() {
+        match unfold_head(child, ctx) {
+            Some((part, name)) => {
+                read.push(Unfold {
+                    name,
+                    tree,
+                    at: vec![i],
+                    read: part.clone(),
+                });
+                kids.push(part);
+            }
+            None => kids.push(child.clone()),
+        }
+    }
+    if read.is_empty() {
+        return None;
+    }
+    Some((standard(&node.with_children(kids), ctx.ctx), read))
+}
+
+/// Whether `node` or one of its parts has a define at its head that this
+/// reading may read out: what a match does not refuse at its root, since
+/// reading it out may make the ground what the pattern asks.
+fn unfoldable(node: &Node, ctx: Reading<'_>) -> bool {
+    ctx.define_at(node).is_some()
+        || node.children.iter().any(|c| ctx.define_at(c).is_some())
+}
+
+/// `node`, a value the match bound a pattern's function letter to, read as
+/// what it names where it is a define: a function's name as its rule, a
+/// map's as the map, which is what a letter applied in the pattern asks.
+fn value_read(node: &Node, ctx: Reading<'_>) -> Node {
+    match node.is_name() {
+        true => unfold_head(node, ctx).map_or_else(|| node.clone(), |(read, _)| read),
+        false => node.clone(),
+    }
 }
 
 impl Deref for Reading<'_> {
@@ -1014,6 +1130,7 @@ fn refused_at_root(
         && differs(pattern, ground)
         && !holds_identity(pattern, binding, variables, &ctx)
         && identity_kept_reading(ground, ctx).is_none()
+        && !unfoldable(ground, ctx)
 }
 
 /// Whether a pattern's operation holds its identity element in a hole:
@@ -1158,11 +1275,11 @@ fn fit_each(
         // (`names_its_letter`).
         let own = names_its_letter(pattern, binding, &ctx);
         if let Some(filled) =
-            rule_at_open_argument(pattern, binding, variables, &ctx).filter(|_| !own)
+            rule_at_open_argument(pattern, binding, variables, ctx).filter(|_| !own)
         {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
-        if let Some(filled) = map_at_argument(pattern, binding, &ctx).filter(|_| !own) {
+        if let Some(filled) = map_at_argument(pattern, binding, ctx).filter(|_| !own) {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
@@ -1195,9 +1312,9 @@ fn rule_at_open_argument(
     pattern: &Node,
     binding: &Binding,
     variables: &BTreeSet<String>,
-    ctx: &Context,
+    ctx: Reading<'_>,
 ) -> Option<Node> {
-    let stands = binding.get(&pattern.children[0].text)?;
+    let stands = &value_read(binding.get(&pattern.children[0].text)?, ctx);
     let [arg] = &pattern.children[1..] else {
         return None;
     };
@@ -1209,20 +1326,24 @@ fn rule_at_open_argument(
     }
     let mut put = Binding::new();
     put.insert(stands.text, arg.clone());
-    Some(substitute_apart(&stands.children[0], &put, ctx))
+    Some(substitute_apart(&stands.children[0], &put, &ctx))
 }
 
 /// t(u) where t is bound already to a map: the map's rule with u, as the
 /// pattern writes it, for the letter it binds (`map_applied`): L'Hôpital's
 /// f(x)/g(x), with f the map sending y ∈ D to u(y), is u(x)/g(x). None
 /// where t is bound to no map.
-fn map_at_argument(pattern: &Node, binding: &Binding, ctx: &Context) -> Option<Node> {
-    let stands = binding.get(&pattern.children[0].text)?;
-    let mut children = vec![stands.clone()];
+fn map_at_argument(
+    pattern: &Node,
+    binding: &Binding,
+    ctx: Reading<'_>,
+) -> Option<Node> {
+    let stands = value_read(binding.get(&pattern.children[0].text)?, ctx);
+    let mut children = vec![stands];
     children.extend(pattern.children[1..].iter().cloned());
     map_applied(
         &Node::of(pattern.spelling(), pattern.sort.clone(), children),
-        ctx,
+        &ctx,
     )
 }
 
@@ -1378,8 +1499,25 @@ fn fit_structure(
     if without_identity(pattern, ground, binding, variables, sites, ctx, then) {
         return true;
     }
-    match identity_kept_reading(ground, ctx) {
-        Some(kept) => fit_each(pattern, &kept, binding, variables, sites, ctx, then),
+    if let Some(kept) = identity_kept_reading(ground, ctx) {
+        if fit_each(pattern, &kept, binding, variables, sites, ctx, then) {
+            return true;
+        }
+    }
+    // A define the pattern asks for what it names is read out there, and
+    // only there: the ground's head, else a part whose reading respells
+    // the ground (`Reading`). A variable of the pattern binds the ground as
+    // written, so what no structure asks for keeps the page's spelling.
+    let Some(deeper) = ctx.deeper() else {
+        return false;
+    };
+    if let Some((read, _)) = unfold_head(ground, ctx) {
+        return fit_each(pattern, &read, binding, variables, sites, deeper, then);
+    }
+    match parts_unfolded(ground, Tree::Second, ctx) {
+        Some((read, _)) => {
+            fit_each(pattern, &read, binding, variables, sites, deeper, then)
+        }
         None => false,
     }
 }
@@ -1997,9 +2135,69 @@ pub fn alike_how_reading(
             return Some(met.within(Tree::First, kept.place).with(kept.met));
         }
     }
-    let kept = identity_kept_how(b, Tree::Second, ctx)?;
-    alike_how_reading(a, &kept.node, ctx, ours, theirs)
-        .map(|met| met.within(Tree::Second, kept.place).with(kept.met))
+    if let Some(kept) = identity_kept_how(b, Tree::Second, ctx) {
+        if let Some(met) = alike_how_reading(a, &kept.node, ctx, ours, theirs) {
+            return Some(met.within(Tree::Second, kept.place).with(kept.met));
+        }
+    }
+    alike_unfolded(a, b, ctx, ours, theirs)
+}
+
+/// `alike_how` of two trees that meet neither as written nor with an
+/// identity element dropped, once a define is read out where one differs
+/// from the other (`Reading`): the define at the head of the first, else
+/// at the second's, else at the head of a part whose reading respells the
+/// node. The read-outs are recorded where they were made, the outermost
+/// first. None where the reading has no defines to read out.
+fn alike_unfolded(
+    a: &Node,
+    b: &Node,
+    ctx: Reading<'_>,
+    ours: &IndexMap<Symbol, Symbol>,
+    theirs: &IndexMap<Symbol, Symbol>,
+) -> Option<Meeting> {
+    let deeper = ctx.deeper()?;
+    for tree in [Tree::First, Tree::Second] {
+        let node = if tree == Tree::First { a } else { b };
+        let Some((read, name)) = unfold_head(node, ctx) else {
+            continue;
+        };
+        let met = match tree {
+            Tree::First => alike_how_reading(&read, b, deeper, ours, theirs),
+            Tree::Second => alike_how_reading(a, &read, deeper, ours, theirs),
+        };
+        if let Some(met) = met {
+            let here = Meeting {
+                unfolded: vec![Unfold {
+                    name,
+                    tree,
+                    at: Vec::new(),
+                    read,
+                }],
+                ..Meeting::default()
+            };
+            return Some(here.with(met));
+        }
+    }
+    for tree in [Tree::First, Tree::Second] {
+        let node = if tree == Tree::First { a } else { b };
+        let Some((read, parts)) = parts_unfolded(node, tree, ctx) else {
+            continue;
+        };
+        let met = match tree {
+            Tree::First => alike_how_reading(&read, b, deeper, ours, theirs),
+            Tree::Second => alike_how_reading(a, &read, deeper, ours, theirs),
+        };
+        if let Some(met) = met {
+            let here = Meeting {
+                unfolded: parts,
+                respelled: true,
+                ..Meeting::default()
+            };
+            return Some(here.with(met));
+        }
+    }
+    None
 }
 
 /// The operand an identity element leaves (`identity_kept_how`): the
@@ -2441,7 +2639,7 @@ fn property(
 ) -> bool {
     let name = &pattern.children[0].text;
     let arg = read_at(&pattern.children[1], binding, &ctx);
-    let Some(stands) = binding.get(name) else {
+    let Some(stands) = binding.get(name).map(|s| value_read(s, ctx)) else {
         if !sites.contains(&pattern.id()) || !arg.is_name() {
             return false; // only the inside occurrence decides
         }
@@ -2537,7 +2735,7 @@ fn family(
 ) -> Option<bool> {
     let name = &pattern.children[0].text;
     let arg = read_at(&pattern.children[1], binding, &ctx);
-    let stands = binding.get(name).cloned();
+    let stands = binding.get(name).map(|s| value_read(s, ctx));
     if let Some(stands) = &stands {
         if stands.notation() == PROPERTY_OF {
             let mut at = Binding::new();
@@ -2832,4 +3030,266 @@ pub fn substitute_apart_by(
         })
         .collect();
     node.with_children(children)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::corpus::Within;
+    use crate::formula::notation_id::NO_LITERAL;
+    use crate::formula::Sort;
+    use crate::notations::{EQUALS, IN, PLUS, WITHOUT};
+
+    fn name(letter: &str) -> Node {
+        Node::name(Sort::of("set"), letter)
+    }
+
+    fn made(spelling: Spelling, children: Vec<Node>) -> Node {
+        Node::of(spelling, Sort::of("set"), children)
+    }
+
+    fn member(a: Node, set: Node) -> Node {
+        made(IN, vec![a, set])
+    }
+
+    fn without(a: Node, b: Node) -> Node {
+        made(WITHOUT, vec![a, b])
+    }
+
+    fn plus(a: Node, b: Node) -> Node {
+        made(PLUS, vec![a, b])
+    }
+
+    fn equal(a: Node, b: Node) -> Node {
+        made(EQUALS, vec![a, b])
+    }
+
+    fn variables(names: &[&str]) -> BTreeSet<String> {
+        names.iter().map(|n| n.to_string()).collect()
+    }
+
+    /// S defined as A ∖ B.
+    fn s_is_a_without_b() -> Unfolds {
+        let mut defines = Definitions::new();
+        defines.insert(
+            "S".to_string(),
+            Defined::Term(without(name("A"), name("B"))),
+        );
+        Unfolds { defines }
+    }
+
+    fn fitted(
+        pattern: &Node,
+        ground: &Node,
+        letters: &[&str],
+        ctx: Reading<'_>,
+    ) -> Option<Binding> {
+        let sites = IndexSet::new();
+        match_tree_reading(
+            pattern,
+            ground,
+            &Binding::new(),
+            &variables(letters),
+            &sites,
+            ctx,
+        )
+    }
+
+    fn bound(binding: &Binding, letter: &str) -> String {
+        binding[&Symbol::of(letter)].shape().to_string()
+    }
+
+    #[test]
+    fn a_name_is_read_out_where_the_pattern_asks_for_what_it_names() {
+        let ctx = Context::default();
+        let unfolds = s_is_a_without_b();
+        let pattern = member(name("u"), without(name("X"), name("Y")));
+        let ground = member(name("i"), name("S"));
+        let read = Reading::with(&ctx, &unfolds);
+        let binding = fitted(&pattern, &ground, &["u", "X", "Y"], read)
+            .expect("S read as A ∖ B fits X ∖ Y");
+        assert_eq!(bound(&binding, "u"), name("i").shape());
+        assert_eq!(bound(&binding, "X"), name("A").shape());
+        assert_eq!(bound(&binding, "Y"), name("B").shape());
+        // As written, without the define, nothing fits.
+        let plain = Reading::plain(&ctx);
+        assert!(fitted(&pattern, &ground, &["u", "X", "Y"], plain).is_none());
+    }
+
+    #[test]
+    fn a_variable_binds_the_page_s_term_as_written() {
+        let ctx = Context::default();
+        let unfolds = s_is_a_without_b();
+        let pattern = member(name("u"), name("X"));
+        let ground = member(name("i"), name("S"));
+        let read = Reading::with(&ctx, &unfolds);
+        let binding = fitted(&pattern, &ground, &["u", "X"], read).expect("it fits");
+        assert_eq!(bound(&binding, "X"), name("S").shape());
+    }
+
+    #[test]
+    fn a_defined_function_applied_is_read_as_its_rule_at_the_values() {
+        let ctx = Context::default();
+        // g(x) := x + 1
+        let rule = Rule {
+            params: vec![Param {
+                name: "x".to_string(),
+                domain: "ℕ".to_string(),
+                within: Within::Members,
+                said: "x ∈ ℕ".to_string(),
+            }],
+            read: Vec::new(),
+            body: plus(name("x"), Node::numeral("1")),
+            binders: Arc::new(FxIndexMap::default()),
+        };
+        let mut defines = Definitions::new();
+        defines.insert("g".to_string(), Defined::Rule(rule));
+        let unfolds = Unfolds { defines };
+        let applied = made(
+            Spelling::new(APPLICATION, NO_LITERAL),
+            vec![name("g"), Node::numeral("3")],
+        );
+        let pattern = plus(name("a"), name("b"));
+        let read = Reading::with(&ctx, &unfolds);
+        let binding = fitted(&pattern, &applied, &["a", "b"], read)
+            .expect("g(3) read as 3 + 1 fits a + b");
+        assert_eq!(bound(&binding, "a"), Node::numeral("3").shape());
+        assert_eq!(bound(&binding, "b"), Node::numeral("1").shape());
+    }
+
+    #[test]
+    fn an_identity_element_spelt_as_a_define_is_dropped() {
+        let mut ctx = Context::default();
+        ctx.identities.insert(
+            PLUS,
+            IdentityElement {
+                element: "0".to_string(),
+                holes: vec![1],
+                pattern: 0,
+            },
+        );
+        let mut defines = Definitions::new();
+        defines.insert("Z".to_string(), Defined::Term(Node::numeral("0")));
+        let unfolds = Unfolds { defines };
+        let none = IndexMap::new();
+        let met = alike_how_reading(
+            &plus(name("x"), name("Z")),
+            &name("x"),
+            Reading::with(&ctx, &unfolds),
+            &none,
+            &none,
+        )
+        .expect("x + Z, Z := 0, meets x");
+        assert_eq!(met.unfolded.len(), 1);
+        assert_eq!(met.unfolded[0].name, "Z");
+        assert_eq!(met.unfolded[0].at, vec![1]);
+        assert_eq!(met.identities.len(), 1);
+    }
+
+    #[test]
+    fn a_letter_bound_by_name_meets_the_term_the_name_reads_as() {
+        let ctx = Context::default();
+        let unfolds = s_is_a_without_b();
+        let pattern = equal(name("X"), name("X"));
+        let ground = equal(name("S"), without(name("A"), name("B")));
+        let read = Reading::with(&ctx, &unfolds);
+        let binding = fitted(&pattern, &ground, &["X"], read)
+            .expect("X is S, and S read out is A ∖ B");
+        assert_eq!(bound(&binding, "X"), name("S").shape());
+        let plain = Reading::plain(&ctx);
+        assert!(fitted(&pattern, &ground, &["X"], plain).is_none());
+    }
+
+    #[test]
+    fn a_meeting_records_where_a_define_was_read_out() {
+        let ctx = Context::default();
+        let unfolds = s_is_a_without_b();
+        let none = IndexMap::new();
+        let read_out = without(name("A"), name("B"));
+        let met = alike_how_reading(
+            &member(name("i"), name("S")),
+            &member(name("i"), read_out.clone()),
+            Reading::with(&ctx, &unfolds),
+            &none,
+            &none,
+        )
+        .expect("i ∈ S meets i ∈ A ∖ B");
+        assert_eq!(
+            met.unfolded,
+            vec![Unfold {
+                name: "S".to_string(),
+                tree: Tree::First,
+                at: vec![1],
+                read: read_out.clone(),
+            }]
+        );
+        // The first tree with the read-out made is the second.
+        let made = met
+            .with_unfolded(&member(name("i"), name("S")), Tree::First)
+            .expect("the place is in the tree");
+        assert_eq!(made.shape(), member(name("i"), read_out).shape());
+    }
+
+    #[test]
+    fn a_part_is_read_out_where_that_respells_the_node() {
+        // A product over a set holding a range is the product from one end
+        // to the other: over(R, t) with R := range(1, n) is from-to(1, n, t).
+        let spelt =
+            |notation: &str| Spelling::new(NotationId::of(notation), NO_LITERAL);
+        let (over, range, from_to) = (
+            spelt("test-over"),
+            spelt("test-range"),
+            spelt("test-from-to"),
+        );
+        let mut ctx = Context::default();
+        ctx.filled.insert(
+            over,
+            vec![Filled {
+                hole: 1,
+                inner: range,
+                standard: from_to,
+                places: vec![Source::Inner(1), Source::Inner(2), Source::Outer(2)],
+            }],
+        );
+        let set = made(range, vec![Node::numeral("1"), name("n")]);
+        let mut defines = Definitions::new();
+        defines.insert("R".to_string(), Defined::Term(set.clone()));
+        let unfolds = Unfolds { defines };
+        let none = IndexMap::new();
+        let written = made(over, vec![name("R"), name("t")]);
+        let standard = made(from_to, vec![Node::numeral("1"), name("n"), name("t")]);
+        let met = alike_how_reading(
+            &written,
+            &standard,
+            Reading::with(&ctx, &unfolds),
+            &none,
+            &none,
+        )
+        .expect("over(R, t), R := range(1, n), meets from-to(1, n, t)");
+        assert!(met.respelled);
+        assert_eq!(
+            met.unfolded,
+            vec![Unfold {
+                name: "R".to_string(),
+                tree: Tree::First,
+                at: vec![0],
+                read: set,
+            }]
+        );
+        assert!(alike_how(&written, &standard, &ctx, &none, &none).is_none());
+    }
+
+    #[test]
+    fn nothing_is_read_out_without_defines() {
+        let ctx = Context::default();
+        let none = IndexMap::new();
+        let met = alike_how(
+            &member(name("i"), name("S")),
+            &member(name("i"), without(name("A"), name("B"))),
+            &ctx,
+            &none,
+            &none,
+        );
+        assert!(met.is_none());
+    }
 }
