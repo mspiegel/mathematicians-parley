@@ -571,11 +571,11 @@ impl<'a> Elaborator<'a> {
         Ok(found)
     }
 
-    /// `same`, and where it declines, the two compared through `want` with
-    /// its defined names read as what they name (`read_out`): a lemma's
-    /// instance fitted as the standard form reads the claim differs from
-    /// the claim in a define's rule, which may hold more to close than the
-    /// rule alone, as G(m, 0) read as its rule writes m + 0.
+    /// `given` shown to be `want` through `want` with its defined names read
+    /// as what they name (`read_out`), as the standard form reads them: a
+    /// lemma's instance is fitted to the claim so read, and a define's rule
+    /// may bind other letters than the instance does, and hold more to
+    /// close than the rule alone, as G(m, 0) read as its rule writes m + 0.
     pub fn same_through_names(
         &mut self,
         given: &Term,
@@ -584,13 +584,10 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
-        let direct = self.same(given, want, scope, facts, step)?;
-        if let Built(p) = direct {
-            return Ok(Built(p));
-        }
         let read = self.read_out(want);
+        // A term naming no define is its own reading, met as it stands.
         if self.rpn(&read) == self.rpn(want) {
-            return Ok(direct);
+            return self.same(given, want, scope, facts, step);
         }
         // The rule may bind other letters than `given` does at the same
         // places: it is spelt with `given`'s letters first, so that what is

@@ -8,5 +8,5 @@ $[ tests/elaborator/recursion-shapes-cited/names-the-index.mm $]
 ${
   $d i j m p q $.
   tests.elaborator.recursion-shapes-cited.defined-in-the-body $p |- 1 = 1 $=
-    ( c1 wceq wtru vq cv vj cn0 vm vi cvv c1st cfv c2nd cmin co caddc cop cmpo vp cc0 cmpt cseq wex wcel nn0ex a1i mptexg syl elisset wa tests.elaborator.recursion-shapes-cited.names-the-index simpr eqcomd fveq1d eqeq1d mpbid eqtrd ex exlimdv mpd mptru ) AABZCDEZFGFEZHIJJIEZKLZHEZMLZVFANOZAPOZPOZQZRZSGSEZTQZUAZTUBZLZMLZUAZBZDUCZVBCVTJUDZWBCGJUDZWCWDCUEUFFGVSJUGUHDVTJUIUHCWAVBDCWAVBCWAUJZAAVCLZAWEWFAWEAVTLZABZWFABZWHWEIFHSUKZUFZWEWGWFAWEAVTVCWEVCVTCWAULZUMZUNZUOZUPZUMWPUQURUSUTVA $.
+    ( c1 wceq wtru vq cv vj cn0 vm vi cvv c1st cfv c2nd cmin co caddc cop cmpo vp cc0 cmpt cseq wex wcel nn0ex a1i mptexg syl elisset wa tests.elaborator.recursion-shapes-cited.names-the-index eqid id fveq2d 1nn0 fvex fvmptd3 eqeq1d simpr fveq1d eqtrd eqcomd bitrd mpbid ex exlimdv mpd mptru ) AABZCDEZFGFEZHIJJIEZKLZHEZMLZVMANOZAPOZPOZQZRZSGSEZTQZUAZTUBZLZMLZUAZBZDUCZVICWGJUDZWICGJUDZWJWKCUEUFFGWFJUGUHDWGJUIUHCWHVIDCWHVICWHUJZAAVJLZAWLWMAWLAWGLZABZWMABZWOWLIFHSUKZUFZWLWOAWDLZMLZABZWPWLWNWTAWLFAWFWTGWGJWGULZVKABZWEWSMXCVKAWDXCUMZUNZUNZAGUDZWLUOUFZWTJUDZWLWSMUPZUFZUQZURZWLWTWMAWLWMWTWLWMWNWTWLAVJWGCWHUSZUTZXLVAZVBZURZVCZVDZVBXTVAVEVFVGVH $.
 $}
