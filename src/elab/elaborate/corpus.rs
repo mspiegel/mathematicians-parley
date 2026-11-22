@@ -397,7 +397,7 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no reading of this citation",
             ));
         };
-        let values = cited.binding_with_written();
+        let values = cited.values_as_written();
         for (i, (one, h)) in wanted.iter().zip(&other.hypotheses).enumerate() {
             let entry = cited
                 .supplied
@@ -881,7 +881,7 @@ impl<'a> Elaborator<'a> {
             };
             node = part;
         }
-        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
         node = filled(&node, &binding, &library.ctx);
         if let Some(w) = within {
             let Some(part) = citing::conjuncts(&node, &library).get(w).cloned() else {
@@ -962,12 +962,23 @@ impl<'a> Elaborator<'a> {
             node = factors_swapped(&node);
         }
         let library = self.item_library();
-        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
         let filled = filled(&node, &binding, &library.ctx);
-        // A letter the reading binds whose variable a name of the proof
-        // holds is read as one nothing holds (`unheld_for`): the item's k
-        // is spelt with the variable the proof's obtained q is, and read so
-        // it would capture q.
+        self.read_apart(step, &filled)
+    }
+
+    /// `filled`, an item's sentence or hypothesis at a citation's values, as
+    /// a term. A letter it binds whose variable a name of the proof holds is
+    /// read as one nothing holds (`unheld_for`): the item's k is spelt with
+    /// the variable the proof's obtained q is, and read so it would capture
+    /// q; and a value's own bound letter, the X of ⋃(X ∈ D) X where the
+    /// proof names an X, is read apart alike, so that the reading and the
+    /// hypotheses carried to the lemma spell one set one way.
+    pub(in crate::elab) fn read_apart(
+        &mut self,
+        step: &Step,
+        filled: &Node,
+    ) -> Checked<Term> {
         let held = self.names_held();
         let mut bound = Vec::new();
         let mut rest = vec![filled.clone()];
@@ -992,7 +1003,7 @@ impl<'a> Elaborator<'a> {
             self.bound_as
                 .insert(name.to_string(), self.rpn(letter).to_string());
         }
-        let read = self.term(&filled);
+        let read = self.term(filled);
         self.bound_as = kept;
         Ok(self.to_term(&read?))
     }

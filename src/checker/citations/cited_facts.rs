@@ -4,7 +4,8 @@ use std::ptr;
 
 use super::*;
 use crate::checker::record::{BodyPart, ChainTerms, MetTrees};
-use crate::matching::Meeting;
+use crate::corpus::Values;
+use crate::matching::{Definitions, Meeting};
 use crate::{citing, matching};
 
 /// A requires line whose cited item does not give its fact.
@@ -241,6 +242,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         known,
         library,
     );
+    let pairs = pairs_as_written(&step.just.values, &item, &parts.seed, known, library);
     let mut out = Cited {
         item,
         group: taken.group,
@@ -257,6 +259,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
+        pairs,
         unfolded,
         recursions: IndexMap::new(),
     };
@@ -417,7 +420,10 @@ pub(super) fn unfolded_parts(
                     }
                 }
             }
-            let value = substitute_apart(value, outer, &library.ctx);
+            // The witness is a term of the page, which may name a letter as
+            // the item's own letters are named; the outer witnesses are put
+            // in the item's terms only, its domain and body.
+            let value = value.clone();
             let mut inner = outer.clone();
             inner.insert(letter.text, value.clone());
             // The domain may name the witnesses before this one.
@@ -783,6 +789,26 @@ pub(super) fn rules_by_name(
         .collect()
 }
 
+/// The citation's own pairs `v := t` as the page writes them, its defines
+/// kept, each read as its place in the item `item` wants it; and, for a
+/// letter the pairs leave out, what the seed `seed` gives it, a graph's
+/// listed name (`listed_seed`). The search reads the pairs with the defines
+/// the step cites read out; a backend holds a define by its name and reads
+/// it out only where it needs to.
+fn pairs_as_written(
+    values: &Values,
+    item: &str,
+    seed: &Binding,
+    known: &Known,
+    library: &Library,
+) -> Binding {
+    let mut out = known.seed(values, &Definitions::new(), library.item_sorts(item));
+    for (letter, value) in seed {
+        out.entry(*letter).or_insert_with(|| value.clone());
+    }
+    out
+}
+
 /// Each requires line's citation of an item, by the line it is on
 /// (`cited_requires`), and the citation of the reason under a let saying a
 /// kind of number, read as a requires line of the step below the let, as
@@ -886,6 +912,7 @@ pub fn cited_requires(
         known,
         library,
     );
+    let pairs = pairs_as_written(req.values(), &item, &parts.seed, known, library);
     let mut out = Cited {
         item,
         group: taken.group,
@@ -902,6 +929,7 @@ pub fn cited_requires(
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound,
         written: parts.seed,
+        pairs,
         unfolded,
         recursions: IndexMap::new(),
     };

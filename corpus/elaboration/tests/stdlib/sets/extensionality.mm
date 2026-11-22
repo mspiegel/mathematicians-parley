@@ -6,8 +6,9 @@ $( tests/stdlib/sets/extensionality, elaborated from tests/stdlib/sets.proof by 
 $[ stdlib/proved.mm $]
 
 ${
-  $d A x $.
-  $d B x $.
+  $d m t x $.
+  $d A m t x $.
+  $d B m t x $.
   tests.stdlib.sets.extensionality $p |- ( ( ( ( A e. _V /\ B e. _V ) /\ A. x e. A x e. B ) /\ A. x e. B x e. A ) -> A = B ) $=
-    ( cvv wcel wa cv wral wceq simpl simpr syl jca gext ) BDEZCDEZFZAGZCEZABHZFZRBEZACHZFZTUCFBCIUDTUCUDUATUAUCJQTKLUAUCKMABCNL $.
+    ( cvv wcel wa cv wral vt wceq simpl simpr syl wb vm id eleq1d cbvralvw bitri a1i mpbid jca gext ) BDEZCDEZFZAGZCEZABHZFZUGBEZACHZFZIGZCEZIBHZUNBEZICHZFBCJUMUPURUMUIUPUMUJUIUJULKUFUILMUIUPNUMUIOGZCEZOBHUPUHUTAOBUGUSJZUGUSCVAPZQRUTUOOIBUSUNJZUSUNCVCPZQRSTUAUMULURUJULLULURNUMULUSBEZOCHURUKVEAOCVAUGUSBVBQRVEUQOICVCUSUNBVDQRSTUAUBIBCUCM $.
 $}

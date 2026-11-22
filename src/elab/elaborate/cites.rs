@@ -715,7 +715,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Vec::new());
         };
         let library = self.item_library();
-        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let binding: NodeBinding = cited.values_as_written().into_iter().collect();
         let mut out = Vec::new();
         for supplied in cited.supplied.iter().filter(|s| s.at.is_some()) {
             let at = filled(&supplied.want, &binding, &library.ctx);
@@ -890,8 +890,9 @@ impl<'a> Elaborator<'a> {
     /// What each letter of a cited corpus theorem stands for where the
     /// citation fixes it, as a term in the step's own names, each read in
     /// the names as they stand before any is given, as the checker read the
-    /// citation (`cited_here`): first what the citation's own pairs give
-    /// (`Cited::written`), `a := b/k, b := a/k` swapping the two, then what
+    /// citation (`cited_here`): first what the citation's own pairs give as
+    /// the page writes them (`Cited::pairs`), `a := b/k, b := a/k` swapping
+    /// the two, a define they name kept by its name, then what
     /// its match gives the rest (`Cited::binding`). An obtain's is read off
     /// the lines it cites, as `obtain B: thm:convergent-bounded, from 1.1`
     /// finds x in 1.1.
@@ -903,8 +904,9 @@ impl<'a> Elaborator<'a> {
         let mut out = IndexMap::new();
         let obtain = step.just.head.is(Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
-        for (name, node) in &taken.written {
-            out.insert(name.to_string(), self.term(node)?);
+        for (name, node) in &taken.pairs {
+            let value = self.matched_value(other, name, node, &taken.binding)?;
+            out.insert(name.to_string(), value);
         }
         // A name the match gives itself, as a library function's C in
         // C(m, k) is, stands as it already does.
@@ -919,21 +921,31 @@ impl<'a> Elaborator<'a> {
             if obtain && self.names.contains_key(name.as_str()) {
                 continue;
             }
-            // A function letter the match makes a rule, t := x ↦ x·c, stands
-            // for the map the rule is over the letter's domain, as a
-            // function a define gives by a rule is read where it is written
-            // alone.
-            if node.notation() == PROPERTY_OF {
-                if let Some(map) =
-                    self.rule_as_map(other, name, node, &taken.binding)?
-                {
-                    out.insert(name.to_string(), self.term(&map)?);
-                    continue;
-                }
-            }
-            out.insert(name.to_string(), self.term(node)?);
+            let value = self.matched_value(other, name, node, &taken.binding)?;
+            out.insert(name.to_string(), value);
         }
         Ok(out)
+    }
+
+    /// A letter of the cited corpus theorem `other` at its value `node`, as
+    /// a term in the step's names. A function letter given a rule, t := x ↦
+    /// x·c, by the match or by the citation's own pair where the define it
+    /// names is read out, stands for the map the rule is over the letter's
+    /// domain, as a function a define gives by a rule is read where it is
+    /// written alone (`rule_as_map`).
+    fn matched_value(
+        &mut self,
+        other: &'a Theorem,
+        name: &Symbol,
+        node: &Node,
+        binding: &NodeBinding,
+    ) -> Checked<Rpn> {
+        if node.notation() == PROPERTY_OF {
+            if let Some(map) = self.rule_as_map(other, name, node, binding)? {
+                return self.term(&map);
+            }
+        }
+        self.term(node)
     }
 
     /// The map a rule bound to a cited theorem's function letter is, over

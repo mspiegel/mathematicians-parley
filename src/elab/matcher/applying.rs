@@ -750,13 +750,23 @@ impl<'a> Elaborator<'a> {
             Scoped::In(scope) => scope,
             Scoped::Settled(route) => return Ok(route),
         };
+        // A lemma a citation applies has its open antecedents fitted to the
+        // cited record's hypotheses at the values the checker read
+        // (`hypotheses_given`) before anything else the scope holds:
+        // `orel2`'s ph is the record's Q, and not whichever equation the
+        // scope says first. What only set.mm asks, a group's base set, is
+        // still the scope's.
+        let offered = match &self.hypotheses_given {
+            Some(given) => given.with(&known),
+            None => known.copy(),
+        };
         let binding = self.fit_open_antecedents(OpenAntecedents {
             antecedents: &antecedents,
             binding,
             variables: &variables,
             fresh: &fresh,
             where_: &where_,
-            known: &known,
+            known: &offered,
         });
         self.proof_from_lemma(Reached {
             label,
@@ -1184,10 +1194,22 @@ impl<'a> Elaborator<'a> {
             step,
             facts,
         } = reached;
+        // A lemma a citation applies proves its essentials from what the
+        // frame holds and from the cited record's hypotheses as the record
+        // carries them (`hypotheses_given`), each facing the way the item
+        // asks it: `sumeq2dv`'s term-by-term equation from the item's "for
+        // all k, t(k) = u(k)", where the line the record carried it from
+        // says it the other way round. Either proves it; what the frame
+        // holds is offered first, as it needs no carrying. The record's are
+        // proved under the citation's scope, so are offered only there.
+        let offered = match &self.hypotheses_given {
+            Some(given) if where_ == *scope => known.with(given),
+            _ => known.copy(),
+        };
         let mut asked_all = Vec::new();
         for e in &sig.essentials {
             let asked = self.essential(e).substitute(&binding);
-            asked_all.push(self.prove_essential(&asked, &where_, &known)?);
+            asked_all.push(self.prove_essential(&asked, &where_, &offered)?);
         }
         let mut essentials = Vec::new();
         for one in asked_all {

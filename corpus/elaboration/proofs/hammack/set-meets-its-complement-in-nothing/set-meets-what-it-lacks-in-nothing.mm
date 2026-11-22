@@ -6,8 +6,9 @@ $( proofs/hammack/set-meets-its-complement-in-nothing/set-meets-what-it-lacks-in
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A m $.
-  $d B m $.
+  $d k m s $.
+  $d A k m s $.
+  $d B k m s $.
   proofs.hammack.set-meets-its-complement-in-nothing.set-meets-what-it-lacks-in-nothing $p |- ( ( A e. _V /\ B e. _V ) -> ( A i^i ( B \ A ) ) = (/) ) $=
-    ( cvv wcel wa vm cv wn cdif wral cin c0 wceq simpr wb eldif a1i mpbid simprd ralrimiva disjr sylibr ) ACDZBCDZEZFGZADZHZFBAIZJAUIKLMUEUHFUIUEUFUIDZEZUFBDZUHUKUJULUHEZUEUJNUJUMOUKUFBAPQRSTFAUIUAUB $.
+    ( cvv wcel wa vs cv wn cdif wral cin c0 wceq vm simpr wb eldif a1i mpbid simprd ralrimiva vk id eleq1d notbid cbvralvw bitri disjr sylibr ) ACDZBCDZEZFGZADZHZFBAIZJZAUPKLMULNGZADZHZNUPJZUQULUTNUPULURUPDZEZURBDZUTVCVBVDUTEZULVBOVBVEPVCURBAQRSTUAVAUQPULVAUBGZADZHZUBUPJUQUTVHNUBUPURVFMZUSVGVIURVFAVIUCUDUEUFVHUOUBFUPVFUMMZVGUNVJVFUMAVJUCUDUEUFUGRSFAUPUHUI $.
 $}

@@ -815,7 +815,7 @@ impl<'a> Elaborator<'a> {
         };
         // The values the checker read each hypothesis at, the citation's
         // own pairs among them (`citations::with_seed`).
-        let binding = cited.binding_with_written();
+        let binding = cited.values_as_written();
         let library = self.item_library();
         // A function's type, and a finite group's `let`, are held among
         // the step's facts, as each step types its functions, and the
@@ -863,7 +863,10 @@ impl<'a> Elaborator<'a> {
             ) {
                 continue;
             }
-            let wanted = self.term(&node)?;
+            // Read as the reading the lemma is applied at is (`read_apart`),
+            // so that a value's bound letter is spelt alike in both.
+            let wanted = self.read_apart(step, &node)?;
+            let wanted = self.rpn(&wanted);
             let recorded = RecordedSupply {
                 supplied,
                 values: &binding,
@@ -931,16 +934,55 @@ impl<'a> Elaborator<'a> {
         }
         let recorded = self.recorded_statement(at)?;
         let says = self.line_says(&at.line, scope, facts, lines)?;
+        self.said_on_line(&recorded, &says)
+    }
+
+    /// What the line says that is `recorded`, as written or over other
+    /// bound letters, with its proof; None where it says no such thing.
+    fn said_on_line(
+        &mut self,
+        recorded: &Rpn,
+        says: &Facts,
+    ) -> Checked<Option<(Rpn, Proof)>> {
         for (said, held) in says.entries() {
-            let same = said == recorded
+            let same = said == *recorded
                 || self
-                    .renaming(&self.to_term(&recorded), &self.to_term(&said))?
+                    .renaming(&self.to_term(recorded), &self.to_term(&said))?
                     .is_some();
             if same {
                 return Ok(Some((said, held)));
             }
         }
         Ok(None)
+    }
+
+    /// `recorded`, an "and" of what the line says, each part found on the
+    /// line (`said_on_line`) and the two sides of each "and" joined by
+    /// `jca`; None where a part is not on it.
+    fn joined_on_line(
+        &mut self,
+        recorded: &Rpn,
+        says: &Facts,
+        scope: &Rpn,
+    ) -> Checked<Option<(Rpn, Proof)>> {
+        if let Some(found) = self.said_on_line(recorded, says)? {
+            return Ok(Some(found));
+        }
+        let whole = self.to_term(recorded);
+        let (Some("wa"), [left, right]) = (whole.label(), whole.children()) else {
+            return Ok(None);
+        };
+        let (left, right) = (self.rpn(left), self.rpn(right));
+        let Some((l, lp)) = self.joined_on_line(&left, says, scope)? else {
+            return Ok(None);
+        };
+        let Some((r, rp)) = self.joined_on_line(&right, says, scope)? else {
+            return Ok(None);
+        };
+        Ok(Some((
+            t!(l, r, "wa"),
+            pf!(self.b; scope, l, r, lp, rp, "jca"),
+        )))
     }
 
     /// ( scope -> term ) from the line the checker placed it in (`at`): as
@@ -964,6 +1006,18 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(p) = self.held_rebound(held, term, scope)? {
             return Ok(Some(p));
+        }
+        // The line's sentences together, which a line held sentence by
+        // sentence, an obtain's, does not hold joined: each part as the
+        // line gives it, its letter's membership among them, joined as the
+        // record's statement joins them (`joined_on_line`).
+        if at.sentence.is_none() {
+            let recorded = self.recorded_statement(at)?;
+            if let Some((said, proof)) = self.joined_on_line(&recorded, held, scope)? {
+                if said == *term {
+                    return Ok(Some(proof));
+                }
+            }
         }
         let lines = self.lines.clone();
         if let Some((said, proof)) = self.line_fact(at, scope, facts, &lines)? {
@@ -1143,7 +1197,10 @@ impl<'a> Elaborator<'a> {
             .copied()
             .collect();
         if !meeting.is_empty() {
-            let seen: Vec<&Term> = values.iter().collect();
+            // Apart from the lemma's own letters too, so that no two of its
+            // binders come to bind one letter.
+            let mut seen: Vec<&Term> = values.iter().collect();
+            seen.push(&reads);
             if let Some(moved) = self.unheld_for(meeting, &seen) {
                 binding.extend(moved);
             }

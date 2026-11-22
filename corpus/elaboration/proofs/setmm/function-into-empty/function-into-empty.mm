@@ -6,8 +6,9 @@ $( proofs/setmm/function-into-empty/function-into-empty, elaborated from proofs/
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A m $.
-  $d B m $.
+  $d k m x $.
+  $d A k m x $.
+  $d B k m x $.
   proofs.setmm.function-into-empty.function-into-empty $p |- ( ( ( A e. _V /\ B Fn A ) /\ A = (/) ) -> B : A --> (/) ) $=
-    ( cvv wcel wfn wa c0 wceq vm cv cfv wral wf simpl simpr syl eleq2d mpbid wn noel a1i eqidd mtbird pm2.21dd ralrimiva jca ffnfv sylibr ) ACDZBAEZFZAGHZFZUJIJZBKZGDZIALZFAGBMUMUJUQUMUKUJUKULNUIUJOPUMUPIAUMUNADZFZUNGDZUPUSURUTUMUROUSAGUNUSUMULUMURNUKULOPQRUSUTUTUTSUSUNTUAUSGGUNUSGUBQUCUDUEUFIAGBUGUH $.
+    ( cvv wcel wfn wa c0 wceq vx cv cfv wral wf simpl simpr syl vm eleq2d mpbid wn noel a1i eqidd mtbird pm2.21dd ralrimiva wb vk id fveq2d eleq1d cbvralvw bitri jca ffnfv sylibr ) ACDZBAEZFZAGHZFZURIJZBKZGDZIALZFAGBMVAURVEVAUSURUSUTNUQUROPVAQJZBKZGDZQALZVEVAVHQAVAVFADZFZVFGDZVHVKVJVLVAVJOVKAGVFVKVAUTVAVJNUSUTOPRSVKVLVLVLTVKVFUAUBVKGGVFVKGUCRUDUEUFVIVEUGVAVIUHJZBKZGDZUHALVEVHVOQUHAVFVMHZVGVNGVPVFVMBVPUIUJUKULVOVDUHIAVMVBHZVNVCGVQVMVBBVQUIUJUKULUMUBSUNIAGBUOUP $.
 $}
