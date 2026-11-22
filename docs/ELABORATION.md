@@ -384,13 +384,15 @@ A `proof` block gives back everything it took — `ex` for what it supposed,
 then one `ralrimiva` per name it fixed, innermost first; one that lets no
 name gives back only the `ex`.
 
-A step said of every member (`SYNTAX.md`) is the one-step block it abbreviates,
-built without one (`by_method_written`): the member is fixed in a frame of its
+A step the checker read at a member (`CheckedTheorem::at_member`; `SYNTAX.md`,
+a step said of every member) is the one-step block it abbreviates, built
+without one (`by_method_written`): the member is fixed in a frame of its
 own (`for_every`), the page's letter bound to it while the step and its
 requires lines are proved, and the claim generalised. The member takes the
 claim's own letter where neither the scope nor a name holds it, and a spare
 otherwise, renamed back after. Either is `reserved`, so no later step is handed
-it as a letter nothing holds. A definition the step cites unfolds the member's
+it as a letter nothing holds. An instantiation leaving a letter open gives it
+the member (`Instantiated::at_claim`). A definition the step cites unfolds the member's
 membership as it would a cited line (`member`), and so does one a requires
 line cites: a requires line naming a definition stated as a biconditional is
 read as a step citing it is (`reading`, `trying`), from the lines the
@@ -1075,6 +1077,11 @@ denominator's atoms, of a quotient a membership is built for, and of what
 4. A closed value not zero, worked out as `arithmetic` works one out.
 5. A line in scope the step does not name, which the step then rests on.
 6. The search, which offers only what the step may rest on.
+
+The divisors of an `algebra` reason are not walked through this order. The
+checker's record says why each is not zero (`CheckedTheorem::divided_by`):
+numerals as in 1, a positive integer from what the page says once, a stated
+line from that sentence alone, and anything else by its parts, as in 3.
 
 Where it is asked decides how far the order goes. A quotient a membership is
 built for stops at 3 (`divisor_written`), since its divisor's `≠ 0` is the

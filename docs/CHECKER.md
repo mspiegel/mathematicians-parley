@@ -182,7 +182,7 @@ nowhere else on the citation's account.
   line's one sentence where it says it another way, "there is a ∈ A" with
   no body. Both backends obtain from it.
 - `instantiated`: for each instantiation, a step's, a calculation row's or a
-  requires line's, four facts (`Instantiated`). The first is the sentence
+  requires line's, five facts (`Instantiated`). The first is the sentence
   of the line instantiated (`FirstAt`). The second is each condition taken
   off on the way to the claim, with where the line that meets it stands
   (`Condition`). The third is how what is left meets the claim. The fourth
@@ -190,7 +190,11 @@ nowhere else on the citation's account.
   (`Guard`): f(a) ∈ {2, …, p − 2} of `a := f(a)`, by line 5.13 read at the
   block's a. Lean instantiates that sentence, passes each guard and
   condition from the line that states it, and closes the step by that
-  meeting.
+  meeting. The fifth is the letter of the line the values leave open that
+  the step reads at its claim's own letter, with that letter (`AtClaim`),
+  where there is one: m of "for all N ∈ ℕ, for all m ∈ {2, …, N}, …" at
+  N := n in a claim "for all m ∈ {2, …, n}". Both backends give the letter
+  that value at the member.
 - `restated`: for each `restate` step whose claim is one sentence, and each
   requires line reasoned from lines alone, by the line of the
   justification, how the lines it names give its fact (`Restated`):
@@ -453,7 +457,9 @@ nowhere else on the citation's account.
   sentence it is read from, the line itself or a fact implying it, `d ∈ ℕ`
   of `d > 0`); it is numerals; or it is a positive integer by what the page
   says once (`Positive`). Lean writes a fact for each and clears the
-  divisions by `field`.
+  divisions by `field`. Metamath proves each the same way
+  (`divisor_apart`): numerals by their value, `Positive` from what the page
+  says once, and `Stated` from that sentence alone.
 - `held_by_lines`: the parts of the terms each reason writes, and of the
   lines it names, that those lines put in a number system, by the line the
   reason is on: a step's, a requires line's, or the reason under a define
@@ -479,6 +485,18 @@ nowhere else on the citation's account.
   part of a set said as `X ⊆ A` is read as "for all x ∈ X, x ∈ A". The
   Metamath writer reads a line at a block's letter only where a reading
   says so: at a block's opening, those of the first step below its `let`.
+- `at_member`: each step and requires line the checker reads at a member
+  of its claim's "for all" (`SYNTAX.md`, a step said of every member), by
+  the line of its justification, with the binder taken off: the letter, its
+  set, and whether it ranges over the parts of the set, "for all X ⊆ A"
+  (`AtMember`). It holds what `citing::at_a_member` decides of a define, an
+  item and the three methods that prove one fact, and an instantiation that
+  reads a letter at the claim's own (`Instantiated::at_claim`). A step not
+  here is proved whole. Metamath proves the body at the member and
+  generalises (`by_method_written`). Lean opens the one binder, `intro k
+  h_k`, and proves the body. Neither decides it for itself.
+  `SuppliedBy::Bound`, the claim's own membership, is given only in such a
+  step.
 - `statement_bounds`, `bounds`: what the statement's hypotheses, and the
   lines in scope above each step, bound below, y − 3 ≥ 0 of `y ≥ 3` or
   x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope,

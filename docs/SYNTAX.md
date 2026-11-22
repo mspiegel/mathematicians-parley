@@ -809,8 +809,15 @@ other: an item whose conclusions say "for all" anywhere is read as written,
 as `sum-zero-terms` gives one and `upper-bound` unfolds to one, and an item
 whose conclusions do not is applied at a member; a define, which says one
 equation, is read at a member, and so are `membership`, `algebra` and
-`inequalities`, which each prove one fact. A step whose body needs more than
-one step is still a block.
+`inequalities`, which each prove one fact. An `instantiate` that gives no
+value to a letter of its line ranging over the claim's set reads that letter
+at the claim's own, and is read at a member too: `instantiate N := n in line
+1`, where line 1 says "for all N ∈ ℕ, for all m ∈ {2, …, N}, m is a product
+of primes", claims "for all m ∈ {2, …, n}, m is a product of primes" of each
+m. Only the claim's outer "for all" is taken off. Any other step claiming a
+"for all" proves it whole, as `join`, `restate`, `substitute`,
+`transitivity` and an instantiation leaving no letter open do. A step whose
+body needs more than one step is still a block.
 
 A naming line gives an object a name. In a theorem it opens with `let` and
 `=`, is labelled rather than numbered, and stands where the name is first

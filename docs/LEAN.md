@@ -702,6 +702,12 @@ No proof is left to a general search tactic.
 A requires line is a `have` proved by its own reason, and a define is
 `set m : ℝ := … with D1`. A define the statement is read with is written out
 in Lean's statement and named again by `set` at the head of the proof.
+A step the checker read at a member (`at_member`) opens the claim's one
+binder, `intro k h_k`, and proves the body at k. Any other step claiming a
+"for all" proves it whole: a `join` or `restate` by the line itself, `:= s1`.
+An instantiation leaving a letter open gives it the claim's letter
+(`Instantiated::at_claim`), and its guard is `h_k`.
+
 A requires line of a step that says "for all x" is stated under the claim's
 binders, `have r102_3 : ∀ x : ℚ, 0 ≤ s x`. Inside its step it is the fact
 at the step's x, `r102_3 x`. It says nothing of a later step's x, which is
