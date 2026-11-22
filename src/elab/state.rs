@@ -15,7 +15,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::{Facts, Lines, Written};
-use crate::checker::record::CheckedTheorem;
+use crate::checker::record::{CheckedTheorem, NotZero};
 use crate::checker::LibraryReading;
 use crate::citing;
 use crate::corpus::{proof, written_text, FileScope, Item, Record, Step, Theorem};
@@ -425,6 +425,15 @@ pub struct Elaborator<'a> {
     /// conclusion the claim is, as the record reads it (`LemmaSide`): taken
     /// by that application alone, and by none it makes inside itself.
     pub lemma_side: Option<LemmaSide>,
+    /// While an `algebra` reason is built, each part it divides by with why
+    /// the checker found it not zero (`CheckedTheorem::divided_by`); None
+    /// outside one.
+    pub reason_divided: Option<Vec<NotZero>>,
+    /// `reason_divided` while the normaliser asks a denominator's `≠ 0`
+    /// (`not_zero_named`), which `divisor_apart` proves it by; None
+    /// otherwise, where a membership asked on the way is no divisor of the
+    /// reason's.
+    pub divided: Option<Vec<NotZero>>,
     /// How many searches for a divisor's `≠ 0` enclose this point. That a
     /// divisor is not zero is the page's to say, so no membership said once
     /// is offered on the way to it (`introduced_membership`, `not_zero`).
@@ -613,6 +622,8 @@ impl<'a> Elaborator<'a> {
             kept_named: BTreeSet::new(),
             hypotheses_given: None,
             lemma_side: None,
+            reason_divided: None,
+            divided: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),
             let_lines: BTreeSet::new(),
