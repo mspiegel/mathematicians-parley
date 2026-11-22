@@ -1,5 +1,7 @@
 //! Unfolding definitions and hypotheses.
 
+use std::slice;
+
 use super::*;
 use crate::checker::record::Supplied;
 use crate::citing::HypothesisAt;
@@ -1195,37 +1197,19 @@ impl<'a> Elaborator<'a> {
             }
         }
         // A letter the lemma binds is kept apart from every letter the
-        // values spell: `divides` binds n, and unfolding "m + n is even"
-        // under it would capture the step's own n. Where one meets, it takes
-        // a letter nothing holds, as `applied_body` moves a rule's letter.
-        let values: Vec<Term> = binding.values().cloned().collect();
-        let spelt: BTreeSet<String> = values
-            .iter()
-            .flat_map(|v| {
-                self.rpn(v)
-                    .tokens()
-                    .iter()
-                    .map(|t| String::from(*t))
-                    .collect::<Vec<_>>()
-            })
-            .collect();
-        let meeting: Vec<Symbol> = self
-            .letters_bound(&reads)
-            .iter()
-            .filter(|v| !binding.contains_key(*v) && spelt.contains(&self.float_of(v)))
-            .copied()
-            .collect();
-        if !meeting.is_empty() {
-            // Apart from the lemma's own letters too, so that no two of its
-            // binders come to bind one letter.
-            let mut seen: Vec<&Term> = values.iter().collect();
-            seen.push(&reads);
-            if let Some(moved) = self.unheld_for(meeting, &seen) {
-                binding.extend(moved);
-            }
-        }
-        let left = self.rpn(&reads.children()[0].substitute(&binding));
-        let right = self.rpn(&reads.children()[1].substitute(&binding));
+        // values spell (`put_apart`): `divides` binds n, and unfolding "m +
+        // n is even" under it would capture the step's own n.
+        let Some([put]) = self
+            .put_apart(slice::from_ref(&reads), &binding, &BTreeSet::new())
+            .and_then(|p| <[Term; 1]>::try_from(p).ok())
+        else {
+            return Err(self.defect(
+                step.line,
+                "no letter is left to keep the lemma's bound letters apart from the values",
+            ));
+        };
+        let left = self.rpn(&put.children()[0]);
+        let right = self.rpn(&put.children()[1]);
         // What carries the unfolding to the claim asks from what the step
         // names, requires lines included.
         let facts = named;

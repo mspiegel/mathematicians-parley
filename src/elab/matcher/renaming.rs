@@ -558,6 +558,49 @@ impl<'a> Elaborator<'a> {
         Some(moved)
     }
 
+    /// `terms` with `values` put in, each letter a binder in them binds that
+    /// a value spells, or that `apart` names, first moved to a letter
+    /// nothing holds (`unheld_for`): substitution that captures nothing, the
+    /// one rule by which a value goes under a binder. A letter is moved the
+    /// same way in every one of `terms`, as a theorem's set variable is one
+    /// variable across its hypotheses and statement, and at once with the
+    /// values put in, so a value's own letter is not moved. A letter
+    /// `values` gives is put in, not moved. None where too few letters are
+    /// left.
+    pub fn put_apart(
+        &self,
+        terms: &[Term],
+        values: &Binding,
+        apart: &BTreeSet<String>,
+    ) -> Option<Vec<Term>> {
+        let mut keep: BTreeSet<String> = apart.clone();
+        for value in values.values() {
+            for token in self.rpn(value).tokens() {
+                if self.is_setvar(token) {
+                    if let Some(v) = self.var_of(token).variable() {
+                        keep.insert(v.to_string());
+                    }
+                }
+            }
+        }
+        let mut moving: Vec<Symbol> = Vec::new();
+        for t in terms {
+            for v in self.letters_bound(t) {
+                if keep.contains(v.as_str())
+                    && !values.contains_key(&v)
+                    && !moving.contains(&v)
+                {
+                    moving.push(v);
+                }
+            }
+        }
+        let mut seen: Vec<&Term> = terms.iter().collect();
+        seen.extend(values.values());
+        let mut put = self.unheld_for(moving, &seen)?;
+        put.extend(values.iter().map(|(k, v)| (*k, v.clone())));
+        Some(terms.iter().map(|t| t.substitute(&put)).collect())
+    }
+
     /// ( scope -> wanted ) from a fact saying it over other bound letters,
     /// carried by `renaming`; None where no fact does.
     pub(super) fn fact_respelt(

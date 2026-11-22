@@ -11,31 +11,22 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.rules_read.get(&key) {
             return found.clone();
         }
-        let (bound, mut rule) = (f.children()[0].clone(), f.children()[2].clone());
-        // The map's own letter, where it binds one, is the rule's to keep.
+        let (bound, rule) = (f.children()[0].clone(), f.children()[2].clone());
+        // The map's own letter, where it binds one, is the rule's to keep;
+        // every other is moved apart (`put_apart`).
         let own = bound.variable().map(Symbol::of);
-        let mut letters: Vec<Symbol> = self
+        let apart: BTreeSet<String> = self
             .letters_bound(&rule)
             .into_iter()
             .filter(|v| Some(*v) != own)
+            .map(|v| v.to_string())
             .collect();
-        letters.sort_by_key(|v| {
-            self.b.float_order(&self.float_of(v)).unwrap_or(usize::MAX)
-        });
-        for letter in letters {
-            let label = self.float_of(&letter);
-            if !self.is_setvar(&label) {
-                continue;
-            }
-            let Some(fresh) = self.unheld(&[&rule, f]) else {
-                break;
-            };
-            let mut put = Binding::new();
-            put.insert(letter, fresh);
-            rule = rule.substitute(&put);
-        }
-        self.rules_read.insert(key, rule.clone());
-        rule
+        let read = self
+            .put_apart(&[rule.clone(), f.clone()], &Binding::new(), &apart)
+            .and_then(|put| put.into_iter().next())
+            .unwrap_or(rule);
+        self.rules_read.insert(key, read.clone());
+        read
     }
 
     /// The rules of `rules::STANDARD` set.mm has. A rule that asks something

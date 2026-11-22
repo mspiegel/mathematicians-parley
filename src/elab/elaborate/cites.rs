@@ -775,52 +775,24 @@ impl<'a> Elaborator<'a> {
                     .collect(),
                 None => BTreeSet::new(),
             };
-        let mut out = Binding::new();
+        let mut names = Vec::new();
+        let mut terms = Vec::new();
         for (name, formula) in &fills {
             let fill = Written::new(formula, &item.path, item.line);
             let node =
                 self.in_its_names(Item::Record(item), |me| me.read_one(&fill))?;
             let node = filled(&node, &bound, &library.ctx);
             let term = self.term(&node)?;
-            let term = self.bound_apart_from(&self.to_term(&term), &theirs)?;
-            out.insert(Symbol::of(name), term);
+            names.push(Symbol::of(name));
+            terms.push(self.to_term(&term));
         }
-        Ok(out)
-    }
-
-    /// `term` with each set variable a part of it binds that is one of
-    /// `theirs` moved to a spare letter, one no name of the proof or the
-    /// page holds (`spare_var`), in that part.
-    pub(super) fn bound_apart_from(
-        &mut self,
-        term: &Term,
-        theirs: &BTreeSet<String>,
-    ) -> Checked<Term> {
-        if term.variable().is_some() {
-            return Ok(term.clone());
-        }
-        let mut term = term.clone();
-        if term.label() != Some("cv") {
-            let caught: Vec<String> = term
-                .children()
-                .iter()
-                .filter_map(|c| c.variable())
-                .filter(|v| theirs.contains(*v) && self.is_setvar(&self.float_of(v)))
-                .map(str::to_string)
-                .collect();
-            for letter in caught {
-                let spare = self.spare_var()?;
-                let mut put = Binding::new();
-                put.insert(Symbol::of(&letter), self.var_of(&spare));
-                term = term.substitute(&put);
-            }
-        }
-        let kids = term
-            .children()
-            .iter()
-            .map(|c| self.bound_apart_from(c, theirs))
-            .collect::<Checked<Vec<Term>>>()?;
-        Ok(term.with_children(kids))
+        let Some(apart) = self.put_apart(&terms, &Binding::new(), &theirs) else {
+            return Err(self.defect(
+                step.line,
+                "no letter is left to keep a fill's bound letters apart from the lemma's",
+            ));
+        };
+        Ok(names.into_iter().zip(apart).collect())
     }
 
     /// What a citation pushes, in the order the cited theorem's own statement

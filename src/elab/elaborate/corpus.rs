@@ -571,40 +571,32 @@ impl<'a> Elaborator<'a> {
             return Ok((first.wanted, first.whole));
         }
         let second = again(self, &apart)?;
-        let held: BTreeSet<String> = second
-            .given
-            .iter()
-            .filter(|g| apart.contains(&g.name))
-            .flat_map(|g| spelt_in(self, &g.term))
-            .collect();
-        let moving: Vec<Symbol> = bound_in(self, &second)
-            .intersection(&held)
-            .map(|v| Symbol::of(v))
-            .collect();
+        // Each value read again as a class of its own, and put in for it
+        // apart from the theorem's bound letters (`put_apart`).
+        let mut values = Binding::new();
+        for g in second.given.iter().filter(|g| apart.contains(&g.name)) {
+            if let Some(class) = self.to_term(&g.class).variable_symbol() {
+                values.insert(class, self.to_term(&g.term));
+            }
+        }
         let terms: Vec<Term> = second
             .wanted
             .iter()
             .chain(iter::once(&second.whole))
-            .chain(second.given.iter().map(|g| &g.term))
             .map(|t| self.to_term(t))
             .collect();
-        let refs: Vec<&Term> = terms.iter().collect();
-        let Some(mut binding) = self.unheld_for(moving, &refs) else {
+        let Some(mut put) = self.put_apart(&terms, &values, &BTreeSet::new()) else {
             return Err(self.defect(
                 self.at,
                 "no letter is left to move the cited theorem's bound letters apart from what the citation gives it",
             ));
         };
-        for g in second.given.iter().filter(|g| apart.contains(&g.name)) {
-            if let Some(class) = self.to_term(&g.class).variable_symbol() {
-                binding.insert(class, self.to_term(&g.term));
-            }
+        let whole = put.pop().map(|t| self.rpn(&t));
+        let wanted = put.iter().map(|t| self.rpn(t)).collect();
+        match whole {
+            Some(whole) => Ok((wanted, whole)),
+            None => Err(self.defect(self.at, "a cited theorem read with no statement")),
         }
-        let put = |me: &Self, t: &Rpn| me.rpn(&me.to_term(t).substitute(&binding));
-        Ok((
-            second.wanted.iter().map(|t| put(self, t)).collect(),
-            put(self, &second.whole),
-        ))
     }
 
     /// ( scope -> term ) from the cited theorem's statement `whole`, of
