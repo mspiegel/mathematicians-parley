@@ -165,6 +165,8 @@ impl DefinedRule {
         };
         let mut letters = letters.clone();
         letters.insert(self.letter.clone(), inside);
+        // The rule's value at its own parameter: a line speaks of the
+        // proof's letters, not of it, so no fact says a divisor is not zero.
         citing::within(
             &self.rule,
             into,

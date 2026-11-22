@@ -25,13 +25,13 @@ use crate::formula::page::template;
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{
-    alike_top, expand, standard, substitute_apart, Binding, FxIndexSet,
+    alike, alike_top, expand, standard, substitute_apart, Binding, FxIndexSet,
 };
 use crate::notations::{
-    ABSOLUTE_VALUE, APPLICATION, APPLICATION_TO_TWO, DEGREES, DISTANCE, DIVIDED, EULER,
-    FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MAP, MEMBERSHIP, MINUS, MOD,
-    MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM,
-    SUPERSCRIPT, TIMES, UNARY_MINUS, WITHOUT,
+    ABSOLUTE_VALUE, APPLICATION, APPLICATION_TO_TWO, DEGREES, DISTANCE, DIVIDED,
+    EQUALITY, EULER, FACTORIAL, GREATER, IN, INTEGER_RANGE, JUXTAPOSITION, LESS,
+    LOGICAL_NOT, MAP, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL,
+    PI, PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS, WITHOUT,
 };
 use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
@@ -91,6 +91,7 @@ pub fn interval_system(set: &Node, letters: &Introduced) -> Option<System> {
         .find(|i| NotationId::of(i.notation) == set.notation())?;
     if let Some(ends) = interval.ends {
         let ends = System::of_label(ends)?;
+        // What the page says once of the ends, which no line is asked for.
         let nonzero = |d: &Node| nonzero_said_once(d, letters);
         let said = |end: &Node| within(end, ends, letters, &nonzero, &|_, _| false);
         if !set.children.iter().all(said) {
@@ -254,29 +255,14 @@ fn said_once_read(
     // writes says nothing here, and its own checks report what it lacks.
     let fill =
         |made: &Node, put: Binding| standard(&substitute_apart(made, &put, ctx), ctx);
-    let signs: Vec<Option<Node>> = ["x ≠ 0", "x > 0", "x < 0"]
-        .iter()
-        .map(|said| template(said, library.env.g, &local).ok())
-        .collect();
     // S is read as the number system that fills it, whatever the page's S
     // is: each system's set and the membership in it, read once.
     let systems: Vec<Option<SystemForm>> = rules::SYSTEM_OF
         .iter()
         .map(|(sign, _)| system_form(sign, &local, library))
         .collect();
-    // A divisor is not zero where the page says once it is a positive
-    // integer, where a fact says so, as `≠ 0` or as a sign, or by its parts
-    // (`nonzero_by_parts`).
-    let said_nonzero = |d: &Node| -> bool {
-        if nonzero_said_once(d, &letters) {
-            return true;
-        }
-        signs.iter().flatten().any(|made| {
-            let want = fill(made, Binding::from([(Symbol::of("x"), d.clone())]));
-            parts.facts.iter().any(|f| alike_top(f, &want, ctx))
-        })
-    };
-    let nonzero = |d: &Node| nonzero_by_parts(d, &said_nonzero);
+    // A divisor is not zero where the page says so (`nonzero_said`).
+    let nonzero = |d: &Node| nonzero_said(d, &letters, &parts.facts, ctx);
     let seeded: Vec<Node> = parts.seed.values().cloned().collect();
     let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
@@ -466,7 +452,7 @@ pub fn a_number_said_once(
         }
     }
     let positive = letters.clone();
-    let nonzero = |d: &Node| nonzero_said_once(d, &positive);
+    let nonzero = |d: &Node| nonzero_said(d, &positive, facts, ctx);
     let said = |t: &Node, system: System| {
         atoms.iter().any(|(a, s)| {
             matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
@@ -931,6 +917,7 @@ pub fn sum_said_once(
         body,
         system,
         &letters,
+        // A line speaks of the proof's letters, not of every index.
         &|d| nonzero_said_once(d, &letters),
         &|t, s| at.says(t, s),
     )
@@ -1050,6 +1037,80 @@ pub fn closed_nonzero(divisor: &Node) -> bool {
 pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
     closed_nonzero(divisor)
         || within(divisor, System::N, letters, &closed_nonzero, &|_, _| false)
+}
+
+/// How a divisor, or a part of one, goes without its `≠ 0` (`SYNTAX.md`),
+/// so that a backend proves it the way the check found it.
+pub enum NonzeroHow<'f> {
+    /// A fact says so: `d ≠ 0` either way round, or a sign, `0 < d`,
+    /// `d > 0`, `d < 0` or `0 > d`. The fact as the check read it.
+    Stated(&'f Node),
+    /// Numerals alone, whose value is not zero: 3, 2 − 5.
+    Numerals,
+    /// A positive integer by what the page says once: k, j·(j + 1), 2^n and
+    /// (k + 1)! where k, j and n are letters in ℕ (`nonzero_said_once`).
+    Positive,
+}
+
+/// How the page says a divisor is not zero (`SYNTAX.md`): numerals alone
+/// whose value is not zero; a term it says once is a positive integer by
+/// `letters` (`nonzero_said_once`); or one of `facts`, the lines the step
+/// cites and the facts read off them, saying so. None where none does. A
+/// divisor of a term at a bound letter, a sum's index or a rule's
+/// parameter, has no fact of its own, since a line speaks of the proof's
+/// letters; such a test passes no facts.
+pub fn nonzero_said_how<'f>(
+    divisor: &Node,
+    letters: &Introduced,
+    facts: &'f [Node],
+    ctx: &Context,
+) -> Option<NonzeroHow<'f>> {
+    if closed_nonzero(divisor) {
+        return Some(NonzeroHow::Numerals);
+    }
+    if nonzero_said_once(divisor, letters) {
+        return Some(NonzeroHow::Positive);
+    }
+    let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
+    let none = IndexMap::new();
+    let is = |n: &Node| {
+        alike(
+            &standard(n, ctx),
+            &standard(divisor, ctx),
+            ctx,
+            &none,
+            &none,
+        )
+    };
+    facts
+        .iter()
+        .find(
+            |f| match (f.spelling(), f.notation(), f.children.as_slice()) {
+                (_, LOGICAL_NOT, [inner]) => {
+                    match (inner.notation(), inner.children.as_slice()) {
+                        (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+                        _ => false,
+                    }
+                }
+                (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
+                (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+                _ => false,
+            },
+        )
+        .map(NonzeroHow::Stated)
+}
+
+/// Whether a divisor goes without its `≠ 0`: the page says it of the whole
+/// (`nonzero_said_how`), or of each of its parts (`nonzero_by_parts`).
+pub fn nonzero_said(
+    divisor: &Node,
+    letters: &Introduced,
+    facts: &[Node],
+    ctx: &Context,
+) -> bool {
+    nonzero_by_parts(divisor, &|d| {
+        nonzero_said_how(d, letters, facts, ctx).is_some()
+    })
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None

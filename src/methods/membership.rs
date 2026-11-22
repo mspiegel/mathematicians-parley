@@ -13,16 +13,16 @@ use indexmap::IndexMap;
 
 use super::terms::Targets;
 use crate::citing::{
-    index_system, nonzero_by_parts, nonzero_said_once, range_system, sum_said_once,
-    within, Introduced,
+    index_system, nonzero_said_once, range_system, sum_said_once, within, Introduced,
+    NonzeroHow,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::matching::{alike, standard, substitute_apart, Binding, Context};
 use crate::notations::{
-    ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, FOR_ALL, GREATER,
-    INTEGER_RANGE, JUXTAPOSITION, LESS, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
-    NUMBER_SYSTEMS, NUMERAL, POWER, SUM, SUPERSCRIPT, UNARY_MINUS,
+    ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, FOR_ALL, INTEGER_RANGE,
+    JUXTAPOSITION, MEMBERSHIP, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, POWER, SUM,
+    SUPERSCRIPT, UNARY_MINUS,
 };
 use crate::rules::{self, System};
 use crate::{citing, matching};
@@ -293,26 +293,7 @@ fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
 /// or its parts: a product, a quotient, a negation or a power to a numeral
 /// is not zero when its parts are (`ELABORATION.md`, the divisor's order).
 pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
-    nonzero_by_parts(divisor, &|d| said_nonzero(d, facts))
-}
-
-/// Whether the page says a divisor is not zero once, or a fact says it
-/// (`nonzero`).
-fn said_nonzero(divisor: &Node, facts: &Facts) -> bool {
-    said_nonzero_how(divisor, facts).is_some()
-}
-
-/// How a divisor, or a part of one, is not zero (`nonzero_how`), so that a
-/// backend proves it the way the check found it.
-pub enum NonzeroHow<'f> {
-    /// A fact says so: `d ≠ 0` either way round, or a sign, `0 < d`,
-    /// `d > 0`, `d < 0` or `0 > d`. The fact as the check read it.
-    Stated(&'f Node),
-    /// Numerals alone, whose value is not zero: 3, 2 − 5.
-    Numerals,
-    /// A positive integer by what the page says once: k, j·(j + 1), 2^n and
-    /// (k + 1)! where k, j and n are letters in ℕ (`nonzero_said_once`).
-    Positive,
+    citing::nonzero_said(divisor, &facts.letters, facts.facts, facts.ctx)
 }
 
 /// Each part of a divisor `nonzero` reads as not zero, with how: each part
@@ -353,31 +334,7 @@ pub fn nonzero_how<'f>(
 /// How the page says a divisor is not zero once, or which fact says it;
 /// None where neither does (`said_nonzero`).
 fn said_nonzero_how<'f>(divisor: &Node, facts: &'f Facts) -> Option<NonzeroHow<'f>> {
-    if citing::closed_nonzero(divisor) {
-        return Some(NonzeroHow::Numerals);
-    }
-    if nonzero_said_once(divisor, &facts.letters) {
-        return Some(NonzeroHow::Positive);
-    }
-    let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
-    let is = |n: &Node| same(n, divisor, facts.ctx);
-    facts
-        .facts
-        .iter()
-        .find(
-            |f| match (f.spelling(), f.notation(), f.children.as_slice()) {
-                (_, LOGICAL_NOT, [inner]) => {
-                    match (inner.notation(), inner.children.as_slice()) {
-                        (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-                        _ => false,
-                    }
-                }
-                (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
-                (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-                _ => false,
-            },
-        )
-        .map(NonzeroHow::Stated)
+    citing::nonzero_said_how(divisor, &facts.letters, facts.facts, facts.ctx)
 }
 
 /// The first part of `term` nothing in `facts` says is in `system`, as a
@@ -731,7 +688,9 @@ impl Parts {
 
 /// Whether `term` divides by something holding the letter `index` that the
 /// page does not say once is a positive integer, `letters` holding the
-/// index's own system (`citing::nonzero_said_once`).
+/// index's own system (`citing::nonzero_said_once`). A line saying `b ≠ 0`
+/// speaks of the proof's letters, not of every value of the index, so no
+/// fact is asked.
 pub fn divides_by(term: &Node, index: &str, letters: &Introduced) -> bool {
     term.walk().iter().any(|part| {
         part.spelling() == DIVIDED

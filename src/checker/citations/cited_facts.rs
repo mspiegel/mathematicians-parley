@@ -750,7 +750,7 @@ pub(super) fn item_letters(
                 value,
                 *s,
                 &letters,
-                &|d| citing::nonzero_said_once(d, &letters),
+                &|d| citing::nonzero_said(d, &letters, &parts.facts, known.ctx),
                 &stated,
             )
         })

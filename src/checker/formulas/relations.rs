@@ -6,13 +6,13 @@ use std::{iter, slice};
 
 use crate::checker::record::PageReading;
 use crate::citing::finite::FiniteSets;
+use crate::citing::NonzeroHow;
 use crate::citing::{finite, Implication};
 use crate::formula::node::ByShape;
 use crate::matching::Defined;
 use crate::methods::pairs::Coordinate;
 use crate::methods::{field, pairs};
 use crate::{citing, matching};
-use methods_membership::NonzeroHow;
 
 /// An `algebra` claim as the method decides it: the claim and its lines
 /// read, the cited lines fact by fact, and the verdict.

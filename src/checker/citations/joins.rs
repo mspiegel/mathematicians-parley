@@ -1022,6 +1022,8 @@ pub(super) fn said_over_any_set(
                         && system_named(cod).is_some_and(|c| c.within(s)))
             })
     };
+    // The term at the join's own letter: a line speaks of the proof's
+    // letters, not of it, so no fact says a divisor is not zero.
     citing::within(
         at.term,
         system,
