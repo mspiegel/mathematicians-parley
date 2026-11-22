@@ -35,7 +35,7 @@ use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order_slots;
-use parley::tools::build::{checked_in, library, verified, Libraries, Loaded};
+use parley::tools::build::{library, verified, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
 use parley::checker;
@@ -354,7 +354,29 @@ fn round_checked(tree: &Memory, i: usize, jobs: &[(usize, String)]) -> CheckedCo
         .filter(|(j, _)| *j == i)
         .map(|(_, name)| name.as_str())
         .collect();
-    checked_in(tree, |n| wanted.contains(n)).expect("the changed corpus reads")
+    let wanted = |thm: &Theorem| wanted.contains(thm.qualified().as_str());
+    match changed_front(tree, &wanted) {
+        Ok(front) => front.checked,
+        Err(out) => panic!("the changed corpus reads:\n{}", out.printed),
+    }
+}
+
+/// A changed corpus read and checked, the theorems `wanted` names, as
+/// `parley check` reads it but for whether a pair naming a letter for
+/// itself does work (`PairsAsked::No`). That is how the page is written,
+/// and it turns on what the rest of a step spells out: an obtain needs `F
+/// := F` where the step claiming its "there is" finds F from its claim,
+/// through N := deg(F). A change spells a proof otherwise and means the
+/// same, so what it means is what is asked of it.
+fn changed_front(
+    tree: &Memory,
+    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
+) -> Result<checker::Front, checker::Outcome> {
+    let ask = checker::Ask {
+        wanted,
+        pairs: checker::PairsAsked::No,
+    };
+    checker::front(tree, &ask)
 }
 
 /// The proof files the changes rewrite, in order: the corpus's proofs, the
@@ -534,6 +556,14 @@ fn rewritten_requires(before: &CheckedCorpus, after: &Theorem) -> BTreeSet<Strin
 
 #[test]
 fn a_proof_means_what_it_says_however_it_spells_it() {
+    // Each checker run's front end prepares the whole corpus once per worker
+    // thread (`checker::front_worker`), and this test runs the checker on
+    // every changed corpus in each of its slots, round after round, so the
+    // threads multiply: on 8 threads a run went past 81 minutes where one
+    // thread takes about 15. One thread a run until the front end prepares
+    // the corpus once and shares it among its workers, which is the fix this
+    // stands in for.
+    env::set_var("PARLEY_THREADS", "1");
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let clean = Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests"]).unwrap();
     let base = checker::run(&clean);
@@ -566,7 +596,10 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         SLOTS,
         &trees,
         || (),
-        |_, done| checker::run(&done.tree).printed,
+        |_, done| match changed_front(&done.tree, &|_| true) {
+            Ok(front) => front.said().printed,
+            Err(out) => out.printed,
+        },
     );
     for ((change, done), said) in changes.iter().zip(&trees).zip(&checked) {
         println!(

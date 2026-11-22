@@ -735,10 +735,19 @@ impl<'a> Elaborator<'a> {
                 "the checker placed an identity element where one of the two it met has none",
             ));
         };
-        let said_tree = self.term(&said_tree)?;
-        let said_bare = self.term(&said_bare)?;
-        let wanted_bare = self.term(&wanted_bare)?;
-        let wanted_tree = self.term(&wanted_tree)?;
+        // A letter a define read out binds that a name of the proof holds
+        // is read as one nothing holds, the same in all four trees, so that
+        // the two the meeting is of spell it alike (`read_apart_together`).
+        let read = self.read_apart_together(
+            step,
+            &[said_tree, said_bare, wanted_bare, wanted_tree],
+        )?;
+        let [said_tree, said_bare, wanted_bare, wanted_tree] =
+            <[Term; 4]>::try_from(read)
+                .map_err(|_| {
+                    self.defect(step.line, "four trees read as other than four")
+                })?
+                .map(|t| self.rpn(&t));
         let Some(p) = self.same_carried(said, proof, &said_tree, scope, facts)? else {
             return Ok(None);
         };

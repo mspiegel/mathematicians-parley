@@ -1,7 +1,7 @@
 //! Citing a theorem the corpus proves.
 
 use std::collections::VecDeque;
-use std::iter;
+use std::{iter, slice};
 
 use super::cited_items::ShownPart;
 use super::unfolds::{PlacedTrees, RecordedSupply};
@@ -742,14 +742,15 @@ impl<'a> Elaborator<'a> {
                     "the checker recorded no meeting of the reading with the claim",
                 ));
             };
-            // Identity elements the record drops are dropped where it
-            // places them, in the two trees it met (`Cited::met_trees`),
-            // as the item writes its sentence (`carried_at_places`).
-            if !met.identities.is_empty() {
+            // Identity elements the record drops, and defines it reads out,
+            // are dropped and read out where it places them, in the two
+            // trees it met (`Cited::met_trees`), as the item writes its
+            // sentence (`carried_at_places`).
+            if !met.identities.is_empty() || !met.unfolded.is_empty() {
                 let Some(trees) = cited.met_trees.get(k).cloned().flatten() else {
                     return Err(self.unreached(
                         step.line,
-                        "the checker recorded no trees for a meeting it placed identities in",
+                        "the checker recorded no trees for a meeting it placed identities or read-outs in",
                     ));
                 };
                 let placed = PlacedTrees {
@@ -764,7 +765,7 @@ impl<'a> Elaborator<'a> {
                     return Err(self.defect(
                         step.line,
                         format!(
-                            "{} gives {}, and the checker read it as the claim's {} with identity elements dropped",
+                            "{} gives {}, and the checker read it as the claim's {} with identity elements dropped or defines read out",
                             step.just.head,
                             self.render(&part),
                             self.render(&piece)
@@ -973,14 +974,31 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         filled: &Node,
     ) -> Checked<Term> {
+        let mut read = self.read_apart_together(step, slice::from_ref(filled))?;
+        match read.pop() {
+            Some(term) => Ok(term),
+            None => Err(self.defect(step.line, "no tree to read the item by")),
+        }
+    }
+
+    /// `trees` read as terms as `read_apart` reads one, each letter that one
+    /// of them binds and a name of the proof holds given one letter nothing
+    /// holds, the same in all of them: the two trees a meeting is of spell
+    /// a define's bound letter alike once it is read out in each.
+    pub(in crate::elab) fn read_apart_together(
+        &mut self,
+        step: &Step,
+        trees: &[Node],
+    ) -> Checked<Vec<Term>> {
         let held = self.names_held();
-        let mut bound = Vec::new();
-        let mut rest = vec![filled.clone()];
+        let mut bound: Vec<Symbol> = Vec::new();
+        let mut rest: Vec<Node> = trees.to_vec();
         while let Some(node) = rest.pop() {
             if let Some(at) = self.binders.get(&node.notation()).cloned() {
                 for at in at {
                     let letter = &node.children[at];
                     if letter.is_name()
+                        && !bound.contains(&letter.text)
                         && held.contains(&self.binder_var(&letter.text)?)
                     {
                         bound.push(letter.text);
@@ -997,9 +1015,9 @@ impl<'a> Elaborator<'a> {
             self.bound_as
                 .insert(name.to_string(), self.rpn(letter).to_string());
         }
-        let read = self.term(filled);
+        let read: Checked<Vec<Rpn>> = trees.iter().map(|t| self.term(t)).collect();
         self.bound_as = kept;
-        Ok(self.to_term(&read?))
+        Ok(read?.iter().map(|r| self.to_term(r)).collect())
     }
 
     /// The part of the "and" `whole` that is `target` up to the letters each
