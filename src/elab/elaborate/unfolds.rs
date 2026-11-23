@@ -2,6 +2,7 @@
 
 use std::slice;
 
+use super::running::Folded;
 use super::*;
 use crate::checker::record::{First, Supplied};
 use crate::citing::{HypothesisAt, Implication};
@@ -220,7 +221,6 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let refs = &step.just.refs;
         // A claim the lemma's left side fits only as the standard form reads
         // it is reached at the lemma's own instance and carried by `same`.
         let mut whole = self.statement(lemma);
@@ -253,16 +253,29 @@ impl<'a> Elaborator<'a> {
                 pf!(self.b; scope, instance, term, made, alike, "mpbid"),
             ));
         }
-        // What a lemma's right side says beyond what its left fixes can only
-        // come from the lines the step cites, in the order it writes them.
-        let said: Vec<Rpn> = refs
-            .iter()
-            .filter_map(|r| self.line_written(r, lines).map(|l| l.claim))
-            .collect();
-        let mut hint = said.first().cloned();
-        for extra in said.iter().skip(1) {
-            hint = Some(t!(hint.unwrap(), extra, "wa"));
+        // What a lemma's right side says beyond what its left fixes comes
+        // from the facts the checker read the folding from, each as its line
+        // states it where the record places it (`Cited::firsts`).
+        let firsts: Vec<First> = self
+            .citation_read(step)
+            .map(|c| c.firsts.iter().flatten().cloned().collect())
+            .unwrap_or_default();
+        let mut said: Option<Rpn> = None;
+        for first in &firsts {
+            let SuppliedBy::Line(at) = &first.by else {
+                continue;
+            };
+            if let Some((fact, _)) = self.line_fact(at, scope, facts, lines)? {
+                said = Some(match said {
+                    None => fact,
+                    Some(before) => t!(before, fact, "wa"),
+                });
+            }
         }
+        let identities = firsts
+            .iter()
+            .any(|f| f.meeting.as_ref().is_some_and(|m| !m.identities.is_empty()));
+        let hint = said.map(|facts| Folded { facts, identities });
         // The right side is what the step supplies, and not whatever the
         // scope would give; and what the lemma asks is asked of the same,
         // its requires lines included, as where a definition unfolds.

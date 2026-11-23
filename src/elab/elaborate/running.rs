@@ -5,6 +5,16 @@ use std::{mem, slice};
 use super::*;
 use crate::corpus::skeleton;
 
+/// The facts the checker read a folding from (`Cited::firsts`), joined by
+/// "and" in the record's order, each as its line states it, which fix what
+/// a definition's right side says beyond its left (`unfolding`).
+pub struct Folded {
+    pub facts: Rpn,
+    /// Whether the record says a line leaves an identity element out where
+    /// the definition writes it (`Meeting::identities`).
+    pub identities: bool,
+}
+
 impl<'a> Elaborator<'a> {
     /// The biconditional a definition's lemma gives, in scope, and the right
     /// side it reached. `ex` is the wording the step wants; None takes
@@ -24,7 +34,7 @@ impl<'a> Elaborator<'a> {
         over: Option<&Rpn>,
         scope: &Rpn,
         facts: &Facts,
-        hint: Option<&Rpn>,
+        hint: Option<&Folded>,
     ) -> Checked<Route<(Proof, Rpn)>> {
         let _ = over;
         let sig = self.sig(lemma).clone();
@@ -57,14 +67,29 @@ impl<'a> Elaborator<'a> {
         }
         // A lemma's left side need not fix everything it mentions, so what
         // the caller can say of the right side fixes the rest.
-        // The fit is made as written, then as the standard form reads the
-        // two, as `apply_lemma` fits an antecedent: the page's x ≠ c is
-        // "not (x = c)" where a lemma writes `=/=`; and then with identity
-        // elements dropped, as the checker reads a cited line
-        // (`identities_dropped`), as written and in the standard form.
-        // What is offered may be the facts a step names joined, a define's
-        // equation among them, and then the right side is one of them.
-        if let Some(offered) = hint.or(ex) {
+        // The facts the checker read a folding from (`Folded`) fix it as the
+        // standard form reads the two, with identity elements dropped where
+        // the record says the lines leave them out.
+        if let Some(folded) = hint {
+            let (right, held) = match folded.identities {
+                true => (
+                    self.identities_dropped(&reads.children()[1], &binding),
+                    self.without_identities(&self.to_term(&folded.facts)),
+                ),
+                false => (reads.children()[1].clone(), self.to_term(&folded.facts)),
+            };
+            if let Some(filled) =
+                self.fits_as(&right, &held, &variables, Some(&binding))
+            {
+                binding = filled;
+            }
+        }
+        // The right side the caller gives is fitted as written, then as the
+        // standard form reads the two, as `apply_lemma` fits an antecedent:
+        // the page's x ≠ c is "not (x = c)" where a lemma writes `=/=`; and
+        // then with identity elements dropped, as the checker reads a cited
+        // line (`identities_dropped`), as written and in the standard form.
+        if let Some(offered) = ex {
             let offered = self.to_term(offered);
             let mut pieces = vec![offered.clone()];
             pieces.extend(super::super::matcher::conjuncts_of(&offered));
