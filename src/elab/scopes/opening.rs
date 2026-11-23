@@ -1111,6 +1111,7 @@ impl<'a> Elaborator<'a> {
                     proof,
                     scope,
                     facts,
+                    ended_by: None,
                 },
             );
         }
@@ -1142,6 +1143,7 @@ impl<'a> Elaborator<'a> {
                         proof,
                         scope: block.scope.clone(),
                         facts: block.facts.clone(),
+                        ended_by: end.ended_by,
                     },
                 );
             }
@@ -1160,6 +1162,7 @@ impl<'a> Elaborator<'a> {
                     proof: done.proof.clone().expect("a closed block's proof"),
                     scope: done.outer.clone(),
                     facts: done.outside.clone(),
+                    ended_by: Some(done.owner.just.line),
                 },
             );
         }

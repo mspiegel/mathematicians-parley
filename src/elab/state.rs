@@ -222,8 +222,13 @@ pub struct PartEnd {
     /// The scope the claim is proved under.
     pub scope: Rpn,
     /// What is known there, which is what carrying the claim to the instance
-    /// the block wants may rest on (`Elaborator::reached`).
+    /// the block wants may rest on (`Elaborator::end_met`).
     pub facts: Facts,
+    /// The line of the justification of the step that ends the part, by
+    /// which the checker records how it meets what it owes
+    /// (`CheckedTheorem::ends_met`); None for a part that ends on what it
+    /// assumes.
+    pub ended_by: Option<usize>,
 }
 
 /// What a contradiction block's last step contradicts: the claim, and the

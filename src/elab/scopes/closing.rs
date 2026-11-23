@@ -4,6 +4,7 @@ use std::mem;
 
 use super::*;
 use crate::elab;
+use crate::matching::Tree;
 
 impl<'a> Elaborator<'a> {
     /// What a block gives back, by the lemma its kind closes with.
@@ -601,7 +602,7 @@ impl<'a> Elaborator<'a> {
         // line opened claims what its last line says where that is what the
         // part owes said another way, L(p) for L(p + 0): the part's close
         // carries it there, as it carries a step's claim (`close_induction`,
-        // `direction_reached`).
+        // `end_met`).
         let want = owed.clone();
         let (mut proof, mut said, as_said) =
             match self.respelt(&proof, &said, &want, &scope)? {
@@ -689,11 +690,10 @@ impl<'a> Elaborator<'a> {
         // writes it, which may rename a bound letter: a part ending on a
         // proof block fixing t says the side over the block's own t.
         let allowed = Some(self.named(step, &number_of(step), true));
-        let forward = self.resting_on(allowed.clone(), |me| {
-            me.direction_reached(&block.parts[&0], &right)
-        })?;
-        let backward = self
-            .resting_on(allowed, |me| me.direction_reached(&block.parts[&1], &left))?;
+        let forward = self
+            .resting_on(allowed.clone(), |me| me.end_met(&block.parts[&0], &right))?;
+        let backward =
+            self.resting_on(allowed, |me| me.end_met(&block.parts[&1], &left))?;
         let (Some(forward), Some(backward)) = (forward, backward) else {
             return Err(self.unreached(
                 step.line,
@@ -729,18 +729,68 @@ impl<'a> Elaborator<'a> {
 
     /// The proof a part ends on, of what `want` says: a direction's side it
     /// does not assume, or a case's claim. Its own where it says `want` as
-    /// written, and otherwise carried there (`reached`); None where it says
-    /// something else.
-    pub fn direction_reached(
-        &mut self,
-        end: &PartEnd,
-        want: &Rpn,
-    ) -> Checked<Option<Proof>> {
+    /// written; otherwise carried there as the checker recorded its last
+    /// step meets what it owes (`CheckedTheorem::ends_met`): with identity
+    /// elements dropped (`tidied`) where a part met with them dropped, and
+    /// as one fact spelt otherwise (`same`) where none did. None where the
+    /// carry does not reach it.
+    pub fn end_met(&mut self, end: &PartEnd, want: &Rpn) -> Checked<Option<Proof>> {
         if end.claim == *want {
             return Ok(Some(end.proof.clone()));
         }
+        let meetings = end
+            .ended_by
+            .and_then(|line| self.checked.ends_met.get(&line));
+        let Some(meetings) = meetings.cloned() else {
+            return Err(self.unreached(
+                end.ended_by.unwrap_or_default(),
+                "the checker recorded no meeting of the part's end with what it owes",
+            ));
+        };
         let facts = self.in_hand(&end.facts);
-        self.reached(&end.proof, &end.claim, want, &end.scope, &facts)
+        if meetings.iter().any(|m| !m.identities.is_empty()) {
+            return self.tidied(&end.proof, &end.claim, want, &end.scope, &facts);
+        }
+        // An end the record says is turned round, `x ≠ y` for `y ≠ x`, is
+        // turned back by its relation's own lemma (`turned_claim`).
+        if let [met] = meetings.as_slice() {
+            if met.turned && met.flips.is_empty() {
+                if let Some((turned, flip)) = self.turned_claim(want) {
+                    if turned == end.claim {
+                        let Sides { left, right } = self.equation_sides(&turned);
+                        return Ok(Some(
+                            pf!(self.b; &end.scope, left, right, end.proof, flip),
+                        ));
+                    }
+                }
+            }
+        }
+        // Places the record says the end swaps, a segment's ends, are
+        // turned by the notation's own swap (`met_as`); the end is the
+        // meeting's first tree.
+        if let [met] = meetings.as_slice() {
+            if !met.flips.is_empty() {
+                return self.met_as(
+                    &end.claim,
+                    end.proof.clone(),
+                    want,
+                    met,
+                    Tree::First,
+                    &end.scope,
+                    &facts,
+                );
+            }
+        }
+        let across = self.same(
+            &self.to_term(&end.claim),
+            &self.to_term(want),
+            &end.scope,
+            &facts,
+            None,
+        )?;
+        Ok(across.built().map(
+            |alike| pf!(self.b; &end.scope, end.claim, want, end.proof, alike, "mpbid"),
+        ))
     }
 
     pub(super) fn close_cases(&mut self, block: &Block) -> Checked<(Rpn, Proof)> {
@@ -762,7 +812,7 @@ impl<'a> Elaborator<'a> {
         // `y ≠ x`, as the checker reads it; it is carried to the claim.
         let mut said: Vec<Proof> = Vec::new();
         for p in &order {
-            let Some(shown) = self.direction_reached(&block.parts[p], &claim)? else {
+            let Some(shown) = self.end_met(&block.parts[p], &claim)? else {
                 return Err(self
                     .unreached(step.line, "a case does not end on the block's claim"));
             };
@@ -844,6 +894,7 @@ impl<'a> Elaborator<'a> {
             proof: base,
             scope: beneath,
             facts: outside,
+            ..
         } = block
             .parts
             .get(&0)
@@ -854,6 +905,7 @@ impl<'a> Elaborator<'a> {
             proof: stepped,
             scope: under,
             facts: inside,
+            ..
         } = block
             .parts
             .get(&1)

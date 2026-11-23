@@ -778,19 +778,29 @@ impl<'a> Elaborator<'a> {
             proof,
             scope: scope.clone(),
             facts: ended,
+            ended_by: Some(step.just.line),
         };
         // A case ending on the claim written another way, |OP|² for
         // |PO|², is carried to the claim here, while the case's
         // letters and facts are in hand: at the block's close only
         // the block's are, and what a carrying lemma asks of its terms
-        // would be proved there, under the narrower scope.
-        if block.owner.just.head.is(Method::Cases) {
+        // would be proved there, under the narrower scope. Only the case's
+        // last step ends it (`CheckedTheorem::last_in`).
+        let last_of_part = CheckedTheorem::index_of(self.thm, step).is_some_and(|at| {
+            self.checked.places[at]
+                .is_some_and(|p| self.checked.last_in(p.block, p.part) == Some(at))
+        });
+        if block.owner.just.head.is(Method::Cases) && last_of_part {
             let claim = self.claim_of(&block.owner.claim)?;
             if end.claim != claim {
-                if let Some(carried) = self.direction_reached(&end, &claim)? {
-                    end.claim = claim;
-                    end.proof = carried;
-                }
+                let Some(carried) = self.end_met(&end, &claim)? else {
+                    return Err(self.unreached(
+                        step.line,
+                        "the case's end does not meet the block's claim as the checker recorded",
+                    ));
+                };
+                end.claim = claim;
+                end.proof = carried;
             }
         }
         block.parts.insert(part, end);
