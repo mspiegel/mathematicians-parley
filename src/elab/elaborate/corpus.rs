@@ -6,7 +6,7 @@ use std::{iter, slice};
 use super::cited_items::ShownPart;
 use super::unfolds::{PlacedTrees, RecordedSupply};
 use super::*;
-use crate::checker::record::{Facing, Supplied, SuppliedBy};
+use crate::checker::record::{Facing, First, Supplied, SuppliedBy};
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
@@ -739,18 +739,20 @@ impl<'a> Elaborator<'a> {
             };
         }
         let mut readings = Vec::new();
-        for concluded in &cited.concluded {
+        for (k, concluded) in cited.concluded.iter().enumerate() {
             let Some((sentence, shown)) = said.get(concluded.sentence).cloned() else {
                 return Err(self.unreached(
                     step.line,
                     "the checker concluded a sentence the cited theorem does not have",
                 ));
             };
+            let firsts = cited.firsts.get(k).map_or(&[][..], Vec::as_slice);
             readings.push(self.read_way(
                 step,
                 &sentence,
                 shown,
                 concluded.way,
+                firsts,
                 scope,
                 facts,
             )?);
@@ -1200,14 +1202,17 @@ impl<'a> Elaborator<'a> {
 
     /// A cited sentence read the way the checker recorded (`Way`): as it
     /// stands; "A ↔ B" or "if A then B" with A, giving B; or "A ↔ B" with
-    /// B, giving A; the A or B from where the checker recorded it stands
-    /// (`Cited::firsts`).
+    /// B, giving A; the A or B from where the checker recorded its parts
+    /// stand, `firsts` the reading's own (`Cited::firsts`), joined as
+    /// `SuppliedBy::Parts` joins them.
+    #[allow(clippy::too_many_arguments)]
     fn read_way(
         &mut self,
         step: &Step,
         sentence: &Rpn,
         shown: Proof,
         way: Read,
+        firsts: &[First],
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<(Rpn, Proof)> {
@@ -1227,24 +1232,13 @@ impl<'a> Elaborator<'a> {
             Read::Backward => (b.clone(), a.clone()),
             _ => (a.clone(), b.clone()),
         };
-        // The premise is the fact the checker read the reading from, where
-        // it recorded it stands (`Cited::firsts`).
-        let firsts: Vec<SuppliedBy> = self
-            .citation_read(step)
-            .map(|c| c.firsts.iter().flatten().map(|f| f.by.clone()).collect())
-            .unwrap_or_default();
-        let mut found = None;
-        for by in firsts
-            .iter()
-            .filter(|by| !matches!(by, SuppliedBy::Unstated))
-        {
-            if let Some(p) =
-                self.supplied_proof(step, by, None, &given, scope, facts)?
-            {
-                found = Some(p);
-                break;
-            }
-        }
+        // The premise is the fact the checker read the reading from, each of
+        // its parts where the record says it stands.
+        let by = match firsts {
+            [one] => one.by.clone(),
+            _ => SuppliedBy::Parts(firsts.iter().map(|f| f.by.clone()).collect()),
+        };
+        let found = self.supplied_proof(step, &by, None, &given, scope, facts)?;
         let Some(held) = found else {
             return Err(self.defect(
                 step.line,
