@@ -947,6 +947,7 @@ fn theorem_record(
     record.opener_asserted = library::opener_assertions(&c.known[i]);
     record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
     record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
+    record.cases_from = formulas::cases_splits(thm, &c.known[i]);
     record.ends_met = formulas::ended_meetings(thm, &c.known[i]);
     record.calculation_ends = formulas::calculation_meetings(thm, &c.known[i]);
     record.substitute_ends = formulas::substitute_row_ends(thm, &c.known[i]);

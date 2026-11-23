@@ -463,6 +463,9 @@ pub struct CheckedTheorem {
     /// or a case closes it on, by the line of its justification
     /// (`formulas::contradictions`).
     pub contradicted: IndexMap<usize, Contradicted>,
+    /// What each `cases` step splits, by the line of its justification
+    /// (`formulas::cases_splits`).
+    pub cases_from: IndexMap<usize, CasesSplit>,
     /// How each step that ends a block, a part of one or the proof meets
     /// what it owes, by the line of its justification: one meeting for each
     /// part of its "and" in order (`formulas::ended_meetings`).
@@ -992,6 +995,22 @@ pub struct Contradicted {
     /// How what the negating one denies meets the other
     /// (`Known::alike_how`).
     pub meeting: Meeting,
+}
+
+/// The line a `cases` step splits, the first it cites that is not a
+/// define, and how its cases' assumptions joined by "or" meet it
+/// (`formulas::cases_splits`): `cases, from H9` of H9 "H = C or H ≠ C".
+#[derive(Clone, Debug)]
+pub struct CasesSplit {
+    /// What of the line the cases split: its one sentence, its sentences
+    /// together, or its sentence read at a block's letter.
+    pub at: FirstAt,
+    /// How the cases' assumptions joined by "or", the first tree, meet it
+    /// (`Known::alike_how`): an equation or an order either way round.
+    pub meeting: Meeting,
+    /// Whether they meet the line only with the defines it cites written
+    /// out (`Said::cited`), and not as the page writes it.
+    pub read_out: bool,
 }
 
 /// Of a step and the line it contradicts, the one that says the other

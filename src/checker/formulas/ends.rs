@@ -632,63 +632,7 @@ pub(super) fn conjuncts(node: &Node) -> Vec<Node> {
 /// the order of the "or".
 pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
     for owner in &thm.steps {
-        if !owner.just.head.is(Method::Cases) {
-            continue;
-        }
-        // The line split is the first the step cites that is not a define;
-        // a define cited beside it reads its name (What a cited line says).
-        let cited = owner
-            .just
-            .refs
-            .iter()
-            .find(|r| !names_define(thm, r))
-            .or(owner.just.refs.first());
-        let Some(cited) = cited else {
-            continue;
-        };
-        // A reference to nothing is `check_references`'s to report.
-        let scope = known.scope(owner);
-        let Some(said) = scope.get(cited) else {
-            continue;
-        };
-        let mut parts: Vec<_> = owner
-            .openers
-            .iter()
-            .filter(|o| o.kind == Intro::Assume && o.part.is_some() && !o.after_by)
-            .collect();
-        if parts.is_empty() {
-            continue;
-        }
-        parts.sort_by_key(|o| o.part);
-        // Each assumption as one formula, and those joined by "or".
-        let assumed: Option<Vec<Node>> = parts
-            .iter()
-            .map(|o| known.whole_as_written(&o.body(&thm.path)))
-            .collect();
-        let want = assumed.and_then(|a| disjoined(known.env.g, a));
-        let Some(want) = want else {
-            continue;
-        };
-        if !known.reads(said) {
-            continue;
-        }
-        // The line as a whole (`SYNTAX.md`, `cases`): its one sentence, or
-        // that sentence read at a block's letter, or its sentences joined.
-        let says = known.says(said, &known.citing_step(owner));
-        let sentences = says
-            .iter()
-            .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
-            .count();
-        let mut whole = says.iter().filter(|s| match s.from {
-            SaidFrom::Whole => true,
-            SaidFrom::Sentence(_) | SaidFrom::AtLetter { part: None, .. } => {
-                sentences == 1
-            }
-            _ => false,
-        });
-        if !whole
-            .any(|s| known.alike(&want, &s.written) || known.alike(&want, &s.cited))
-        {
+        if let CasesRead::Refused { cited } = cases_read(owner, thm, known) {
             report.say(
                 &thm.path,
                 owner.just.line,
@@ -698,6 +642,107 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
                 ),
             );
         }
+    }
+}
+
+/// What a `cases` step splits, by the line of its justification
+/// (`record::CasesSplit`), as `check_cases_cited` finds it.
+pub fn cases_splits(thm: &Theorem, known: &Known) -> IndexMap<usize, CasesSplit> {
+    let mut out = IndexMap::new();
+    for owner in &thm.steps {
+        if let CasesRead::Found(split) = cases_read(owner, thm, known) {
+            out.insert(owner.just.line, split);
+        }
+    }
+    out
+}
+
+/// How a step reads the line its cases split (`cases_read`).
+enum CasesRead {
+    /// No `cases` step, or one whose line or assumptions another check
+    /// reports.
+    Unread,
+    /// The line and how the cases' assumptions joined by "or" meet it.
+    Found(CasesSplit),
+    /// The line, `cited`, does not claim the cases' assumptions joined.
+    Refused { cited: String },
+}
+
+/// The line a `cases` step splits and where in it the cases' assumptions
+/// joined by "or" stand, met as the page writes the line, or with the
+/// defines it cites written out.
+fn cases_read(owner: &Step, thm: &Theorem, known: &Known) -> CasesRead {
+    if !owner.just.head.is(Method::Cases) {
+        return CasesRead::Unread;
+    }
+    // The line split is the first the step cites that is not a define;
+    // a define cited beside it reads its name (What a cited line says).
+    let cited = owner
+        .just
+        .refs
+        .iter()
+        .find(|r| !names_define(thm, r))
+        .or(owner.just.refs.first());
+    let Some(cited) = cited else {
+        return CasesRead::Unread;
+    };
+    // A reference to nothing is `check_references`'s to report.
+    let scope = known.scope(owner);
+    let Some(said) = scope.get(cited) else {
+        return CasesRead::Unread;
+    };
+    let mut parts: Vec<_> = owner
+        .openers
+        .iter()
+        .filter(|o| o.kind == Intro::Assume && o.part.is_some() && !o.after_by)
+        .collect();
+    if parts.is_empty() {
+        return CasesRead::Unread;
+    }
+    parts.sort_by_key(|o| o.part);
+    // Each assumption as one formula, and those joined by "or".
+    let assumed: Option<Vec<Node>> = parts
+        .iter()
+        .map(|o| known.whole_as_written(&o.body(&thm.path)))
+        .collect();
+    let want = assumed.and_then(|a| disjoined(known.env.g, a));
+    let Some(want) = want else {
+        return CasesRead::Unread;
+    };
+    if !known.reads(said) {
+        return CasesRead::Unread;
+    }
+    // The line as a whole (`SYNTAX.md`, `cases`): its one sentence, or
+    // that sentence read at a block's letter, or its sentences joined.
+    let says = known.says(said, &known.citing_step(owner));
+    let sentences = says
+        .iter()
+        .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+        .count();
+    let own = known.sentence_count(said);
+    let whole = says.iter().filter(|s| match s.from {
+        SaidFrom::Whole => true,
+        SaidFrom::Sentence(_) | SaidFrom::AtLetter { part: None, .. } => sentences == 1,
+        _ => false,
+    });
+    for s in whole {
+        let met = match known.alike_how(&want, &s.written) {
+            Some(meeting) => Some((meeting, false)),
+            None => known.alike_how(&want, &s.cited).map(|m| (m, true)),
+        };
+        let Some((meeting, read_out)) = met else {
+            continue;
+        };
+        if let Some(at) = super::super::citations::placed(cited, s, &says, own) {
+            return CasesRead::Found(CasesSplit {
+                at,
+                meeting,
+                read_out,
+            });
+        }
+    }
+    CasesRead::Refused {
+        cited: cited.clone(),
     }
 }
 

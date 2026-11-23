@@ -84,6 +84,7 @@ step 16.5 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
 step 16.28 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
 step 16.5 obtains from 16.4 sentence 0
 step 16.28 obtains from 16.27 sentence 0
+step 16 splits 14 sentence 0
 read 19: there exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
 read 24: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
 read 25: b ∈ ℝ  as  membership:∈(name:b, number-systems:ℝ)  a statement

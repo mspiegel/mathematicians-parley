@@ -8,8 +8,9 @@ use indexmap::IndexMap;
 
 use super::library::{Known, SaidFrom, Stated};
 use super::record::{
-    Antisymmetric, Chain, ChainLink, CheckedTheorem, Contradicted, FirstAt, Negating,
-    OrderFact, OrderPart, OrderRestated, OrderStep, Supposed, Supposition, Weakened,
+    Antisymmetric, CasesSplit, Chain, ChainLink, CheckedTheorem, Contradicted, FirstAt,
+    Negating, OrderFact, OrderPart, OrderRestated, OrderStep, Supposed, Supposition,
+    Weakened,
 };
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
@@ -76,8 +77,8 @@ pub(super) use self::ends::{
     block_owes, block_owes_read, last_of_part, Ends, Owed, Reading,
 };
 pub use self::ends::{
-    chain_links, check_algebra_holds, check_arithmetic_holds, check_block_ends,
-    check_cases_cited, check_chain_congruences, check_ends_numbered,
+    cases_splits, chain_links, check_algebra_holds, check_arithmetic_holds,
+    check_block_ends, check_cases_cited, check_chain_congruences, check_ends_numbered,
     check_place_systems, ended_meetings, ends_asking, ends_unnumbered, places_at, Link,
 };
 pub(super) use self::letters::wrappers;

@@ -1,6 +1,5 @@
 //! Proof methods: obtaining, blocks and inductions.
 
-use std::collections::BTreeSet;
 use std::mem;
 
 use super::super::doc::forms::Meets;
@@ -14,8 +13,8 @@ use crate::formula::symbol::Symbol;
 use crate::matching;
 use crate::matching::Binding;
 use crate::notations::{
-    DISJUNCTION, FOR_ALL, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP, POWERSET, SUBSET,
-    THERE_IS, THERE_IS_SOME,
+    FOR_ALL, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP, POWERSET, SUBSET, THERE_IS,
+    THERE_IS_SOME,
 };
 use crate::sorts::introduction::{Form, Introduction};
 
@@ -584,25 +583,15 @@ impl<'a> Proof<'a> {
                 self.close(depth + 1, closing, step.line, spot.clone());
             }
             Method::Cases => {
-                // The sentence, or the part of one, of the lines named that
-                // says "or".
-                // A "for all" line is read at the letters the cases assume,
-                // as the checker reads it.
-                let mut letters = BTreeSet::new();
-                for o in &step.openers {
-                    for s in o.body(&self.thm.path).sentences() {
-                        if let Some(n) = self.rec.page.get(&s) {
-                            letters.extend(n.names());
-                        }
-                    }
-                }
-                let Some(said) = self
-                    .cited_parts(&step.just.from)
-                    .into_iter()
-                    .map(|c| self.at_recorded_letter(&c, &letters).unwrap_or(c))
-                    .find(|c| c.node.notation() == DISJUNCTION)
-                else {
-                    return Route::no("cases from no line that says \"or\"");
+                // The "or" where the checker recorded it in the line the
+                // cases split (`CheckedTheorem::cases_from`): its sentence,
+                // or that sentence read at a block's letter.
+                let Some(split) = self.rec.cases_from.get(&step.just.line) else {
+                    return Route::no("the checker recorded no line the cases split");
+                };
+                let said = match self.line_part(&split.at) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
                 };
                 let source = said.proof.clone();
                 let labels: Vec<String> = parts

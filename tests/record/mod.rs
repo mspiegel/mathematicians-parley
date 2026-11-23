@@ -345,6 +345,16 @@ pub fn printed_but(
     for (line, at) in &record.obtained_from {
         writeln!(out, "{} obtains from {}", reason_at(*line), place(at)).unwrap();
     }
+    for (line, split) in &record.cases_from {
+        let mut said = format!("{} splits {}", reason_at(*line), place(&split.at));
+        if !split.meeting.as_written() {
+            write!(said, " met {}", meeting_words(&split.meeting)).unwrap();
+        }
+        if split.read_out {
+            said.push_str(" with its defines written out");
+        }
+        writeln!(out, "{said}").unwrap();
+    }
     out
 }
 

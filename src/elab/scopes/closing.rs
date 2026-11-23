@@ -779,50 +779,44 @@ impl<'a> Elaborator<'a> {
             );
             which = t!(which, one, "wo");
         }
-        // The line split is the first the step cites that is not a define;
-        // a define cited beside it reads its name, as the checker takes it.
-        let cited = step
-            .just
-            .refs
-            .iter()
-            .find(|r| !self.thm.defines.iter().any(|d| d.label == **r))
-            .unwrap_or(&step.just.refs[0])
-            .clone();
-        let mut disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
-        let cited_term = self
-            .line_written(&cited, &self.lines)
-            .map(|l| l.claim)
-            .unwrap_or_default();
+        // The disjunction where the checker recorded it in the line the
+        // cases split (`CheckedTheorem::cases_from`): its sentence, or that
+        // sentence read at a block's letter.
+        let Some(split) = self.checked.cases_from.get(&step.just.line).cloned() else {
+            return Err(self
+                .unreached(step.line, "the checker recorded no line the cases split"));
+        };
         let wanted = t!(which, assumed[last], "wo");
-        // Inside a block, a "for all" line is the disjunction read at the
-        // block's letter (`line_says`), as the checker takes it.
         let lines = self.lines.clone();
-        let read_at = self.line_says(&cited, scope, &block.outside, &lines)?;
-        let at_letter = read_at
-            .entries()
-            .into_iter()
-            .find(|(said, _)| *said == wanted);
-        if let Some((_, proof)) = at_letter {
-            disjunction = proof;
-        } else if wanted != cited_term {
-            // A case may write its disjunct another way, `0 = b(k)` for
-            // `b(k) = 0`; the line is carried across to the cases' spelling.
+        let Some((split_said, held)) =
+            self.line_fact(&split.at, scope, &block.outside, &lines)?
+        else {
+            return Err(self.unreached(
+                step.line,
+                "the line the checker recorded the cases split does not say it",
+            ));
+        };
+        // A case may write its disjunct another way, `0 = b(k)` for
+        // `b(k) = 0`, as the record's meeting says; the line is carried
+        // across to the cases' spelling.
+        let disjunction = if split_said == wanted {
+            held
+        } else {
             let alike = self.same(
-                &self.to_term(&cited_term),
+                &self.to_term(&split_said),
                 &self.to_term(&wanted),
                 scope,
                 &block.outside,
                 Some(step),
             )?;
             let Built(alike) = alike else {
-                return Err(self.defect(
+                return Err(self.unreached(
                     step.line,
-                    "the cases are not the disjunction the block cites, taken in order",
+                    "the line the cases split does not meet the cases as the checker recorded",
                 ));
             };
-            disjunction =
-                pf!(self.b; scope, cited_term, wanted, disjunction, alike, "mpbid");
-        }
+            pf!(self.b; scope, split_said, wanted, held, alike, "mpbid")
+        };
         let proof = self.b.ap(
             "mpjaodan",
             &binds! {"ph" => scope, "ps" => &which, "ch" => &claim, "th" => &assumed[last]},

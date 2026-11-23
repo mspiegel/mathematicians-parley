@@ -336,6 +336,9 @@ pub fn written_out(
     for c in written.contradicted.values_mut() {
         c.at.written = out(&c.at.written);
     }
+    for c in written.cases_from.values_mut() {
+        c.at.written = out(&c.at.written);
+    }
     for p in written.obtained_parts.values_mut().flatten() {
         p.owed_written = out(&p.owed_written);
     }
