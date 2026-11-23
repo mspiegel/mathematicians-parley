@@ -4,7 +4,7 @@ use std::slice;
 
 use super::*;
 use crate::checker::record::{First, Supplied};
-use crate::citing::HypothesisAt;
+use crate::citing::{conjuncts, HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::elab::tables::Row;
@@ -541,7 +541,9 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                 }
-                if let Some(p) = self.placed_proof(at, wanted, &held, scope, facts)? {
+                if let Some(p) =
+                    self.placed_proof(at, meeting, wanted, &held, scope, facts)?
+                {
                     return Ok(Some(p));
                 }
                 let narrowed = recorded.is_some_and(|r| r.supplied.narrowed.is_some());
@@ -1017,17 +1019,18 @@ impl<'a> Elaborator<'a> {
         )))
     }
 
-    /// ( scope -> term ) from the line the checker placed it in (`at`): as
-    /// `held` holds it, the line's claim or a conjunct of it, written so or
-    /// over other bound letters; that line's statement there, carried by
-    /// `same` where the line spells it otherwise, or with an identity
-    /// element the claim leaves out, K divides M for K divides M^1, by
-    /// `tidied`; a fact the line implies without writing it, `k ≥ 1` of
-    /// `k ∈ ℕ`, worked out from what is held (`settle`). None where none
-    /// of these gives it.
+    /// ( scope -> term ) from the line the checker placed it in (`at`), met
+    /// as the record says (`meeting`): as `held` holds it, the line's claim
+    /// or a conjunct of it, written so or over other bound letters; that
+    /// line's statement there, carried by `tidied` where the meeting drops
+    /// an identity element, K divides M for K divides M^1, and by `same`
+    /// where it otherwise spells the two apart; a fact the line implies
+    /// without writing it, by the recorded rule (`FirstAt::implied`) from
+    /// the sentence that implies it. None where that does not give it.
     pub(in crate::elab) fn placed_proof(
         &mut self,
         at: &FirstAt,
+        meeting: Option<&Meeting>,
         term: &Rpn,
         held: &Facts,
         scope: &Rpn,
@@ -1052,38 +1055,88 @@ impl<'a> Elaborator<'a> {
             }
         }
         let lines = self.lines.clone();
-        if let Some((said, proof)) = self.line_fact(at, scope, facts, &lines)? {
-            if said == *term {
-                return Ok(Some(proof));
-            }
-            if let Built(alike) = self.same(
+        if let Some(rule) = at.implied {
+            return self.implied_proof(at, rule, term, held, scope, facts);
+        }
+        let Some((said, proof)) = self.line_fact(at, scope, facts, &lines)? else {
+            return Ok(None);
+        };
+        if said == *term {
+            return Ok(Some(proof));
+        }
+        if meeting.is_some_and(|m| !m.identities.is_empty()) {
+            return self.tidied(&proof, &said, term, scope, facts);
+        }
+        Ok(
+            match self.same(
                 &self.to_term(&said),
                 &self.to_term(term),
                 scope,
                 facts,
                 None,
             )? {
-                return Ok(Some(pf!(self.b; scope, said, term, proof, alike, "mpbid")));
-            }
-            return self.tidied(&proof, &said, term, scope, facts);
-        }
-        // What the line says implies it: `k ∈ {1, …, n}` says 1 ≤ k, and
-        // `C ∈ 𝒫A` says C ⊆ A, the other spelling of a part of a set.
-        for (said, proof) in held.entries() {
-            let more = self.implied(&said, &proof, scope, facts)?;
-            if let Some(p) = self.held(&more, term, scope)? {
-                return Ok(Some(p));
-            }
-        }
-        if at.implied.is_none() {
-            return Ok(None);
-        }
-        Ok(
-            match self.settle(&self.to_term(term), scope, facts, 3, None, None)? {
-                Built(p) => Some(p),
+                Built(alike) => {
+                    Some(pf!(self.b; scope, said, term, proof, alike, "mpbid"))
+                }
                 Declined(_) => None,
             },
         )
+    }
+
+    /// ( scope -> term ) for a fact the line `at` implies without writing
+    /// it, by the rule the checker recorded (`FirstAt::implied`), from the
+    /// sentence or part that implies it as `held` holds it: `k ∈ {1, …, n}`
+    /// says 1 ≤ k by its range's bound, `C ∈ 𝒫A` says C ⊆ A by the other
+    /// form. A rule the implication table does not hold, two vertices of a
+    /// triangle apart, a wider codomain or a function's type, is worked out
+    /// from that sentence (`settle`). None where the line does not hold it.
+    fn implied_proof(
+        &mut self,
+        at: &FirstAt,
+        rule: Implication,
+        term: &Rpn,
+        held: &Facts,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let lines = self.lines.clone();
+        let sentences = self.line_sentences(&at.line, &lines);
+        let sentence = match at.sentence {
+            Some(k) => sentences.get(k).cloned(),
+            None => None,
+        };
+        let Some(sentence) = sentence else {
+            return Ok(None);
+        };
+        let implier = match at.part {
+            Some(p) => match conjuncts(&sentence, &self.item_library()).get(p) {
+                Some(part) => part.clone(),
+                None => return Ok(None),
+            },
+            None => sentence,
+        };
+        let implier = self.term(&implier)?;
+        let Some((said, proof)) = self.said_on_line(&implier, held)? else {
+            return Ok(None);
+        };
+        match rule {
+            Implication::TriangleApart { .. }
+            | Implication::WiderCodomain
+            | Implication::FunctionType { .. } => {
+                let known = facts.copy();
+                self.know(&known, said, proof);
+                Ok(self
+                    .settle(&self.to_term(term), scope, &known, 3, None, None)?
+                    .built())
+            }
+            Implication::OtherForm { .. }
+            | Implication::RangeBound { .. }
+            | Implication::WiderSystem
+            | Implication::SystemFact { .. } => {
+                let more = self.implied(&said, &proof, scope, facts)?;
+                self.held(&more, term, scope)
+            }
+        }
     }
 
     /// What a substitution hypothesis says its property half is, where the

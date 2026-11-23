@@ -1580,6 +1580,16 @@ impl Restated {
         }
     }
 
+    /// How the line met the claim, where the record says.
+    pub fn meeting(&self) -> Option<&Meeting> {
+        match self {
+            Restated::Stated { meeting, .. } | Restated::UnderClaim { meeting, .. } => {
+                meeting.as_ref()
+            }
+            Restated::Narrowed { .. } | Restated::Lines(_) => None,
+        }
+    }
+
     /// `at`, to rewrite.
     pub fn at_mut(&mut self) -> Option<&mut FirstAt> {
         match self {

@@ -3,7 +3,7 @@
 use std::vec::IntoIter;
 
 use super::*;
-use crate::checker::record::{FirstAt, JoinedWhole};
+use crate::checker::record::{JoinedPart, JoinedWhole};
 use crate::elab;
 use crate::mm::Kind;
 
@@ -646,7 +646,7 @@ impl<'a> Elaborator<'a> {
                 &lifted,
                 Some(step),
             )?;
-            if alike.is_declined() {
+            let Built(alike) = alike else {
                 return Err(self.defect(
                     step.line,
                     format!(
@@ -655,6 +655,12 @@ impl<'a> Elaborator<'a> {
                         self.render(&member)
                     ),
                 ));
+            };
+            // The line holds its sentence as the page writes it, `C ⊆ A`,
+            // as every line does, beside the membership it is read from.
+            if let Some(held) = self.held(&lifted, &member, &inner)? {
+                let proof = pf!(self.b; &inner, member, said, held, alike, "mpbid");
+                self.know(&lifted, said, proof);
             }
         }
         let proof = self
@@ -1503,11 +1509,17 @@ impl<'a> Elaborator<'a> {
             .restated
             .get(&step.just.line)
             .filter(|_| step.just.head.is(Method::Restate))
-            .and_then(|r| r.at())
-            .map(|at| vec![at.clone()]);
-        let parts_placed = self.checked.joined.get(&step.just.line).map(|sentences| {
-            sentences.iter().flatten().map(|p| p.at.clone()).collect()
-        });
+            .and_then(|r| {
+                Some(vec![JoinedPart {
+                    at: r.at()?.clone(),
+                    meeting: r.meeting().cloned(),
+                }])
+            });
+        let parts_placed = self
+            .checked
+            .joined
+            .get(&step.just.line)
+            .map(|sentences| sentences.iter().flatten().cloned().collect());
         let restate = restated.is_some();
         let Some(parts) = restated.or(parts_placed) else {
             return Err(self.defect(
@@ -1573,11 +1585,18 @@ impl<'a> Elaborator<'a> {
                 .wholes
                 .iter()
                 .find(|w| Some(w.count) == count && w.first == places.next)
-                .map(|w| w.at.clone());
-            if let (Some(at), Some(count)) = (run, count) {
+                .cloned();
+            if let (Some(run), Some(count)) = (run, count) {
                 places.next += count;
                 let held = places.held.clone();
-                return self.placed_proof(&at, term, &held, scope, facts);
+                return self.placed_proof(
+                    &run.at,
+                    run.meeting.as_ref(),
+                    term,
+                    &held,
+                    scope,
+                    facts,
+                );
             }
             // A part of the claim as the record has it is one part, though
             // its meaning be an "and", `a is odd`; an "and" of several parts
@@ -1598,12 +1617,12 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         }
-        let Some(at) = places.parts.get(places.next).cloned() else {
+        let Some(part) = places.parts.get(places.next).cloned() else {
             return Ok(None);
         };
         places.next += 1;
         let held = places.held.clone();
-        self.placed_proof(&at, term, &held, scope, facts)
+        self.placed_proof(&part.at, part.meeting.as_ref(), term, &held, scope, facts)
     }
 
     /// How many of the claim's parts as the record has them (`claim`) `term`
@@ -1628,8 +1647,9 @@ impl<'a> Elaborator<'a> {
 /// The places the checker recorded for a `join` or `restate` step's claim,
 /// and how many of its parts are taken so far (`joined_by_places`).
 struct JoinPlaces {
-    /// Where each part stands, in the order the claim writes them.
-    parts: Vec<FirstAt>,
+    /// Where each part stands, in the order the claim writes them, and how
+    /// its line met it.
+    parts: Vec<JoinedPart>,
     /// The runs of parts one line states whole.
     wholes: Vec<JoinedWhole>,
     /// The next part to take.

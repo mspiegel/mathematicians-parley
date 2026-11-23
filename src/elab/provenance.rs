@@ -744,7 +744,10 @@ impl<'a> Elaborator<'a> {
         let lines = self.lines.clone();
         let by = match self.checked.restated.get(&line).cloned() {
             None => return Ok(None),
-            Some(Restated::Stated { at, .. } | Restated::UnderClaim { at, .. }) => {
+            Some(
+                Restated::Stated { at, meeting }
+                | Restated::UnderClaim { at, meeting, .. },
+            ) => {
                 // What the line says, and what rests on it alone: the domain
                 // an obtain on it put in the scope.
                 let held = self.line_supplies(&at.line, scope, facts, &lines)?;
@@ -753,7 +756,9 @@ impl<'a> Elaborator<'a> {
                         self.know_default(&held, said, proof);
                     }
                 }
-                if let Some(p) = self.placed_proof(&at, term, &held, scope, facts)? {
+                if let Some(p) =
+                    self.placed_proof(&at, meeting.as_ref(), term, &held, scope, facts)?
+                {
                     return Ok(Some(Built(p)));
                 }
                 return self.line_for_all(&at.line, term, false, scope, facts);
