@@ -7,7 +7,7 @@ use super::*;
 use crate::checker::record::{First, Supplied, Unfolded};
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
-use crate::elab::provenance::rests_on_only;
+use crate::elab::provenance::MEMBERSHIP as SAID_ONCE;
 use crate::elab::tables::Row;
 use crate::matching::{standard, Meeting, Tree};
 use crate::notations::{FOR_ALL, PROPERTY_OF};
@@ -772,9 +772,16 @@ impl<'a> Elaborator<'a> {
                 // point or a function it obtains, which rests on the line's
                 // sort (`{line}∈`) as a `let` does.
                 let held = self.line_supplies(&at.line, scope, facts, &lines)?;
+                // Each origin the line, its sort, or a membership said once,
+                // which every step rests on unnamed (`rests_on_named`): an
+                // obtained point's membership of ℂ among them.
                 let sort = format!("{}∈", at.line);
                 for (said, proof) in facts.entries() {
-                    if rests_on_only(&proof, &at.line) || rests_on_only(&proof, &sort) {
+                    let on_line = !proof.origin.is_empty()
+                        && proof.origin.iter().all(|o| {
+                            *o == at.line || *o == sort || o.starts_with(SAID_ONCE)
+                        });
+                    if on_line {
                         self.know_default(&held, said, proof);
                     }
                 }
@@ -1473,6 +1480,20 @@ impl<'a> Elaborator<'a> {
             if let Some((said, proof)) = self.joined_on_line(&recorded, held, scope)? {
                 if said == *term {
                     return Ok(Some(proof));
+                }
+                // Met otherwise, as the record says: respelled, `H is on
+                // line CB` for `C, B, H are collinear`.
+                if meeting.is_some_and(|m| !m.as_written()) {
+                    let across = self.same(
+                        &self.to_term(&said),
+                        &self.to_term(term),
+                        scope,
+                        facts,
+                        None,
+                    )?;
+                    return Ok(across.built().map(
+                        |across| pf!(self.b; scope, said, term, proof, across, "mpbid"),
+                    ));
                 }
             }
         }

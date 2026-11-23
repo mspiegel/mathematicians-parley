@@ -10,6 +10,7 @@ use crate::checker::record::{Facing, First, Supplied};
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
+use crate::elab::provenance::MEMBERSHIP as SAID_ONCE;
 use crate::matching::{Meeting, Tree};
 use crate::notations::{EQUALITY, FOR_ALL, THERE_IS, TIMES};
 use crate::sorts;
@@ -49,7 +50,8 @@ impl<'a> Elaborator<'a> {
             )
         );
         if kind_only {
-            return self.own_hypothesis(step, at, form.as_ref(), one, scope, known);
+            let line = self.kind_line(step, at)?;
+            return self.own_hypothesis(step, line, form.as_ref(), one, scope, known);
         }
         let Some(entry) = entry else {
             return Err(self.unreached(
@@ -93,52 +95,58 @@ impl<'a> Elaborator<'a> {
         let Some(own) = own else {
             return Ok(given);
         };
-        // A function's type is what the part beside it says of it: one-to-one,
-        // onto or a bijection from A to B is a function from A to B.
-        let left = match form {
-            Some(Form::FunctionBeing { .. }) => {
-                let beside = Facts::new();
-                self.know(&beside, recorded.clone(), given.clone());
-                let made = self
-                    .settle_or_bare(&self.to_term(&own), scope, &beside)?
-                    .built();
-                match made {
-                    Some(p) => p,
-                    None => return Err(self.nothing_supplies(step, &own)),
+        // A function's type is written on the line the record names for the
+        // part beside it, `f : S → S is one-to-one`, or the `let` saying
+        // `f : ℕ → ℤ be one-to-one and onto`; a ∉ X's sethood is the kind
+        // the line introducing a says.
+        let line = match form {
+            Some(Form::FunctionBeing { .. }) => match &entry.by {
+                SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
+                    Some(at.line.clone())
                 }
-            }
-            _ => self.own_hypothesis(step, at, form.as_ref(), &own, scope, known)?,
+                _ => None,
+            },
+            _ => self.kind_line(step, at)?,
         };
+        let left =
+            self.own_hypothesis(step, line, form.as_ref(), &own, scope, known)?;
         Ok(pf!(self.b; scope, own, recorded, left, given, "jca"))
     }
 
-    /// ( scope -> one ) for what only set.mm asks of the cited theorem's
-    /// hypothesis `at`, of the form `form`, which no page line writes: that
-    /// a point is a complex number, a class a set, a structure a group. From
-    /// the line the checker recorded as introducing the value
-    /// (`Cited::kinds`): a point's `let` says its membership once; the rest
-    /// is built from the value's shape (`settle_or_bare`), offered only what
-    /// rests on the sorts and that line.
-    fn own_hypothesis(
-        &mut self,
-        step: &Step,
-        at: usize,
-        form: Option<&Form>,
-        one: &Rpn,
-        scope: &Rpn,
-        known: &Facts,
-    ) -> Checked<Proof> {
+    /// The line the checker recorded as introducing the value of the cited
+    /// item's hypothesis `at`, which names a thing of a kind (`Cited::kinds`);
+    /// None where no line introduces it, ℕ or {1, …, m}.
+    fn kind_line(&self, step: &Step, at: usize) -> Checked<Option<String>> {
         let Some(cited) = self.citation_read(step) else {
             return Err(self.unreached(
                 step.line,
                 "the checker recorded no reading of this citation",
             ));
         };
-        let line = cited
+        Ok(cited
             .kinds
             .iter()
             .find(|k| k.at.line == at)
-            .and_then(|k| k.line.clone());
+            .and_then(|k| k.line.clone()))
+    }
+
+    /// ( scope -> one ) for a fact a cited item's `let` asks that the checker
+    /// records no supplier for (`Library::kind_lines`): what a kind form
+    /// says, a point in ℂ, a class a set, a structure a group, and the left
+    /// part of what `a ∉ X` and `let f : A → B be one-to-one` say. From
+    /// `line`, where the record places it: a point's `let` says its
+    /// membership once; the rest is built from the value's shape
+    /// (`settle_or_bare`), offered only what rests on the sorts, that line,
+    /// and what is said once, and is said once itself.
+    fn own_hypothesis(
+        &mut self,
+        step: &Step,
+        line: Option<String>,
+        form: Option<&Form>,
+        one: &Rpn,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Proof> {
         let made = match (form, line) {
             // A point's membership of ℂ is its `let`'s own, said once.
             (Some(Form::Point(_)), Some(_)) => {
@@ -163,28 +171,45 @@ impl<'a> Elaborator<'a> {
             // variable is, A ∖ B as its parts are, a group's carrier as each
             // function's value is.
             (_, line) => {
-                let said = match &line {
-                    Some(line) => {
-                        let lines = self.lines.clone();
-                        self.line_supplies(line, scope, known, &lines)?
+                // Each claim the line gave, with its own proof at the step's
+                // scope, which the step rests on unnamed (`said_by_line`);
+                // and the facts below.
+                let said = Facts::new();
+                if let Some(line) = &line {
+                    for (claim, proof) in self.said_by_line(known, line) {
+                        self.know(&said, claim, proof);
                     }
-                    None => Facts::new(),
-                };
+                }
                 let own: Vec<String> = match &line {
                     Some(line) => vec![line.clone(), format!("{line}∈")],
                     None => Vec::new(),
                 };
+                // A fact said once, a define's type or a letter's
+                // membership (`membership@`), is one too: every step rests on
+                // it unnamed (`rests_on_named`).
                 for (fact, proof) in known.entries() {
-                    let kept = proof
-                        .origin
-                        .iter()
-                        .all(|o| self.sorts.contains(o) || own.contains(o));
+                    let kept = proof.origin.iter().all(|o| {
+                        self.sorts.contains(o)
+                            || own.contains(o)
+                            || o.starts_with(SAID_ONCE)
+                    });
                     if kept {
                         self.know(&said, fact, proof);
                     }
                 }
-                self.settle_or_bare(&self.to_term(one), scope, &said)?
-                    .built()
+                let made = self
+                    .settle_or_bare(&self.to_term(one), scope, &said)?
+                    .built();
+                // The kind a `let` gives is said once, as a letter's
+                // membership is (`READERS.md`): a step citing an item that
+                // asks it rests on it without naming the line.
+                match &line {
+                    Some(line) => {
+                        let said_once = format!("{SAID_ONCE}{line}");
+                        made.map(|p| self.seal(p, &said_once))
+                    }
+                    None => made,
+                }
             }
         };
         match made {

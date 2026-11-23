@@ -79,6 +79,15 @@ impl Elaborator<'_> {
         })
     }
 
+    /// Each claim the line `label` gave, with its proof as carried into the
+    /// scope, named by the step or not: the kind a `let` or an `obtain`
+    /// gives what it introduces, a set, a point, a group, a function's type,
+    /// is said once (`own_hypothesis`), and is read here even where another
+    /// line holds the same claim, `let A be a set` beside `assume A exists`.
+    pub(super) fn said_by_line(&self, facts: &Facts, label: &str) -> Vec<(Rpn, Proof)> {
+        behind(facts).of_line(label)
+    }
+
     /// ( scope -> name = body ) from the define labelled `label`, its own
     /// line and nothing else, named by the step or not: a define says its
     /// function's type once, on its line (`map_into`), and the type is read
