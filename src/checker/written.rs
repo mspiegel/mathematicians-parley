@@ -123,7 +123,7 @@ fn unfolded_written(
 ) {
     for part in parts {
         match part {
-            Unfolded::Fact { fact, by } => {
+            Unfolded::Fact { fact, by, .. } => {
                 *fact = out(fact);
                 supplied_written(by, out);
             }

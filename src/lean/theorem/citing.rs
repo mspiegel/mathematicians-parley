@@ -2913,7 +2913,7 @@ impl<'a> Proof<'a> {
                 member,
                 body,
             } => {
-                let Unfolded::Fact { fact, by } = member.as_ref() else {
+                let Unfolded::Fact { fact, by, .. } = member.as_ref() else {
                     return None;
                 };
                 let [_, set] = fact.children.as_slice() else {

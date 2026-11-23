@@ -1231,16 +1231,24 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The setvar a binder's name stands for: the letter's own label where
-    /// it names a setvar no phrase the theorem meets binds (`phrase_bound`),
-    /// and a spare otherwise — the same one every time,
-    /// since the name is one name wherever the proof writes it.
+    /// it names a setvar no phrase the theorem meets binds (`phrase_bound`)
+    /// and no other name stands for (`written_as`), and a spare otherwise —
+    /// the same one every time, since the name is one name wherever the
+    /// proof writes it.
     pub fn binder_var(&mut self, name: &str) -> Checked<String> {
         if let Some(v) = self.bound_as.get(name) {
             return Ok(v.clone());
         }
+        // A letter's own variable, unless another name already stands for
+        // it: a block's `let X` may have been given `t`'s variable.
         let label = match self.b.flabel.get(name) {
             Some(l)
-                if self.is_setvar(&l) && !self.phrase_bound().contains(l.as_str()) =>
+                if self.is_setvar(&l)
+                    && !self.phrase_bound().contains(l.as_str())
+                    && self
+                        .written_as
+                        .get(l.as_str())
+                        .is_none_or(|other| other == name) =>
             {
                 l.to_string()
             }

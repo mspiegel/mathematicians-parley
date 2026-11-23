@@ -970,7 +970,7 @@ impl<'a> Elaborator<'a> {
 
     /// Sentence `sentence` of the cited item, counted across its groups,
     /// read `way` (`citing::readings`), in the item's letters.
-    fn reading_node(
+    pub(in crate::elab) fn reading_node(
         &mut self,
         step: &Step,
         cited: &Cited,

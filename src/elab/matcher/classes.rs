@@ -4,7 +4,7 @@ use std::iter;
 
 use super::*;
 use crate::checker::record::{Supplied, SuppliedBy, Unfolded};
-use crate::matching::{Binding as NodeBinding, FxIndexSet};
+use crate::matching::{Binding as NodeBinding, FxIndexSet, Meeting};
 
 /// What the checker recorded as showing a "there is" (`Exhibit::shown`,
 /// `Cited::unfolded`): each letter's membership in its domain, from the
@@ -20,13 +20,17 @@ pub(in crate::elab) struct WitnessFacts {
 
 /// A fact of a definition's right side as `Cited::unfolded` records it, as
 /// a hypothesis's supplier is recorded: no item's hypothesis, and met as
-/// it stands.
-fn unfolded_supplied(fact: &Node, by: &SuppliedBy) -> Supplied {
+/// the record says.
+fn unfolded_supplied(
+    fact: &Node,
+    by: &SuppliedBy,
+    meeting: &Option<Meeting>,
+) -> Supplied {
     Supplied {
         want: fact.clone(),
         by: by.clone(),
         at: None,
-        meeting: None,
+        meeting: meeting.clone(),
         narrowed: None,
         witnesses: Vec::new(),
     }
@@ -552,6 +556,25 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no unfolding of the right side",
             ));
         };
+        self.unfolded_witness(step, parts, wanted, turned, scope, facts, lines)
+    }
+
+    /// ( scope -> wanted ) for a "there is" of a definition's right side,
+    /// at the witnesses the checker recorded it unfolded at (`parts`, one
+    /// `Unfolded::Witness` for each letter from the outermost in, then the
+    /// body): each letter's membership, then each part of the body, from
+    /// where the record places it.
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::elab) fn unfolded_witness(
+        &mut self,
+        step: &Step,
+        parts: &[Unfolded],
+        wanted: &Term,
+        turned: bool,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
         let mut members = Vec::new();
         let mut values = Vec::new();
         let mut body = Vec::new();
@@ -564,24 +587,24 @@ impl<'a> Elaborator<'a> {
                     body: inner,
                 }] => {
                     values.push(value.clone());
-                    let Unfolded::Fact { fact, by } = member.as_ref() else {
+                    let Unfolded::Fact { fact, by, meeting } = member.as_ref() else {
                         return Err(self.unreached(
                             step.line,
                             "the checker recorded a witness's domain as no fact",
                         ));
                     };
-                    members.push(unfolded_supplied(fact, by));
+                    members.push(unfolded_supplied(fact, by, meeting));
                     at = inner;
                 }
                 rest => {
                     for part in rest {
-                        let Unfolded::Fact { fact, by } = part else {
+                        let Unfolded::Fact { fact, by, meeting } = part else {
                             return Err(self.unreached(
                                 step.line,
                                 "the checker recorded a \"there is\" inside the body beside other parts",
                             ));
                         };
-                        body.push(unfolded_supplied(fact, by));
+                        body.push(unfolded_supplied(fact, by, meeting));
                     }
                     break;
                 }
@@ -640,14 +663,14 @@ impl<'a> Elaborator<'a> {
         let mut shown: Vec<Supplied> = Vec::new();
         for w in &supplied.witnesses {
             at.insert(Symbol::of(&w.letter), w.value.clone());
-            shown.push(unfolded_supplied(&w.said, &w.member));
+            shown.push(unfolded_supplied(&w.said, &w.member, &None));
         }
         let mut body = &supplied.want;
         while library.exists.contains(&body.notation()) && body.children.len() == 3 {
             body = &body.children[2];
         }
         if !library.exists.contains(&body.notation()) {
-            shown.push(unfolded_supplied(body, &supplied.by));
+            shown.push(unfolded_supplied(body, &supplied.by, &None));
         }
         let wanted = self.to_term(wanted);
         let layers = self.layers_of(&wanted);

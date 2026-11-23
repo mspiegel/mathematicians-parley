@@ -611,8 +611,12 @@ fn unfolded_parts(parts: &[Unfolded], g: &Grammar) -> String {
     let each: Vec<String> = parts
         .iter()
         .map(|p| match p {
-            Unfolded::Fact { fact, by } => {
-                format!("{} by {}", g.print(fact), supplier(g, by))
+            Unfolded::Fact { fact, by, meeting } => {
+                let mut said = format!("{} by {}", g.print(fact), supplier(g, by));
+                if let Some(m) = meeting.as_ref().filter(|m| !m.as_written()) {
+                    write!(said, " met {}", meeting_words(m)).unwrap();
+                }
+                said
             }
             Unfolded::Witness {
                 value,

@@ -884,7 +884,7 @@ impl Cited {
             && parts.iter().any(|p| {
                 matches!(
                     p,
-                    Unfolded::Fact { fact, by: SuppliedBy::Line(_) }
+                    Unfolded::Fact { fact, by: SuppliedBy::Line(_), .. }
                         if matches!(fact.notation(), THERE_IS | THERE_IS_SOME)
                 )
             });
@@ -927,8 +927,14 @@ pub enum Unfolding {
 /// (`Cited::unfolded`).
 #[derive(Clone, Debug)]
 pub enum Unfolded {
-    /// A fact, and what supplies it.
-    Fact { fact: Node, by: SuppliedBy },
+    /// A fact, what supplies it, and how the fact the supplier states met
+    /// it (`Supplied::meeting`): `|a(n)| < ε` on a line for `|a(n) − 0| <
+    /// ε`, the identity element dropped. None where no line writes it.
+    Fact {
+        fact: Node,
+        by: SuppliedBy,
+        meeting: Option<Meeting>,
+    },
     /// A "there is": the witness the citation gives its letter, that the
     /// witness is in the letter's domain, and the parts of its body at the
     /// witness.

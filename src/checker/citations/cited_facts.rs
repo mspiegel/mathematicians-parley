@@ -452,7 +452,7 @@ pub(super) fn unfolded_parts(
     let fact = |fact: Node, at: &Binding| {
         let fact = substitute_apart(&fact, at, &library.ctx);
         let read = standard(&expand(&fact, &defined), &library.ctx);
-        let by = supplied_at(
+        let supplied = supplied_at(
             step,
             sought.refs,
             Some(item),
@@ -469,9 +469,12 @@ pub(super) fn unfolded_parts(
             known,
             library,
         )
-        .pop()
-        .map_or(SuppliedBy::Unstated, |s| s.by);
-        Unfolded::Fact { fact, by }
+        .pop();
+        let (by, meeting) = match supplied {
+            Some(s) => (s.by, s.meeting),
+            None => (SuppliedBy::Unstated, None),
+        };
+        Unfolded::Fact { fact, by, meeting }
     };
     conjuncts(node, library)
         .into_iter()

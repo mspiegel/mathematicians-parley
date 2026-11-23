@@ -4,13 +4,24 @@ use std::slice;
 
 use super::running::Folded;
 use super::*;
-use crate::checker::record::{First, Supplied};
+use crate::checker::record::{First, Supplied, Unfolded};
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::elab::tables::Row;
 use crate::matching::{standard, Meeting, Tree};
 use crate::notations::{FOR_ALL, PROPERTY_OF};
+
+/// One part of a definition's right side as the page reads it, shown as
+/// the checker recorded it (`unfolded_proof`).
+struct ShownPiece {
+    term: Rpn,
+    proof: Proof,
+    /// For a fact a line supplies, its record (`Unfolded::Fact`), from which
+    /// it is shown at the lemma's place in the lemma's letters
+    /// (`assembled`). None for a "there is" shown at its witness.
+    record: Option<Supplied>,
+}
 
 /// What the checker recorded as supplying a fact (`Supplied`), with the
 /// values its hypothesis is read at: the citation's (`binding_with_written`)
@@ -291,18 +302,253 @@ impl<'a> Elaborator<'a> {
             &known,
             hint.as_ref()
         )?);
-        // The right side is settled as the checker reads the lines that
-        // answer it, with identity elements dropped (`settle_or_bare`).
-        let under = take!(self.settle_or_bare(
-            &self.to_term(&right),
-            scope,
-            &known,
-            Some(step),
-            Some(lines)
-        )?);
+        // The right side's parts as the page reads them, each shown as the
+        // checker recorded it shown (`Cited::unfolded`), put together in the
+        // lemma's grouping and spelling of them.
+        let pieces = take!(self.unfolded_proof(step, scope, &known, lines)?);
+        let mut next = 0;
+        let assembled =
+            self.assembled(step, &right, &pieces, &mut next, scope, &known)?;
+        let Some(under) = assembled.filter(|_| next == pieces.len()) else {
+            return Ok(self.no(
+                "the parts the checker recorded do not make the lemma's {}",
+                &[&right],
+            ));
+        };
         Ok(Built(
             pf!(self.b; scope, term, right, under, says, "mpbird"),
         ))
+    }
+
+    /// The parts of the right side of the definition a step folds, as the
+    /// page reads it at the citation's values and the checker took it apart
+    /// (`citing::conjuncts`), in order, each with its proof, shown as the
+    /// checker recorded it (`Cited::unfolded`): a fact from what supplies
+    /// it, a "there is" at the witness it was unfolded at
+    /// (`unfolded_witness`).
+    fn unfolded_proof(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Vec<ShownPiece>>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let unfolded = cited
+            .unfolded
+            .iter()
+            .enumerate()
+            .find_map(|(k, u)| u.as_ref().map(|parts| (k, parts.clone())));
+        let Some((k, parts)) = unfolded else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no unfolding of the right side",
+            ));
+        };
+        // The right side's parts as the checker took it apart: its tree at
+        // the citation's values, split as `citing::conjuncts` splits it.
+        let sentence = cited.concluded[k].sentence;
+        let read = self.reading_node(step, &cited, sentence, citing::Way::AsWritten)?;
+        let [_, right] = read.children.as_slice() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker read backwards a sentence that is no ↔",
+            ));
+        };
+        let library = self.item_library();
+        let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
+        let right = filled(right, &binding, &library.ctx);
+        let mut asked = Vec::new();
+        for piece in citing::conjuncts(&right, &library) {
+            let read = self.read_apart(step, &piece)?;
+            asked.push(self.rpn(&read));
+        }
+        if asked.len() != parts.len() {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded another number of parts than the right side joins",
+            ));
+        }
+        // A fact is met as the record says its supplier met it, and read at
+        // no item's values: the right side is the citation's already.
+        let values = NodeBinding::new();
+        let mut shown = Vec::new();
+        for (part, piece) in parts.iter().zip(&asked) {
+            let mut record = None;
+            let proof = match part {
+                Unfolded::Fact { fact, by, meeting } => {
+                    let supplied = Supplied {
+                        want: fact.clone(),
+                        by: by.clone(),
+                        at: None,
+                        meeting: meeting.clone(),
+                        narrowed: None,
+                        witnesses: Vec::new(),
+                    };
+                    record = Some(supplied.clone());
+                    // Read apart from the step's names, as a hypothesis is
+                    // (`recorded_hypotheses`), so that its bound letter is
+                    // spelt with a variable no name holds.
+                    let read = self.read_apart(step, fact)?;
+                    let wanted = self.rpn(&read);
+                    let recorded = RecordedSupply {
+                        supplied: &supplied,
+                        values: &values,
+                    };
+                    let Some(p) = self.supplied_proof(
+                        step,
+                        by,
+                        Some(recorded),
+                        &wanted,
+                        scope,
+                        facts,
+                    )?
+                    else {
+                        return Ok(self.no(
+                            "what the checker recorded as supplying {} does not give it",
+                            &[&wanted],
+                        ));
+                    };
+                    if wanted == *piece {
+                        p
+                    } else {
+                        let carried = self
+                            .carried_to(step, &wanted, &p, piece, None, scope, facts)?;
+                        let Some(c) = carried else {
+                            return Ok(self.no(
+                                "the recorded fact {} does not carry to {}",
+                                &[&wanted, piece],
+                            ));
+                        };
+                        c
+                    }
+                }
+                Unfolded::Witness { .. } => take!(self.unfolded_witness(
+                    step,
+                    slice::from_ref(part),
+                    &self.to_term(piece),
+                    false,
+                    scope,
+                    facts,
+                    lines,
+                )?),
+            };
+            shown.push(ShownPiece {
+                term: piece.clone(),
+                proof,
+                record,
+            });
+        }
+        Ok(Built(shown))
+    }
+
+    /// ( scope -> target ) for the lemma's right side, built in its own
+    /// grouping of "and"s (`jca`, `3jca`) from `pieces`, the parts the
+    /// checker took the page's right side apart into, in order from
+    /// `next`: each place a piece fills taken as it stands where the lemma
+    /// spells it alike; where it spells it otherwise, one whose line leaves
+    /// an identity element out, as the lemma then does, shown at the
+    /// lemma's place from its supplier as the record says the two met, and
+    /// any other carried by `same`. None where the pieces do not fill it.
+    #[allow(clippy::too_many_arguments)]
+    fn assembled(
+        &mut self,
+        step: &Step,
+        target: &Rpn,
+        pieces: &[ShownPiece],
+        next: &mut usize,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if let Some(piece) = pieces.get(*next).filter(|p| p.term == *target) {
+            *next += 1;
+            return Ok(Some(piece.proof.clone()));
+        }
+        let node = self.to_term(target);
+        match (node.label(), node.children()) {
+            (Some("wa"), [left, right]) => {
+                let (left, right) = (self.rpn(left), self.rpn(right));
+                let Some(l) =
+                    self.assembled(step, &left, pieces, next, scope, facts)?
+                else {
+                    return Ok(None);
+                };
+                let Some(r) =
+                    self.assembled(step, &right, pieces, next, scope, facts)?
+                else {
+                    return Ok(None);
+                };
+                Ok(Some(pf!(self.b; scope, left, right, l, r, "jca")))
+            }
+            (Some("w3a"), [a, b, c]) => {
+                let (a, b, c) = (self.rpn(a), self.rpn(b), self.rpn(c));
+                let mut made = Vec::new();
+                for one in [&a, &b, &c] {
+                    let Some(p) =
+                        self.assembled(step, one, pieces, next, scope, facts)?
+                    else {
+                        return Ok(None);
+                    };
+                    made.push(p);
+                }
+                Ok(Some(self.b.ap(
+                    "3jca",
+                    &binds! {"ph" => scope, "ps" => &a, "ch" => &b, "th" => &c},
+                    &[&made[0], &made[1], &made[2]],
+                )))
+            }
+            _ => {
+                let Some(piece) = pieces.get(*next) else {
+                    return Ok(None);
+                };
+                *next += 1;
+                let (term, proof) = (piece.term.clone(), piece.proof.clone());
+                // A fact a line supplies is shown at the lemma's place from
+                // the line, in the letters the lemma took from it, as the
+                // record says the two met: the identity elements the line
+                // leaves out put back where the place keeps them, |a(n) − 0|
+                // for |a(n)|, and left out where it leaves them out too.
+                let keeps = self.rpn(&self.without_identities(&node)) != *target;
+                if let Some(record) = &piece.record {
+                    let supplied = match keeps {
+                        true => record.clone(),
+                        false => Supplied {
+                            meeting: record.meeting.as_ref().map(|m| Meeting {
+                                identities: Vec::new(),
+                                ..m.clone()
+                            }),
+                            ..record.clone()
+                        },
+                    };
+                    let values = NodeBinding::new();
+                    let recorded = RecordedSupply {
+                        supplied: &supplied,
+                        values: &values,
+                    };
+                    return self.supplied_proof(
+                        step,
+                        &supplied.by,
+                        Some(recorded),
+                        target,
+                        scope,
+                        facts,
+                    );
+                }
+                let across =
+                    self.same(&self.to_term(&term), &node, scope, facts, Some(step))?;
+                Ok(match across {
+                    Built(across) => {
+                        Some(pf!(self.b; scope, term, target, proof, across, "mpbid"))
+                    }
+                    Declined(_) => None,
+                })
+            }
+        }
     }
 
     /// How the cited item's definition is written in its lemma, as its
