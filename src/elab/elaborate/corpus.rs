@@ -6,7 +6,7 @@ use std::{iter, slice};
 use super::cited_items::ShownPart;
 use super::unfolds::{PlacedTrees, RecordedSupply};
 use super::*;
-use crate::checker::record::{Facing, First, Supplied, SuppliedBy};
+use crate::checker::record::{Facing, First, Supplied};
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
@@ -100,7 +100,7 @@ impl<'a> Elaborator<'a> {
                 let beside = Facts::new();
                 self.know(&beside, recorded.clone(), given.clone());
                 let made = self
-                    .settle_or_bare(&self.to_term(&own), scope, &beside, None, None)?
+                    .settle_or_bare(&self.to_term(&own), scope, &beside)?
                     .built();
                 match made {
                     Some(p) => p,
@@ -183,7 +183,7 @@ impl<'a> Elaborator<'a> {
                         self.know(&said, fact, proof);
                     }
                 }
-                self.settle_or_bare(&self.to_term(one), scope, &said, None, None)?
+                self.settle_or_bare(&self.to_term(one), scope, &said)?
                     .built()
             }
         };
@@ -1233,12 +1233,8 @@ impl<'a> Elaborator<'a> {
             _ => (a.clone(), b.clone()),
         };
         // The premise is the fact the checker read the reading from, each of
-        // its parts where the record says it stands.
-        let by = match firsts {
-            [one] => one.by.clone(),
-            _ => SuppliedBy::Parts(firsts.iter().map(|f| f.by.clone()).collect()),
-        };
-        let found = self.supplied_proof(step, &by, None, &given, scope, facts)?;
+        // its parts where the record says it stands (`firsts_proof`).
+        let found = self.firsts_proof(step, firsts, &given, scope, facts)?;
         let Some(held) = found else {
             return Err(self.defect(
                 step.line,

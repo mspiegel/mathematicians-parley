@@ -4,7 +4,7 @@ use std::iter;
 
 use super::*;
 use crate::checker::record::{Supplied, SuppliedBy, Unfolded};
-use crate::matching::{Binding as NodeBinding, FxIndexSet, Meeting};
+use crate::matching::{Binding as NodeBinding, Meeting};
 
 /// What the checker recorded as showing a "there is" (`Exhibit::shown`,
 /// `Cited::unfolded`): each letter's membership in its domain, from the
@@ -424,70 +424,7 @@ impl<'a> Elaborator<'a> {
         Some(out)
     }
 
-    /// The side of an equation, the innermost body of an existential, that
-    /// names none of its witnesses, where the other names one; else None.
-    pub(super) fn witnessless_side(
-        &self,
-        body: &Term,
-        layers: &[(Term, Rpn, Rpn)],
-    ) -> Option<Rpn> {
-        if body.label() != Some("wceq") || body.children().len() != 2 {
-            return None;
-        }
-        let names = |t: &Term| {
-            let spelt = self.rpn(t);
-            layers
-                .iter()
-                .any(|(_, v, _)| v.alone().is_some_and(|v| spelt.has(v)))
-        };
-        let (left, right) = (&body.children()[0], &body.children()[1]);
-        match (names(left), names(right)) {
-            (false, true) => Some(self.rpn(left)),
-            (true, false) => Some(self.rpn(right)),
-            _ => None,
-        }
-    }
-
-    /// A restricted existential a citation asks, or the right side a
-    /// definition concludes from (`conclude`), proved at the witnesses the
-    /// checker read the citation as naming (`witnesses_read`), from the
-    /// lines the step cites and its `requires` lines. Built from the
-    /// innermost quantifier out, which is the order the witnesses go in.
-    pub fn witnessed(
-        &mut self,
-        step: &Step,
-        wanted: &Term,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<Route<Proof>> {
-        let layers = self.layers_of(wanted);
-        let mut sources = self.witness_sources(step, scope, facts, lines)?;
-        if let Some(p) = self.claim_cited(&sources, wanted, scope, facts)? {
-            return Ok(Built(p));
-        }
-        let rest = layers[layers.len() - 1].0.clone();
-        // An equation the body asks whose one side names no witness is the
-        // same on both sides once the witnesses are read off the other, and
-        // needs no line (`SYNTAX.md`, the literal-instance rule): a·x + b·y =
-        // a·m + b·n is met by m := x and n := y.
-        if let Some(sides) = self.witnessless_side(&rest, &layers) {
-            let said = t!(sides, sides, "wceq");
-            let proof = self
-                .b
-                .ap("eqidd", &binds! {"ph" => scope, "A" => &sides}, &[]);
-            sources.push((said, proof));
-        }
-        // The witnesses are as many as the checker read, from the outermost
-        // quantifier in (`witnesses_read`).
-        let found = take!(self.witnesses_read(step, wanted, &layers)?);
-        let layers = &layers[..found.len()];
-        self.witnessed_at(
-            step, wanted, layers, &found, scope, facts, lines, &sources, None,
-        )
-    }
-
-    /// What an `exhibit` step of several letters proves: `witnessed`, with
+    /// What an `exhibit` step of several letters proves: a "there is" at
     /// the witnesses the values the checker read the step as showing
     /// (`exhibited_here`), not searched for among the lines.
     pub fn exhibited(
@@ -523,14 +460,13 @@ impl<'a> Elaborator<'a> {
             &found,
             scope,
             facts,
-            lines,
             &sources,
             Some(&recorded),
         )
     }
 
     /// A definition's right side read backwards, a "there is" the checker
-    /// shows at the witnesses it read (`witnesses_read`), each fact of it
+    /// shows at the witnesses it unfolded it at, each fact of it
     /// from where the checker recorded it (`Cited::unfolded`): each
     /// letter's membership in its domain, from the outermost in, then each
     /// part of the body, turned where the lemma writes its equation the
@@ -542,7 +478,6 @@ impl<'a> Elaborator<'a> {
         turned: bool,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let Some(cited) = self.citation_read(step).cloned() else {
             return Err(self.unreached(
@@ -556,7 +491,7 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no unfolding of the right side",
             ));
         };
-        self.unfolded_witness(step, parts, wanted, turned, scope, facts, lines)
+        self.unfolded_witness(step, parts, wanted, turned, scope, facts)
     }
 
     /// ( scope -> wanted ) for a "there is" of a definition's right side,
@@ -573,7 +508,6 @@ impl<'a> Elaborator<'a> {
         turned: bool,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let mut members = Vec::new();
         let mut values = Vec::new();
@@ -637,7 +571,6 @@ impl<'a> Elaborator<'a> {
             &found,
             scope,
             facts,
-            lines,
             &[],
             Some(&recorded),
         )
@@ -686,7 +619,6 @@ impl<'a> Elaborator<'a> {
             values: at,
             turned: false,
         };
-        let lines = self.lines.clone();
         Ok(self
             .witnessed_at(
                 step,
@@ -695,104 +627,10 @@ impl<'a> Elaborator<'a> {
                 &found,
                 scope,
                 facts,
-                &lines,
                 &[],
                 Some(&recorded),
             )?
             .built())
-    }
-
-    /// The witnesses the checker read the citation `step` makes as naming
-    /// for `wanted`, a "there is" the cited item asks or a definition it
-    /// folds says (`Cited::bound`): what each of its letters is put to,
-    /// from the outermost in, by the variable the letter stands for in
-    /// `layers`, the quantifiers of `wanted`. They are taken from the
-    /// record: a nest of witnesses a definition read backwards was
-    /// unfolded at (`Cited::unfolded`), or the letters of a "there is" the
-    /// item asks (`Supplied::want`) at the values `Cited::bound` gives
-    /// them, whichever binds as many letters as `wanted`. A "there is"
-    /// inside the body that a line says whole, the "there is f" of "n ∈ ℕ₀
-    /// and there is f with …", has no witness read, and the witnesses are
-    /// of the quantifiers outside it. Declined where the checker read no
-    /// witness for it: a step whose citation proves its "there is" another
-    /// way, unfolding a definition, asks it as a side condition first.
-    pub(super) fn witnesses_read(
-        &mut self,
-        step: &Step,
-        wanted: &Term,
-        layers: &[(Term, Rpn, Rpn)],
-    ) -> Checked<Route<IndexMap<Rpn, Rpn>>> {
-        let Some(cited) = self.citation_read(step).cloned() else {
-            return Ok(Route::no("the checker reads no citation on this line"));
-        };
-        let library = self.item_library();
-        // The witnesses the record holds: each nest of "there is" a
-        // definition read backwards unfolded at its values
-        // (`Unfolded::Witness`), and each "there is" the item asks that a
-        // line supplies at a witness, its letters given by `Cited::bound`.
-        let mut candidates: Vec<Vec<Node>> = Vec::new();
-        for parts in cited.unfolded.iter().flatten() {
-            witness_nests(parts, &mut candidates);
-        }
-        candidates.retain(|values| values.len() == layers.len());
-        for supplied in &cited.supplied {
-            let letters = Self::existential_letters(&supplied.want, &library.exists);
-            let values: Vec<Node> = letters
-                .iter()
-                .map_while(|l| cited.bound.get(l).cloned())
-                .collect();
-            if letters.len() == layers.len() && !values.is_empty() {
-                candidates.push(values);
-            }
-        }
-        let mut read: Vec<Vec<Node>> = Vec::new();
-        let mut shapes: IndexSet<Vec<ByShape>> = IndexSet::new();
-        for values in candidates {
-            if shapes.insert(values.iter().map(Node::by_shape).collect()) {
-                read.push(values);
-            }
-        }
-        let values = match read.as_slice() {
-            [one] => one.clone(),
-            [] => {
-                return Ok(Route::no(format!(
-                    "the checker reads no witness for {}",
-                    self.render(&self.rpn(wanted))
-                )))
-            }
-            _ => {
-                return Err(self.unreached(
-                    step.line,
-                    format!(
-                        "the checker reads witnesses for more than one \"there is\" like {}",
-                        self.render(&self.rpn(wanted))
-                    ),
-                ))
-            }
-        };
-        let mut found = IndexMap::new();
-        for ((_, variable, _), value) in layers.iter().zip(&values) {
-            found.insert(t!(variable, "cv"), self.term(value)?);
-        }
-        Ok(Built(found))
-    }
-
-    /// The letters a nest of "there is" binds, from the outermost in; none
-    /// where `node` is no "there is".
-    pub(super) fn existential_letters(
-        node: &Node,
-        exists: &FxIndexSet<NotationId>,
-    ) -> Vec<Symbol> {
-        let mut letters = Vec::new();
-        let mut at = node;
-        while exists.contains(&at.notation()) && at.children.len() >= 2 {
-            letters.push(at.children[0].text);
-            match at.children.get(2) {
-                Some(body) => at = body,
-                None => break,
-            }
-        }
-        letters
     }
 
     /// The quantifiers of a nest of "there is", from the outermost in: the
@@ -839,30 +677,7 @@ impl<'a> Elaborator<'a> {
         Ok(sources)
     }
 
-    /// A cited line that is the claim once identity elements are dropped
-    /// and bound letters renamed names no witness: it is the claim
-    /// (`reached`), as "there is q ∈ ℤ with q·N = A" is "there is z ∈ ℤ
-    /// with z·N + 0 = A".
-    pub(super) fn claim_cited(
-        &mut self,
-        sources: &[(Rpn, Proof)],
-        wanted: &Term,
-        scope: &Rpn,
-        facts: &Facts,
-    ) -> Checked<Option<Proof>> {
-        let want = self.rpn(wanted);
-        for (said, proof) in sources {
-            if self.to_term(said).label() != Some("wrex") {
-                continue;
-            }
-            if let Some(p) = self.reached(proof, said, &want, scope, facts)? {
-                return Ok(Some(p));
-            }
-        }
-        Ok(None)
-    }
-
-    /// `witnessed` with the witnesses `found` for the claim's letters, by
+    /// A "there is" with the witnesses `found` for the claim's letters, by
     /// the variable each stands for, and the lines the step cites and
     /// requires, with their proofs. Where the checker recorded what shows
     /// the "there is" (`recorded`), each fact is taken from there and from
@@ -876,7 +691,6 @@ impl<'a> Elaborator<'a> {
         found: &IndexMap<Rpn, Rpn>,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
         sources: &[(Rpn, Proof)],
         recorded: Option<&WitnessFacts>,
     ) -> Checked<Route<Proof>> {
@@ -915,8 +729,7 @@ impl<'a> Elaborator<'a> {
                 })
                 .collect();
             let made = take!(self.witnessed_at(
-                step, &renamed, &apart, &carried, scope, facts, lines, sources,
-                recorded
+                step, &renamed, &apart, &carried, scope, facts, sources, recorded
             )?);
             let Some(back) = self.renaming(&renamed, wanted)? else {
                 return Err(self.defect(
@@ -979,13 +792,7 @@ impl<'a> Elaborator<'a> {
             );
             pf!(self.b; scope, b, a, p, "eqcomd")
         } else {
-            take!(self.settle_or_bare(
-                &innermost,
-                scope,
-                facts,
-                Some(step),
-                Some(lines)
-            )?)
+            take!(self.settle_or_bare(&innermost, scope, facts)?)
         };
         for i in (0..layers.len()).rev() {
             let (body, var, over) = layers[i].clone();
@@ -1182,30 +989,5 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
         self.same(given, want, scope, facts, step)
-    }
-}
-
-/// Each nest of "there is" among `parts` and the parts inside them, as the
-/// values its witnesses were unfolded at, from the outermost in: a witness
-/// whose body is one more witness continues its nest, and any other starts
-/// one of its own.
-fn witness_nests(parts: &[Unfolded], out: &mut Vec<Vec<Node>>) {
-    for part in parts {
-        let Unfolded::Witness { .. } = part else {
-            continue;
-        };
-        let mut values = Vec::new();
-        let mut at = part;
-        while let Unfolded::Witness { value, body, .. } = at {
-            values.push(value.clone());
-            match body.as_slice() {
-                [inner @ Unfolded::Witness { .. }] => at = inner,
-                rest => {
-                    witness_nests(rest, out);
-                    break;
-                }
-            }
-        }
-        out.push(values);
     }
 }

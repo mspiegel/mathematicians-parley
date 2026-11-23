@@ -370,7 +370,7 @@ impl<'a> Elaborator<'a> {
         // step.
         let known = self.supplied(Some(step), scope, facts)?;
         let Some(run) = self.writing(scope, &known, false, |me| {
-            me.folded_up(step, scope, &known, lines, links, &joints)
+            me.folded_up(step, scope, &known, links, &joints)
         })?
         else {
             return Err(self.defect(
@@ -442,7 +442,6 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
         links: Vec<ChainRun>,
         joints: &[Meeting],
     ) -> Checked<Option<ChainRun>> {
@@ -464,8 +463,7 @@ impl<'a> Elaborator<'a> {
                     relation: None,
                     proof,
                 };
-                let Some(joined) =
-                    self.folded_link(step, scope, facts, lines, run, bridge)?
+                let Some(joined) = self.folded_link(step, scope, facts, run, bridge)?
                 else {
                     return Ok(None);
                 };
@@ -473,9 +471,7 @@ impl<'a> Elaborator<'a> {
             } else if link.left != run.right {
                 return Ok(None);
             }
-            let Some(joined) =
-                self.folded_link(step, scope, facts, lines, run, link)?
-            else {
+            let Some(joined) = self.folded_link(step, scope, facts, run, link)? else {
                 return Ok(None);
             };
             run = joined;
@@ -490,7 +486,6 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
         run: ChainRun,
         link: ChainRun,
     ) -> Checked<Option<ChainRun>> {
@@ -515,7 +510,7 @@ impl<'a> Elaborator<'a> {
                     let mut real = Vec::new();
                     for t in [left, right, nxt] {
                         let wanted = self.to_term(&t!(t, "cr", "wcel"));
-                        match self.settle(&wanted, scope, facts, 3, Some(step), Some(lines))? {
+                        match self.settle(&wanted, scope, facts, 3)? {
                             Built(p) => real.push(p),
                             Declined(d) => {
                                 return Err(self.defect(

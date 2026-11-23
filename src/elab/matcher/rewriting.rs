@@ -97,7 +97,7 @@ impl<'a> Elaborator<'a> {
         );
         let every = t!(t!(rule, codomain, "wcel"), x, over, "wral");
         let Built(each) =
-            self.settle(&self.to_term(&every), scope, facts, depth - 1, None, None)?
+            self.settle(&self.to_term(&every), scope, facts, depth - 1)?
         else {
             return Ok(None);
         };
@@ -279,9 +279,7 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let member = self.to_term(&t!(at, domain, "wcel"));
-            let Built(inside) =
-                self.settle(&member, scope, facts, depth - 1, None, None)?
-            else {
+            let Built(inside) = self.settle(&member, scope, facts, depth - 1)? else {
                 continue;
             };
             let there = facts.copy();
@@ -494,9 +492,7 @@ impl<'a> Elaborator<'a> {
                 if self.rpn(&put) == *want {
                     continue;
                 }
-                let Built(under) =
-                    self.settle(&put, scope, facts, depth - 1, None, None)?
-                else {
+                let Built(under) = self.settle(&put, scope, facts, depth - 1)? else {
                     continue;
                 };
                 let leaf = Leaf::Rows(vec![Row::Cited {
@@ -828,9 +824,7 @@ impl<'a> Elaborator<'a> {
                     t!(said, rest, join_token(*join))
                 };
             }
-            let Built(under) =
-                self.settle(&asks, scope, facts, depth - 1, None, None)?
-            else {
+            let Built(under) = self.settle(&asks, scope, facts, depth - 1)? else {
                 return Ok(None);
             };
             let first = proof.last() == label;

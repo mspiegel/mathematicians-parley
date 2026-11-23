@@ -39,7 +39,7 @@ impl<'a> Elaborator<'a> {
         depth: i32,
     ) -> Checked<Route<Proof>> {
         let wanted = self.to_term(&t!(said, system, "wcel"));
-        self.settle(&wanted, scope, facts, depth, None, None)
+        self.settle(&wanted, scope, facts, depth)
     }
 
     /// ( scope -> given = want ), or `<->` for statements, where the walk
@@ -743,7 +743,7 @@ impl<'a> Elaborator<'a> {
             if super::super::calculators::negative_power(&goal.children()[0]) {
                 return self.within_by_value(goal, scope, facts);
             }
-            let found = self.settle(goal, scope, &Facts::new(), 4, None, None)?;
+            let found = self.settle(goal, scope, &Facts::new(), 4)?;
             if !found.is_declined() {
                 return Ok(found);
             }

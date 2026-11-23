@@ -1136,7 +1136,7 @@ impl<'a> Elaborator<'a> {
         }
         // A `requires` line that is not there is the text's to fix, so this
         // one is a defect.
-        match self.settle(&self.to_term(goal), scope, facts, 3, None, None)? {
+        match self.settle(&self.to_term(goal), scope, facts, 3)? {
             Built(p) => Ok(p),
             Declined(_) => Err(self.defect(
                 self.at,

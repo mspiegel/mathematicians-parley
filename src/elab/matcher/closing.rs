@@ -981,14 +981,7 @@ impl<'a> Elaborator<'a> {
         );
         let mut members = Vec::new();
         for want in [t!(a, c, "wcel"), t!(b, d, "wcel"), t!(s, "cvv", "wcel")] {
-            members.push(take!(self.settle(
-                &self.to_term(&want),
-                where_,
-                held,
-                3,
-                None,
-                None
-            )?));
+            members.push(take!(self.settle(&self.to_term(&want), where_, held, 3)?));
         }
         let mapped = self.rpn(&map);
         let closed = self.b.ap(

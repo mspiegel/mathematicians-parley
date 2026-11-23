@@ -410,7 +410,7 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         }
-        self.settle(&self.to_term(&wanted), scope, held, 3, None, None)
+        self.settle(&self.to_term(&wanted), scope, held, 3)
     }
 
     /// A step citing a define: the name, applied or not, is its value, and
@@ -523,8 +523,7 @@ impl<'a> Elaborator<'a> {
             self.rpn(&map.children()[2]),
         );
         let every = t!(t!(rule, "cvv", "wcel"), letter, over, "wral");
-        let sets =
-            take!(self.settle(&self.to_term(&every), scope, held, 3, None, None)?);
+        let sets = take!(self.settle(&self.to_term(&every), scope, held, 3)?);
         let map_rpn = self.rpn(&map);
         let on = self.b.ap(
             "mptfng",
@@ -609,14 +608,13 @@ impl<'a> Elaborator<'a> {
                 true => condition.clone(),
                 false => self.to_term(&t!(cond, "wn")),
             };
-            let (taken, lemma, why) =
-                match self.settle(&asked, scope, held, 3, None, None)? {
-                    Built(h) if holding => (first, "iftrue", h),
-                    Built(f) => (rest, "iffalse", f),
-                    Declined(_) => {
-                        return Ok(Route::no("no line the step cites says which case"));
-                    }
-                };
+            let (taken, lemma, why) = match self.settle(&asked, scope, held, 3)? {
+                Built(h) if holding => (first, "iftrue", h),
+                Built(f) => (rest, "iffalse", f),
+                Declined(_) => {
+                    return Ok(Route::no("no line the step cites says which case"));
+                }
+            };
             let said = t!(self.rpn(&value), self.rpn(&taken), "wceq");
             let asked = if lemma == "iftrue" {
                 cond.clone()
@@ -714,9 +712,7 @@ impl<'a> Elaborator<'a> {
             &self.to_term(&t!(start, "cvv", "wcel")),
             scope,
             held,
-            3,
-            None,
-            None
+            3
         )?);
         let asked = [
             self.step("nn0uz"),
@@ -739,9 +735,7 @@ impl<'a> Elaborator<'a> {
                 &self.to_term(&t!(before, "cn0", "wcel")),
                 scope,
                 held,
-                3,
-                None,
-                None
+                3
             )?);
             let map = self.to_term(&step);
             let (var, rule) = (map.children()[0].clone(), map.children()[2].clone());
@@ -793,9 +787,7 @@ impl<'a> Elaborator<'a> {
                 &self.to_term(&t!(state, "cvv", "wcel")),
                 scope,
                 held,
-                3,
-                None,
-                None
+                3
             )?);
             let fvex =
                 self.b
@@ -855,9 +847,7 @@ impl<'a> Elaborator<'a> {
                 &self.to_term(&t!(where_, "cn0", "wcel")),
                 scope,
                 held,
-                3,
-                None,
-                None
+                3
             )?)
         };
         // G at the index: ⟨index, start⟩ (`fvmptd3`).
@@ -905,9 +895,7 @@ impl<'a> Elaborator<'a> {
             &self.to_term(&t!(before, "cn0", "wcel")),
             scope,
             held,
-            3,
-            None,
-            None
+            3
         )?);
         let prior = t!(before, recursion, "cfv");
         let applied = t!(prior, given, step, "co");
@@ -998,9 +986,7 @@ impl<'a> Elaborator<'a> {
                 &self.to_term(&t!(c, "cvv", "wcel")),
                 scope,
                 held,
-                3,
-                None,
-                None
+                3
             )?));
         }
         let both = self.b.ap(
@@ -1100,8 +1086,6 @@ impl<'a> Elaborator<'a> {
                     scope,
                     held,
                     3,
-                    None,
-                    None,
                 )?);
             }
             let mut set_proofs = Vec::new();

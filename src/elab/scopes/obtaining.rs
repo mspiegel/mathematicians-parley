@@ -482,8 +482,6 @@ impl<'a> Elaborator<'a> {
                         scope,
                         &known,
                         3,
-                        None,
-                        None,
                     )? {
                         Built(p) => p,
                         Declined(_) => {

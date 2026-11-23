@@ -587,10 +587,8 @@ impl<'a> Elaborator<'a> {
         wanted: &Term,
         scope: &Rpn,
         facts: &Facts,
-        step: Option<&Step>,
-        lines: Option<&Lines>,
     ) -> Checked<Route<Proof>> {
-        let settled = self.settle(wanted, scope, facts, 3, step, lines)?;
+        let settled = self.settle(wanted, scope, facts, 3)?;
         if !settled.is_declined() {
             return Ok(settled);
         }
@@ -599,7 +597,7 @@ impl<'a> Elaborator<'a> {
         if bare_rpn == want {
             return Ok(settled);
         }
-        let Built(p) = self.settle(&bare, scope, facts, 3, step, lines)? else {
+        let Built(p) = self.settle(&bare, scope, facts, 3)? else {
             return Ok(settled);
         };
         Ok(match self.tidied(&p, &bare_rpn, &want, scope, facts)? {
@@ -616,16 +614,14 @@ impl<'a> Elaborator<'a> {
     /// splitting a conjunction.
     ///
     /// What is offered is only what the proof being built may rest on
-    /// (`resting_on`). A step is passed only where one is there to have
-    /// cited a witness, which is what lets an existential be proved at all.
+    /// (`resting_on`). A "there is" a citation asks is shown from the
+    /// record (`supplied_at_witness`, `unfolded_witness`), not here.
     pub fn settle(
         &mut self,
         wanted: &Term,
         scope: &Rpn,
         facts: &Facts,
         depth: i32,
-        step: Option<&Step>,
-        lines: Option<&Lines>,
     ) -> Checked<Route<Proof>> {
         // A membership the page says once. It comes before what is held, and
         // is read behind what the step may rest on (`in_hand`). A numeral's
@@ -679,14 +675,8 @@ impl<'a> Elaborator<'a> {
             );
             if over == self.rpn(&kids[1]) {
                 let every = t!(t!(rule, "cvv", "wcel"), letter, over, "wral");
-                let sets = take!(self.settle(
-                    &self.to_term(&every),
-                    scope,
-                    facts,
-                    depth,
-                    step,
-                    lines
-                )?);
+                let sets =
+                    take!(self.settle(&self.to_term(&every), scope, facts, depth)?);
                 let map_rpn = self.rpn(map);
                 let on = self.b.ap(
                     "mptfng",
@@ -827,16 +817,10 @@ impl<'a> Elaborator<'a> {
         }
         if depth > 0 {
             let joined = self.conjoined(wanted, scope, &mut |me, one| {
-                me.settle(one, scope, facts, depth, step, lines)
+                me.settle(one, scope, facts, depth)
             })?;
             if let Some(joined) = joined {
                 return Ok(joined);
-            }
-            if label == Some("wrex") {
-                if let Some(step) = step {
-                    let lines = lines.cloned().unwrap_or_default();
-                    return self.witnessed(step, wanted, scope, facts, &lines);
-                }
             }
             if label == Some("wral") {
                 // A side condition may be asked of every member at once. The
@@ -852,7 +836,7 @@ impl<'a> Elaborator<'a> {
                     &variable,
                     &over,
                     &mut |me, said, inner, lifted| {
-                        me.settle(said, inner, lifted, depth, None, None)
+                        me.settle(said, inner, lifted, depth)
                     },
                     false,
                 );
@@ -898,9 +882,7 @@ impl<'a> Elaborator<'a> {
         if depth > 0 {
             let read = self.maps_read(wanted);
             if self.rpn(&read) != rpn {
-                if let Built(said) =
-                    self.settle(&read, scope, facts, depth - 1, None, None)?
-                {
+                if let Built(said) = self.settle(&read, scope, facts, depth - 1)? {
                     if let Built(alike) =
                         self.same(&read, wanted, scope, facts, None)?
                     {

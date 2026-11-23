@@ -207,6 +207,7 @@ pub fn written_out(
     {
         c.binding = binding(&c.binding);
         for f in c.firsts.iter_mut().flatten() {
+            f.asked = out(&f.asked);
             supplied_written(&mut f.by, &out);
         }
         for s in &mut c.supplied {

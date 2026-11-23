@@ -29,10 +29,7 @@ impl<'a> Elaborator<'a> {
         }
         for part in &kids[..2] {
             let want = self.to_term(&t!(self.rpn(part), system, "wcel"));
-            if self
-                .settle(&want, scope, offered, 3, None, None)?
-                .is_declined()
-            {
+            if self.settle(&want, scope, offered, 3)?.is_declined() {
                 return self.unsaid_part(part, system, scope, offered);
             }
         }
@@ -75,7 +72,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let offered = facts.with(&written);
-        match self.settle(&self.to_term(&want), scope, &offered, 3, None, None)? {
+        match self.settle(&self.to_term(&want), scope, &offered, 3)? {
             Built(p) => Ok(p),
             Declined(_) => {
                 // A quotient is a number once its divisor is not zero, and
@@ -86,10 +83,7 @@ impl<'a> Elaborator<'a> {
                 .then(|| self.rpn(&whole.children()[1]));
                 if let Some(divisor) = divisor {
                     let apart = self.to_term(&t!(&divisor, "cc0", "wne"));
-                    if self
-                        .settle(&apart, scope, &offered, 3, None, None)?
-                        .is_declined()
-                    {
+                    if self.settle(&apart, scope, &offered, 3)?.is_declined() {
                         return Err(self.defect(
                             self.at,
                             format!(
@@ -350,8 +344,7 @@ impl<'a> Elaborator<'a> {
                 let after = self.rpn(&link.reached);
                 // ( scope -> ( X e. _V /\ at ) ), for a lemma asking a set.
                 for set in &link.sets {
-                    let Built(made) = self.settle(set, scope, facts, 3, None, None)?
-                    else {
+                    let Built(made) = self.settle(set, scope, facts, 3)? else {
                         continue 'claims;
                     };
                     let both = t!(self.rpn(set), at, "wa");
@@ -570,7 +563,7 @@ impl<'a> Elaborator<'a> {
             let law = self.b.ap("elex", &binds! {"A" => &a, "B" => &b}, &[]);
             pf!(self.b; scope, t, said, held, law, "syl")
         } else {
-            match self.settle_or_bare(&self.to_term(&said), scope, facts, None, None)? {
+            match self.settle_or_bare(&self.to_term(&said), scope, facts)? {
                 Built(p) => p,
                 Declined(_) => return Ok(None),
             }
@@ -811,11 +804,11 @@ impl<'a> Elaborator<'a> {
             scope,
             &mut |me, term, system| {
                 let goal = me.to_term(&t!(term, system, "wcel"));
-                me.settle(&goal, scope, facts, depth, None, None)
+                me.settle(&goal, scope, facts, depth)
             },
             Some(&mut |me, divisor| {
                 let goal = me.to_term(&t!(divisor, "cc0", "wne"));
-                me.settle(&goal, scope, facts, depth, None, None)
+                me.settle(&goal, scope, facts, depth)
             }),
         )
     }

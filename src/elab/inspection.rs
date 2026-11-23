@@ -1509,7 +1509,7 @@ impl Elaborator<'_> {
         known: &Facts,
     ) -> Checked<Route<Proof>> {
         let said = self.to_term(&t!(self.rpn(element), "cvv", "wcel"));
-        self.settle(&said, scope, known, 3, None, None)
+        self.settle(&said, scope, known, 3)
     }
 
     /// What the cited lines settle of the property `body`, which binds

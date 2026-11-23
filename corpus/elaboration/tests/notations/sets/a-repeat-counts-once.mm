@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.notations.sets.a-repeat-counts-once $p |- ( # ` { 1 , 2 , 2 } ) = 2 $=
-    ( c1 c2 ctp chash cfv wceq wtru cpr wne wn cr wcel clt wbr wa 1re a1i 1lt2 jca ltne syl necomd neneqd neqcomd wb df-ne eqcom bicomd notbid bitrd mpbid cvv 1ex 2ex hashprg tpidm23 eqcomd fveq2d eqeq1d mptru ) ABBCZDEZBFZGABHZDEZBFZVCGABIZVFGBAFZJZVGGABGABGBAGAKLZABMNZOBAIGVJVKVJGPQVKGRQSABTUAUBUCUDGVGVIGVGABFZJZVIVGVMUEGABUFQGVLVHGVHVLVHVLUEGBAUGQUHUIUJUHUKGAULLZBULLZOVGVFUEGVNVOVNGUMQVOGUNQSABULULUOUAUKGVEVBBGVDVADGVAVDVAVDFGABUPQUQURUSUKUT $.
+    ( c1 c2 ctp chash cfv wceq wtru cpr wne wn cr wcel clt wbr wa 1re a1i 1lt2 jca ltne syl necomd neneqd wb df-ne bicomd mpbid cvv 1ex 2ex hashprg tpidm23 eqcomd fveq2d eqeq1d mptru ) ABBCZDEZBFZGABHZDEZBFZUSGABIZVBGABFZJZVCGABGBAGAKLZABMNZOBAIGVFVGVFGPQVGGRQSABTUAUBUCGVCVEVCVEUDGABUEQUFUGGAUHLZBUHLZOVCVBUDGVHVIVHGUIQVIGUJQSABUHUHUKUAUGGVAURBGUTUQDGUQUTUQUTFGABULQUMUNUOUGUP $.
 $}

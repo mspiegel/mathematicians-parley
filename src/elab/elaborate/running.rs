@@ -1374,9 +1374,7 @@ impl<'a> Elaborator<'a> {
             How::Reading(Way::AsStated) => {
                 self.cite(step, term, scope, facts, lines)?
             }
-            How::Reading(Way::Conclude) => {
-                self.conclude(step, term, scope, facts, lines)?
-            }
+            How::Reading(Way::Conclude) => self.conclude(step, term, scope, facts)?,
             How::Reading(way) => {
                 let item = self.item_cited(&step.just.head.to_string())?;
                 self.trying(item, step, *way, term, scope, facts, lines)?

@@ -204,7 +204,7 @@ impl<'a> Elaborator<'a> {
             let here = self.restated(&held, &t!(var, "cv"), &stood[&name]);
             let (ph, ps) = (self.rpn(&held), self.rpn(&here));
             if proof.is_none() {
-                proof = Some(take!(self.settle(&here, scope, facts, 3, None, None)?));
+                proof = Some(take!(self.settle(&here, scope, facts, 3)?));
             }
             let witness = stood[&name].clone();
             let tie = self.to_term(&t!(
@@ -214,14 +214,7 @@ impl<'a> Elaborator<'a> {
             ));
             let instance = take!(self.prove_essential(&tie, scope, facts)?);
             let member = t!(witness, over, "wcel");
-            let stands = take!(self.settle(
-                &self.to_term(&member),
-                scope,
-                facts,
-                3,
-                None,
-                None
-            )?);
+            let stands = take!(self.settle(&self.to_term(&member), scope, facts, 3)?);
             let inner = proof.take().unwrap();
             let both = pf!(self.b; scope, member, ps, stands, inner, "jca");
             proof = Some(

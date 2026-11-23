@@ -1052,6 +1052,7 @@ fn reading_firsts(suppliers: &Suppliers, firsts: &[FirstFact]) -> Vec<First> {
     for first in firsts {
         let Some(fact) = &first.fact else {
             out.push(First {
+                asked: first.asked.clone(),
                 by: SuppliedBy::Unstated,
                 meeting: None,
             });
@@ -1072,7 +1073,11 @@ fn reading_firsts(suppliers: &Suppliers, firsts: &[FirstFact]) -> Vec<First> {
         };
         if !out.iter().any(placed) {
             let meeting = suppliers.meeting(&first.asked, fact, &by, None);
-            out.push(First { by, meeting });
+            out.push(First {
+                asked: first.asked.clone(),
+                by,
+                meeting,
+            });
         }
     }
     out

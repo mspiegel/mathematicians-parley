@@ -1280,12 +1280,6 @@ impl<'a> Elaborator<'a> {
             } else {
                 (asks_rpn.clone(), rest.clone())
             };
-            // A "there is" the lemma asks can be given by an instance a line
-            // the step cites names; only then is the step passed.
-            let instanced = self
-                .parts(&asks_rpn)
-                .iter()
-                .any(|p| self.to_term(p).label() == Some("wrex"));
             // A hypothesis of the cited record, by the fact the checker
             // recorded as supplying it (`hypotheses_given`), at the values
             // the checker read: only an antecedent of that hypothesis's
@@ -1304,11 +1298,8 @@ impl<'a> Elaborator<'a> {
                 Built(pf!(self.b; where_, "id"))
             } else if let Some(p) = recorded {
                 Built(p)
-            } else if instanced && step.is_some() {
-                let lines = self.lines.clone();
-                self.settle(&asks, &where_, &known, 3, step, Some(&lines))?
             } else {
-                self.settle(&asks, &where_, &known, 3, None, None)?
+                self.settle(&asks, &where_, &known, 3)?
             };
             // An antecedent the lemma's frame does not hold may be one an
             // inner assumption gives, as a case that a sum is 0 gives a lemma
@@ -1343,7 +1334,7 @@ impl<'a> Elaborator<'a> {
                 } else {
                     (asks_rpn.clone(), rest.clone())
                 };
-                under = self.settle(&asks, &where_, &known, 3, None, None)?;
+                under = self.settle(&asks, &where_, &known, 3)?;
             }
             let under = take!(under);
             proof = pf!(self.b; where_, x, y, under, proof, discharge(joins[i], first));
@@ -1382,7 +1373,7 @@ impl<'a> Elaborator<'a> {
         let known = facts.copy();
         let said = self.rpn(&said);
         self.know(&known, said.clone(), proof.clone());
-        let settled = self.settle(goal, scope, &known, 3, None, None)?;
+        let settled = self.settle(goal, scope, &known, 3)?;
         if !settled.is_declined() {
             return Ok(settled);
         }
@@ -1420,7 +1411,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         if want.label() != Some("wi") {
-            return self.settle(want, scope, facts, 3, None, None);
+            return self.settle(want, scope, facts, 3);
         }
         let (left, right) = (&kids[0], &kids[1]);
         let under = self.rpn(left);
@@ -1468,7 +1459,7 @@ impl<'a> Elaborator<'a> {
             );
         }
         if under == *scope {
-            return self.settle(right, scope, facts, 3, None, None);
+            return self.settle(right, scope, facts, 3);
         }
         if left.label() == Some("wa") && self.rpn(&left.children()[0]) == *scope {
             let extra = self.rpn(&left.children()[1]);
@@ -1499,9 +1490,9 @@ impl<'a> Elaborator<'a> {
             }
             // One level deeper than `settle`'s default: what is asked of an
             // index is asked through the range it runs over.
-            return self.settle(right, &under, &wider, 4, None, None);
+            return self.settle(right, &under, &wider, 4);
         }
-        self.settle(right, &under, &Facts::new(), 3, None, None)
+        self.settle(right, &under, &Facts::new(), 3)
     }
 
     /// What a lemma asks of each index, from a line saying it of all: that is
@@ -1540,8 +1531,7 @@ impl<'a> Elaborator<'a> {
                 continue;
             }
             let inside = t!(self.rpn(&index), self.rpn(&over), "wcel");
-            let Built(there) =
-                self.settle(&self.to_term(&inside), under, facts, 3, None, None)?
+            let Built(there) = self.settle(&self.to_term(&inside), under, facts, 3)?
             else {
                 continue;
             };

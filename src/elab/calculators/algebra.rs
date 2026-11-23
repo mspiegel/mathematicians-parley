@@ -706,7 +706,7 @@ impl<'a> Elaborator<'a> {
             // Any other divisor's `≠ 0` is the page's to say, so no
             // membership said once leads to it (`READERS.md`).
             self.beyond_once += 1;
-            let found = self.settle(&self.to_term(&apart), scope, facts, 3, None, None);
+            let found = self.settle(&self.to_term(&apart), scope, facts, 3);
             self.beyond_once -= 1;
             if let Built(p) = found? {
                 return Ok(Built(p));

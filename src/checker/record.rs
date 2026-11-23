@@ -1464,6 +1464,9 @@ pub struct Exhibit {
 /// citation's values make true.
 #[derive(Clone, Debug)]
 pub struct First {
+    /// The part as the item writes it, at the citation's values: the tree
+    /// `meeting` counts its first places in.
+    pub asked: Node,
     pub by: SuppliedBy,
     /// How the line met the part at the citation's values
     /// (`Known::alike_how`), as `Supplied::meeting` records it for a

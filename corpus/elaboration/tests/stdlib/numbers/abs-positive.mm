@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.abs-positive $p |- ( ( A e. RR /\ -. A = 0 ) -> 0 < ( abs ` A ) ) $=
-    ( cr wcel cc0 wceq wn wa wne cabs cfv clt wbr simpr neqcomd wb df-ne a1i eqcom bicomd notbid bitrd mpbid cc simpl id syl recn absgt0 ) ABCZADEZFZGZADHZDAIJZKLZULDAEZFZUMULADUIUKMNULUMUQULUMUKUQUMUKOULADPQULUJUPULUPUJUPUJOULDARQSTUASUBULAUCCZUMUOOULUIURULUIUIUIUKUDUIUEUFAUGUFAUHUFUB $.
+    ( cr wcel cc0 wceq wn wa wne cabs cfv clt wbr simpr wb df-ne a1i bicomd mpbid cc simpl id syl recn absgt0 ) ABCZADEZFZGZADHZDAIJZKLZUHUGUIUEUGMUHUIUGUIUGNUHADOPQRUHASCZUIUKNUHUEULUHUEUEUEUGTUEUAUBAUCUBAUDUBR $.
 $}

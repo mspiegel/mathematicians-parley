@@ -305,7 +305,7 @@ impl<'a> Elaborator<'a> {
         // The right side's parts as the page reads them, each shown as the
         // checker recorded it shown (`Cited::unfolded`), put together in the
         // lemma's grouping and spelling of them.
-        let pieces = take!(self.unfolded_proof(step, scope, &known, lines)?);
+        let pieces = take!(self.unfolded_proof(step, scope, &known)?);
         let mut next = 0;
         let assembled =
             self.assembled(step, &right, &pieces, &mut next, scope, &known)?;
@@ -331,7 +331,6 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Vec<ShownPiece>>> {
         let Some(cited) = self.citation_read(step).cloned() else {
             return Err(self.unreached(
@@ -435,7 +434,6 @@ impl<'a> Elaborator<'a> {
                     false,
                     scope,
                     facts,
-                    lines,
                 )?),
             };
             shown.push(ShownPiece {
@@ -591,8 +589,9 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no reading of this citation",
             ));
         };
-        let Some(First { by: first, meeting }) =
-            cited.firsts.first().and_then(|reading| reading.first())
+        let Some(First {
+            by: first, meeting, ..
+        }) = cited.firsts.first().and_then(|reading| reading.first())
         else {
             return Err(self.unreached(
                 step.line,
@@ -840,9 +839,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let held = facts.copy();
                 self.know(&held, said, proof);
-                Ok(self
-                    .settle(&self.to_term(wanted), scope, &held, 3, None, None)?
-                    .built())
+                Ok(self.settle(&self.to_term(wanted), scope, &held, 3)?.built())
             }
             SuppliedBy::SaidOnce(_) => {
                 // The membership a `let` writes, x ∈ X for `let x ∈ X`, is
@@ -898,7 +895,7 @@ impl<'a> Elaborator<'a> {
             SuppliedBy::Bound { .. } => self.held(facts, wanted, scope),
             SuppliedBy::Identity(met) => self.identity_proof(wanted, met, scope, facts),
             SuppliedBy::Unstated => Ok(self
-                .settle_or_bare(&self.to_term(wanted), scope, facts, None, None)?
+                .settle_or_bare(&self.to_term(wanted), scope, facts)?
                 .built()),
             SuppliedBy::Parts(parts) => {
                 // A chain is its equations joined, besides itself.
@@ -934,6 +931,89 @@ impl<'a> Elaborator<'a> {
                 self.carried_to(step, &made, &proof, wanted, meeting, scope, facts)
             }
         }
+    }
+
+    /// ( scope -> premise ) for what a reading asks first, from its parts
+    /// where the checker recorded them standing (`Cited::firsts`): each part
+    /// as the item writes it at the citation's values (`First::asked`), from
+    /// its supplier as the record says the two met, the parts joined by
+    /// "and" in order and carried to `premise` where it groups or spells
+    /// them otherwise. None where a supplier does not give its part.
+    pub(in crate::elab) fn firsts_proof(
+        &mut self,
+        step: &Step,
+        firsts: &[First],
+        premise: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let values = NodeBinding::new();
+        let mut joined: Option<(Rpn, Proof)> = None;
+        for first in firsts {
+            let read = self.read_apart(step, &first.asked)?;
+            let part = self.rpn(&read);
+            let supplied = Supplied {
+                want: first.asked.clone(),
+                by: first.by.clone(),
+                at: None,
+                meeting: first.meeting.clone(),
+                narrowed: None,
+                witnesses: Vec::new(),
+            };
+            let recorded = RecordedSupply {
+                supplied: &supplied,
+                values: &values,
+            };
+            let Some(proof) = self.supplied_proof(
+                step,
+                &first.by,
+                Some(recorded),
+                &part,
+                scope,
+                facts,
+            )?
+            else {
+                return Ok(None);
+            };
+            joined = Some(match joined {
+                None => (part, proof),
+                Some((left, q)) => (
+                    t!(left, part, "wa"),
+                    pf!(self.b; scope, left, part, q, proof, "jca"),
+                ),
+            });
+        }
+        let Some((made, proof)) = joined else {
+            return Ok(None);
+        };
+        if made == *premise {
+            return Ok(Some(proof));
+        }
+        // An "or" asks one of its sides, which the part is.
+        let whole = self.to_term(premise);
+        if let (Some("wo"), [left, right]) = (whole.label(), whole.children()) {
+            let (left, right) = (self.rpn(left), self.rpn(right));
+            if made == left {
+                return Ok(Some(pf!(self.b; scope, left, right, proof, "orcd")));
+            }
+            if made == right {
+                return Ok(Some(pf!(self.b; scope, right, left, proof, "olcd")));
+            }
+        }
+        Ok(
+            match self.same(
+                &self.to_term(&made),
+                &self.to_term(premise),
+                scope,
+                facts,
+                Some(step),
+            )? {
+                Built(across) => {
+                    Some(pf!(self.b; scope, made, premise, proof, across, "mpbid"))
+                }
+                Declined(_) => None,
+            },
+        )
     }
 
     /// The requires line the checker names by its place `line` among a
@@ -1162,9 +1242,7 @@ impl<'a> Elaborator<'a> {
         }
         let held = facts.copy();
         self.know(&held, said.clone(), proof.clone());
-        Ok(self
-            .settle(&self.to_term(wanted), scope, &held, 3, None, None)?
-            .built())
+        Ok(self.settle(&self.to_term(wanted), scope, &held, 3)?.built())
     }
 
     /// What the line `at` names says there, as the checker read it
@@ -1448,9 +1526,7 @@ impl<'a> Elaborator<'a> {
             | Implication::WiderCodomain
             | Implication::FunctionType { .. } => {
                 let known = facts.with(held);
-                Ok(self
-                    .settle(&self.to_term(term), scope, &known, 3, None, None)?
-                    .built())
+                Ok(self.settle(&self.to_term(term), scope, &known, 3)?.built())
             }
             Implication::OtherForm { .. }
             | Implication::RangeBound { .. }

@@ -186,16 +186,15 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A definition used the other way: its right side, an existence claim
-    /// with as many witnesses as it quantifies over, is proved from the lines
-    /// the step names as `exhibit` proves one (`witnessed`), and the
-    /// definition folds it into the claim.
+    /// with as many witnesses as it quantifies over, is shown at the
+    /// witnesses the checker recorded it unfolded at (`folded_at_witness`),
+    /// and the definition folds it into the claim.
     pub(super) fn conclude(
         &mut self,
         step: &Step,
         term: &Rpn,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let head = step.just.head.to_string();
         // The values are read in the proof's names, before any letter of
@@ -304,9 +303,8 @@ impl<'a> Elaborator<'a> {
             self.rpn(&whole.children()[2]),
         );
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let p_ex = take!(
-            self.folded_at_witness(step, &whole, flipped, scope, &supplied, lines)?
-        );
+        let p_ex =
+            take!(self.folded_at_witness(step, &whole, flipped, scope, &supplied)?);
         let (made, _) = take!(self.unfolding(
             step,
             &lemma,
@@ -572,7 +570,7 @@ impl<'a> Elaborator<'a> {
         // in the item's letters; `claim_from_readings` carries the readings
         // to the claim as the record's meetings say they meet.
         let mut readings = Vec::new();
-        for concluded in &cited.concluded {
+        for (k, concluded) in cited.concluded.iter().enumerate() {
             let Some(paired) = paired.get(concluded.sentence) else {
                 return Err(self.unreached(
                     step.line,
@@ -583,6 +581,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(None);
             }
             let side = self.side_of(step, concluded.way, paired.reading)?;
+            self.premise_given(step, &cited, k, scope, facts)?;
             let instance = self.sentence_read(
                 step,
                 &cited,
@@ -619,6 +618,62 @@ impl<'a> Elaborator<'a> {
         }
         self.claim_from_readings(step, term, &cited, readings, scope, facts)
             .map(Some)
+    }
+
+    /// For the `k`th concluded sentence read through its `↔` or "if", the
+    /// side it is read from, proved from where the checker recorded its
+    /// parts stand (`firsts_proof`), and given to the lemma as a recorded
+    /// hypothesis is (`hypotheses_given`). Nothing for a sentence read as
+    /// written.
+    fn premise_given(
+        &mut self,
+        step: &Step,
+        cited: &Cited,
+        k: usize,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
+        let concluded = &cited.concluded[k];
+        if concluded.way == citing::Way::AsWritten {
+            return Ok(());
+        }
+        let firsts = cited.firsts.get(k).map_or(&[][..], Vec::as_slice);
+        let whole = self.sentence_read(
+            step,
+            cited,
+            concluded.sentence,
+            citing::Way::AsWritten,
+            LemmaReading::default(),
+        )?;
+        let [a, b] = whole.children() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker read a sentence through, which is no ↔ or if",
+            ));
+        };
+        let premise = match concluded.way {
+            citing::Way::Backward => self.rpn(b),
+            _ => self.rpn(a),
+        };
+        // The step's requires lines, each proved with the ones above it, as
+        // a recorded hypothesis is carried from them (`recorded_hypotheses`).
+        let facts = &facts.with(&self.supplied(Some(step), scope, facts)?);
+        let Some(proof) = self.firsts_proof(step, firsts, &premise, scope, facts)?
+        else {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "{} gives what step {} claims where {} holds, and the line the checker read that from does not give it",
+                    step.just.head,
+                    step.number,
+                    self.render(&premise)
+                ),
+            ));
+        };
+        let given = self.hypotheses_given.get_or_insert_with(Facts::new);
+        let given = given.clone();
+        self.know(&given, premise, proof);
+        Ok(())
     }
 
     /// ( scope -> goal ) for an obtain citing a record: the sentence the

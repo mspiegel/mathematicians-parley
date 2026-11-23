@@ -871,7 +871,7 @@ impl<'a> Elaborator<'a> {
         }
         // A line the step cites supplies each part of a conjunction it says,
         // as `from_lines` holds them.
-        match self.settle(&self.to_term(asks), scope, from_lines, 3, None, None)? {
+        match self.settle(&self.to_term(asks), scope, from_lines, 3)? {
             Built(p) => Ok(p),
             Declined(d) => Err(self.defect(
                 step.line,

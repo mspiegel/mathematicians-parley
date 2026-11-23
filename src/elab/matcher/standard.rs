@@ -100,7 +100,7 @@ impl<'a> Elaborator<'a> {
             }
             How::Commuted => {
                 let goal = self.to_term(&t!(a, b, "wceq"));
-                self.settle(&goal, where_, held, 3, None, None)
+                self.settle(&goal, where_, held, 3)
             }
             How::Listed(label) => {
                 let goal = self.to_term(&t!(a, b, "wceq"));
@@ -236,9 +236,7 @@ impl<'a> Elaborator<'a> {
             &self.to_term(&t!(c, "cvv", "wcel")),
             where_,
             held,
-            3,
-            None,
-            None
+            3
         )?);
         let mapped = self.rpn(&f);
         let direct = self.b.ap(

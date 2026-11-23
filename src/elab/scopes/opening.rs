@@ -588,7 +588,7 @@ impl<'a> Elaborator<'a> {
             let wider = self.to_term(&t!(letter.letter, domain, "wcel"));
             let held = Facts::new();
             self.know(&held, letter.member.clone(), lifted);
-            match self.settle(&wider, scope, &held, 3, None, None)? {
+            match self.settle(&wider, scope, &held, 3)? {
                 Built(p) => p,
                 Declined(_) => return Ok(None),
             }

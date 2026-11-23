@@ -14,7 +14,7 @@
 //! (`fits`, `one_direction`), an equation that says a term another way
 //! (`rewritten`, `said_otherwise`), a lemma's implicit substitution
 //! (`instanced`, `substituted_slot`, `as_class`), an existential introduced
-//! or eliminated (`witnessed`, `introduced`, `through_existential`), and a
+//! or eliminated (`witnessed_at`, `introduced`, `through_existential`), and a
 //! conjunct projected (`as_conjunct`).
 
 use std::collections::BTreeSet;
@@ -31,9 +31,8 @@ use super::state::{
 use super::tables::{Leaf, Row};
 use super::{Facts, Lines, WrittenFact};
 use crate::corpus::Step;
-use crate::formula::notation_id::NotationId;
 use crate::formula::symbol::Symbol;
-use crate::formula::{ByShape, Node};
+use crate::formula::Node;
 use crate::mm::kernel::Term;
 use crate::mm::spell::Proof;
 use crate::mm::{Rpn, Signature};

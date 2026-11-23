@@ -704,7 +704,7 @@ impl<'a> Elaborator<'a> {
         }
         let term = self.to_term(said);
         if linear::numeral(&term, self.flabel()).is_some() {
-            return self.settle(&self.to_term(&want), scope, facts, 3, None, None);
+            return self.settle(&self.to_term(&want), scope, facts, 3);
         }
         let made = self.built(
             said,
@@ -882,8 +882,7 @@ impl<'a> Elaborator<'a> {
                 },
             };
             let inside = t!(&point, &domain, "wcel");
-            let Built(at) =
-                self.settle(&self.to_term(&inside), scope, facts, 2, None, None)?
+            let Built(at) = self.settle(&self.to_term(&inside), scope, facts, 2)?
             else {
                 continue;
             };
