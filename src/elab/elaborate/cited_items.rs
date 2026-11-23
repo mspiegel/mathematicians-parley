@@ -45,35 +45,24 @@ impl<'a> Elaborator<'a> {
         };
         let labels = self.cited_labels(step, record)?;
         let seed = self.filling(step, record)?;
+        let facts = &self.with_reflexive(step, record, scope, facts)?;
+        let facts = &self.with_defined_types(step, record, scope, facts)?;
         // The facts the checker recorded as supplying the item's hypotheses,
         // which discharge the lemma's antecedents that are those hypotheses.
         let given = self.recorded_hypotheses(step, scope, facts)?;
+        let facts = &facts.with(&given);
         let kept = self.hypotheses_given.replace(given);
-        for label in &labels {
-            let found = self.apply_lemma(
-                label,
-                &self.to_term(goal),
-                scope,
-                facts,
-                Some(step),
-                true,
-                Some(&seed),
-            );
-            let found = match found {
-                Ok(f) => f,
-                Err(e) => {
-                    self.hypotheses_given = kept;
-                    return Err(e);
-                }
-            };
-            if !found.is_declined() {
-                self.hypotheses_given = kept;
-                return Ok(found);
-            }
-        }
+        // The sentence obtained from, by the lemma the record pairs it with;
+        // where the record names a witness the lemmas build together, as
+        // they build it.
+        let found = match self.obtained_library(step, goal, scope, facts, record, &seed)
+        {
+            Ok(Some(p)) => Ok(Built(p)),
+            Ok(None) => self.by_lemmas(&labels, goal, scope, facts, step, Some(&seed)),
+            Err(e) => Err(e),
+        };
         self.hypotheses_given = kept;
-        let assembled =
-            self.by_lemmas(&labels, goal, scope, facts, step, Some(&seed))?;
+        let assembled = found?;
         if !assembled.is_declined() {
             return Ok(assembled);
         }

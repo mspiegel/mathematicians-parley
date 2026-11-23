@@ -176,7 +176,7 @@ impl<'a> Elaborator<'a> {
         let (at, written) = (cur.children()[0].clone(), cur.children()[1].clone());
         let own = self.applied_map(cur).expect("an applied map");
         let mut f = own.clone();
-        let (bound, over, mut rule) = (
+        let (mut bound, over, mut rule) = (
             own.children()[0].clone(),
             own.children()[1].clone(),
             own.children()[2].clone(),
@@ -196,6 +196,31 @@ impl<'a> Elaborator<'a> {
                 if renamed.is_none() {
                     return Ok(Route::no("the rule is not renamed apart"));
                 }
+            }
+        }
+        // A point that names the map's own bound letter, (t ↦ B)(t), is a
+        // value of the same map over a letter nothing holds, as `fvmptd3`
+        // keeps the point apart from the bound letter.
+        let letter = self.rpn(&bound);
+        if self
+            .rpn(&at)
+            .tokens()
+            .iter()
+            .any(|t| Some(t.as_str()) == letter.alone())
+        {
+            let Some(fresh) = self.unheld(&[&self.to_term(where_), cur, nxt, &f])
+            else {
+                return Ok(Route::no(
+                    "no letter is left to take the map's value apart",
+                ));
+            };
+            let (was, now) = (t!(letter, "cv"), t!(self.rpn(&fresh), "cv"));
+            rule = self.restated(&rule, &was, &now);
+            f = own.with_children(vec![fresh.clone(), over.clone(), rule.clone()]);
+            bound = fresh;
+            renamed = self.class_alpha(&own, &f)?;
+            if renamed.is_none() {
+                return Ok(Route::no("the map is not renamed apart from the point"));
             }
         }
         let x = self.rpn(&bound);

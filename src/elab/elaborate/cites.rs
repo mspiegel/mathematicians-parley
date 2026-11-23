@@ -1,10 +1,24 @@
 //! Citing a claim's reasons.
 
 use super::*;
+use crate::checker::record::Supplied;
 use crate::corpus::records::{LemmaReading, Side};
 use crate::formula::{page, Sort};
 use crate::matching;
 use crate::notations::PROPERTY_OF;
+
+/// Whether a lemma's ask is one only set.mm makes, which an item never lists
+/// (`DATABASE.md`, `metamath-hypotheses`): each part of it a membership of
+/// ℂ, as a point is one, or of the class of all sets.
+fn asked_by_setmm_alone(ask: &Term) -> bool {
+    conjuncts_of(ask).iter().all(|part| {
+        part.label() == Some("wcel")
+            && matches!(
+                part.children().get(1).and_then(Term::label),
+                Some("cc" | "cvv")
+            )
+    })
+}
 
 impl<'a> Elaborator<'a> {
     /// An existence claim shown by naming something that answers it: the
@@ -607,6 +621,66 @@ impl<'a> Elaborator<'a> {
             .map(Some)
     }
 
+    /// ( scope -> goal ) for an obtain citing a record: the sentence the
+    /// checker obtains from (`Cited::obtained`), taken whole, proved by the
+    /// lemma the record pairs it with (`sentence_lemmas`) at the side and
+    /// the part its `metamath-reads` names (`lemma_instance`), as a citation
+    /// proves a sentence it concludes. None where the record names a witness
+    /// the item's lemmas build together (`by_lemmas`).
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn obtained_library(
+        &mut self,
+        step: &Step,
+        goal: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        item: &'a Record,
+        seed: &Binding,
+    ) -> Checked<Option<Proof>> {
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let paired = targets::sentence_lemmas(item)
+            .map_err(|why| self.defect(step.line, format!("{}: {why}", cited.item)))?;
+        let Some(paired) = cited.obtained.and_then(|i| paired.get(i)) else {
+            return Err(self.unreached(
+                step.line,
+                "the checker obtains from a sentence the record pairs with no lemma",
+            ));
+        };
+        if paired.reading.witness {
+            return Ok(None);
+        }
+        let side = self.side_of(step, citing::Way::AsWritten, paired.reading)?;
+        let label = paired.labels[0].clone();
+        let goal_term = self.to_term(goal);
+        let proof = self.lemma_instance(
+            &label,
+            &goal_term,
+            side,
+            paired.reading.part,
+            scope,
+            facts,
+            step,
+            seed,
+        )?;
+        match proof {
+            Built(p) => Ok(Some(p)),
+            Declined(d) => Err(self.defect(
+                step.line,
+                format!(
+                    "{label}, which {} names, does not give what step {} obtains from: {}",
+                    cited.item,
+                    step.number,
+                    self.say(&d)
+                ),
+            )),
+        }
+    }
+
     /// ( scope -> instance ) by `label`: the lemma applied at the side of
     /// its conclusion `side` names, or, where its conclusion is an "and"
     /// the sentence is part `part` of (`metamath-reads part N`), applied at
@@ -658,23 +732,26 @@ impl<'a> Elaborator<'a> {
         };
         // A part need not name every variable of the whole: what is left
         // open is what the item's hypotheses say at the citation's values,
-        // as the lemma's antecedents and its given side ask them.
+        // each the lemma's ask in the order the record says it asks them
+        // (`metamath-hypotheses`, the item's order by default).
         if names_of(&whole).iter().any(|v| !binding.contains_key(v)) {
-            let mut asks = Vec::new();
-            let mut walk = self.statement(label);
-            while matches!(walk.label(), Some("wi") | Some("wb")) {
-                asks.push(walk.children()[0].clone());
-                asks.push(walk.children()[1].clone());
-                walk = walk.children()[1].clone();
-            }
+            let asks = self.lemma_asks(label, side);
             let hypotheses = self.item_hypotheses_read(step)?;
-            for ask in asks {
-                for said in &hypotheses {
-                    if let Some(filled) = fit(&ask, said, &binding, &variables) {
-                        binding = filled;
-                        break;
-                    }
-                }
+            if asks.len() != hypotheses.len() {
+                return Ok(Route::no(format!(
+                    "{label} asks {} facts the item lists, and the item lists {}",
+                    asks.len(),
+                    hypotheses.len()
+                )));
+            }
+            for (ask, said) in asks.iter().zip(&hypotheses) {
+                let Some(filled) = fit(ask, said, &binding, &variables) else {
+                    return Ok(self.no(
+                        format!("{label} asks {{}} where the item says {{}}"),
+                        &[&self.rpn(ask), &self.rpn(said)],
+                    ));
+                };
+                binding = filled;
             }
         }
         let at = whole.substitute(&binding);
@@ -707,17 +784,67 @@ impl<'a> Elaborator<'a> {
         )
     }
 
+    /// What the lemma `label` asks that an item lists, in order: each
+    /// antecedent whole, as a hypothesis set.mm writes as several facts
+    /// joined (between, as three) is one the item lists; then, where the
+    /// sentence is one side of its `↔` (`side`), the other side, which it is
+    /// read from. A fact only set.mm asks, points in ℂ or a class a set, is
+    /// not listed (`DATABASE.md`, `metamath-hypotheses`), and is left out.
+    fn lemma_asks(&self, label: &str, side: LemmaSide) -> Vec<Term> {
+        let mut asks = Vec::new();
+        let mut walk = self.statement(label);
+        while walk.label() == Some("wi") {
+            asks.push(walk.children()[0].clone());
+            walk = walk.children()[1].clone();
+        }
+        if walk.label() == Some("wb") {
+            match side {
+                LemmaSide::Left => asks.push(walk.children()[1].clone()),
+                LemmaSide::Right => asks.push(walk.children()[0].clone()),
+                LemmaSide::Whole => {}
+            }
+        }
+        asks.into_iter()
+            .filter(|a| !asked_by_setmm_alone(a))
+            .collect()
+    }
+
     /// What each hypothesis of the item a step cites says at the citation's
     /// values (`Cited::supplied`, `binding_with_written`), as terms in the
-    /// step's names.
+    /// step's names, in the order its lemma asks them: the record's
+    /// `metamath-hypotheses`, and the item's order where it says nothing.
     fn item_hypotheses_read(&mut self, step: &Step) -> Checked<Vec<Term>> {
         let Some(cited) = self.citation_read(step).cloned() else {
             return Ok(Vec::new());
         };
+        let order = match self.items.get(&cited.item) {
+            Some(Item::Record(r)) => {
+                let labels = r.metamath_hypotheses().map_err(|why| {
+                    self.defect(step.line, format!("{}: {why}", cited.item))
+                })?;
+                labels
+                    .iter()
+                    .filter_map(|l| {
+                        r.hypotheses
+                            .iter()
+                            .position(|h| h.label.as_deref() == Some(l))
+                    })
+                    .collect()
+            }
+            _ => Vec::new(),
+        };
+        let mut listed: Vec<&Supplied> =
+            cited.supplied.iter().filter(|s| s.at.is_some()).collect();
+        if !order.is_empty() {
+            listed.sort_by_key(|s| {
+                let at = s.at.map_or(usize::MAX, |a| a.line);
+                order.iter().position(|o| *o == at).unwrap_or(usize::MAX)
+            });
+        }
         let library = self.item_library();
         let binding: NodeBinding = cited.binding_with_written().into_iter().collect();
         let mut out = Vec::new();
-        for supplied in cited.supplied.iter().filter(|s| s.at.is_some()) {
+        for supplied in listed {
             let at = filled(&supplied.want, &binding, &library.ctx);
             let read = self.term(&at)?;
             out.push(self.to_term(&read));
