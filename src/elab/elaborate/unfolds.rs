@@ -3,7 +3,7 @@
 use std::slice;
 
 use super::*;
-use crate::checker::record::Supplied;
+use crate::checker::record::{First, Supplied};
 use crate::citing::HypothesisAt;
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
@@ -332,7 +332,9 @@ impl<'a> Elaborator<'a> {
                 "the checker recorded no reading of this citation",
             ));
         };
-        let Some(first) = cited.firsts.first() else {
+        let Some(First { by: first, meeting }) =
+            cited.firsts.first().and_then(|reading| reading.first())
+        else {
             return Err(self.unreached(
                 step.line,
                 "the checker recorded nothing the definition is unfolded from",
@@ -359,7 +361,7 @@ impl<'a> Elaborator<'a> {
         // The line met the definition's side with each define the record
         // places read out there (`Meeting::unfolded`); the member a claim's
         // "for all" gives is read as the claim is, through them.
-        let met = cited.firsts_meetings.first().and_then(Option::as_ref);
+        let met = meeting.as_ref();
         let read = match (first, met) {
             (SuppliedBy::Bound { .. }, _) => {
                 let written = self.to_term(&said);

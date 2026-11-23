@@ -225,8 +225,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let cite = parts.cite(library);
     let stated = taken.first_pairs(&groups, &parts.facts, &cite);
-    let (firsts, firsts_meetings) =
-        firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
+    let firsts = firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
     let mut supplying = taken.supplying_facts(&groups, &parts.facts, &cite);
     supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
@@ -263,7 +262,6 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         obtained: taken.obtained.map(|k| before + k),
         concluded: across_groups(taken, before),
         firsts,
-        firsts_meetings,
         supplied,
         item_letters,
         facings,
@@ -899,7 +897,7 @@ pub fn cited_requires(
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let stated = taken.first_pairs(&groups, &parts.facts, &cite);
-    let (firsts, firsts_meetings) = firsts_at(
+    let firsts = firsts_at(
         step,
         req.lines(),
         &item,
@@ -944,7 +942,6 @@ pub fn cited_requires(
         obtained: taken.obtained.map(|k| before + k),
         concluded: across_groups(&taken, before),
         firsts,
-        firsts_meetings,
         supplied,
         item_letters,
         facings,
@@ -997,27 +994,43 @@ pub(super) fn with_seed(binding: &Binding, seed: &Binding) -> Binding {
     out
 }
 
-/// Where each of `firsts` stands, searched as a hypothesis the citation
-/// needs is (`Suppliers`): among the lines `refs` names at `step`, the
-/// sentence of a line it is, or is a part of, or the line where it is the
-/// line's sentences together, each read as the citation of `item` reads
-/// them; else a requires line, the `let` line that says it once, or the
-/// said-once walk. Each place once; a fact nothing supplies has none.
+/// Where each part of what each reading asks first stands, by the
+/// reading's place, searched as a hypothesis the citation needs is
+/// (`Suppliers`): among the lines `refs` names at `step`, the sentence of
+/// a line it is, or is a part of, or the line where it is the line's
+/// sentences together, each read as the citation of `item` reads them;
+/// else a requires line, the `let` line that says it once, or the
+/// said-once walk. A part no fact states is `Unstated`. Within a reading,
+/// each place once.
 pub(super) fn firsts_at(
     step: &Step,
     refs: &[String],
     item: &str,
-    firsts: &[(Node, Node)],
+    readings: &[Vec<FirstFact>],
     below: Option<usize>,
     known: &Known,
     library: &Library,
-) -> (Vec<SuppliedBy>, Vec<Option<Meeting>>) {
+) -> Vec<Vec<First>> {
     let suppliers = Suppliers::new(step, refs, Some(item), below, known, library);
-    let mut out: Vec<SuppliedBy> = Vec::new();
-    let mut met: Vec<Option<Meeting>> = Vec::new();
-    for (asked, first) in firsts {
-        let by = suppliers.by(first);
-        let placed = |o: &SuppliedBy| match (o, &by) {
+    readings
+        .iter()
+        .map(|firsts| reading_firsts(&suppliers, firsts))
+        .collect()
+}
+
+/// `firsts_at` of one reading.
+fn reading_firsts(suppliers: &Suppliers, firsts: &[FirstFact]) -> Vec<First> {
+    let mut out: Vec<First> = Vec::new();
+    for first in firsts {
+        let Some(fact) = &first.fact else {
+            out.push(First {
+                by: SuppliedBy::Unstated,
+                meeting: None,
+            });
+            continue;
+        };
+        let by = suppliers.by(fact);
+        let placed = |o: &First| match (&o.by, &by) {
             (SuppliedBy::Line(a), SuppliedBy::Line(b))
             | (SuppliedBy::SaidOnce(a), SuppliedBy::SaidOnce(b)) => a.same_place(b),
             (
@@ -1029,12 +1042,12 @@ pub(super) fn firsts_at(
             ) => line == other && implied == theirs,
             _ => false,
         };
-        if !matches!(by, SuppliedBy::Unstated) && !out.iter().any(placed) {
-            met.push(suppliers.meeting(asked, first, &by, None));
-            out.push(by);
+        if !out.iter().any(placed) {
+            let meeting = suppliers.meeting(&first.asked, fact, &by, None);
+            out.push(First { by, meeting });
         }
     }
-    (out, met)
+    out
 }
 
 /// Where `fact` stands among the lines `refs` names at `step`, each read as

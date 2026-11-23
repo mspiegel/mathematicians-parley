@@ -584,9 +584,11 @@ pub struct Taken {
     /// claim's order; none for an obtain, which takes the group's "there
     /// is" whole.
     pub concluded: Vec<Concluded>,
-    /// What the readings taken ask a fact to state first, in the item's
-    /// letters (`readings`); the facts that state it are `first_facts`.
-    pub asks_first: Vec<Node>,
+    /// What each reading taken asks a fact to state first, in the item's
+    /// letters (`readings`), by the reading's place in `concluded`, each
+    /// taken apart at its "and"s; an obtain's one reading for the "there
+    /// is". The facts that state it are `first_facts`.
+    pub asks_first: Vec<Vec<Node>>,
     /// For an obtain, the sentence of the group that says the "there is",
     /// by its place among the group's sentences.
     pub obtained: Option<usize>,
@@ -647,29 +649,25 @@ impl Taken {
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
-        first_facts(
-            &self.asks_first,
-            facts,
-            &self.binding,
-            &variables,
-            library,
-            &sites,
-        )
-        .into_iter()
-        .map(|(_, fact)| fact)
-        .collect()
+        self.asks_first
+            .iter()
+            .flat_map(|asks| {
+                first_facts(asks, facts, &self.binding, &variables, library, &sites)
+            })
+            .filter_map(|first| first.fact)
+            .collect()
     }
 
-    /// `first_facts`, each with what the reading asks first at the
-    /// citation's values: the definition's side as the item writes it, the
-    /// binding put in, which the fact that states it, a line's own, is met
-    /// with.
+    /// `first_facts` of each reading, by its place in `concluded`, each with
+    /// what the reading asks first at the citation's values: the
+    /// definition's side as the item writes it, the binding put in, which
+    /// the fact that states it, a line's own, is met with.
     pub fn first_pairs(
         &self,
         groups: &[Group],
         facts: &[Node],
         library: &Cite,
-    ) -> Vec<(Node, Node)> {
+    ) -> Vec<Vec<FirstFact>> {
         let Some(group) = groups.get(self.group) else {
             return Vec::new();
         };
@@ -680,14 +678,12 @@ impl Taken {
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
-        first_facts(
-            &self.asks_first,
-            facts,
-            &self.binding,
-            &variables,
-            library,
-            &sites,
-        )
+        self.asks_first
+            .iter()
+            .map(|asks| {
+                first_facts(asks, facts, &self.binding, &variables, library, &sites)
+            })
+            .collect()
     }
 }
 
@@ -758,8 +754,9 @@ impl Supplying {
     }
 }
 
-/// The fact that states each of `firsts` under the binding the search
-/// found, where one does (`supplier`).
+/// Each of `firsts` at the binding the search found, with the fact that
+/// states it there (`supplier`); none where no fact does, as a part the
+/// citation's values make true. A fact stating two parts is kept once.
 fn first_facts(
     firsts: &[Node],
     facts: &[Node],
@@ -767,21 +764,36 @@ fn first_facts(
     variables: &BTreeSet<String>,
     library: &Cite,
     sites: &Sites,
-) -> Vec<(Node, Node)> {
+) -> Vec<FirstFact> {
     let none = IndexMap::new();
-    let mut out: Vec<(Node, Node)> = Vec::new();
+    let mut out: Vec<FirstFact> = Vec::new();
     for first in firsts {
-        if let Some(fact) = supplier(first, facts, binding, variables, library, sites) {
-            if !out
-                .iter()
-                .any(|(_, f)| alike(f, fact, &library.ctx, &none, &none))
-            {
-                let asked = filled(first, binding, &library.ctx);
-                out.push((asked, fact.clone()));
-            }
+        let fact = supplier(first, facts, binding, variables, library, sites);
+        let again = fact.is_some_and(|fact| {
+            out.iter().any(|f| {
+                f.fact
+                    .as_ref()
+                    .is_some_and(|f| alike(f, fact, &library.ctx, &none, &none))
+            })
+        });
+        if !again {
+            out.push(FirstFact {
+                asked: filled(first, binding, &library.ctx),
+                fact: fact.cloned(),
+            });
         }
     }
     out
+}
+
+/// A part of what a reading asks first, at the citation's values, and the
+/// fact that states it (`first_facts`).
+#[derive(Clone, Debug)]
+pub struct FirstFact {
+    /// The part as the item writes it, the binding put in.
+    pub asked: Node,
+    /// The fact that states it; None where none does.
+    pub fact: Option<Node>,
 }
 
 /// Whether one group of an item's conclusions covers what is claimed.
@@ -848,7 +860,7 @@ pub fn taken(
                 Taken::of(group, binding, concluded, &groups[group], library);
             taken.asks_first = chosen
                 .iter()
-                .flat_map(|&c| offer.candidates[c].1.iter().cloned())
+                .map(|&c| offer.candidates[c].1.clone())
                 .collect();
             return Built(taken);
         }
@@ -1118,7 +1130,7 @@ pub fn obtained(
                             &groups[group],
                             library,
                         );
-                        taken.asks_first = first;
+                        taken.asks_first = vec![first];
                         taken.obtained = Some(sentence);
                         return Built(taken);
                     }

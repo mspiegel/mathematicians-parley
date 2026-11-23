@@ -200,8 +200,8 @@ pub fn written_out(
         .chain(written.cited_requires.values_mut())
     {
         c.binding = binding(&c.binding);
-        for f in &mut c.firsts {
-            supplied_written(f, &out);
+        for f in c.firsts.iter_mut().flatten() {
+            supplied_written(&mut f.by, &out);
         }
         for s in &mut c.supplied {
             supplied_written(&mut s.by, &out);

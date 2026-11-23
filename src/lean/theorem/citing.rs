@@ -1827,7 +1827,7 @@ impl<'a> Proof<'a> {
         if concluded.way == Way::Backward
             && cited.unfolding(k) == Some(Unfolding::Stated)
         {
-            return self.first_proof(cited, &wanted);
+            return self.first_proof(cited, k, &wanted);
         }
         if concluded.way == Way::Backward {
             let parts = cited.unfolded.get(k)?.as_ref()?;
@@ -1836,8 +1836,8 @@ impl<'a> Proof<'a> {
                 .unfolded_proof(&wanted, parts.iter().collect(), &mut known)
                 .filter(|_| known.is_empty());
         }
-        cited.firsts.iter().find_map(|by| {
-            let (proof, says) = self.line_proof(by).built()?;
+        cited.firsts.get(k)?.iter().find_map(|first| {
+            let (proof, says) = self.line_proof(&first.by).built()?;
             // The part of the definition's right side the claim is
             // (`Concluded::part`), projected from the line as Lean states the
             // meaning, `s12.1`; the whole line where the claim, as Lean
@@ -2329,7 +2329,7 @@ impl<'a> Proof<'a> {
         // states it so (`stated_form`).
         let stated = self.stated_form(reason.just.line, node);
         let claim_lean = self.claim_as_stated(reason.just.line, node);
-        let premise = || match self.premise(cited, &statement) {
+        let premise = || match self.premise(cited, k, &statement) {
             Some(p) => Route::Built(p),
             None => Route::no("a premise of a cited sentence no line says"),
         };
@@ -2815,7 +2815,7 @@ impl<'a> Proof<'a> {
         k: usize,
     ) -> Route<Printed> {
         let lean_body = right_side(statement);
-        let whole = || match self.shown_by_line(cited, lean_body.as_ref(), &[]) {
+        let whole = || match self.shown_by_line(cited, k, lean_body.as_ref(), &[]) {
             Some(p) => Route::Built(p),
             None => {
                 Route::no("a definition's right side no line the checker found says")
@@ -3290,7 +3290,8 @@ impl<'a> Proof<'a> {
             read_at_values(&says, &binding, &self.sources.checked.grammar.binders());
         // A definition read forwards from the line that says its left side.
         let term = match iff {
-            true => match self.premise(cited, &statement) {
+            // An obtain takes one reading, the group's "there is".
+            true => match self.premise(cited, 0, &statement) {
                 Some(p) => forwards_of(inst, p),
                 None => {
                     return Route::no("a premise of a cited definition no line says")

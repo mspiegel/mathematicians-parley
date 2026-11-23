@@ -6,7 +6,7 @@ use std::{iter, slice};
 use super::cited_items::ShownPart;
 use super::unfolds::{PlacedTrees, RecordedSupply};
 use super::*;
-use crate::checker::record::{Facing, Supplied};
+use crate::checker::record::{Facing, Supplied, SuppliedBy};
 use crate::citing::Way as Read;
 use crate::corpus::records::LemmaReading;
 use crate::corpus::Hypothesis;
@@ -1150,12 +1150,15 @@ impl<'a> Elaborator<'a> {
         };
         // The premise is the fact the checker read the reading from, where
         // it recorded it stands (`Cited::firsts`).
-        let firsts = self
+        let firsts: Vec<SuppliedBy> = self
             .citation_read(step)
-            .map(|c| c.firsts.clone())
+            .map(|c| c.firsts.iter().flatten().map(|f| f.by.clone()).collect())
             .unwrap_or_default();
         let mut found = None;
-        for by in &firsts {
+        for by in firsts
+            .iter()
+            .filter(|by| !matches!(by, SuppliedBy::Unstated))
+        {
             if let Some(p) =
                 self.supplied_proof(step, by, None, &given, scope, facts)?
             {

@@ -806,18 +806,11 @@ pub struct Cited {
     /// (`targets::clauses`). None for an obtain, which takes its group's
     /// "there is" whole.
     pub concluded: Vec<Concluded>,
-    /// Where the facts the citation's readings are taken from stand
-    /// (`Taken::firsts`), found as a hypothesis the citation needs is
-    /// (`supplied`): the cited line, or the sentence of it, a definition is
-    /// unfolded from; else a requires line, or the `let` line that says a
-    /// membership once. A fact nothing supplies has none.
-    pub firsts: Vec<SuppliedBy>,
-    /// How the line each of `firsts` names met the fact the citation
-    /// reads from it (`Known::alike_how`), one for each, as
-    /// `Supplied::meeting` records it for a hypothesis: the fact's parts in
-    /// another order, the sides turned, identity elements dropped. None
-    /// where no line writes it.
-    pub firsts_meetings: Vec<Option<Meeting>>,
+    /// What each reading of `concluded` is taken from, by the reading's
+    /// place there, an obtain's "there is" its one: each part of what the
+    /// reading asks first (`Taken::asks_first`), in order, with where it
+    /// stands. Empty for a reading as written, which asks nothing first.
+    pub firsts: Vec<Vec<First>>,
     /// What supplies each hypothesis of the group the citation takes, in
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
@@ -1438,6 +1431,22 @@ pub struct Exhibit {
     /// (`citing::conjuncts`), with where it stands, as a citation's
     /// hypotheses are placed.
     pub shown: Vec<Supplied>,
+}
+
+/// One part of what a reading of a cited item asks first, the definition's
+/// side it is unfolded from (`Cited::firsts`): where it stands, found as a
+/// hypothesis the citation needs is (`Cited::supplied`), the cited line,
+/// the sentence of it, a requires line or the `let` line that says a
+/// membership once, or `Unstated` where nothing does, a part the
+/// citation's values make true.
+#[derive(Clone, Debug)]
+pub struct First {
+    pub by: SuppliedBy,
+    /// How the line met the part at the citation's values
+    /// (`Known::alike_how`), as `Supplied::meeting` records it for a
+    /// hypothesis: the part's own parts in another order, the sides turned,
+    /// identity elements dropped. None where no line writes it.
+    pub meeting: Option<Meeting>,
 }
 
 /// What supplies one hypothesis of a cited item (`Cited::supplied`).

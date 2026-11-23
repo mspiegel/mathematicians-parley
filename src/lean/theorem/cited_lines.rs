@@ -11,7 +11,7 @@ use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
 use crate::checker::record::{
-    AppliedDomain, BodyPart, ChainTerms, DomainSaid, Instantiated, ObtainedPart,
+    AppliedDomain, BodyPart, ChainTerms, DomainSaid, First, Instantiated, ObtainedPart,
     Restated,
 };
 use crate::citing::{claimed_member, Implication};
@@ -1261,59 +1261,69 @@ impl<'a> Proof<'a> {
 
     /// The proof of a definition's left side, which a citation that
     /// concludes its right side takes as its premise, from the line the
-    /// checker read it from (`first_proof`); None where none says it.
+    /// checker read reading `k` from (`first_proof`); None where none says
+    /// it.
     pub(super) fn premise(
         &self,
         cited: &Cited,
+        k: usize,
         statement: &Printed,
     ) -> Option<Printed> {
-        left_side(statement).and_then(|wanted| self.first_proof(cited, &wanted))
+        left_side(statement).and_then(|wanted| self.first_proof(cited, k, &wanted))
     }
 
     /// What proves a fact a definition's right side asks, `wanted` as Lean
-    /// has it: the line the checker read it from. None where none says it,
-    /// or a witness's facts must be put in scope first (`known`).
+    /// has it: the line the checker read reading `k` from. None where none
+    /// says it, or a witness's facts must be put in scope first (`known`).
     pub(super) fn shown_by_line(
         &self,
         cited: &Cited,
+        k: usize,
         wanted: Option<&Printed>,
         known: &[Tactic],
     ) -> Option<Printed> {
         match (known.is_empty(), wanted) {
-            (true, Some(w)) => self.first_proof(cited, w),
+            (true, Some(w)) => self.first_proof(cited, k, w),
             _ => None,
         }
     }
 
-    /// The proof of `wanted` from a line the checker read the citation's
-    /// reading from (`Cited::firsts`), met as Lean has it as any line that
-    /// supplies a fact is (`supplied_proof`); None where none says it.
+    /// The proof of `wanted` from the lines the checker read the citation's
+    /// reading `k` from (`Cited::firsts`), met as Lean has it as any line
+    /// that supplies a fact is (`supplied_proof`); None where none says it.
     pub(super) fn first_proof(
         &self,
         cited: &Cited,
+        k: usize,
         wanted: &Printed,
     ) -> Option<Printed> {
-        if cited.firsts.is_empty() {
+        let stated: Vec<&First> = cited
+            .firsts
+            .get(k)
+            .into_iter()
+            .flatten()
+            .filter(|f| !matches!(f.by, SuppliedBy::Unstated))
+            .collect();
+        if stated.is_empty() {
             return lean_truth(wanted);
         }
         // An "and" read from two lines, one-to-one-onto from a one-to-one
         // line and an onto line: each side from its line, in the order the
         // checker read them (`⟨p, q⟩`).
         if let ([left_at, right_at], Some((left, right))) =
-            (cited.firsts.as_slice(), and_sides(wanted))
+            (stated.as_slice(), and_sides(wanted))
         {
-            let side = |k: usize, by: &SuppliedBy, w: &Printed| {
-                let met = cited.firsts_meetings.get(k).and_then(Option::as_ref);
-                self.supplied_proof(by, w, met).built()
+            let side = |f: &First, w: &Printed| {
+                self.supplied_proof(&f.by, w, f.meeting.as_ref()).built()
             };
             return Some(super::super::expr::anonymous(vec![
-                side(0, left_at, &left)?,
-                side(1, right_at, &right)?,
+                side(left_at, &left)?,
+                side(right_at, &right)?,
             ]));
         }
-        cited.firsts.iter().enumerate().find_map(|(k, by)| {
-            let met = cited.firsts_meetings.get(k).and_then(Option::as_ref);
-            self.supplied_proof(by, wanted, met).built()
+        stated.iter().find_map(|f| {
+            self.supplied_proof(&f.by, wanted, f.meeting.as_ref())
+                .built()
         })
     }
 

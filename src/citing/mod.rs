@@ -13,7 +13,7 @@ pub use asked::{asked, asks_of, filled, Asked};
 pub use conclude::{
     claims_taken, concludes, identities_unsaid, link_unsaid, not_numbers, obtained,
     obtains, substitution_unsaid, taken, taken_ways, witnesses_unsaid, Concluded,
-    Supplying, Taken,
+    FirstFact, Supplying, Taken,
 };
 pub use library::{
     conjuncts, conjuncts_in, part_at, readings, supplies, with_parts, Cite, Group,

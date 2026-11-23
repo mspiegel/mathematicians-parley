@@ -10,8 +10,8 @@ use std::fmt::Write as _;
 use std::slice;
 
 use parley::checker::record::{
-    Cited, DomainSaid, Facing, FirstAt, OrderFact, OrderPart, Restated, SuppliedBy,
-    Unfolded,
+    Cited, DomainSaid, Facing, First, FirstAt, OrderFact, OrderPart, Restated,
+    SuppliedBy, Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -431,20 +431,22 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
             None => format!("{} {:?}", c.sentence, c.way),
         })
         .collect();
-    // Each line read from, and how it met what the reading asks first
-    // where it took anything (`Cited::firsts_meetings`).
+    // Each reading's parts asked first, each with the line read from and
+    // how it met the part where that took anything (`Cited::firsts`).
+    let first_words = |f: &First| match &f.meeting {
+        Some(m) if !m.as_written() => {
+            format!("{} met {}", supplier(&f.by), meeting_words(m))
+        }
+        _ => supplier(&f.by),
+    };
     let firsts: Vec<String> = cited
         .firsts
         .iter()
-        .enumerate()
-        .map(
-            |(k, by)| match cited.firsts_meetings.get(k).cloned().flatten() {
-                Some(m) if !m.as_written() => {
-                    format!("{} met {}", supplier(by), meeting_words(&m))
-                }
-                _ => supplier(by),
-            },
-        )
+        .filter(|reading| !reading.is_empty())
+        .map(|reading| {
+            let parts: Vec<String> = reading.iter().map(first_words).collect();
+            format!("[{}]", parts.join(", "))
+        })
         .collect();
     let from = if firsts.is_empty() {
         "no line".to_string()
