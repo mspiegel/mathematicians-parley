@@ -260,8 +260,13 @@ lemma's conclusion the sentence is:
   says "there is k ∈ ℤ with n = d·k", and set.mm's `divides` says
   k·d = n, so its entry is `turned factors swapped`;
 - `witness`: the item's one sentence is a "there is" whose witness the
-  `with` names, and each lemma gives one part of what it says of the
-  witness. `completeness` names suprcl, suprub and suprleub `with c := sup S`.
+  `with` names, and the lemmas give, in the order `metamath-proof` names
+  them, the witness's membership of the "there is"'s set and then each part
+  of what the sentence says of the witness, from the left.
+  `completeness` names suprcl, suprub and suprleub `with c := sup S`: sup S
+  is real, nothing in S is above it, and it is at most anything nothing in
+  S is above. A build that finds more or fewer parts than lemmas refuses the
+  record.
 
 Each sentence takes the next lemma `metamath-proof` names, but a `part N`
 that follows `part N − 1` of the same side is a further part of the lemma

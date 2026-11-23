@@ -75,10 +75,11 @@ impl<'a> Elaborator<'a> {
         self.introduced(&want, scope, &known)
     }
 
-    /// An existence claim at the thing a `with` target names for it: the
-    /// witness is put in for the binder, each part of what the claim then
-    /// says is proved by the first lemma that reaches it, and the claim is
-    /// introduced at the witness.
+    /// An existence claim at the thing a `with` target names for it
+    /// (`metamath-reads witness`): the witness is put in for the binder, and
+    /// the lemmas the target names, in order, give the witness's membership
+    /// of the domain and then each part of what the claim says of it, from
+    /// the left; the claim is introduced at the witness.
     #[allow(clippy::too_many_arguments)]
     pub(super) fn at_witness(
         &mut self,
@@ -104,28 +105,33 @@ impl<'a> Elaborator<'a> {
         let stood = seed[&witness[0]].clone();
         let member = t!(self.rpn(&stood), self.rpn(&over), "wcel");
         let said = self.replaced(&body, &t!(self.rpn(&variable), "cv"), &stood);
-        let mut by_lemmas = |me: &mut Self, one: &Term| -> Checked<Route<Proof>> {
-            let mut refused = Vec::new();
-            for label in labels {
-                let made =
-                    me.apply_lemma(label, one, scope, facts, Some(step), true, None)?;
-                match made {
-                    Built(p) => return Ok(Built(p)),
-                    Declined(d) => refused.push(format!("{label}: {}", me.say(&d))),
-                }
-            }
-            Ok(Route::no(refused.join("; ")))
+        // Each part takes the next lemma the target names.
+        let mut next = 0;
+        let mut by_lemma = |me: &mut Self, one: &Term| -> Checked<Route<Proof>> {
+            let Some(label) = labels.get(next) else {
+                return Ok(Route::no(
+                    "the metamath-proof names fewer lemmas than the witness has parts",
+                ));
+            };
+            next += 1;
+            me.apply_lemma(label, one, scope, facts, Some(step), true, None)
         };
         let known = facts.copy();
         for part in [self.to_term(&member), said] {
-            let made = match self.conjoined(&part, scope, &mut by_lemmas)? {
+            let made = match self.conjoined(&part, scope, &mut by_lemma)? {
                 Some(made) => made,
-                None => by_lemmas(self, &part)?,
+                None => by_lemma(self, &part)?,
             };
             let made = take!(made);
             let key = self.rpn(&part);
             self.know(&known, key.clone(), made.clone());
             self.unpack_all(&key, &made, scope, &known);
+        }
+        drop(by_lemma);
+        if next != labels.len() {
+            return Ok(Route::no(
+                "the metamath-proof names more lemmas than the witness has parts",
+            ));
         }
         self.introduced(want, scope, &known)
     }
