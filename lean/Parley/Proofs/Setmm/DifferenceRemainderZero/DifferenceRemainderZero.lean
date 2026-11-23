@@ -36,7 +36,8 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     intro hC1
     -- 1. obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
     have r20_1 : 0 < N := by linarith only [hH3]
-    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by norm_num) r20_1)).mp hC1
+    obtain ⟨q, s1_obtained⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by norm_num) r20_1)).mp hC1
+    have s1 : q * N = A - B := by simpa only [Int.cast_zero, add_zero] using s1_obtained
     -- 2. mun:mod-multiple r := B, m := N
     have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
     -- 3. substitute

@@ -5,6 +5,8 @@ use std::vec::IntoIter;
 use super::*;
 use crate::checker::record::{JoinedPart, JoinedWhole};
 use crate::elab;
+use crate::elab::matcher::conjuncts_of;
+use crate::matching::Tree;
 use crate::mm::Kind;
 
 impl<'a> Elaborator<'a> {
@@ -42,10 +44,9 @@ impl<'a> Elaborator<'a> {
     /// its "there is" gives (`body`, proved by `proof`), as the checker
     /// paired them (`pairs`, `CheckedTheorem::obtained_parts`): each part of
     /// each sentence carried from the part of the body the checker found it
-    /// in (`ObtainedPart::owed_written`), as it stands, with its bound
-    /// variable renamed (`renaming`), as `same` takes the one to the other,
-    /// or once identity elements are dropped (`reached`); then each sentence
-    /// joined from its parts, and the line from its sentences in order.
+    /// in (`ObtainedPart::owed`, `owed_written`) as the record says the two
+    /// meet (`met_carried`); then each sentence joined from its parts, and
+    /// the line from its sentences in order.
     #[allow(clippy::too_many_arguments)]
     pub(super) fn obtained_line(
         &mut self,
@@ -86,79 +87,47 @@ impl<'a> Elaborator<'a> {
                     proofs.push(itself);
                     continue;
                 }
-                // The body's part, found among what the body gives: as the
-                // checker read it, over other bound letters (`renaming`), or
-                // one claim in set.mm (`same`), as a map applied is its
-                // rule at its argument.
-                let written = self.term(&pair.owed_written)?;
-                let mut source = None;
-                for (one, p) in held.entries() {
-                    let (one_term, written_term) =
-                        (self.to_term(&one), self.to_term(&written));
-                    let mut found = one == written
-                        || self.renaming(&written_term, &one_term)?.is_some();
-                    if !found {
-                        let alike = self.resting_on(Some(allowed.clone()), |me| {
-                            let offered = me.in_hand(lifted);
-                            me.same(
-                                &one_term,
-                                &written_term,
-                                inner,
-                                &offered,
-                                Some(step),
-                            )
-                        })?;
-                        found = !alike.is_declined();
-                    }
-                    if found {
-                        source = Some((one, p));
-                        break;
-                    }
-                }
-                let Some((owed, from)) = source else {
+                // The body's part the checker paired the claim's part with, by
+                // its place among the body's parts (`ObtainedPart::owed`),
+                // carried to the claim's part as the record says the two
+                // meet, the body's part being the meeting's second tree.
+                let Some(owed) = conjuncts_of(&self.to_term(body))
+                    .get(pair.owed)
+                    .map(|p| self.rpn(p))
+                else {
+                    return Err(unpaired(
+                        self,
+                        "a part of the body past the body's last",
+                    ));
+                };
+                let Some(from) = self.held(&held, &owed, inner)? else {
                     return Err(unpaired(
                         self,
                         "a part of the body its proof does not give",
                     ));
                 };
-                let carried = if owed == want {
-                    from
-                } else if let Some(same) = self.renaming(&self.to_term(&owed), part)? {
-                    self.b.ap(
-                        "sylib",
-                        &binds! {"ph" => inner, "ps" => &owed, "ch" => &want},
-                        &[&from, &same],
+                let carried = self.resting_on(Some(allowed.clone()), |me| {
+                    let offered = me.in_hand(lifted);
+                    me.met_carried(
+                        &owed,
+                        from,
+                        &want,
+                        &pair.meeting,
+                        Tree::Second,
+                        inner,
+                        &offered,
                     )
-                } else {
-                    let (to, owed_term) = (part.clone(), self.to_term(&owed));
-                    let alike = self.resting_on(Some(allowed.clone()), |me| {
-                        let offered = me.in_hand(lifted);
-                        me.same(&owed_term, &to, inner, &offered, Some(step))
-                    })?;
-                    match alike {
-                        Built(alike) => {
-                            pf!(self.b; inner, owed, want, from, alike, "mpbid")
-                        }
-                        Declined(_) => {
-                            let reached =
-                                self.resting_on(Some(allowed.clone()), |me| {
-                                    let offered = me.in_hand(lifted);
-                                    me.reached(&from, &owed, &want, inner, &offered)
-                                })?;
-                            let Some(p) = reached else {
-                                return Err(self.defect(
-                                    step.line,
-                                    format!(
-                                        "step {} claims {}, and what it obtains says {}",
-                                        step.number,
-                                        self.render(&want),
-                                        self.render(&owed)
-                                    ),
-                                ));
-                            };
-                            p
-                        }
-                    }
+                })?;
+                let Some(carried) = carried else {
+                    return Err(self.unreached(
+                        step.line,
+                        format!(
+                            "step {} claims {}, and what it obtains, {}, does not meet it as the checker recorded",
+                            step.number,
+                            self.render(&want),
+                            self.render(&owed)
+                        ),
+                    ));
                 };
                 proofs.push(carried);
             }
@@ -670,12 +639,8 @@ impl<'a> Elaborator<'a> {
         allowed.insert(number.to_string());
         // The line is what the page writes: built from the body as the
         // checker paired its sentences with the body's parts
-        // (`obtained_line`), where it did. An obtain whose "there is" the
-        // checker leaves to the build, a part or a function said otherwise,
-        // is read here whole. An item states its body in its own bound
-        // letters, `for all x ∈ ℂ`, and the page may bind another,
-        // `for all n ∈ ℂ`, which a later `instantiate n := …` names; the two
-        // are one claim (`renaming`).
+        // (`obtained_line`). An obtain that claims only its memberships is
+        // the body as it stands.
         let pairs = self.checked.obtained_parts.get(&step.just.line).cloned();
         let (line_term, line_proof) = match (sentences.get(got.len()..), pairs) {
             (Some([_, ..]), Some(pairs)) => self.obtained_line(
@@ -689,61 +654,13 @@ impl<'a> Elaborator<'a> {
                 &lifted,
                 &allowed,
             )?,
-            (Some([first, rest @ ..]), None) => {
-                let mut said = self.term(first)?;
-                for s in rest {
-                    said = t!(said, self.term(s)?, "wa");
-                }
-                match self.renaming(&self.to_term(&body), &self.to_term(&said))? {
-                    Some(same) => {
-                        let proof = self.b.ap(
-                            "sylib",
-                            &binds! {"ph" => &inner, "ps" => &body, "ch" => &said},
-                            &[&proof, &same],
-                        );
-                        (said, proof)
-                    }
-                    None if said == body => (body.clone(), proof),
-                    // Written another way, `1 < d` for `d > 1`, the claim is
-                    // the body by one standard form, or by one once the
-                    // identity elements of both are dropped (`reached`);
-                    // anything else is a claim the existence does not give.
-                    None => {
-                        let (from, to) = (self.to_term(&body), self.to_term(&said));
-                        let alike = self.resting_on(Some(allowed.clone()), |me| {
-                            let offered = me.in_hand(&lifted);
-                            me.same(&from, &to, &inner, &offered, Some(step))
-                        })?;
-                        let proof = match alike {
-                            Built(alike) => {
-                                pf!(self.b; &inner, body, said, proof, alike, "mpbid")
-                            }
-                            Declined(_) => {
-                                let reached =
-                                    self.resting_on(Some(allowed.clone()), |me| {
-                                        let offered = me.in_hand(&lifted);
-                                        me.reached(
-                                            &proof, &body, &said, &inner, &offered,
-                                        )
-                                    })?;
-                                match reached {
-                                    Some(p) => p,
-                                    None => {
-                                        return Err(self.defect(
-                                            step.line,
-                                            format!(
-                                                "step {number} claims {}, and what it obtains says {}",
-                                                self.render(&said),
-                                                self.render(&body)
-                                            ),
-                                        ))
-                                    }
-                                }
-                            }
-                        };
-                        (said, proof)
-                    }
-                }
+            (Some([_, ..]), None) => {
+                return Err(self.unreached(
+                    step.line,
+                    format!(
+                        "step {number} claims more than what it obtains, and the checker recorded no part of the \"there is\" for it"
+                    ),
+                ));
             }
             _ => (body.clone(), proof),
         };

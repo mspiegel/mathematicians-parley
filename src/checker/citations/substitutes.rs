@@ -883,22 +883,41 @@ pub(super) fn obtained_reading(
                     return None;
                 };
                 let seed = &taken.binding;
+                // The right side where it says "there is", or the one part of
+                // it that does: `set-builder`'s "u ∈ X and P(u)" with P a
+                // "there is".
                 groups
                     .iter()
                     .flat_map(|g| &g.gives)
                     .filter(|g| g.notation() == BICONDITIONAL && g.children.len() == 2)
                     .map(|g| filled(&g.children[1], seed, &library.ctx))
-                    .find(|right| exhibited(right, library).is_some())
+                    .find_map(|right| match exhibited(&right, library) {
+                        Some(_) => Some(right),
+                        None => conjuncts(&right, library)
+                            .into_iter()
+                            .find(|part| exhibited(part, library).is_some()),
+                    })
             } else {
                 let read = searched(step, Search::Obtains, known, library)?;
                 let Built(taken) = &*read else {
                     return None; // `check_obtained` reports it
                 };
+                // A sentence that says "there is", or one whose `↔` says it
+                // on its right, given its left by a line the step cites:
+                // `mod-remainder` obtains q from a mod m = r.
                 groups[taken.group]
                     .gives
                     .iter()
                     .map(|g| filled(g, &taken.binding, &library.ctx))
-                    .find(|g| exhibited(g, library).is_some())
+                    .find_map(|g| match (g.notation(), g.children.as_slice()) {
+                        _ if exhibited(&g, library).is_some() => Some(g),
+                        (BICONDITIONAL, [_, right])
+                            if exhibited(right, library).is_some() =>
+                        {
+                            Some(right.clone())
+                        }
+                        _ => None,
+                    })
             }
         }
     };

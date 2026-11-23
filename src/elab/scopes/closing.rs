@@ -722,8 +722,9 @@ impl<'a> Elaborator<'a> {
     /// stands where the two are one; with identity elements dropped
     /// (`tidied`); turned back by its relation's own lemma, `x ≠ y` for
     /// `y ≠ x` (`turned_claim`); with places swapped by the notation's own
-    /// swap, a segment's ends (`met_as`); and otherwise as one fact spelt
-    /// otherwise (`same`). None where the carry does not reach it.
+    /// swap, a segment's ends (`met_as`); over other bound letters
+    /// (`renaming`); and otherwise as one fact spelt otherwise (`same`).
+    /// None where the carry does not reach it.
     #[allow(clippy::too_many_arguments)]
     pub(in crate::elab) fn met_carried(
         &mut self,
@@ -751,6 +752,18 @@ impl<'a> Elaborator<'a> {
         }
         if !met.flips.is_empty() {
             return self.met_as(said, proof, want, met, said_in, scope, facts);
+        }
+        // A bound letter renamed is the claim over other letters (`renaming`).
+        if met.renamed {
+            if let Some(same) =
+                self.renaming(&self.to_term(said), &self.to_term(want))?
+            {
+                return Ok(Some(self.b.ap(
+                    "sylib",
+                    &binds! {"ph" => scope, "ps" => said, "ch" => want},
+                    &[&proof, &same],
+                )));
+            }
         }
         self.spelt_otherwise(said, proof, want, scope, facts)
     }
