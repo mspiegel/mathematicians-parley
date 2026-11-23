@@ -584,8 +584,8 @@ impl<'a> Elaborator<'a> {
                     .expect("the step's line");
                 let body = self.owed_goal(&owner)?;
                 let made = match (&step.just.contradicting, denied) {
-                    (Some(other), _) => {
-                        self.by_opposites(&step, &held, other, &body, &scope, &facts)?
+                    (Some(_), _) => {
+                        self.by_opposites(&step, &held, &body, &scope, &facts)?
                     }
                     // The step's line and its denial, worked out above.
                     (None, Some(not)) => {
@@ -752,10 +752,9 @@ impl<'a> Elaborator<'a> {
             .line_written(&last, &self.lines)
             .expect("the step's line");
         let (term, proof) = match (&step.just.contradicting, denied) {
-            (Some(other), _) => {
+            (Some(_), _) => {
                 let claim = self.claim_of(&block.owner.claim)?;
-                let made =
-                    self.by_opposites(step, &held, other, &claim, scope, facts)?;
+                let made = self.by_opposites(step, &held, &claim, scope, facts)?;
                 (claim, made)
             }
             (None, Some(not)) => {
@@ -862,12 +861,15 @@ impl<'a> Elaborator<'a> {
             self.closed_fact(&negated, scope, facts, &what, None)?
         };
         self.know(facts, negated.clone(), proof.clone());
+        // The step's line and its denial are the pair a contradiction closes
+        // on.
         if self.in_contradiction {
             self.contradicted = Some(Contradicted {
-                claim: negated.clone(),
-                proof: proof.clone(),
-                reordered: None,
-                says: Vec::new(),
+                holds: held,
+                denial: ProvedClaim {
+                    claim: negated.clone(),
+                    proof: proof.clone(),
+                },
             });
         }
         Ok(proof)
@@ -901,44 +903,20 @@ impl<'a> Elaborator<'a> {
 
     /// ( scope -> claim ) from a step's line and the line it contradicts, the
     /// one a formula and the other, or a sentence of it, that formula negated
-    /// (`pm2.21dd`), found as a contradiction block finds its pair.
+    /// (`pm2.21dd`), as the checker recorded the pair (`opposed`).
     pub(super) fn by_opposites(
         &mut self,
         step: &Step,
         held: &ProvedClaim,
-        other: &str,
         claim: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Proof> {
-        let lines = self.lines.clone();
-        let Some(there) = self.line_written(other, &lines) else {
-            return Err(
-                self.unreached(step.line, format!("{other} is no line in scope"))
-            );
-        };
-        let pair = Facts::new();
-        self.know(&pair, held.claim.clone(), held.proof.clone());
-        let carried = self.carried(other, facts, &lines);
-        self.know(&pair, there.claim.clone(), carried);
-        let offered = [held.claim.clone(), there.claim.clone()];
-        let Some((first, second, known)) = self.opposing(&offered, &pair, scope)?
-        else {
-            return Err(self.defect(
-                step.line,
-                format!("the step and {other} are not a formula and its negation"),
-            ));
-        };
-        let one = self
-            .held(&known, &first, scope)?
-            .expect("a claim `opposing` found held");
-        let two = self
-            .held(&known, &second, scope)?
-            .expect("a claim `opposing` found held");
+        let pair = self.opposed(step, held.clone(), scope, facts)?;
         Ok(self.b.ap(
             "pm2.21dd",
-            &binds! {"ph" => scope, "ps" => &first, "ch" => claim},
-            &[&one, &two],
+            &binds! {"ph" => scope, "ps" => &pair.holds.claim, "ch" => claim},
+            &[&pair.holds.proof, &pair.denial.proof],
         ))
     }
 

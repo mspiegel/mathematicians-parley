@@ -231,21 +231,17 @@ pub struct PartEnd {
     pub ended_by: Option<usize>,
 }
 
-/// What a contradiction block's last step contradicts: the claim, and the
-/// proof of it the block closes on, the named line's own even where another
-/// line says the same.
+/// A claim and its denial, which a block or a case closes on (`pm2.21dd`):
+/// the step's line and the line it contradicts, as the checker recorded
+/// which denies the other (`CheckedTheorem::contradicted`), the one that
+/// asserts carried to what the other denies; or a step shown impossible
+/// and its denial (`denial_of`).
 #[derive(Clone)]
 pub struct Contradicted {
-    pub claim: Rpn,
-    pub proof: Proof,
-    /// Where one of the two denies the other with its points named in
-    /// another order, as `not (A, B, C are collinear)` does `C, A, B are
-    /// collinear`: the one that asserts, carried to the order its denial
-    /// names, while the block's scope still holds.
-    pub reordered: Option<ProvedClaim>,
-    /// Everything else the line says (`line_says`), any of which the last
-    /// step may deny.
-    pub says: Vec<ProvedClaim>,
+    /// What the denial denies, as it denies it.
+    pub holds: ProvedClaim,
+    /// `¬ holds`.
+    pub denial: ProvedClaim,
 }
 
 /// A claim and its proof under the scope it was proved in.

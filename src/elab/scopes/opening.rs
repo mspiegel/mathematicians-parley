@@ -1,8 +1,9 @@
 //! Opening the outermost scope, blocks and cases.
 
 use super::*;
-use crate::checker::record::ReadAt;
+use crate::checker::record::{Negating, ReadAt, SuppliedBy};
 use crate::elab;
+use crate::matching::Tree;
 use crate::notations::MEMBERSHIP;
 
 impl<'a> Elaborator<'a> {
@@ -1179,9 +1180,9 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<()> {
-        let Some(other) = &step.just.contradicting else {
+        if step.just.contradicting.is_none() {
             return Ok(());
-        };
+        }
         let Some(at) = CheckedTheorem::index_of(self.thm, step) else {
             return Ok(());
         };
@@ -1196,63 +1197,94 @@ impl<'a> Elaborator<'a> {
             return Ok(());
         }
         let lines = self.lines.clone();
-        let Some(line) = self.line_written(other, &lines) else {
-            return Ok(());
+        let Some(own) = self.line_written(&number_of(step), &lines) else {
+            return Err(
+                self.unreached(step.line, "the step contradicting a line has no line")
+            );
         };
-        let proof = self.carried(other, facts, &lines);
-        let mine = self.line_written(&number_of(step), &lines);
-        let reordered = match mine {
-            Some(own) => {
-                let theirs = ProvedClaim {
-                    claim: line.claim.clone(),
-                    proof: proof.clone(),
-                };
-                match self.reordered_against(&theirs, &own, scope, facts)? {
-                    Some(found) => Some(found),
-                    None => self.reordered_against(&own, &theirs, scope, facts)?,
-                }
-            }
-            None => None,
-        };
-        let says = self
-            .line_says(other, scope, facts, &lines)?
-            .entries()
-            .into_iter()
-            .filter(|(claim, _)| *claim != line.claim)
-            .map(|(claim, proof)| ProvedClaim { claim, proof })
-            .collect();
-        self.contradicted = Some(Contradicted {
-            claim: line.claim,
-            proof,
-            reordered,
-            says,
-        });
+        self.contradicted = Some(self.opposed(step, own, scope, facts)?);
         Ok(())
     }
 
-    /// `said` carried to the order of its points that `denial` denies, where
-    /// `denial` is the negation of the same claim about the same three
-    /// points named otherwise; None for any other pair.
-    pub(super) fn reordered_against(
+    /// The claim and its denial a step written `contradicting N` and line N
+    /// make (`own` the step's line), as the checker recorded them
+    /// (`CheckedTheorem::contradicted`): what of line N the step opposes,
+    /// where it stands in the line; which of the two denies the other; and
+    /// the one that asserts carried to what the other denies, as the record
+    /// says the two meet, the other being its second tree.
+    pub(in crate::elab) fn opposed(
         &mut self,
-        said: &ProvedClaim,
-        denial: &ProvedClaim,
+        step: &Step,
+        own: ProvedClaim,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<Option<ProvedClaim>> {
+    ) -> Checked<Contradicted> {
+        let Some(c) = self.checked.contradicted.get(&step.just.line).cloned() else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no line this step contradicts",
+            ));
+        };
+        // What of line N the step opposes, where the record places it in the
+        // line, written or implied (`placed_proof`): `k ≤ n` of `let k ∈ {1,
+        // …, n}`.
+        let said = self.recorded_statement(&c.at)?;
+        let by = SuppliedBy::Line(c.at.clone());
+        let Some(proof) = self.supplied_proof(step, &by, None, &said, scope, facts)?
+        else {
+            return Err(self.unreached(
+                step.line,
+                "the line the checker recorded this step contradicting does not say it",
+            ));
+        };
+        let theirs = ProvedClaim { claim: said, proof };
+        let (denial, other) = match c.negated {
+            Negating::Step => (own, theirs),
+            Negating::Line => (theirs, own),
+        };
+        let denial = self.as_negation(denial, scope);
         let denied = self.to_term(&denial.claim);
-        if denied.label() != Some("wn") {
-            return Ok(None);
-        }
-        let inner = self.rpn(&denied.children()[0]);
-        if inner == said.claim || !self.reorders(&said.claim, &inner) {
-            return Ok(None);
-        }
-        let known = facts.copy();
-        self.know(&known, said.claim.clone(), said.proof.clone());
-        Ok(self.held(&known, &inner, scope)?.map(|proof| ProvedClaim {
-            claim: inner,
-            proof,
-        }))
+        let (Some("wn"), [inner]) = (denied.label(), denied.children()) else {
+            return Err(self.unreached(
+                step.line,
+                "the one the checker recorded as denying the other is no negation",
+            ));
+        };
+        let inner = self.rpn(inner);
+        let Some(held) = self.met_carried(
+            &other.claim,
+            other.proof,
+            &inner,
+            &c.meeting,
+            Tree::Second,
+            scope,
+            facts,
+        )?
+        else {
+            return Err(self.unreached(
+                step.line,
+                "the step and the line it contradicts do not meet as the checker recorded",
+            ));
+        };
+        Ok(Contradicted {
+            holds: ProvedClaim {
+                claim: inner,
+                proof: held,
+            },
+            denial,
+        })
+    }
+
+    /// A denial as a negation: `a ≠ b` as `¬ a = b` (`neneqd`); any other
+    /// claim as it stands.
+    fn as_negation(&mut self, denial: ProvedClaim, scope: &Rpn) -> ProvedClaim {
+        let node = self.to_term(&denial.claim);
+        let (Some("wne"), [a, b]) = (node.label(), node.children()) else {
+            return denial;
+        };
+        let (a, b) = (self.rpn(a), self.rpn(b));
+        let claim = t!(t!(a, b, "wceq"), "wn");
+        let proof = pf!(self.b; scope, a, b, denial.proof, "neneqd");
+        ProvedClaim { claim, proof }
     }
 }

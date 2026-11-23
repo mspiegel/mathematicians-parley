@@ -4,7 +4,7 @@ use std::mem;
 
 use super::*;
 use crate::elab;
-use crate::matching::Tree;
+use crate::matching::{Meeting, Tree};
 
 impl<'a> Elaborator<'a> {
     /// What a block gives back, by the lemma its kind closes with.
@@ -113,80 +113,69 @@ impl<'a> Elaborator<'a> {
         let step = &block.owner;
         let scope = &block.outer;
         let supposed = block.supposed.clone().unwrap_or_default();
-        let Some(other) = self.contradicted.clone() else {
+        // The claim and its denial the last step and the line it contradicts
+        // make, as the checker recorded them (`opposed`), or a step shown
+        // impossible and its denial (`denial_of`).
+        let Some(pair) = self.contradicted.clone() else {
             return Err(
                 self.unreached(step.line, "the block's last step contradicts no line")
             );
         };
-        let held = self
-            .last
-            .as_ref()
-            .and_then(|l| self.line_written(l, &self.lines));
-        // The line named is known by its own proof.
-        let facts = facts.copy();
-        self.know(&facts, other.claim.clone(), other.proof);
-        let mut offered = vec![other.claim];
-        if let Some(h) = &held {
-            offered.push(h.claim.clone());
-        }
-        // One of the two carried to the order of points its denial names,
-        // while the block's scope held (`contradicted_at`).
-        if let Some(carried) = other.reordered {
-            self.know(&facts, carried.claim.clone(), carried.proof);
-            offered.push(carried.claim);
-        }
-        for said in other.says {
-            self.know(&facts, said.claim.clone(), said.proof);
-            offered.push(said.claim);
-        }
-        let Some((first, second, known)) = self.opposing(&offered, &facts, deep)?
-        else {
-            return Err(self.defect(
-                step.line,
-                "the last step and the line it contradicts are not a contradiction",
-            ));
-        };
         let claim = self.block_claim(step)?;
-        let one = self
-            .held(&known, &first, deep)?
-            .expect("a claim `opposing` found held");
-        let two = self
-            .held(&known, &second, deep)?
-            .expect("a claim `opposing` found held");
+        let (first, one, two) = (pair.holds.claim, pair.holds.proof, pair.denial.proof);
         let mut proof = pf!(self.b; deep, first, claim, one, two, "pm2.21dd");
         for close in inside.iter().rev() {
             proof = self.close(close, proof, &claim)?;
         }
         let lifted = pf!(self.b; scope, supposed, claim, proof, "ex");
-        if claim == t!(supposed, "wn") {
-            return Ok((
-                claim.clone(),
-                pf!(self.b; scope, supposed, lifted, "pm2.01d"),
+        // How the supposition stands to the claim, as the checker recorded
+        // it (`CheckedTheorem::supposed`, by the `suppose` line).
+        let shape = step
+            .openers
+            .iter()
+            .find(|o| o.kind == Intro::Suppose)
+            .and_then(|o| self.checked.supposed.get(&o.line))
+            .map(|s| s.shape);
+        let Some(shape) = shape else {
+            return Err(self.unreached(
+                step.line,
+                "the checker recorded no shape of the block's supposition",
             ));
-        }
-        if supposed == t!(claim, "wn") {
-            return Ok((claim.clone(), pf!(self.b; scope, claim, lifted, "pm2.18d")));
-        }
+        };
         let ends = Supposed {
             supposed: &supposed,
             claim: &claim,
             lifted: &lifted,
         };
-        if let Built(proof) = self.supposed_otherwise(&ends, scope, &known)? {
-            return Ok((claim.clone(), proof));
+        let made = match shape {
+            // The claim is the supposition negated: shown directly.
+            record::Supposed::Denial if claim == t!(supposed, "wn") => {
+                Built(pf!(self.b; scope, supposed, lifted, "pm2.01d"))
+            }
+            record::Supposed::Denial => self.denied_otherwise(&ends, scope, facts)?,
+            // The supposition is the claim negated: reductio.
+            record::Supposed::ClaimDenied if supposed == t!(claim, "wn") => {
+                Built(pf!(self.b; scope, claim, lifted, "pm2.18d"))
+            }
+            record::Supposed::ClaimDenied => {
+                self.supposed_denial_otherwise(&ends, scope, facts)?
+            }
+        };
+        match made {
+            Built(proof) => Ok((claim, proof)),
+            Declined(_) => Err(self.unreached(
+                step.line,
+                "the supposition does not meet the claim as the checker recorded",
+            )),
         }
-        Err(self.defect(
-            step.line,
-            "the block claims neither its supposition negated nor what its supposition denies",
-        ))
     }
 
-    /// ( scope -> claim ) where the block supposes what its claim denies, or
-    /// denies what its claim says, written another way, as the checker reads
-    /// the two alike: a ≠ 1 from `suppose 1 = a`. The spellings' equivalence
-    /// (`same`) carries the supposition to the claim's spelling, and the
-    /// contradiction closes there.
-    pub(super) fn supposed_otherwise(
+    /// ( scope -> claim ) where the claim is ¬X and the block supposed X
+    /// written another way, as the checker reads the two alike
+    /// (`Supposed::Denial`): a ≠ 1 from `suppose 1 = a`. The spellings'
+    /// equivalence (`same`) carries the supposition to the claim's
+    /// spelling, and the contradiction closes there.
+    pub(super) fn denied_otherwise(
         &mut self,
         ends: &Supposed,
         scope: &Rpn,
@@ -198,137 +187,91 @@ impl<'a> Elaborator<'a> {
             lifted,
         } = *ends;
         let (claim_term, supposed_term) = (self.to_term(claim), self.to_term(supposed));
-        // Reductio: the claim is ¬X, and the block supposed X written
-        // otherwise.
-        if claim_term.label() == Some("wn") {
-            let x = self.rpn(&claim_term.children()[0]);
-            let alike = take!(self.same(
-                &supposed_term,
-                &claim_term.children()[0],
-                scope,
-                known,
-                None
-            )?);
-            let not_supposed = t!(supposed, "wn");
-            let neg = self.b.ap(
-                "notbid",
-                &binds! {"ph" => scope, "ps" => supposed, "ch" => &x},
-                &[&alike],
-            );
-            let turned = self.b.ap(
-                "imbi2d",
-                &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim, "th" => supposed},
-                &[&neg],
-            );
-            let denying = self.b.ap(
-                "mpbird",
-                &binds! {"ph" => scope, "ps" => t!(supposed, not_supposed, "wi"),
-                "ch" => t!(supposed, claim, "wi")},
-                &[lifted, &turned],
-            );
-            let denied = self.b.ap(
-                "pm2.01d",
-                &binds! {"ph" => scope, "ps" => supposed},
-                &[&denying],
-            );
-            return Ok(Built(self.b.ap(
-                "mpbid",
-                &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim},
-                &[&denied, &neg],
-            )));
+        if claim_term.label() != Some("wn") {
+            return Ok(Route::no("the claim denies nothing"));
         }
-        // Indirect proof: the block supposed ¬Y, and the claim is Y written
-        // otherwise.
-        if supposed_term.label() == Some("wn") {
-            let y = self.rpn(&supposed_term.children()[0]);
-            let alike = take!(self.same(
-                &supposed_term.children()[0],
-                &claim_term,
-                scope,
-                known,
-                None
-            )?);
-            let turned = self.b.ap(
-                "imbi2d",
-                &binds! {"ph" => scope, "ps" => &y, "ch" => claim, "th" => supposed},
-                &[&alike],
-            );
-            let back = self.b.ap(
-                "mpbird",
-                &binds! {"ph" => scope, "ps" => t!(supposed, y, "wi"),
-                "ch" => t!(supposed, claim, "wi")},
-                &[lifted, &turned],
-            );
-            let got =
-                self.b
-                    .ap("pm2.18d", &binds! {"ph" => scope, "ps" => &y}, &[&back]);
-            return Ok(Built(self.b.ap(
-                "mpbid",
-                &binds! {"ph" => scope, "ps" => &y, "ch" => claim},
-                &[&got, &alike],
-            )));
-        }
-        Ok(Route::no(
-            "the claim is no supposition denied, written any way",
-        ))
+        let x = self.rpn(&claim_term.children()[0]);
+        let alike = take!(self.same(
+            &supposed_term,
+            &claim_term.children()[0],
+            scope,
+            known,
+            None
+        )?);
+        let not_supposed = t!(supposed, "wn");
+        let neg = self.b.ap(
+            "notbid",
+            &binds! {"ph" => scope, "ps" => supposed, "ch" => &x},
+            &[&alike],
+        );
+        let turned = self.b.ap(
+            "imbi2d",
+            &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim, "th" => supposed},
+            &[&neg],
+        );
+        let denying = self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => t!(supposed, not_supposed, "wi"),
+            "ch" => t!(supposed, claim, "wi")},
+            &[lifted, &turned],
+        );
+        let denied = self.b.ap(
+            "pm2.01d",
+            &binds! {"ph" => scope, "ps" => supposed},
+            &[&denying],
+        );
+        Ok(Built(self.b.ap(
+            "mpbid",
+            &binds! {"ph" => scope, "ps" => &not_supposed, "ch" => claim},
+            &[&denied, &neg],
+        )))
     }
 
-    /// A claim and its negation, among the parts of what the block holds.
-    pub fn opposing(
+    /// ( scope -> claim ) where the block supposed ¬Y and the claim is Y
+    /// written another way (`Supposed::ClaimDenied`), carried across by the
+    /// spellings' equivalence (`same`).
+    pub(super) fn supposed_denial_otherwise(
         &mut self,
-        lines: &[Rpn],
-        facts: &Facts,
+        ends: &Supposed,
         scope: &Rpn,
-    ) -> Checked<Option<(Rpn, Rpn, Facts)>> {
-        let known = facts.copy();
-        for line in lines {
-            if let Some(p) = self.held(&known, line, scope)? {
-                self.unpack_all(line, &p, scope, &known);
-            }
+        known: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let Supposed {
+            supposed,
+            claim,
+            lifted,
+        } = *ends;
+        let (claim_term, supposed_term) = (self.to_term(claim), self.to_term(supposed));
+        if supposed_term.label() != Some("wn") {
+            return Ok(Route::no("the supposition denies nothing"));
         }
-        let parts: Vec<Rpn> = lines.iter().flat_map(|l| self.parts(l)).collect();
-        let seen: Vec<Rpn> = parts
-            .into_iter()
-            .filter(|t| self.holds(&known, t))
-            .collect();
-        for one in &seen {
-            for other in &seen {
-                if *other == t!(one, "wn") {
-                    return Ok(Some((one.clone(), other.clone(), known)));
-                }
-            }
-        }
-        // The two may deny one another written different ways, `a = b` and
-        // `b ≠ a`: the fact is carried to the spelling its denial has.
-        for one in &seen {
-            for other in &seen {
-                let denied = self.to_term(other);
-                if denied.label() != Some("wn") {
-                    continue;
-                }
-                let inner = self.rpn(&denied.children()[0]);
-                if inner == *one {
-                    continue;
-                }
-                let alike = self.same(
-                    &self.to_term(one),
-                    &denied.children()[0],
-                    scope,
-                    &known,
-                    None,
-                )?;
-                let Built(alike) = alike else {
-                    continue;
-                };
-                let held = self
-                    .held(&known, one, scope)?
-                    .expect("a fact just seen held");
-                let carried = pf!(self.b; scope, one, inner, held, alike, "mpbid");
-                self.know(&known, inner.clone(), carried);
-                return Ok(Some((inner, other.clone(), known)));
-            }
-        }
-        Ok(None)
+        let y = self.rpn(&supposed_term.children()[0]);
+        let alike = take!(self.same(
+            &supposed_term.children()[0],
+            &claim_term,
+            scope,
+            known,
+            None
+        )?);
+        let turned = self.b.ap(
+            "imbi2d",
+            &binds! {"ph" => scope, "ps" => &y, "ch" => claim, "th" => supposed},
+            &[&alike],
+        );
+        let back = self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => t!(supposed, y, "wi"),
+            "ch" => t!(supposed, claim, "wi")},
+            &[lifted, &turned],
+        );
+        let got = self
+            .b
+            .ap("pm2.18d", &binds! {"ph" => scope, "ps" => &y}, &[&back]);
+        Ok(Built(self.b.ap(
+            "mpbid",
+            &binds! {"ph" => scope, "ps" => &y, "ch" => claim},
+            &[&got, &alike],
+        )))
     }
 
     /// An existence over `depth` names whose body is an equation, with the
@@ -748,49 +691,85 @@ impl<'a> Elaborator<'a> {
             ));
         };
         let facts = self.in_hand(&end.facts);
-        if meetings.iter().any(|m| !m.identities.is_empty()) {
-            return self.tidied(&end.proof, &end.claim, want, &end.scope, &facts);
+        // The end is each meeting's first tree. An end of several parts met
+        // each its own way is carried whole: with identity elements dropped
+        // where one met so, and otherwise as one fact spelt otherwise.
+        match meetings.as_slice() {
+            [met] => self.met_carried(
+                &end.claim,
+                end.proof.clone(),
+                want,
+                met,
+                Tree::First,
+                &end.scope,
+                &facts,
+            ),
+            many if many.iter().any(|m| !m.identities.is_empty()) => {
+                self.tidied(&end.proof, &end.claim, want, &end.scope, &facts)
+            }
+            _ => self.spelt_otherwise(
+                &end.claim,
+                end.proof.clone(),
+                want,
+                &end.scope,
+                &facts,
+            ),
         }
-        // An end the record says is turned round, `x ≠ y` for `y ≠ x`, is
-        // turned back by its relation's own lemma (`turned_claim`).
-        if let [met] = meetings.as_slice() {
-            if met.turned && met.flips.is_empty() {
-                if let Some((turned, flip)) = self.turned_claim(want) {
-                    if turned == end.claim {
-                        let Sides { left, right } = self.equation_sides(&turned);
-                        return Ok(Some(
-                            pf!(self.b; &end.scope, left, right, end.proof, flip),
-                        ));
-                    }
+    }
+
+    /// ( scope -> want ) from `proof` of `said`, carried as the checker
+    /// recorded the two meet (`met`, `said` in the tree `said_in`): as it
+    /// stands where the two are one; with identity elements dropped
+    /// (`tidied`); turned back by its relation's own lemma, `x ≠ y` for
+    /// `y ≠ x` (`turned_claim`); with places swapped by the notation's own
+    /// swap, a segment's ends (`met_as`); and otherwise as one fact spelt
+    /// otherwise (`same`). None where the carry does not reach it.
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::elab) fn met_carried(
+        &mut self,
+        said: &Rpn,
+        proof: Proof,
+        want: &Rpn,
+        met: &Meeting,
+        said_in: Tree,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if said == want {
+            return Ok(Some(proof));
+        }
+        if !met.identities.is_empty() {
+            return self.tidied(&proof, said, want, scope, facts);
+        }
+        if met.turned && met.flips.is_empty() {
+            if let Some((turned, flip)) = self.turned_claim(want) {
+                if turned == *said {
+                    let Sides { left, right } = self.equation_sides(&turned);
+                    return Ok(Some(pf!(self.b; scope, left, right, proof, flip)));
                 }
             }
         }
-        // Places the record says the end swaps, a segment's ends, are
-        // turned by the notation's own swap (`met_as`); the end is the
-        // meeting's first tree.
-        if let [met] = meetings.as_slice() {
-            if !met.flips.is_empty() {
-                return self.met_as(
-                    &end.claim,
-                    end.proof.clone(),
-                    want,
-                    met,
-                    Tree::First,
-                    &end.scope,
-                    &facts,
-                );
-            }
+        if !met.flips.is_empty() {
+            return self.met_as(said, proof, want, met, said_in, scope, facts);
         }
-        let across = self.same(
-            &self.to_term(&end.claim),
-            &self.to_term(want),
-            &end.scope,
-            &facts,
-            None,
-        )?;
-        Ok(across.built().map(
-            |alike| pf!(self.b; &end.scope, end.claim, want, end.proof, alike, "mpbid"),
-        ))
+        self.spelt_otherwise(said, proof, want, scope, facts)
+    }
+
+    /// ( scope -> want ) from `proof` of `said`, one fact spelt otherwise
+    /// (`same`); None where the two are not.
+    fn spelt_otherwise(
+        &mut self,
+        said: &Rpn,
+        proof: Proof,
+        want: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let across =
+            self.same(&self.to_term(said), &self.to_term(want), scope, facts, None)?;
+        Ok(across
+            .built()
+            .map(|alike| pf!(self.b; scope, said, want, proof, alike, "mpbid")))
     }
 
     pub(super) fn close_cases(&mut self, block: &Block) -> Checked<(Rpn, Proof)> {
