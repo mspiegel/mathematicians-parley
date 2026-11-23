@@ -4,7 +4,7 @@ use std::slice;
 
 use super::*;
 use crate::checker::record::{First, Supplied};
-use crate::citing::{conjuncts, HypothesisAt, Implication};
+use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::rests_on_only;
 use crate::elab::tables::Row;
@@ -485,6 +485,12 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         let meeting = recorded.and_then(|r| r.supplied.meeting.as_ref());
+        // A "there is" no line states whole, at the witnesses the checker
+        // supplied it at.
+        if let Some(r) = recorded.filter(|r| !r.supplied.witnesses.is_empty()) {
+            return self
+                .supplied_at_witness(step, r.supplied, r.values, wanted, scope, facts);
+        }
         let lines = self.lines.clone();
         // A function's type the line or the `let` writes is kept among the
         // step's facts, as each step types its functions, and not in the
@@ -548,15 +554,11 @@ impl<'a> Elaborator<'a> {
                 }
                 let narrowed = recorded.is_some_and(|r| r.supplied.narrowed.is_some());
                 Ok(self
-                    .line_for_all(&at.line, wanted, narrowed, scope, facts)?
+                    .line_for_all(at, wanted, narrowed, scope, facts)?
                     .and_then(Route::built))
             }
             SuppliedBy::Requires { line, implied } => {
-                let owner = match step.requires.is_empty() {
-                    true => self.step_now.and_then(|i| self.thm.steps.get(i)),
-                    false => Some(step),
-                };
-                let Some(r) = owner.and_then(|s| s.requires.get(*line)) else {
+                let Some(r) = self.requires_line(step, *line) else {
                     return Ok(None);
                 };
                 let said = self.claim_of(&r.fact)?;
@@ -583,9 +585,54 @@ impl<'a> Elaborator<'a> {
                     .settle(&self.to_term(wanted), scope, &held, 3, None, None)?
                     .built())
             }
-            SuppliedBy::SaidOnce(_) | SuppliedBy::Walked(_) => Ok(self
-                .said_once_proof(&self.to_term(wanted), scope, facts)?
-                .built()),
+            SuppliedBy::SaidOnce(_) => {
+                // The membership a `let` writes, x ∈ X for `let x ∈ X`, is
+                // its own, whatever set X is.
+                if let Some(letter) = self.let_letter(wanted) {
+                    let member = self.to_term(wanted);
+                    let (said, set) = (
+                        self.rpn(&member.children()[0]),
+                        self.rpn(&member.children()[1]),
+                    );
+                    return self.introduced_held(&said, &letter, &set, scope, facts);
+                }
+                Ok(self
+                    .said_once_proof(&self.to_term(wanted), scope, facts)?
+                    .built())
+            }
+            // A walk's parts taken from lines, each from where the checker
+            // placed it (`SaidOnceFact::stated`), among what the walk builds
+            // on.
+            SuppliedBy::Walked(walked) => {
+                let known = facts.copy();
+                for part in &walked.stated {
+                    let library = self.item_library();
+                    let Some(member) =
+                        citing::system_member(&part.term, part.system, &library)
+                    else {
+                        return Ok(None);
+                    };
+                    let member = self.term(&member)?;
+                    let Some(proof) = self
+                        .supplied_proof(step, &part.by, None, &member, scope, facts)?
+                    else {
+                        return Ok(None);
+                    };
+                    self.know(&known, member, proof);
+                }
+                // The walk's own fact, a define the step cites written out
+                // as the checker read it, carried to the hypothesis.
+                let walk = self.term(&walked.fact)?;
+                let Built(proof) =
+                    self.said_once_proof(&self.to_term(&walk), scope, &known)?
+                else {
+                    return Ok(None);
+                };
+                if walk == *wanted {
+                    return Ok(Some(proof));
+                }
+                self.carried_to(step, &walk, &proof, wanted, None, scope, facts)
+            }
             SuppliedBy::Through { carrier, member } => Ok(self
                 .through_proof(carrier, member, wanted, scope, facts)?
                 .and_then(Route::built)),
@@ -628,6 +675,43 @@ impl<'a> Elaborator<'a> {
                 self.carried_to(step, &made, &proof, wanted, meeting, scope, facts)
             }
         }
+    }
+
+    /// The requires line the checker names by its place `line` among a
+    /// step's (`SuppliedBy::Requires`): the step's own, or, for a requires
+    /// line proved as a step (`as_a_step`), those of the step or `let` it
+    /// stands under.
+    pub(in crate::elab) fn requires_line(
+        &self,
+        step: &Step,
+        line: usize,
+    ) -> Option<Requires> {
+        let owner = match step.requires.is_empty() {
+            true => self.requires_owner.as_ref(),
+            false => Some(step),
+        };
+        owner.and_then(|s| s.requires.get(line)).cloned()
+    }
+
+    /// The letter a membership said once (`SuppliedBy::SaidOnce`) is of,
+    /// where it is the letter's membership in the set its `let` put it in:
+    /// x for x ∈ X from `let x ∈ X`. None for any other fact said once,
+    /// which the said-once walk reaches from the `let`.
+    fn let_letter(&self, wanted: &Rpn) -> Option<String> {
+        let member = self.to_term(wanted);
+        if member.label() != Some("wcel") || member.children().len() != 2 {
+            return None;
+        }
+        let (said, set) = (
+            self.rpn(&member.children()[0]),
+            self.rpn(&member.children()[1]),
+        );
+        self.sets
+            .iter()
+            .find(|(letter, own)| {
+                **own == set && self.names.get(*letter) == Some(&said)
+            })
+            .map(|(letter, _)| letter.clone())
     }
 
     /// ( scope -> wanted ) for an equation whose two sides are one at the
@@ -889,14 +973,6 @@ impl<'a> Elaborator<'a> {
                 }
                 continue;
             }
-            // A fact said once, walked to or unstated is settled where the
-            // lemma asks it, and only a fact a line writes is carried here.
-            if !matches!(
-                supplied.by,
-                SuppliedBy::Line(_) | SuppliedBy::Requires { implied: None, .. }
-            ) {
-                continue;
-            }
             // Read as the reading the lemma is applied at is (`read_apart`),
             // so that a value's bound letter is spelt alike in both.
             let wanted = self.read_apart(step, &node)?;
@@ -913,9 +989,18 @@ impl<'a> Elaborator<'a> {
                 scope,
                 facts,
             )?;
-            if let Some(proof) = carried {
-                self.know(&given, wanted, proof);
-            }
+            // The checker accepts the step and names what supplies the
+            // hypothesis; a build that cannot use it has a gap.
+            let Some(proof) = carried else {
+                return Err(self.defect(
+                    step.line,
+                    format!(
+                        "what the checker recorded as supplying {} does not give it",
+                        self.render(&wanted),
+                    ),
+                ));
+            };
+            self.know(&given, wanted, proof);
         }
         Ok(given)
     }
@@ -1056,7 +1141,7 @@ impl<'a> Elaborator<'a> {
         }
         let lines = self.lines.clone();
         if let Some(rule) = at.implied {
-            return self.implied_proof(at, rule, term, held, scope, facts);
+            return self.implied_proof(rule, term, held, scope, facts);
         }
         let Some((said, proof)) = self.line_fact(at, scope, facts, &lines)? else {
             return Ok(None);
@@ -1083,48 +1168,27 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// ( scope -> term ) for a fact the line `at` implies without writing
-    /// it, by the rule the checker recorded (`FirstAt::implied`), from the
-    /// sentence or part that implies it as `held` holds it: `k ∈ {1, …, n}`
-    /// says 1 ≤ k by its range's bound, `C ∈ 𝒫A` says C ⊆ A by the other
-    /// form. A rule the implication table does not hold, two vertices of a
-    /// triangle apart, a wider codomain or a function's type, is worked out
-    /// from that sentence (`settle`). None where the line does not hold it.
+    /// ( scope -> term ) for a fact the line the checker placed it in
+    /// implies without writing it, by the rule it recorded
+    /// (`FirstAt::implied`), from what the line holds (`held`), a naming
+    /// `let`'s kind among it: `k ∈ {1, …, n}` says 1 ≤ k by its range's
+    /// bound, `C ∈ 𝒫A` says C ⊆ A by the other form, `e ∈ ℕ` says e ∈ ℝ. A
+    /// rule the implication table does not hold, two vertices of a triangle
+    /// apart, a wider codomain or a function's type, is worked out from what
+    /// the line holds (`settle`). None where that does not give it.
     fn implied_proof(
         &mut self,
-        at: &FirstAt,
         rule: Implication,
         term: &Rpn,
         held: &Facts,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let lines = self.lines.clone();
-        let sentences = self.line_sentences(&at.line, &lines);
-        let sentence = match at.sentence {
-            Some(k) => sentences.get(k).cloned(),
-            None => None,
-        };
-        let Some(sentence) = sentence else {
-            return Ok(None);
-        };
-        let implier = match at.part {
-            Some(p) => match conjuncts(&sentence, &self.item_library()).get(p) {
-                Some(part) => part.clone(),
-                None => return Ok(None),
-            },
-            None => sentence,
-        };
-        let implier = self.term(&implier)?;
-        let Some((said, proof)) = self.said_on_line(&implier, held)? else {
-            return Ok(None);
-        };
         match rule {
             Implication::TriangleApart { .. }
             | Implication::WiderCodomain
             | Implication::FunctionType { .. } => {
-                let known = facts.copy();
-                self.know(&known, said, proof);
+                let known = facts.with(held);
                 Ok(self
                     .settle(&self.to_term(term), scope, &known, 3, None, None)?
                     .built())
@@ -1133,7 +1197,13 @@ impl<'a> Elaborator<'a> {
             | Implication::RangeBound { .. }
             | Implication::WiderSystem
             | Implication::SystemFact { .. } => {
-                let more = self.implied(&said, &proof, scope, facts)?;
+                let more = Facts::new();
+                for (said, proof) in held.entries() {
+                    let implied = self.implied(&said, &proof, scope, facts)?;
+                    for (fact, p) in implied.entries() {
+                        self.know_default(&more, fact, p);
+                    }
+                }
                 self.held(&more, term, scope)
             }
         }

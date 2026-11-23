@@ -401,6 +401,11 @@ impl<'a> Elaborator<'a> {
         let lines = Lines::new();
         for ((h, t), node) in hypotheses.iter().zip(&terms).zip(&nodes) {
             let proof = self.held(&facts, t, &scope)?.expect("a hypothesis's fact");
+            // A `let x ∈ X` of the theorem's is a letter the "for all"s
+            // cited below are read at, as a block's is (`add_block_letter`).
+            if let (Intro::Let, Some(label)) = (h.kind, &h.label) {
+                self.add_block_letter(t, &proof, &scope, label);
+            }
             lines.set(
                 h.label.clone().unwrap_or_default(),
                 Line::new(t.clone(), proof, vec![node.clone()]),
@@ -1027,6 +1032,7 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
         };
         let kept = mem::replace(&mut self.lines, lines.clone());
+        let owner = self.requires_owner.replace(step.clone());
         // The line rests on what it names and nothing else the step names
         // (R2), as a requires line does.
         let allowed = self.reason_allows(step, req);
@@ -1035,6 +1041,7 @@ impl<'a> Elaborator<'a> {
             me.by_method_written(&how, &at, &node, &term, scope, &named, &lines)
         });
         self.lines = kept;
+        self.requires_owner = owner;
         // What the step route says of the line it was given is said of the
         // requires line, whose step it is not.
         let made = made.map_err(|mut p| {

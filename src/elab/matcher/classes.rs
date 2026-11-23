@@ -620,6 +620,65 @@ impl<'a> Elaborator<'a> {
         )
     }
 
+    /// ( scope -> wanted ) for a "there is" a cited item asks, which no line
+    /// states whole, at the witnesses the checker supplied it at
+    /// (`Supplied::witnesses`): each witness's membership from where the
+    /// record places it, and the body from the line `supplied.by` names, at
+    /// the citation's values `values` and the witnesses. "there is s ∈ S" of
+    /// a line saying `a ∈ S` has no body to show.
+    pub(in crate::elab) fn supplied_at_witness(
+        &mut self,
+        step: &Step,
+        supplied: &Supplied,
+        values: &NodeBinding,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let library = self.item_library();
+        let mut at = values.clone();
+        let mut shown: Vec<Supplied> = Vec::new();
+        for w in &supplied.witnesses {
+            at.insert(Symbol::of(&w.letter), w.value.clone());
+            shown.push(unfolded_supplied(&w.said, &w.member));
+        }
+        let mut body = &supplied.want;
+        while library.exists.contains(&body.notation()) && body.children.len() == 3 {
+            body = &body.children[2];
+        }
+        if !library.exists.contains(&body.notation()) {
+            shown.push(unfolded_supplied(body, &supplied.by));
+        }
+        let wanted = self.to_term(wanted);
+        let layers = self.layers_of(&wanted);
+        if layers.len() != supplied.witnesses.len() {
+            return Ok(None);
+        }
+        let mut found = IndexMap::new();
+        for ((_, variable, _), w) in layers.iter().zip(&supplied.witnesses) {
+            found.insert(t!(variable, "cv"), self.term(&w.value)?);
+        }
+        let recorded = WitnessFacts {
+            facts: shown,
+            values: at,
+            turned: false,
+        };
+        let lines = self.lines.clone();
+        Ok(self
+            .witnessed_at(
+                step,
+                &wanted,
+                &layers,
+                &found,
+                scope,
+                facts,
+                &lines,
+                &[],
+                Some(&recorded),
+            )?
+            .built())
+    }
+
     /// The witnesses the checker read the citation `step` makes as naming
     /// for `wanted`, a "there is" the cited item asks or a definition it
     /// folds says (`Cited::bound`): what each of its letters is put to,

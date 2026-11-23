@@ -1,8 +1,12 @@
 //! What supplies an item's hypotheses, and the hypotheses and conclusion checks.
 
+use std::cell::RefCell;
 use std::sync::Arc;
 
 use super::*;
+use crate::checker::record::StatedAt;
+use crate::citing::SaidOnceFact;
+use crate::formula::ByShape;
 use crate::matching::{expand, Meeting, Reading, Unfolds};
 use crate::notations::FUNCTIONS_FROM;
 use crate::{citing, matching};
@@ -29,6 +33,9 @@ pub(super) struct Suppliers<'a> {
     pub(super) unfolds: Unfolds,
     pub(super) known: &'a Known<'a>,
     pub(super) library: &'a Library<'a>,
+    /// The walks whose parts are being placed (`with_places`), by shape: a
+    /// part is not placed by the walk it is part of.
+    placing: RefCell<Vec<ByShape>>,
 }
 
 impl<'a> Suppliers<'a> {
@@ -75,6 +82,7 @@ impl<'a> Suppliers<'a> {
             },
             known,
             library,
+            placing: RefCell::new(Vec::new()),
         }
     }
 
@@ -314,12 +322,38 @@ impl<'a> Suppliers<'a> {
         // alike, the one spelt as the fact is: `m + 1 ∈ ℕ₀` itself, not
         // `1·(m + 1) ∈ ℕ₀`, which `alike` reads the same but whose reason is
         // another term's.
-        self.parts
+        let walked = self
+            .parts
             .said_once
             .iter()
             .filter(|s| self.alike(&s.fact, fact))
-            .min_by_key(|s| !s.fact.spelt_alike(fact))
-            .map(|s| SuppliedBy::Walked(s.clone()))
+            .min_by_key(|s| !s.fact.spelt_alike(fact))?;
+        Some(SuppliedBy::Walked(self.with_places(walked)?))
+    }
+
+    /// `walked`, each part its reason takes from a line placed
+    /// (`SaidOnceFact::stated`); None where the walk is being placed
+    /// already, whose part a line, a type or a subset must then give.
+    fn with_places(&self, walked: &SaidOnceFact) -> Option<SaidOnceFact> {
+        let shape = walked.fact.by_shape();
+        if self.placing.borrow().contains(&shape) {
+            return None;
+        }
+        self.placing.borrow_mut().push(shape);
+        let stated = walked
+            .stated
+            .iter()
+            .map(|part| StatedAt {
+                by: citing::system_member(&part.term, part.system, self.library)
+                    .map_or(SuppliedBy::Unstated, |m| self.by(&m)),
+                ..part.clone()
+            })
+            .collect();
+        self.placing.borrow_mut().pop();
+        Some(SaidOnceFact {
+            stated,
+            ..walked.clone()
+        })
     }
 }
 

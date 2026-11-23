@@ -2,6 +2,7 @@
 
 use indexmap::IndexMap;
 
+use crate::checker::record::StatedAt;
 use crate::corpus::{Head, Method, Step};
 use crate::formula::grammar::Grammar;
 use crate::formula::notation_id::NotationId;
@@ -184,6 +185,11 @@ pub struct SaidOnceFact {
     /// The membership, in the standard order.
     pub fact: Node,
     pub reason: super::once::OnceReason,
+    /// Each part the walk took from a line (`OnceReason::Stated`), with the
+    /// system the line puts it in, in the order the walk took them; where
+    /// each stands is the checker's to record (`Suppliers::with_places`),
+    /// and `Unstated` as the walk makes it.
+    pub stated: Vec<StatedAt>,
 }
 
 /// The parts of a citation from the facts as read: each with its parts, what

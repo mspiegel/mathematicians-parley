@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   proofs.hammack.rational-squares-sum-not-three.three-divides-no-small $p |- ( ( A e. NN /\ A < 3 ) -> -. 3 || A ) $=
-    ( cn wcel c3 clt wbr wa cdvds wn cle simpr cz wi 3z a1i simpl id syl jca dvdsle mpd cr wb nnre 3re ltnle syl2anc mpbid pm2.21dd ex pm2.01d ) ABCZADEFZGZDAHFZUNUOUOIZUNUOGZDAJFZUPUQUOURUNUOKUQDLCZULGUOURMUQUSULUSUQNOUQUNULUNUOPZUNULULULUMPZULQZRZRZSDATRUAUQUMURIZUQUNUMUTULUMKRUQAUBCZDUBCZUMVEUCUQULVFVDAUDRVGUQUEOADUFUGUHUIUJUK $.
+    ( cn wcel c3 clt wbr wa cdvds wn cle simpr cz wi 3nn a1i nnz syl simpl id jca dvdsle mpd cr wb nnre 3re ltnle syl2anc mpbid pm2.21dd ex pm2.01d ) ABCZADEFZGZDAHFZUOUPUPIZUOUPGZDAJFZUQURUPUSUOUPKURDLCZUMGUPUSMURUTUMURDBCZUTVAURNODPQURUOUMUOUPRZUOUMUMUMUNRZUMSZQZQZTDAUAQUBURUNUSIZURUOUNVBUMUNKQURAUCCZDUCCZUNVGUDURUMVHVFAUEQVIURUFOADUGUHUIUJUKUL $.
 $}

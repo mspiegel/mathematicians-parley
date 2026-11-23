@@ -1731,8 +1731,8 @@ pub(super) struct Values<'b> {
 /// in `bound` and where the witness's membership of the domain at the
 /// values stands (`Supplied::witnesses`); empty for any other fact, or
 /// where a letter has no witness. A "there is" with no body, "there is s ∈
-/// S", binds its letter to nothing in the search: its witness is the
-/// member the line that supplies it, `by`, says is in S, `a ∈ S`.
+/// S", has for its witness the member the line that supplies it, `by`,
+/// says is in S, `a ∈ S`.
 fn witnesses_in(
     want: &Node,
     by: &SuppliedBy,
@@ -1760,7 +1760,10 @@ fn witnesses_in(
             }
             _ => None,
         };
-        let Some(value) = bound.get(&letter.text).cloned().or_else(stated_member)
+        // A bodiless "there is" takes the member its line states: the
+        // search's `bound` also holds what a conclusion's own binder of the
+        // same letter met, the s of "for all s ∈ S".
+        let Some(value) = stated_member().or_else(|| bound.get(&letter.text).cloned())
         else {
             return Vec::new();
         };
@@ -1772,6 +1775,7 @@ fn witnesses_in(
         out.push(WitnessIn {
             letter: letter.text.to_string(),
             member: suppliers.by(&member),
+            said: member,
             value: value.clone(),
         });
         at.insert(letter.text, value);

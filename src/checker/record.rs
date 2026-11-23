@@ -1520,8 +1520,23 @@ pub struct WitnessIn {
     /// The item's letter.
     pub letter: String,
     pub value: Node,
-    /// Where the value's membership of the domain stands.
+    /// The value's membership of the letter's domain at the citation's
+    /// values, in the standard order.
+    pub said: Node,
+    /// Where that membership stands.
     pub member: SuppliedBy,
+}
+
+/// A part a said-once walk takes from a line (`OnceReason::Stated`) and
+/// where it stands (`SaidOnceFact::stated`): a(n) in ℝ of `a(n) + 1 ∈ ℝ`,
+/// through the type line `a : ℕ → ℝ` and n's `let`.
+#[derive(Clone, Debug)]
+pub struct StatedAt {
+    pub term: Node,
+    pub system: System,
+    /// Where the part's membership stands, found as a hypothesis's is
+    /// (`Suppliers::placed`), never by the walk itself.
+    pub by: SuppliedBy,
 }
 
 /// A "for all" a line says over one set and a hypothesis asks over a set

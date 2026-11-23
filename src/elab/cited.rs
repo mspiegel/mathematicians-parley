@@ -125,15 +125,20 @@ impl<'a> Elaborator<'a> {
         self.know(&out, line.term.clone(), whole.clone());
         self.unpack_all(&line.term, &whole, scope, &out);
         self.know_chains(&line.sentences, &line.term, &whole, scope, &out);
+        // A "for all" the line writes, read at the letter of a `let` above
+        // the step, as the checker reads it (`CheckedTheorem::read_at`),
+        // the line written below the `let` as well as above it.
+        let readings = self.step_readings();
+        for (claim, proof) in out.entries() {
+            self.know_at_letters(&claim, &proof, scope, &out, cite, &readings)?;
+        }
         for (claim, proof) in out.entries() {
             if let Some(members) = self.subset_members(&claim, &proof, scope) {
                 if !self.holds(&out, &members.claim) {
                     self.know(&out, members.claim.clone(), members.proof.clone());
                 }
-                // Read at a block's letter, as a "for all" the line writes is
-                // (`know_in_scope_at_letters`); one that does not fit gives
-                // nothing.
-                let readings = self.step_readings();
+                // Read at a block's letter, as a "for all" the line writes is;
+                // one that does not fit gives nothing.
                 self.know_at_letters(
                     &members.claim,
                     &members.proof,

@@ -297,6 +297,10 @@ pub struct Elaborator<'a> {
     /// The step being elaborated, by its index in the theorem's steps; None
     /// before the first.
     pub step_now: Option<usize>,
+    /// The step or `let` whose requires line is being proved as a step
+    /// (`as_a_step`): the owner of the requires lines above it, which the
+    /// checker names by their place among the owner's.
+    pub requires_owner: Option<Step>,
     pub g: &'a Grammar,
     pub items: &'a IndexMap<String, Item<'a>>,
     pub records: &'a [Record],
@@ -576,6 +580,7 @@ impl<'a> Elaborator<'a> {
             thm,
             checked,
             step_now: None,
+            requires_owner: None,
             g,
             items,
             records,

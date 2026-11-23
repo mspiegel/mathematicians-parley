@@ -13,6 +13,7 @@
 //! answers. So the two tools agree on which memberships a step need not
 //! write.
 
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
@@ -38,6 +39,7 @@ use crate::sorts::types_a_function;
 
 use super::library::Library;
 use super::parts::{bound_in, function_values, Bound, Parts, SaidOnceFact};
+use crate::checker::record::{StatedAt, SuppliedBy};
 use crate::formula::page;
 use crate::matching;
 use crate::matching::Context;
@@ -290,6 +292,7 @@ fn said_once_read(
                 letters: &letters,
                 typed,
                 ctx,
+                taken: RefCell::new(Vec::new()),
             };
             let said = |t: &Node, s: System| given.says(t, s);
             let (Some(reason), Some(SystemForm { set, member })) = (
@@ -306,7 +309,23 @@ fn said_once_read(
                 ]),
             );
             out.push(fact.clone());
-            walked.push(SaidOnceFact { fact, reason });
+            // Each part the walk took from a line, which the checker places
+            // where it records the walk.
+            let stated = given
+                .taken
+                .into_inner()
+                .into_iter()
+                .map(|(term, system)| StatedAt {
+                    term,
+                    system,
+                    by: SuppliedBy::Unstated,
+                })
+                .collect();
+            walked.push(SaidOnceFact {
+                fact,
+                reason,
+                stated,
+            });
         }
     }
     out.extend(points_in_plane(parts, &seeded, in_plane, library));
@@ -352,6 +371,20 @@ struct SystemForm {
 
 /// The `SystemForm` of the number system `sign` writes, read with `local`;
 /// None where the notation database does not declare what it writes.
+/// `term ∈ S` for the set of `system`, in the standard order, as the
+/// said-once walk writes a membership; None for a system with no sign.
+pub fn system_member(term: &Node, system: System, library: &Library) -> Option<Node> {
+    let ctx = &library.ctx;
+    let (sign, _) = rules::SYSTEM_OF
+        .iter()
+        .find(|(_, label)| System::of_label(label) == Some(system))?;
+    let mut local = Sorts::default();
+    local.insert("x".into(), Sort::of("number"));
+    let SystemForm { set, member } = system_form(sign, &local, library)?;
+    let put = Binding::from([(Symbol::of("x"), term.clone()), (Symbol::of("S"), set)]);
+    Some(standard(&substitute_apart(&member, &put, ctx), ctx))
+}
+
 fn system_form(
     sign: &'static str,
     local: &Sorts,
@@ -404,15 +437,19 @@ struct Given<'a> {
     letters: &'a Introduced,
     typed: &'a [Node],
     ctx: &'a Context,
+    /// Each fact's term and system the walk has taken as it stands, in the
+    /// order it took them (`SaidOnceFact::stated`).
+    taken: RefCell<Vec<(Node, System)>>,
 }
 
 impl Given<'_> {
     fn says(&self, term: &Node, system: System) -> Option<OnceReason> {
         let none = IndexMap::new();
-        let stated = self.atoms.iter().any(|(a, s)| {
+        let stated = self.atoms.iter().find(|(a, s)| {
             s.within(system) && matching::alike(a, term, self.ctx, &none, &none)
         });
-        if stated {
+        if let Some((a, s)) = stated {
+            self.taken.borrow_mut().push((a.clone(), *s));
             return Some(OnceReason::Stated);
         }
         sum_said_once(term, system, self.letters, self.typed, self.ctx)

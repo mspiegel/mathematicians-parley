@@ -147,9 +147,9 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// Keep, for each letter let into a number system and not yet kept, its
-    /// membership as `facts` hold it under `scope`, the scope its line opens:
-    /// what `introduced_membership` carries to any scope inside it.
+    /// Keep, for each letter let into a set and not yet kept, its membership
+    /// as `facts` hold it under `scope`, the scope its line opens: what
+    /// `introduced_held` carries to any scope inside it.
     pub fn note_introduced(&mut self, scope: &Rpn, facts: &Facts) -> Checked<()> {
         // A point is a complex number in set.mm, which its `let` line says;
         // a distance between two points is real by that (`distance_within`).
@@ -161,9 +161,6 @@ impl<'a> Elaborator<'a> {
         let letters: Vec<(String, Rpn)> =
             self.sets.clone().into_iter().chain(points).collect();
         for (letter, set) in letters {
-            if self.introduced_system(&set).is_none() {
-                continue;
-            }
             let Some(kernel) = self.names.get(&letter).cloned() else {
                 continue;
             };
@@ -446,9 +443,34 @@ impl<'a> Elaborator<'a> {
             .map(|row| (row.system, row.lemma))
     }
 
+    /// `said ∈ set` for the letter a `let` introduced in `set`, from the
+    /// scope's copy of its introducing line, sealed as `membership@<letter>`:
+    /// the `let` says it once, so a step need not name the line. None where
+    /// the introducing line is not in scope.
+    pub(crate) fn introduced_held(
+        &mut self,
+        said: &Rpn,
+        letter: &str,
+        set: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let claim = t!(said, set, "wcel");
+        let mut held = self.held(facts, &claim, scope)?;
+        if held.is_none() {
+            let all = self.introduced.get(letter).cloned().unwrap_or_default();
+            held = all
+                .iter()
+                .rev()
+                .filter(|(kept, _, _)| *kept == claim)
+                .find_map(|(_, proof, at)| self.lifted_to(&claim, proof, at, scope));
+        }
+        Ok(held.map(|h| self.seal(h, &format!("{MEMBERSHIP}{letter}"))))
+    }
+
     /// `said ∈ system` for a letter introduced in `set`, from the scope's
-    /// copy of its introducing line, sealed as `membership@<letter>` and
-    /// carried up `WITHIN` one lemma at a time.
+    /// copy of its introducing line (`introduced_held`), carried up `WITHIN`
+    /// one lemma at a time.
     pub(super) fn letter_within(
         &mut self,
         said: &Rpn,
@@ -462,20 +484,10 @@ impl<'a> Elaborator<'a> {
         if rules::within_path(Some(base), system.alone()).is_none() {
             return Ok(Route::no(format!("{set} is not inside {system}")));
         }
-        let claim = t!(said, set, "wcel");
-        let mut held = self.held(facts, &claim, scope)?;
-        if held.is_none() {
-            let all = self.introduced.get(letter).cloned().unwrap_or_default();
-            held = all
-                .iter()
-                .rev()
-                .filter(|(kept, _, _)| *kept == claim)
-                .find_map(|(_, proof, at)| self.lifted_to(&claim, proof, at, scope));
-        }
-        let Some(held) = held else {
+        let Some(mut proof) = self.introduced_held(said, letter, set, scope, facts)?
+        else {
             return Ok(Route::no("the introducing line is not in scope"));
         };
-        let mut proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
         // A member of S ∖ {c} is a member of S first, where S is a number
         // system or a range; an interval's points taken out are the
         // interval's own (`out_of_interval`).

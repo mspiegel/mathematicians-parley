@@ -178,7 +178,7 @@ pub fn printed_but(
                         .collect::<Vec<_>>()
                         .join(", ");
                     let by: Vec<String> =
-                        at.shown.iter().map(|s| supplier(&s.by)).collect();
+                        at.shown.iter().map(|s| supplier(g, &s.by)).collect();
                     format!("{values}; facts by {}", by.join(", "))
                 }
                 None => "no value".to_string(),
@@ -213,11 +213,11 @@ pub fn printed_but(
     };
     for (line, inst) in &record.instantiated {
         let conditions: Vec<String> =
-            inst.conditions.iter().map(|c| supplier(&c.by)).collect();
+            inst.conditions.iter().map(|c| supplier(g, &c.by)).collect();
         let guards: Vec<String> = inst
             .guards
             .iter()
-            .map(|g| format!("{} by {}", g.letter, supplier(&g.by)))
+            .map(|guard| format!("{} by {}", guard.letter, supplier(g, &guard.by)))
             .collect();
         writeln!(
             out,
@@ -443,9 +443,9 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
     // how it met the part where that took anything (`Cited::firsts`).
     let first_words = |f: &First| match &f.meeting {
         Some(m) if !m.as_written() => {
-            format!("{} met {}", supplier(&f.by), meeting_words(m))
+            format!("{} met {}", supplier(g, &f.by), meeting_words(m))
         }
-        _ => supplier(&f.by),
+        _ => supplier(g, &f.by),
     };
     let firsts: Vec<String> = cited
         .firsts
@@ -470,9 +470,14 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
         .map(|s| {
             let mut said = match s.at {
                 Some(at) => {
-                    format!("{}.{} {}", at.line + 1, at.sentence + 1, supplier(&s.by))
+                    format!(
+                        "{}.{} {}",
+                        at.line + 1,
+                        at.sentence + 1,
+                        supplier(g, &s.by)
+                    )
                 }
-                None => supplier(&s.by),
+                None => supplier(g, &s.by),
             };
             // How a requires line the rewrite changed meets is left out, as
             // that line's own citation is (`RequiresRewrite::omitted`).
@@ -488,10 +493,11 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
             for w in &s.witnesses {
                 write!(
                     said,
-                    " at {} := {} in by {}",
+                    " at {} := {}, {} by {}",
                     w.letter,
                     g.print(&w.value),
-                    supplier(&w.member)
+                    g.print(&w.said),
+                    supplier(g, &w.member)
                 )
                 .unwrap();
             }
@@ -606,7 +612,7 @@ fn unfolded_parts(parts: &[Unfolded], g: &Grammar) -> String {
         .iter()
         .map(|p| match p {
             Unfolded::Fact { fact, by } => {
-                format!("{} by {}", g.print(fact), supplier(by))
+                format!("{} by {}", g.print(fact), supplier(g, by))
             }
             Unfolded::Witness {
                 value,
@@ -686,8 +692,9 @@ fn order_fact(fact: &OrderFact) -> String {
     }
 }
 
-/// What supplies a hypothesis (`record::SuppliedBy`).
-fn supplier(by: &SuppliedBy) -> String {
+/// What supplies a hypothesis (`record::SuppliedBy`); a walk with the
+/// places of the parts it takes from lines (`SaidOnceFact::stated`).
+fn supplier(g: &Grammar, by: &SuppliedBy) -> String {
     match by {
         SuppliedBy::Line(at) => place(at),
         SuppliedBy::SaidOnce(at) => format!("once {}", place(at)),
@@ -695,15 +702,36 @@ fn supplier(by: &SuppliedBy) -> String {
             Some(rule) => format!("requires {} implied by {rule:?}", line + 1),
             None => format!("requires {}", line + 1),
         },
-        SuppliedBy::Walked(walked) => format!("walked {:?}", walked.reason),
+        SuppliedBy::Walked(walked) => {
+            let mut said = format!("walked {:?}", walked.reason);
+            for part in &walked.stated {
+                write!(
+                    said,
+                    "; {} in {:?} by {}",
+                    g.print(&part.term),
+                    part.system,
+                    supplier(g, &part.by)
+                )
+                .unwrap();
+            }
+            said
+        }
         SuppliedBy::Through { carrier, member } => {
-            format!("through {} and {}", supplier(carrier), supplier(member))
+            format!(
+                "through {} and {}",
+                supplier(g, carrier),
+                supplier(g, member)
+            )
         }
         SuppliedBy::Bound { letter } => format!("bound {letter}"),
         SuppliedBy::Identity(met) => format!("identity {met:?}"),
         SuppliedBy::Parts(parts) => format!(
             "parts [{}]",
-            parts.iter().map(supplier).collect::<Vec<_>>().join("; ")
+            parts
+                .iter()
+                .map(|p| supplier(g, p))
+                .collect::<Vec<_>>()
+                .join("; ")
         ),
         SuppliedBy::Unstated => "unstated".to_string(),
     }

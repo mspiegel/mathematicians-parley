@@ -15,7 +15,7 @@ use std::{iter, mem};
 
 use super::state::{number_of, Elaborator};
 use super::Facts;
-use crate::checker::record::{Restated, SuppliedBy};
+use crate::checker::record::{FirstAt, Restated, SuppliedBy};
 use crate::corpus::proof::{Justification, Requires};
 use crate::corpus::{proof, Head, Item, Method, Step};
 use crate::formula::Node;
@@ -761,11 +761,11 @@ impl<'a> Elaborator<'a> {
                 {
                     return Ok(Some(Built(p)));
                 }
-                return self.line_for_all(&at.line, term, false, scope, facts);
+                return self.line_for_all(&at, term, false, scope, facts);
             }
             // A "for all" a line says over a set holding the requires line's.
             Some(Restated::Narrowed { at, .. }) => {
-                return self.line_for_all(&at.line, term, true, scope, facts);
+                return self.line_for_all(&at, term, true, scope, facts);
             }
             Some(Restated::Lines(by)) => by,
         };
@@ -807,9 +807,6 @@ impl<'a> Elaborator<'a> {
             self.rpn(&wanted.children()[0]),
             self.rpn(&wanted.children()[1]),
         );
-        if lookup(rules::SYSTEMS, system.alone().unwrap_or_default()).is_none() {
-            return Ok(None);
-        }
         // The two facts the record names, offered with the scope's: a line's
         // as the line says it; a membership the page says once, or walks to
         // from one, built as a said-once membership is, which a requires
@@ -842,45 +839,41 @@ impl<'a> Elaborator<'a> {
         // A "for all" the carrier's line says of each member: `for all k ∈
         // ℕ₀, F(k) ∈ ℝ` at m.
         match carrier {
-            SuppliedBy::Line(at) => {
-                self.line_for_all(&at.line, term, false, scope, facts)
-            }
+            SuppliedBy::Line(at) => self.line_for_all(at, term, false, scope, facts),
             _ => Ok(None),
         }
     }
 
-    /// ( scope -> term ) from the "for all" the line `cite` says, read at
-    /// the member `term` is of (`part_at_a_member`), or, where the checker
-    /// met it over a set inside its own (`narrowed`, as `Supplied::narrowed`
-    /// and `Restated::Narrowed` record), over that set; None where the line
-    /// says no "for all" or the reading does not give it.
+    /// ( scope -> term ) from the "for all" the checker placed in a line
+    /// (`at`), read at the member `term` is of (`part_at_a_member`), or,
+    /// where the checker met it over a set inside its own (`narrowed`, as
+    /// `Supplied::narrowed` and `Restated::Narrowed` record), over that set;
+    /// None where the line says no "for all" there or the reading does not
+    /// give it.
     pub(in crate::elab) fn line_for_all(
         &mut self,
-        cite: &str,
+        at: &FirstAt,
         term: &Rpn,
         narrowed: bool,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Route<Proof>>> {
         let lines = self.lines.clone();
-        let Some(cited) = self.line_written(cite, &lines) else {
+        let Some((said, whole)) = self.line_fact(at, scope, facts, &lines)? else {
             return Ok(None);
         };
-        if self.to_term(&cited.claim).label() != Some("wral") {
+        if self.to_term(&said).label() != Some("wral") {
             return Ok(None);
         }
-        let whole = self.carried(cite, facts, &lines);
         if !narrowed {
             return Ok(self
-                .part_at_a_member(&cited.claim, &whole, term, scope, facts)?
+                .part_at_a_member(&said, &whole, term, scope, facts)?
                 .map(Built));
         }
-        Ok(
-            match self.narrowed(&cited.claim, &whole, term, scope, facts)? {
-                Built(p) => Some(Built(p)),
-                Declined(_) => None,
-            },
-        )
+        Ok(self
+            .narrowed(&said, &whole, term, scope, facts)?
+            .built()
+            .map(Built))
     }
 
     /// A proof of what one `requires` line asks for.

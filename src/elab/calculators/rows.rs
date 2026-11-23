@@ -365,9 +365,7 @@ impl<'a> Elaborator<'a> {
                         line,
                         implied: None,
                     } => {
-                        let owner = self.step_now.and_then(|i| self.thm.steps.get(i));
-                        let Some(above) = owner.and_then(|s| s.requires.get(*line))
-                        else {
+                        let Some(above) = self.requires_line(step, *line) else {
                             return Err(self.unreached(
                                 self.at,
                                 "a requires line the checker combined is not among its step's",

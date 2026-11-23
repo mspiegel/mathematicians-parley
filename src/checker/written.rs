@@ -101,8 +101,14 @@ fn supplied_written(by: &mut super::record::SuppliedBy, out: &impl Fn(&Node) -> 
                 supplied_written(p, out);
             }
         }
+        // The walk's own fact is as the walk read it; where each part it
+        // took from a line stands is a line's like any other.
+        SuppliedBy::Walked(walked) => {
+            for part in &mut walked.stated {
+                supplied_written(&mut part.by, out);
+            }
+        }
         SuppliedBy::Requires { .. }
-        | SuppliedBy::Walked(_)
         | SuppliedBy::Bound { .. }
         | SuppliedBy::Identity(_)
         | SuppliedBy::Unstated => {}
@@ -207,6 +213,7 @@ pub fn written_out(
             supplied_written(&mut s.by, &out);
             for w in &mut s.witnesses {
                 w.value = out(&w.value);
+                w.said = out(&w.said);
                 supplied_written(&mut w.member, &out);
             }
         }
