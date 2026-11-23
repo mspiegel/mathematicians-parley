@@ -527,36 +527,58 @@ impl<'a> Elaborator<'a> {
             if h.kind != Intro::Let || h.text.contains(" be a set") {
                 continue;
             }
-            let subject = node.leftmost().text.to_string();
-            let Some(kernel) = self.names.get(&subject).cloned() else {
-                continue;
-            };
-            let said = t!(kernel, "cvv", "wcel");
-            let origin = format!("sethood@{label}");
-            let membership = if node.notation() == notations::MEMBERSHIP {
-                self.held(facts, t, scope)?
-            } else {
-                None
-            };
-            if let Some(held) = self.held(facts, &said, scope)? {
-                let sealed = self.seal(held, &origin);
-                self.know(facts, said, sealed);
-            } else if let Some(held) = membership {
-                let parts = self.to_term(t);
-                let (a, b) = (
-                    self.rpn(&parts.children()[0]),
-                    self.rpn(&parts.children()[1]),
-                );
-                let law = self.b.ap("elex", &binds! {"A" => &a, "B" => &b}, &[]);
-                let made = pf!(self.b; scope, t, said, held, law, "syl");
-                let sealed = self.seal(made, &origin);
-                self.know(facts, said, sealed);
-            } else {
-                continue;
+            if let Some(origin) = self.let_sethood(&label, node, t, scope, facts)? {
+                out.insert(origin);
             }
-            out.insert(origin);
         }
         Ok(out)
+    }
+
+    /// The sethood of the class one `let` line introduces (`sethoods`),
+    /// put in `facts` sealed as `sethood@<label>`, an origin any step may
+    /// rest on as it may on a sort line (`sorts`): held already, from the
+    /// letter's membership (`elex`), or from what the letter is by its
+    /// shape and what is in scope (`settle_or_bare`), a subset of a set or
+    /// a group's carrier. The origin, or None where none of them gives it.
+    pub fn let_sethood(
+        &mut self,
+        label: &str,
+        node: &Node,
+        t: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<String>> {
+        let subject = node.leftmost().text.to_string();
+        let Some(kernel) = self.names.get(&subject).cloned() else {
+            return Ok(None);
+        };
+        let said = t!(kernel, "cvv", "wcel");
+        let origin = format!("sethood@{label}");
+        let membership = if node.notation() == notations::MEMBERSHIP {
+            self.held(facts, t, scope)?
+        } else {
+            None
+        };
+        let made = if let Some(held) = self.held(facts, &said, scope)? {
+            held
+        } else if let Some(held) = membership {
+            let parts = self.to_term(t);
+            let (a, b) = (
+                self.rpn(&parts.children()[0]),
+                self.rpn(&parts.children()[1]),
+            );
+            let law = self.b.ap("elex", &binds! {"A" => &a, "B" => &b}, &[]);
+            pf!(self.b; scope, t, said, held, law, "syl")
+        } else {
+            match self.settle_or_bare(&self.to_term(&said), scope, facts, None, None)? {
+                Built(p) => p,
+                Declined(_) => return Ok(None),
+            }
+        };
+        let sealed = self.seal(made, &origin);
+        self.know(facts, said, sealed);
+        self.sorts.insert(origin.clone());
+        Ok(Some(origin))
     }
 
     /// `term ∈ V` from the constructor at the term's head; else a decline.

@@ -852,6 +852,13 @@ impl<'a> Elaborator<'a> {
                             &block.scope.clone(),
                             &o.label,
                         );
+                        self.let_sethood(
+                            &o.label,
+                            &node,
+                            &written,
+                            &block.scope.clone(),
+                            &block.facts.clone(),
+                        )?;
                         let readings = self.readings_below(o.line);
                         self.know_in_scope_at_letters(
                             &block.scope.clone(),
@@ -1035,6 +1042,13 @@ impl<'a> Elaborator<'a> {
                 .expect("the assumption just laid down");
             if o.kind == Intro::Let && !o.is_hypothesis {
                 self.add_block_letter(&added, &proof, &block.scope.clone(), &o.label);
+                self.let_sethood(
+                    &o.label,
+                    &node,
+                    &added,
+                    &block.scope.clone(),
+                    &block.facts.clone(),
+                )?;
                 let readings = self.readings_below(o.line);
                 self.know_in_scope_at_letters(
                     &block.scope.clone(),

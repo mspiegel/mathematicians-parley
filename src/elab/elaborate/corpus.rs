@@ -26,6 +26,7 @@ impl<'a> Elaborator<'a> {
     fn hypothesis_supplied(
         &mut self,
         step: &Step,
+        at: usize,
         h: &Hypothesis,
         path: &str,
         entry: Option<&Supplied>,
@@ -48,7 +49,7 @@ impl<'a> Elaborator<'a> {
             )
         );
         if kind_only {
-            return self.own_hypothesis(step, one, scope, known);
+            return self.own_hypothesis(step, at, form.as_ref(), one, scope, known);
         }
         let Some(entry) = entry else {
             return Err(self.unreached(
@@ -92,40 +93,117 @@ impl<'a> Elaborator<'a> {
         let Some(own) = own else {
             return Ok(given);
         };
-        let left = self.own_hypothesis(step, &own, scope, known)?;
+        // A function's type is what the part beside it says of it: one-to-one,
+        // onto or a bijection from A to B is a function from A to B.
+        let left = match form {
+            Some(Form::FunctionBeing { .. }) => {
+                let beside = Facts::new();
+                self.know(&beside, recorded.clone(), given.clone());
+                let made = self
+                    .settle_or_bare(&self.to_term(&own), scope, &beside, None, None)?
+                    .built();
+                match made {
+                    Some(p) => p,
+                    None => return Err(self.nothing_supplies(step, &own)),
+                }
+            }
+            _ => self.own_hypothesis(step, at, form.as_ref(), &own, scope, known)?,
+        };
         Ok(pf!(self.b; scope, own, recorded, left, given, "jca"))
     }
 
-    /// ( scope -> one ) for what only set.mm asks of a cited theorem's
-    /// hypothesis, which no page line writes: that a point is a complex
-    /// number, a class a set, a structure a group, and a function's type a
-    /// line keeps apart from its claim. Said once where the page lets the
-    /// letter, held among the step's facts, or built from the term's
-    /// structure (`settle_or_bare`).
+    /// ( scope -> one ) for what only set.mm asks of the cited theorem's
+    /// hypothesis `at`, of the form `form`, which no page line writes: that
+    /// a point is a complex number, a class a set, a structure a group. From
+    /// the line the checker recorded as introducing the value
+    /// (`Cited::kinds`): a point's `let` says its membership once; the rest
+    /// is built from the value's shape (`settle_or_bare`), offered only what
+    /// rests on the sorts and that line.
     fn own_hypothesis(
         &mut self,
         step: &Step,
+        at: usize,
+        form: Option<&Form>,
         one: &Rpn,
         scope: &Rpn,
         known: &Facts,
     ) -> Checked<Proof> {
-        if let Built(p) = self.said_once_proof(&self.to_term(one), scope, known)? {
-            return Ok(p);
-        }
-        if let Some(p) = self.held(known, one, scope)? {
-            return Ok(p);
-        }
-        match self.settle_or_bare(&self.to_term(one), scope, known, None, None)? {
-            Built(p) => Ok(p),
-            Declined(_) => Err(self.defect(
+        let Some(cited) = self.citation_read(step) else {
+            return Err(self.unreached(
                 step.line,
-                format!(
-                    "nothing supplies {}, which {} assumes",
-                    self.render(one),
-                    step.just.head
-                ),
-            )),
+                "the checker recorded no reading of this citation",
+            ));
+        };
+        let line = cited
+            .kinds
+            .iter()
+            .find(|k| k.at.line == at)
+            .and_then(|k| k.line.clone());
+        let made = match (form, line) {
+            // A point's membership of ℂ is its `let`'s own, said once.
+            (Some(Form::Point(_)), Some(_)) => {
+                let member = self.to_term(one);
+                let said = self.rpn(&member.children()[0]);
+                let letter = self
+                    .names
+                    .iter()
+                    .find(|(_, kernel)| **kernel == said)
+                    .map(|(name, _)| name.clone());
+                match letter {
+                    Some(letter) => {
+                        self.introduced_held(&said, &letter, &t!("cc"), scope, known)?
+                    }
+                    None => None,
+                }
+            }
+            // Built from the value's shape, offered what rests on the sorts,
+            // the letters' kinds any step may rest on (a `let`'s sethood
+            // among them, `let_sethood`), and on the line the record names:
+            // what it says and its own sort. X ⊆ A's letter is a set as each
+            // variable is, A ∖ B as its parts are, a group's carrier as each
+            // function's value is.
+            (_, line) => {
+                let said = match &line {
+                    Some(line) => {
+                        let lines = self.lines.clone();
+                        self.line_supplies(line, scope, known, &lines)?
+                    }
+                    None => Facts::new(),
+                };
+                let own: Vec<String> = match &line {
+                    Some(line) => vec![line.clone(), format!("{line}∈")],
+                    None => Vec::new(),
+                };
+                for (fact, proof) in known.entries() {
+                    let kept = proof
+                        .origin
+                        .iter()
+                        .all(|o| self.sorts.contains(o) || own.contains(o));
+                    if kept {
+                        self.know(&said, fact, proof);
+                    }
+                }
+                self.settle_or_bare(&self.to_term(one), scope, &said, None, None)?
+                    .built()
+            }
+        };
+        match made {
+            Some(p) => Ok(p),
+            None => Err(self.nothing_supplies(step, one)),
         }
+    }
+
+    /// The defect where what the record names does not give `one`, which
+    /// the step's cited item assumes.
+    fn nothing_supplies(&self, step: &Step, one: &Rpn) -> Problem {
+        self.defect(
+            step.line,
+            format!(
+                "nothing supplies {}, which {} assumes",
+                self.render(one),
+                step.just.head
+            ),
+        )
     }
 
     /// Apply a theorem this corpus proves, as this elaborator states it: its
@@ -407,6 +485,7 @@ impl<'a> Elaborator<'a> {
                 .find(|s| s.at.is_some_and(|a| a.line == i));
             let proof = self.hypothesis_supplied(
                 step,
+                i,
                 h,
                 &other.path,
                 entry,
