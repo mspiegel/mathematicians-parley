@@ -20,6 +20,40 @@ fn asked_by_setmm_alone(ask: &Term) -> bool {
     })
 }
 
+/// `binding` with what the lemma's ask `ask` takes from the item's
+/// hypotheses `hypotheses`, read from `next` on in the record's order
+/// (`metamath-hypotheses`): the next hypothesis where the ask is it as
+/// set.mm spells it, however many facts set.mm writes it as, `gbetne0`'s
+/// "R is between S and T"; otherwise an "and" joining several, each of its
+/// parts taking the next ones, `fco`'s g's type and f's. A part only set.mm
+/// asks takes none. None where the hypotheses in order do not fill it.
+fn hypotheses_met(
+    ask: &Term,
+    hypotheses: &[Term],
+    next: &mut usize,
+    binding: &Binding,
+    variables: &Vars,
+) -> Option<Binding> {
+    if asked_by_setmm_alone(ask) {
+        return Some(binding.clone());
+    }
+    if let Some(filled) = hypotheses
+        .get(*next)
+        .and_then(|said| fit(ask, said, binding, variables))
+    {
+        *next += 1;
+        return Some(filled);
+    }
+    if !matches!(ask.label(), Some("wa" | "w3a")) {
+        return None;
+    }
+    let mut binding = binding.clone();
+    for part in ask.children() {
+        binding = hypotheses_met(part, hypotheses, next, &binding, variables)?;
+    }
+    Some(binding)
+}
+
 impl<'a> Elaborator<'a> {
     /// An existence claim shown by naming something that answers it: the
     /// witness is the value the checker read the step as showing, and the
@@ -792,21 +826,23 @@ impl<'a> Elaborator<'a> {
         if names_of(&whole).iter().any(|v| !binding.contains_key(v)) {
             let asks = self.lemma_asks(label, side);
             let hypotheses = self.item_hypotheses_read(step)?;
-            if asks.len() != hypotheses.len() {
-                return Ok(Route::no(format!(
-                    "{label} asks {} facts the item lists, and the item lists {}",
-                    asks.len(),
-                    hypotheses.len()
-                )));
-            }
-            for (ask, said) in asks.iter().zip(&hypotheses) {
-                let Some(filled) = fit(ask, said, &binding, &variables) else {
+            let mut next = 0;
+            for ask in &asks {
+                let Some(filled) =
+                    hypotheses_met(ask, &hypotheses, &mut next, &binding, &variables)
+                else {
                     return Ok(self.no(
-                        format!("{label} asks {{}} where the item says {{}}"),
-                        &[&self.rpn(ask), &self.rpn(said)],
+                        format!("{label} asks {{}}, which is not the item's hypotheses in order"),
+                        &[&self.rpn(ask)],
                     ));
                 };
                 binding = filled;
+            }
+            if next != hypotheses.len() {
+                return Ok(Route::no(format!(
+                    "{label} asks fewer facts than the item's {} hypotheses",
+                    hypotheses.len()
+                )));
             }
         }
         let at = whole.substitute(&binding);
@@ -839,12 +875,9 @@ impl<'a> Elaborator<'a> {
         )
     }
 
-    /// What the lemma `label` asks that an item lists, in order: each
-    /// antecedent whole, as a hypothesis set.mm writes as several facts
-    /// joined (between, as three) is one the item lists; then, where the
-    /// sentence is one side of its `↔` (`side`), the other side, which it is
-    /// read from. A fact only set.mm asks, points in ℂ or a class a set, is
-    /// not listed (`DATABASE.md`, `metamath-hypotheses`), and is left out.
+    /// What the lemma `label` asks, in order: each antecedent, then, where
+    /// the sentence is one side of its `↔` (`side`), the other side, which
+    /// it is read from (`hypotheses_met` pairs them with the item's).
     fn lemma_asks(&self, label: &str, side: LemmaSide) -> Vec<Term> {
         let mut asks = Vec::new();
         let mut walk = self.statement(label);
@@ -859,9 +892,7 @@ impl<'a> Elaborator<'a> {
                 LemmaSide::Whole => {}
             }
         }
-        asks.into_iter()
-            .filter(|a| !asked_by_setmm_alone(a))
-            .collect()
+        asks
     }
 
     /// What each hypothesis of the item a step cites says at the citation's

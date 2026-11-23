@@ -276,8 +276,11 @@ that take more or fewer lemmas than the record names.
 
 `metamath-hypotheses` lists the item's hypotheses, by label, in the order the
 lemma asks for them. Each `$e` hypothesis counts as one, and so does each
-part of an antecedent that joins several. `composition-function`'s `fco` asks
-g's type before f's: `H2, H1`. A fact set.mm asks that the page never writes,
+hypothesis an antecedent joins: `fco`'s one antecedent joins g's type and
+f's. An antecedent that is one hypothesis as set.mm spells it counts once,
+however many facts set.mm writes it as: `gbetne0`'s "R is between S and T"
+is three facts joined, and one hypothesis. `composition-function`'s `fco`
+asks g's type before f's: `H2, H1`. A fact set.mm asks that the page never writes,
 such as a class being a set, a point being in ℂ, or ℂ where the item says ℝ,
 is not listed. The build supplies it (`ELABORATION.md`).
 

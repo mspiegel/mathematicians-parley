@@ -201,7 +201,7 @@ through the proof rules (`check_step`). Every table is in `src/rules.rs`.
 
 The matcher compares through one standard form (above). What it keeps as
 named operations, because none is a rewrite of one statement into another,
-is ∃-introduction and elimination (`witnessed`, `introduced`,
+is ∃-introduction and elimination (`witnessed_at`, `introduced`,
 `through_existential`, `by_lemmas`), a lemma's implicit substitution
 (`instanced`, `substituted_slot`, `as_class`), taking one half of a
 conjunction (`as_conjunct`), a lemma said of every such name
@@ -1343,9 +1343,10 @@ be use the row:
   its summand at k := 0, is carried the same way where nothing settles the
   claim from it (`at_its_own_value`).
 - **A witness** need not be named by a line where the body's equation has a
-  side that names none (`witnessed`): t = a·m + b·n at t := a·x + b·y is
-  a·x + b·y = a·x + b·y once m and n are read off the other side, and
-  `eqidd` proves it.
+  side that names none: t = a·m + b·n at t := a·x + b·y is
+  a·x + b·y = a·x + b·y once m and n are read off the other side. The
+  checker records it as an identity (`SuppliedBy::Identity`), and
+  `eqidd` proves it (`identity_proof`).
 - **A substitution** whose line leaves out an element it makes
   (`substituted_tidied`, `replaced_tidied`): the equation is put in at every
   place, either way round, that line is reached by the equation alone as any
@@ -1919,8 +1920,10 @@ The orders follow five rules, and each search below is one of them applied.
    hypotheses come in statement order, and then the conjuncts of each; a
    block's opener comes after what held outside it; a proved step comes
    after everything before it. A lemma's open antecedent takes the first
-   fact that fits. A witness is the checker's reading of the cited lines
-   and the `requires` lines, never of the scope (`witnessed`). An inequality's
+   fact that fits. A witness, and every fact a cited item asks, is
+   taken from where the checker recorded it (`Cited::supplied`,
+   `Cited::firsts`, `Cited::unfolded`), never searched for among the lines
+   or the scope. An inequality's
    certificate (`linear::certificate`) eliminates atoms in the order the
    cited facts first name them, and of the combinations that contradict
    takes the one resting on the most cited lines, since every line a step
@@ -1931,7 +1934,7 @@ The orders follow five rules, and each search below is one of them applied.
    never stands in for one that says what is wanted outright); a line
    matched as it stands before as the standard form reads it (`opened`,
    `unfolds_from`); an equation facing the way it is written before turned
-   round (`witnessed`, `substitute`); a seed as the metamath-proof writes it before
+   round (`substitute`); a seed as the metamath-proof writes it before
    read through (`in_other_words`).
 3. **The nearer reading comes before the deeper one.** `apply_lemma` fits
    the claim to a lemma's conclusion at each level before peeling another
@@ -1951,7 +1954,7 @@ The orders follow five rules, and each search below is one of them applied.
      from its structure; a membership a `requires` line wrote in another
      system (`bridged`); a compound's membership from its parts; the claim
      over other bound letters; and, with depth left, its conjuncts, a
-     witness, a universal generalised, the declared lemmas, a fact in other
+     universal generalised, the declared lemmas, a fact in other
      words (`said_otherwise`), and last a rewrite by an equation in hand. A
      fact is read in other words only where no other is being read so: the
      reading asks `settle` afresh, whose depth starts over, and each fact it
@@ -1964,7 +1967,12 @@ The orders follow five rules, and each search below is one of them applied.
      record's reading of the sentence, in the item's letters, and carried to
      the claim as the record's meetings say (`recorded_library`):
      mod-remainder at r := 0 gives q·N + 0 = A, and the meeting drops the
-     + 0 to give the claim q·N = A.
+     + 0 to give the claim q·N = A. An obtain is applied the same way, at
+     the sentence it obtains from (`obtained_library`). What a citation asks
+     is not searched for: each hypothesis of the cited item, the kind of
+     each thing it names, a reading's premise and a folded definition's
+     right side are proved from the record, and a record that does not
+     give one is a gap in the build.
    - `prove_field`: the two sides as one polynomial, then a cited line
      scaled, crossed, or summed.
    - a `requires` line (`by_its_reason`): read from the lines it cites before

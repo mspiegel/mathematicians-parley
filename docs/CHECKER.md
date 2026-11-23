@@ -66,14 +66,22 @@ nowhere else on the citation's account.
   it implies (`Requires`); the `let` or `obtain` line that introduces a
   letter, for a membership said once (`SaidOnce`); a membership said once
   of a term no `let` line writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, with the
-  reason the said-once walk gives (`Walked`); a membership a function's
+  reason the said-once walk gives, and each part the walk takes from a
+  line with where that part's membership stands, `a(n) ∈ ℝ` of
+  `a(n) + 1 ∈ ℝ` through the type line `a : ℕ → ℝ` and n's `let`
+  (`Walked`, `SaidOnceFact::stated`); a membership a function's
   type, a subset or a "for all" line carries, each of the two on its line,
   `k ∈ {1, …, n}` from `{1, …, m} ⊆ {1, …, n}` and the `let` line saying
   `k ∈ {1, …, m}` (`Through`); the membership the claim's own "for all"
   gives its letter (`Bound`); an equation the same on both sides once
   identity elements are dropped (`Identity`); an "and" whose parts stand
   apart, each placed (`Parts`); or no line, for a fact the citation's
-  values make true (`Unstated`).
+  values make true (`Unstated`). A "there is" no line states whole is
+  supplied at the witnesses the citation gives its letters
+  (`Supplied::witnesses`): each witness, its membership of the letter's
+  domain as the line that states it writes it, and where that stands.
+  Metamath proves every hypothesis from its entry, and an entry that does
+  not give its hypothesis is a gap in the build, never a search.
   A hypothesis the citation's values make true is still placed where a line
   states it. Lean names that line as the item's argument. Each entry also
   says where the item writes the hypothesis (`Supplied::at`): its
@@ -95,12 +103,22 @@ nowhere else on the citation's account.
   it, the one written the same is taken: `m + 1 ∈ ℕ₀`, not `1·(m + 1) ∈
   ℕ₀`. The comparison reads those two as one, but the second's reason is
   about another term.
+- `Cited::kinds`: for each hypothesis of a cited item that names a thing
+  of a kind the page never states, `let A be a set`, `let G be a group
+  with …`, `let P be a point`, the line that introduces what stands for
+  it: the last `let` in reach whose names hold it, or an `obtain` above.
+  None where the value is no letter so introduced, ℕ or {1, …, m}, whose
+  kind its shape gives. Metamath proves a point's membership of ℂ from
+  its `let`, and any other kind from the value's shape, offered only what
+  rests on the sorts and that line.
 - `Cited::unfolded`: for each conclusion a citation reads backwards, what
   the right side of its `↔` asks at the citation's values (`Unfolded`), its
   parts joined by "and" in order. A "there is" whose letter the citation
   gives a witness is the witness, that it is in the letter's domain, and the
   parts of its body at it; any other part is a fact. Each fact carries where
-  it stands, placed as a hypothesis is (`SuppliedBy`). The right side is
+  it stands, placed as a hypothesis is (`SuppliedBy`), and how the line met
+  it (`Unfolded::Fact::meeting`): `|a(n)| < ε` on a line for `|a(n) − 0| <
+  ε`. The right side is
   read at the citation's values as the page writes them, g of g(x) = f(x)
   for x ∈ L where the step names g, and each fact is sought among the
   step's lines as written, a define the step cites read out only where the
@@ -110,8 +128,10 @@ nowhere else on the citation's account.
   N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it. How the right
   side was shown is one method both backends ask (`Cited::unfolding`): a
   "there is" a cited line states whole (`Stated`), one "there is" at its
-  witness (`Witnessed`), or part by part (`Parts`). Metamath takes the
-  witnesses from the values recorded (`Unfolded::Witness`).
+  witness (`Witnessed`), or part by part (`Parts`). Metamath shows each
+  part from its record, a fact at the lemma's place in the letters the
+  lemma took from the line, a "there is" at its recorded witness, and puts
+  them together in the lemma's grouping of "and"s.
 - `Cited::item_letters`: for each letter of a cited item the binding fills,
   the Parley number system the item takes it in, by its own hypothesis
   `x ∈ S`, and the narrowest the page says its value is in once
@@ -142,15 +162,16 @@ nowhere else on the citation's account.
   property applied taken as its body, which part of that "and". `P(u)` at
   P := S ↦ N ∈ S and for all p ∈ S, p ≤ N gives "for all p ∈ T, p ≤ N" as
   part 1. Lean projects to it.
-- `Cited::firsts`: where each fact a reading of a definition starts from
-  stands, found as a hypothesis the citation needs is (`Cited::supplied`):
-  the cited line, or the sentence of one, with the fact as the page writes
-  it (`FirstAt::written`); else a requires line, or the `let` line that
-  says a membership once. Metamath unfolds the definition from a cited line
-  among them; Lean gives each to `.mp`, and to `.mpr` for the witnesses'
-  facts. How the line met each fact is kept beside it
-  (`Cited::firsts_meetings`), as `Cited::meetings` keeps it for a
-  conclusion. Where the line meets the fact only with a define the citation
+- `Cited::firsts`: for each reading in `Cited::concluded`, by its place
+  there, each part of what the reading asks first (`First`): the part as
+  the item writes it at the citation's values (`asked`), where it stands,
+  found as a hypothesis the citation needs is (`by`), the cited line or
+  the sentence of one, a requires line, the `let` line that says a
+  membership once, or `Unstated`; and how the line met it (`meeting`), as
+  `Cited::meetings` keeps it for a conclusion. Metamath proves the
+  reading's premise from these parts, joined in order, one side of an
+  "or" where the premise is one, and gives it to the lemma; Lean gives
+  each to `.mp`, and to `.mpr` for the witnesses' facts. Where the line meets the fact only with a define the citation
   cites read out, `i ∈ S` for `i ∈ {i ∈ … : …}`, the meeting places it
   (`Meeting::unfolded`), and Metamath fits the definition to the line read
   out at those places. A hypothesis whose two sides are one once a define
@@ -366,7 +387,10 @@ nowhere else on the citation's account.
   `joined_claim` holds each part as the claim writes it, a phrase whose
   meaning is an "and", `a is odd`, being one part; `joined_wholes` holds
   each run of parts one line states whole, which the page joins as it
-  stands. Lean puts the lines together, `⟨s3_5, s3_8⟩`.
+  stands. Each part also keeps how its line met it (`JoinedPart::meeting`),
+  and each whole run how its line met the run (`JoinedWhole::meeting`), the
+  run placed through a define read out where `join_places` reads one. Lean
+  puts the lines together, `⟨s3_5, s3_8⟩`.
 
 ## Blocks
 
