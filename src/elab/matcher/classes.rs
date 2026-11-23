@@ -28,6 +28,7 @@ fn unfolded_supplied(fact: &Node, by: &SuppliedBy) -> Supplied {
         at: None,
         meeting: None,
         narrowed: None,
+        witnesses: Vec::new(),
     }
 }
 

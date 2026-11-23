@@ -1505,11 +1505,9 @@ impl<'a> Elaborator<'a> {
             .filter(|_| step.just.head.is(Method::Restate))
             .and_then(|r| r.at())
             .map(|at| vec![at.clone()]);
-        let parts_placed = self
-            .checked
-            .joined
-            .get(&step.just.line)
-            .map(|sentences| sentences.iter().flatten().cloned().collect());
+        let parts_placed = self.checked.joined.get(&step.just.line).map(|sentences| {
+            sentences.iter().flatten().map(|p| p.at.clone()).collect()
+        });
         let restate = restated.is_some();
         let Some(parts) = restated.or(parts_placed) else {
             return Err(self.defect(

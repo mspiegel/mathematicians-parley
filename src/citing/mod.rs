@@ -17,7 +17,7 @@ pub use conclude::{
 };
 pub use library::{
     conjuncts, conjuncts_in, part_at, readings, supplies, with_parts, Cite, Group,
-    HypothesisAt, Library, PartAt, PlaceSystems, Proved, Want, Way,
+    HypothesisAt, KindLine, Library, PartAt, PlaceSystems, Proved, Want, Way,
 };
 pub use once::{
     a_number_said_once, closed_nonzero, index_system, interval_system, introduction,

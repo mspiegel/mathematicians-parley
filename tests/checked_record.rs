@@ -11,7 +11,9 @@
 //! The theorems are chosen for the decisions they hold between them: an
 //! induction and its parts, cases, both directions, citations read
 //! forwards and backwards, a sum said once, a chain, an exhibit's values,
-//! the witnesses of a "there is" a citation asks, the sets hypotheses make
+//! the witnesses of a "there is" a citation asks and where each witness's
+//! membership stands, the line introducing a thing of a kind an item names,
+//! the sets hypotheses make
 //! finite, and the numbers a set letter holds; a conjunct taken from a
 //! property's body, a congruence row facing the line it reads, and a
 //! define's argument put in its domain by the claim's member and by a `let`
@@ -32,7 +34,7 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 22] = [
+const KEPT: [&str; 23] = [
     "proofs/setmm/floor-below-non-integer/floor-below-non-integer",
     "proofs/setmm/limit-unique/limit-unique",
     "proofs/setmm/remainder-bounds/remainder-nonnegative",
@@ -55,6 +57,7 @@ const KEPT: [&str; 22] = [
     "proofs/wiedijk/ballot/prefix-unchanged",
     "tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-joined-in-a-block",
     "tests/elaborator/a-value-put-in-its-domain-by-a-line-read-in-a-block/a-value-put-in-its-domain-by-a-line-read-in-a-block",
+    "proofs/wiedijk/intermediate-value/intermediate-value",
 ];
 
 /// Every sentence of the theorem's page as the checker read it and the build

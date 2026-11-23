@@ -233,8 +233,18 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         &step.just.refs,
         Some(&item),
         supplying,
-        &with_seed(&taken.binding, &parts.seed),
+        Values {
+            binding: &with_seed(&taken.binding, &parts.seed),
+            bound: Some(&taken.bound),
+        },
         None,
+        known,
+        library,
+    );
+    let kinds = kinds_said(
+        step,
+        &item,
+        &with_seed(&taken.binding, &parts.seed),
         known,
         library,
     );
@@ -263,6 +273,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         concluded: across_groups(taken, before),
         firsts,
         supplied,
+        kinds,
         item_letters,
         facings,
         meetings: met.meetings,
@@ -450,7 +461,10 @@ pub(super) fn unfolded_parts(
                 fact: Some(read),
                 at: None,
             }],
-            &Binding::new(),
+            Values {
+                binding: &Binding::new(),
+                bound: None,
+            },
             sought.requires,
             known,
             library,
@@ -913,8 +927,18 @@ pub fn cited_requires(
         req.lines(),
         Some(&item),
         supplying,
-        &with_seed(&taken.binding, &parts.seed),
+        Values {
+            binding: &with_seed(&taken.binding, &parts.seed),
+            bound: Some(&taken.bound),
+        },
         Some(req.line),
+        known,
+        library,
+    );
+    let kinds = kinds_said(
+        step,
+        &item,
+        &with_seed(&taken.binding, &parts.seed),
         known,
         library,
     );
@@ -943,6 +967,7 @@ pub fn cited_requires(
         concluded: across_groups(&taken, before),
         firsts,
         supplied,
+        kinds,
         item_letters,
         facings,
         meetings: met.meetings,
@@ -1580,6 +1605,56 @@ pub(super) fn typed_supplying(item: &str, library: &Library) -> Vec<Supplying> {
         .collect()
 }
 
+/// Each hypothesis of `item` that names a thing of a kind
+/// (`Library::kind_lines`), with the line in scope at `step` that
+/// introduces the citation's value for its letter (`KindSaid::line`): the
+/// last `let` or `obtain` in reach whose names hold it, as a later
+/// introduction stands over an earlier one.
+pub(super) fn kinds_said(
+    step: &Step,
+    item: &str,
+    binding: &Binding,
+    known: &Known,
+    library: &Library,
+) -> Vec<KindSaid> {
+    let scope = known.scope(step);
+    library
+        .kind_lines(item)
+        .into_iter()
+        .map(|kind| {
+            let value = binding
+                .get(kind.letter.as_str())
+                .filter(|v| v.is_name())
+                .map(|v| v.text.to_string());
+            let line = value.and_then(|v| {
+                let lets = scope.iter().filter_map(|(label, stated)| match stated {
+                    super::super::library::Stated::Introduced(i)
+                        if i.names().contains(&v) =>
+                    {
+                        Some(label.clone())
+                    }
+                    _ => None,
+                });
+                let obtains = known
+                    .thm
+                    .steps
+                    .iter()
+                    .filter(|o| o.just.head.is(Method::Obtain) && o.line < step.line)
+                    .filter(|o| o.just.obtained.contains(&v))
+                    .filter_map(|o| o.number.number().map(|n| n.to_string()));
+                lets.chain(obtains)
+                    .filter(|label| known.in_reach(label, step))
+                    .last()
+            });
+            KindSaid {
+                at: kind.at,
+                letter: kind.letter,
+                line,
+            }
+        })
+        .collect()
+}
+
 /// What supplies each hypothesis of the group `taken` takes, in the group's
 /// order (`Cited::supplied`): the fact the search took for it, placed among
 /// the lines `refs` names, or among the step's requires lines the citation
@@ -1587,18 +1662,21 @@ pub(super) fn typed_supplying(item: &str, library: &Library) -> Vec<Supplying> {
 /// the line `below` (`Step::requires_above`). A hypothesis the search took
 /// no fact for, one the citation's values make true, is placed where a line
 /// states it at those values (`binding`) all the same, since a backend that
-/// cannot work it out takes that line.
+/// cannot work it out takes that line. A "there is" no line states whole is
+/// supplied at the witnesses the search gave its letters (`bound`), each
+/// with where its membership stands (`Supplied::witnesses`).
 #[allow(clippy::too_many_arguments)]
 pub(super) fn supplied_at(
     step: &Step,
     refs: &[String],
     item: Option<&str>,
     supplying: Vec<Supplying>,
-    binding: &Binding,
+    values: Values,
     below: Option<usize>,
     known: &Known,
     library: &Library,
 ) -> Vec<Supplied> {
+    let Values { binding, bound } = values;
     let ctx = &library.ctx;
     let suppliers = Suppliers::new(step, refs, item, below, known, library);
     supplying
@@ -1620,13 +1698,84 @@ pub(super) fn supplied_at(
             // meeting reads it, met with the line as the line writes it.
             let asked = filled(&want, binding, ctx);
             let narrowed = narrowed_of(&asked, &fact, ctx);
+            let meeting = suppliers.meeting(&asked, &fact, &by, narrowed.as_ref());
+            let witnesses = match (bound, &meeting) {
+                (Some(bound), None) => {
+                    witnesses_in(&want, &by, binding, bound, &suppliers)
+                }
+                _ => Vec::new(),
+            };
             Supplied {
-                meeting: suppliers.meeting(&asked, &fact, &by, narrowed.as_ref()),
+                meeting,
                 narrowed,
                 want,
                 by,
                 at,
+                witnesses,
             }
         })
         .collect()
+}
+
+/// The values a citation supplies a hypothesis at, where it is a "there
+/// is": what goes in `supplied_at`, the citation's values and, where a
+/// "there is" was supplied, the witnesses (`Taken::bound`).
+pub(super) struct Values<'b> {
+    pub(super) binding: &'b Binding,
+    /// The value the search gave each letter a hypothesis's "there is"
+    /// binds; None where nothing supplied is a "there is" of the item's.
+    pub(super) bound: Option<&'b Binding>,
+}
+
+/// Each letter of `want`'s "there is", outermost first, with its witness
+/// in `bound` and where the witness's membership of the domain at the
+/// values stands (`Supplied::witnesses`); empty for any other fact, or
+/// where a letter has no witness. A "there is" with no body, "there is s ∈
+/// S", binds its letter to nothing in the search: its witness is the
+/// member the line that supplies it, `by`, says is in S, `a ∈ S`.
+fn witnesses_in(
+    want: &Node,
+    by: &SuppliedBy,
+    binding: &Binding,
+    bound: &Binding,
+    suppliers: &Suppliers,
+) -> Vec<WitnessIn> {
+    let library = suppliers.library;
+    let ctx = &library.ctx;
+    let mut at = binding.clone();
+    let mut body = Some(want);
+    let mut out = Vec::new();
+    while let Some(node) = body.filter(|n| library.exists.contains(&n.notation())) {
+        let (letter, domain, inner) = match node.children.as_slice() {
+            [letter, domain, inner] => (letter, domain, Some(inner)),
+            [letter, domain] => (letter, domain, None),
+            _ => break,
+        };
+        let stated_member = || match by {
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) if inner.is_none() => {
+                match (at.written.notation(), at.written.children.as_slice()) {
+                    (MEMBERSHIP, [member, _]) => Some(member.clone()),
+                    _ => None,
+                }
+            }
+            _ => None,
+        };
+        let Some(value) = bound.get(&letter.text).cloned().or_else(stated_member)
+        else {
+            return Vec::new();
+        };
+        let domain = substitute_apart(domain, &at, ctx);
+        let member = standard(
+            &bound_in(Bound::Member, &value, &domain, library.env.g),
+            ctx,
+        );
+        out.push(WitnessIn {
+            letter: letter.text.to_string(),
+            member: suppliers.by(&member),
+            value: value.clone(),
+        });
+        at.insert(letter.text, value);
+        body = inner;
+    }
+    out
 }

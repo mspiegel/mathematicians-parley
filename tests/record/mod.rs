@@ -268,7 +268,15 @@ pub fn printed_but(
     }
     for (line, sentences) in &record.joined {
         for (k, parts) in sentences.iter().enumerate() {
-            let at: Vec<String> = parts.iter().map(place).collect();
+            let at: Vec<String> = parts
+                .iter()
+                .map(|p| match &p.meeting {
+                    Some(m) if !m.as_written() => {
+                        format!("{} met {}", place(&p.at), meeting_words(m))
+                    }
+                    _ => place(&p.at),
+                })
+                .collect();
             writeln!(
                 out,
                 "{} joins in sentence {k} [{}]",
@@ -477,8 +485,22 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
             if let Some(n) = &s.narrowed {
                 write!(said, " narrowed to {}", g.print(&n.to)).unwrap();
             }
+            for w in &s.witnesses {
+                write!(
+                    said,
+                    " at {} := {} in by {}",
+                    w.letter,
+                    g.print(&w.value),
+                    supplier(&w.member)
+                )
+                .unwrap();
+            }
             said
         })
+        .chain(cited.kinds.iter().map(|k| {
+            let by = k.line.as_deref().unwrap_or("its own shape");
+            format!("{}.1 {} of its kind by {by}", k.at.line + 1, k.letter)
+        }))
         .collect();
     // Each letter's number systems, the item's then its value's, in no
     // order.

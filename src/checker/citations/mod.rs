@@ -13,8 +13,8 @@ use super::library::{
 };
 use super::record::{
     AtMember, Cited, Condition, Exhibit, Facing, First, FirstAt, Guard, Instantiated,
-    ItemLetter, JoinedWhole, Narrowed, ObtainedPart, Restated, Supplied, SuppliedBy,
-    Unfolded,
+    ItemLetter, JoinedPart, JoinedWhole, KindSaid, Narrowed, ObtainedPart, Restated,
+    Supplied, SuppliedBy, Unfolded, WitnessIn,
 };
 use super::structure::letters_in_scope;
 use super::Report;

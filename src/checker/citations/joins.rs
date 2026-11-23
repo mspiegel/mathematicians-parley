@@ -279,16 +279,28 @@ pub fn check_subjects(
 /// cites (`CheckedTheorem::joined`): for each sentence of the claim, each
 /// of its parts joined by "and", by `fact_at` over the step's references,
 /// as `check_joins` matches them; a part said with a define's name the step
-/// cites, where the line states it with the name written out. A `restate`
-/// whose claim has several sentences is read as a join is. A step with a
-/// part no one line states is left out.
+/// cites, where the line states it with the name written out. Each with how
+/// the line met the part (`Suppliers::meeting`). A `restate` whose claim
+/// has several sentences is read as a join is. A step with a part no one
+/// line states is left out.
 pub fn join_places(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-) -> IndexMap<usize, Vec<Vec<FirstAt>>> {
+) -> IndexMap<usize, Vec<Vec<JoinedPart>>> {
     let mut out = IndexMap::new();
     for step in thm.steps.iter().filter(|s| puts_parts_together(s)) {
+        let suppliers =
+            Suppliers::new(step, &step.just.refs, None, None, known, library);
+        let met = |part: &Node, at: FirstAt| JoinedPart {
+            meeting: suppliers.meeting(
+                part,
+                &standard(part, &library.ctx),
+                &SuppliedBy::Line(at.clone()),
+                None,
+            ),
+            at,
+        };
         let placed = step
             .claim
             .sentences()
@@ -322,8 +334,9 @@ pub fn join_places(
                                 library,
                             )
                         })
+                        .map(|at| met(part, at))
                     })
-                    .collect::<Option<Vec<FirstAt>>>()
+                    .collect::<Option<Vec<JoinedPart>>>()
             })
             .collect::<Option<Vec<_>>>();
         if let Some(placed) = placed {
@@ -413,7 +426,16 @@ fn whole_groups(
     if count > 1 {
         let whole = standard(node, &library.ctx);
         if let Some(at) = fact_at(step, &step.just.refs, None, &whole, known, library) {
-            out.push(JoinedWhole { first, count, at });
+            let suppliers =
+                Suppliers::new(step, &step.just.refs, None, None, known, library);
+            let meeting =
+                suppliers.meeting(node, &whole, &SuppliedBy::Line(at.clone()), None);
+            out.push(JoinedWhole {
+                first,
+                count,
+                at,
+                meeting,
+            });
         }
     }
     count

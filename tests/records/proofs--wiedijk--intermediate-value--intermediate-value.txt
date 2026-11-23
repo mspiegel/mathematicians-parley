@@ -1,0 +1,279 @@
+theorem proofs/wiedijk/intermediate-value/intermediate-value
+block of 6: 6.1, 6.2
+  the block owes s ≤ b
+block of 16: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9, 16.10, 16.11, 16.12, 16.13, 16.14, 16.15, 16.16, 16.17, 16.18, 16.19, 16.20, 16.21, 16.22, 16.23, 16.24, 16.25, 16.26, 16.27, 16.28, 16.29, 16.30, 16.31, 16.32, 16.33
+  part 0 owes f(c) = 0
+  part 1 owes f(c) = 0
+  part 2 owes f(c) = 0
+block of 16.1: 16.1.1, 16.1.2, 16.1.3, 16.1.4
+block of 16.29: 16.29.1, 16.29.2, 16.29.3, 16.29.4, 16.29.5, 16.29.6, 16.29.7, 16.29.8, 16.29.9, 16.29.10
+  the block owes s ≤ c − δ
+step 1 cites stdlib/calculus/interval group 0; a := a, b := b, x := a; concludes 0 Backward; from [once H1 sentence 0, requires 1, requires 2]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from cr; facing none; met as written; unfolded [a ∈ ℝ by once H1 sentence 0, a ≤ a by requires 1, a ≤ b by requires 2]
+step 2 cites stdlib/sets/set-builder group 0; P := property-of(f(x) < 0), X := [a, b], u := a; concludes 0 Backward; from [1 sentence 0, H6 sentence 0]; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none, u none from cr; facing none; met renamed and defines read out; unfolded [a ∈ [a, b] by 1 sentence 0, f(a) < 0 by H6 sentence 0]
+step 3 cites stdlib/sets/set-builder-subset group 0; P := property-of(f(x) < 0), X := [a, b]; concludes 0 AsWritten; from no line; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none; facing none; met renamed and defines read out
+step 4 cites stdlib/calculus/interval-real group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
+step 5 cites stdlib/sets/subset-transitive group 0; X := S, Y := [a, b], Z := ℝ; concludes 0 AsWritten; from no line; supplied by 1.1 3 sentence 0, 2.1 4 sentence 0; letters X none from none, Y none from none, Z none from none, the set cr; facing none; met as written
+step 6.1 cites stdlib/sets/set-builder group 0; P := property-of(f(x) < 0), X := [a, b], u := s, bound t := x; concludes 0 Forward part 0; from [K1 sentence 0 met renamed and defines read out]; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none, u none from none; facing none; met as written
+step 6.2 cites stdlib/calculus/interval group 0; a := a, b := b, x := s; concludes 0 Forward part 2; from [6.1 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from none; facing none; met as written
+step 7 cites stdlib/calculus/upper-bound group 0; S := S, u := b, bound s := s; concludes 0 Backward; from [6 sentence 0]; supplied by ; letters S none from none, u none from cr; facing none; met as written; unfolded [for all s ∈ S, s ≤ b by 6 sentence 0]
+step 8 cites stdlib/calculus/completeness group 0; S := S, bound u := b; concludes ; obtains sentence 0; from no line; supplied by 1.1 5 sentence 0, 2.1 2 sentence 0 at s := a in by 2 sentence 0, 3.1 7 sentence 0 at u := b in by once H2 sentence 0; letters S none from none; facing ; met 
+step 9 cites stdlib/calculus/least-upper-bound group 0; S := S, c := c; concludes 0 Forward part 0, 0 Forward part 1; from [8 sentence 1], [8 sentence 1]; supplied by ; letters S none from none, c none from cr; facing none, none; met as written, as written
+step 10 cites stdlib/calculus/upper-bound group 0; S := S, u := c; concludes 0 Forward; from [9 sentence 0]; supplied by ; letters S none from none, u none from cr; facing none; met as written
+step 13 cites stdlib/calculus/interval group 0; a := a, b := b, x := c; concludes 0 Backward; from [once 8 sentence 0, 11 sentence 0, 12 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from cr; facing none; met as written; unfolded [c ∈ ℝ by once 8 sentence 0, a ≤ c by 11 sentence 0, c ≤ b by 12 sentence 0]
+step 14 cites stdlib/numbers/trichotomy group 0; x := f(c); concludes 0 AsWritten; from no line; supplied by 1.1 walked Stated; letters x cr from cr; facing none; met as written
+step 15 cites stdlib/calculus/continuous-on group 0; D := [a, b], f := f; concludes 0 Forward; from [H5 sentence 0]; supplied by 1.1 requires 1 implied by OtherForm { lemma: "gsspw" }, 2.1 once H4 sentence 0; letters D none from none, f none from none; facing none; met renamed
+step 16.1.2 cites stdlib/calculus/interval group 0; a := a, b := b, x := b; concludes 0 Backward; from [once H2 sentence 0, requires 1, requires 2]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from cr; facing none; met as written; unfolded [b ∈ ℝ by once H2 sentence 0, a ≤ b by requires 1, b ≤ b by requires 2]
+step 16.8 cites stdlib/numbers/lt-min group 0; x := b, y := c + δ / 2, z := c; concludes 0 Backward; from [16.2 sentence 0, 16.7 sentence 0]; supplied by 1.1 once 8 sentence 0, 2.1 once H2 sentence 0, 3.1 walked Built([Letter, Built([Letter, Numeral])]); letters x cr from cr, y cr from cr, z cr from cr; facing none; met defines read out; unfolded [c < b by 16.2 sentence 0, c < c + δ / 2 by 16.7 sentence 0]
+step 16.9 cites stdlib/numbers/min-le group 0; x := b, y := c + δ / 2; concludes 0 AsWritten, 1 AsWritten; from no line; supplied by 1.1 once H2 sentence 0, 2.1 walked Built([Letter, Built([Letter, Numeral])]); letters x cr from cr, y cr from cr; facing none, none; met defines read out, defines read out
+step 16.15 cites stdlib/calculus/interval group 0; a := a, b := b, x := x₁; concludes 0 Backward; from [walked Letter, 16.14 sentence 0, 16.9 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from cr; facing none; met as written; unfolded [x₁ ∈ ℝ by walked Letter, a ≤ x₁ by 16.14 sentence 0, x₁ ≤ b by 16.9 sentence 0]
+step 16.19 cites stdlib/numbers/abs-difference-lt group 0; c := c, x := x₁, δ := δ; concludes 0 Backward; from [16.17 sentence 0, 16.18 sentence 0]; supplied by 1.1 walked Letter, 2.1 once 8 sentence 0, 3.1 once 16.5 sentence 0; letters c cr from cr, x cr from cr, δ cr from cr; facing none; met as written; unfolded [c − δ < x₁ by 16.17 sentence 0, x₁ < c + δ by 16.18 sentence 0]
+step 16.21 cites proofs/wiedijk/triangle-inequality/abs-bounds group 0; x := f(x₁) − f(c); concludes 0 AsWritten; from no line; supplied by 1.1 requires 1; letters x cr from cr; facing none; met as written
+step 16.24 cites stdlib/sets/set-builder group 0; P := property-of(f(x) < 0), X := [a, b], u := x₁; concludes 0 Backward; from [16.15 sentence 0, 16.23 sentence 0]; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none, u none from cr; facing none; met renamed and defines read out; unfolded [x₁ ∈ [a, b] by 16.15 sentence 0, f(x₁) < 0 by 16.23 sentence 0]
+step 16.29.1 cites stdlib/sets/set-builder group 0; P := property-of(f(x) < 0), X := [a, b], u := s, bound t := x; concludes 0 Forward part 0; from [K2 sentence 0 met renamed and defines read out]; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none, u none from none; facing none; met as written
+step 16.29.2 cites stdlib/sets/set-builder group 0; P := property-of(f(x) < 0), X := [a, b], u := s, bound t := x; concludes 0 Forward part 1; from [K2 sentence 0 met renamed and defines read out]; supplied by 1.1 X of its kind by its own shape; letters P none from none, X none from none, u none from none; facing none; met as written
+step 16.29.5 cites stdlib/numbers/abs-difference-lt group 0; c := c, x := s, δ := δ; concludes 0 Backward; from [16.29.3 sentence 0, 16.29.4 sentence 0]; supplied by 1.1 requires 1, 2.1 once 8 sentence 0, 3.1 once 16.28 sentence 0; letters c cr from cr, x cr from cr, δ cr from cr; facing none; met as written; unfolded [c − δ < s by 16.29.3 sentence 0, s < c + δ by 16.29.4 sentence 0]
+step 16.29.7 cites proofs/wiedijk/triangle-inequality/abs-bounds group 0; x := f(s) − f(c); concludes 1 AsWritten; from no line; supplied by 1.1 requires 1; letters x cr from cr; facing none; met as written
+step 16.30 cites stdlib/calculus/upper-bound group 0; S := S, u := c − δ, bound s := s; concludes 0 Backward; from [16.29 sentence 0]; supplied by ; letters S none from none, u none from cr; facing none; met as written; unfolded [for all s ∈ S, s ≤ c − δ by 16.29 sentence 0]
+requires line 1 of step 15 cites stdlib/calculus/interval-real group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
+requires line 1 of step 16.21 cites stdlib/numbers/real-closure group 0; x := f(x₁), y := f(c); concludes 1 AsWritten; from no line; supplied by 1.1 walked Stated, 2.1 walked Stated; letters x cr from cr, y cr from cr; facing none; met as written
+requires line 1 of step 16.29.3 cites stdlib/calculus/interval group 0; a := a, b := b, x := s; concludes 0 Forward part 0; from [16.29.1 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from none; facing none; met as written
+requires line 1 of step 16.29.4 cites stdlib/calculus/interval group 0; a := a, b := b, x := s; concludes 0 Forward part 0; from [16.29.1 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from none; facing none; met as written
+requires line 1 of step 16.29.5 cites stdlib/calculus/interval group 0; a := a, b := b, x := s; concludes 0 Forward part 0; from [16.29.1 sentence 0]; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0; letters a cr from cr, b cr from cr, x none from none; facing none; met as written
+requires line 1 of step 16.29.7 cites stdlib/numbers/real-closure group 0; x := f(s), y := f(c); concludes 1 AsWritten; from no line; supplied by 1.1 walked Stated, 2.1 walked Stated; letters x cr from cr, y cr from cr; facing none; met as written
+requires line on line 141 cites stdlib/numbers/min-real group 0; x := b, y := c + δ / 2; concludes 0 AsWritten; from no line; supplied by 1.1 once H2 sentence 0, 2.1 walked Built([Letter, Built([Letter, Numeral])]); letters x cr from cr, y cr from cr; facing none; met as written
+set S holds numbers of cr
+step 16.12 chains x₁ − c ≤ δ / 2 (16.10 sentence 0) | δ / 2 < δ (16.11 sentence 0)
+step 16.13 chains a ≤ c (11 sentence 0) | c < x₁ (16.8 sentence 0)
+step 16.17 chains c − δ < c (16.16 sentence 0) | c < x₁ (16.8 sentence 0)
+step 16.22 chains f(x₁) − f(c) ≤ |f(x₁) − f(c)| (16.21 sentence 0) | |f(x₁) − f(c)| < −f(c) (16.20 sentence 0)
+step 16.29.8 chains −(f(s) − f(c)) ≤ |f(s) − f(c)| (16.29.7 sentence 0) | |f(s) − f(c)| < f(c) (16.29.6 sentence 0)
+step 17 exhibits in sentence 0 c := c; facts by 13 sentence 0, 16 sentence 0
+step 11 instantiates 10 sentence 0, conditions taken off [], guards [s by 2 sentence 0]
+step 12 instantiates 9 sentence 1, conditions taken off [7 sentence 0], guards [u by once H2 sentence 0]
+step 16.4 instantiates 15 sentence 0, conditions taken off [16.3 sentence 0], guards [c′ by 13 sentence 0, ε by walked Built([Stated])]
+step 16.20 instantiates 16.5 sentence 2, conditions taken off [16.19 sentence 0], guards [x by 16.15 sentence 0]
+step 16.25 instantiates 10 sentence 0, conditions taken off [], guards [s by 16.24 sentence 0]
+step 16.27 instantiates 15 sentence 0, conditions taken off [C3 sentence 0], guards [c′ by 13 sentence 0, ε by walked Stated]
+step 16.29.6 instantiates 16.28 sentence 2, conditions taken off [16.29.5 sentence 0], guards [x by 16.29.1 sentence 0]
+step 16.31 instantiates 9 sentence 1, conditions taken off [16.30 sentence 0], guards [u by walked Built([Letter, Letter])]
+requires line 1 of step 1 sentence 0 part 0 adds []
+requires line 2 of step 1 sentence 0 part 0 adds [H3 sentence 0]
+requires line 1 of step 16.1.2 sentence 0 part 0 adds [H3 sentence 0]
+requires line 2 of step 16.1.2 sentence 0 part 0 adds []
+step 16.1.3 sentence 0 part 0 adds [H7 sentence 0]
+step 16.1.4 sentence 0 part 0 adds [16.1.3 sentence 0]
+step 16.2 sentence 0 part 0 adds [12 sentence 0] split on [16.1 sentence 0]
+step 16.3 sentence 0 part 0 adds [C1 sentence 0]
+step 16.6 sentence 0 part 0 adds [16.5 sentence 1]
+step 16.7 sentence 0 part 0 adds [16.6 sentence 0]
+step 16.10 sentence 0 part 0 adds [16.9 sentence 1]
+step 16.11 sentence 0 part 0 adds [16.6 sentence 0]
+step 16.14 sentence 0 part 0 adds [16.13 sentence 0]
+step 16.16 sentence 0 part 0 adds [16.5 sentence 1]
+step 16.18 sentence 0 part 0 adds [16.12 sentence 0]
+step 16.23 sentence 0 part 0 adds [16.22 sentence 0]
+step 16.26 sentence 0 part 0 adds [16.8 sentence 0]
+step 16.29.3 sentence 0 part 0 adds [S2 sentence 0]
+step 16.29.4 sentence 0 part 0 adds [10 sentence 1, 16.28 sentence 1]
+step 16.29.9 sentence 0 part 0 adds [16.29.8 sentence 0]
+step 16.29.10 sentence 0 part 0 adds [16.29.9 sentence 0]
+step 16.32 sentence 0 part 0 adds [16.28 sentence 1]
+step 16.33 sentence 0 part 0 adds [16.32 sentence 0]
+step 8 obtains sentence 1 part 0 is part 0
+step 16.5 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
+step 16.28 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
+step 16.5 obtains from 16.4 sentence 0
+step 16.28 obtains from 16.27 sentence 0
+read 19: there exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
+read 24: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
+read 25: b ∈ ℝ  as  membership:∈(name:b, number-systems:ℝ)  a statement
+read 26: a < b  as  order:<(name:a, name:b)  a statement
+read 27: f : [a, b] → ℝ  as  function-type::→(name:f, closed-interval:[,](name:a, name:b), number-systems:ℝ)  a statement
+read 28: f is continuous on [a, b]  as  continuous:iscontinuouson(name:f, closed-interval:[,](name:a, name:b))  a statement
+read 29: f(a) < 0  as  order:<(application:()(name:f, name:a), numeral:0)  a statement
+read 30: 0 < f(b)  as  order:<(numeral:0, application:()(name:f, name:b))  a statement
+read 32: there exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
+read 34: {x ∈ [a, b] : f(x) < 0}  as  set-builder:{∈:}(name:x, closed-interval:[,](name:a, name:b), order:<(application:()(name:f, name:x), numeral:0))  a set
+read 37: a ∈ [a, b]  as  membership:∈(name:a, closed-interval:[,](name:a, name:b))  a statement
+read 38: a  as  name:a  a number
+read 39: a ≤ a  as  order:≤(name:a, name:a)  a statement
+read 40: a ≤ b  as  order:≤(name:a, name:b)  a statement
+read 42: a ∈ S  as  membership:∈(name:a, name:S)  a statement
+read 43: a  as  name:a  a number
+read 45: S ⊆ [a, b]  as  subset:⊆(name:S, closed-interval:[,](name:a, name:b))  a statement
+read 48: [a, b] ⊆ ℝ  as  subset:⊆(closed-interval:[,](name:a, name:b), number-systems:ℝ)  a statement
+read 51: S ⊆ ℝ  as  subset:⊆(name:S, number-systems:ℝ)  a statement
+read 52: S  as  name:S  a set of numbers
+read 52: [a, b]  as  closed-interval:[,](name:a, name:b)  a set
+read 52: ℝ  as  number-systems:ℝ  a set
+read 54: For all s ∈ S, s ≤ b  as  for-all:forall∈,(name:s, name:S, order:≤(name:s, name:b))  a statement
+read 56: s ∈ S  as  membership:∈(name:s, name:S)  a statement
+read 58: s ∈ [a, b]  as  membership:∈(name:s, closed-interval:[,](name:a, name:b))  a statement
+read 61: s ≤ b  as  order:≤(name:s, name:b)  a statement
+read 64: b is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(name:b, name:S)  a statement
+read 67: c is a least upper bound of S  as  stdlib/calculus/least-upper-bound:isaleastupperboundof(name:c, name:S)  a statement
+read 67: c ∈ ℝ  as  membership:∈(name:c, number-systems:ℝ)  a statement
+read 70: For all u ∈ ℝ, if u is an upper bound of S then c ≤ u  as  for-all:forall∈,(name:u, number-systems:ℝ, conditional:ifthen(stdlib/calculus/upper-bound:isanupperboundof(name:u, name:S), order:≤(name:c, name:u)))  a statement
+read 70: c is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(name:c, name:S)  a statement
+read 74: For all s ∈ S, s ≤ c  as  for-all:forall∈,(name:s, name:S, order:≤(name:s, name:c))  a statement
+read 77: a ≤ c  as  order:≤(name:a, name:c)  a statement
+read 78: a  as  name:a  a number
+read 80: c ≤ b  as  order:≤(name:c, name:b)  a statement
+read 81: b  as  name:b  a number
+read 83: c ∈ [a, b]  as  membership:∈(name:c, closed-interval:[,](name:a, name:b))  a statement
+read 84: c  as  name:c  a number
+read 86: f(c) < 0 or f(c) = 0 or 0 < f(c)  as  disjunction:or(disjunction:or(order:<(application:()(name:f, name:c), numeral:0), equality:=(application:()(name:f, name:c), numeral:0)), order:<(numeral:0, application:()(name:f, name:c)))  a statement
+read 87: f(c)  as  application:()(name:f, name:c)  a number
+read 89: For all c′ ∈ [a, b], for all ε > 0, there exists δ > 0 such that |f(x) − f(c′)| < ε for all x ∈ [a, b] with |x − c′| < δ  as  for-all:forall∈,(name:c′, closed-interval:[,](name:a, name:b), for-all:forall∈,(name:ε, number-systems:ℝ, conditional:ifthen(order:>(name:ε, numeral:0), there-is:thereis∈with(name:δ, number-systems:ℝ, conjunction:and(order:>(name:δ, numeral:0), for-all:forall∈,(name:x, closed-interval:[,](name:a, name:b), conditional:ifthen(order:<(absolute-value:||(additive:−(name:x, name:c′)), name:δ), order:<(absolute-value:||(additive:−(application:()(name:f, name:x), application:()(name:f, name:c′))), name:ε))))))))  a statement
+read 92: [a, b] ⊆ ℝ  as  subset:⊆(closed-interval:[,](name:a, name:b), number-systems:ℝ)  a statement
+read 94: f(c) = 0  as  equality:=(application:()(name:f, name:c), numeral:0)  a statement
+read 99: f(c) < 0  as  order:<(application:()(name:f, name:c), numeral:0)  a statement
+read 101: c ≠ b  as  logical-not:not(equality:=(name:c, name:b))  a statement
+read 103: c = b  as  equality:=(name:c, name:b)  a statement
+read 105: f(b) < 0  as  order:<(application:()(name:f, name:b), numeral:0)  a statement
+read 106: c = b  as  equality:=(name:c, name:b)  a statement
+read 108: b ∈ [a, b]  as  membership:∈(name:b, closed-interval:[,](name:a, name:b))  a statement
+read 109: b  as  name:b  a number
+read 110: a ≤ b  as  order:≤(name:a, name:b)  a statement
+read 111: b ≤ b  as  order:≤(name:b, name:b)  a statement
+read 113: 0 ≤ f(b)  as  order:≤(numeral:0, application:()(name:f, name:b))  a statement
+read 115: 0 < f(b)  as  order:<(numeral:0, application:()(name:f, name:b))  a statement
+read 116: 0 ≤ f(b)  as  order:≤(numeral:0, application:()(name:f, name:b))  a statement
+read 117: f(b) ∈ ℝ  as  membership:∈(application:()(name:f, name:b), number-systems:ℝ)  a statement
+read 119: not f(b) < 0  as  logical-not:not(order:<(application:()(name:f, name:b), numeral:0))  a statement
+read 121: f(b) ∈ ℝ  as  membership:∈(application:()(name:f, name:b), number-systems:ℝ)  a statement
+read 123: c < b  as  order:<(name:c, name:b)  a statement
+read 126: −f(c) > 0  as  order:>(unary-minus:−(application:()(name:f, name:c)), numeral:0)  a statement
+read 128: f(c) < 0  as  order:<(application:()(name:f, name:c), numeral:0)  a statement
+read 129: −1  as  unary-minus:−(numeral:1)  a number
+read 129: −f(c) > 0  as  order:>(unary-minus:−(application:()(name:f, name:c)), numeral:0)  a statement
+read 130: f(c) ∈ ℝ  as  membership:∈(application:()(name:f, name:c), number-systems:ℝ)  a statement
+read 132: There exists δ > 0 such that |f(x) − f(c)| < −f(c) for all x ∈ [a, b] with |x − c| < δ  as  there-is:thereis∈with(name:δ, number-systems:ℝ, conjunction:and(order:>(name:δ, numeral:0), for-all:forall∈,(name:x, closed-interval:[,](name:a, name:b), conditional:ifthen(order:<(absolute-value:||(additive:−(name:x, name:c)), name:δ), order:<(absolute-value:||(additive:−(application:()(name:f, name:x), application:()(name:f, name:c))), unary-minus:−(application:()(name:f, name:c)))))))  a statement
+read 134: c  as  name:c  a number
+read 134: −f(c)  as  unary-minus:−(application:()(name:f, name:c))  a number
+read 136: For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < −f(c)  as  for-all:forall∈,(name:x, closed-interval:[,](name:a, name:b), conditional:ifthen(order:<(absolute-value:||(additive:−(name:x, name:c)), name:δ), order:<(absolute-value:||(additive:−(application:()(name:f, name:x), application:()(name:f, name:c))), unary-minus:−(application:()(name:f, name:c)))))  a statement
+read 136: δ > 0  as  order:>(name:δ, numeral:0)  a statement
+read 136: δ ∈ ℝ  as  membership:∈(name:δ, number-systems:ℝ)  a statement
+read 140: min(b, c + δ/2)  as  application-to-two:(,)(name:min, name:b, additive:+(name:c, multiplicative:/(name:δ, numeral:2)))  a number
+read 141: min(b, c + δ/2) ∈ ℝ  as  membership:∈(application-to-two:(,)(name:min, name:b, additive:+(name:c, multiplicative:/(name:δ, numeral:2))), number-systems:ℝ)  a statement
+read 141: x₁  as  name:x₁  a number
+read 141: ℝ  as  number-systems:ℝ  a set
+read 144: δ/2 > 0  as  order:>(multiplicative:/(name:δ, numeral:2), numeral:0)  a statement
+read 146: δ > 0  as  order:>(name:δ, numeral:0)  a statement
+read 147: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
+read 147: δ/2 > 0  as  order:>(multiplicative:/(name:δ, numeral:2), numeral:0)  a statement
+read 149: c < c + δ/2  as  order:<(name:c, additive:+(name:c, multiplicative:/(name:δ, numeral:2)))  a statement
+read 151: δ/2 > 0  as  order:>(multiplicative:/(name:δ, numeral:2), numeral:0)  a statement
+read 152: c  as  name:c  a number
+read 152: c + δ/2 > c  as  order:>(additive:+(name:c, multiplicative:/(name:δ, numeral:2)), name:c)  a statement
+read 153: c < c + δ/2  as  order:<(name:c, additive:+(name:c, multiplicative:/(name:δ, numeral:2)))  a statement
+read 155: c < x₁  as  order:<(name:c, name:x₁)  a statement
+read 156: b  as  name:b  a number
+read 156: c  as  name:c  a number
+read 156: c + δ/2  as  additive:+(name:c, multiplicative:/(name:δ, numeral:2))  a number
+read 158: x₁ ≤ b  as  order:≤(name:x₁, name:b)  a statement
+read 158: x₁ ≤ c + δ/2  as  order:≤(name:x₁, additive:+(name:c, multiplicative:/(name:δ, numeral:2)))  a statement
+read 159: b  as  name:b  a number
+read 159: c + δ/2  as  additive:+(name:c, multiplicative:/(name:δ, numeral:2))  a number
+read 161: x₁ − c ≤ δ/2  as  order:≤(additive:−(name:x₁, name:c), multiplicative:/(name:δ, numeral:2))  a statement
+read 163: x₁ ≤ c + δ/2  as  order:≤(name:x₁, additive:+(name:c, multiplicative:/(name:δ, numeral:2)))  a statement
+read 164: x₁ − c ≤ δ/2  as  order:≤(additive:−(name:x₁, name:c), multiplicative:/(name:δ, numeral:2))  a statement
+read 164: −c  as  unary-minus:−(name:c)  a number
+read 166: δ/2 < δ  as  order:<(multiplicative:/(name:δ, numeral:2), name:δ)  a statement
+read 168: δ/2 > 0  as  order:>(multiplicative:/(name:δ, numeral:2), numeral:0)  a statement
+read 169: δ > δ/2  as  order:>(name:δ, multiplicative:/(name:δ, numeral:2))  a statement
+read 169: δ/2  as  multiplicative:/(name:δ, numeral:2)  a number
+read 170: δ/2 < δ  as  order:<(multiplicative:/(name:δ, numeral:2), name:δ)  a statement
+read 172: x₁ − c < δ  as  order:<(additive:−(name:x₁, name:c), name:δ)  a statement
+read 175: a < x₁  as  order:<(name:a, name:x₁)  a statement
+read 178: a ≤ x₁  as  order:≤(name:a, name:x₁)  a statement
+read 180: a < x₁  as  order:<(name:a, name:x₁)  a statement
+read 181: a ≤ x₁  as  order:≤(name:a, name:x₁)  a statement
+read 183: x₁ ∈ [a, b]  as  membership:∈(name:x₁, closed-interval:[,](name:a, name:b))  a statement
+read 184: x₁  as  name:x₁  a number
+read 186: c − δ < c  as  order:<(additive:−(name:c, name:δ), name:c)  a statement
+read 188: δ > 0  as  order:>(name:δ, numeral:0)  a statement
+read 189: c > c − δ  as  order:>(name:c, additive:−(name:c, name:δ))  a statement
+read 189: c − δ  as  additive:−(name:c, name:δ)  a number
+read 190: c − δ < c  as  order:<(additive:−(name:c, name:δ), name:c)  a statement
+read 192: c − δ < x₁  as  order:<(additive:−(name:c, name:δ), name:x₁)  a statement
+read 195: x₁ < c + δ  as  order:<(name:x₁, additive:+(name:c, name:δ))  a statement
+read 197: x₁ − c < δ  as  order:<(additive:−(name:x₁, name:c), name:δ)  a statement
+read 198: c  as  name:c  a number
+read 198: x₁ < c + δ  as  order:<(name:x₁, additive:+(name:c, name:δ))  a statement
+read 200: |x₁ − c| < δ  as  order:<(absolute-value:||(additive:−(name:x₁, name:c)), name:δ)  a statement
+read 201: x₁  as  name:x₁  a number
+read 203: |f(x₁) − f(c)| < −f(c)  as  order:<(absolute-value:||(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c))), unary-minus:−(application:()(name:f, name:c)))  a statement
+read 204: x₁  as  name:x₁  a number
+read 206: f(x₁) − f(c) ≤ |f(x₁) − f(c)|  as  order:≤(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c)), absolute-value:||(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c))))  a statement
+read 207: f(x₁) − f(c)  as  additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c))  a number
+read 208: f(x₁) − f(c) ∈ ℝ  as  membership:∈(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c)), number-systems:ℝ)  a statement
+read 210: f(x₁) − f(c) < −f(c)  as  order:<(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c)), unary-minus:−(application:()(name:f, name:c)))  a statement
+read 212: f(x₁) ∈ ℝ  as  membership:∈(application:()(name:f, name:x₁), number-systems:ℝ)  a statement
+read 213: f(c) ∈ ℝ  as  membership:∈(application:()(name:f, name:c), number-systems:ℝ)  a statement
+read 215: f(x₁) < 0  as  order:<(application:()(name:f, name:x₁), numeral:0)  a statement
+read 217: f(x₁) − f(c) < −f(c)  as  order:<(additive:−(application:()(name:f, name:x₁), application:()(name:f, name:c)), unary-minus:−(application:()(name:f, name:c)))  a statement
+read 218: f(c)  as  application:()(name:f, name:c)  a number
+read 218: f(x₁) < 0  as  order:<(application:()(name:f, name:x₁), numeral:0)  a statement
+read 219: f(x₁) ∈ ℝ  as  membership:∈(application:()(name:f, name:x₁), number-systems:ℝ)  a statement
+read 220: f(c) ∈ ℝ  as  membership:∈(application:()(name:f, name:c), number-systems:ℝ)  a statement
+read 222: x₁ ∈ S  as  membership:∈(name:x₁, name:S)  a statement
+read 223: x₁  as  name:x₁  a number
+read 225: x₁ ≤ c  as  order:≤(name:x₁, name:c)  a statement
+read 226: x₁  as  name:x₁  a number
+read 228: not x₁ ≤ c  as  logical-not:not(order:≤(name:x₁, name:c))  a statement
+read 232: f(c) = 0  as  equality:=(application:()(name:f, name:c), numeral:0)  a statement
+read 236: 0 < f(c)  as  order:<(numeral:0, application:()(name:f, name:c))  a statement
+read 238: There exists δ > 0 such that |f(x) − f(c)| < f(c) for all x ∈ [a, b] with |x − c| < δ  as  there-is:thereis∈with(name:δ, number-systems:ℝ, conjunction:and(order:>(name:δ, numeral:0), for-all:forall∈,(name:x, closed-interval:[,](name:a, name:b), conditional:ifthen(order:<(absolute-value:||(additive:−(name:x, name:c)), name:δ), order:<(absolute-value:||(additive:−(application:()(name:f, name:x), application:()(name:f, name:c))), application:()(name:f, name:c))))))  a statement
+read 240: c  as  name:c  a number
+read 240: f(c)  as  application:()(name:f, name:c)  a number
+read 242: For all x ∈ [a, b], if |x − c| < δ then |f(x) − f(c)| < f(c)  as  for-all:forall∈,(name:x, closed-interval:[,](name:a, name:b), conditional:ifthen(order:<(absolute-value:||(additive:−(name:x, name:c)), name:δ), order:<(absolute-value:||(additive:−(application:()(name:f, name:x), application:()(name:f, name:c))), application:()(name:f, name:c))))  a statement
+read 242: δ > 0  as  order:>(name:δ, numeral:0)  a statement
+read 242: δ ∈ ℝ  as  membership:∈(name:δ, number-systems:ℝ)  a statement
+read 246: For all s ∈ S, s ≤ c − δ  as  for-all:forall∈,(name:s, name:S, order:≤(name:s, additive:−(name:c, name:δ)))  a statement
+read 248: s ∈ S  as  membership:∈(name:s, name:S)  a statement
+read 250: not s ≤ c − δ  as  logical-not:not(order:≤(name:s, additive:−(name:c, name:δ)))  a statement
+read 252: s ∈ [a, b]  as  membership:∈(name:s, closed-interval:[,](name:a, name:b))  a statement
+read 255: f(s) < 0  as  order:<(application:()(name:f, name:s), numeral:0)  a statement
+read 258: c − δ < s  as  order:<(additive:−(name:c, name:δ), name:s)  a statement
+read 260: s ∈ ℝ  as  membership:∈(name:s, number-systems:ℝ)  a statement
+read 262: s < c + δ  as  order:<(name:s, additive:+(name:c, name:δ))  a statement
+read 264: s ∈ ℝ  as  membership:∈(name:s, number-systems:ℝ)  a statement
+read 266: |s − c| < δ  as  order:<(absolute-value:||(additive:−(name:s, name:c)), name:δ)  a statement
+read 267: s  as  name:s  a number
+read 269: s ∈ ℝ  as  membership:∈(name:s, number-systems:ℝ)  a statement
+read 271: |f(s) − f(c)| < f(c)  as  order:<(absolute-value:||(additive:−(application:()(name:f, name:s), application:()(name:f, name:c))), application:()(name:f, name:c))  a statement
+read 272: s  as  name:s  a number
+read 274: −(f(s) − f(c)) ≤ |f(s) − f(c)|  as  order:≤(unary-minus:−(additive:−(application:()(name:f, name:s), application:()(name:f, name:c))), absolute-value:||(additive:−(application:()(name:f, name:s), application:()(name:f, name:c))))  a statement
+read 275: f(s) − f(c)  as  additive:−(application:()(name:f, name:s), application:()(name:f, name:c))  a number
+read 276: f(s) − f(c) ∈ ℝ  as  membership:∈(additive:−(application:()(name:f, name:s), application:()(name:f, name:c)), number-systems:ℝ)  a statement
+read 278: −(f(s) − f(c)) < f(c)  as  order:<(unary-minus:−(additive:−(application:()(name:f, name:s), application:()(name:f, name:c))), application:()(name:f, name:c))  a statement
+read 280: f(s) ∈ ℝ  as  membership:∈(application:()(name:f, name:s), number-systems:ℝ)  a statement
+read 281: f(c) ∈ ℝ  as  membership:∈(application:()(name:f, name:c), number-systems:ℝ)  a statement
+read 283: 0 ≤ f(s)  as  order:≤(numeral:0, application:()(name:f, name:s))  a statement
+read 285: −(f(s) − f(c)) < f(c)  as  order:<(unary-minus:−(additive:−(application:()(name:f, name:s), application:()(name:f, name:c))), application:()(name:f, name:c))  a statement
+read 286: 0 < f(s)  as  order:<(numeral:0, application:()(name:f, name:s))  a statement
+read 286: f(s) − f(c)  as  additive:−(application:()(name:f, name:s), application:()(name:f, name:c))  a number
+read 287: 0 ≤ f(s)  as  order:≤(numeral:0, application:()(name:f, name:s))  a statement
+read 288: f(s) ∈ ℝ  as  membership:∈(application:()(name:f, name:s), number-systems:ℝ)  a statement
+read 289: f(c) ∈ ℝ  as  membership:∈(application:()(name:f, name:c), number-systems:ℝ)  a statement
+read 291: not f(s) < 0  as  logical-not:not(order:<(application:()(name:f, name:s), numeral:0))  a statement
+read 293: f(s) ∈ ℝ  as  membership:∈(application:()(name:f, name:s), number-systems:ℝ)  a statement
+read 295: c − δ is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(additive:−(name:c, name:δ), name:S)  a statement
+read 298: c ≤ c − δ  as  order:≤(name:c, additive:−(name:c, name:δ))  a statement
+read 299: c − δ  as  additive:−(name:c, name:δ)  a number
+read 301: c − δ < c  as  order:<(additive:−(name:c, name:δ), name:c)  a statement
+read 303: δ > 0  as  order:>(name:δ, numeral:0)  a statement
+read 304: c > c − δ  as  order:>(name:c, additive:−(name:c, name:δ))  a statement
+read 304: c − δ  as  additive:−(name:c, name:δ)  a number
+read 305: c − δ < c  as  order:<(additive:−(name:c, name:δ), name:c)  a statement
+read 307: not c ≤ c − δ  as  logical-not:not(order:≤(name:c, additive:−(name:c, name:δ)))  a statement
+read 310: There exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
+step 6.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+step 17 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
+suppose on line 103: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+suppose on line 250: ClaimDenied, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 16.1.4 contradicts 16.1.1: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 16.26 contradicts 16.25: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 16.29.10 contradicts 16.29.2: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }
+step 16.33 contradicts 16.31: Step, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }

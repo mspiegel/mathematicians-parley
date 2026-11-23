@@ -347,7 +347,7 @@ pub struct CheckedTheorem {
     /// claim, each of its parts joined by "and", in order
     /// (`citations::join_places`). A step with a part found in no one line,
     /// one said only with a define's name read out, is left out.
-    pub joined: IndexMap<usize, Vec<Vec<FirstAt>>>,
+    pub joined: IndexMap<usize, Vec<Vec<JoinedPart>>>,
     /// Of each `join` step in `joined`, each run of its claim's parts, a
     /// sentence or an "and" of several parts, that one line it cites states
     /// whole, by the line of its justification (`citations::join_wholes`):
@@ -815,6 +815,9 @@ pub struct Cited {
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
     pub supplied: Vec<Supplied>,
+    /// Each hypothesis of the item that names a thing of a kind, with the
+    /// line that introduces what stands for it (`citations::kinds_said`).
+    pub kinds: Vec<KindSaid>,
     /// Each item letter the binding gives a value, with the number system
     /// the item takes it in and its value's (`citations::item_letters`).
     pub item_letters: Vec<ItemLetter>,
@@ -1268,6 +1271,20 @@ pub struct JoinedWhole {
     pub count: usize,
     /// Where the line states the run.
     pub at: FirstAt,
+    /// How the line met the run (`JoinedPart::meeting`).
+    pub meeting: Option<Meeting>,
+}
+
+/// One part of a `join` step's claim and where it stands
+/// (`CheckedTheorem::joined`).
+#[derive(Clone, Debug)]
+pub struct JoinedPart {
+    pub at: FirstAt,
+    /// How the line met the part as the page writes it (`Known::alike_how`),
+    /// a define the step cites read out where the two differ
+    /// (`Meeting::unfolded`), as `Supplied::meeting` records it for a
+    /// hypothesis.
+    pub meeting: Option<Meeting>,
 }
 
 /// How an `antisymmetry` step's two lines make its equation
@@ -1449,6 +1466,22 @@ pub struct First {
     pub meeting: Option<Meeting>,
 }
 
+/// A hypothesis of a cited item that names a thing of a kind the page never
+/// states of it, `let A be a set`, `let G be a group with …`
+/// (`Library::kind_lines`; `Cited::kinds`), and where the citing proof
+/// says what stands for it is one.
+#[derive(Clone, Debug)]
+pub struct KindSaid {
+    pub at: HypothesisAt,
+    /// The item's letter for the thing.
+    pub letter: String,
+    /// The line in scope that introduces the citation's value for the
+    /// letter, by its label: a `let` of the header or of a block around the
+    /// step, or an `obtain` above it. None where the value is no letter so
+    /// introduced, ℝ or sup S, whose kind its own shape gives.
+    pub line: Option<String>,
+}
+
 /// What supplies one hypothesis of a cited item (`Cited::supplied`).
 #[derive(Clone, Debug)]
 pub struct Supplied {
@@ -1469,6 +1502,26 @@ pub struct Supplied {
     /// set inside it (`SYNTAX.md`; `citing::supply::narrowed`): "for all k ∈
     /// ℕ" for "for all k ∈ {1, …, n}". None where the two are over one set.
     pub narrowed: Option<Narrowed>,
+    /// Of a "there is" no line states whole, each letter it binds, outermost
+    /// first, with the value the search gave it (`Cited::bound`) and where
+    /// that value's membership of the letter's domain stands: `by` then
+    /// says where the body stands at those values, a line that states it
+    /// (`citations::witnessed_at`) or none, where the body says what goes
+    /// without saying. Empty where a line states the "there is" whole, and
+    /// for any other hypothesis.
+    pub witnesses: Vec<WitnessIn>,
+}
+
+/// A value a "there is" hypothesis is supplied at
+/// (`Supplied::witnesses`): k′ := m·(2m + 1) of "there is k′ ∈ ℤ with
+/// 3·k·(k + 1) = 6·k′", with where m·(2m + 1) ∈ ℤ stands.
+#[derive(Clone, Debug)]
+pub struct WitnessIn {
+    /// The item's letter.
+    pub letter: String,
+    pub value: Node,
+    /// Where the value's membership of the domain stands.
+    pub member: SuppliedBy,
 }
 
 /// A "for all" a line says over one set and a hypothesis asks over a set

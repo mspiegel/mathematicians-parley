@@ -1039,7 +1039,7 @@ impl<'a> Proof<'a> {
         let Some(parts) = self.rec.joined.get(&line).and_then(|j| j.get(k)) else {
             return Route::no("a join the checker placed no parts of");
         };
-        let mut left = parts.iter();
+        let mut left = parts.iter().map(|p| &p.at);
         let term = match self.joined_term(node, &mut left, w) {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),

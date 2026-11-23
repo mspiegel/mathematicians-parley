@@ -205,6 +205,10 @@ pub fn written_out(
         }
         for s in &mut c.supplied {
             supplied_written(&mut s.by, &out);
+            for w in &mut s.witnesses {
+                w.value = out(&w.value);
+                supplied_written(&mut w.member, &out);
+            }
         }
         for parts in c.unfolded.iter_mut().flatten() {
             unfolded_written(parts, &out);
@@ -273,7 +277,12 @@ pub fn written_out(
         .antisymmetric
         .values_mut()
         .flat_map(|a| [&mut a.below, &mut a.above]);
-    let joined = written.joined.values_mut().flatten().flatten();
+    let joined = written
+        .joined
+        .values_mut()
+        .flatten()
+        .flatten()
+        .map(|p| &mut p.at);
     let joined_wholes = written
         .joined_wholes
         .values_mut()

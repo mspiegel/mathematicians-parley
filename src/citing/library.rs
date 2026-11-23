@@ -52,6 +52,15 @@ pub struct Want {
     pub at: HypothesisAt,
 }
 
+/// A `let` line of an item that names a thing of a kind
+/// (`Library::kind_lines`): where the item writes it, and the item's letter
+/// for the thing.
+#[derive(Clone, Debug)]
+pub struct KindLine {
+    pub at: HypothesisAt,
+    pub letter: String,
+}
+
 /// An item's hypotheses, each with its kind, and the sorts they are read
 /// with (`Library::hypotheses_of`).
 struct ItemHypotheses<'s> {
@@ -483,6 +492,44 @@ impl<'a> Library<'a> {
             Some(h) => self.function_lines(h.said, h.sorts),
             None => Vec::new(),
         }
+    }
+
+    /// The `let` lines of the item of that full name that name a thing of a
+    /// kind the page never states of it, each with the item's letter for
+    /// the thing: a set, a point, an element, a group, a graph, the sethood
+    /// of `a ∉ X`, and the type of `f : A → B be one-to-one`. What set.mm
+    /// asks of them, A ∈ V or G ∈ Grp, is the build's own; where the
+    /// citing proof says the thing is one is the checker's to record
+    /// (`Cited::kinds`).
+    pub fn kind_lines(&self, name: &str) -> Vec<KindLine> {
+        let Some(h) = self.hypotheses_of(name) else {
+            return Vec::new();
+        };
+        let mut out = Vec::new();
+        for (line, (kind, body)) in h.said.into_iter().enumerate() {
+            if kind != Intro::Let {
+                continue;
+            }
+            let introduced = Introduction::read(body);
+            let of_kind = matches!(
+                introduced.form,
+                Form::Set(_)
+                    | Form::Point(_)
+                    | Form::Element(_)
+                    | Form::NotIn(_)
+                    | Form::Group { .. }
+                    | Form::Graph(_)
+                    | Form::GraphListed(_)
+                    | Form::FunctionBeing { .. }
+            );
+            if let (true, Some(letter)) = (of_kind, introduced.name()) {
+                out.push(KindLine {
+                    at: HypothesisAt { line, sentence: 0 },
+                    letter: letter.to_string(),
+                });
+            }
+        }
+        out
     }
 
     /// What the `let` lines of the item of that full name say of a group
