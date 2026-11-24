@@ -202,16 +202,23 @@ fn walked(
     let taken: RefCell<Vec<ShownPart>> = RefCell::new(Vec::new());
     let nonzero = |d: &Node| nonzero(d, facts);
     let said = |t: &Node, s: System| -> Option<OnceReason> {
+        // A letter its introduction puts in the system is said once; a
+        // line saying so too does no work, and the walk reads the letter.
+        if t.is_name()
+            && facts
+                .letters
+                .get(t.text.as_str())
+                .is_some_and(|l| l.within(s))
+        {
+            return None;
+        }
         let shown = match leaves {
             Leaves::Stated => {
                 stated_by(t, s, facts).map(|line| Shown::Stated { line: line.clone() })
             }
             Leaves::Any => otherwise(t, s, facts, carry),
         }?;
-        let reason = match shown {
-            Shown::Summed { .. } => OnceReason::Sum,
-            _ => OnceReason::Stated,
-        };
+        let reason = shown.reason();
         taken.borrow_mut().push(ShownPart {
             term: t.clone(),
             system: s,
@@ -550,17 +557,32 @@ pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
 }
 
 impl Shown {
+    /// The walk's reason for a term so shown (`citing::OnceReason`): the
+    /// walk's own; a sum's; a whole number's row of the closure as its
+    /// operation built from its parts, each by its own reason, as a backend
+    /// reads a row (x mod n of x ∈ ℤ and n ∈ ℕ); and any other a part the
+    /// walk takes as it stands.
+    pub fn reason(&self) -> OnceReason {
+        match self {
+            Shown::Walked { reason, .. } => reason.clone(),
+            Shown::Summed { .. } => OnceReason::Sum,
+            Shown::Whole { parts, .. } => {
+                OnceReason::Built(parts.iter().map(|p| p.shown.reason()).collect())
+            }
+            _ => OnceReason::Stated,
+        }
+    }
+
     /// How the term itself is held where the walk took it as it stands, its
     /// one part: a stated line, a row of the closure or a cited equation.
     /// The derivation itself where the walk took the term apart, or the
     /// derivation is no walk.
     pub fn as_held(&self) -> &Shown {
         match self {
-            Shown::Walked {
-                reason: OnceReason::Stated,
-                taken,
-            } => match taken.as_slice() {
-                [part] => &part.shown,
+            // The walk took the term itself where its reason is its one
+            // part's own.
+            Shown::Walked { reason, taken } => match taken.as_slice() {
+                [part] if part.shown.reason() == *reason => &part.shown,
                 _ => self,
             },
             _ => self,

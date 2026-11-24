@@ -2,7 +2,6 @@ import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-nonzero
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/divisibility/mod-remainder
-import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
 import definition         stdlib/functions/set-image
 import definition         stdlib/sets/intersection
@@ -92,17 +91,14 @@ theorem an-obtain-through-an-iff-said-of-itself
   let a ∈ ℤ                                                           (H1)
   then there is q ∈ ℤ with q·3 + a mod 3 = a
 
-1.  a mod 3 ∈ ℕ₀
-    mun:mod-natural b := 3
-
-2.  a mod 3 < 3
+1.  a mod 3 < 3
     mun:mod-less b := 3
 
-3.  q ∈ ℤ. q·3 + a mod 3 = a.
-    obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
+2.  q ∈ ℤ. q·3 + a mod 3 = a.
+    obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1
 
-4.  There is q ∈ ℤ with q·3 + a mod 3 = a.
-    exhibit, from 3
+3.  There is q ∈ ℤ with q·3 + a mod 3 = a.
+    exhibit, from 2
 
 theorem a-join-turned-without-its-one
   note        x·1 = y joined as y = x: turned round, and the one dropped.

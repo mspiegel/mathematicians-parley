@@ -2001,7 +2001,7 @@ impl<'a> Proof<'a> {
     /// another equation carrying u on (`Besides::other_beside`), or what
     /// the page says once. None where a line it rests on is not among
     /// `cited`, or no proof is written for u's bound.
-    fn bound_beside(
+    pub(super) fn bound_beside(
         &self,
         beside: &Besides,
         system: System,

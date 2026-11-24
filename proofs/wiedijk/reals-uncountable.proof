@@ -72,7 +72,6 @@ theorem digit-step-divides
 
 3.  10 divides (t + 1) − (t + 1) mod 10
     def:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 2
-    requires (t + 1) mod 10 ∈ ℤ: membership, from H1
 
 4.  10 divides (t + 1) − s(t)
     substitute s(t) = (t + 1) mod 10 (line 1) into line 3

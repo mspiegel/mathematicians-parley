@@ -116,7 +116,6 @@ theorem lagrange {G : Type*} [Group G] (hH1 : (Set.univ : Set G).Finite) (H : Su
   -- 13. def:divides d := |H|, n := |G|, from 12
   have r367_1 : 0 ≤ ((H : Set G).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (H : Set G)) s2)
   have r367_2 : 0 ≤ (K.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := K) s11)
-  have r367_3 : 0 ≤ ((Set.univ : Set G).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (Set.univ : Set G)) hH1)
   have s13 : ((H : Set G).ncard : ℤ) ∣ ((Set.univ : Set G).ncard : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := ((H : Set G).ncard : ℤ)) (n := ((Set.univ : Set G).ncard : ℤ)))).mpr ⟨(K.ncard : ℤ), s12⟩
   exact ⟨(H : Set G).ncard, Eq.symm (Set.Finite.cast_ncard_eq ((s2 : ((H : Set G) : Set G).Finite))), s13⟩
 

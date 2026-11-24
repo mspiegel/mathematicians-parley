@@ -249,8 +249,6 @@ let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D4)
 
 10. deg(x) is even
     def:even n := deg(x), from 9
-    requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
-    requires deg(x) ∈ ℕ₀: membership, from 2
 
 theorem odd-vertices
   note        A walk that crosses every edge once is entered and left at
@@ -301,7 +299,6 @@ theorem odd-vertices
                             mun:not-both, from 3.3.2.1, contradicting 3.1
                             requires deg(u) = |{i ∈ {1, …, n} : u is incident with e(i)}|: thm:degree-by-walk x := u, from 2, 3.1
                             requires |{i ∈ {1, …, n} : u is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
-                            requires deg(u) ∈ ℤ: membership
 
           3.3.3.  u = v(0) or u = v(n)
                   mun:or-right, from 3.3.2

@@ -4,6 +4,7 @@ public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -33,16 +34,16 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
   have s1 : 0 ≤ c % d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) hH4)
   -- 2. mun:mod-less a := c, b := d
   have s2 : c % d < d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) hH4)
-  -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
-  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) s1 s2)).mp rfl
+  -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 2
+  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) (Int.emod_nonneg _ (ne_of_gt (hH4))) s2)).mp rfl
   -- 4. algebra, from H9, H10, 3
   have s4 : c % d = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination hH9 + (-q) * hH10 + s3
   -- 5. contradiction
   have s5 : c % d = 0 := by
     by_contra (hS : c % d ≠ 0)
     -- 5.1. mun:pos-int-nat m := c mod d
-    have r56_2 : 0 < c % d := Or.elim (Ne.lt_or_gt hS) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])
-    have s5_1 : 0 < c % d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) r56_2)
+    have r56_1 : 0 < c % d := Or.elim (Ne.lt_or_gt hS) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])
+    have s5_1 : 0 < c % d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) r56_1)
     -- 5.2. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.1
     have s5_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := Eq.subst (motive := (fun t : ℤ => 0 < t)) s4 s5_1
     -- 5.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2

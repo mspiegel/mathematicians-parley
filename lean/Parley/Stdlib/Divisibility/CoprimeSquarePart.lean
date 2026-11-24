@@ -118,11 +118,11 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     have row2 : (Int.gcd s w : ℤ) ^ 2 ∣ s := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) c2 row1
     exact row2
   -- 23. mun:divides-le e := s, m := gcd(s, w)², from 16
-  have r333_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
-  have s23 : s ≤ (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := s) hH1 (m := (Int.gcd s w : ℤ) ^ 2) r333_1 s16)
+  have r332_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
+  have s23 : s ≤ (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := s) hH1 (m := (Int.gcd s w : ℤ) ^ 2) r332_1 s16)
   -- 24. mun:divides-le e := gcd(s, w)², m := s, from 22
-  have r337_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
-  have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) r337_1 (m := s) hH1 s22)
+  have r336_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
+  have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) r336_1 (m := s) hH1 s22)
   -- 25. antisymmetry, from 23, 24
   exact le_antisymm s23 s24
 

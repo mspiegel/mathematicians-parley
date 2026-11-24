@@ -44,7 +44,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     -- 1.2. membership, from 1.1
     exact trivial
   -- 2. induction on Y starting at ∅
-  have r615_1 : X.Finite := by exact hH2
+  have r614_1 : X.Finite := by exact hH2
   have s2 : ∀ Y ∈ 𝒫 X, (Int.gcd (∏ᶠ x ∈ Y, (x : ℤ)) n : ℤ) = 1 := by
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
@@ -79,7 +79,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       have row1 : (Int.gcd (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) n : ℤ) = 1 := Eq.subst (motive := (fun t : ℤ => (Int.gcd t n : ℤ) = 1)) c1 s2_11
       exact row1
   -- 3. instantiate Y := X in line 2
-  have r666_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  exact (s2 X r666_1)
+  have r665_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
+  exact (s2 X r665_1)
 
 end Parley.Stdlib.Divisibility.ProductCoprime

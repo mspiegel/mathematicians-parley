@@ -16,6 +16,7 @@ public import Mathlib.Data.Nat.Totient
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -83,8 +84,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 6.3. mun:mod-less
     have s6_3 : r * a % n < n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := r * a) (b := n) hH1)
     -- 6.4. mun:range-from-bounds, from 6.3
-    have r80_2 : 0 ≤ r * a % n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := r * a) (b := n) hH1)
-    have s6_4 : r * a % n ∈ Finset.Icc (0 : ℤ) (n - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := r * a % n) r80_2 s6_3)
+    have s6_4 : r * a % n ∈ Finset.Icc (0 : ℤ) (n - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := r * a % n) (Int.emod_nonneg _ (ne_of_gt (hH1))) s6_3)
     -- 6.5. def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4
     have s6_5 : r * a % n ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr ⟨by simpa only [Finset.mem_Icc, Set.mem_Icc] using s6_4, s6_2⟩
     -- 6.6. D2, from K1
@@ -148,8 +148,8 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 11.4. substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
     exact Eq.subst (motive := (fun t : ℤ => r * a ≡ t [ZMOD n])) s11_3.symm s11_2
   -- 12. thm:product-congruent X := S, from 4, 5, 11
-  have r160_1 : Set.MapsTo f S S := by exact s8
-  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) hH1 s11 r160_1)
+  have r158_1 : Set.MapsTo f S S := by exact s8
+  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) hH1 s11 r158_1)
   -- 13. def:φ, from D1
   have s13 : (Nat.totient n.toNat : ℤ) = (S.ncard : ℤ) := by
     simp only [hD1] at ⊢
@@ -174,19 +174,19 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   -- 18. thm:product-coprime, from 4, 5, 17
   have s18 : (Int.gcd (∏ᶠ r ∈ S, (r : ℤ)) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_product_coprime (X := S) s5 s4 (n := n) hH1 s17)
   -- 19. def:congruent-mod, from 16
-  have r184_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
+  have r182_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
   have s19 : n ∣ a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) - (∏ᶠ r ∈ S, (r : ℤ)) := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ))) (b := ∏ᶠ r ∈ S, (r : ℤ)))).mp s16
   -- 20. substitute
-  have r189_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
+  have r187_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
   have s20 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by
     have c1 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) - (∏ᶠ r ∈ S, (r : ℤ)) = (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by ring1
     have row1 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s19
     exact row1
   -- 21. thm:coprime-divides c := ∏(r ∈ S) r, from 18, 20
-  have r196_2 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
+  have r194_2 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
   have s21 : n ∣ a ^ Nat.totient n.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := a ^ Nat.totient n.toNat - 1) (c := ∏ᶠ r ∈ S, (r : ℤ)) (n := n) hH1 s20 s18)
   -- 22. def:congruent-mod, from 21
-  have r201_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
+  have r199_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
   exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ Nat.totient n.toNat) (b := (1 : ℤ)))).mpr s21
 
 end Parley.Proofs.Wiedijk.Euler.Euler

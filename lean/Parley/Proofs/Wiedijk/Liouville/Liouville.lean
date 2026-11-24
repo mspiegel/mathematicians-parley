@@ -100,7 +100,7 @@ theorem liouville (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomials.integer
         _ = 0 := hH6
     exact_mod_cast h
   -- 7. obtain δ: thm:roots-isolated, from H2, H4, H6
-  obtain ⟨δ, ⟨s7a, s7b⟩⟩ := (Parley.Items.Stdlib.Polynomials.thm_roots_isolated (F := F) hH2 (N := N) hH3 hH4 (α := α) hH6)
+  obtain ⟨δ, ⟨s7a, s7b⟩⟩ := (Parley.Items.Stdlib.Polynomials.thm_roots_isolated (F := F) hH2 (N := (LeanBridges.Polynomials.degree F : ℤ)) (lt_of_lt_of_eq (hH3) (hH4).symm) rfl (α := α) hH6)
   -- 8. mun:interval-real
   have s8 : (Set.Icc (α - 1) (α + 1) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := α - 1) (b := α + 1))
   -- 9. mun:subset-self

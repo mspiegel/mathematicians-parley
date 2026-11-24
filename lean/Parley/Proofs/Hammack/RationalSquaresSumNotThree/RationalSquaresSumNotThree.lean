@@ -105,7 +105,7 @@ theorem rational_squares_sum_not_three :
   have s20 : (3 * s) ^ 2 + (3 * t) ^ 2 = 3 * m ^ 2 := Eq.subst (motive := (fun u : ℤ => (3 * s) ^ 2 + u ^ 2 = 3 * m ^ 2)) s18 s19
   -- 21. algebra, from 11, 20
   have s21 : m ^ 2 = 3 * (s ^ 2 + t ^ 2) := by qify at *; linear_combination (-(1 / 3 : ℚ)) * s20
-  -- 22. def:divides d := 3, n := m², from 11, 21
+  -- 22. def:divides d := 3, n := m², from 21
   have s22 : (3 : ℤ) ∣ m ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m ^ 2))).mpr ⟨s ^ 2 + t ^ 2, s21⟩
   -- 23. thm:three-divides-square n := m, from 11, 22
   have s23 : (3 : ℤ) ∣ m := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := m) s22)

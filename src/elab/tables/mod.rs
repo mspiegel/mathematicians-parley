@@ -34,7 +34,7 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup, numeral_label, System};
 use crate::{binds, citing, pf, t, take};
-use introduced::RecordedLetter;
+use introduced::{Holds, RecordedLetter};
 
 mod implied;
 mod introduced;
@@ -144,6 +144,9 @@ struct BuildOnce<'m, 'a> {
     me: &'m mut Elaborator<'a>,
     scope: &'m Rpn,
     facts: &'m Facts,
+    /// Which of the record's entries a part the walk takes as it stands
+    /// may be held by.
+    holds: Holds,
     problem: Option<Problem>,
 }
 
@@ -282,12 +285,17 @@ impl OnceAsk for BuildOnce<'_, '_> {
             .is_some_and(|found| matches!(found, Built(_)))
     }
 
+    /// Whether the reason's lines hold the part as the checker recorded it,
+    /// a line stating it or a cited equation (`recorded_hold`); a sum said
+    /// once otherwise. A letter its introduction puts in the system is read
+    /// as a letter, as the checker reads it (`membership::shown`): a line
+    /// saying so too does no work.
     fn said(&mut self, term: &Term, system: System) -> Option<OnceReason> {
         let said = self.me.rpn(term);
         let stated = match self.me.reads_record(term) {
             true => {
-                let line = self.me.recorded_stated_line(&said, system);
-                self.keep(line).flatten().is_some()
+                let hold = self.me.recorded_hold(&said, system, self.holds);
+                self.keep(hold).flatten().is_some()
             }
             false => {
                 let stated = self.me.stated_within(

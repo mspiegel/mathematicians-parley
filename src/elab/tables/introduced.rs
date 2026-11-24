@@ -1,7 +1,7 @@
 //! Introduced memberships, intervals and function values.
 
 use super::*;
-use crate::checker::record::Shown;
+use crate::checker::record::{HeldByLines, Shown};
 use crate::citing;
 
 /// What the checker recorded of a page letter in scope
@@ -13,6 +13,18 @@ pub(in crate::elab) enum RecordedLetter {
     Number(System),
     /// Introduced as a point, which set.mm encodes as a complex number.
     Point,
+}
+
+/// Which of the record's entries the said-once walk takes a part it does
+/// not take apart by (`Elaborator::recorded_hold`), as the checker's walk
+/// takes them in turn (`membership::shown`).
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(in crate::elab) enum Holds {
+    /// A line stating it.
+    Stated,
+    /// A line stating it, or a cited equation putting it beside a term that
+    /// is in the system.
+    Any,
 }
 
 impl<'a> Elaborator<'a> {
@@ -46,17 +58,28 @@ impl<'a> Elaborator<'a> {
         // Whether and why is the rule both tools read (`citing::reason`);
         // what is built here is the proof of the reason it gives.
         let term = self.to_term(said);
-        let mut ask = BuildOnce {
-            me: self,
-            scope,
-            facts,
-            problem: None,
-        };
-        let reason = citing::reason(&mut ask, &term, within);
-        if let Some(problem) = ask.problem {
-            return Err(problem);
+        // As the checker derives it (`membership::shown`): the walk with
+        // only stated lines for the parts it takes as they stand, then with
+        // cited equations as well.
+        let mut found = None;
+        for holds in [Holds::Stated, Holds::Any] {
+            let mut ask = BuildOnce {
+                me: self,
+                scope,
+                facts,
+                holds,
+                problem: None,
+            };
+            let reason = citing::reason(&mut ask, &term, within);
+            if let Some(problem) = ask.problem {
+                return Err(problem);
+            }
+            if let Some(reason) = reason {
+                found = Some((reason, holds));
+                break;
+            }
         }
-        let Some(reason) = reason else {
+        let Some((reason, holds)) = found else {
             return Ok(Route::no(
                 "not a numeral, an introduced letter, or built from them",
             ));
@@ -136,7 +159,9 @@ impl<'a> Elaborator<'a> {
             // line says N(n) ∈ ℝ.
             OnceReason::Stated => {
                 let found = match self.reads_record(&term) {
-                    true => self.recorded_within(said, within, system, scope, facts)?,
+                    true => {
+                        self.recorded_within(said, within, holds, system, scope, facts)?
+                    }
                     false => self.stated_within(said, system, scope, facts)?,
                 };
                 match found {
@@ -345,31 +370,39 @@ impl<'a> Elaborator<'a> {
         Ok(None)
     }
 
-    /// The line the reason being built states `said`'s membership by, of a
-    /// system inside `system`, as the checker recorded it
-    /// (`Shown::Stated`): `said` in the normaliser's spelling meets the
-    /// page's term as a fact is found (`fact_key`), f(a)¹ asked of f(a).
-    /// None where the record holds no such line.
-    pub(in crate::elab) fn recorded_stated_line(
+    /// How the reason being built holds `said` in `system`, as the checker
+    /// derived it for that system (`CheckedTheorem::held_by_lines`), where
+    /// it is of a kind `holds` takes: a line stating it, of that system or
+    /// one inside it, or a cited equation putting it beside a term in the
+    /// system as well. A row of the closure is the walk's, built from the
+    /// term's parts. `said` in the normaliser's spelling meets the page's
+    /// term as a fact is found (`fact_key`), f(a)¹ asked of f(a). None where
+    /// the record holds it so in no such way.
+    pub(in crate::elab) fn recorded_hold(
         &mut self,
         said: &Rpn,
         system: System,
-    ) -> Checked<Option<Rpn>> {
+        holds: Holds,
+    ) -> Checked<Option<HeldByLines>> {
         let key = self.fact_key(said);
         let held = self.reason_held.clone().unwrap_or_default();
-        for h in &held {
-            let Shown::Stated { line } = &h.shown else {
-                continue;
+        for h in held {
+            // A line stating it in a system inside the one asked says it is
+            // there too; an equation is the check's derivation for its own
+            // system alone.
+            let taken = match (&h.shown, holds) {
+                (Shown::Stated { .. }, _) => h.system.within(system),
+                (Shown::Beside { .. }, Holds::Any) => h.system == system,
+                _ => false,
             };
             // A part of a line under a binder of its own, ε of "for all
             // ε > 0, …", speaks of no letter in scope, and is no term asked.
-            if !h.system.within(system) || !self.in_scope_here(&h.term, &mut Vec::new())
-            {
+            if !taken || !self.in_scope_here(&h.term, &mut Vec::new()) {
                 continue;
             }
             let term = self.term(&h.term)?;
             if self.fact_key(&term) == key {
-                return Ok(Some(self.term(line)?));
+                return Ok(Some(h));
             }
         }
         Ok(None)
@@ -437,20 +470,53 @@ impl<'a> Elaborator<'a> {
         all
     }
 
-    /// ( scope -> said ∈ system ) from the line the checker recorded the
-    /// reason states it by (`recorded_stated_line`): that line, held among
-    /// the facts or what the step wrote, read as `said` in its own system
-    /// and carried up to `system`; None where it is not held.
+    /// ( scope -> said ∈ system ) as the checker recorded the reason holds
+    /// it (`recorded_hold`): by the cited equation and its other side's
+    /// derivation (`derived_membership`), carried up to `system`; or by the
+    /// line stating it, held among the facts or what the step wrote, read as
+    /// `said` in its own system and carried up to `system`. None where what
+    /// the record names is not held.
     fn recorded_within(
         &mut self,
         said: &Rpn,
         within: System,
+        holds: Holds,
         system: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let Some(line) = self.recorded_stated_line(said, within)? else {
+        let Some(hold) = self.recorded_hold(said, within, holds)? else {
             return Ok(None);
+        };
+        let line = match hold.shown {
+            Shown::Stated { ref line } => self.term(line)?,
+            shown => {
+                // A reason's requires lines are among its facts already.
+                let Some(proof) = self.derived_membership(
+                    None,
+                    &hold.term,
+                    hold.system,
+                    &shown,
+                    scope,
+                    facts,
+                )?
+                else {
+                    return Ok(None);
+                };
+                // The page's term as the derivation proves it, read as
+                // `said` in the same system and carried up to `system`.
+                let label = hold.system.label();
+                let derived = t!(self.term(&hold.term)?, label, "wcel");
+                let one = Facts::new();
+                self.know(&one, derived, proof);
+                let Some(held) = self.held(&one, &t!(said, label, "wcel"), scope)?
+                else {
+                    return Ok(None);
+                };
+                return Ok(self
+                    .carried_within(said, label, system, held, scope)?
+                    .built());
+            }
         };
         let mut proof = self.held(facts, &line, scope)?;
         if proof.is_none() {

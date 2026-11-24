@@ -787,42 +787,6 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
     assert_eq!(out.matches("works out floor").count(), 1, "{out}");
 }
 
-/// A requires line whose fact the step's own citation gives is not repeated
-/// where a line below needs it: the line below sees only its reason and the
-/// lines above it (R2). Here reals-uncountable's step 3.5 cites line 3.1,
-/// which says N(k + 1) = 10·N(k) + d(k + 1), and `N(k + 1) ∈ ℝ: membership`
-/// below asks that of the line above it.
-#[test]
-fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
-    let clean = clean();
-    let case = case(
-        "restate a fact the step cites, for a requires line below",
-        vec![edit(
-            "proofs/wiedijk/reals-uncountable.proof",
-            Some(
-                "\
-          transitivity, from 3.4, 3.1
-          requires N(k) ∈ ℝ: membership, from 2
-          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-"
-                .to_string(),
-            ),
-            "\
-          transitivity, from 3.4, 3.1
-          requires N(k) ∈ ℝ: membership, from 2
-          requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-          requires N(k + 1) = 10·N(k) + d(k + 1): from 3.1
-          requires N(k + 1) ∈ ℝ: membership, from H1, 2, 3.2
-"
-            .to_string(),
-        )],
-        "",
-    );
-    let tree = plant(&case, &clean).unwrap();
-    let out = checked_planted(&case, &tree);
-    assert!(out.contains("\n0 problem(s)\n"), "{out}");
-}
-
 #[test]
 fn the_checker_catches_every_planted_defect() {
     let clean = clean();

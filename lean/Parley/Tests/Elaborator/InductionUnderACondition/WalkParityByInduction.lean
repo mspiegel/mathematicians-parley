@@ -77,10 +77,9 @@ theorem walk_parity_by_induction {α β : Type*} [Nonempty α] [Nonempty β] (V 
           _ = 0 := s1_1_3
           _ = 2 * 0 := s1_1_4
       -- 1.1.6. def:even n := c(0, y), from 1.1.5
-      have r73_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := (0 : ℤ)))
       have s1_1_6 : Even ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))).mpr ⟨(0 : ℤ), s1_1_5⟩
       -- 1.1.7. mun:not-both n := c(0, y), from 1.1.6
-      have r77_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := (0 : ℤ)))
+      have r76_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := (0 : ℤ)))
       have s1_1_7 : ¬ Odd ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := ({i ∈ (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) s1_1_6)
       -- 1.1.8. contradiction
       have s1_1_8 : ¬ y = v (0 : ℤ) := by
@@ -98,8 +97,8 @@ theorem walk_parity_by_induction {α β : Type*} [Nonempty α] [Nonempty β] (V 
       have s1_2_1a : y ∈ V := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := V) (Z := ({v (0 : ℤ)} : Set α)) (u := y))).mp hK3).1
       have s1_2_1b : ¬ y ∈ ({v (0 : ℤ)} : Set α) := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := V) (Z := ({v (0 : ℤ)} : Set α)) (u := y))).mp hK3).2
       -- 1.2.2. def:range k := j + 1, from C2
-      have r104_1 : 0 < j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := j) hK2)
-      have s1_2_2 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr ⟨r104_1, hC2⟩
+      have r103_1 : 0 < j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := j) hK2)
+      have s1_2_2 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr ⟨r103_1, hC2⟩
       -- 1.2.3. inequalities, from C2
       have s1_2_3 : j ≤ n := by linarith only [hC2]
       -- 1.2.4. def:range0 k := j, from 1.2.3
@@ -122,36 +121,35 @@ theorem walk_parity_by_induction {α β : Type*} [Nonempty α] [Nonempty β] (V 
       rcases s1_2_11 with hC3 | hC4
       · skip
         -- 1.2.12.1. mun:join-distinct a := e(j + 1), u := v(j), w := v(j + 1), from 1.2.8
-        have r141_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
-        have r141_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
-        have r141_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
-        have s1_2_12_1 : ¬ v j = v (j + 1) := by exact (Parley.Items.Stdlib.Graphs.mun_join_distinct (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r141_1 r141_2 r141_3 s1_2_8)
+        have r140_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
+        have r140_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
+        have r140_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
+        have s1_2_12_1 : ¬ v j = v (j + 1) := by exact (Parley.Items.Stdlib.Graphs.mun_join_distinct (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r140_1 r140_2 r140_3 s1_2_8)
         -- 1.2.12.2. substitute y = v(j + 1) (C3) into line 1.2.12.1
         have s1_2_12_2 : ¬ y = v j := by apply Ne.symm; exact Eq.subst (motive := (fun t : α => ¬ v j = t)) hC3.symm s1_2_12_1
         -- 1.2.12.3. mun:iff-not-from-right, from 1.2.10, 1.2.12.2
         have s1_2_12_3 : ¬ Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := y = v j) s1_2_10 s1_2_12_2)
         -- 1.2.12.4. mun:even-or-odd n := c(j, y)
-        have r154_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
+        have r153_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
         have s1_2_12_4 : Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) ∨ Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))
         -- 1.2.12.5. mun:disjunctive-syllogism, from 1.2.12.3, 1.2.12.4
         have s1_2_12_5 : Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) s1_2_12_4 s1_2_12_3)
         -- 1.2.12.6. mun:joined-incident a := e(j + 1), u := v(j), w := v(j + 1), from 1.2.8
-        have r161_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
-        have r161_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
-        have r161_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
-        have s1_2_12_6 : v (j + 1) ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_joined_incident_2 (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r161_1 r161_2 r161_3 s1_2_8)
+        have r160_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
+        have r160_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
+        have r160_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
+        have s1_2_12_6 : v (j + 1) ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_joined_incident_2 (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r160_1 r160_2 r160_3 s1_2_8)
         -- 1.2.12.7. substitute y = v(j + 1) (C3) into line 1.2.12.6
         have s1_2_12_7 : y ∈ G (e (j + 1)) := Eq.subst (motive := (fun t : α => t ∈ G (e (j + 1)))) hC3.symm s1_2_12_6
         -- 1.2.12.8. mun:count-step-holds k := j, from D1, 1.2.12.7
-        have r171_1 : y ∈ V := by exact s1_2_1a
+        have r170_1 : y ∈ V := by exact s1_2_1a
         have s1_2_12_8 : ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_count_step_holds (P := (fun i : ℤ => y ∈ G (e i))) (k := j) hK2 s1_2_12_7)
         -- 1.2.12.9. obtain m: def:even n := c(j, y), from 1.2.12.5
-        have r175_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
+        have r174_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
         obtain ⟨m, s1_2_12_9⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))).mp s1_2_12_5
         -- 1.2.12.10. substitute c(j, y) = 2m (line 1.2.12.9) into line 1.2.12.8
         have s1_2_12_10 : ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = 2 * m + 1 := Eq.subst (motive := (fun t : ℤ => ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = t + 1)) s1_2_12_9 s1_2_12_8
         -- 1.2.12.11. def:odd n := c(j + 1, y), from 1.2.12.10
-        have r182_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j + 1))
         have s1_2_12_11 : Odd ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))).mpr ⟨m, s1_2_12_10⟩
         -- 1.2.12.12. mun:iff-both-true, from C3, 1.2.12.11
         exact (Parley.Items.Stdlib.Reasoning.mun_iff_both_true (P := Odd ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := y = v (j + 1)) s1_2_12_11 hC3)
@@ -163,19 +161,19 @@ theorem walk_parity_by_induction {α β : Type*} [Nonempty α] [Nonempty β] (V 
           rcases s1_2_12_13 with hC5 | hC6
           · skip
             -- 1.2.12.14.1. mun:joined-incident a := e(j + 1), u := v(j), w := v(j + 1), from 1.2.8
-            have r201_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
-            have r201_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
-            have r201_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
-            have s1_2_12_14_1 : v j ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_joined_incident_1 (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r201_1 r201_2 r201_3 s1_2_8)
+            have r199_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
+            have r199_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
+            have r199_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
+            have s1_2_12_14_1 : v j ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_joined_incident_1 (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (G := G) r199_1 r199_2 r199_3 s1_2_8)
             -- 1.2.12.14.2. substitute y = v(j) (C5) into line 1.2.12.14.1
             have s1_2_12_14_2 : y ∈ G (e (j + 1)) := Eq.subst (motive := (fun t : α => t ∈ G (e (j + 1)))) hC5.symm s1_2_12_14_1
             -- 1.2.12.14.3. mun:count-step-holds k := j, from D1, 1.2.12.14.2
-            have r211_1 : y ∈ V := by exact s1_2_1a
+            have r209_1 : y ∈ V := by exact s1_2_1a
             have s1_2_12_14_3 : ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_count_step_holds (P := (fun i : ℤ => y ∈ G (e i))) (k := j) hK2 s1_2_12_14_2)
             -- 1.2.12.14.4. mun:iff-from-right, from C5, 1.2.10
             have s1_2_12_14_4 : Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := y = v j) s1_2_10 hC5)
             -- 1.2.12.14.5. obtain m: def:odd n := c(j, y), from 1.2.12.14.4
-            have r218_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
+            have r216_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
             obtain ⟨m, s1_2_12_14_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))).mp s1_2_12_14_4
             -- 1.2.12.14.6. substitute c(j, y) = 2m + 1 (line 1.2.12.14.5) into line 1.2.12.14.3
             have s1_2_12_14_6 : ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = 2 * m + 1 + 1 := Eq.subst (motive := (fun t : ℤ => ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = t + 1)) s1_2_12_14_5 s1_2_12_14_3
@@ -186,31 +184,30 @@ theorem walk_parity_by_induction {α β : Type*} [Nonempty α] [Nonempty β] (V 
               calc ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = 2 * m + 1 + 1 := s1_2_12_14_6
                 _ = 2 * (m + 1) := s1_2_12_14_7
             -- 1.2.12.14.9. def:even n := c(j + 1, y), from 1.2.12.14.8
-            have r233_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j + 1))
             exact ((Parley.Items.Stdlib.Divisibility.def_even (n := ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))).mpr ⟨m + 1, s1_2_12_14_8⟩
           · skip
             -- 1.2.12.14.10. mun:not-incident a := e(j + 1), u := v(j), w := v(j + 1), from C4, C6, 1.2.8
-            have r240_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
-            have r240_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
-            have r240_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
-            have r240_4 : y ∈ V := by exact s1_2_1a
-            have s1_2_12_14_10 : ¬ y ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_not_incident (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (x := y) (G := G) r240_1 r240_2 r240_3 r240_4 s1_2_8 hC6 hC4)
+            have r237_1 : e (j + 1) ∈ E := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) n : Set ℤ)) (E := E) (f := e) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_2) hH3)
+            have r237_2 : v j ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_4) hH4)
+            have r237_3 : v (j + 1) ∈ V := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (0 : ℤ) n : Set ℤ)) (E := V) (f := v) (x := j + 1) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1_2_5) hH4)
+            have r237_4 : y ∈ V := by exact s1_2_1a
+            have s1_2_12_14_10 : ¬ y ∈ G (e (j + 1)) := by exact (Parley.Items.Stdlib.Graphs.mun_not_incident (E := E) (V := V) (a := e (j + 1)) (u := v j) (w := v (j + 1)) (x := y) (G := G) r237_1 r237_2 r237_3 r237_4 s1_2_8 hC6 hC4)
             -- 1.2.12.14.11. mun:count-step-fails k := j, from D1, 1.2.12.14.10
-            have r248_1 : y ∈ V := by exact s1_2_1a
+            have r245_1 : y ∈ V := by exact s1_2_1a
             have s1_2_12_14_11 : ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) = ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_step_fails (P := (fun i : ℤ => y ∈ G (e i))) (k := j) hK2 s1_2_12_14_10)
             -- 1.2.12.14.12. mun:iff-not-from-right, from C6, 1.2.10
             have s1_2_12_14_12 : ¬ Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := y = v j) s1_2_10 hC6)
             -- 1.2.12.14.13. mun:even-or-odd n := c(j, y)
-            have r255_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
+            have r252_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
             have s1_2_12_14_13 : Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) ∨ Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)))
             -- 1.2.12.14.14. mun:disjunctive-syllogism, from 1.2.12.14.12, 1.2.12.14.13
             have s1_2_12_14_14 : Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := Odd ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) s1_2_12_14_13 s1_2_12_14_12)
             -- 1.2.12.14.15. substitute c(j + 1, y) = c(j, y) (line 1.2.12.14.11) into line 1.2.12.14.14
-            have r262_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
+            have r259_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j))
             have e_nat : {i ∈ (Set.Icc (1 : ℤ) j : Set ℤ) | y ∈ G (e i)}.ncard = {i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard := by exact_mod_cast s1_2_12_14_11.symm
             exact Eq.subst (motive := (fun t : ℕ => Even (t : ℤ))) e_nat s1_2_12_14_14
         -- 1.2.12.15. mun:not-both n := c(j + 1, y), from 1.2.12.14
-        have r266_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j + 1))
+        have r263_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => y ∈ G (e i))) (k := j + 1))
         have s1_2_12_15 : ¬ Odd ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) s1_2_12_14)
         -- 1.2.12.16. mun:iff-both-false, from C4, 1.2.12.15
         exact (Parley.Items.Stdlib.Reasoning.mun_iff_both_false (P := Odd ({i ∈ (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) | y ∈ G (e i)}.ncard : ℤ)) (Q := y = v (j + 1)) s1_2_12_15 hC4)

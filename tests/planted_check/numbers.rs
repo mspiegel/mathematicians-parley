@@ -235,10 +235,10 @@ pub(super) fn cases() -> Vec<Case> {
             "substitute under \"is even\" a value nothing says is whole",
             vec![edit(
                 "proofs/hammack/fibonacci-even-iff-three-divides.proof",
-                Some("                  substitute n = 3q + 1 (line 5.14.5) into P1\n                  requires F(3q + 1) ∈ ℤ: from 5.14.7\n".to_string()),
-                "                  substitute n = 3q + 1 (line 5.14.5) into P1\n".to_string(),
+                Some("                  substitute n = 3q + 1 (line 5.13.5) into P1\n                  requires F(3q + 1) ∈ ℤ: from 5.13.7\n".to_string()),
+                "                  substitute n = 3q + 1 (line 5.13.5) into P1\n".to_string(),
             )],
-            "which step 5.14.8 puts where its notation asks one",
+            "which step 5.13.8 puts where its notation asks one",
         ),
         // A function's type is a declaration, and a codomain the item names
         // is asked for: ℂ is not inside ℝ.

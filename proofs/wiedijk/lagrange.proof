@@ -368,4 +368,3 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
     def:divides d := |H|, n := |G|, from 12
     requires |H| ∈ ℕ₀: mun:card-nat0, from 2
     requires |K| ∈ ℕ₀: mun:card-nat0, from 11
-    requires |G| ∈ ℕ₀: mun:card-nat0, from H1

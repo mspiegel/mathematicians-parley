@@ -2,6 +2,7 @@ module
 
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -26,13 +27,11 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapes.AnObtainThroughAnIffSai
 
 theorem an_obtain_through_an_iff_said_of_itself (a : ℤ) :
     (∃ q : ℤ, q * 3 + a % (3 : ℤ) = a) := by
-  -- 1. mun:mod-natural b := 3
-  have s1 : 0 ≤ a % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by norm_num))
-  -- 2. mun:mod-less b := 3
-  have s2 : a % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by norm_num))
-  -- 3. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
-  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := (3 : ℤ)) (by norm_num) (r := a % (3 : ℤ)) s1 s2)).mp rfl
-  -- 4. exhibit, from 3
-  exact ⟨q, s3⟩
+  -- 1. mun:mod-less b := 3
+  have s1 : a % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by norm_num))
+  -- 2. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1
+  obtain ⟨q, s2⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := (3 : ℤ)) (by norm_num) (r := a % (3 : ℤ)) (Int.emod_nonneg _ (ne_of_gt (by norm_num))) s1)).mp rfl
+  -- 3. exhibit, from 2
+  exact ⟨q, s2⟩
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AnObtainThroughAnIffSaidOfItself

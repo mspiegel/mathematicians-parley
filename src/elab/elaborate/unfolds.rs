@@ -4,13 +4,16 @@ use std::slice;
 
 use super::running::Folded;
 use super::*;
-use crate::checker::record::{First, HeldByLines, Shown, Supplied, Unfolded};
+use crate::checker::record::{
+    First, HeldByLines, Shown, ShownPart, Supplied, Unfolded,
+};
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::MEMBERSHIP as SAID_ONCE;
 use crate::elab::tables::Row;
 use crate::matching::{standard, Meeting, Tree};
 use crate::notations::{FOR_ALL, PROPERTY_OF};
+use crate::rules::System;
 
 /// One part of a definition's right side as the page reads it, shown as
 /// the checker recorded it (`unfolded_proof`).
@@ -723,6 +726,181 @@ impl<'a> Elaborator<'a> {
         self.same_carried(&member, made, wanted, scope, facts)
     }
 
+    /// ( scope -> term ∈ system ) by its derivation as the one membership
+    /// rule gives it (`Shown`): a line it names stated, carried up to
+    /// `system`; an equation it names with its other side by that side's
+    /// own derivation (`eqeltrd`); or the walk, each part it took as it
+    /// stands by its own derivation. A line it names is among `facts`, the
+    /// lines the step cites, or is one of `step`'s requires lines
+    /// (`named_line`). None for a row of the closure, or where a line it
+    /// names is neither.
+    pub(in crate::elab) fn derived_membership(
+        &mut self,
+        step: Option<&Step>,
+        term: &Node,
+        system: System,
+        shown: &Shown,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let said = self.term(term)?;
+        // A term already being derived is not derived again inside its own
+        // derivation, where finding a line it names works a fact out that
+        // asks the term once more.
+        if self.equating.contains(&said) {
+            return Ok(None);
+        }
+        self.equating.insert(said.clone());
+        let made = self.derived_membership_of(step, &said, system, shown, scope, facts);
+        self.equating.shift_remove(&said);
+        made
+    }
+
+    /// ( scope -> line ) for a line a derivation names: one of `step`'s
+    /// requires lines, proved as that line is (`required`), or else one
+    /// among `facts`. None where it is neither.
+    fn named_line(
+        &mut self,
+        step: Option<&Step>,
+        line: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        if let Some(step) = step {
+            for r in &step.requires {
+                let node = self.read_one(&r.fact)?;
+                if self.term(&node)? == *line {
+                    return Ok(Some(self.required(step, line, scope, facts)?));
+                }
+            }
+        }
+        self.held(facts, line, scope)
+    }
+
+    /// `derived_membership` of the term `said`.
+    fn derived_membership_of(
+        &mut self,
+        step: Option<&Step>,
+        said: &Rpn,
+        system: System,
+        shown: &Shown,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let said = said.clone();
+        let set = t!(system.label());
+        // A walk that took the term itself as it stands is how that part is
+        // held (`Shown::as_held`).
+        match shown.as_held() {
+            Shown::Stated { line } => {
+                let line = self.term(line)?;
+                let Some(proof) = self.named_line(step, &line, scope, facts)? else {
+                    return Ok(None);
+                };
+                // The line puts the term in a number system, one token, read
+                // as `said` there and carried up to `system`.
+                let stated_set = self.rpn(&self.to_term(&line).children()[1]);
+                let Some(label) = stated_set.alone().map(String::from) else {
+                    return Ok(None);
+                };
+                let one = Facts::new();
+                self.know(&one, line, proof);
+                let Some(held) =
+                    self.held(&one, &t!(&said, &stated_set, "wcel"), scope)?
+                else {
+                    return Ok(None);
+                };
+                Ok(self
+                    .carried_within(&said, &label, &set, held, scope)?
+                    .built())
+            }
+            Shown::Beside {
+                equation,
+                other,
+                term_left,
+                other_shown,
+            } => {
+                let equation = self.term(equation)?;
+                let Some(equal) = self.named_line(step, &equation, scope, facts)?
+                else {
+                    return Ok(None);
+                };
+                let sides = self.to_term(&equation);
+                let [left, right] = sides.children() else {
+                    return Ok(None);
+                };
+                let (left, right) = (self.rpn(left), self.rpn(right));
+                let (side, beside, equal) = match term_left {
+                    true => (left, right, equal),
+                    false => {
+                        let turned = self.b.ap(
+                            "eqcomd",
+                            &binds! {"ph" => scope, "A" => &left, "B" => &right},
+                            &[&equal],
+                        );
+                        (right, left, turned)
+                    }
+                };
+                if side != said {
+                    return Ok(None);
+                }
+                let Some(inner) = self.derived_membership(
+                    step,
+                    other,
+                    system,
+                    other_shown,
+                    scope,
+                    facts,
+                )?
+                else {
+                    return Ok(None);
+                };
+                Ok(Some(
+                    pf!(self.b; scope, said, beside, set, equal, inner, "eqeltrd"),
+                ))
+            }
+            Shown::Walked { taken, .. } => {
+                let known = facts.copy();
+                let mut held = Vec::new();
+                for part in taken {
+                    let library = self.item_library();
+                    let Some(member_node) =
+                        citing::system_member(&part.term, part.system, &library)
+                    else {
+                        return Ok(None);
+                    };
+                    let Some(proof) = self.derived_membership(
+                        step,
+                        &part.term,
+                        part.system,
+                        &part.shown,
+                        scope,
+                        facts,
+                    )?
+                    else {
+                        return Ok(None);
+                    };
+                    let member = self.term(&member_node)?;
+                    self.know(&known, member, proof);
+                    held.push(HeldByLines {
+                        term: part.term.clone(),
+                        system: part.system,
+                        shown: Shown::Stated { line: member_node },
+                    });
+                }
+                let kept = self.reason_held.replace(held);
+                let made = self.said_once_proof(
+                    &self.to_term(&t!(&said, &set, "wcel")),
+                    scope,
+                    &known,
+                );
+                self.reason_held = kept;
+                Ok(made?.built())
+            }
+            _ => Ok(None),
+        }
+    }
+
     /// ( scope -> wanted ) for a hypothesis of a cited item, from what the
     /// checker recorded as supplying it (`SuppliedBy`): a line, as the
     /// record places the fact in it (`placed_proof`), or a "for all" of it
@@ -868,10 +1046,16 @@ impl<'a> Elaborator<'a> {
             // on.
             SuppliedBy::Walked(walked) => {
                 let known = facts.copy();
-                // The parts the walk read off lines are what it holds stated
-                // while it walks (`reason_held`), each from where it stands.
+                // The parts the walk took as they stand are what it holds
+                // stated while it walks (`reason_held`), each as the one rule
+                // derived it (`SaidOnceFact::shown`): from where the checker
+                // placed a stated one, and otherwise by its derivation.
+                let taken: &[ShownPart] = match &walked.shown {
+                    Shown::Walked { taken, .. } => taken,
+                    _ => &[],
+                };
                 let mut held = Vec::new();
-                for part in &walked.stated {
+                for (k, part) in walked.stated.iter().enumerate() {
                     let library = self.item_library();
                     let Some(member_node) =
                         citing::system_member(&part.term, part.system, &library)
@@ -879,9 +1063,20 @@ impl<'a> Elaborator<'a> {
                         return Ok(None);
                     };
                     let member = self.term(&member_node)?;
-                    let Some(proof) = self
-                        .supplied_proof(step, &part.by, None, &member, scope, facts)?
-                    else {
+                    let proof = match taken.get(k).map(|t| &t.shown) {
+                        Some(shown @ Shown::Beside { .. }) => self.derived_membership(
+                            Some(step),
+                            &part.term,
+                            part.system,
+                            shown,
+                            scope,
+                            facts,
+                        )?,
+                        _ => self.supplied_proof(
+                            step, &part.by, None, &member, scope, facts,
+                        )?,
+                    };
+                    let Some(proof) = proof else {
                         return Ok(None);
                     };
                     self.know(&known, member, proof);

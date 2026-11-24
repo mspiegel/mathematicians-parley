@@ -118,8 +118,6 @@ theorem walk_parity {α β : Type*} [Nonempty α] [Nonempty β] (V : Set α) (E 
       _ = m + m := s8
       _ = 2 * m := by ring1
   -- 10. def:even n := deg(x), from 9
-  have r250_1 : 0 ≤ ({i ∈ (Set.Icc (1 : ℤ) n : Set ℤ) | x ∈ G (e i)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_count_nat0 (P := (fun i : ℤ => x ∈ G (e i))) (k := n))
-  have r250_2 : 0 ≤ ({a ∈ E | x ∈ G a}.ncard : ℤ) := le_of_le_of_eq (r250_1) (s2).symm
   exact ((Parley.Items.Stdlib.Divisibility.def_even (n := ({a ∈ E | x ∈ G a}.ncard : ℤ)))).mpr ⟨m, s9⟩
 
 end Parley.Proofs.Wiedijk.Konigsberg.WalkParity

@@ -11,6 +11,7 @@ use crate::formula::{page, Node, Sort, Sorts, Whole};
 use std::rc::Rc;
 
 use crate::matching::{standard, substitute_apart_by, Binding, Unfolds};
+use crate::methods::membership::Shown;
 use crate::notations::{
     FOR_ALL, FOR_ALL_PART, FUNCTION_TYPE, IN, INTEGER_RANGE, MEMBERSHIP,
     NUMBER_SYSTEMS, PROPERTY_OF, SUBSET_OF,
@@ -190,6 +191,10 @@ pub struct SaidOnceFact {
     /// each stands is the checker's to record (`Suppliers::with_places`),
     /// and `Unstated` as the walk makes it.
     pub stated: Vec<StatedAt>,
+    /// How the one membership rule derives the fact
+    /// (`methods::membership::shown`), each of `stated` a part it took as
+    /// it stands, with how that part is shown.
+    pub shown: Shown,
 }
 
 /// The parts of a citation from the facts as read: each with its parts, what

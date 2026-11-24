@@ -7,10 +7,8 @@ import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/divisibility/gcd-zero
 import mundane theorem    stdlib/divisibility/mod-less
-import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-remainder
 import theorem            stdlib/divisibility/gcd-mod
-import mundane theorem    stdlib/numbers/nat0-int
 import mundane theorem    stdlib/numbers/nat0-nonzero
 
 theorem gcd-integer-natural
@@ -27,69 +25,65 @@ theorem gcd-integer-natural
 1.  gcd(a mod b, b) = gcd(a, b)
     thm:gcd-mod
 
-2.  a mod b ∈ ℕ₀
-    mun:mod-natural
-
-3.  a mod b < b
+2.  a mod b < b
     mun:mod-less
 
-4.  q ∈ ℤ. q·b + a mod b = a.
-    obtain q: mun:mod-remainder m := b, r := a mod b, from 2, 3
+3.  q ∈ ℤ. q·b + a mod b = a.
+    obtain q: mun:mod-remainder m := b, r := a mod b, from 2
 
-5.  a mod b = 0 or not a mod b = 0
+4.  a mod b = 0 or not a mod b = 0
     axi:excluded-middle P := a mod b = 0
 
-6.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-    cases, from 5
+5.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+    cases, from 4
 
     case
     assume a mod b = 0                                                (C1)
 
-    6.1.  gcd(a, b) = b
+    5.1.  gcd(a, b) = b
           calculation
             gcd(a, b) = gcd(a mod b, b)     1
                       = gcd(0, b)           substitute C1
                       = gcd(b, 0)           mun:gcd-commutes a := 0
                       = b                   mun:gcd-zero n := b
 
-    6.2.  b divides b
+    5.2.  b divides b
           mun:divides-self n := b
 
-    6.3.  a = b·q
-          algebra, from C1, 4
+    5.3.  a = b·q
+          algebra, from C1, 3
 
-    6.4.  b divides a
-          def:divides d := b, n := a, from 6.3
+    5.4.  b divides a
+          def:divides d := b, n := a, from 5.3
 
-    6.5.  b ∈ ℕ. b divides a. b divides b.
-          join H2, 6.2, 6.4
+    5.5.  b ∈ ℕ. b divides a. b divides b.
+          join H2, 5.2, 5.4
 
-    6.6.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-          substitute gcd(a, b) = b (line 6.1) into line 6.5
+    5.6.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          substitute gcd(a, b) = b (line 5.1) into line 5.5
 
     case
     assume not a mod b = 0                                            (C2)
 
-    6.7.  a mod b ∈ ℕ
-          mun:nat0-nonzero m := a mod b, from C2, 2
+    5.7.  a mod b ∈ ℕ
+          mun:nat0-nonzero m := a mod b, from C2
 
-    6.8.  gcd(a mod b, b) ∈ ℕ. gcd(a mod b, b) divides a mod b. gcd(a mod b, b) divides b.
-          def:gcd a := a mod b, from 6.7
+    5.8.  gcd(a mod b, b) ∈ ℕ. gcd(a mod b, b) divides a mod b. gcd(a mod b, b) divides b.
+          def:gcd a := a mod b, from 5.7
 
-    6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
-          substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
+    5.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
+          substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 5.8
 
-    6.10. gcd(a, b) divides b·q
-          mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.9
+    5.10. gcd(a, b) divides b·q
+          mun:divides-multiple e := gcd(a, b), a := b, x := q, from 5.9
 
-    6.11. gcd(a, b) divides b·q + a mod b
-          mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.9, 6.10
-          requires a mod b ∈ ℤ: mun:nat0-int m := a mod b, from 2
+    5.11. gcd(a, b) divides b·q + a mod b
+          mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 5.9, 5.10
 
-    6.12. gcd(a, b) divides a
+    5.12. gcd(a, b) divides a
           substitute
-            gcd(a, b) divides b·q + a mod b      6.11
-            gcd(a, b) divides a                  algebra, from 4
+            gcd(a, b) divides b·q + a mod b      5.11
+            gcd(a, b) divides a                  algebra, from 3
 
-    6.13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-          join 6.9, 6.12
+    5.13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          join 5.9, 5.12

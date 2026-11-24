@@ -43,7 +43,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m * n) (n := t))).mp s1_1
     -- 1.3. algebra, from 1.2
     have s1_3 : t = m * (n * c) := by linear_combination s1_2
-    -- 1.4. def:divides d := m, n := t, from 1.1, 1.3
+    -- 1.4. def:divides d := m, n := t, from 1.3
     have s1_4 : m ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m) (n := t))).mpr ⟨n * c, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
     have s1_5 : t ∈ {x : ℤ | m ∣ x} := by
@@ -51,7 +51,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
       exact hI
     -- 1.6. algebra, from 1.2
     have s1_6 : t = n * (m * c) := by linear_combination s1_2
-    -- 1.7. def:divides d := n, n := t, from 1.1, 1.6
+    -- 1.7. def:divides d := n, n := t, from 1.6
     have s1_7 : n ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := t))).mpr ⟨m * c, s1_6⟩
     -- 1.8. def:set-builder, from 1.1, 1.7
     have s1_8 : t ∈ {x : ℤ | n ∣ x} := by

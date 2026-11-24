@@ -13,7 +13,6 @@
 //! answers. So the two tools agree on which memberships a step need not
 //! write.
 
-use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
@@ -25,9 +24,7 @@ use crate::formula::notation_id::NotationId;
 use crate::formula::page::template;
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
-use crate::matching::{
-    alike, alike_top, expand, standard, substitute_apart, Binding, FxIndexSet,
-};
+use crate::matching::{alike, expand, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
     ABSOLUTE_VALUE, APPLICATION, APPLICATION_TO_TWO, DEGREES, DISTANCE, DIVIDED,
     EQUALITY, EULER, FACTORIAL, GREATER, IN, INTEGER_RANGE, JUXTAPOSITION, LESS,
@@ -38,13 +35,13 @@ use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
 
 use super::library::Library;
-use super::parts::{bound_in, function_values, Bound, Parts, SaidOnceFact};
+use super::parts::{Parts, SaidOnceFact};
 use crate::checker::record::{StatedAt, SuppliedBy};
 use crate::formula::page;
 use crate::matching;
 use crate::matching::Context;
 use crate::methods::reals::{trig_value, Trig};
-use crate::methods::{reals, surds};
+use crate::methods::{membership, reals, surds};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -170,12 +167,9 @@ fn said_once_read(
     library: &Library,
     sorts: &Sorts,
 ) {
+    // The letters a fact puts in a number system are numbers too, as the
+    // bound j of "for all j ∈ {1, …, m}" is, read at a member.
     let mut letters = introduced.clone();
-    // A term a fact puts in a number system is a number there, and what the
-    // said-once operations build from it is too: N(n) + 1 ∈ ℝ where a line
-    // says N(n) ∈ ℝ, as a method's atoms are read
-    // (`methods::membership::said`).
-    let mut atoms: Vec<(Node, System)> = Vec::new();
     for f in &parts.facts {
         let [term, set] = f.children.as_slice() else {
             continue;
@@ -183,84 +177,31 @@ fn said_once_read(
         if f.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
             continue;
         }
-        let Some(system) = System::of_sign(&set.text) else {
-            continue;
-        };
-        // What a fact states the walk takes from that line (`Given::says`),
-        // which the checker places: a term's membership, and a letter's
-        // unless a line introducing the letter says as much, n ∈ ℕ of an n
-        // let in ℕ₀. A letter's fact saying no more than its introduction,
-        // the member a step is read at, is the letter's said once.
-        let narrows = !term.is_name()
-            || introduced
-                .get(term.text.as_str())
-                .is_none_or(|held| system.within(*held) && system != *held);
-        if narrows {
-            atoms.push((term.clone(), system));
+        if let (true, Some(system)) = (term.is_name(), System::of_sign(&set.text)) {
+            letters.entry(term.text.to_string()).or_insert(system);
         }
-        if !term.is_name() {
-            continue;
-        }
-        // Of two systems a letter is in, the narrower stands: a line saying
-        // q ∈ ℕ₀ narrows a q a `let` or an `obtain` put in ℤ.
-        letters
-            .entry(term.text.to_string())
-            .and_modify(|held| {
-                if system.within(*held) {
-                    *held = system;
-                }
-            })
-            .or_insert(system);
     }
-    // A function's value at a point the page puts in the function's domain
-    // once, a(n) with `let a : ℕ → ℝ` cited and `let n ∈ ℕ`, is in the
-    // codomain as at a point a line says (`SYNTAX.md`, a function's type
-    // and a point of its domain): the type line is cited, the point said
-    // once. A domain that is no number system, a range, asks its line.
-    let types: Vec<Node> = parts
+    // Whether and how the page says a membership is the one rule's
+    // (`membership::shown`): a letter in the system its introduction names,
+    // a line that narrows it, q ∈ ℕ₀ of a q a `let` put in ℤ, being a part
+    // the walk takes as it stands. A function's type the parts state is
+    // cited for its values; one in scope gives a sum's terms (`READERS.md`).
+    let cited_types: Vec<Node> = parts
         .facts
         .iter()
         .filter(|f| types_a_function(f))
         .cloned()
         .collect();
-    let mut points: Vec<Node> = Vec::new();
-    for typed in &types {
-        let [_, domain, _] = typed.children.as_slice() else {
-            continue;
-        };
-        let within = (domain.notation() == NUMBER_SYSTEMS)
-            .then(|| System::of_sign(&domain.text))
-            .flatten();
-        let Some(within) = within else {
-            continue;
-        };
-        for (letter, system) in &letters {
-            if system.within(within) {
-                let point = Node::name(Sort::none(), letter);
-                points.push(bound_in(Bound::Member, &point, domain, library.env.g));
-            }
-        }
-    }
-    if !points.is_empty() {
-        let typed_at: Vec<Node> = types.into_iter().chain(points).collect();
-        for value in function_values(&typed_at, library.env, sorts) {
-            if parts
-                .facts
-                .iter()
-                .any(|f| alike_top(f, &value, &library.ctx))
-            {
-                continue;
-            }
-            if let (Some(system), [term, _]) = (
-                value.children.get(1).and_then(|s| System::of_sign(&s.text)),
-                value.children.as_slice(),
-            ) {
-                atoms.push((term.clone(), system));
-            }
-            parts.facts.push(value);
-        }
-    }
     let ctx = &library.ctx;
+    let given = membership::Facts {
+        facts: &parts.facts,
+        letters: introduced.clone(),
+        ranged: IndexMap::new(),
+        typed: &cited_types,
+        in_sums: typed,
+        targets: &library.targets,
+        ctx,
+    };
     let mut local = sorts.clone();
     local.insert("x".into(), Sort::of("number"));
     // The code's own forms, read once here and filled with each term at x
@@ -274,8 +215,6 @@ fn said_once_read(
         .iter()
         .map(|(sign, _)| system_form(sign, &local, library))
         .collect();
-    // A divisor is not zero where the page says so (`nonzero_said`).
-    let nonzero = |d: &Node| nonzero_said(d, &letters, &parts.facts, ctx);
     let seeded: Vec<Node> = parts.seed.values().cloned().collect();
     let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
@@ -298,18 +237,12 @@ fn said_once_read(
             let Some(system) = System::of_label(label) else {
                 continue;
             };
-            let given = Given {
-                atoms: &atoms,
-                letters: &letters,
-                typed,
-                ctx,
-                taken: RefCell::new(Vec::new()),
+            let (Some(shown), Some(SystemForm { set, member })) =
+                (membership::shown(&node, system, &given), form)
+            else {
+                continue;
             };
-            let said = |t: &Node, s: System| given.says(t, s);
-            let (Some(reason), Some(SystemForm { set, member })) = (
-                reason_within(&node, system, &letters, &nonzero, &said),
-                form,
-            ) else {
+            let membership::Shown::Walked { reason, taken } = &shown else {
                 continue;
             };
             let fact = fill(
@@ -320,29 +253,43 @@ fn said_once_read(
                 ]),
             );
             out.push(fact.clone());
-            // Each part the walk took from a line, which the checker places
-            // where it records the walk.
-            let stated = given
-                .taken
-                .into_inner()
-                .into_iter()
-                .map(|(term, system)| StatedAt {
-                    term,
-                    system,
+            // Each part the walk took as it stands, which the checker places
+            // where it records the walk: one a line states, in the system the
+            // line puts it in, n ∈ ℕ of an n asked in ℤ.
+            let stated = taken
+                .iter()
+                .map(|part| StatedAt {
+                    term: part.term.clone(),
+                    system: line_system(&part.shown).unwrap_or(part.system),
                     by: SuppliedBy::Unstated,
                 })
                 .collect();
             walked.push(SaidOnceFact {
                 fact,
-                reason,
+                reason: reason.clone(),
                 stated,
+                shown: shown.clone(),
             });
         }
     }
+    drop(given);
     out.extend(points_in_plane(parts, &seeded, in_plane, library));
     out.extend(maps_on_domains(parts, &seeded, library));
     parts.facts.extend(out);
     parts.said_once.extend(walked);
+}
+
+/// The number system the line stating a part puts it in, where the part is
+/// shown by a line (`membership::Shown::Stated`); None where it is shown
+/// otherwise.
+fn line_system(shown: &membership::Shown) -> Option<System> {
+    let membership::Shown::Stated { line } = shown else {
+        return None;
+    };
+    let set = line.children.get(1)?;
+    (set.notation() == NUMBER_SYSTEMS)
+        .then(|| System::of_sign(&set.text))
+        .flatten()
 }
 
 /// Each map the step's facts, claims or values write is a function on its
@@ -438,34 +385,6 @@ fn points_in_plane(
             standard(&substitute_apart(&made, &put, ctx), ctx)
         })
         .collect()
-}
-
-/// What the said-once walk takes as it stands, where it does not take a
-/// term apart: a term a fact puts in a number system, and a sum said once
-/// by its terms (`sum_said_once`).
-struct Given<'a> {
-    atoms: &'a [(Node, System)],
-    letters: &'a Introduced,
-    typed: &'a [Node],
-    ctx: &'a Context,
-    /// Each fact's term and system the walk has taken as it stands, in the
-    /// order it took them (`SaidOnceFact::stated`).
-    taken: RefCell<Vec<(Node, System)>>,
-}
-
-impl Given<'_> {
-    fn says(&self, term: &Node, system: System) -> Option<OnceReason> {
-        let none = IndexMap::new();
-        let stated = self.atoms.iter().find(|(a, s)| {
-            s.within(system) && matching::alike(a, term, self.ctx, &none, &none)
-        });
-        if let Some((a, s)) = stated {
-            self.taken.borrow_mut().push((a.clone(), *s));
-            return Some(OnceReason::Stated);
-        }
-        sum_said_once(term, system, self.letters, self.typed, self.ctx)
-            .then_some(OnceReason::Sum)
-    }
 }
 
 /// Whether `term` is a number by what the page says once of the letters in

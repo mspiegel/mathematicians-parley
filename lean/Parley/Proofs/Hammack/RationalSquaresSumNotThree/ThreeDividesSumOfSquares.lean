@@ -66,7 +66,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
         have row1 : (3 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_2; revert h; norm_num)
         exact row1
       -- 4.4. thm:three-divides-no-small r := 1
-      have r149_1 : (1 : ℤ) < 3 := by norm_num
+      have r145_1 : (1 : ℤ) < 3 := by norm_num
       have s4_4 : ¬ (3 : ℤ) ∣ (1 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (1 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s4_3 s4_4
     · skip
@@ -80,7 +80,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
         have row1 : (3 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_6; revert h; norm_num)
         exact row1
       -- 4.8. thm:three-divides-no-small r := 2
-      have r167_1 : (2 : ℤ) < 3 := by norm_num
+      have r163_1 : (2 : ℤ) < 3 := by norm_num
       have s4_8 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (2 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s4_7 s4_8
   exact hS s4

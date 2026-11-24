@@ -70,8 +70,8 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
     have hH8_w : (p : ℚ) ^ a.toNat * (m : ℚ) = (p : ℚ) ^ a'.toNat * (m' : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hH8; push_cast at h; linear_combination h
     linear_combination hH8_w + ((m' : ℚ)) * s3_5
   -- 3.7. mun:power-positive a := p, m := a
-  have r421_1 : 0 < p := by exact hH1
-  have s3_7 : p ^ a.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by exact_mod_cast r421_1)); simp only [parley_zpow_toNat (n := a) (h := hH3)] at h ⊢; exact_mod_cast h)
+  have r420_1 : 0 < p := by exact hH1
+  have s3_7 : p ^ a.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by exact_mod_cast r420_1)); simp only [parley_zpow_toNat (n := a) (h := hH3)] at h ⊢; exact_mod_cast h)
   -- 3.8. inequalities
   have s3_8 : p ^ a.toNat ≠ 0 := ne_of_gt (by linarith only [s3_7])
   -- 3.9. mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a, from 3.6, 3.8
@@ -84,11 +84,11 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
     refine ⟨(p ^ (a' - a).toNat), by (push_cast; simp only [whole1]), ?_⟩
     exact (((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) hH1 hH2 (a := p) (n := a' - a) s3_2)).mpr s3_10)
   -- 3.12. mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.11
-  have r441_1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by
+  have r440_1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, _, hm⟩ := s3_3; exact ⟨m, by exact_mod_cast hm⟩
     exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1])⟩
   have s3_12 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) ∧ p ∣ m := by
-    have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, hm⟩ := r441_1; exact ⟨m, by exact_mod_cast hm⟩
+    have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, hm⟩ := r440_1; exact ⟨m, by exact_mod_cast hm⟩
     have s3_11 := parley_witness_at s3_11 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]))
     refine ⟨((Classical.choose whole1 : ℤ) * m'), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := (Classical.choose whole1 : ℤ)) (x := m') s3_11))

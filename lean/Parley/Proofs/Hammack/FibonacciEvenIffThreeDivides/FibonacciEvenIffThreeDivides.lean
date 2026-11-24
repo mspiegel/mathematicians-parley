@@ -151,96 +151,94 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
   constructor
   · skip
     intro hP1
-    -- 5.1. mun:mod-natural a := n, b := 3
-    have s5_1 : 0 ≤ n % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := n) (b := (3 : ℤ)) (by norm_num))
-    -- 5.2. mun:mod-less a := n, b := 3
-    have s5_2 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by norm_num))
-    -- 5.3. thm:residue-mod-three r := n mod 3, from 5.1, 5.2
-    have s5_3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) s5_1 s5_2)
-    -- 5.4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1, 5.2
-    obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) s5_1 s5_2)).mp rfl
-    -- 5.5. algebra, from 5.4
-    have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination s5_4
-    -- 5.6. inequalities, from H1
-    have s5_6 : n ≥ 1 := by linarith only [hH1]
+    -- 5.1. mun:mod-less a := n, b := 3
+    have s5_1 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by norm_num))
+    -- 5.2. thm:residue-mod-three r := n mod 3, from 5.1
+    have s5_2 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) (Int.emod_nonneg _ (ne_of_gt (by norm_num))) s5_1)
+    -- 5.3. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1
+    obtain ⟨q, s5_3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) (Int.emod_nonneg _ (ne_of_gt (by norm_num))) s5_1)).mp rfl
+    -- 5.4. algebra, from 5.3
+    have s5_4 : q * 3 = n - n % (3 : ℤ) := by linear_combination s5_3
+    -- 5.5. inequalities, from H1
+    have s5_5 : n ≥ 1 := by linarith only [hH1]
+    -- 5.6. inequalities
+    have s5_6 : n - n % (3 : ℤ) > n - 3 := by linarith only [s5_1]
     -- 5.7. inequalities
-    have s5_7 : n - n % (3 : ℤ) > n - 3 := by linarith only [s5_2]
-    -- 5.8. inequalities
-    have s5_8 : n - 3 ≥ -2 := by linarith only [s5_6]
-    -- 5.9. transitivity, from 5.5, 5.7, 5.8
-    have s5_9 : q * 3 > -2 := by exact LT.lt.trans_eq (lt_of_le_of_lt s5_8 s5_7) s5_5.symm
-    -- 5.10. inequalities
-    have s5_10 : (q : ℚ) > -(2 / 3) := by linarith only [(show (q : ℚ) * 3 > -2 by exact_mod_cast s5_9)]
-    -- 5.11. calculation
-    have s5_11 : q > -1 := by
+    have s5_7 : n - 3 ≥ -2 := by linarith only [s5_5]
+    -- 5.8. transitivity, from 5.4, 5.6, 5.7
+    have s5_8 : q * 3 > -2 := by exact LT.lt.trans_eq (lt_of_le_of_lt s5_7 s5_6) s5_4.symm
+    -- 5.9. inequalities
+    have s5_9 : (q : ℚ) > -(2 / 3) := by linarith only [(show (q : ℚ) * 3 > -2 by exact_mod_cast s5_8)]
+    -- 5.10. calculation
+    have s5_10 : q > -1 := by
       qify
-      calc (q : ℚ) > -(2 / 3) := s5_10
+      calc (q : ℚ) > -(2 / 3) := s5_9
         _ > -1 := by norm_num
-    -- 5.12. calculation
-    have s5_12 : 0 ≤ q := by
+    -- 5.11. calculation
+    have s5_11 : 0 ≤ q := by
       calc (0 : ℤ) = -1 + 1 := by norm_num
-        _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_11)
-    -- 5.13. mun:nat0-as-int n := q, from 5.12
-    have s5_13 : 0 ≤ q := by
-      have hI : 0 ≤ q := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨⟨_, rfl⟩, s5_12⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
+        _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_10)
+    -- 5.12. mun:nat0-as-int n := q, from 5.11
+    have s5_12 : 0 ≤ q := by
+      have hI : 0 ≤ q := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨⟨_, rfl⟩, s5_11⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
       exact hI
-    -- 5.14. cases, from 5.3
-    rcases s5_3 with (hC1 | hC2) | hC3
+    -- 5.13. cases, from 5.2
+    rcases s5_2 with (hC1 | hC2) | hC3
     · skip
-      -- 5.14.1. substitute n mod 3 = 0 (C1) into line 5.4
-      have s5_14_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s5_4; push_cast [add_zero] at h ⊢; exact_mod_cast h)
-      -- 5.14.2. algebra, from 5.14.1
-      have s5_14_2 : n = 3 * q := by linear_combination (-1) * s5_14_1
-      -- 5.14.3. def:divides d := 3, from 5.14.2
-      exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_14_2⟩
+      -- 5.13.1. substitute n mod 3 = 0 (C1) into line 5.3
+      have s5_13_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s5_3; push_cast [add_zero] at h ⊢; exact_mod_cast h)
+      -- 5.13.2. algebra, from 5.13.1
+      have s5_13_2 : n = 3 * q := by linear_combination (-1) * s5_13_1
+      -- 5.13.3. def:divides d := 3, from 5.13.2
+      exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_13_2⟩
     · skip
-      -- 5.14.4. substitute n mod 3 = 1 (C2) into line 5.4
-      have s5_14_4 : q * 3 + 1 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC2 s5_4
-      -- 5.14.5. algebra, from 5.14.4
-      have s5_14_5 : n = 3 * q + 1 := by linear_combination (-1) * s5_14_4
-      -- 5.14.6. instantiate k := q in line 4, from 5.13
-      have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
-      -- 5.14.7. instantiate k := 3q + 1 in line 2
-      have r274_1 : 0 ≤ 3 * q + 1 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
-      -- 5.14.8. substitute n = 3q + 1 (line 5.14.5) into P1
-      have s5_14_8 : Even (F (3 * q + 1)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_14_5 hP1
-      -- 5.14.9. mun:not-both n := F(3q + 1), from 5.14.8
-      have s5_14_9 : ¬ Odd (F (3 * q + 1)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := F (3 * q + 1)) s5_14_8)
-      exact absurd s5_14_6.1.2 s5_14_9
+      -- 5.13.4. substitute n mod 3 = 1 (C2) into line 5.3
+      have s5_13_4 : q * 3 + 1 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC2 s5_3
+      -- 5.13.5. algebra, from 5.13.4
+      have s5_13_5 : n = 3 * q + 1 := by linear_combination (-1) * s5_13_4
+      -- 5.13.6. instantiate k := q in line 4, from 5.12
+      have s5_13_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_12)
+      -- 5.13.7. instantiate k := 3q + 1 in line 2
+      have r267_1 : 0 ≤ 3 * q + 1 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_11)) (by norm_num)
+      -- 5.13.8. substitute n = 3q + 1 (line 5.13.5) into P1
+      have s5_13_8 : Even (F (3 * q + 1)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_13_5 hP1
+      -- 5.13.9. mun:not-both n := F(3q + 1), from 5.13.8
+      have s5_13_9 : ¬ Odd (F (3 * q + 1)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := F (3 * q + 1)) s5_13_8)
+      exact absurd s5_13_6.1.2 s5_13_9
     · skip
-      -- 5.14.10. substitute n mod 3 = 2 (C3) into line 5.4
-      have s5_14_10 : q * 3 + 2 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC3 s5_4
-      -- 5.14.11. algebra, from 5.14.10
-      have s5_14_11 : n = 3 * q + 2 := by linear_combination (-1) * s5_14_10
-      -- 5.14.12. instantiate k := q in line 4, from 5.13
-      have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
-      -- 5.14.13. instantiate k := 3q + 2 in line 2
-      have r298_1 : 0 ≤ 3 * q + 2 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
-      -- 5.14.14. substitute n = 3q + 2 (line 5.14.11) into P1
-      have s5_14_14 : Even (F (3 * q + 2)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_14_11 hP1
-      -- 5.14.15. mun:not-both n := F(3q + 2), from 5.14.14
-      have s5_14_15 : ¬ Odd (F (3 * q + 2)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := F (3 * q + 2)) s5_14_14)
-      exact absurd s5_14_12.2 s5_14_15
+      -- 5.13.10. substitute n mod 3 = 2 (C3) into line 5.3
+      have s5_13_10 : q * 3 + 2 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC3 s5_3
+      -- 5.13.11. algebra, from 5.13.10
+      have s5_13_11 : n = 3 * q + 2 := by linear_combination (-1) * s5_13_10
+      -- 5.13.12. instantiate k := q in line 4, from 5.12
+      have s5_13_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_12)
+      -- 5.13.13. instantiate k := 3q + 2 in line 2
+      have r291_1 : 0 ≤ 3 * q + 2 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_11)) (by norm_num)
+      -- 5.13.14. substitute n = 3q + 2 (line 5.13.11) into P1
+      have s5_13_14 : Even (F (3 * q + 2)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_13_11 hP1
+      -- 5.13.15. mun:not-both n := F(3q + 2), from 5.13.14
+      have s5_13_15 : ¬ Odd (F (3 * q + 2)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := F (3 * q + 2)) s5_13_14)
+      exact absurd s5_13_12.2 s5_13_15
   · skip
     intro hP2
-    -- 5.15. obtain k: def:divides d := 3, from P2
-    obtain ⟨k, s5_15⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mp hP2
-    -- 5.16. inequalities, from H1
-    have s5_16 : n ≥ 1 := by linarith only [hH1]
-    -- 5.17. transitivity, from 5.15, 5.16
-    have s5_17 : 3 * k ≥ 1 := by exact LE.le.trans_eq s5_16 s5_15.symm.symm
-    -- 5.18. inequalities
-    have s5_18 : (k : ℚ) ≥ 1 / 3 := by linarith only [(show 3 * (k : ℚ) ≥ 1 by exact_mod_cast s5_17)]
-    -- 5.19. calculation
-    have s5_19 : k > 0 := by
+    -- 5.14. obtain k: def:divides d := 3, from P2
+    obtain ⟨k, s5_14⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mp hP2
+    -- 5.15. inequalities, from H1
+    have s5_15 : n ≥ 1 := by linarith only [hH1]
+    -- 5.16. transitivity, from 5.14, 5.15
+    have s5_16 : 3 * k ≥ 1 := by exact LE.le.trans_eq s5_15 s5_14.symm.symm
+    -- 5.17. inequalities
+    have s5_17 : (k : ℚ) ≥ 1 / 3 := by linarith only [(show 3 * (k : ℚ) ≥ 1 by exact_mod_cast s5_16)]
+    -- 5.18. calculation
+    have s5_18 : k > 0 := by
       qify
-      calc (k : ℚ) ≥ 1 / 3 := s5_18
+      calc (k : ℚ) ≥ 1 / 3 := s5_17
         _ > 0 := by norm_num
-    -- 5.20. mun:pos-int-nat m := k, from 5.19
-    have s5_20 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5_19)
-    -- 5.21. instantiate k := k in line 4, from 5.20
-    have s5_21 : (Even (F (3 * k)) ∧ Odd (F (3 * k + 1))) ∧ Odd (F (3 * k + 2)) := by exact (s4 k (le_of_lt s5_20))
-    -- 5.22. substitute n = 3·k (line 5.15) into line 5.21
-    exact Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_15.symm s5_21.1.1
+    -- 5.19. mun:pos-int-nat m := k, from 5.18
+    have s5_19 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5_18)
+    -- 5.20. instantiate k := k in line 4, from 5.19
+    have s5_20 : (Even (F (3 * k)) ∧ Odd (F (3 * k + 1))) ∧ Odd (F (3 * k + 2)) := by exact (s4 k (le_of_lt s5_19))
+    -- 5.21. substitute n = 3·k (line 5.14) into line 5.20
+    exact Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_14.symm s5_20.1.1
 
 end Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides

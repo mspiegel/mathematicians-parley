@@ -101,7 +101,6 @@ theorem log-three-over-two-irrational
 
     2.2.  (ln(3)/ln(2))·q > 0
           mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
-          requires ln(2) ≠ 0: real arithmetic
 
     2.3.  p > 0
           substitute

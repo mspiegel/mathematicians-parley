@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/divisibility/mod-less
-import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/sums/range-from-bounds
 
 theorem remainder-by-three-is-one-of-three
@@ -10,25 +9,22 @@ theorem remainder-by-three-is-one-of-three
   let n ∈ ℤ                                                           (H1)
   then n mod 3 ≤ 2
 
-1.  n mod 3 ∈ ℕ₀
-    mun:mod-natural b := 3
-
-2.  n mod 3 < 3
+1.  n mod 3 < 3
     mun:mod-less b := 3
 
-3.  n mod 3 ∈ {0, …, 3 − 1}
-    mun:range-from-bounds, from 1, 2
+2.  n mod 3 ∈ {0, …, 3 − 1}
+    mun:range-from-bounds, from 1
 
-4.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
-    inspection, from 3
+3.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
+    inspection, from 2
 
-5.  n mod 3 ≤ 2
-    cases, from 4
+4.  n mod 3 ≤ 2
+    cases, from 3
 
     case
     assume n mod 3 = 0                                                (C1)
 
-    5.1.  n mod 3 ≤ 2
+    4.1.  n mod 3 ≤ 2
           calculation
             n mod 3 = 0         C1
                     ≤ 2         arithmetic
@@ -36,7 +32,7 @@ theorem remainder-by-three-is-one-of-three
     case
     assume n mod 3 = 1                                                (C2)
 
-    5.2.  n mod 3 ≤ 2
+    4.2.  n mod 3 ≤ 2
           calculation
             n mod 3 = 1         C2
                     ≤ 2         arithmetic
@@ -44,7 +40,7 @@ theorem remainder-by-three-is-one-of-three
     case
     assume n mod 3 = 2                                                (C3)
 
-    5.3.  n mod 3 ≤ 2
+    4.3.  n mod 3 ≤ 2
           calculation
             n mod 3 = 2         C3
                     ≤ 2         arithmetic

@@ -8,6 +8,7 @@ use super::super::doc::{forms, CountForm, LeanType, Quant, TermKind};
 use super::super::templates::Num;
 use super::super::{expr, tactics as t};
 use super::*;
+use crate::checker::record::Besides;
 use crate::citing::bounds::Bound;
 use crate::citing::finite::{FiniteBy, Making};
 use crate::citing::{
@@ -1919,6 +1920,25 @@ impl<'a> Proof<'a> {
             != Some(LeanType::Num(Num::Int))
         {
             return Route::no("a said-once membership Lean states outside ℤ");
+        }
+        // A term the walk took beside a cited equation (`Besides::of`), its
+        // bound carried along the equation from the other side's, as a
+        // `membership` claim shown so is (`bound_beside`).
+        if let (Some(beside), Some(system), Some(i)) =
+            (Besides::of(&walked.shown), system, self.step_now.get())
+        {
+            let just = &self.thm.steps[i].just;
+            let cited = self.cited_equations(&just.refs);
+            return match self.bound_beside(&beside, system, just, &cited) {
+                Some(p) => Route::Built(match back {
+                    Some(b) => b.then(p),
+                    None => p,
+                }),
+                None => Route::no(format!(
+                    "a membership beside an equation no bound is written for, of {}",
+                    self.writer.grammar.print(term)
+                )),
+            };
         }
         let proof = match (system, relation_symbol(wanted)) {
             // A natural number Lean casts up, `(Int.gcd s w : ℤ)`.

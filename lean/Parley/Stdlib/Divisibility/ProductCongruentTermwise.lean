@@ -46,7 +46,7 @@ theorem product_congruent_termwise {α : Type*} [Nonempty α] (X : Set α) (hH2 
   -- 2. mun:product-integer-terms t := u, from H2
   have s2 : ∀ Z ∈ 𝒫 X, True := by exact (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := u) (X := X) hH2)
   -- 3. induction on Y starting at ∅
-  have r689_1 : X.Finite := by exact hH2
+  have r688_1 : X.Finite := by exact hH2
   have s3 : ∀ Y ∈ 𝒫 X, (∏ᶠ x ∈ Y, (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) [ZMOD n] := by
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
@@ -100,7 +100,7 @@ theorem product_congruent_termwise {α : Type*} [Nonempty α] (X : Set α) (hH2 
       have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := Eq.subst (motive := (fun w : ℤ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ w [ZMOD n])) c1 s3_18
       exact row1
   -- 4. instantiate Y := X in line 3
-  have r774_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  exact (s3 X r774_1)
+  have r773_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
+  exact (s3 X r773_1)
 
 end Parley.Stdlib.Divisibility.ProductCongruentTermwise

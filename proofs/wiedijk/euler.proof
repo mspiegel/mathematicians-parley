@@ -13,7 +13,6 @@ import mundane theorem    stdlib/divisibility/congruent-in-range
 import mundane theorem    stdlib/divisibility/mod-congruent
 import mundane theorem    stdlib/divisibility/mod-equal-congruent
 import theorem            stdlib/divisibility/gcd-mod
-import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/phi-natural
 import mundane theorem    stdlib/functions/function-into
@@ -80,7 +79,6 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     6.4.  (r·a) mod n ∈ {0, …, n − 1}
           mun:range-from-bounds, from 6.3
           requires r ∈ ℤ: mun:range-integer, from 6.1
-          requires (r·a) mod n ∈ ℕ₀: mun:mod-natural, from H1
 
     6.5.  (r·a) mod n ∈ S
           def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4

@@ -228,6 +228,7 @@
 {"key":"le_trans","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"left_ne_zero_of_mul","kind":"const","modules":["Mathlib.Algebra.GroupWithZero.Basic"]}
 {"key":"lt_of_le_of_lt","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"lt_of_lt_of_eq","kind":"const","modules":[]}
 {"key":"lt_of_lt_of_le","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_trans","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"max","kind":"const","modules":[]}
@@ -854,6 +855,7 @@
 {"key":"lt_of_le_of_lt (by skip) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"lt_of_le_of_lt (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_of_le_of_lt a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"lt_of_lt_of_eq a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"lt_of_lt_of_le (by skip) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"lt_of_lt_of_le (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_of_lt_of_le a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
