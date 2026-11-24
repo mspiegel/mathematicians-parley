@@ -1,6 +1,8 @@
 //! Chain claims, inequality rows, kind methods and memberships.
 
-use super::super::record::{HeldByLines, Inspection, LinesHold, PlaceShown, ShownBy};
+use super::super::record::{
+    HeldByLines, Inspection, LinesHold, PlaceShown, ShownBy, StatedIn,
+};
 use super::*;
 use crate::methods::inspection;
 use crate::methods::inspection::{Facts, Inspected};
@@ -1555,6 +1557,9 @@ pub(super) struct MembershipIn {
     /// The facts the lines state, of which `facts` holds these and what
     /// they imply, `x > 0` of `x ∈ ℕ` (`implied_facts`).
     pub(super) stated: Vec<Node>,
+    /// Where the page writes each of `stated`, in its order; None for a
+    /// line of a read `ClosureClaim::read` did not make (`MembershipIn::of`).
+    pub(super) stated_in: Vec<Option<StatedIn>>,
     pub(super) letters: Introduced,
     pub(super) ranged: IndexMap<String, methods_membership::Range>,
     pub(super) typed: Vec<Node>,
@@ -1572,15 +1577,33 @@ impl MembershipIn {
         // A step's requires lines are among its facts in (`METHODS.md`), a
         // requires line's are the lines above it, which `read` holds.
         let mut lines = read.lines.clone();
+        // Where each line is, as `ClosureClaim::read` places it (`line_of`):
+        // a cited line by its reference, then a requires line above by its
+        // place among those. A read made otherwise, a chain's links by
+        // their place, has no such place.
+        let mut sources: Vec<Option<StatedIn>> = read
+            .line_of
+            .iter()
+            .map(|&i| match at.refs.get(i) {
+                Some(r) => Some(StatedIn::Cited { line: r.clone() }),
+                None => at
+                    .above
+                    .get(i - at.refs.len())
+                    .map(|r| StatedIn::Requires { line: r.line }),
+            })
+            .collect();
         if at.requires.is_none() {
             let defined = known.citing_step(at.step);
             for r in &at.step.requires {
-                lines.extend(
-                    r.fact
-                        .sentences()
-                        .iter()
-                        .filter_map(|s| known.read_citing(s, &defined)),
-                );
+                for said in r
+                    .fact
+                    .sentences()
+                    .iter()
+                    .filter_map(|s| known.read_citing(s, &defined))
+                {
+                    lines.push(said);
+                    sources.push(Some(StatedIn::Requires { line: r.line }));
+                }
             }
         }
         // A claim said of every member of a set is decided at a member, which
@@ -1593,6 +1616,7 @@ impl MembershipIn {
                 page::made_as(known.env.g, "_ ∈ _", vec![bound.clone(), set.clone()])
             {
                 lines.push(member);
+                sources.push(Some(StatedIn::Member));
             }
         }
         // A step said of every member in one line, and its requires lines,
@@ -1608,7 +1632,14 @@ impl MembershipIn {
                 }
             }
         }
-        let stated: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
+        let mut stated: Vec<Node> = Vec::new();
+        let mut stated_in: Vec<Option<StatedIn>> = Vec::new();
+        for (line, source) in lines.iter().zip(&sources) {
+            for part in conjuncts(line) {
+                stated.push(part);
+                stated_in.push(source.clone());
+            }
+        }
         let mut facts = stated.clone();
         let implied: Vec<Node> = stated
             .iter()
@@ -1634,6 +1665,7 @@ impl MembershipIn {
         MembershipIn {
             facts,
             stated,
+            stated_in,
             letters,
             ranged,
             typed,

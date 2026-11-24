@@ -429,7 +429,7 @@ pub fn written_out(
     }
     for part in written.divided_by.values_mut().flatten() {
         part.term = out(&part.term);
-        if let super::record::NonzeroBy::Stated { line, from } = &mut part.by {
+        if let super::record::NonzeroBy::Stated { line, from, .. } = &mut part.by {
             *line = out(line);
             *from = out(from);
         }

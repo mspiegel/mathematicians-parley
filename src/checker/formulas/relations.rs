@@ -301,12 +301,12 @@ fn nonzero_in(
                         NonzeroHow::Stated(line) => {
                             // The line it is read from: itself where a line
                             // states it, or the fact implying it.
-                            let Some(from) = held
+                            let Some(k) = held
                                 .stated
                                 .iter()
-                                .find(|s| known.alike(s, line))
+                                .position(|s| known.alike(s, line))
                                 .or_else(|| {
-                                    held.stated.iter().find(|s| {
+                                    held.stated.iter().position(|s| {
                                         implied_facts(s, known.env, &known.sorts)
                                             .iter()
                                             .any(|i| known.alike(i, line))
@@ -315,9 +315,15 @@ fn nonzero_in(
                             else {
                                 continue;
                             };
+                            // `with_unequal` is `ClosureClaim::read`'s, so
+                            // every line it holds has its place.
+                            let Some(place) = held.stated_in[k].clone() else {
+                                continue;
+                            };
                             NonzeroBy::Stated {
                                 line: line.clone(),
-                                from: from.clone(),
+                                from: held.stated[k].clone(),
+                                at: place,
                             }
                         }
                         NonzeroHow::Numerals => NonzeroBy::Numerals,

@@ -672,13 +672,31 @@ pub enum NonzeroBy {
     /// A line the reason rests on says so: `line` is what says it, as the
     /// check read it, `d ≠ 0` either way round or a sign, `0 < d`, `d > 0`,
     /// `d < 0` or `0 > d`; `from` is the sentence it is read from, `line`
-    /// itself or a fact implying it, `d ∈ ℕ` of `d > 0`.
-    Stated { line: Node, from: Node },
+    /// itself or a fact implying it, `d ∈ ℕ` of `d > 0`; `at` is where the
+    /// page writes `from`.
+    Stated {
+        line: Node,
+        from: Node,
+        at: StatedIn,
+    },
     /// Numerals alone, whose value is not zero.
     Numerals,
     /// A positive integer by what the page says once: k, j·(j + 1), 2^n
     /// and (k + 1)! where k, j and n are letters in ℕ.
     Positive,
+}
+
+/// Where the page writes a line a reason rests on (`NonzeroBy::Stated`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum StatedIn {
+    /// A line the reason cites, by the reference that names it.
+    Cited { line: String },
+    /// A requires line, the step's own or one above the requires line the
+    /// reason is of, by the page line it is on.
+    Requires { line: usize },
+    /// What a claim said of every member gives its member: x ∈ [a, b] of
+    /// "for all x ∈ [a, b], …".
+    Member,
 }
 
 /// A term a step puts where a notation asks a number system, and how the

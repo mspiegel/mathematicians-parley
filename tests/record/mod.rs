@@ -11,7 +11,7 @@ use std::slice;
 
 use parley::checker::record::{
     Cited, DomainSaid, Facing, First, FirstAt, NonzeroBy, OrderFact, OrderPart,
-    Restated, SuppliedBy, Unfolded,
+    Restated, StatedIn, SuppliedBy, Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -364,7 +364,13 @@ pub fn printed_but(
             .iter()
             .map(|p| {
                 let by = match &p.by {
-                    NonzeroBy::Stated { from, .. } => format!("by {}", g.print(from)),
+                    NonzeroBy::Stated { at, .. } => match at {
+                        StatedIn::Cited { line } => format!("by {line}"),
+                        StatedIn::Requires { line } => {
+                            format!("by {}", requires_at(thm, *line))
+                        }
+                        StatedIn::Member => "by its member".to_string(),
+                    },
                     NonzeroBy::Numerals => "by its numerals".to_string(),
                     NonzeroBy::Positive => "a positive integer said once".to_string(),
                 };
@@ -597,7 +603,7 @@ fn citation(cited: &Cited, g: &Grammar, rewritten: &dyn Fn(usize) -> bool) -> St
                 .iter()
                 .map(|u| match u {
                     None => "none".to_string(),
-                    Some(parts) => format!("[{}]", unfolded_parts(parts, g)),
+                    Some(parts) => format!("[{}]", unfolded_parts(parts, g, rewritten)),
                 })
                 .collect();
             format!("; unfolded {}", each.join(", "))
@@ -648,13 +654,23 @@ fn meeting_words(m: &Meeting) -> String {
 /// The parts of a definition's right side (`Cited::unfolded`): each fact
 /// and what supplies it, each witness with its membership and its body's
 /// parts.
-fn unfolded_parts(parts: &[Unfolded], g: &Grammar) -> String {
+fn unfolded_parts(
+    parts: &[Unfolded],
+    g: &Grammar,
+    rewritten: &dyn Fn(usize) -> bool,
+) -> String {
     let each: Vec<String> = parts
         .iter()
         .map(|p| match p {
             Unfolded::Fact { fact, by, meeting } => {
                 let mut said = format!("{} by {}", g.print(fact), supplier(g, by));
-                if let Some(m) = meeting.as_ref().filter(|m| !m.as_written()) {
+                // How a requires line the rewrite changed meets is left
+                // out, as it is of a supplier (`citation`).
+                let changed =
+                    matches!(by, SuppliedBy::Requires { line, .. } if rewritten(*line));
+                if let Some(m) =
+                    meeting.as_ref().filter(|m| !m.as_written() && !changed)
+                {
                     write!(said, " met {}", meeting_words(m)).unwrap();
                 }
                 said
@@ -666,8 +682,8 @@ fn unfolded_parts(parts: &[Unfolded], g: &Grammar) -> String {
             } => format!(
                 "witness {} with {}; {}",
                 g.print(value),
-                unfolded_parts(slice::from_ref(member.as_ref()), g),
-                unfolded_parts(body, g)
+                unfolded_parts(slice::from_ref(member.as_ref()), g, rewritten),
+                unfolded_parts(body, g, rewritten)
             ),
         })
         .collect();
