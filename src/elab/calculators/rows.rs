@@ -88,6 +88,14 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
+    /// `term` with the defined names the checker read the reason being
+    /// built with written out (`recorded_defines`), as the checker's record
+    /// of the reason spells its terms.
+    pub(in crate::elab) fn recorded_out(&mut self, term: &Term) -> Term {
+        let names = self.recorded_defines();
+        self.defines_out(term, &names)
+    }
+
     /// The setvar a class term `cv x` names, as `named_body` reads it; None
     /// for any other term.
     fn setvar_named(&self, term: &Term) -> Option<String> {

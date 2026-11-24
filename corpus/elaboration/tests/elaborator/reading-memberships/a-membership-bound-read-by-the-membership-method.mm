@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.reading-memberships.a-membership-bound-read-by-the-membership-method $p |- ( ( A e. RR /\ A e. NN ) -> ( 1 / A ) e. RR ) $=
-    ( cr wcel cn wa c1 1re a1i simpr nnre syl nnne0d redivcld ) ABCZADCZEZFAFBCPGHPONNOIZAJKPAQLM $.
+    ( cr wcel cn wa c1 1re a1i simpr nnre syl cc0 wne nnne0 redivcld ) ABCZADCZEZFAFBCRGHRQPPQIZAJKRQALMSANKO $.
 $}

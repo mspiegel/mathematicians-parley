@@ -741,21 +741,13 @@ impl<'a> Elaborator<'a> {
                         Some(written) => facts.with(written),
                         None => facts.copy(),
                     };
-                    // The line is held among those, or among what the step
-                    // wrote, its requires lines (`written_held`).
-                    let mut said = self.held(&lines, &from, scope)?;
-                    if said.is_none() {
-                        if let Some(w) = self.written_held(&from)? {
-                            said = self.lifted_to(&from, &w.proof, &w.at, scope);
-                        }
-                    }
                     // That line alone says the divisor is not zero, with the
                     // memberships in hand for carrying it to the spelling
                     // asked.
-                    match said {
+                    match self.recorded_line(&from, &lines, scope)? {
                         Some(said) => {
                             let only = facts.filtered(|c, _| c.ends_with(&["wcel"]));
-                            self.know(&only, from, said);
+                            self.know(&only, said.claim, said.proof);
                             self.written_nonzero(
                                 scope,
                                 &only,
@@ -800,8 +792,10 @@ impl<'a> Elaborator<'a> {
     }
 
     /// How a divisor asked is the page's term `named` the record names, or
-    /// None where it is not: the same term in standard form, |BO| asked of
-    /// |OB|; or the normaliser's spelling of it, 1·x¹ + 3·1 asked of x + 3,
+    /// None where it is not: the same term in standard form, with the
+    /// defines the reason is read with written out as the record spells it
+    /// (`recorded_out`), |BO| asked of |OB| and A of Σ(k = 1 to n) a(k)² with
+    /// A so defined; or the normaliser's spelling of it, 1·x¹ + 3·1 asked of x + 3,
     /// with ( scope -> named = asked ) (`apart_as_written`). A product the
     /// normaliser asks of, 1·|AP|¹, is no entry's term, and is taken apart
     /// (`parts_apart`).
@@ -812,11 +806,8 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<AskedAs>> {
-        let standard = |me: &mut Self, d: &Rpn| {
-            let s = me.standard(&me.to_term(d));
-            me.rpn(&s)
-        };
-        if standard(self, divisor) == standard(self, named) {
+        let (asked, recorded) = (self.to_term(divisor), self.to_term(named));
+        if self.alike_as_recorded(&asked, &recorded) {
             return Ok(Some(AskedAs::Page));
         }
         let mut w = Work::plain(scope, facts);
@@ -830,6 +821,77 @@ impl<'a> Elaborator<'a> {
                 _ => None,
             },
         )
+    }
+
+    /// The line the record names, `from`, as the build holds it under
+    /// `scope`: among `lines`, or among what the step wrote, its requires
+    /// lines (`written_held`), each found by standard form as `held` finds
+    /// a fact; else the one of either that is `from` with the defines the
+    /// reason is read with written out, as the record spells it, A > 0 of
+    /// Σ(k = 1 to n) a(k)² > 0 with A so defined (`alike_as_recorded`).
+    fn recorded_line(
+        &mut self,
+        from: &Rpn,
+        lines: &Facts,
+        scope: &Rpn,
+    ) -> Checked<Option<ProvedClaim>> {
+        let found = |claim: &Rpn, proof: Proof| ProvedClaim {
+            claim: claim.clone(),
+            proof,
+        };
+        if let Some(proof) = self.held(lines, from, scope)? {
+            return Ok(Some(found(from, proof)));
+        }
+        if let Some(w) = self.written_held(from)? {
+            if let Some(proof) = self.lifted_to(from, &w.proof, &w.at, scope) {
+                return Ok(Some(found(from, proof)));
+            }
+        }
+        let recorded = self.to_term(from);
+        for (claim, proof) in lines.entries() {
+            if self.alike_as_recorded(&self.to_term(&claim), &recorded) {
+                return Ok(Some(found(&claim, proof)));
+            }
+        }
+        let written = self.written.clone();
+        for (claim, proof) in written.facts().entries() {
+            if !self.alike_as_recorded(&self.to_term(&claim), &recorded) {
+                continue;
+            }
+            let Some(at) = written.at(&claim) else {
+                continue;
+            };
+            if let Some(proof) = self.lifted_to(&claim, &proof, at, scope) {
+                return Ok(Some(found(&claim, proof)));
+            }
+        }
+        Ok(None)
+    }
+
+    /// Whether `asked`, a term the build holds, is `recorded`, a term the
+    /// checker's record of the reason being built names: the two in
+    /// standard form once the defines the reason is read with are written
+    /// out (`recorded_out`), and each sum is read over one letter neither
+    /// holds, as a sum a define names and the same sum the record writes
+    /// may run over other letters.
+    fn alike_as_recorded(&mut self, asked: &Term, recorded: &Term) -> bool {
+        let letter = self
+            .unheld(&[asked, recorded])
+            .map(|v| self.rpn(&v).to_string());
+        let asked = self.read_as_recorded(asked, letter.as_deref());
+        asked == self.read_as_recorded(recorded, letter.as_deref())
+    }
+
+    /// `term` as `alike_as_recorded` compares it: the reason's recorded
+    /// defines written out, each sum over `letter` where one is given, in
+    /// standard form.
+    fn read_as_recorded(&mut self, term: &Term, letter: Option<&str>) -> Rpn {
+        let mut out = self.recorded_out(term);
+        if let Some(letter) = letter {
+            out = self.sums_over(&out, letter);
+        }
+        let standard = self.standard(&out);
+        self.rpn(&standard)
     }
 
     /// Whether `term` is a product, or a power to a numeral, whose every

@@ -839,13 +839,18 @@ impl<'a> Elaborator<'a> {
     /// divisor not being zero is the page's to say, in a requires line or a
     /// line the step cites, unless the page says it once, of a term of
     /// numerals alone whose value is not zero or of a positive integer, and
-    /// is not searched for (`divisor_apart`).
+    /// is not searched for (`divisor_apart`). Inside a reason the record
+    /// is read for (`reads_record`), as the checker recorded the reason's
+    /// divisors (`reason_apart`).
     pub fn divisor_written(
         &mut self,
         divisor: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        self.divisor_apart(divisor, scope, facts, &OnceCell::new())
+        match self.reads_record(&self.to_term(divisor)) {
+            true => self.reason_apart(divisor, scope, facts, &OnceCell::new(), None),
+            false => self.divisor_apart(divisor, scope, facts, &OnceCell::new()),
+        }
     }
 }
