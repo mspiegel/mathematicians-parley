@@ -535,6 +535,17 @@ pub struct CheckedTheorem {
     /// divisions knowing each, `3n − 1` by the line saying `3n − 1 ≠ 0`
     /// and N! as a positive integer.
     pub divided_by: IndexMap<usize, Vec<NotZero>>,
+    /// The defined names a reason is read with written out, by the line the
+    /// reason is on: a step's, a requires line's, a calculation's or a
+    /// substitution's row, or the reason under a define that says a kind
+    /// (`formulas::defines_read`). Each is a define the reason cites, or one
+    /// a theorem of the file it cites is stated over, that the claim, a line
+    /// it cites or a requires line above names, or that such a define's value
+    /// names, in the order the defines are written. A define is written in
+    /// terms of those above it, so a backend writing each out in turn from
+    /// the last leaves none. A function's name stands for each of its
+    /// applications, written out at its argument.
+    pub defines_read: IndexMap<usize, Vec<String>>,
     /// Each step and requires line the checker reads at a member of its
     /// claim's "for all" (`SYNTAX.md`, a step said of every member;
     /// `citing::at_a_member`), by the line of its justification, with the

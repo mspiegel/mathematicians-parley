@@ -373,6 +373,9 @@ pub fn printed_but(
             .collect();
         writeln!(out, "{} divides by {}", reason_at(*line), parts.join(", ")).unwrap();
     }
+    for (line, names) in &record.defines_read {
+        writeln!(out, "{} writes out {}", reason_at(*line), names.join(", ")).unwrap();
+    }
     for (line, split) in &record.cases_from {
         let mut said = format!("{} splits {}", reason_at(*line), place(&split.at));
         if !split.meeting.as_written() {

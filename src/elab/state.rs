@@ -448,6 +448,10 @@ pub struct Elaborator<'a> {
     /// lines put in a number system, with how, as the checker found them
     /// (`CheckedTheorem::held_by_lines`); None outside one.
     pub reason_held: Option<Vec<HeldByLines>>,
+    /// While a reason is built (`by_method`), the defined names the checker
+    /// read it with written out (`CheckedTheorem::defines_read`); None
+    /// outside one.
+    pub reason_defines: Option<Vec<String>>,
     /// `reason_divided` while a calculator or the normaliser asks a
     /// denominator's `≠ 0` (`not_zero_named`, `Oracle::nonzero`), which
     /// `divisor_apart` proves it by; None otherwise, where a membership
@@ -644,6 +648,7 @@ impl<'a> Elaborator<'a> {
             lemma_side: None,
             reason_divided: None,
             reason_held: None,
+            reason_defines: None,
             divided: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),

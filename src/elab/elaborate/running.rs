@@ -935,9 +935,30 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// One step's proof, with the parts its lines hold and the parts it
-    /// divides by as the checker recorded them (`reason_held`,
-    /// `reason_divided`) for as long as it is built; a reason inside it, a
+    /// `f`, run with what the checker recorded of the reason on `line` held
+    /// for as long as it builds (`reason_held`, `reason_divided`,
+    /// `reason_defines`): the parts its lines hold, the parts it divides by
+    /// and the defined names it reads written out.
+    pub(crate) fn holding_reason<T>(
+        &mut self,
+        line: usize,
+        f: impl FnOnce(&mut Self) -> T,
+    ) -> T {
+        let held = self.checked.held_by_lines.get(&line).cloned();
+        let divided = self.checked.divided_by.get(&line).cloned();
+        let defines = self.checked.defines_read.get(&line).cloned();
+        let kept_held = self.reason_held.replace(held.unwrap_or_default());
+        let kept_divided = self.reason_divided.replace(divided.unwrap_or_default());
+        let kept_defines = self.reason_defines.replace(defines.unwrap_or_default());
+        let made = f(self);
+        self.reason_held = kept_held;
+        self.reason_divided = kept_divided;
+        self.reason_defines = kept_defines;
+        made
+    }
+
+    /// One step's proof, with what the checker recorded of its reason held
+    /// for as long as it is built (`holding_reason`); a reason inside it, a
     /// requires line's or a row's, holds its own (`by_method`).
     pub(super) fn one_step(
         &mut self,
@@ -947,24 +968,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         closers: Vec<Closer>,
     ) -> Checked<(Rpn, Facts, Vec<Closer>)> {
-        let held = self
-            .checked
-            .held_by_lines
-            .get(&step.just.line)
-            .cloned()
-            .unwrap_or_default();
-        let divided = self
-            .checked
-            .divided_by
-            .get(&step.just.line)
-            .cloned()
-            .unwrap_or_default();
-        let kept = self.reason_held.replace(held);
-        let kept_divided = self.reason_divided.replace(divided);
-        let made = self.one_step_held(step, number, scope, facts, closers);
-        self.reason_held = kept;
-        self.reason_divided = kept_divided;
-        made
+        self.holding_reason(step.just.line, |me| {
+            me.one_step_held(step, number, scope, facts, closers)
+        })
     }
 
     /// `one_step`, with the step's held parts held.
@@ -1339,9 +1345,8 @@ impl<'a> Elaborator<'a> {
         Ok(out.unwrap_or_else(|| lines.clone()))
     }
 
-    /// A step's proof by the method its justification names, with the
-    /// parts its reason divides by and the parts its lines hold, as the
-    /// checker recorded them (`reason_divided`, `reason_held`).
+    /// A step's proof by the method its justification names, with what the
+    /// checker recorded of its reason held (`holding_reason`).
     #[allow(clippy::too_many_arguments)]
     pub(super) fn by_method(
         &mut self,
@@ -1353,24 +1358,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Option<Proof>>> {
-        let recorded = self
-            .checked
-            .divided_by
-            .get(&step.just.line)
-            .cloned()
-            .unwrap_or_default();
-        let held = self
-            .checked
-            .held_by_lines
-            .get(&step.just.line)
-            .cloned()
-            .unwrap_or_default();
-        let kept = self.reason_divided.replace(recorded);
-        let kept_held = self.reason_held.replace(held);
-        let made = self.by_method_divided(how, step, node, term, scope, facts, lines);
-        self.reason_divided = kept;
-        self.reason_held = kept_held;
-        made
+        self.holding_reason(step.just.line, |me| {
+            me.by_method_divided(how, step, node, term, scope, facts, lines)
+        })
     }
 
     /// `by_method`, with the reason's divisors held.

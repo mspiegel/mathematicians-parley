@@ -13,6 +13,8 @@ step 4 divides by B by 0 < B
 a row of step 4 divides by B by 0 < B
 a row of step 4 divides by B by B ≠ 0
 a row of step 1 divides by B by B ≠ 0
+step 2 writes out q
+step 3 writes out q
 read 8: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
 read 10: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
 read 11: B ∈ ℝ  as  membership:∈(name:B, number-systems:ℝ)  a statement

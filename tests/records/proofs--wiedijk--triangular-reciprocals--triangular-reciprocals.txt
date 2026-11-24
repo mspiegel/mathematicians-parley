@@ -72,6 +72,8 @@ step 6.2.6 divides by n + 1 a positive integer said once
 step 6.2.7 divides by n + 1 a positive integer said once
 step 6.2.8 divides by n + 1 a positive integer said once
 step 6.2.9 divides by n + 1 a positive integer said once
+step 1.1 writes out T
+step 2.1 writes out T
 read 11: ℕ  as  number-systems:ℕ  a set
 read 14: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
 read 19: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement

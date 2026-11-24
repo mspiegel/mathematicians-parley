@@ -70,7 +70,7 @@ pub use self::closures::{
     check_chain_links, check_closed_arithmetic, check_closed_by_arithmetic,
     check_closed_by_real_arithmetic, check_define_citation, check_membership_claims,
     check_real_arithmetic_holds, check_recursions, define_cases, define_facings,
-    define_link_meetings, define_sides, link_places, pairs_apart,
+    define_link_meetings, define_sides, defines_read, link_places, pairs_apart,
 };
 use self::ends::*;
 pub(super) use self::ends::{

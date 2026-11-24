@@ -74,19 +74,61 @@ impl<'a> Elaborator<'a> {
         Ok(RowsRewritten { refs, lines: here })
     }
 
-    /// A term with each defined name written out as what it names.
-    pub(crate) fn defined_names_out(&self, term: &Term) -> Term {
-        if term.variable().is_some() {
+    /// The setvars of the defined names the checker read the reason being
+    /// built with written out (`reason_defines`), each a name a define of
+    /// this theorem gives. A definition from outside the theorem is written
+    /// out where its statement is read, and has none.
+    fn recorded_defines(&self) -> Vec<String> {
+        self.reason_defines
+            .iter()
+            .flatten()
+            .filter_map(|name| self.names.get(name))
+            .filter_map(|named| self.setvar_named(&self.to_term(named)))
+            .filter(|var| self.definitions.contains_key(var))
+            .collect()
+    }
+
+    /// The setvar a class term `cv x` names, as `named_body` reads it; None
+    /// for any other term.
+    fn setvar_named(&self, term: &Term) -> Option<String> {
+        if term.variable().is_some() || term.label() != Some("cv") {
+            return None;
+        }
+        let [var] = term.children() else {
+            return None;
+        };
+        self.rpn(var).alone().map(str::to_string)
+    }
+
+    /// A term with each of the defined names `vars` written out as what it
+    /// names, and each application of one written out at its argument
+    /// (`applied_body`), parts first, and nothing else changed.
+    fn defines_out(&mut self, term: &Term, vars: &[String]) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
             return term.clone();
         }
-        let kids = term.children();
-        if term.label() == Some("cv") && kids.len() == 1 {
-            if let Some(body) = self.named_body(term, &Vars::new()) {
-                return self.defined_names_out(&body);
+        let recorded =
+            |me: &Self, t: &Term| me.setvar_named(t).is_some_and(|v| vars.contains(&v));
+        // The function stands last among an application's parts: `cfv`'s
+        // of one argument, `co`'s of two.
+        let applies_recorded = matches!(term.label(), Some("cfv") | Some("co"))
+            && term.children().last().is_some_and(|f| recorded(self, f));
+        if applies_recorded {
+            if let Some(body) = self.applied_body(term) {
+                return self.defines_out(&body, vars);
             }
         }
-        let parts: Vec<Term> = kids.iter().map(|k| self.defined_names_out(k)).collect();
-        term.with_children(parts)
+        if recorded(self, term) {
+            if let Some(body) = self.named_body(term, &Vars::new()) {
+                return self.defines_out(&body, vars);
+            }
+        }
+        let kids: Vec<Term> = term
+            .children()
+            .iter()
+            .map(|c| self.defines_out(c, vars))
+            .collect();
+        term.with_children(kids)
     }
 
     /// A term with each finite sum, one holding no sum of its own, written
@@ -114,9 +156,10 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The claim, the facts and the lines a step or a requires line cites,
-    /// with defined names written out: each cited line written otherwise is
-    /// laid down written out, carried across by `same`, which reads a defined
-    /// name the same way.
+    /// with the defined names the checker read the reason with written out
+    /// (`reason_defines`): each cited line written otherwise is laid down
+    /// written out, carried across by `same`, which reads a defined name the
+    /// same way.
     pub(super) fn names_written_out(
         &mut self,
         step: Option<&Step>,
@@ -155,20 +198,16 @@ impl<'a> Elaborator<'a> {
             let ordered = self.pairs_in_order(&self.to_term(s));
             out_of_order = out_of_order || self.rpn(&ordered) != *s;
         }
-        let names = match &letter {
-            Some(letter) => self.writes_name_and_body(&claim, &cited, letter),
-            None => false,
-        };
-        if !names && !out_of_order {
+        let names = self.recorded_defines();
+        if names.is_empty() && !out_of_order {
             return Ok(Built(as_written));
         }
-        let letter = letter.filter(|_| names);
-        let out = self.written_out(&claim, letter.as_deref());
+        let out = self.written_out(&claim, &names, letter.as_deref());
         let term_out = self.rpn(&out);
         let (facts_out, lines_out) = (facts.copy(), lines.copy());
         for (r, line) in labels.into_iter().zip(&cited) {
             let said = self.to_term(&line.claim);
-            let written = self.written_out(&said, letter.as_deref());
+            let written = self.written_out(&said, &names, letter.as_deref());
             let out_rpn = self.rpn(&written);
             if out_rpn == line.claim {
                 continue;
@@ -272,60 +311,21 @@ impl<'a> Elaborator<'a> {
         }))
     }
 
-    /// A term as `names_written_out` reads it: with its defined names
-    /// written out and its sums over `letter`, where a letter is given, and
-    /// its pairs in no order put in order.
-    pub(super) fn written_out(&mut self, term: &Term, letter: Option<&str>) -> Term {
+    /// A term as `names_written_out` reads it: with the defined names
+    /// `names` written out, its sums over `letter` where it writes one out
+    /// and a letter is given, and its pairs in no order put in order.
+    pub(super) fn written_out(
+        &mut self,
+        term: &Term,
+        names: &[String],
+        letter: Option<&str>,
+    ) -> Term {
+        let out = self.defines_out(term, names);
         let read = match letter {
-            Some(letter) => {
-                let out = self.read_out(term);
-                self.sums_over(&out, letter)
-            }
-            None => term.clone(),
+            Some(letter) if !names.is_empty() => self.sums_over(&out, letter),
+            _ => out,
         };
         self.pairs_in_order(&read)
-    }
-
-    /// Whether the claim or a cited line writes both a defined name and
-    /// what it names, each sum read over `letter`. Only such a step reads
-    /// its names written out; any other reads them as written.
-    pub(super) fn writes_name_and_body(
-        &mut self,
-        claim: &Term,
-        cited: &[ProvedClaim],
-        letter: &str,
-    ) -> bool {
-        let mut written: BTreeSet<Rpn> = BTreeSet::new();
-        let mut named: BTreeSet<Rpn> = BTreeSet::new();
-        let mut rest: Vec<Term> = vec![self.sums_over(claim, letter)];
-        rest.extend(
-            cited
-                .iter()
-                .map(|l| self.sums_over(&self.to_term(&l.claim), letter)),
-        );
-        while let Some(node) = rest.pop() {
-            if node.variable().is_some() {
-                continue;
-            }
-            let kids = node.children();
-            if node.label() == Some("cv") && kids.len() == 1 {
-                if let Some(body) = self.named_body(&node, &Vars::new()) {
-                    let out = self.defined_names_out(&body);
-                    named.insert(self.rpn(&self.sums_over(&out, letter)));
-                }
-            }
-            // A defined function applied names its rule at the argument:
-            // t(k) with t(j) = j + 1 names k + 1.
-            if node.label() == Some("cfv") && kids.len() == 2 {
-                let out = self.read_out(&node);
-                if self.rpn(&out) != self.rpn(&node) {
-                    named.insert(self.rpn(&self.sums_over(&out, letter)));
-                }
-            }
-            written.insert(self.rpn(&node));
-            rest.extend(kids.iter().cloned());
-        }
-        named.iter().any(|body| written.contains(body))
     }
 
     /// The parts of the cited lines a plain step leaves out: each written

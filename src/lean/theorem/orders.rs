@@ -1904,6 +1904,24 @@ impl<'a> Proof<'a> {
         out
     }
 
+    /// The defines among the lines a reason on `line` cites that the checker
+    /// read it with written out (`CheckedTheorem::defines_read`), in the
+    /// order they are written.
+    pub(super) fn defines_read(
+        &self,
+        line: usize,
+        refs: &[String],
+    ) -> Vec<CitedDefine> {
+        let cited = self.cited_defines(refs);
+        self.rec
+            .defines_read
+            .get(&line)
+            .into_iter()
+            .flatten()
+            .filter_map(|name| cited.iter().find(|d| *d.name.text == **name).cloned())
+            .collect()
+    }
+
     /// A define of a function of one argument `param` on page line `line`,
     /// as the checker reads it apart: the set the argument runs over and
     /// the value. The set is a number system or a range, or else a set of

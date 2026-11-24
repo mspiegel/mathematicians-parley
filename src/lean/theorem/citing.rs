@@ -2133,7 +2133,7 @@ impl<'a> Proof<'a> {
         let narrowed: Vec<String> =
             self.narrowings.iter().map(|n| n.function.clone()).collect();
         let written = self
-            .cited_defines(&reason.just.refs)
+            .defines_read(reason.just.line, &reason.just.refs)
             .iter()
             .filter(|d| {
                 d.param.is_some() && !narrowed.contains(&d.name.text.to_string())

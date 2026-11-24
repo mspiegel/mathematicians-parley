@@ -944,24 +944,9 @@ impl<'a> Elaborator<'a> {
         let Some(Ok(by)) = req.map(|r| &r.by) else {
             return self.by_its_reason_held(want, req, scope, facts, step);
         };
-        let held = self
-            .checked
-            .held_by_lines
-            .get(&by.line)
-            .cloned()
-            .unwrap_or_default();
-        let divided = self
-            .checked
-            .divided_by
-            .get(&by.line)
-            .cloned()
-            .unwrap_or_default();
-        let kept = self.reason_held.replace(held);
-        let kept_divided = self.reason_divided.replace(divided);
-        let made = self.by_its_reason_held(want, req, scope, facts, step);
-        self.reason_held = kept;
-        self.reason_divided = kept_divided;
-        made
+        self.holding_reason(by.line, |me| {
+            me.by_its_reason_held(want, req, scope, facts, step)
+        })
     }
 
     /// `by_its_reason`, with the line's held parts held.

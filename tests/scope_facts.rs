@@ -20,6 +20,9 @@ const REMAINDER_NONNEGATIVE: &str =
     "proofs/setmm/remainder-bounds/remainder-nonnegative";
 const RATIONAL_TIMES_IRRATIONAL: &str =
     "proofs/hammack/rational-times-irrational/rational-times-irrational";
+const DEFINE_IN_INEQUALITIES: &str =
+    "tests/elaborator/reading-defines/a-define-read-in-an-inequalities-step";
+const CUBIC: &str = "proofs/wiedijk/cubic/cubic";
 
 /// The checker's records of these theorems, as the build reads them.
 fn read(names: &[&str]) -> CheckedCorpus {
@@ -195,4 +198,52 @@ fn a_kinds_define_places_its_name_at_the_defines_label() {
         Some("ℤ"),
         "the place is of the system `introduced` gives"
     );
+}
+
+/// The defined names the checker read the reason of step `number` of the
+/// theorem `name` with written out (`CheckedTheorem::defines_read`); None
+/// where the record has no entry.
+fn defines_read_at(
+    read: &CheckedCorpus,
+    name: &str,
+    number: &str,
+) -> Option<Vec<String>> {
+    let thm = read
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.qualified() == name)
+        .expect("the theorem is read");
+    let line = thm.steps[step_index(read, name, number)].just.line;
+    read.theorems[name].defines_read.get(&line).cloned()
+}
+
+#[test]
+fn a_step_citing_a_define_reads_its_name_written_out() {
+    let read = read(&[DEFINE_IN_INEQUALITIES]);
+    // Step 2, `a + 1 > −1` by inequalities from D1 (`let e = a + 1`) and
+    // line 1, `e > 0`: e is read as a + 1.
+    assert_eq!(
+        defines_read_at(&read, DEFINE_IN_INEQUALITIES, "2"),
+        Some(vec!["e".to_string()])
+    );
+}
+
+#[test]
+fn the_defines_a_step_reads_are_in_the_order_they_are_written() {
+    let read = read(&[CUBIC]);
+    // Step 12.3.5.1 cites D1 (ω₁), D3 (y) and D5 (v = y + ω₁·T + …), which
+    // names both of the others: writing v out first, then y and ω₁, leaves
+    // none.
+    assert_eq!(
+        defines_read_at(&read, CUBIC, "12.3.5.1"),
+        Some(vec!["ω₁".to_string(), "y".to_string(), "v".to_string()])
+    );
+}
+
+#[test]
+fn a_step_citing_no_define_has_no_entry() {
+    let read = read(&[CUBIC]);
+    // Step 4, `(i·√3)² = −3` by algebra from lines 1, 2 and 3.
+    assert_eq!(defines_read_at(&read, CUBIC, "4"), None);
 }

@@ -771,9 +771,11 @@ impl<'a> Proof<'a> {
                 // Lean, its equation rewrites them all, and the casts it
                 // leaves are pushed in. Lines are widened after, as they
                 // then read.
-                // A define's value may name another the step cites, v's of
-                // ω₁, so they are written out until none is left.
-                let defines = self.cited_defines(&just.refs);
+                // The defines are those the checker read the step with
+                // written out. A define is written in terms of those above
+                // it, so each put in once, from the last, leaves none: v
+                // before ω₁ where v's value names ω₁.
+                let defines = self.defines_read(just.line, &just.refs);
                 // A function the header lets, rewritten by its equation at
                 // each argument the record found (`header_functions_applied`),
                 // under a sum term by term.
@@ -802,24 +804,10 @@ impl<'a> Proof<'a> {
                     cited.retain(|c| c.proof != super::super::tactics::hyp(&d.proof));
                 }
                 let grammar = &self.sources.checked.grammar;
-                let printed = |claim: &Node,
-                               cited: &[super::super::algebra::Cited]|
-                 -> Vec<String> {
-                    iter::once(claim)
-                        .chain(cited.iter().map(|c| &c.node))
-                        .map(|n| grammar.print(n))
-                        .collect()
-                };
-                for _ in 0..=defines.len() {
-                    let before = printed(&claim, &cited);
-                    for d in &defines {
-                        claim = self.put_define(&claim, d);
-                        for c in &mut cited {
-                            c.node = self.put_define(&c.node, d);
-                        }
-                    }
-                    if printed(&claim, &cited) == before {
-                        break;
+                for d in defines.iter().rev() {
+                    claim = self.put_define(&claim, d);
+                    for c in &mut cited {
+                        c.node = self.put_define(&c.node, d);
                     }
                 }
                 // A claim whose two sides are one term once the defines are

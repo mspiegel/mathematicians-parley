@@ -1,5 +1,6 @@
 //! Closure claims, real arithmetic, links and recursions.
 
+use std::rc::Rc;
 use std::slice;
 
 use super::*;
@@ -7,6 +8,7 @@ use crate::checker::library;
 use crate::checker::record::{DefineSide, Facing, PassedCondition, TakenCase};
 use crate::corpus::proof;
 use crate::matching;
+use crate::matching::{Defined, Definitions};
 use crate::methods::pairs::Coordinate;
 use crate::methods::surds::Verdict as Surd;
 use crate::methods::{field, pairs};
@@ -129,32 +131,7 @@ impl<'s> ClosureClaim<'s> {
         targets: &Targets,
         differing: bool,
     ) -> Option<ClosureRead> {
-        // The defines written out are those the claim cites, `refs`: the
-        // step's own, or fewer where a check asks what a line does.
-        let item = match self.requires {
-            Some(_) => None,
-            None => self.step.just.cited_item().map(|c| self.step.just.item(&c)),
-        };
-        // A `membership` citing a let that says its kind of number takes the
-        // kind, u(x) ∈ ℝ of `let u(x) = …, a real number`, and leaves the
-        // name standing (`SYNTAX.md`: a step that needs a value's
-        // membership cites the label); any other method reads its rule.
-        let kinded: Vec<String> = match self.membership() {
-            true => {
-                library::kinded_above(known.thm, known.shape(), self.step, known.env)
-                    .into_iter()
-                    .map(|k| k.label)
-                    .collect()
-            }
-            false => Vec::new(),
-        };
-        let written_out: Vec<String> = self
-            .refs
-            .iter()
-            .filter(|r| !kinded.contains(r))
-            .cloned()
-            .collect();
-        let defined = known.citing_item(&written_out, item.as_deref());
+        let defined = self.defined(known);
         // A claim of several sentences is their conjunction (`SYNTAX.md`),
         // as `0 ≤ e. e ≤ 9.` is `0 ≤ e and e ≤ 9`.
         let sentences: Vec<Node> = self
@@ -196,6 +173,92 @@ impl<'s> ClosureClaim<'s> {
         })
     }
 
+    /// What the claim is read with written out (`read`): the defines it
+    /// cites, `refs`, the step's own or fewer where a check asks what a
+    /// line does, and those a theorem of this file it cites is stated over.
+    fn defined(&self, known: &Known) -> Rc<Definitions> {
+        let item = match self.requires {
+            Some(_) => None,
+            None => self.step.just.cited_item().map(|c| self.step.just.item(&c)),
+        };
+        // A `membership` citing a let that says its kind of number takes the
+        // kind, u(x) ∈ ℝ of `let u(x) = …, a real number`, and leaves the
+        // name standing (`SYNTAX.md`: a step that needs a value's
+        // membership cites the label); any other method reads its rule.
+        let kinded: Vec<String> = match self.membership() {
+            true => {
+                library::kinded_above(known.thm, known.shape(), self.step, known.env)
+                    .into_iter()
+                    .map(|k| k.label)
+                    .collect()
+            }
+            false => Vec::new(),
+        };
+        let written_out: Vec<String> = self
+            .refs
+            .iter()
+            .filter(|r| !kinded.contains(r))
+            .cloned()
+            .collect();
+        known.citing_item(&written_out, item.as_deref())
+    }
+
+    /// The defined names the claim is read with written out (`read`): each
+    /// of `defined` that the claim, a line it cites or a requires line above
+    /// names as written, and each such name's value names in turn, in the
+    /// order the defines are written. A define is written in terms of those
+    /// above it, so writing each out in turn from the last leaves none: v
+    /// before ω₁ where v's value names ω₁.
+    pub(super) fn defines_read(&self, known: &Known) -> Vec<String> {
+        let defined = self.defined(known);
+        if defined.is_empty() {
+            return Vec::new();
+        }
+        let scope = known.scope(self.step);
+        let mut written: Vec<Node> = self
+            .claim
+            .sentences()
+            .iter()
+            .filter_map(|s| known.read_written(s))
+            .collect();
+        for r in self.refs {
+            if let Some(stated) = scope.get(r) {
+                written.extend(known.supplied(stated, &Definitions::new()));
+            }
+        }
+        for above in &self.above {
+            written.extend(
+                above
+                    .fact
+                    .sentences()
+                    .iter()
+                    .filter_map(|s| known.read_written(s)),
+            );
+        }
+        let mut named: BTreeSet<String> = BTreeSet::new();
+        let mut rest: Vec<Node> = written;
+        while let Some(node) = rest.pop() {
+            for part in node.walk() {
+                if !part.is_name() || named.contains(part.text.as_str()) {
+                    continue;
+                }
+                let Some(value) = defined.get(part.text.as_str()) else {
+                    continue;
+                };
+                named.insert(part.text.to_string());
+                rest.push(match value {
+                    Defined::Term(t) => t.clone(),
+                    Defined::Rule(rule) => rule.body.clone(),
+                });
+            }
+        }
+        defined
+            .keys()
+            .filter(|name| named.contains(*name))
+            .cloned()
+            .collect()
+    }
+
     /// Whether the claim's reason is the `membership` method: the requires
     /// line's own, or the step's.
     fn membership(&self) -> bool {
@@ -218,6 +281,61 @@ impl<'s> ClosureClaim<'s> {
             None => refusal,
         }
     }
+}
+
+/// The defined names each reason is read with written out
+/// (`CheckedTheorem::defines_read`), by the line the reason is on: a
+/// step's, a requires line's, a calculation's or a substitution's row's,
+/// and the reason under a define that says a kind. A reason that names no
+/// define it cites has no entry.
+pub fn defines_read(thm: &Theorem, known: &Known) -> IndexMap<usize, Vec<String>> {
+    let mut out = IndexMap::new();
+    let mut put = |line: usize, at: &ClosureClaim| {
+        let names = at.defines_read(known);
+        if !names.is_empty() {
+            out.insert(line, names);
+        }
+    };
+    for step in &thm.steps {
+        put(step.just.line, &ClosureClaim::step(step));
+        for req in &step.requires {
+            if let Ok(by) = &req.by {
+                put(by.line, &ClosureClaim::requires(step, req));
+            }
+        }
+        let substituted: Vec<Requires> =
+            match proof::substitute_rows(&step.just, &thm.path) {
+                Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
+                _ => Vec::new(),
+            };
+        let rows: Vec<Requires> = chain_links(&step.just, &thm.path)
+            .into_iter()
+            .filter_map(|link| link.line.reason)
+            .chain(substituted)
+            .collect();
+        for req in &rows {
+            if let Ok(by) = &req.by {
+                put(by.line, &ClosureClaim::row(step, req));
+            }
+        }
+    }
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let (Some(after), Some(reason)) = (thm.step_after(d.line), d.reason.as_ref())
+        else {
+            continue;
+        };
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        let Some(req) = under.requires.last() else {
+            continue;
+        };
+        if let Ok(by) = &req.by {
+            put(by.line, &ClosureClaim::requires(&under, req));
+        }
+    }
+    out
 }
 
 /// A term a decider names, in the page's words: the part of what it read

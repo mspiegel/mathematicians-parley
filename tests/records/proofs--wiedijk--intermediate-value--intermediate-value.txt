@@ -90,6 +90,14 @@ step 16.6 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0,
 step 16.27 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.5 sentence 0
 step 16.29 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.28 sentence 0
 step 17 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0
+step 2 writes out S
+step 3 writes out S
+step 6.1 writes out S
+step 16.8 writes out x₁
+step 16.9 writes out x₁
+step 16.24 writes out S
+step 16.29.1 writes out S
+step 16.29.2 writes out S
 step 16 splits 14 sentence 0
 read 19: there exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
 read 24: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
