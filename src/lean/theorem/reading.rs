@@ -8,7 +8,7 @@ use super::super::doc::{LeanType, Location, Op, Quant, Tactic, TacticArg, TermKi
 use super::super::templates::Num;
 use super::super::{doc, expr, tactics as t};
 use super::*;
-use crate::checker::record::{HeldByLines, LinesHold, NonzeroBy, Restated, ShownBy};
+use crate::checker::record::{HeldByLines, NonzeroBy, Restated, Shown, ShownBy};
 use crate::citing::{
     bounds, finite, nonzero_said_once, reason_within, speaks_of_claim_letter,
     under_claim_binders, Introduced, OnceReason,
@@ -1655,7 +1655,7 @@ impl<'a> Proof<'a> {
 
     /// How the lines of the reason being written hold `term` in `system`, as
     /// the check found it; None where they do not.
-    pub(super) fn held(&self, term: &Node, system: rules::System) -> Option<LinesHold> {
+    pub(super) fn held(&self, term: &Node, system: rules::System) -> Option<Shown> {
         let ctx = self.sources.ctx;
         let standard = |n: &Node| matching::standard(n, ctx);
         let term = standard(term);
@@ -1666,7 +1666,7 @@ impl<'a> Proof<'a> {
                 h.system == system
                     && matching::alike_top(&standard(&h.term), &term, ctx)
             })
-            .map(|h| h.by.clone())
+            .map(|h| h.shown.clone())
     }
 
     /// Why a part the said-once walk does not take apart is in `system`, as
@@ -1685,12 +1685,11 @@ impl<'a> Proof<'a> {
         // How the check found the part held, of the lines the reason names;
         // a line stating it, or one the equation it stands beside makes
         // (`shown_beside`), is among `facts` under its Lean name.
-        match self.held(term, system)? {
-            LinesHold::Stated { .. } | LinesHold::Beside { .. } => {
-                return named_line(facts, term, system, self.sources.ctx)
-                    .map(|_| OnceReason::Stated);
-            }
-            LinesHold::Closed => {}
+        // A row of the closure is built from its parts below; of the rows,
+        // only a whole number's is a Lean term the parts build.
+        if let Shown::Stated { .. } | Shown::Beside { .. } = self.held(term, system)? {
+            return named_line(facts, term, system, self.sources.ctx)
+                .map(|_| OnceReason::Stated);
         }
         let op = self.sources.targets.operation(term)?;
         let w = WHOLE.iter().find(|w| w.op == op.label)?;

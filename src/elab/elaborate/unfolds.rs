@@ -4,7 +4,7 @@ use std::slice;
 
 use super::running::Folded;
 use super::*;
-use crate::checker::record::{First, HeldByLines, LinesHold, Supplied, Unfolded};
+use crate::checker::record::{First, HeldByLines, Shown, Supplied, Unfolded};
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::MEMBERSHIP as SAID_ONCE;
@@ -888,7 +888,7 @@ impl<'a> Elaborator<'a> {
                     held.push(HeldByLines {
                         term: part.term.clone(),
                         system: part.system,
-                        by: LinesHold::Stated { line: member_node },
+                        shown: Shown::Stated { line: member_node },
                     });
                 }
                 // The walk's own fact, a define the step cites written out

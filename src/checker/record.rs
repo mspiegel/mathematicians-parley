@@ -25,6 +25,7 @@ use crate::formula::page::Sentence;
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{Binding, Definitions, Flip, Meeting, SubstitutionPlaces};
+pub use crate::methods::membership::{InDomain, Shown, ShownPart};
 use crate::methods::pairs::Coordinate;
 use crate::notations::{THERE_IS, THERE_IS_SOME};
 use crate::outcome::{Checked, Problem};
@@ -624,27 +625,15 @@ pub struct ReadAt {
 }
 
 /// A part a reason's lines put in a number system, and how
-/// (`CheckedTheorem::held_by_lines`).
+/// (`CheckedTheorem::held_by_lines`): the derivation the one membership
+/// rule gives for a part the walk takes as it stands
+/// (`methods::membership::held_shown`), a stated line, a row of the
+/// closure or a cited equation, never `Shown::Walked` at its root.
 #[derive(Clone, Debug)]
 pub struct HeldByLines {
     pub term: Node,
     pub system: System,
-    pub by: LinesHold,
-}
-
-/// How a reason's lines put a part in a number system
-/// (`methods::membership::HeldHow`).
-#[derive(Clone, Debug)]
-pub enum LinesHold {
-    /// A line states it, of a system inside the one recorded: `line` is
-    /// that sentence, as the check read it.
-    Stated { line: Node },
-    /// An equation a line says puts it beside `other`, a term in the
-    /// system (`Besides`).
-    Beside(Besides),
-    /// The closure table puts it there by its operation, x mod n in ℕ₀ of
-    /// x ∈ ℤ and n ∈ ℕ, its parts held as the walk reads them.
-    Closed,
+    pub shown: Shown,
 }
 
 /// A part a reason divides by, and why it is not zero
@@ -805,23 +794,45 @@ pub struct Besides {
 }
 
 impl Besides {
-    /// The record of `methods::membership`'s `Beside`.
-    pub fn of(b: &crate::methods::membership::Beside) -> Besides {
-        Besides {
-            equation: b.equation.clone(),
-            other: b.other.clone(),
-            facing: match b.term_left {
+    /// The equation a derivation holds a term by, where it holds the term
+    /// itself so (`Shown::as_held`), with how the other side is held: a
+    /// stated line, a whole number's row, another equation, or else as the
+    /// page says it once. None where the term is held otherwise.
+    pub fn of(shown: &Shown) -> Option<Besides> {
+        let Shown::Beside {
+            equation,
+            other,
+            term_left,
+            other_shown,
+        } = shown.as_held()
+        else {
+            return None;
+        };
+        let held = other_shown.as_held();
+        Some(Besides {
+            equation: equation.clone(),
+            other: other.clone(),
+            facing: match term_left {
                 true => Facing::Straight,
                 false => Facing::Turned,
             },
-            other_stated: b.other_stated.cloned(),
-            other_row: b.other_row.map(|(row, [left, right])| WholeRow {
-                op: row.op.to_string(),
-                left: left.clone(),
-                right: right.clone(),
-            }),
-            other_beside: b.other_beside.as_deref().map(|o| Box::new(Besides::of(o))),
-        }
+            other_stated: match held {
+                Shown::Stated { line } => Some(line.clone()),
+                _ => None,
+            },
+            other_row: match held {
+                Shown::Whole { op, parts } => match parts.as_slice() {
+                    [left, right] => Some(WholeRow {
+                        op: op.clone(),
+                        left: left.term.clone(),
+                        right: right.term.clone(),
+                    }),
+                    _ => None,
+                },
+                _ => None,
+            },
+            other_beside: Besides::of(held).map(Box::new),
+        })
     }
 }
 

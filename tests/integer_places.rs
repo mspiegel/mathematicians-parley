@@ -10,7 +10,7 @@
 
 use std::path::Path;
 
-use parley::checker::record::{CheckedTheorem, LinesHold, ShownBy};
+use parley::checker::record::{CheckedTheorem, Shown, ShownBy};
 use parley::checker::{checked_where, CheckedCorpus};
 use parley::source::Disk;
 
@@ -138,9 +138,9 @@ fn held(
         .iter()
         .flat_map(|(line, held)| held.iter().map(move |h| (*line, h)))
         .map(|(line, h)| {
-            let stated = match &h.by {
-                LinesHold::Stated { line } => read.grammar.print(line),
-                LinesHold::Beside { .. } | LinesHold::Closed => String::new(),
+            let stated = match &h.shown {
+                Shown::Stated { line } => read.grammar.print(line),
+                _ => String::new(),
             };
             (
                 line,

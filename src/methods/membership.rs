@@ -147,13 +147,38 @@ pub enum InDomain {
 /// shows one (`otherwise`): a stated line, the closure, or an equation.
 pub fn shown(term: &Node, system: System, facts: &Facts) -> Option<Shown> {
     let term = &matching::bare(term, facts.ctx);
-    shown_at(term, system, facts, CARRIED)
+    shown_at(term, system, facts, &Carry::from(CARRIED))
 }
 
-/// `shown`, an equation carrying a term on at most `depth` times.
-fn shown_at(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
-    walked(term, system, facts, depth, Leaves::Stated)
-        .or_else(|| walked(term, system, facts, depth, Leaves::Any))
+/// How far a cited equation may still carry a term on, and the terms the
+/// equations so far carried it through, the first term first: a term is
+/// not carried back to one of these, so x = y read the other way is not
+/// taken for y.
+#[derive(Clone)]
+struct Carry {
+    depth: usize,
+    past: Vec<Node>,
+}
+
+impl Carry {
+    /// At most `depth` equations, none passed through yet.
+    fn from(depth: usize) -> Carry {
+        Carry {
+            depth,
+            past: Vec::new(),
+        }
+    }
+}
+
+/// `shown`, as far as `carry` lets an equation carry a term on.
+fn shown_at(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    carry: &Carry,
+) -> Option<Shown> {
+    walked(term, system, facts, carry, Leaves::Stated)
+        .or_else(|| walked(term, system, facts, carry, Leaves::Any))
 }
 
 /// What the walk takes a part it does not take apart by (`walked`).
@@ -171,7 +196,7 @@ fn walked(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
     leaves: Leaves,
 ) -> Option<Shown> {
     let taken: RefCell<Vec<ShownPart>> = RefCell::new(Vec::new());
@@ -181,7 +206,7 @@ fn walked(
             Leaves::Stated => {
                 stated_by(t, s, facts).map(|line| Shown::Stated { line: line.clone() })
             }
-            Leaves::Any => otherwise(t, s, facts, depth),
+            Leaves::Any => otherwise(t, s, facts, carry),
         }?;
         let reason = match shown {
             Shown::Summed { .. } => OnceReason::Sum,
@@ -209,30 +234,37 @@ fn otherwise(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     if let Some(line) = stated_by(term, system, facts) {
         return Some(Shown::Stated { line: line.clone() });
     }
-    closed(term, system, facts, depth).or_else(|| beside(term, system, facts, depth))
+    closed(term, system, facts, carry).or_else(|| beside(term, system, facts, carry))
 }
 
 /// `term` in `system` by a row of the closure; None where none puts it
 /// there.
-fn closed(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
-    whole_shown(term, system, facts, depth)
-        .or_else(|| summed_shown(term, system, facts, depth))
-        .or_else(|| powered_shown(term, system, facts, depth))
-        .or_else(|| valued_shown(term, system, facts, depth))
-        .or_else(|| cased_shown(term, system, facts, depth))
+fn closed(term: &Node, system: System, facts: &Facts, carry: &Carry) -> Option<Shown> {
+    whole_shown(term, system, facts, carry)
+        .or_else(|| summed_shown(term, system, facts, carry))
+        .or_else(|| powered_shown(term, system, facts, carry))
+        .or_else(|| valued_shown(term, system, facts, carry))
+        .or_else(|| cased_shown(term, system, facts, carry))
 }
 
 /// `term` in `system` beside the other side of the first cited equation
-/// whose other side is, carried at most `depth` times.
-fn beside(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
-    let depth = depth.checked_sub(1)?;
+/// whose other side is, and is no term `carry` already passed through.
+fn beside(term: &Node, system: System, facts: &Facts, carry: &Carry) -> Option<Shown> {
+    let mut on = Carry {
+        depth: carry.depth.checked_sub(1)?,
+        past: carry.past.clone(),
+    };
+    on.past.push(term.clone());
     besides_by(term, facts).into_iter().find_map(|b| {
-        let other_shown = shown_at(b.other, system, facts, depth)?;
+        if on.past.iter().any(|t| same(t, b.other, facts.ctx)) {
+            return None;
+        }
+        let other_shown = shown_at(b.other, system, facts, &on)?;
         Some(Shown::Beside {
             equation: b.equation.clone(),
             other: b.other.clone(),
@@ -247,12 +279,12 @@ fn part_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<ShownPart> {
     Some(ShownPart {
         term: term.clone(),
         system,
-        shown: shown_at(term, system, facts, depth)?,
+        shown: shown_at(term, system, facts, carry)?,
     })
 }
 
@@ -264,7 +296,7 @@ fn whole_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     if !System::N0.within(system) {
         return None;
@@ -281,8 +313,8 @@ fn whole_shown(
     Some(Shown::Whole {
         op: w.op.to_string(),
         parts: vec![
-            part_shown(left, left_in, facts, depth)?,
-            part_shown(right, right_in, facts, depth)?,
+            part_shown(left, left_in, facts, carry)?,
+            part_shown(right, right_in, facts, carry)?,
         ],
     })
 }
@@ -293,15 +325,15 @@ fn cased_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     let (BY_CASES, [value, _, otherwise]) = (term.notation(), term.children.as_slice())
     else {
         return None;
     };
     Some(Shown::Cased {
-        value: Box::new(part_shown(value, system, facts, depth)?),
-        otherwise: Box::new(part_shown(otherwise, system, facts, depth)?),
+        value: Box::new(part_shown(value, system, facts, carry)?),
+        otherwise: Box::new(part_shown(otherwise, system, facts, carry)?),
     })
 }
 
@@ -311,7 +343,7 @@ fn powered_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     let (POWER | SUPERSCRIPT, [base, exponent]) =
         (term.notation(), term.children.as_slice())
@@ -320,8 +352,8 @@ fn powered_shown(
     };
     rules::closed("cexp", system.label())?;
     Some(Shown::Powered {
-        exponent: Box::new(part_shown(exponent, System::N0, facts, depth)?),
-        base: Box::new(part_shown(base, system, facts, depth)?),
+        exponent: Box::new(part_shown(exponent, System::N0, facts, carry)?),
+        base: Box::new(part_shown(base, system, facts, carry)?),
     })
 }
 
@@ -331,7 +363,7 @@ fn valued_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     let (APPLICATION, [f, at]) = (term.notation(), term.children.as_slice()) else {
         return None;
@@ -347,7 +379,7 @@ fn valued_shown(
         }
         Some(Shown::Valued {
             typed: t.clone(),
-            at: Box::new(in_domain_shown(at, domain, facts, depth)?),
+            at: Box::new(in_domain_shown(at, domain, facts, carry)?),
         })
     })
 }
@@ -359,11 +391,11 @@ fn in_domain_shown(
     x: &Node,
     domain: &Node,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<InDomain> {
     if domain.notation() == NUMBER_SYSTEMS {
         let s = System::of_sign(&domain.text)?;
-        return Some(InDomain::Within(Box::new(part_shown(x, s, facts, depth)?)));
+        return Some(InDomain::Within(Box::new(part_shown(x, s, facts, carry)?)));
     }
     let runs_over = x.is_name()
         && facts.ranged.get(x.text.as_str()).is_some_and(|r| {
@@ -395,7 +427,7 @@ fn summed_shown(
     term: &Node,
     system: System,
     facts: &Facts,
-    depth: usize,
+    carry: &Carry,
 ) -> Option<Shown> {
     let sum = Summed::of(term)?;
     if !matches!(system, System::R | System::C) {
@@ -441,7 +473,7 @@ fn summed_shown(
     };
     Some(Shown::Summed {
         pointwise: None,
-        body: Some(Box::new(part_shown(sum.body, system, &at, depth)?)),
+        body: Some(Box::new(part_shown(sum.body, system, &at, carry)?)),
     })
 }
 
@@ -478,27 +510,14 @@ fn besides<'f>(term: &Node, facts: &'f Facts) -> Vec<&'f Node> {
 }
 
 /// A term an equation among the facts puts beside another.
-pub struct Beside<'f> {
+struct Beside<'f> {
     /// The equation, as the facts hold it.
-    pub equation: &'f Node,
+    equation: &'f Node,
     /// Its other side.
-    pub other: &'f Node,
+    other: &'f Node,
     /// Whether the term is the equation's left side: `a·f(a)` of
     /// `a·f(a) = f(a)·a`.
-    pub term_left: bool,
-    /// The fact stating the other side is in the system, where one does
-    /// (`stated_by`); None where it is said once or the closure table puts
-    /// it there.
-    pub other_stated: Option<&'f Node>,
-    /// The row of the closure table that puts the other side in the
-    /// system by its own operation, with its two parts, where no fact
-    /// states it: (t + 1) mod 10 beside s(t) of s(t) = (t + 1) mod 10.
-    pub other_row: Option<(&'static rules::Whole, [&'f Node; 2])>,
-    /// Another equation among the facts that puts the other side beside a
-    /// term in the system, where no fact states it, no row puts it there
-    /// and the page does not say it once: y = r carrying x on from x = y,
-    /// where x = y = r and only r is real.
-    pub other_beside: Option<Box<Beside<'f>>>,
+    term_left: bool,
 }
 
 /// `besides`, each with the equation that puts the term there.
@@ -511,141 +530,41 @@ fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
                 equation: f,
                 other: b,
                 term_left: true,
-                other_stated: None,
-                other_row: None,
-                other_beside: None,
             }),
             (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(Beside {
                 equation: f,
                 other: a,
                 term_left: false,
-                other_stated: None,
-                other_row: None,
-                other_beside: None,
             }),
             _ => None,
         })
         .collect()
 }
 
-/// `b`, which puts `term` beside its other side, with how that side is in
-/// `system`: the fact stating it, or else the closure table's row of its
-/// own operation, its parts walked to `depth`, or else another equation
-/// carrying it on (`carried_on`).
-fn with_other_held<'f>(
-    term: &Node,
-    b: Beside<'f>,
-    system: System,
-    facts: &'f Facts,
-    depth: usize,
-) -> Beside<'f> {
-    with_other_held_past(&[term], b, system, facts, depth)
-}
-
-/// `with_other_held`, where `past` are the terms the equations so far
-/// carried the claim's term through, the claim's term first.
-fn with_other_held_past<'f>(
-    past: &[&Node],
-    b: Beside<'f>,
-    system: System,
-    facts: &'f Facts,
-    depth: usize,
-) -> Beside<'f> {
-    let other_stated = stated_by(b.other, system, facts);
-    let other_row = match other_stated {
-        Some(_) => None,
-        None => whole_by(b.other, system, facts, depth),
-    };
-    let other_beside = match (other_stated, &other_row) {
-        (None, None) if !member(b.other, system, facts, 0) => {
-            carried_on(past, b.other, system, facts, depth)
-        }
-        _ => None,
-    };
-    Beside {
-        other_stated,
-        other_row,
-        other_beside,
-        ..b
-    }
-}
-
-/// The equation among the facts that carries `other`, the side an equation
-/// put a term beside, on to a term in `system`, as `held_at` found it
-/// there: y = r of x = y = r, where only r is real. A term already passed
-/// through (`past`) is not gone back to, so x = y read the other way is
-/// not taken for y. None where `depth` is spent or no equation carries it.
-fn carried_on<'f>(
-    past: &[&Node],
-    other: &Node,
-    system: System,
-    facts: &'f Facts,
-    depth: usize,
-) -> Option<Box<Beside<'f>>> {
-    let depth = depth.checked_sub(1)?;
-    let mut through = past.to_vec();
-    through.push(other);
-    let b = besides_by(other, facts).into_iter().find(|b| {
-        !through.iter().any(|t| same(t, b.other, facts.ctx))
-            && member(b.other, system, facts, depth)
-    })?;
-    Some(Box::new(with_other_held_past(
-        &through, b, system, facts, depth,
-    )))
-}
-
-/// How an atom is in its system (`atom_held`), so that a backend proves it
-/// the way the check found it.
-pub enum Held<'f> {
-    /// Said: by the walk the page says memberships once by, or a fact.
-    Said,
-    /// Put by a cited equation beside a term in the system.
-    Beside(Beside<'f>),
-}
-
 /// Whether an atom of an `algebra` or `inequalities` step is in `system`
 /// (`METHODS.md`, membership, Facts in: the test every method's side
-/// conditions are asked by): said, or given by a cited equation that puts it
-/// beside a term in `system`, as citing a(0) = 0 says a(0) is a number.
+/// conditions are asked by): the one rule (`shown`), as citing a(0) = 0
+/// says a(0) is a number.
 pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
-    atom_held_by(term, system, facts).is_some()
+    holds(term, system, facts)
 }
 
-/// `atom_held`, with how; None where the atom is not held.
-pub fn atom_held_by<'f>(
-    term: &Node,
-    system: System,
-    facts: &'f Facts,
-) -> Option<Held<'f>> {
-    let shown = shown(term, system, facts)?;
-    let Some(other) = beside_other(&shown) else {
-        return Some(Held::Said);
-    };
-    let b = besides_by(term, facts)
-        .into_iter()
-        .find(|b| same(b.other, other, facts.ctx))?;
-    Some(Held::Beside(with_other_held(
-        term, b, system, facts, CARRIED,
-    )))
-}
-
-/// The other side of the equation `shown` puts the term itself beside,
-/// whole or as the one part the walk took it as; None where it is shown
-/// otherwise.
-fn beside_other(shown: &Shown) -> Option<&Node> {
-    match shown {
-        Shown::Beside { other, .. } => Some(other),
-        Shown::Walked {
-            reason: OnceReason::Stated,
-            taken,
-        } => match taken.as_slice() {
-            [ShownPart {
-                shown: Shown::Beside { other, .. },
-                ..
-            }] => Some(other),
-            _ => None,
-        },
-        _ => None,
+impl Shown {
+    /// How the term itself is held where the walk took it as it stands, its
+    /// one part: a stated line, a row of the closure or a cited equation.
+    /// The derivation itself where the walk took the term apart, or the
+    /// derivation is no walk.
+    pub fn as_held(&self) -> &Shown {
+        match self {
+            Shown::Walked {
+                reason: OnceReason::Stated,
+                taken,
+            } => match taken.as_slice() {
+                [part] => &part.shown,
+                _ => self,
+            },
+            _ => self,
+        }
     }
 }
 
@@ -656,7 +575,7 @@ pub fn read_off(term: &Node, system: System, facts: &Facts) -> bool {
 }
 
 fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    shown_at(term, system, facts, depth).is_some()
+    shown_at(term, system, facts, &Carry::from(depth)).is_some()
 }
 
 /// Whether two terms are one, each read in its standard spelling as
@@ -777,53 +696,74 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
         .or_else(|| Some(divisor.clone()))
 }
 
-/// How a part the walk does not take apart is in its system
-/// (`held_otherwise`), so that a backend proves it the way the check found
-/// it.
-pub enum HeldHow<'f> {
-    /// A fact states it, of a system inside the one asked.
-    Stated(&'f Node),
-    /// A cited equation puts it beside a term in the system.
-    Beside(Beside<'f>),
-    /// The closure table puts it there, by its operation, as a sum over a
-    /// range, a power, a function's value or a term by cases.
-    Closed,
+/// How `facts` hold a part the walk takes as it stands in `system`, as
+/// `shown` takes such a part (`otherwise`): a stated line, a row of the
+/// closure, or a cited equation, each with how its own parts are shown.
+/// None where none does.
+pub fn held_shown(term: &Node, system: System, facts: &Facts) -> Option<Shown> {
+    otherwise(term, system, facts, &Carry::from(CARRIED))
 }
 
-/// How a part the walk does not take apart is in `system` by what `facts`
-/// give (`said_otherwise`); None where it is not.
-pub fn held_otherwise<'f>(
-    term: &Node,
-    system: System,
-    facts: &'f Facts,
-) -> Option<HeldHow<'f>> {
-    held_at(term, system, facts, CARRIED)
-}
-
-fn held_at<'f>(
-    term: &Node,
-    system: System,
-    facts: &'f Facts,
-    depth: usize,
-) -> Option<HeldHow<'f>> {
-    if let Some(line) = stated_by(term, system, facts) {
-        return Some(HeldHow::Stated(line));
-    }
-    if depth > 0 {
-        if let Some(b) = besides_by(term, facts)
-            .into_iter()
-            .find(|b| member(b.other, system, facts, depth - 1))
-        {
-            return Some(HeldHow::Beside(with_other_held(
-                term,
-                b,
-                system,
-                facts,
-                depth - 1,
-            )));
+impl Shown {
+    /// Each term and line the derivation writes, for `f` to rewrite in
+    /// place: the written record writes out what the checked one reads.
+    pub fn nodes_mut(&mut self, f: &mut dyn FnMut(&mut Node)) {
+        match self {
+            Shown::Walked { taken, .. } => {
+                for part in taken {
+                    part.nodes_mut(f);
+                }
+            }
+            Shown::Stated { line } => f(line),
+            Shown::Whole { parts, .. } => {
+                for part in parts {
+                    part.nodes_mut(f);
+                }
+            }
+            Shown::Summed { pointwise, body } => {
+                if let Some(line) = pointwise {
+                    f(line);
+                }
+                if let Some(body) = body {
+                    body.nodes_mut(f);
+                }
+            }
+            Shown::Powered { base, exponent } => {
+                base.nodes_mut(f);
+                exponent.nodes_mut(f);
+            }
+            Shown::Valued { typed, at } => {
+                f(typed);
+                match at.as_mut() {
+                    InDomain::Within(part) => part.nodes_mut(f),
+                    InDomain::Ranged => {}
+                    InDomain::Stated { line } => f(line),
+                }
+            }
+            Shown::Cased { value, otherwise } => {
+                value.nodes_mut(f);
+                otherwise.nodes_mut(f);
+            }
+            Shown::Beside {
+                equation,
+                other,
+                other_shown,
+                ..
+            } => {
+                f(equation);
+                f(other);
+                other_shown.nodes_mut(f);
+            }
         }
     }
-    closed(term, system, facts, depth).map(|_| HeldHow::Closed)
+}
+
+impl ShownPart {
+    /// `Shown::nodes_mut`, of the term too.
+    pub fn nodes_mut(&mut self, f: &mut dyn FnMut(&mut Node)) {
+        f(&mut self.term);
+        self.shown.nodes_mut(f);
+    }
 }
 
 /// The type among `facts`, `f : X → Y`, that puts `term`, a function's
@@ -842,7 +782,7 @@ pub fn value_typed_by<'f>(
         };
         same(g, f, facts.ctx)
             && codomain_system(codomain).is_some_and(|s| s.within(system))
-            && in_domain_shown(at, domain, facts, 0).is_some()
+            && in_domain_shown(at, domain, facts, &Carry::from(0)).is_some()
     })
 }
 
@@ -855,37 +795,6 @@ fn codomain_system(codomain: &Node) -> Option<System> {
         INTEGER_RANGE => range_system(codomain),
         _ => None,
     }
-}
-
-/// The row of the closure table that puts `term` in `system`
-/// (`rules::WHOLE`), with the term's two parts; None where none does.
-pub fn whole_row<'n>(
-    term: &'n Node,
-    system: System,
-    facts: &Facts,
-) -> Option<(&'static rules::Whole, [&'n Node; 2])> {
-    whole_by(term, system, facts, CARRIED)
-}
-
-fn whole_by<'n>(
-    term: &'n Node,
-    system: System,
-    facts: &Facts,
-    depth: usize,
-) -> Option<(&'static rules::Whole, [&'n Node; 2])> {
-    let op = facts.targets.operation(term)?;
-    let w = rules::WHOLE.iter().find(|w| w.op == op.label)?;
-    let ([left, right], Some(left_in), Some(right_in)) = (
-        op.parts.as_slice(),
-        System::of_label(w.left.1),
-        System::of_label(w.right.1),
-    ) else {
-        return None;
-    };
-    (System::N0.within(system)
-        && member(left, left_in, facts, depth)
-        && member(right, right_in, facts, depth))
-    .then_some((w, [*left, *right]))
 }
 
 /// The atoms of a term and the divisors it writes, as `algebra` reads it

@@ -1,8 +1,6 @@
 //! Chain claims, inequality rows, kind methods and memberships.
 
-use super::super::record::{
-    HeldByLines, Inspection, LinesHold, PlaceShown, ShownBy, StatedIn,
-};
+use super::super::record::{HeldByLines, Inspection, PlaceShown, ShownBy, StatedIn};
 use super::*;
 use crate::methods::inspection;
 use crate::methods::inspection::{Facts, Inspected};
@@ -12,7 +10,6 @@ use crate::citing;
 use crate::citing::Introduced;
 use crate::corpus::{proof, DefineLine};
 use crate::formula::{page, ByShape};
-use methods_membership::HeldHow;
 use num_traits::{Signed, Zero};
 
 /// What a calculation's chain gives of its ends.
@@ -1332,9 +1329,16 @@ pub fn commuted_by_lines(
     out
 }
 
-/// The number systems a part may be asked in.
-pub(super) const HELD_IN: [System; 5] =
-    [System::N, System::N0, System::Z, System::Q, System::R];
+/// The number systems a part may be asked in: ℂ too, where Metamath proves
+/// a term complex for each lemma of arithmetic it applies.
+pub(super) const HELD_IN: [System; 6] = [
+    System::N,
+    System::N0,
+    System::Z,
+    System::Q,
+    System::R,
+    System::C,
+];
 
 /// `held_by_lines` of one claim: every part of its terms and of its lines'
 /// that those lines put in a system, once for each system, with how.
@@ -1384,18 +1388,14 @@ fn held_at_with(
             if !seen.insert((part.by_shape(), system)) {
                 continue;
             }
-            let by = match methods_membership::held_otherwise(&part, system, &given) {
-                Some(HeldHow::Stated(line)) => LinesHold::Stated { line: line.clone() },
-                Some(HeldHow::Beside(b)) => {
-                    LinesHold::Beside(super::super::record::Besides::of(&b))
-                }
-                Some(HeldHow::Closed) => LinesHold::Closed,
-                None => continue,
+            let Some(shown) = methods_membership::held_shown(&part, system, &given)
+            else {
+                continue;
             };
             out.push(HeldByLines {
                 term: part.clone(),
                 system,
-                by,
+                shown,
             });
         }
     }
@@ -1404,7 +1404,7 @@ fn held_at_with(
 
 /// Of a claim `t ∈ S` the `membership` method proves, how t is in S where
 /// an equation among what it rests on puts t beside a term in S
-/// (`methods::membership::atom_held_by`); None where t is said, or the
+/// (`methods::membership::shown`, `Besides::of`); None where t is said, or the
 /// claim is of another shape.
 pub(super) fn member_beside(
     at: &ClosureClaim,
@@ -1453,10 +1453,10 @@ pub(super) fn member_beside(
             by,
         })
     };
-    if let Some(methods_membership::Held::Beside(b)) =
-        methods_membership::atom_held_by(term, system, &given)
+    if let Some(b) = methods_membership::shown(term, system, &given)
+        .and_then(|s| super::super::record::Besides::of(&s))
     {
-        return shown(ShownBy::Beside(super::super::record::Besides::of(&b)));
+        return shown(ShownBy::Beside(b));
     }
     // A term a cited define writes out, read as its value.
     let as_written =

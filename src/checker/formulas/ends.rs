@@ -7,7 +7,6 @@ use std::iter;
 use crate::citing::{Cite, PlaceSystems};
 use crate::corpus;
 use crate::matching::Context;
-use methods_membership::Held;
 
 /// What one part of a block owes: the part, as its steps are numbered, the
 /// sentences its last step claims, and how a message names the part.
@@ -909,19 +908,20 @@ pub fn places_at(step: &Step, known: &Known, library: &Library) -> PlacesAt {
             if out.unshown.iter().any(once) || out.shown.iter().any(shown_once) {
                 continue;
             }
-            match methods_membership::atom_held_by(&a.term, a.system, &given) {
-                Some(Held::Said) => out.shown.push(PlaceShown {
-                    term: a.term,
-                    system: a.system,
-                    by: ShownBy::Said,
-                }),
-                Some(Held::Beside(b)) => out.shown.push(PlaceShown {
-                    by: ShownBy::Beside(super::super::record::Besides::of(&b)),
-                    term: a.term,
-                    system: a.system,
-                }),
-                None => out.unshown.push(a),
-            }
+            let Some(shown) = methods_membership::shown(&a.term, a.system, &given)
+            else {
+                out.unshown.push(a);
+                continue;
+            };
+            let by = match super::super::record::Besides::of(&shown) {
+                Some(b) => ShownBy::Beside(b),
+                None => ShownBy::Said,
+            };
+            out.shown.push(PlaceShown {
+                term: a.term,
+                system: a.system,
+                by,
+            });
         }
     }
     out

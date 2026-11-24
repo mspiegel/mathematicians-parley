@@ -12,7 +12,7 @@ use std::{iter, slice};
 
 use indexmap::IndexMap;
 
-use super::record::{CheckedTheorem, LinesHold, ShownBy, SuppliedBy, Unfolded};
+use super::record::{CheckedTheorem, ShownBy, SuppliedBy, Unfolded};
 use super::CheckedCorpus;
 use crate::citing::finite::{FiniteBy, Making};
 use crate::citing::{finite, number_sets, Group, Introduced, Want};
@@ -439,11 +439,7 @@ pub fn written_out(
     }
     for held in written.held_by_lines.values_mut().flatten() {
         held.term = out(&held.term);
-        match &mut held.by {
-            LinesHold::Stated { line } => *line = out(line),
-            LinesHold::Beside(b) => beside_written(b),
-            LinesHold::Closed => {}
-        }
+        held.shown.nodes_mut(&mut |n| *n = out(n));
     }
     // The sets the page makes finite, read of the page as written here: a
     // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},

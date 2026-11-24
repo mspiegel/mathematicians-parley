@@ -9,7 +9,7 @@ use super::super::expr::Members;
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::{ChainTerms, LinesHold, SuppliedBy, Unfolded, Unfolding};
+use crate::checker::record::{ChainTerms, Shown, SuppliedBy, Unfolded, Unfolding};
 use crate::corpus::proof::ChainLine;
 use crate::corpus::{proof, RecordKind};
 use crate::formula::page;
@@ -3150,8 +3150,7 @@ impl<'a> Proof<'a> {
         // The check reads a step with the defines it names written out, d of
         // `from D3` as its value 2^(r!), and records what it found so.
         let checked = self.with_named_defines(value);
-        let stated =
-            matches!(self.held(&checked, asked), Some(LinesHold::Stated { .. }));
+        let stated = matches!(self.held(&checked, asked), Some(Shown::Stated { .. }));
         // The latest such line the step names, or part of an "and"; a "for
         // all" line read at the block's letter the check read it at, f(a) ∈
         // {0, …, p − 1} of every a read at the block's a

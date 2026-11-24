@@ -1,7 +1,7 @@
 //! Introduced memberships, intervals and function values.
 
 use super::*;
-use crate::checker::record::LinesHold;
+use crate::checker::record::Shown;
 use crate::citing;
 
 /// What the checker recorded of a page letter in scope
@@ -347,7 +347,7 @@ impl<'a> Elaborator<'a> {
 
     /// The line the reason being built states `said`'s membership by, of a
     /// system inside `system`, as the checker recorded it
-    /// (`LinesHold::Stated`): `said` in the normaliser's spelling meets the
+    /// (`Shown::Stated`): `said` in the normaliser's spelling meets the
     /// page's term as a fact is found (`fact_key`), f(a)¹ asked of f(a).
     /// None where the record holds no such line.
     pub(in crate::elab) fn recorded_stated_line(
@@ -358,7 +358,7 @@ impl<'a> Elaborator<'a> {
         let key = self.fact_key(said);
         let held = self.reason_held.clone().unwrap_or_default();
         for h in &held {
-            let LinesHold::Stated { line } = &h.by else {
+            let Shown::Stated { line } = &h.shown else {
                 continue;
             };
             // A part of a line under a binder of its own, ε of "for all
