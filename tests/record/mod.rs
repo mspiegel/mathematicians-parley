@@ -10,8 +10,8 @@ use std::fmt::Write as _;
 use std::slice;
 
 use parley::checker::record::{
-    Cited, DomainSaid, Facing, First, FirstAt, OrderFact, OrderPart, Restated,
-    SuppliedBy, Unfolded,
+    Cited, DomainSaid, Facing, First, FirstAt, NonzeroBy, OrderFact, OrderPart,
+    Restated, SuppliedBy, Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -344,6 +344,20 @@ pub fn printed_but(
     }
     for (line, at) in &record.obtained_from {
         writeln!(out, "{} obtains from {}", reason_at(*line), place(at)).unwrap();
+    }
+    for (line, parts) in &record.divided_by {
+        let parts: Vec<String> = parts
+            .iter()
+            .map(|p| {
+                let by = match &p.by {
+                    NonzeroBy::Stated { from, .. } => format!("by {}", g.print(from)),
+                    NonzeroBy::Numerals => "by its numerals".to_string(),
+                    NonzeroBy::Positive => "a positive integer said once".to_string(),
+                };
+                format!("{} {by}", g.print(&p.term))
+            })
+            .collect();
+        writeln!(out, "{} divides by {}", reason_at(*line), parts.join(", ")).unwrap();
     }
     for (line, split) in &record.cases_from {
         let mut said = format!("{} splits {}", reason_at(*line), place(&split.at));

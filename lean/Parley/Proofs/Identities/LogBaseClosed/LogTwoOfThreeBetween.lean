@@ -53,7 +53,7 @@ theorem log_two_of_three_between :
     intro h
     exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
   have s2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 > 0 := by
-    have c1 : (Real.log (3 : ℝ) - Real.log (2 : ℝ)) / Real.log (2 : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 := by field
+    have c1 : (Real.log (3 : ℝ) - Real.log (2 : ℝ)) / Real.log (2 : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r42_1; field
     have row1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1
     exact row1
   -- 3. inequalities, from 2
@@ -78,7 +78,7 @@ theorem log_two_of_three_between :
     intro h
     exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
   have s5 : 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by
-    have c1 : (2 * Real.log (2 : ℝ) - Real.log (3 : ℝ)) / Real.log (2 : ℝ) = 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) := by field
+    have c1 : (2 * Real.log (2 : ℝ) - Real.log (3 : ℝ)) / Real.log (2 : ℝ) = 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r57_1; field
     have row1 : 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s4
     exact row1
   -- 6. inequalities

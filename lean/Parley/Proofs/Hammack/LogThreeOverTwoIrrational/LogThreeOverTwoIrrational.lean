@@ -82,7 +82,7 @@ theorem log_three_over_two_irrational :
       intro h
       exact Real.log_ne_zero_of_pos_of_ne_one (show (0 : ℝ) < 2 by norm_num) (show (2 : ℝ) ≠ 1 by norm_num) (by linear_combination h + hf1)
     have s2_3 : p > 0 := by
-      have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := (field)) ((q : ℝ)) * s2_1b
+      have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r106_1; have hz2 : (q : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) ((q : ℝ)) * s2_1b
       have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 2.4. mun:pos-int-nat m := p, from 2.3

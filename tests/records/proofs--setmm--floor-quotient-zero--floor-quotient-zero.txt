@@ -9,6 +9,7 @@ step 3.4 cites stdlib/numbers/floor-between group 0; k := 0, x := A / B; conclud
 step 3.5 cites stdlib/numbers/less-scaled group 0; c := B, x := A / B, y := 1; concludes 0 Forward; from [3.4 sentence 0 part 1]; supplied by 1.1 walked Built([Letter, Letter]), 2.1 walked Numeral, 3.1 H2 sentence 0 implied by WiderSystem, 4.1 H2 sentence 0 implied by SystemFact { lemma: "nngt0" }; letters c cr from cn, x cr from cq, y cr from cn; facing none; met identities dropped
 step 3.1 chains B · (A / B) = A (1 sentence 0) | A < B (C1 sentence 0)
 step 3.6 chains B · (A / B) = A (1 sentence 0, turned) | B · (A / B) < B (3.5 sentence 0)
+step 1 divides by B a positive integer said once
 read 5: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
 read 10: A ∈ ℕ₀  as  membership:∈(name:A, number-systems:ℕ₀)  a statement
 read 11: B ∈ ℕ  as  membership:∈(name:B, number-systems:ℕ)  a statement

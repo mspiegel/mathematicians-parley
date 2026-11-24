@@ -66,11 +66,12 @@ pub(super) fn algebra_decided(
     })
 }
 
-/// The parts each `algebra` reason divides by, with why each is not zero,
-/// by the line the reason is on (`CheckedTheorem::divided_by`): a step's,
-/// a requires line's, and a calculation row's, read as the requires line
-/// it is (`ChainLine::reason`). Of a claim that holds, the divisors of its
-/// claim and of the cited lines it combines, each taken apart as `nonzero`
+/// The parts each `algebra` and `inequalities` reason divides by, with
+/// why each is not zero, by the line the reason is on
+/// (`CheckedTheorem::divided_by`): a step's, a requires line's, and a
+/// calculation's or a substitution's row, read as the requires line it is
+/// (`ChainLine::reason`). Of a claim that holds, the divisors of the
+/// relations its check reads (`divided_at`), each taken apart as `nonzero`
 /// finds it not zero; a part nothing says is not zero is left out, as the
 /// check reports it.
 pub fn divided_by(
@@ -80,15 +81,31 @@ pub fn divided_by(
 ) -> IndexMap<usize, Vec<super::super::record::NotZero>> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
-        if step.just.head.is(Method::Algebra) {
-            let parts = divided_at(&ClosureClaim::step(step), known, targets);
-            if !parts.is_empty() {
-                out.insert(step.just.line, parts);
+        let whole = ClosureClaim::step(step);
+        let parts = match &step.just.head {
+            h if h.is(Method::Algebra) => {
+                divided_at(Method::Algebra, &whole, known, targets)
             }
+            // A step with rows is its rows'.
+            h if h.is(Method::Inequalities) && step.just.rows.is_empty() => {
+                divided_at(Method::Inequalities, &whole, known, targets)
+            }
+            h if h.is(Method::Inequalities) => rows_divided(thm, step, known, targets),
+            _ => Vec::new(),
+        };
+        if !parts.is_empty() {
+            out.insert(step.just.line, parts);
         }
+        // A calculation's rows and a substitution's, each by the line its
+        // reason is on.
+        let substituted: Vec<Requires> = match substitute_rows(&step.just, &thm.path) {
+            Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
+            _ => Vec::new(),
+        };
         let rows: Vec<Requires> = chain_links(&step.just, &thm.path)
             .into_iter()
             .filter_map(|link| link.line.reason)
+            .chain(substituted)
             .collect();
         let claims = step
             .requires
@@ -96,10 +113,16 @@ pub fn divided_by(
             .map(|req| (req, ClosureClaim::requires(step, req)))
             .chain(rows.iter().map(|req| (req, ClosureClaim::row(step, req))));
         for (req, at) in claims {
-            let (true, Ok(by)) = (req.is(Method::Algebra), &req.by) else {
+            let Ok(by) = &req.by else {
                 continue;
             };
-            let parts = divided_at(&at, known, targets);
+            let method = [Method::Algebra, Method::Inequalities]
+                .into_iter()
+                .find(|&m| req.is(m));
+            let Some(method) = method else {
+                continue;
+            };
+            let parts = divided_at(method, &at, known, targets);
             if !parts.is_empty() {
                 out.insert(by.line, parts);
             }
@@ -108,41 +131,90 @@ pub fn divided_by(
     out
 }
 
-/// `divided_by` of one claim.
+/// `divided_by` of one claim, by `method`, `algebra` or `inequalities`:
+/// the relations its check reads, the claim and the cited facts the
+/// method combines (`algebra_unsaid`, `inequalities_unsaid`).
 pub(super) fn divided_at(
+    method: Method,
     at: &ClosureClaim,
     known: &Known,
     targets: &Targets,
 ) -> Vec<super::super::record::NotZero> {
-    let Some(AlgebraDecided {
-        read,
-        facts,
-        verdict: algebra::Verdict::Holds { combined },
-        ..
-    }) = algebra_decided(at, known, targets)
-    else {
+    let relations = match method {
+        Method::Algebra => {
+            let Some(AlgebraDecided {
+                read,
+                facts,
+                verdict: algebra::Verdict::Holds { combined },
+                ..
+            }) = algebra_decided(at, known, targets)
+            else {
+                return Vec::new();
+            };
+            let mut relations = vec![read.claimed.clone()];
+            relations.extend(
+                combined
+                    .iter()
+                    .filter_map(|&i| facts.get(i))
+                    .filter(|n| algebra_relation(n))
+                    .cloned(),
+            );
+            relations
+        }
+        _ => {
+            let Some(mut read) = at.read(known, targets, false) else {
+                return Vec::new();
+            };
+            read.read_at_member(known);
+            let Some(relations) = inequalities_relations(&read, known, targets) else {
+                return Vec::new();
+            };
+            relations
+        }
+    };
+    nonzero_parts(at, &relations, known, targets)
+}
+
+/// `divided_by` of an `inequalities` step with rows: the relation each row
+/// writes, as `check_inequality_rows` reads the rows.
+fn rows_divided(
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+    targets: &Targets,
+) -> Vec<NotZero> {
+    let Some(Ok(written)) = rows(&step.just, &thm.path) else {
         return Vec::new();
     };
-    // What says a divisor is not zero is read with the disequalities of the
-    // requires lines above kept, as `membership` reads a divisor's `≠ 0`
-    // (`ClosureClaim::read`).
+    let mut relations = Vec::new();
+    for row in &written {
+        let Ok(node) = row.formula.formula().and_then(|s| known.parse(&s)) else {
+            return Vec::new(); // `check_inequality_rows` reports it
+        };
+        relations.push(node);
+    }
+    nonzero_parts(&ClosureClaim::step(step), &relations, known, targets)
+}
+
+/// Each divisor of the sides of `relations`, taken apart as `nonzero`
+/// finds it not zero, with how: what says it is read with the
+/// disequalities of the requires lines above kept, as `membership` reads a
+/// divisor's `≠ 0` (`ClosureClaim::read`).
+fn nonzero_parts(
+    at: &ClosureClaim,
+    relations: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Vec<NotZero> {
     let Some(mut with_unequal) = at.read(known, targets, true) else {
         return Vec::new();
     };
     with_unequal.read_at_member(known);
     let held = MembershipIn::of(at, &with_unequal, known);
     let given = held.given(targets, known);
-    let mut relations = vec![read.claimed.clone()];
-    relations.extend(
-        combined
-            .iter()
-            .filter_map(|&i| facts.get(i))
-            .filter(|n| algebra_relation(n))
-            .cloned(),
-    );
     let mut out: Vec<NotZero> = Vec::new();
-    for relation in &relations {
-        let sides = sides_of(relation)
+    for relation in relations {
+        let sides = relation_sides(relation)
             .into_iter()
             .flat_map(|side| coordinates_of(side, targets));
         for side in sides {
@@ -258,6 +330,18 @@ pub(super) fn inequalities_unsaid(
     known: &Known,
     targets: &Targets,
 ) -> Option<String> {
+    let relations = inequalities_relations(read, known, targets)?;
+    real_unsaid(at, read, &relations, known, targets)
+}
+
+/// The relations an `inequalities` claim's hypotheses are asked of: the
+/// claim's parts, and the facts of the cited lines the method combines
+/// (`inequalities::combined`); None where it combines none to the claim.
+pub(super) fn inequalities_relations(
+    read: &ClosureRead,
+    known: &Known,
+    targets: &Targets,
+) -> Option<Vec<Node>> {
     let labels = FloatLabels::new(IndexMap::new());
     // The cited lines fact by fact, so that a line saying several things
     // asks only of the ones combined.
@@ -278,11 +362,12 @@ pub(super) fn inequalities_unsaid(
     let terms: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
     let claimed = term_of_node(&read.claimed, targets);
     let used = inequalities::combined(&claimed, &terms, &line_of, &implied, &labels)?;
-    let relations: Vec<Node> = conjuncts(&read.claimed)
-        .into_iter()
-        .chain(used.cited.iter().filter_map(|&i| facts.get(i).cloned()))
-        .collect();
-    real_unsaid(at, read, &relations, known, targets)
+    Some(
+        conjuncts(&read.claimed)
+            .into_iter()
+            .chain(used.cited.iter().filter_map(|&i| facts.get(i).cloned()))
+            .collect(),
+    )
 }
 
 /// What `relations` leave unsaid of an order's hypotheses (`METHODS.md`,

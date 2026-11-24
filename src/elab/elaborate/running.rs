@@ -1306,9 +1306,35 @@ impl<'a> Elaborator<'a> {
         Ok(out.unwrap_or_else(|| lines.clone()))
     }
 
-    /// A step's proof by the method its justification names.
+    /// A step's proof by the method its justification names, with the
+    /// parts its reason divides by held as the checker recorded them
+    /// (`reason_divided`).
     #[allow(clippy::too_many_arguments)]
     pub(super) fn by_method(
+        &mut self,
+        how: &How,
+        step: &Step,
+        node: &Node,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Option<Proof>>> {
+        let recorded = self
+            .checked
+            .divided_by
+            .get(&step.just.line)
+            .cloned()
+            .unwrap_or_default();
+        let kept = self.reason_divided.replace(recorded);
+        let made = self.by_method_divided(how, step, node, term, scope, facts, lines);
+        self.reason_divided = kept;
+        made
+    }
+
+    /// `by_method`, with the reason's divisors held.
+    #[allow(clippy::too_many_arguments)]
+    fn by_method_divided(
         &mut self,
         how: &How,
         step: &Step,

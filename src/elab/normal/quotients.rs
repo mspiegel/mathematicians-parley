@@ -403,12 +403,11 @@ impl Emitter {
         let said = Self::spell_run(under);
         // A numeral is not zero as a numeral. Otherwise what was kept while
         // the denominator was made (`keep_nonzero`) comes first, from the
-        // factors the step's own lines say are not zero, then a line the
-        // step may rest on, then a denominator of one term from its atoms,
-        // then any line the page writes in scope, then the oracle's search:
-        // the order of `Elaborator::divisor_apart`. A page saying x·y ≠ 0
-        // says nothing of x alone, nor x² ≠ 0, which makes 10·x² a
-        // denominator not zero where it is made.
+        // factors the step's own lines say are not zero, and then the
+        // denominator as the checker recorded it not zero
+        // (`Oracle::nonzero`). A page saying x·y ≠ 0 says nothing of x
+        // alone, nor x² ≠ 0, which makes 10·x² a denominator not zero where
+        // it is made.
         if let [(monomial, weight)] = under {
             if monomial.is_empty() && weight.is_integer() && !weight.is_zero() {
                 let apart = take!(self.term_apart(o, monomial, weight)?);
@@ -420,31 +419,9 @@ impl Emitter {
             let rc = self.run_cc(o, under)?;
             return Ok(Built((rc, kept)));
         }
-        if let Some(positive) = o.positive(&said)? {
+        if let Built(recorded) = o.nonzero(&said)? {
             let rc = self.run_cc(o, under)?;
-            return Ok(Built((rc, positive)));
-        }
-        let named = if self.written { o.named(&said)? } else { None };
-        if let Some(named) = named {
-            let rc = self.run_cc(o, under)?;
-            return Ok(Built((rc, named)));
-        }
-        if let [(monomial, weight)] = under {
-            if weight.is_integer() && !weight.is_zero() {
-                if let Built(apart) = self.term_apart(o, monomial, weight)? {
-                    let rc = self.run_cc(o, under)?;
-                    return Ok(Built((rc, apart)));
-                }
-            }
-        }
-        let page = if self.written {
-            o.written(&said)?
-        } else {
-            None
-        };
-        if let Some(page) = page {
-            let rc = self.run_cc(o, under)?;
-            return Ok(Built((rc, page)));
+            return Ok(Built((rc, recorded)));
         }
         let named = self
             .divisors
@@ -577,7 +554,7 @@ impl Emitter {
         let mut out: Option<(Proof, Rpn, Proof)> = None;
         for (name, power) in monomial {
             let spelt = op(name, &n(*power), EXP);
-            let apart = take!(o.nonzero(name, true)?);
+            let apart = take!(o.nonzero(name)?);
             let atom = o.atom(name)?;
             let wi = self.whole_index(o, *power);
             let one = o.b().ap(
@@ -924,10 +901,8 @@ impl Emitter {
         let (a_s, r_s) = (left.rpn(labels), right.rpn(labels));
         let (p_s, q_s) = (Self::spell_run(&top), Self::spell_run(&bottom));
         let pq = op(&p_s, &q_s, DIV);
-        // A line the step names saying R is not 0 comes first, then R's
-        // parts, then any line the page writes: an uncited line saying
-        // 1/x ≠ 0 is not what a step naming x ≠ 0 rests on.
-        let r_apart = take!(o.nonzero(&r_s, true)?);
+        // R is not 0 as the checker recorded it.
+        let r_apart = take!(o.nonzero(&r_s)?);
         let p_cc = self.run_cc(o, &top)?;
         let (q_cc, q_apart) = take!(self.denominator(o, &bottom)?);
         let p_apart = {
@@ -1024,10 +999,9 @@ impl Emitter {
     }
 
     /// ( under -> term =/= 0 ) for a divisor written as a product, a
-    /// negation or a power, from what the page writes of the whole or of
-    /// its parts, without the search (`Oracle::nonzero`); a decline where
-    /// nothing does, and for any other divisor, which `denominator` asks of
-    /// the oracle.
+    /// negation or a power, as the checker recorded the whole or its parts
+    /// not zero (`Oracle::nonzero`); a decline where it did not, and for any
+    /// other divisor, which `denominator` asks of the oracle.
     pub(super) fn page_apart(
         &mut self,
         o: &mut dyn Oracle,
@@ -1045,7 +1019,7 @@ impl Emitter {
         if !compound {
             return Ok(Route::no("the divisor is no product, negation or power"));
         }
-        o.nonzero(&term.rpn(labels), false)
+        o.nonzero(&term.rpn(labels))
     }
 
     /// ( under -> ( d e. CC /\ d =/= 0 ) ), which every law wants.

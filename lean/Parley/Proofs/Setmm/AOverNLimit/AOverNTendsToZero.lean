@@ -32,6 +32,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Topology.Defs.Filter
@@ -95,7 +96,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       -- 5.4.6. thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
       have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 s5_4_5)
       -- 5.4.7. substitute
-      have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by field
+      have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by have hz1 : (n : ℝ) ≠ 0 := (by positivity); field
       have row1 : abs (A / (n : ℝ)) < ε := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s5_4_6
       exact row1
     -- 5.5. exhibit, from 5.4

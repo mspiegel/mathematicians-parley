@@ -44,7 +44,7 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
     have s3_1 : ∃ m : ℚ, (m : ℝ) = A * B / B := by (exact ⟨(Classical.choose hS : ℚ) / (Classical.choose hH4 : ℚ), by (push_cast; simp only [Classical.choose_spec hS, Classical.choose_spec hH4])⟩)
     -- 3.2. substitute
     have s3_2 : ∃ m : ℚ, (m : ℝ) = A := by
-      have c1 : A * B / B = A := by field
+      have c1 : A * B / B = A := by have hz1 : B ≠ 0 := hH5; field
       have row1 : ∃ m : ℚ, (m : ℝ) = A := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s3_1
       exact row1
     -- 3.3. restate 1

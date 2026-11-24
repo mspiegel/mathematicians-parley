@@ -70,22 +70,10 @@ pub trait Oracle {
     /// ( under -> said =/= 0 ), asked only of an emitter given a way to;
     /// `named` is the term as the page wrote it, which a message names.
     fn apart(&mut self, said: &Rpn, named: &Rpn) -> Checked<Proof>;
-    /// What the page says makes `said` not zero, asked only of an emitter
-    /// given a way to.
-    fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
-    /// `written`, from only the lines the step may rest on: those it names,
-    /// and what the page says once.
-    fn named(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
-    /// ( under -> said =/= 0 ) where the page says once that `said` is a
-    /// positive integer (`SYNTAX.md`), which no line need say; None
-    /// otherwise.
-    fn positive(&mut self, said: &Rpn) -> Checked<Option<Proof>>;
-    /// ( under -> said =/= 0 ) by the one order a divisor's ≠ 0 is taken
-    /// in (`Elaborator::divisor_apart`): what the step may rest on, then the
-    /// parts, then a line it does not name, and the search last where
-    /// `search` says and the emitter is given a way to; a decline where
-    /// nothing says so.
-    fn nonzero(&mut self, said: &Rpn, search: bool) -> Checked<Route<Proof>>;
+    /// ( under -> said =/= 0 ) as the checker recorded the reason's
+    /// divisors not zero (`Elaborator::reason_apart`); a decline where the
+    /// record does not say so.
+    fn nonzero(&mut self, said: &Rpn) -> Checked<Route<Proof>>;
     /// A finite sum written out as linear, as `field::linear_sum` reads it,
     /// and ( under -> said = that ); declined where sums are atoms.
     fn linear_sum(&mut self, said: &Rpn) -> Checked<Route<(Term, Proof)>> {

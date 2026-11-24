@@ -839,17 +839,13 @@ impl<'a> Elaborator<'a> {
     /// divisor not being zero is the page's to say, in a requires line or a
     /// line the step cites, unless the page says it once, of a term of
     /// numerals alone whose value is not zero or of a positive integer, and
-    /// is not searched for (`divisor_apart`, stages 1 to 3).
+    /// is not searched for (`divisor_apart`).
     pub fn divisor_written(
         &mut self,
         divisor: &Rpn,
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let reach = super::super::calculators::Reach {
-            in_scope: None,
-            search: false,
-        };
-        self.divisor_apart(divisor, scope, facts, &OnceCell::new(), &reach)
+        self.divisor_apart(divisor, scope, facts, &OnceCell::new())
     }
 }

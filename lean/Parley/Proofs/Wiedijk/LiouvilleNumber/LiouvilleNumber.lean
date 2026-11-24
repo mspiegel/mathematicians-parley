@@ -55,6 +55,7 @@ public import Mathlib.Tactic.NormNum.NatFactorial
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -150,7 +151,7 @@ theorem liouville_number :
     have s10_8 : L = (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ)) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s10_7); push_cast at h; exact h : ((Classical.choose s10_7 : ℤ) : ℝ) = (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)))]; (exact_mod_cast (s10_2b (Classical.choose s10_7) d hD3_pos))
     -- 10.9. substitute
     have s10_9 : L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by
-      have c1 : (d : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) / (d : ℚ) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by field
+      have c1 : (d : ℚ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) / (d : ℚ) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by have hz1 : (d : ℚ) ≠ 0 := (by positivity); field
       have row1 : L = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ∨ c / (d : ℝ) ^ N.toNat < abs (L - (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ))) := by
         have e_w : (d : ℝ) * (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) / (d : ℝ) = (∑ k ∈ Finset.Icc (1 : ℤ) r, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h ⊢; linear_combination h
         exact Eq.subst (motive := (fun t : ℝ => L = t ∨ c / (d : ℝ) ^ N.toNat < abs (L - t))) e_w s10_8

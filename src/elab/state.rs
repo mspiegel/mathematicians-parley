@@ -244,6 +244,16 @@ pub struct Contradicted {
     pub denial: ProvedClaim,
 }
 
+/// The divisors a reason's denominator is asked of, as the checker
+/// recorded each not zero (`CheckedTheorem::divided_by`), and the lines the
+/// page writes in scope, where the line a `NonzeroBy::Stated` entry names
+/// may stand when it is no fact a membership is answered from.
+#[derive(Clone)]
+pub struct Divided {
+    pub recorded: Vec<NotZero>,
+    pub written: Option<super::Facts>,
+}
+
 /// A claim and its proof under the scope it was proved in.
 #[derive(Clone)]
 pub struct ProvedClaim {
@@ -430,15 +440,15 @@ pub struct Elaborator<'a> {
     /// conclusion the claim is, as the record reads it (`LemmaSide`): taken
     /// by that application alone, and by none it makes inside itself.
     pub lemma_side: Option<LemmaSide>,
-    /// While an `algebra` reason is built, each part it divides by with why
-    /// the checker found it not zero (`CheckedTheorem::divided_by`); None
-    /// outside one.
+    /// While a reason is built (`by_method`), each part it divides by with
+    /// why the checker found it not zero (`CheckedTheorem::divided_by`),
+    /// none where the record names none; None outside one.
     pub reason_divided: Option<Vec<NotZero>>,
-    /// `reason_divided` while the normaliser asks a denominator's `≠ 0`
-    /// (`not_zero_named`), which `divisor_apart` proves it by; None
-    /// otherwise, where a membership asked on the way is no divisor of the
-    /// reason's.
-    pub divided: Option<Vec<NotZero>>,
+    /// `reason_divided` while a calculator or the normaliser asks a
+    /// denominator's `≠ 0` (`not_zero_named`, `Oracle::nonzero`), which
+    /// `divisor_apart` proves it by; None otherwise, where a membership
+    /// asked on the way is no divisor of the reason's.
+    pub divided: Option<Divided>,
     /// How many searches for a divisor's `≠ 0` enclose this point. That a
     /// divisor is not zero is the page's to say, so no membership said once
     /// is offered on the way to it (`introduced_membership`, `not_zero`).

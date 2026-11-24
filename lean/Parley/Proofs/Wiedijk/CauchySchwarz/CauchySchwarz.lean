@@ -122,7 +122,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     -- 5.15. substitute
     have r135_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_15 : B ^ 2 ≤ A * C := by
-      have c1 : A * (B ^ 2 / A) = B ^ 2 := by field
+      have c1 : A * (B ^ 2 / A) = B ^ 2 := by have hz1 : A ≠ 0 := r135_1; field
       have row1 : B ^ 2 ≤ A * C := Eq.subst (motive := (fun t : ℝ => t ≤ A * C)) c1 s5_14
       exact row1
     -- 5.16. calculation

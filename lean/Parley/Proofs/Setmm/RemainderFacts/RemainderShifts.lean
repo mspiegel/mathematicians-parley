@@ -45,7 +45,7 @@ theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
   -- 3. substitute
   have r24_1 : M ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s3 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by
-    have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by field
+    have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by have hz1 : M ≠ 0 := r24_1; field
     have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := Eq.subst (motive := (fun t : ℝ => ⌊t⌋ = ⌊X / M⌋ + K)) c1 s2
     exact row1
   -- 4. calculation

@@ -61,40 +61,17 @@ pub struct Spec {
     /// the same question: four asks in five during a comparison of two
     /// polynomials were one already answered.
     pub atoms: RefCell<IndexMap<Rpn, Proof>>,
-    /// What each of `facts` and of `written` also says (`implied`), in their
-    /// order, worked out the first time a denominator asks: every
-    /// denominator asked it of every fact again.
+    /// What each of `facts` also says (`implied`), in their order, worked
+    /// out the first time a denominator asks: every denominator asked it of
+    /// every fact again.
     pub implied: Implied,
 }
 
-/// How far `Elaborator::divisor_apart` looks for a divisor's ≠ 0 past the
-/// lines the step may rest on and the divisor's parts.
-pub struct Reach<'r> {
-    /// The lines the page writes in scope (stage 4).
-    pub in_scope: Option<InScope<'r>>,
-    /// Whether the search is asked last (stage 5).
-    pub search: bool,
-}
-
-/// The lines the page writes in scope, as `Reach` reads them: those of
-/// them the step may rest on with the lines the step names, and the rest
-/// after the divisor's parts, each with what it also says worked out once.
-pub struct InScope<'r> {
-    pub lines: &'r Facts,
-    /// What each of `lines` also says.
-    pub implied: &'r OnceCell<Vec<Facts>>,
-    /// What each of `lines` the step may rest on also says.
-    pub named: &'r OnceCell<Vec<Facts>>,
-}
-
-/// What each fact of a table also says (`Elaborator::implied`), by the
-/// table: the facts a membership is answered from, and those the page
-/// writes.
+/// What each fact a membership is answered from also says
+/// (`Elaborator::implied`).
 #[derive(Default)]
 pub struct Implied {
     facts: OnceCell<Vec<Facts>>,
-    written: OnceCell<Vec<Facts>>,
-    named: OnceCell<Vec<Facts>>,
 }
 
 /// An emitter and what it asks, which live as long as one calculation.
@@ -184,42 +161,20 @@ impl Oracle for Ask<'_, '_> {
     fn apart(&mut self, said: &Rpn, named: &Rpn) -> Checked<Proof> {
         let (scope, facts) = (&self.spec.scope, &self.spec.facts);
         let implied = &self.spec.implied.facts;
-        self.el.not_zero_named(scope, facts, implied, said, named)
-    }
-
-    fn written(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
-        let facts = self.spec.written.clone().unwrap_or_default();
-        let implied = &self.spec.implied.written;
+        let written = self.spec.written.as_ref();
         self.el
-            .written_nonzero(&self.spec.scope, &facts, implied, said)
+            .not_zero_named(scope, facts, implied, written, said, named)
     }
 
-    fn named(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
-        let facts = self.spec.written.clone().unwrap_or_default();
-        let implied = &self.spec.implied.named;
-        self.el
-            .written_nonzero(&self.spec.scope, &facts, implied, said)
-    }
-
-    fn positive(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
-        let (scope, facts) = (self.spec.scope.clone(), self.spec.facts.clone());
-        self.el.positive_divisor(said, &scope, &facts)
-    }
-
-    fn nonzero(&mut self, said: &Rpn, search: bool) -> Checked<Route<Proof>> {
+    fn nonzero(&mut self, said: &Rpn) -> Checked<Route<Proof>> {
         let spec = self.spec;
-        let in_scope = spec.written.as_ref().map(|lines| InScope {
-            lines,
-            implied: &spec.implied.written,
-            named: &spec.implied.named,
-        });
-        let reach = Reach {
-            in_scope,
-            search: search && spec.apart,
-        };
-        let implied = &spec.implied.facts;
-        self.el
-            .divisor_apart(said, &spec.scope, &spec.facts, implied, &reach)
+        self.el.reason_apart(
+            said,
+            &spec.scope,
+            &spec.facts,
+            &spec.implied.facts,
+            spec.written.as_ref(),
+        )
     }
 
     fn linear_sum(&mut self, said: &Rpn) -> Checked<Route<(Term, Proof)>> {

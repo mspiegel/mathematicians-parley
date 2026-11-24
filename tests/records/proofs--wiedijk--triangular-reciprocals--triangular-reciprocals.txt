@@ -39,6 +39,10 @@ step 6.2.5 sentence 0 part 0 adds [6.2.4 sentence 0]
 step 6.2.7 sentence 0 part 0 adds [6.2.3 sentence 0]
 step 6.2.8 sentence 0 part 0 adds [A1 sentence 0, 6.2.7 sentence 0]
 step 6.1 obtains sentence 1 part 0 is part 0
+a row of step 1.1 divides by k a positive integer said once, k + 1 a positive integer said once, 2 by its numerals
+step 6.2.5 divides by n + 1 a positive integer said once
+step 6.2.7 divides by n + 1 a positive integer said once
+step 6.2.8 divides by n + 1 a positive integer said once
 read 11: ℕ  as  number-systems:ℕ  a set
 read 14: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
 read 19: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement

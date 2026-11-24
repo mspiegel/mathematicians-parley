@@ -5,6 +5,7 @@ requires line on line 32 cites stdlib/numbers/multiply-le group 0; c := B, x := 
 requires line on line 21 cites stdlib/numbers/floor-integer group 0; x := A / B; concludes 0 AsWritten; from no line; supplied by 1.1 walked Built([Letter, Letter]); letters x cr from cr; facing none; met as written
 step 1 sentence 0 part 0 adds [H3 sentence 0] weakened from Above
 step 5 sentence 0 part 0 adds [4 sentence 0]
+a row of step 4 divides by B by B ≠ 0
 read 8: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
 read 10: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
 read 11: B ∈ ℝ  as  membership:∈(name:B, number-systems:ℝ)  a statement

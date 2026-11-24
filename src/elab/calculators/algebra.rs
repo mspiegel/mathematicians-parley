@@ -4,7 +4,17 @@ use std::mem;
 
 use super::*;
 use crate::checker::record::{NonzeroBy, NotZero};
+use crate::elab::state::Divided;
 use crate::methods::algebra::apart_at;
+
+/// How a divisor the build asks of is the page's term a record entry names
+/// (`Elaborator::asked_of`).
+enum AskedAs {
+    /// Spelt as the page spells it, in standard form.
+    Page,
+    /// The normaliser's spelling of it: ( scope -> named = asked ).
+    Normal(Proof),
+}
 
 impl<'a> Elaborator<'a> {
     pub(super) fn ask<'s>(&'s mut self, spec: &'s Spec) -> Ask<'s, 'a> {
@@ -14,31 +24,8 @@ impl<'a> Elaborator<'a> {
     /// Decided by `field`, then proved by `normal`. A step that is not an
     /// identity of the field is refused rather than assumed; what `normal`
     /// does not yet write is taken as stated. Each part the reason divides
-    /// by is shown not zero as the checker recorded it
-    /// (`CheckedTheorem::divided_by`), held for as long as the reason is
-    /// built (`reason_divided`).
+    /// by is shown not zero as the checker recorded it (`reason_divided`).
     pub fn algebra(
-        &mut self,
-        step: &Step,
-        term: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-    ) -> Checked<Route<Proof>> {
-        let recorded = self
-            .checked
-            .divided_by
-            .get(&step.just.line)
-            .cloned()
-            .unwrap_or_default();
-        let kept = self.reason_divided.replace(recorded);
-        let made = self.algebra_reason(step, term, scope, facts, lines);
-        self.reason_divided = kept;
-        made
-    }
-
-    /// `algebra`, with the reason's divisors held (`reason_divided`).
-    fn algebra_reason(
         &mut self,
         step: &Step,
         term: &Rpn,
@@ -600,31 +587,23 @@ impl<'a> Elaborator<'a> {
         said: &Rpn,
     ) -> Checked<Proof> {
         let kept = OnceCell::new();
-        self.not_zero_named(scope, facts, &kept, said, said)
+        self.not_zero_named(scope, facts, &kept, None, said, said)
     }
 
     /// `not_zero`, where what is asked is a form the normaliser made of a
-    /// divisor the page wrote as `named`, which a defect names. Every stage
-    /// of `divisor_apart` but a line the step does not name, the search
-    /// last.
+    /// divisor the page wrote as `named`, which a defect names, proved as
+    /// the checker recorded it (`reason_apart`), with the lines the page
+    /// writes in scope where the emitter is given them (`written`).
     pub fn not_zero_named(
         &mut self,
         scope: &Rpn,
         facts: &Facts,
         implied: &OnceCell<Vec<Facts>>,
+        written: Option<&Facts>,
         said: &Rpn,
         named: &Rpn,
     ) -> Checked<Proof> {
-        let reach = Reach {
-            in_scope: None,
-            search: true,
-        };
-        // The denominator of an `algebra` reason is shown as the checker
-        // recorded it (`reason_divided`), and of anything else as before.
-        let kept = mem::replace(&mut self.divided, self.reason_divided.clone());
-        let apart = self.divisor_apart(said, scope, facts, implied, &reach);
-        self.divided = kept;
-        match apart? {
+        match self.reason_apart(said, scope, facts, implied, written)? {
             Built(p) => Ok(p),
             Declined(_) => Err(self.defect(
                 self.at,
@@ -636,41 +615,56 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// ( scope -> divisor =/= 0 ) by the one order the build takes evidence
-    /// of a divisor in (`ELABORATION.md`, a divisor's ≠ 0), or a decline:
+    /// ( scope -> divisor =/= 0 ) of a divisor the reason being built divides
+    /// by, as the checker recorded it (`reason_divided`, `recorded_apart`),
+    /// `written` being the lines the page writes in scope where an emitter
+    /// is given them; outside a reason the record names no divisor, and only
+    /// numerals whose value is not zero are shown so.
+    pub fn reason_apart(
+        &mut self,
+        divisor: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        implied: &OnceCell<Vec<Facts>>,
+        written: Option<&Facts>,
+    ) -> Checked<Route<Proof>> {
+        let divided = Divided {
+            recorded: self.reason_divided.clone().unwrap_or_default(),
+            written: written.map(Facts::copy),
+        };
+        let kept = self.divided.replace(divided);
+        let apart = self.divisor_apart(divisor, scope, facts, implied);
+        self.divided = kept;
+        apart
+    }
+
+    /// ( scope -> divisor =/= 0 ): a reason's divisor as the checker
+    /// recorded it (`divided`, `recorded_apart`); and a membership's, by the
+    /// order a membership takes evidence of a divisor in (`ELABORATION.md`,
+    /// a divisor's ≠ 0), or a decline:
     ///
     /// 1. a term of numerals alone whose value is not zero, worked out as
     ///    `arithmetic` works one out, or a positive integer the page says
     ///    once (`SYNTAX.md`), which rests on no line;
     /// 2. a line the step may rest on saying it (`written_nonzero`);
     /// 3. its parts: a product, a quotient, a negation or a power to a
-    ///    numeral is not zero when its parts are, each by this same order;
-    /// 4. a line in scope the step does not name, where `reach` gives them,
-    ///    which the step then rests on;
-    /// 5. the search, where `reach` says, which offers only lines the step
-    ///    may rest on.
+    ///    numeral is not zero when its parts are, each by this same order.
     ///
-    /// A line saying the whole comes before its parts, and the parts before
-    /// a line the step does not name: a step citing t² ≠ 0 rests on that,
-    /// and one naming x ≠ 0 rests on that, not on an uncited 1/x ≠ 0.
+    /// A line saying the whole comes before its parts: a step citing t² ≠ 0
+    /// rests on that.
     pub fn divisor_apart(
         &mut self,
         divisor: &Rpn,
         scope: &Rpn,
         facts: &Facts,
         implied: &OnceCell<Vec<Facts>>,
-        reach: &Reach,
     ) -> Checked<Route<Proof>> {
-        // An `algebra` reason's divisors are shown not zero as the checker
-        // recorded each (`divided`).
-        if let Some(recorded) = self.divided.clone() {
-            return self
-                .recorded_apart(divisor, &recorded, scope, facts, implied, reach);
+        if let Some(divided) = self.divided.clone() {
+            return self.recorded_apart(divisor, &divided, scope, facts, implied);
         }
         let apart = t!(divisor, "cc0", "wne");
         // `facts` are what the step may rest on (`in_hand`), and nothing else
-        // in scope is read until `reach` lets a line it does not name be read
-        // (`GOALS.md` decision 9).
+        // in scope is read (`GOALS.md` decision 9).
         let numeral = numerals::value(&self.to_term(divisor)).filter(|v| !v.is_zero());
         if let Some(value) = numeral {
             let closed = numerals::ne0(&self.b, value);
@@ -685,32 +679,8 @@ impl<'a> Elaborator<'a> {
         if let Some(found) = self.written_nonzero(scope, facts, implied, divisor)? {
             return Ok(Built(found));
         }
-        if let Some(lines) = &reach.in_scope {
-            if let Some(found) =
-                self.written_nonzero(scope, lines.lines, lines.named, divisor)?
-            {
-                return Ok(Built(found));
-            }
-        }
-        if let Built(found) = self.parts_apart(divisor, scope, facts, implied, reach)? {
+        if let Built(found) = self.parts_apart(divisor, scope, facts, implied)? {
             return Ok(Built(found));
-        }
-        if let Some(lines) = &reach.in_scope {
-            if let Some(found) =
-                self.written_nonzero(scope, lines.lines, lines.implied, divisor)?
-            {
-                return Ok(Built(found));
-            }
-        }
-        if reach.search {
-            // Any other divisor's `≠ 0` is the page's to say, so no
-            // membership said once leads to it (`READERS.md`).
-            self.beyond_once += 1;
-            let found = self.settle(&self.to_term(&apart), scope, facts, 3);
-            self.beyond_once -= 1;
-            if let Built(p) = found? {
-                return Ok(Built(p));
-            }
         }
         Ok(self.no(
             "nothing says {}, which this step needs to divide by it",
@@ -718,20 +688,21 @@ impl<'a> Elaborator<'a> {
         ))
     }
 
-    /// ( scope -> divisor =/= 0 ) as the checker recorded it not zero, of an
-    /// `algebra` reason (`NotZero`): numerals alone, a positive integer the
-    /// page says once, or the one line the record names, the divisor whole
-    /// where the record names it, else each of its parts (`parts_apart`). A
-    /// decline where the record holds neither.
+    /// ( scope -> divisor =/= 0 ) as the checker recorded it not zero
+    /// (`NotZero`): numerals alone, a positive integer the page says once,
+    /// or the one line the record names, the divisor whole where the record
+    /// names it; else a product of parts the record says are positive
+    /// integers, shown in ℕ whole (`positive_by_record`); else each of its
+    /// parts (`parts_apart`). A decline where the record holds none.
     fn recorded_apart(
         &mut self,
         divisor: &Rpn,
-        recorded: &[NotZero],
+        divided: &Divided,
         scope: &Rpn,
         facts: &Facts,
         implied: &OnceCell<Vec<Facts>>,
-        reach: &Reach,
     ) -> Checked<Route<Proof>> {
+        let recorded = &divided.recorded;
         let apart = t!(divisor, "cc0", "wne");
         // Numerals alone rest on no line: their value says it, of a divisor
         // the page writes and of one the normaliser makes of them alike.
@@ -745,24 +716,65 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(found));
         }
         // The record names the page's term, and the normaliser asks of the
-        // same term in its standard form: |OB| written, |BO| asked.
-        let asked = self.standard(&self.to_term(divisor));
-        let asked = self.rpn(&asked);
+        // same term in its own form (`asked_of`): the term is shown not zero
+        // as the page writes it, and carried to the form asked.
         for entry in recorded {
             let named = self.term(&entry.term)?;
-            let named = self.standard(&self.to_term(&named));
-            if self.rpn(&named) != asked {
+            let Some(how) = self.asked_of(divisor, &named, scope, facts)? else {
                 continue;
-            }
-            let found = match &entry.by {
+            };
+            // What is shown not zero: the divisor asked, spelt as the page
+            // spells it, or else the page's term, carried after.
+            let shown = match &how {
+                AskedAs::Page => divisor.clone(),
+                AskedAs::Normal(_) => named.clone(),
+            };
+            let given = match &entry.by {
                 // Proved above, where its value is not zero.
                 NonzeroBy::Numerals => None,
-                NonzeroBy::Positive => self.positive_divisor(divisor, scope, facts)?,
+                NonzeroBy::Positive => self.positive_divisor(&shown, scope, facts)?,
+                // The line the record names, held among the facts a membership
+                // is answered from and the lines the page writes alike.
                 NonzeroBy::Stated { from, .. } => {
                     let from = self.term(from)?;
-                    let only = facts.filtered(|said, _| *said == from);
-                    self.written_nonzero(scope, &only, &OnceCell::new(), divisor)?
+                    let lines = match &divided.written {
+                        Some(written) => facts.with(written),
+                        None => facts.copy(),
+                    };
+                    // The line is held among those, or among what the step
+                    // wrote, its requires lines (`written_held`).
+                    let mut said = self.held(&lines, &from, scope)?;
+                    if said.is_none() {
+                        if let Some(w) = self.written_held(&from)? {
+                            said = self.lifted_to(&from, &w.proof, &w.at, scope);
+                        }
+                    }
+                    // That line alone says the divisor is not zero, with the
+                    // memberships in hand for carrying it to the spelling
+                    // asked.
+                    match said {
+                        Some(said) => {
+                            let only = facts.filtered(|c, _| c.ends_with(&["wcel"]));
+                            self.know(&only, from, said);
+                            self.written_nonzero(
+                                scope,
+                                &only,
+                                &OnceCell::new(),
+                                &shown,
+                            )?
+                        }
+                        None => None,
+                    }
                 }
+            };
+            let found = match (given, &how) {
+                (Some(given), AskedAs::Page) => Some(given),
+                (Some(given), AskedAs::Normal(same)) => Some(self.b.ap(
+                    "eqnetrrd",
+                    &binds! {"ph" => scope, "A" => &named, "B" => divisor, "C" => "cc0"},
+                    &[same, &given],
+                )),
+                (None, _) => None,
             };
             return Ok(match found {
                 Some(p) => Built(p),
@@ -772,7 +784,112 @@ impl<'a> Elaborator<'a> {
                 ),
             });
         }
-        self.parts_apart(divisor, scope, facts, implied, reach)
+        // A product of positive integers, or one to a numeral power, is a
+        // positive integer: where the record says each part is one, the
+        // whole is shown in ℕ (`positive_divisor`), as a part is.
+        if self.positive_by_record(&self.to_term(divisor), recorded, scope, facts)? {
+            return Ok(match self.positive_divisor(divisor, scope, facts)? {
+                Some(p) => Built(p),
+                None => self.no(
+                    "the checker recorded each part of {} a positive integer, and the build does not reach it",
+                    &[&apart],
+                ),
+            });
+        }
+        self.parts_apart(divisor, scope, facts, implied)
+    }
+
+    /// How a divisor asked is the page's term `named` the record names, or
+    /// None where it is not: the same term in standard form, |BO| asked of
+    /// |OB|; or the normaliser's spelling of it, 1·x¹ + 3·1 asked of x + 3,
+    /// with ( scope -> named = asked ) (`apart_as_written`). A product the
+    /// normaliser asks of, 1·|AP|¹, is no entry's term, and is taken apart
+    /// (`parts_apart`).
+    fn asked_of(
+        &mut self,
+        divisor: &Rpn,
+        named: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<AskedAs>> {
+        let standard = |me: &mut Self, d: &Rpn| {
+            let s = me.standard(&me.to_term(d));
+            me.rpn(&s)
+        };
+        if standard(self, divisor) == standard(self, named) {
+            return Ok(Some(AskedAs::Page));
+        }
+        let mut w = Work::plain(scope, facts);
+        let labels = self.b.flabel.clone();
+        let subject = self.to_term(named);
+        Ok(
+            match w.e.normalize(&mut self.ask(&w.spec), &subject, &labels)? {
+                Built((items, same)) if Emitter::spell_run(&items) == *divisor => {
+                    Some(AskedAs::Normal(same))
+                }
+                _ => None,
+            },
+        )
+    }
+
+    /// Whether `term` is a product, or a power to a numeral, whose every
+    /// part the record says is a positive integer, said once
+    /// (`NonzeroBy::Positive`) or read from a line saying it is in ℕ, or is
+    /// of numerals alone whose value is a whole number above 0.
+    fn positive_by_record(
+        &mut self,
+        term: &Term,
+        recorded: &[NotZero],
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<bool> {
+        let kids = term.children();
+        let how = (term.variable().is_none()
+            && term.label() == Some("co")
+            && kids.len() == 3)
+            .then(|| self.rpn(&kids[2]).alone().map(String::from))
+            .flatten();
+        let parts: Vec<&Term> = match how.as_deref() {
+            Some("cmul") => vec![&kids[0], &kids[1]],
+            Some("cexp") if numerals::value(&kids[1]).is_some() => vec![&kids[0]],
+            _ => return Ok(false),
+        };
+        for part in parts {
+            // Numerals alone whose value is a whole number above 0: 3, 2!.
+            if matches!(field::closed_value(part), Built(Value::Exact(v)) if v.is_integer() && v.is_positive())
+            {
+                continue;
+            }
+            if self.positive_by_record(part, recorded, scope, facts)? {
+                continue;
+            }
+            let part = self.rpn(part);
+            let mut positive = false;
+            for entry in recorded {
+                let natural = match &entry.by {
+                    NonzeroBy::Positive => true,
+                    NonzeroBy::Stated { from, .. } => {
+                        let from = self.term(from)?;
+                        let from = self.to_term(&from);
+                        from.label() == Some("wcel")
+                            && self.rpn(&from.children()[1]) == t!("cn")
+                    }
+                    NonzeroBy::Numerals => false,
+                };
+                if !natural {
+                    continue;
+                }
+                let named = self.term(&entry.term)?;
+                if self.asked_of(&part, &named, scope, facts)?.is_some() {
+                    positive = true;
+                    break;
+                }
+            }
+            if !positive {
+                return Ok(false);
+            }
+        }
+        Ok(true)
     }
 
     /// ( scope -> divisor =/= 0 ) from its parts, each by `divisor_apart`:
@@ -785,7 +902,6 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
         implied: &OnceCell<Vec<Facts>>,
-        reach: &Reach,
     ) -> Checked<Route<Proof>> {
         let term = self.to_term(divisor);
         if term.variable().is_some() {
@@ -811,9 +927,7 @@ impl<'a> Elaborator<'a> {
         let mut apart = Vec::new();
         for part in &parts {
             held.push(take!(self.in_cc(part, scope, facts)?));
-            apart.push(take!(
-                self.divisor_apart(part, scope, facts, implied, reach)?
-            ));
+            apart.push(take!(self.divisor_apart(part, scope, facts, implied)?));
         }
         let mut binds = binds! {"ph" => scope, "A" => parts[0]};
         if let Some(second) = parts.get(1) {

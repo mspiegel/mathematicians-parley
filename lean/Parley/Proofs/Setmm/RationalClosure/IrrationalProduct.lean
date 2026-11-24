@@ -39,7 +39,7 @@ theorem irrational_product (A : ℝ) (B : ℚ) (hH3 : B ≠ 0) (hH4 : Irrational
     have s2_1 : ∃ m : ℚ, (m : ℝ) = A * (B : ℝ) / (B : ℝ) := by (exact ⟨(Classical.choose hS : ℚ) / B, by (push_cast; simp only [Classical.choose_spec hS])⟩)
     -- 2.2. substitute
     have s2_2 : ∃ m : ℚ, (m : ℝ) = A := by
-      have c1 : A * (B : ℝ) / (B : ℝ) = A := by field
+      have c1 : A * (B : ℝ) / (B : ℝ) = A := by have hz1 : (B : ℝ) ≠ 0 := (by exact_mod_cast hH3); field
       have row1 : ∃ m : ℚ, (m : ℝ) = A := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s2_1
       exact row1
     -- 2.3. restate 1

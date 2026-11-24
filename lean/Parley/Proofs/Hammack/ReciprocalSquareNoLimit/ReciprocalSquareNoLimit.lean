@@ -98,7 +98,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 19. substitute
   have r94_1 : p ≠ 0 := by exact s5
   have s19 : 1 / (N : ℝ) < p := by
-    have c1 : 1 / (1 / p) = p := by field
+    have c1 : 1 / (1 / p) = p := by have hz1 : p ≠ 0 := r94_1; field
     have row1 : 1 / (N : ℝ) < p := Eq.subst (motive := (fun t : ℝ => 1 / (N : ℝ) < t)) c1 s18
     exact row1
   -- 20. algebra
@@ -119,7 +119,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s25 : (1 / (N : ℚ)) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := 1 / (N : ℚ)) s24)
   -- 26. substitute
   have s26 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by
-    have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by field
+    have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by have hz1 : (N : ℚ) ≠ 0 := (by positivity); field
     have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25
     exact row1
   -- 27. inequalities
