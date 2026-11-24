@@ -5,7 +5,7 @@ use std::slice;
 use super::running::Folded;
 use super::*;
 use crate::checker::record::{
-    First, HeldByLines, Shown, ShownPart, Supplied, Unfolded,
+    First, HeldByLines, InDomain, Shown, ShownPart, Supplied, Unfolded,
 };
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
@@ -897,8 +897,125 @@ impl<'a> Elaborator<'a> {
                 self.reason_held = kept;
                 Ok(made?.built())
             }
-            _ => Ok(None),
+            Shown::Valued { typed, at } => {
+                self.derived_value(step, &said, typed, at, &set, scope, facts)
+            }
+            // A sum by its terms at each index, as the walk builds one.
+            Shown::Summed { .. } => Ok(self
+                .summed(&self.to_term(&said), &set, scope, facts, None)?
+                .built()),
+            // A whole number's row, a power, a term by cases: built from its
+            // parts, each as the walk reads it.
+            Shown::Whole { .. } | Shown::Powered { .. } | Shown::Cased { .. } => {
+                let named = facts.clone();
+                Ok(self
+                    .built(
+                        &said,
+                        &set,
+                        scope,
+                        &mut |me, part, into| {
+                            me.introduced_membership(part, into, scope, facts)
+                        },
+                        Some(&mut |me, divisor| {
+                            me.divisor_written(divisor, scope, &named)
+                        }),
+                    )?
+                    .built())
+            }
         }
+    }
+
+    /// ( scope -> said ∈ set ) for a function's value f(x) by the type the
+    /// derivation names (`Shown::Valued`), f : D → E: the type a line the
+    /// derivation names, x in D as the derivation has it (`InDomain`), and
+    /// the value in E (`ffvelcdm`), carried to `set` (`value_carried`). None
+    /// where the type is not of `said`'s function, or what it names is not
+    /// held.
+    #[allow(clippy::too_many_arguments)]
+    fn derived_value(
+        &mut self,
+        step: Option<&Step>,
+        said: &Rpn,
+        typed: &Node,
+        at: &InDomain,
+        set: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let typed = self.term(typed)?;
+        let Some(held) = self.named_line(step, &typed, scope, facts)? else {
+            return Ok(None);
+        };
+        let term = self.to_term(said);
+        let t = self.to_term(&typed);
+        let ([point, function], [domain, codomain, typed_function]) =
+            (term.children(), t.children())
+        else {
+            return Ok(None);
+        };
+        let (point, function) = (self.rpn(point), self.rpn(function));
+        let (domain, codomain, typed_function) = (
+            self.rpn(domain),
+            self.rpn(codomain),
+            self.rpn(typed_function),
+        );
+        if function != typed_function {
+            return Ok(None);
+        }
+        let inside = t!(&point, &domain, "wcel");
+        let in_domain = match at {
+            InDomain::Within(part) => {
+                if self.term(&part.term)? != point {
+                    return Ok(None);
+                }
+                self.derived_membership(
+                    step,
+                    &part.term,
+                    part.system,
+                    &part.shown,
+                    scope,
+                    facts,
+                )?
+            }
+            InDomain::Stated { line } => {
+                let line = self.term(line)?;
+                self.named_line(step, &line, scope, facts)?
+            }
+            // The point is a letter running over the range the domain writes:
+            // a line in hand says so, or the line introducing it.
+            InDomain::Ranged => match self.held(facts, &inside, scope)? {
+                Some(p) => Some(p),
+                None => {
+                    let letter = self
+                        .sets
+                        .iter()
+                        .find(|(letter, s)| {
+                            **s == domain
+                                && self.names.get(*letter).is_some_and(|k| *k == point)
+                        })
+                        .map(|(letter, _)| letter.clone());
+                    match letter {
+                        Some(letter) => self
+                            .introduced_held(&point, &letter, &domain, scope, facts)?,
+                        None => None,
+                    }
+                }
+            },
+        };
+        let Some(in_domain) = in_domain else {
+            return Ok(None);
+        };
+        let law = self.b.ap(
+            "ffvelcdm",
+            &binds! {"F" => &function, "A" => &domain, "B" => &codomain, "C" => &point},
+            &[],
+        );
+        let made = self.b.ap(
+            "syl2anc",
+            &binds! {"ph" => scope, "ps" => &typed, "ch" => &inside, "th" => t!(said, &codomain, "wcel")},
+            &[&held, &in_domain, &law],
+        );
+        self.value_carried(said, &codomain, set, made, scope)
     }
 
     /// ( scope -> wanted ) for a hypothesis of a cited item, from what the
@@ -1064,7 +1181,8 @@ impl<'a> Elaborator<'a> {
                     };
                     let member = self.term(&member_node)?;
                     let proof = match taken.get(k).map(|t| &t.shown) {
-                        Some(shown @ Shown::Beside { .. }) => self.derived_membership(
+                        Some(shown) if !matches!(shown, Shown::Stated { .. }) => self
+                            .derived_membership(
                             Some(step),
                             &part.term,
                             part.system,

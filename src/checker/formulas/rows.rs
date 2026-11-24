@@ -1646,15 +1646,9 @@ impl MembershipIn {
             .flat_map(|f| implied_facts(f, known.env, &known.sorts))
             .collect();
         facts.extend(implied);
-        for f in &facts {
-            if let (MEMBERSHIP, [name, set]) = (f.notation(), f.children.as_slice()) {
-                if let (true, Some(system)) =
-                    (name.is_name(), System::of_sign(&set.text))
-                {
-                    letters.entry(name.text.to_string()).or_insert(system);
-                }
-            }
-        }
+        // A letter is said once by its introduction alone: where a line the
+        // reason names puts it in a system, the one rule takes that line
+        // (`membership::shown`), which a backend proves the letter by.
         // A function's type is cited for its values (`READERS.md`): the
         // types among what the claim rests on, and none merely in scope.
         let typed: Vec<Node> = facts

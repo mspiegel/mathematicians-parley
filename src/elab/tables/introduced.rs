@@ -22,8 +22,8 @@ pub(in crate::elab) enum RecordedLetter {
 pub(in crate::elab) enum Holds {
     /// A line stating it.
     Stated,
-    /// A line stating it, or a cited equation putting it beside a term that
-    /// is in the system.
+    /// A line stating it, a cited equation putting it beside a term that is
+    /// in the system, or a row of the closure.
     Any,
 }
 
@@ -373,11 +373,11 @@ impl<'a> Elaborator<'a> {
     /// How the reason being built holds `said` in `system`, as the checker
     /// derived it for that system (`CheckedTheorem::held_by_lines`), where
     /// it is of a kind `holds` takes: a line stating it, of that system or
-    /// one inside it, or a cited equation putting it beside a term in the
-    /// system as well. A row of the closure is the walk's, built from the
-    /// term's parts. `said` in the normaliser's spelling meets the page's
-    /// term as a fact is found (`fact_key`), f(a)¹ asked of f(a). None where
-    /// the record holds it so in no such way.
+    /// one inside it, or, for that system, a cited equation putting it
+    /// beside a term in the system or a row of the closure as well. `said`
+    /// in the normaliser's spelling meets the page's term as a fact is found
+    /// (`fact_key`), f(a)¹ asked of f(a). None where the record holds it so
+    /// in no such way.
     pub(in crate::elab) fn recorded_hold(
         &mut self,
         said: &Rpn,
@@ -388,12 +388,12 @@ impl<'a> Elaborator<'a> {
         let held = self.reason_held.clone().unwrap_or_default();
         for h in held {
             // A line stating it in a system inside the one asked says it is
-            // there too; an equation is the check's derivation for its own
-            // system alone.
+            // there too; an equation or a row of the closure is the check's
+            // derivation for its own system alone.
             let taken = match (&h.shown, holds) {
                 (Shown::Stated { .. }, _) => h.system.within(system),
-                (Shown::Beside { .. }, Holds::Any) => h.system == system,
-                _ => false,
+                (_, Holds::Any) => h.system == system,
+                (_, Holds::Stated) => false,
             };
             // A part of a line under a binder of its own, ε of "for all
             // ε > 0, …", speaks of no letter in scope, and is no term asked.
@@ -471,11 +471,11 @@ impl<'a> Elaborator<'a> {
     }
 
     /// ( scope -> said ∈ system ) as the checker recorded the reason holds
-    /// it (`recorded_hold`): by the cited equation and its other side's
-    /// derivation (`derived_membership`), carried up to `system`; or by the
-    /// line stating it, held among the facts or what the step wrote, read as
-    /// `said` in its own system and carried up to `system`. None where what
-    /// the record names is not held.
+    /// it (`recorded_hold`): by the line stating it, held among the facts or
+    /// what the step wrote, read as `said` in its own system and carried up
+    /// to `system`; or by its derivation otherwise (`derived_membership`), a
+    /// cited equation or a row of the closure. None where what the record
+    /// names is not held.
     fn recorded_within(
         &mut self,
         said: &Rpn,
@@ -915,13 +915,13 @@ impl<'a> Elaborator<'a> {
         Ok(Built(proof))
     }
 
-    /// One part of a compound, in a number system, or a decline.
-    ///
-    /// The step's own line first, then that line carried by one lemma, then
-    /// the part built in turn if it is a compound. A numeral is the
-    /// library's. What the scope holds is last, and only exactly: it is a
-    /// line the page wrote, and a step using it without naming it is what
-    /// provenance is there to see.
+    /// One part of a compound, in a number system, or a decline, as the
+    /// checker derived it for the reason being built: by the said-once walk,
+    /// whose parts taken as they stand, the term itself among them, are
+    /// held as the record says (`introduced_membership`, `recorded_hold`);
+    /// else built from its parts, each a part in turn. A term the record
+    /// cannot name, one speaking of a letter the build fixed itself
+    /// (`reads_record`), is `part_unrecorded`'s.
     pub fn part(
         &mut self,
         said: &Rpn,
@@ -929,31 +929,13 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let want = t!(said, system, "wcel");
-        let found = self.held(facts, &want, scope)?;
-        if let Some(f) = &found {
-            if from_requires(f) {
-                return Ok(Built(f.clone()));
-            }
+        if !self.reads_record(&self.to_term(said)) {
+            return self.part_unrecorded(said, system, scope, facts);
         }
-        if let Some(w) = self.written_held(&want)? {
-            if let Some(lifted) = self.lifted_to(&want, &w.proof, &w.at, scope) {
-                return Ok(Built(lifted));
-            }
-        }
-        // What the page says once, where the letters are introduced, before
-        // a cited line: a line cited only for it is cited for nothing.
         if let Built(said_once) =
             self.introduced_membership(said, system, scope, facts)?
         {
             return Ok(Built(said_once));
-        }
-        if let Some(carried) = self.bridged(said, system, scope, facts)? {
-            return Ok(Built(carried));
-        }
-        let term = self.to_term(said);
-        if linear::numeral(&term, self.flabel()).is_some() {
-            return self.settle(&self.to_term(&want), scope, facts, 3);
         }
         let made = self.built(
             said,
@@ -962,102 +944,50 @@ impl<'a> Elaborator<'a> {
             &mut |me, term, into| me.part(term, into, scope, facts),
             Some(&mut |me, divisor| me.divisor_written(divisor, scope, facts)),
         )?;
-        if !made.is_declined() {
-            return Ok(made);
-        }
-        if let Some(f) = found {
-            return Ok(Built(f));
-        }
-        // A closed term `arithmetic` works out and the walk does not take
-        // apart, (1 + 1)!, is in a system where its value is.
-        let labels = self.b.flabel.clone();
-        if let Some((value, equal)) =
-            super::super::numerals::worked(&self.b, &term, &labels)
-        {
-            let spelt = super::super::numerals::spell(value);
-            if spelt != *said {
-                if let Built(inside) = self.part(&spelt, system, scope, facts)? {
-                    return Ok(Built(self.b.ap(
-                        "eqeltrid",
-                        &binds! {"ph" => scope, "A" => said, "B" => &spelt, "C" => system},
-                        &[&equal, &inside],
-                    )));
-                }
-            }
-        }
-        if let Some(valued) = self.function_value(said, system, scope, facts)? {
-            return Ok(Built(valued));
-        }
-        // A finite sum is a number because its terms are (`summed`).
-        if term.variable().is_none() && term.label() == Some("csu") {
-            if let Built(p) = self.summed(&term, system, scope, facts, None)? {
-                return Ok(Built(p));
-            }
-        }
-        if let Some(p) = self.equated_part(said, system, scope, facts)? {
-            return Ok(Built(p));
-        }
         // A term the walk took apart names the part nothing says, as the
         // checker names the first part not said; an atom names itself.
-        if matches!(&made, Declined(d) if d.reason() != NOT_BUILT) {
-            return Ok(made);
+        match &made {
+            Declined(d) if d.reason() == NOT_BUILT => {
+                Ok(self.no("nothing written says {}", &[&t!(said, system, "wcel")]))
+            }
+            _ => Ok(made),
         }
-        Ok(self.no("nothing written says {}", &[&want]))
     }
 
-    /// `said ∈ system` from an equation in hand with `said` on one side: the
-    /// term is in what the other side is in (`eqeltrd`), as a reader takes
-    /// a(0) = 0 to say a(0) ∈ ℝ, whatever method the step names
-    /// (`METHODS.md`). The other side may not hold `said`, and a term
-    /// already being read this way is not read again, so that two equations
-    /// cannot send it round.
-    pub(super) fn equated_part(
+    /// `part` of a term the record cannot name (`reads_record`): a sum's
+    /// term at its index, or a term speaking of a letter the build fixed.
+    /// By the said-once walk; else, as a sum's term is a number at every
+    /// index by the function types in scope (`READERS.md`), a function's
+    /// value by its type (`function_value`); else built from its parts, each
+    /// a part in turn.
+    fn part_unrecorded(
         &mut self,
         said: &Rpn,
         system: &Rpn,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<Option<Proof>> {
-        if self.equating.contains(said) {
-            return Ok(None);
+    ) -> Checked<Route<Proof>> {
+        if let Built(said_once) =
+            self.introduced_membership(said, system, scope, facts)?
+        {
+            return Ok(Built(said_once));
         }
-        // An equation the step may rest on (`in_hand`): a line it cites or
-        // one of its own requires lines.
-        for (fact, proof) in facts.entries() {
-            let node = self.to_term(&fact);
-            if node.variable().is_some()
-                || node.label() != Some("wceq")
-                || node.children().len() != 2
-            {
-                continue;
-            }
-            let (left, right) =
-                (self.rpn(&node.children()[0]), self.rpn(&node.children()[1]));
-            // The other side may hold the term itself, x = (√x)², and is a
-            // number by its own parts; `equating` keeps the search from
-            // coming back to the term through it.
-            let (other, equal) = if left == *said {
-                (right, proof)
-            } else if right == *said {
-                let turned = self.b.ap(
-                    "eqcomd",
-                    &binds! {"ph" => scope, "A" => &left, "B" => &right},
-                    &[&proof],
-                );
-                (left, turned)
-            } else {
-                continue;
-            };
-            self.equating.insert(said.clone());
-            let made = self.part(&other, system, scope, facts);
-            self.equating.shift_remove(said);
-            if let Built(inner) = made? {
-                return Ok(Some(
-                    pf!(self.b; scope, said, other, system, equal, inner, "eqeltrd"),
-                ));
-            }
+        if let Some(valued) = self.function_value(said, system, scope, facts)? {
+            return Ok(Built(valued));
         }
-        Ok(None)
+        let made = self.built(
+            said,
+            system,
+            scope,
+            &mut |me, term, into| me.part(term, into, scope, facts),
+            Some(&mut |me, divisor| me.divisor_written(divisor, scope, facts)),
+        )?;
+        match &made {
+            Declined(d) if d.reason() == NOT_BUILT => {
+                Ok(self.no("nothing written says {}", &[&t!(said, system, "wcel")]))
+            }
+            _ => Ok(made),
+        }
     }
 
     /// `( F ` x ) ∈ system` where a fact in hand gives F's type, F : A → B,
@@ -1135,7 +1065,6 @@ impl<'a> Elaborator<'a> {
             else {
                 continue;
             };
-            let value = t!(said, &codomain, "wcel");
             let shown = through.clone().unwrap_or_else(|| said.clone());
             let law = self.b.ap(
                 "ffvelcdm",
@@ -1159,39 +1088,53 @@ impl<'a> Elaborator<'a> {
                     &[&equal, &made],
                 );
             }
-            if codomain == *system {
-                return Ok(Some(made));
+            if let Some(carried) =
+                self.value_carried(said, &codomain, system, made, scope)?
+            {
+                return Ok(Some(carried));
             }
-            // A codomain that is a range puts the value in the system the
-            // range lies in, as a letter let into the range is (`SYNTAX.md`,
-            // a function's type and a point of its domain).
-            if let Some((inside, lemma)) = self.range_system(&codomain) {
-                match self
-                    .out_of_range(said, &codomain, inside, lemma, made, system, scope)?
-                {
-                    Built(carried) => return Ok(Some(carried)),
-                    Declined(_) => continue,
-                }
-            }
-            let (Some(from), Some(to)) = (codomain.alone(), system.alone()) else {
-                continue;
-            };
-            let Some(label) = self
-                .bridge_labels()
-                .get(&(from.to_string(), to.to_string()))
-                .cloned()
-            else {
-                continue;
-            };
-            let push = self.sig(&label).push()[0].to_string();
-            let law = self.b.ap(&label, &binds! {push => said}, &[]);
-            return Ok(Some(self.b.ap(
-                "syl",
-                &binds! {"ph" => scope, "ps" => &value, "ch" => t!(said, system, "wcel")},
-                &[&made, &law],
-            )));
         }
         Ok(None)
+    }
+
+    /// ( scope -> said ∈ system ) from `made`, ( scope -> said ∈ codomain ):
+    /// a codomain that is the system is it; one that is a range puts the
+    /// value in the system the range lies in, as a letter let into the range
+    /// is (`SYNTAX.md`, a function's type and a point of its domain); a
+    /// number system is carried by one bridging lemma. None for any other.
+    pub(in crate::elab) fn value_carried(
+        &mut self,
+        said: &Rpn,
+        codomain: &Rpn,
+        system: &Rpn,
+        made: Proof,
+        scope: &Rpn,
+    ) -> Checked<Option<Proof>> {
+        if codomain == system {
+            return Ok(Some(made));
+        }
+        if let Some((inside, lemma)) = self.range_system(codomain) {
+            return Ok(self
+                .out_of_range(said, codomain, inside, lemma, made, system, scope)?
+                .built());
+        }
+        let (Some(from), Some(to)) = (codomain.alone(), system.alone()) else {
+            return Ok(None);
+        };
+        let Some(label) = self
+            .bridge_labels()
+            .get(&(from.to_string(), to.to_string()))
+            .cloned()
+        else {
+            return Ok(None);
+        };
+        let push = self.sig(&label).push()[0].to_string();
+        let law = self.b.ap(&label, &binds! {push => said}, &[]);
+        Ok(Some(self.b.ap(
+            "syl",
+            &binds! {"ph" => scope, "ps" => t!(said, codomain, "wcel"), "ch" => t!(said, system, "wcel")},
+            &[&made, &law],
+        )))
     }
 
     /// The map `named` applied at `point`, where `named` is a define's map
