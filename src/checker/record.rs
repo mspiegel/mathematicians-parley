@@ -321,6 +321,12 @@ pub struct CheckedTheorem {
     /// said-once walk reads letters by (`citing::reason`), so that a backend
     /// asking it of a term asks with the checker's letters.
     pub introduced: Vec<Introduced>,
+    /// Where each letter of `introduced` is put in its number system, by
+    /// the step's index (`library::introduced_places`): the line, and the
+    /// sentence and part of it, that last says the letter's membership, as
+    /// a citation of that line is placed. A letter of a `let` with no label
+    /// has no place.
+    pub introduced_at: Vec<IndexMap<String, FirstAt>>,
     /// Each step's citation of an item, by the step's index; None for a step
     /// that cites none, or whose citation no group of the item reads, which
     /// the checker reports.

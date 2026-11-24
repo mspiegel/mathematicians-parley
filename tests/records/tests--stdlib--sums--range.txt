@@ -1,5 +1,6 @@
 theorem tests/stdlib/sums/range
 step 1 cites stdlib/sums/range group 0; k := k, n := n; concludes 0 Forward part 0, 0 Forward part 1; from [H3 sentence 0], [H3 sentence 0]; supplied by 1.1 once H1 sentence 0; letters k none from cr, n cz from cz; facing none, none; met as written, as written
+step 1 has letters n at H1 sentence 0, k at H2 sentence 0
 read 42: k ∈ ℕ and k ≤ n  as  conjunction:and(membership:∈(name:k, number-systems:ℕ), order:≤(name:k, name:n))  a statement
 read 43: n ∈ ℤ  as  membership:∈(name:n, number-systems:ℤ)  a statement
 read 44: k ∈ ℝ  as  membership:∈(name:k, number-systems:ℝ)  a statement

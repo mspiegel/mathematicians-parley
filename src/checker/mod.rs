@@ -903,6 +903,11 @@ fn theorem_record(
         .iter()
         .map(|step| library::introduced(&c.known[i], step))
         .collect();
+    record.introduced_at = thm
+        .steps
+        .iter()
+        .map(|step| library::introduced_places(&c.known[i], step))
+        .collect();
     record.cited = thm
         .steps
         .iter()

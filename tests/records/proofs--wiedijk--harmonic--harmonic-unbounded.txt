@@ -32,6 +32,12 @@ step 4 instantiates 2 sentence 0, conditions taken off [], guards [m by once 3 s
 step 2.6 sentence 0 part 0 adds [IH sentence 0]
 step 5 sentence 0 part 0 adds [3 sentence 1]
 step 3 obtains sentence 1 part 0 is part 0
+step 1 has letters M at H1 sentence 0
+step 1.1 has letters M at H1 sentence 0, k at K1 sentence 0
+step 2 has letters M at H1 sentence 0
+step 2.5 has letters M at H1 sentence 0, m at K sentence 0
+step 3 has letters M at H1 sentence 0
+step 4 has letters M at H1 sentence 0, N at 3 sentence 0
 read 115: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
 read 119: M ∈ ℝ  as  membership:∈(name:M, number-systems:ℝ)  a statement
 read 120: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement

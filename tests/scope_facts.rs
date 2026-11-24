@@ -14,6 +14,10 @@ const PRODUCT_CONSTANT: &str = "stdlib/sums/product-constant";
 const BOUND_BY_ALGEBRA: &str =
     "tests/elaborator/reading-memberships/a-membership-bound-read-by-algebra";
 const CONGRUENCE_CHAIN: &str = "tests/elaborator/a-congruence-chain-opening-with-an-equation/a-congruence-chain-opening-with-an-equation";
+const BOTH_EVEN: &str =
+    "proofs/hammack/both-even-from-product-and-sum/both-even-from-product-and-sum";
+const REMAINDER_NONNEGATIVE: &str =
+    "proofs/setmm/remainder-bounds/remainder-nonnegative";
 const RATIONAL_TIMES_IRRATIONAL: &str =
     "proofs/hammack/rational-times-irrational/rational-times-irrational";
 
@@ -116,4 +120,79 @@ fn a_function_typed_between_number_systems_records_both() {
     // H4 says f : ℤ → ℝ.
     let between = record.function_systems.get("f").expect("f is typed");
     assert_eq!((between.from.sign(), between.to.sign()), ("ℤ", "ℝ"));
+}
+
+/// Where the record places `letter` at the step numbered `number`: the
+/// line's reference and the sentence of it (`CheckedTheorem::introduced_at`).
+fn placed_at(
+    read: &CheckedCorpus,
+    name: &str,
+    number: &str,
+    letter: &str,
+) -> (String, Option<usize>) {
+    let i = step_index(read, name, number);
+    let at = read.theorems[name].introduced_at[i]
+        .get(letter)
+        .unwrap_or_else(|| panic!("{letter} has no place at step {number}"));
+    (at.line.clone(), at.sentence)
+}
+
+#[test]
+fn a_header_let_places_its_letter_at_its_label() {
+    let read = read(&[BOTH_EVEN]);
+    // H1 says a ∈ ℤ and H2 says b ∈ ℤ, each a sentence of its own.
+    assert_eq!(
+        placed_at(&read, BOTH_EVEN, "1", "a"),
+        ("H1".to_string(), Some(0))
+    );
+    assert_eq!(
+        placed_at(&read, BOTH_EVEN, "1", "b"),
+        ("H2".to_string(), Some(0))
+    );
+}
+
+#[test]
+fn an_obtain_places_its_letter_at_its_step_from_the_steps_below_it() {
+    let read = read(&[BOTH_EVEN]);
+    // Step 2 says m ∈ ℤ in its first sentence; m is in scope from step 3.
+    assert_eq!(
+        placed_at(&read, BOTH_EVEN, "3", "m"),
+        ("2".to_string(), Some(0))
+    );
+    let at_two = step_index(&read, BOTH_EVEN, "2");
+    assert!(
+        !read.theorems[BOTH_EVEN].introduced_at[at_two].contains_key("m"),
+        "the obtain does not introduce m at its own step"
+    );
+}
+
+#[test]
+fn a_letter_obtained_in_each_case_is_placed_at_that_cases_obtain() {
+    let read = read(&[BOTH_EVEN]);
+    // Each case obtains its own j: at 3.1 in the first, at 3.5 in the second.
+    assert_eq!(
+        placed_at(&read, BOTH_EVEN, "3.2", "j"),
+        ("3.1".to_string(), Some(0))
+    );
+    assert_eq!(
+        placed_at(&read, BOTH_EVEN, "3.6", "j"),
+        ("3.5".to_string(), Some(0))
+    );
+}
+
+#[test]
+fn a_kinds_define_places_its_name_at_the_defines_label() {
+    let read = read(&[REMAINDER_NONNEGATIVE]);
+    // D1, `let q = ⌊A/B⌋, an integer`, puts q in ℤ from the step after it.
+    assert_eq!(
+        placed_at(&read, REMAINDER_NONNEGATIVE, "2", "q"),
+        ("D1".to_string(), Some(0))
+    );
+    let record = &read.theorems[REMAINDER_NONNEGATIVE];
+    let at_two = step_index(&read, REMAINDER_NONNEGATIVE, "2");
+    assert_eq!(
+        record.introduced[at_two].get("q").map(|s| s.sign()),
+        Some("ℤ"),
+        "the place is of the system `introduced` gives"
+    );
 }

@@ -345,6 +345,20 @@ pub fn printed_but(
     for (line, at) in &record.obtained_from {
         writeln!(out, "{} obtains from {}", reason_at(*line), place(at)).unwrap();
     }
+    // Where each letter is introduced, at each step whose letters' places
+    // differ from the step's before it.
+    let mut before: Option<Vec<String>> = None;
+    for (i, places) in record.introduced_at.iter().enumerate() {
+        let each: Vec<String> = places
+            .iter()
+            .map(|(letter, at)| format!("{letter} at {}", place(at)))
+            .collect();
+        if before.as_ref() == Some(&each) {
+            continue;
+        }
+        writeln!(out, "step {} has letters {}", number(i), each.join(", ")).unwrap();
+        before = Some(each);
+    }
     for (line, parts) in &record.divided_by {
         let parts: Vec<String> = parts
             .iter()

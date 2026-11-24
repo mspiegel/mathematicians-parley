@@ -339,6 +339,13 @@ pub fn written_out(
     for c in written.cases_from.values_mut() {
         c.at.written = out(&c.at.written);
     }
+    for at in written
+        .introduced_at
+        .iter_mut()
+        .flat_map(|m| m.values_mut())
+    {
+        at.written = out(&at.written);
+    }
     for p in written.obtained_parts.values_mut().flatten() {
         p.owed_written = out(&p.owed_written);
     }

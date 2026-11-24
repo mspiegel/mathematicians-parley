@@ -13,6 +13,7 @@ set T holds numbers of cn
 step 1.2 sentence 0 part 0 adds [H4 sentence 0]
 step 7 joins in sentence 0 [3 sentence 0]
 step 7 joins in sentence 1 [6 sentence 0]
+step 1 has letters i at H2 sentence 0, p at H3 sentence 0
 read 194: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
 read 194: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
 read 197: T  as  name:T  a set of numbers

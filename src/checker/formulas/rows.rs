@@ -1225,10 +1225,37 @@ pub fn held_by_lines(
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let at = ClosureClaim::step(step);
-        out.insert(step.just.line, held_at(&at, known, targets));
+        // An inequalities step with rows writes in its rows what it combines.
+        let rows: Vec<Node> = match proof::rows(&step.just, &thm.path) {
+            Some(Ok(rows)) => rows
+                .iter()
+                .filter_map(|r| r.formula.formula().ok())
+                .filter_map(|s| known.parse(&s).ok())
+                .collect(),
+            _ => Vec::new(),
+        };
+        out.insert(step.just.line, held_at_with(&at, &rows, known, targets));
         for req in &step.requires {
             if let Ok(by) = &req.by {
                 let at = ClosureClaim::requires(step, req);
+                out.insert(by.line, held_at(&at, known, targets));
+            }
+        }
+        // A calculation's rows and a substitution's, each by the line its
+        // reason is on, read as the requires line it is.
+        let substituted: Vec<Requires> =
+            match proof::substitute_rows(&step.just, &thm.path) {
+                Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
+                _ => Vec::new(),
+            };
+        let reasons: Vec<Requires> = chain_links(&step.just, &thm.path)
+            .into_iter()
+            .filter_map(|link| link.line.reason)
+            .chain(substituted)
+            .collect();
+        for req in &reasons {
+            if let Ok(by) = &req.by {
+                let at = ClosureClaim::row(step, req);
                 out.insert(by.line, held_at(&at, known, targets));
             }
         }
@@ -1314,6 +1341,17 @@ pub(super) fn held_at(
     known: &Known,
     targets: &Targets,
 ) -> Vec<super::super::record::HeldByLines> {
+    held_at_with(at, &[], known, targets)
+}
+
+/// `held_at`, of the terms `more` writes as well: an inequalities step's
+/// rows.
+fn held_at_with(
+    at: &ClosureClaim,
+    more: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Vec<super::super::record::HeldByLines> {
     let Some(read) = at.read(known, targets, true) else {
         return Vec::new();
     };
@@ -1330,6 +1368,7 @@ pub(super) fn held_at(
     let mut seen: FxIndexSet<(ByShape, System)> = FxIndexSet::default();
     for part in iter::once(&read.claimed)
         .chain(&read.lines)
+        .chain(more)
         .flat_map(|n| n.walk())
     {
         if part.notation() == NUMERAL {

@@ -3,6 +3,7 @@ step 1 cites stdlib/sets/part-builder group 0; P := property-of(N ∈ S and (for
 finite S, by Bound("S")
 set T holds numbers of cn
 step 2 restates 1 sentence 1
+step 1 has letters N at H1 sentence 0
 read 8: for all p ∈ T, p ≤ N  as  for-all:forall∈,(name:p, name:T, order:≤(name:p, name:N))  a statement
 read 12: N ∈ ℕ  as  membership:∈(name:N, number-systems:ℕ)  a statement
 read 13: T  as  name:T  a set of numbers

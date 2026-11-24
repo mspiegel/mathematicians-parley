@@ -84,6 +84,12 @@ step 16.5 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
 step 16.28 obtains sentence 1 part 0 is part 0, sentence 2 part 0 is part 1
 step 16.5 obtains from 16.4 sentence 0
 step 16.28 obtains from 16.27 sentence 0
+step 1 has letters a at H1 sentence 0, b at H2 sentence 0
+step 9 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0
+step 16.6 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.5 sentence 0, x₁ at D2 sentence 0
+step 16.27 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.5 sentence 0
+step 16.29 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.28 sentence 0
+step 17 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0
 step 16 splits 14 sentence 0
 read 19: there exists c ∈ [a, b] such that f(c) = 0  as  there-is:thereis∈with(name:c, closed-interval:[,](name:a, name:b), equality:=(application:()(name:f, name:c), numeral:0))  a statement
 read 24: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement

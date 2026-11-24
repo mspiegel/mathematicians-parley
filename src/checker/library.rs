@@ -8,7 +8,8 @@ use std::{iter, slice};
 use indexmap::IndexMap;
 use rustc_hash::FxHashMap;
 
-use super::record::{CheckedTheorem, PageReading, PartKey};
+use super::citations;
+use super::record::{CheckedTheorem, FirstAt, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
     self, at_a_member, conjuncts_in, finished, implied_by, introduction, said_once,
@@ -1048,6 +1049,7 @@ impl<'a> Known<'a> {
         let made = Rc::new(InScope {
             introducing: introducing(self, step),
             introduced: OnceCell::new(),
+            places: OnceCell::new(),
             points: OnceCell::new(),
             typed: OnceCell::new(),
         });
@@ -1361,12 +1363,60 @@ pub fn introduced(known: &Known, step: &Step) -> Introduced {
 }
 
 /// `introduced`, from the introducing lines in scope.
-fn introduced_by(known: &Known, introducing: &[Stated]) -> Introduced {
+fn introduced_by(known: &Known, introducing: &[IntroducingLine]) -> Introduced {
     let mut out = Introduced::new();
-    for stated in introducing {
-        for node in known.said_parts(stated, None).into_iter().flatten() {
+    for line in introducing {
+        for node in known.said_parts(&line.stated, None).into_iter().flatten() {
             if let Some((letter, system)) = introduction(&node, &out) {
                 out.insert(letter, system);
+            }
+        }
+    }
+    out
+}
+
+/// Where each letter in scope at `step` is introduced in the number system
+/// `introduced` gives it: the line, and the sentence of it, that last puts
+/// the letter in a system, as a citation of the line is placed
+/// (`citations::placed`). `let q ∈ ℤ` and a later `obtain` saying q ∈ ℕ₀
+/// place q at the `obtain`.
+pub fn introduced_places(known: &Known, step: &Step) -> IndexMap<String, FirstAt> {
+    let here = known.in_scope(step);
+    here.places
+        .get_or_init(|| places_by(known, &here.introducing))
+        .clone()
+}
+
+/// `introduced_places`, from the introducing lines in scope.
+fn places_by(
+    known: &Known,
+    introducing: &[IntroducingLine],
+) -> IndexMap<String, FirstAt> {
+    let mut letters = Introduced::new();
+    let mut out = IndexMap::new();
+    for line in introducing {
+        let says = known.says_written(&line.stated);
+        let own = known.sentence_count(&line.stated);
+        for node in known.said_parts(&line.stated, None).into_iter().flatten() {
+            let Some((letter, system)) = introduction(&node, &letters) else {
+                continue;
+            };
+            letters.insert(letter.clone(), system);
+            // The line's reading of the membership, as a citation reads it; a
+            // line with no label has no place to name.
+            let place = line.label.as_deref().and_then(|label| {
+                says.iter()
+                    .filter(|s| s.implied.is_none())
+                    .find(|s| known.alike(&s.cited, &node))
+                    .and_then(|s| citations::placed(label, s, &says, own))
+            });
+            match place {
+                Some(at) => {
+                    out.insert(letter, at);
+                }
+                None => {
+                    out.shift_remove(&letter);
+                }
             }
         }
     }
@@ -1386,9 +1436,9 @@ pub fn points_introduced(known: &Known, step: &Step) -> BTreeSet<String> {
 }
 
 /// `points_introduced`, from the introducing lines in scope.
-fn points_by(known: &Known, introducing: &[Stated]) -> BTreeSet<String> {
+fn points_by(known: &Known, introducing: &[IntroducingLine]) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
-    for stated in introducing {
+    for IntroducingLine { stated, .. } in introducing {
         if let Stated::Introduced(i) = stated {
             if let Form::Point(name) = &i.form {
                 out.insert(name.clone());
@@ -1541,7 +1591,7 @@ pub fn parts_in_scope(known: &Known, step: &Step) -> Vec<(Node, Node)> {
     let here = known.in_scope(step);
     here.introducing
         .iter()
-        .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
+        .flat_map(|line| known.said_parts(&line.stated, None).into_iter().flatten())
         .filter_map(|n| part_pair(&n))
         .collect()
 }
@@ -1560,10 +1610,10 @@ pub(super) fn part_pair(said: &Node) -> Option<(Node, Node)> {
 }
 
 /// `typed_in_scope`, from the introducing lines in scope.
-fn typed_by(known: &Known, introducing: &[Stated]) -> Vec<Node> {
+fn typed_by(known: &Known, introducing: &[IntroducingLine]) -> Vec<Node> {
     introducing
         .iter()
-        .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
+        .flat_map(|line| known.said_parts(&line.stated, None).into_iter().flatten())
         .filter(|n| TYPING.contains(&n.notation()))
         .filter(|n| n.children.len() == 3 && n.children[0].is_name())
         .collect()
@@ -1586,24 +1636,37 @@ pub fn typed_seed(
 /// introducing lines, and what `introduced`, `points_introduced` and
 /// `typed_in_scope` read off them, each read when first asked for.
 pub struct InScope {
-    introducing: Vec<Stated>,
+    introducing: Vec<IntroducingLine>,
     introduced: OnceCell<Introduced>,
+    places: OnceCell<IndexMap<String, FirstAt>>,
     points: OnceCell<BTreeSet<String>>,
     typed: OnceCell<Vec<Node>>,
+}
+
+/// A line introducing what is in scope, and the reference that names it:
+/// a `let`'s label, an `obtain`'s step number, a kind's define's label;
+/// None for a theorem's `let` written without one, which nothing cites.
+pub struct IntroducingLine {
+    pub label: Option<String>,
+    pub stated: Stated,
 }
 
 /// The lines introducing what is in scope at `step`, in the order they are
 /// written: a `let` of the theorem or of a block around the step, an
 /// `obtain` above it in a block around it, and a naming `let` of a kind.
-fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
+fn introducing(known: &Known, step: &Step) -> Vec<IntroducingLine> {
     let path = &known.thm.path;
     // What each introducing line says, by the line it is on.
-    let mut said: Vec<(usize, Stated)> = known
+    let mut said: Vec<(usize, IntroducingLine)> = known
         .thm
         .hypotheses
         .iter()
         .filter(|h| h.kind == Intro::Let)
-        .map(|h| (h.line, Stated::Introduced(Introduction::read(h.body(path)))))
+        .map(|h| {
+            let stated = Stated::Introduced(Introduction::read(h.body(path)));
+            let label = h.label.clone();
+            (h.line, IntroducingLine { label, stated })
+        })
         .collect();
     let visible = labels_in_scope(known.thm, known.shape(), step, known.env.scopes);
     for other in &known.thm.steps {
@@ -1611,22 +1674,26 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
             if o.kind == Intro::Let
                 && visible.get(&o.label) == Some(&Declared::Block(o.line))
             {
-                let introduced = Introduction::read(o.body(path));
-                said.push((o.line, Stated::Introduced(introduced)));
+                let stated = Stated::Introduced(Introduction::read(o.body(path)));
+                let label = Some(o.label.clone());
+                said.push((o.line, IntroducingLine { label, stated }));
             }
         }
         let around = other.number.parent().contains(&step.number);
         if other.just.head.is(Method::Obtain) && other.line < step.line && around {
-            said.push((other.line, Stated::Written(other.claim.clone())));
+            let stated = Stated::Written(other.claim.clone());
+            let label = Some(other.number.to_string());
+            said.push((other.line, IntroducingLine { label, stated }));
         }
     }
     for k in kinded_above(known.thm, known.shape(), step, known.env) {
-        let kind = Stated::Kind {
+        let stated = Stated::Kind {
             name: Written::new(&k.name, path, k.shown.line),
             set: Written::new(&k.set, path, k.shown.line),
         };
-        said.push((k.shown.line, kind));
+        let label = Some(k.label.clone());
+        said.push((k.shown.line, IntroducingLine { label, stated }));
     }
     said.sort_by_key(|(line, _)| *line);
-    said.into_iter().map(|(_, stated)| stated).collect()
+    said.into_iter().map(|(_, line)| line).collect()
 }

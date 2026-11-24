@@ -64,6 +64,13 @@ step 3.5.12 joins in sentence 0 [3.5.10 sentence 0, 3.5.11 sentence 0]
 a row of step 4.3.3 links facing straight
 a row of step 4.3.9 links facing straight
 a row of step 4.3.9 links facing straight
+step 1 has letters M at H1 sentence 0, N at H2 sentence 0
+step 3.4 has letters M at H1 sentence 0, N at H2 sentence 0, k at K1 sentence 0
+step 4 has letters M at H1 sentence 0, N at H2 sentence 0
+step 4.2 has letters M at H1 sentence 0, N at H2 sentence 0, k at K2 sentence 0
+step 5 has letters M at H1 sentence 0, N at H2 sentence 0
+step 5.3 has letters M at H1 sentence 0, N at H2 sentence 0, k at K3 sentence 0
+step 6 has letters M at H1 sentence 0, N at H2 sentence 0
 step 3.5 splits 3.4 sentence 0
 step 4.3 splits 4.2 sentence 0
 step 5.4 splits 5.3 sentence 0
