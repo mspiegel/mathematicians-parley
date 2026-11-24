@@ -33,6 +33,11 @@ pub(super) struct Suppliers<'a> {
     pub(super) unfolds: Unfolds,
     pub(super) known: &'a Known<'a>,
     pub(super) library: &'a Library<'a>,
+    /// The member the citation is read at: a requires line's own, "for all
+    /// n ∈ ℕ, P" read at n ∈ ℕ (`requires_member`), else the step's, where
+    /// the step is read at a member of its claim's "for all"
+    /// (`read_at_member`); None where it is read at none.
+    member: Option<Node>,
     /// The walks whose parts are being placed (`with_places`), by shape: a
     /// part is not placed by the walk it is part of.
     placing: RefCell<Vec<ByShape>>,
@@ -71,6 +76,16 @@ impl<'a> Suppliers<'a> {
             })
             .map(Rc::new)
             .unwrap_or_else(|| known.read_out_parts(step, library));
+        // A requires line said of every member is read at its own member;
+        // any other is read where its step is.
+        let own = below
+            .and_then(|line| step.requires.iter().find(|r| r.line == line))
+            .and_then(|req| requires_member(step, req, known, library));
+        let member = own.or_else(|| {
+            read_at_member(step, known, library)
+                .then(|| known.step_member(step))
+                .flatten()
+        });
         Suppliers {
             step,
             refs,
@@ -82,6 +97,7 @@ impl<'a> Suppliers<'a> {
             },
             known,
             library,
+            member,
             placing: RefCell::new(Vec::new()),
         }
     }
@@ -247,17 +263,15 @@ impl<'a> Suppliers<'a> {
         None
     }
 
-    /// `Bound` where `fact` is the membership the step's claim, a "for all"
-    /// proved in one line, gives its letter (`Known::step_member`), in a step
-    /// read at that member (`read_at_member`); None otherwise.
+    /// `Bound` where `fact` is the membership of the member the citation is
+    /// read at (`member`): the step's claim's, a "for all" proved in one line
+    /// (`Known::step_member`), or a requires line's said of every member;
+    /// None otherwise.
     pub(super) fn claimed(&self, fact: &Node) -> Option<SuppliedBy> {
         let ctx = &self.library.ctx;
-        if !read_at_member(self.step, self.known, self.library) {
-            return None;
-        }
-        let member = self.known.step_member(self.step)?;
+        let member = self.member.as_ref()?;
         let letter = member.children.first().filter(|l| l.is_name())?;
-        self.alike(&standard(&member, ctx), fact)
+        self.alike(&standard(member, ctx), fact)
             .then(|| SuppliedBy::Bound {
                 letter: letter.text.to_string(),
             })

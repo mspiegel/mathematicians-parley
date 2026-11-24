@@ -1366,8 +1366,12 @@ fn held_at_with(
     let given = held.given(targets, known);
     let mut out: Vec<HeldByLines> = Vec::new();
     let mut seen: FxIndexSet<(ByShape, System)> = FxIndexSet::default();
+    // The claim and what the reason rests on as its check reads it, the
+    // step's own requires lines among them (`MembershipIn::stated`).
+    let stated = held.stated.clone();
     for part in iter::once(&read.claimed)
         .chain(&read.lines)
+        .chain(&stated)
         .chain(more)
         .flat_map(|n| n.walk())
     {

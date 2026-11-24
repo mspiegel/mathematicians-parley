@@ -935,7 +935,32 @@ impl<'a> Elaborator<'a> {
         })
     }
 
+    /// One step's proof, with the parts its lines hold as the checker
+    /// recorded them (`reason_held`) for as long as it is built; a reason
+    /// inside it, a requires line's or a row's, holds its own
+    /// (`by_method`).
     pub(super) fn one_step(
+        &mut self,
+        step: &Step,
+        number: &str,
+        scope: &Rpn,
+        facts: &Facts,
+        closers: Vec<Closer>,
+    ) -> Checked<(Rpn, Facts, Vec<Closer>)> {
+        let held = self
+            .checked
+            .held_by_lines
+            .get(&step.just.line)
+            .cloned()
+            .unwrap_or_default();
+        let kept = self.reason_held.replace(held);
+        let made = self.one_step_held(step, number, scope, facts, closers);
+        self.reason_held = kept;
+        made
+    }
+
+    /// `one_step`, with the step's held parts held.
+    fn one_step_held(
         &mut self,
         step: &Step,
         number: &str,
@@ -1307,8 +1332,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// A step's proof by the method its justification names, with the
-    /// parts its reason divides by held as the checker recorded them
-    /// (`reason_divided`).
+    /// parts its reason divides by and the parts its lines hold, as the
+    /// checker recorded them (`reason_divided`, `reason_held`).
     #[allow(clippy::too_many_arguments)]
     pub(super) fn by_method(
         &mut self,
@@ -1326,9 +1351,17 @@ impl<'a> Elaborator<'a> {
             .get(&step.just.line)
             .cloned()
             .unwrap_or_default();
+        let held = self
+            .checked
+            .held_by_lines
+            .get(&step.just.line)
+            .cloned()
+            .unwrap_or_default();
         let kept = self.reason_divided.replace(recorded);
+        let kept_held = self.reason_held.replace(held);
         let made = self.by_method_divided(how, step, node, term, scope, facts, lines);
         self.reason_divided = kept;
+        self.reason_held = kept_held;
         made
     }
 

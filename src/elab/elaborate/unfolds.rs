@@ -4,7 +4,7 @@ use std::slice;
 
 use super::running::Folded;
 use super::*;
-use crate::checker::record::{First, Supplied, Unfolded};
+use crate::checker::record::{First, HeldByLines, LinesHold, Supplied, Unfolded};
 use crate::citing::{HypothesisAt, Implication};
 use crate::corpus::records::LemmaReading;
 use crate::elab::provenance::MEMBERSHIP as SAID_ONCE;
@@ -868,27 +868,37 @@ impl<'a> Elaborator<'a> {
             // on.
             SuppliedBy::Walked(walked) => {
                 let known = facts.copy();
+                // The parts the walk read off lines are what it holds stated
+                // while it walks (`reason_held`), each from where it stands.
+                let mut held = Vec::new();
                 for part in &walked.stated {
                     let library = self.item_library();
-                    let Some(member) =
+                    let Some(member_node) =
                         citing::system_member(&part.term, part.system, &library)
                     else {
                         return Ok(None);
                     };
-                    let member = self.term(&member)?;
+                    let member = self.term(&member_node)?;
                     let Some(proof) = self
                         .supplied_proof(step, &part.by, None, &member, scope, facts)?
                     else {
                         return Ok(None);
                     };
                     self.know(&known, member, proof);
+                    held.push(HeldByLines {
+                        term: part.term.clone(),
+                        system: part.system,
+                        by: LinesHold::Stated { line: member_node },
+                    });
                 }
                 // The walk's own fact, a define the step cites written out
                 // as the checker read it, carried to the hypothesis.
                 let walk = self.term(&walked.fact)?;
-                let Built(proof) =
-                    self.said_once_proof(&self.to_term(&walk), scope, &known)?
-                else {
+                let kept = self.reason_held.replace(held);
+                let walked_proof =
+                    self.said_once_proof(&self.to_term(&walk), scope, &known);
+                self.reason_held = kept;
+                let Built(proof) = walked_proof? else {
                     return Ok(None);
                 };
                 if walk == *wanted {

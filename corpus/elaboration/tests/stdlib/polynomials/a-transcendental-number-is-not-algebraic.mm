@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.polynomials.a-transcendental-number-is-not-algebraic $p |- ( ( A e. RR /\ ( A e. CC /\ -. A e. AA ) ) -> -. A e. AA ) $=
-    ( cr wcel cc caa wn wa simpr wb simpl syl gtransc mpbid ) ABCZADCZAECZFZGZGZRQNRHZSORQISROTOQJKALKM $.
+    ( cr wcel cc caa wn wa simpr wb simpl id syl recn gtransc mpbid ) ABCZADCZAECZFZGZGZTSPTHUAQTSIUAPQUAPPPTJPKLAMLANLO $.
 $}

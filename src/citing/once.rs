@@ -171,10 +171,10 @@ fn said_once_read(
     sorts: &Sorts,
 ) {
     let mut letters = introduced.clone();
-    // A term other than a letter that a fact puts in a number system is a
-    // number there as a letter is, and what the said-once operations build
-    // from it is too: N(n) + 1 ∈ ℝ where a line says N(n) ∈ ℝ, as a
-    // method's atoms are read (`methods::membership::said`).
+    // A term a fact puts in a number system is a number there, and what the
+    // said-once operations build from it is too: N(n) + 1 ∈ ℝ where a line
+    // says N(n) ∈ ℝ, as a method's atoms are read
+    // (`methods::membership::said`).
     let mut atoms: Vec<(Node, System)> = Vec::new();
     for f in &parts.facts {
         let [term, set] = f.children.as_slice() else {
@@ -186,8 +186,19 @@ fn said_once_read(
         let Some(system) = System::of_sign(&set.text) else {
             continue;
         };
-        if !term.is_name() {
+        // What a fact states the walk takes from that line (`Given::says`),
+        // which the checker places: a term's membership, and a letter's
+        // unless a line introducing the letter says as much, n ∈ ℕ of an n
+        // let in ℕ₀. A letter's fact saying no more than its introduction,
+        // the member a step is read at, is the letter's said once.
+        let narrows = !term.is_name()
+            || introduced
+                .get(term.text.as_str())
+                .is_none_or(|held| system.within(*held) && system != *held);
+        if narrows {
             atoms.push((term.clone(), system));
+        }
+        if !term.is_name() {
             continue;
         }
         // Of two systems a letter is in, the narrower stands: a line saying

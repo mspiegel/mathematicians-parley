@@ -54,6 +54,37 @@ pub(super) fn unconcluded(
     out
 }
 
+/// The member a requires line said of every member, "for all n ∈ ℕ, P", is
+/// read at, `n ∈ ℕ`, where the item it cites says no "for all" of its own
+/// (`citing::at_a_member`), read with the defines the line cites written
+/// out; None for any other requires line.
+pub(super) fn requires_member(
+    step: &Step,
+    req: &Requires,
+    known: &Known,
+    library: &Library,
+) -> Option<Node> {
+    let item = req.cited_item().map(|(named, _)| step.just.item(&named));
+    let at_member = item
+        .as_deref()
+        .and_then(|name| library.item(name))
+        .is_some_and(|i| !i.says_for_all());
+    if !at_member {
+        return None;
+    }
+    let defined = known.citing_item(req.lines(), item.as_deref());
+    let claims: Vec<Node> = req
+        .fact
+        .sentences()
+        .iter()
+        .filter_map(|s| known.read_citing(s, &defined))
+        .collect();
+    let [claim] = claims.as_slice() else {
+        return None;
+    };
+    claimed_member(claim, library.env.g).map(|(member, _)| member)
+}
+
 /// What a requires line's citation supplies and claims: the line's fact is
 /// its claim, and its facts are the lines its reason names, the requires
 /// lines above it, and the member a claim said of every member names, each

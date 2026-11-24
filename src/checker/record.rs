@@ -6,6 +6,7 @@
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
+use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use indexmap::IndexMap;
@@ -327,6 +328,11 @@ pub struct CheckedTheorem {
     /// a citation of that line is placed. A letter of a `let` with no label
     /// has no place.
     pub introduced_at: Vec<IndexMap<String, FirstAt>>,
+    /// The letters in scope introduced as points, by the step's index
+    /// (`library::points_introduced`): `let A be a point`, or a line saying
+    /// A ∈ 𝔼². A point is in no number system the page writes; a backend
+    /// that encodes points as complex numbers reads them here.
+    pub points_at: Vec<BTreeSet<String>>,
     /// Each step's citation of an item, by the step's index; None for a step
     /// that cites none, or whose citation no group of the item reads, which
     /// the checker reports.

@@ -1,7 +1,19 @@
 //! Introduced memberships, intervals and function values.
 
 use super::*;
+use crate::checker::record::LinesHold;
 use crate::citing;
+
+/// What the checker recorded of a page letter in scope
+/// (`Elaborator::recorded_letter`).
+#[derive(Clone, Copy)]
+pub(in crate::elab) enum RecordedLetter {
+    /// Introduced in this number system, or the narrower a later line puts
+    /// it in.
+    Number(System),
+    /// Introduced as a point, which set.mm encodes as a complex number.
+    Point,
+}
 
 impl<'a> Elaborator<'a> {
     /// `said ∈ system` as the page says it once (`READERS.md`, membership said
@@ -123,7 +135,11 @@ impl<'a> Elaborator<'a> {
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
             // line says N(n) ∈ ℝ.
             OnceReason::Stated => {
-                match self.stated_within(said, system, scope, facts)? {
+                let found = match self.reads_record(&term) {
+                    true => self.recorded_within(said, within, system, scope, facts)?,
+                    false => self.stated_within(said, system, scope, facts)?,
+                };
+                match found {
                     Some(found) => Ok(Built(found)),
                     None => Ok(Route::no("no line the step names states it")),
                 }
@@ -329,6 +345,152 @@ impl<'a> Elaborator<'a> {
         Ok(None)
     }
 
+    /// The line the reason being built states `said`'s membership by, of a
+    /// system inside `system`, as the checker recorded it
+    /// (`LinesHold::Stated`): `said` in the normaliser's spelling meets the
+    /// page's term as a fact is found (`fact_key`), f(a)¹ asked of f(a).
+    /// None where the record holds no such line.
+    pub(in crate::elab) fn recorded_stated_line(
+        &mut self,
+        said: &Rpn,
+        system: System,
+    ) -> Checked<Option<Rpn>> {
+        let key = self.fact_key(said);
+        let held = self.reason_held.clone().unwrap_or_default();
+        for h in &held {
+            let LinesHold::Stated { line } = &h.by else {
+                continue;
+            };
+            // A part of a line under a binder of its own, ε of "for all
+            // ε > 0, …", speaks of no letter in scope, and is no term asked.
+            if !h.system.within(system) || !self.in_scope_here(&h.term, &mut Vec::new())
+            {
+                continue;
+            }
+            let term = self.term(&h.term)?;
+            if self.fact_key(&term) == key {
+                return Ok(Some(self.term(line)?));
+            }
+        }
+        Ok(None)
+    }
+
+    /// Whether a part the said-once walk asks of is held as the checker
+    /// recorded the reason being built (`reason_held`). Not outside a
+    /// reason, nor of a term speaking of a letter the build fixed itself: a
+    /// sum's term at its index (`summed`, `in_family`), or a variable free in
+    /// the term that no page name stands for, the letter of a "for all" the
+    /// build proves for a cited item. What the build put in hand with such a
+    /// letter holds it.
+    pub(in crate::elab) fn reads_record(&self, term: &Term) -> bool {
+        if self.reason_held.is_none() || self.in_family > 0 {
+            return false;
+        }
+        let page: BTreeSet<String> = self
+            .names
+            .values()
+            .filter_map(|t| {
+                let t = self.to_term(t);
+                (t.label() == Some("cv"))
+                    .then(|| t.children().first()?.variable().map(String::from))
+                    .flatten()
+            })
+            .collect();
+        free_variables(term, &mut Vec::new())
+            .iter()
+            .all(|v| page.contains(v))
+    }
+
+    /// Whether every name `node` writes is bound inside it or is a name the
+    /// build reads here, as `term` reads it: a name it has a kernel term
+    /// for or a definition from outside, and a library function applied by
+    /// its arguments (`library_application`); `bound` holds the letters the
+    /// binders around the part being read hold.
+    fn in_scope_here(&self, node: &Node, bound: &mut Vec<String>) -> bool {
+        if node.is_name() {
+            let name = node.text.to_string();
+            return bound.contains(&name)
+                || self.names.contains_key(&name)
+                || self.from_outside.contains_key(name.as_str());
+        }
+        if let Some((_, arguments)) = self.library_application(node) {
+            return arguments.iter().all(|a| self.in_scope_here(a, bound));
+        }
+        let held: Vec<usize> = self
+            .binders
+            .get(&node.notation())
+            .cloned()
+            .unwrap_or_default();
+        let depth = bound.len();
+        for &at in &held {
+            if let Some(h) = node.children.get(at).filter(|h| h.is_name()) {
+                bound.push(h.text.to_string());
+            }
+        }
+        let all = node
+            .children
+            .iter()
+            .enumerate()
+            .filter(|(at, _)| !held.contains(at))
+            .all(|(_, child)| self.in_scope_here(child, bound));
+        bound.truncate(depth);
+        all
+    }
+
+    /// ( scope -> said ∈ system ) from the line the checker recorded the
+    /// reason states it by (`recorded_stated_line`): that line, held among
+    /// the facts or what the step wrote, read as `said` in its own system
+    /// and carried up to `system`; None where it is not held.
+    fn recorded_within(
+        &mut self,
+        said: &Rpn,
+        within: System,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let Some(line) = self.recorded_stated_line(said, within)? else {
+            return Ok(None);
+        };
+        let mut proof = self.held(facts, &line, scope)?;
+        if proof.is_none() {
+            if let Some(w) = self.written_held(&line)? {
+                proof = self.lifted_to(&line, &w.proof, &w.at, scope);
+            }
+        }
+        // The line the record names may be one part of an "and" a line in
+        // hand says, t ∈ ℝ of `t ∈ ℝ and x ≤ t`, held whole.
+        if proof.is_none() {
+            let parts = facts.copy();
+            for (fact, p) in facts.entries() {
+                if fact.ends_with(&["wa"]) {
+                    self.unpack_all(&fact, &p, scope, &parts);
+                }
+            }
+            proof = self.held(&parts, &line, scope)?;
+        }
+        let Some(proof) = proof else {
+            return Ok(None);
+        };
+        // A stated line puts the term in a number system, one token.
+        let set = self.rpn(&self.to_term(&line).children()[1]);
+        let Some(label) = set.alone().map(String::from) else {
+            return Ok(None);
+        };
+        // The line alone, read as `said` in its set.
+        let one = Facts::new();
+        self.know(&one, line, proof);
+        let Some(held) = self.held(&one, &t!(said, set, "wcel"), scope)? else {
+            return Ok(None);
+        };
+        Ok(
+            match self.carried_within(said, &label, system, held, scope)? {
+                Built(p) => Some(p),
+                Declined(_) => None,
+            },
+        )
+    }
+
     /// Keep the sums the step now being elaborated writes that the page
     /// says are numbers once (`CheckedTheorem::said_sums`), as kernel terms.
     pub fn note_said_sums(&mut self) -> Checked<()> {
@@ -343,6 +505,27 @@ impl<'a> Elaborator<'a> {
         }
         self.said_sums = sums;
         Ok(())
+    }
+
+    /// What the checker recorded of the page letter `name` in scope at the
+    /// step being built (`CheckedTheorem::introduced`, `points_at`): its
+    /// number system, or that it is a point; None for a letter no line in
+    /// scope introduces, one the term being built binds itself, a sum's
+    /// index or an `obtain`'s own name.
+    pub(in crate::elab) fn recorded_letter(
+        &self,
+        name: &str,
+    ) -> Option<RecordedLetter> {
+        let i = self.step_now?;
+        if self.checked.points_at.get(i)?.contains(name) {
+            return Some(RecordedLetter::Point);
+        }
+        self.checked
+            .introduced
+            .get(i)?
+            .get(name)
+            .copied()
+            .map(RecordedLetter::Number)
     }
 
     /// The letter whose kernel term is `said`, and the number system the
@@ -1049,4 +1232,32 @@ impl<'a> Elaborator<'a> {
         }
         Ok(out)
     }
+}
+
+/// The variables `term` uses free: each under a `cv` no part around it
+/// binds, a part binding a variable being one that holds it as an operand of
+/// its own, as set.mm writes a sum's index or a class's letter
+/// (`free_moved`); `bound` holds those the parts around it bind.
+fn free_variables(term: &Term, bound: &mut Vec<String>) -> BTreeSet<String> {
+    if term.label() == Some("cv") {
+        return term
+            .children()
+            .first()
+            .and_then(|v| v.variable())
+            .filter(|v| !bound.iter().any(|b| b == v))
+            .map(|v| BTreeSet::from([v.to_string()]))
+            .unwrap_or_default();
+    }
+    let depth = bound.len();
+    bound.extend(
+        term.children()
+            .iter()
+            .filter_map(|c| c.variable().map(String::from)),
+    );
+    let mut out = BTreeSet::new();
+    for child in term.children() {
+        out.extend(free_variables(child, bound));
+    }
+    bound.truncate(depth);
+    out
 }

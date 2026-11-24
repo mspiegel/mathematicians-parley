@@ -929,8 +929,35 @@ impl<'a> Elaborator<'a> {
         Ok(self.no("no line giving a narrower codomain", &[&self.rpn(typed)]))
     }
 
-    /// `side`, with what the line cites in hand.
+    /// `side`, with what the line cites in hand, and the parts its lines
+    /// hold as the checker recorded them for the line's own reason
+    /// (`reason_held`), not the step's, which counts the line among its
+    /// facts.
     fn by_its_reason(
+        &mut self,
+        want: &Node,
+        req: Option<&Requires>,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        let Some(Ok(by)) = req.map(|r| &r.by) else {
+            return self.by_its_reason_held(want, req, scope, facts, step);
+        };
+        let held = self
+            .checked
+            .held_by_lines
+            .get(&by.line)
+            .cloned()
+            .unwrap_or_default();
+        let kept = self.reason_held.replace(held);
+        let made = self.by_its_reason_held(want, req, scope, facts, step);
+        self.reason_held = kept;
+        made
+    }
+
+    /// `by_its_reason`, with the line's held parts held.
+    fn by_its_reason_held(
         &mut self,
         want: &Node,
         req: Option<&Requires>,

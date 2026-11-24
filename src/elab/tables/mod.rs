@@ -34,6 +34,7 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup, numeral_label, System};
 use crate::{binds, citing, pf, t, take};
+use introduced::RecordedLetter;
 
 mod implied;
 mod introduced;
@@ -257,9 +258,16 @@ impl OnceAsk for BuildOnce<'_, '_> {
         }
     }
 
+    /// A page letter in scope is in the system the checker recorded it in,
+    /// a point in ℂ; a letter the term binds itself, a sum's index, is in
+    /// the set its binder gives it.
     fn letter(&mut self, term: &Term) -> Option<System> {
-        let (_, set) = self.me.introduced_in(&self.me.rpn(term))?;
-        System::of_label(self.me.introduced_system(&set)?)
+        let (letter, set) = self.me.introduced_in(&self.me.rpn(term))?;
+        match self.me.recorded_letter(&letter) {
+            Some(RecordedLetter::Number(system)) => Some(system),
+            Some(RecordedLetter::Point) => Some(System::C),
+            None => System::of_label(self.me.introduced_system(&set)?),
+        }
     }
 
     /// A letter the page gives the point sort, as `let A be a point` does.
@@ -276,10 +284,22 @@ impl OnceAsk for BuildOnce<'_, '_> {
 
     fn said(&mut self, term: &Term, system: System) -> Option<OnceReason> {
         let said = self.me.rpn(term);
-        let stated =
-            self.me
-                .stated_within(&said, &t!(system.label()), self.scope, self.facts);
-        if self.keep(stated).flatten().is_some() {
+        let stated = match self.me.reads_record(term) {
+            true => {
+                let line = self.me.recorded_stated_line(&said, system);
+                self.keep(line).flatten().is_some()
+            }
+            false => {
+                let stated = self.me.stated_within(
+                    &said,
+                    &t!(system.label()),
+                    self.scope,
+                    self.facts,
+                );
+                self.keep(stated).flatten().is_some()
+            }
+        };
+        if stated {
             return Some(OnceReason::Stated);
         }
         self.me.said_sums.contains(&said).then_some(OnceReason::Sum)
