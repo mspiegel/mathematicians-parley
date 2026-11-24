@@ -90,6 +90,113 @@ step 16.6 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0,
 step 16.27 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.5 sentence 0
 step 16.29 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.28 sentence 0
 step 17 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0
+step 9 holds c in cr stated
+step 9 holds c in cc stated
+step 14 holds f(c) in cr valued at a stated point
+step 14 holds f(c) in cc valued at a stated point
+step 16.1.1 holds b in cr beside c walked Letter
+step 16.1.1 holds b in cc beside c walked Letter
+step 16.1.1 holds c in cr beside b walked Letter
+step 16.1.1 holds c in cc beside b walked Letter
+step 16.1.3 holds f(b) in cr stated
+step 16.1.3 holds f(b) in cc stated
+requires line 1 of step 16.1.3 holds f(b) in cr valued at a stated point
+requires line 1 of step 16.1.3 holds f(b) in cc valued at a stated point
+step 16.1.4 holds f(b) in cr stated
+step 16.1.4 holds f(b) in cc stated
+requires line 1 of step 16.1.4 holds f(b) in cr valued at a stated point
+requires line 1 of step 16.1.4 holds f(b) in cc valued at a stated point
+step 16.3 holds f(c) in cr stated
+step 16.3 holds f(c) in cc stated
+requires line 1 of step 16.3 holds f(c) in cr valued at a stated point
+requires line 1 of step 16.3 holds f(c) in cc valued at a stated point
+step 16.4 holds f(c) in cr valued at a stated point
+step 16.4 holds f(c) in cc valued at a stated point
+step 16.6 holds δ in cr stated
+step 16.6 holds δ in cc stated
+step 16.8 holds min(b, c + δ / 2) in cr stated
+step 16.8 holds min(b, c + δ / 2) in cc stated
+step 16.9 holds min(b, c + δ / 2) in cr stated
+step 16.9 holds min(b, c + δ / 2) in cc stated
+step 16.16 holds δ in cr stated
+step 16.16 holds δ in cc stated
+step 16.20 holds δ in cr stated
+step 16.20 holds δ in cc stated
+step 16.21 holds f(x₁) − f(c) in cr stated
+step 16.21 holds f(x₁) − f(c) in cc stated
+requires line 1 of step 16.21 holds f(x₁) in cr valued at a stated point
+requires line 1 of step 16.21 holds f(x₁) in cc valued at a stated point
+requires line 1 of step 16.21 holds f(c) in cr valued at a stated point
+requires line 1 of step 16.21 holds f(c) in cc valued at a stated point
+step 16.22 holds f(x₁) in cr stated
+step 16.22 holds f(x₁) in cc stated
+step 16.22 holds f(c) in cr stated
+step 16.22 holds f(c) in cc stated
+requires line 1 of step 16.22 holds f(x₁) in cr valued at a stated point
+requires line 1 of step 16.22 holds f(x₁) in cc valued at a stated point
+requires line 2 of step 16.22 holds f(c) in cr valued at a stated point
+requires line 2 of step 16.22 holds f(c) in cc valued at a stated point
+requires line 2 of step 16.22 holds f(x₁) in cr stated
+requires line 2 of step 16.22 holds f(x₁) in cc stated
+step 16.23 holds f(x₁) in cr stated
+step 16.23 holds f(x₁) in cc stated
+step 16.23 holds f(c) in cr stated
+step 16.23 holds f(c) in cc stated
+requires line 1 of step 16.23 holds f(x₁) in cr valued at a stated point
+requires line 1 of step 16.23 holds f(x₁) in cc valued at a stated point
+requires line 2 of step 16.23 holds f(c) in cr valued at a stated point
+requires line 2 of step 16.23 holds f(c) in cc valued at a stated point
+requires line 2 of step 16.23 holds f(x₁) in cr stated
+requires line 2 of step 16.23 holds f(x₁) in cc stated
+step 16.27 holds f(c) in cr valued at a stated point
+step 16.27 holds f(c) in cc valued at a stated point
+step 16.29.3 holds s in cr stated
+step 16.29.3 holds s in cc stated
+step 16.29.4 holds s in cr stated
+step 16.29.4 holds s in cc stated
+step 16.29.4 holds δ in cr stated
+step 16.29.4 holds δ in cc stated
+step 16.29.5 holds s in cr stated
+step 16.29.5 holds s in cc stated
+step 16.29.6 holds δ in cr stated
+step 16.29.6 holds δ in cc stated
+step 16.29.7 holds f(s) − f(c) in cr stated
+step 16.29.7 holds f(s) − f(c) in cc stated
+requires line 1 of step 16.29.7 holds f(s) in cr valued at a stated point
+requires line 1 of step 16.29.7 holds f(s) in cc valued at a stated point
+requires line 1 of step 16.29.7 holds f(c) in cr valued at a stated point
+requires line 1 of step 16.29.7 holds f(c) in cc valued at a stated point
+step 16.29.8 holds f(s) in cr stated
+step 16.29.8 holds f(s) in cc stated
+step 16.29.8 holds f(c) in cr stated
+step 16.29.8 holds f(c) in cc stated
+requires line 1 of step 16.29.8 holds f(s) in cr valued at a stated point
+requires line 1 of step 16.29.8 holds f(s) in cc valued at a stated point
+requires line 2 of step 16.29.8 holds f(c) in cr valued at a stated point
+requires line 2 of step 16.29.8 holds f(c) in cc valued at a stated point
+requires line 2 of step 16.29.8 holds f(s) in cr stated
+requires line 2 of step 16.29.8 holds f(s) in cc stated
+step 16.29.9 holds f(s) in cr stated
+step 16.29.9 holds f(s) in cc stated
+step 16.29.9 holds f(c) in cr stated
+step 16.29.9 holds f(c) in cc stated
+requires line 1 of step 16.29.9 holds f(s) in cr valued at a stated point
+requires line 1 of step 16.29.9 holds f(s) in cc valued at a stated point
+requires line 2 of step 16.29.9 holds f(c) in cr valued at a stated point
+requires line 2 of step 16.29.9 holds f(c) in cc valued at a stated point
+requires line 2 of step 16.29.9 holds f(s) in cr stated
+requires line 2 of step 16.29.9 holds f(s) in cc stated
+step 16.29.10 holds f(s) in cr stated
+step 16.29.10 holds f(s) in cc stated
+requires line 1 of step 16.29.10 holds f(s) in cr valued at a stated point
+requires line 1 of step 16.29.10 holds f(s) in cc valued at a stated point
+step 16.32 holds δ in cr stated
+step 16.32 holds δ in cc stated
+step 17 holds f(c) in cn0 beside 0 walked Numeral
+step 17 holds f(c) in cz beside 0 walked Numeral
+step 17 holds f(c) in cq beside 0 walked Numeral
+step 17 holds f(c) in cr beside 0 walked Numeral
+step 17 holds f(c) in cc beside 0 walked Numeral
 step 2 writes out S
 step 3 writes out S
 step 6.1 writes out S

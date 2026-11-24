@@ -19,6 +19,50 @@ step 3.3 divides by B a positive integer said once
 step 3.4 divides by B a positive integer said once
 step 3.5 divides by B a positive integer said once
 step 3.6 divides by B a positive integer said once
+step 2 holds A in cn0 stated
+step 2 holds A in cz stated
+step 2 holds A in cq stated
+step 2 holds A in cr stated
+step 2 holds A in cc stated
+step 2 holds B in cn stated
+step 2 holds B in cn0 stated
+step 2 holds B in cz stated
+step 2 holds B in cq stated
+step 2 holds B in cr stated
+step 2 holds B in cc stated
+step 3.1 holds B · (A / B) in cn0 beside A walked Letter
+step 3.1 holds B · (A / B) in cz beside A walked Letter
+step 3.1 holds B · (A / B) in cq beside A walked Letter
+step 3.1 holds B · (A / B) in cr beside A walked Letter
+step 3.1 holds B · (A / B) in cc beside A walked Letter
+step 3.1 holds A in cq beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.1 holds A in cr beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.1 holds A in cc beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.2 holds B in cn stated
+step 3.2 holds B in cn0 stated
+step 3.2 holds B in cz stated
+step 3.2 holds B in cq stated
+step 3.2 holds B in cr stated
+step 3.2 holds B in cc stated
+step 3.4 holds ⌊A / B⌋ in cn0 beside 0 walked Numeral
+step 3.4 holds ⌊A / B⌋ in cz beside 0 walked Numeral
+step 3.4 holds ⌊A / B⌋ in cq beside 0 walked Numeral
+step 3.4 holds ⌊A / B⌋ in cr beside 0 walked Numeral
+step 3.4 holds ⌊A / B⌋ in cc beside 0 walked Numeral
+step 3.5 holds B in cn stated
+step 3.5 holds B in cn0 stated
+step 3.5 holds B in cz stated
+step 3.5 holds B in cq stated
+step 3.5 holds B in cr stated
+step 3.5 holds B in cc stated
+step 3.6 holds A in cq beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.6 holds A in cr beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.6 holds A in cc beside B · (A / B) walked Built([Letter, Built([Letter, Letter])])
+step 3.6 holds B · (A / B) in cn0 beside A walked Letter
+step 3.6 holds B · (A / B) in cz beside A walked Letter
+step 3.6 holds B · (A / B) in cq beside A walked Letter
+step 3.6 holds B · (A / B) in cr beside A walked Letter
+step 3.6 holds B · (A / B) in cc beside A walked Letter
 read 5: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
 read 10: A ∈ ℕ₀  as  membership:∈(name:A, number-systems:ℕ₀)  a statement
 read 11: B ∈ ℕ  as  membership:∈(name:B, number-systems:ℕ)  a statement

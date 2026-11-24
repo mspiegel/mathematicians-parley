@@ -72,6 +72,124 @@ step 6.2.6 divides by n + 1 a positive integer said once
 step 6.2.7 divides by n + 1 a positive integer said once
 step 6.2.8 divides by n + 1 a positive integer said once
 step 6.2.9 divides by n + 1 a positive integer said once
+step 1 holds k in cn stated
+step 1 holds k in cn0 stated
+step 1 holds k in cz stated
+step 1 holds k in cq stated
+step 1 holds k in cr stated
+step 1 holds k in cc stated
+step 2 holds k in cn stated
+step 2 holds k in cn0 stated
+step 2 holds k in cz stated
+step 2 holds k in cq stated
+step 2 holds k in cr stated
+step 2 holds k in cc stated
+step 3 holds k in cn stated
+step 3 holds k in cn0 stated
+step 3 holds k in cz stated
+step 3 holds k in cq stated
+step 3 holds k in cr stated
+step 3 holds k in cc stated
+step 4 holds k in cn stated
+step 4 holds k in cn0 stated
+step 4 holds k in cz stated
+step 4 holds k in cq stated
+step 4 holds k in cr stated
+step 4 holds k in cc stated
+step 5 holds n in cn stated
+step 5 holds n in cn0 stated
+step 5 holds n in cz stated
+step 5 holds n in cq stated
+step 5 holds n in cr stated
+step 5 holds n in cc stated
+step 5.1 holds Σ(k = 1 to n) 1 / T(k) in cr summed by a line at every index
+step 5.1 holds Σ(k = 1 to n) 1 / T(k) in cc summed by a line at every index
+step 5.1 holds 1 / T(n) in cq beside 2 / n − 2 / (n + 1) walked Built([Built([Numeral, Letter]), Built([Numeral, Built([Letter, Numeral])])])
+step 5.1 holds 1 / T(n) in cr stated
+step 5.1 holds 1 / T(n) in cc stated
+step 5.1 holds 2 / n − 2 / (n + 1) in cr stated
+step 5.1 holds 2 / n − 2 / (n + 1) in cc stated
+step 5.1 holds 2 / n in cr stated
+step 5.1 holds 2 / n in cc stated
+requires line 1 of step 5.1 holds n in cn stated
+requires line 1 of step 5.1 holds n in cn0 stated
+requires line 1 of step 5.1 holds n in cz stated
+requires line 1 of step 5.1 holds n in cq stated
+requires line 1 of step 5.1 holds n in cr stated
+requires line 1 of step 5.1 holds n in cc stated
+a row of step 5.1 holds Σ(k = 1 to n) 1 / T(k) in cr summed by a line at every index
+a row of step 5.1 holds Σ(k = 1 to n) 1 / T(k) in cc summed by a line at every index
+a row of step 5.1 holds Σ(k = 1 to n) (2 / k − 2 / (k + 1)) in cr summed by a line at every index
+a row of step 5.1 holds Σ(k = 1 to n) (2 / k − 2 / (k + 1)) in cc summed by a line at every index
+a row of step 5.1 holds 1 / T(n) in cq beside 2 / n − 2 / (n + 1) walked Built([Built([Numeral, Letter]), Built([Numeral, Built([Letter, Numeral])])])
+a row of step 5.1 holds 1 / T(n) in cr stated
+a row of step 5.1 holds 1 / T(n) in cc stated
+a row of step 5.1 holds 2 / n − 2 / (n + 1) in cr stated
+a row of step 5.1 holds 2 / n − 2 / (n + 1) in cc stated
+a row of step 5.1 holds Σ(k = 1 to n) (2 / k − 2 / (k + 1)) in cr summed [2 / k − 2 / (k + 1) in cr walked Built([Built([Numeral, Letter]), Built([Numeral, Built([Letter, Numeral])])])]
+a row of step 5.1 holds Σ(k = 1 to n) (2 / k − 2 / (k + 1)) in cc summed [2 / k − 2 / (k + 1) in cc walked Built([Built([Numeral, Letter]), Built([Numeral, Built([Letter, Numeral])])])]
+a row of step 5.1 holds 2 / n in cr stated
+a row of step 5.1 holds 2 / n in cc stated
+step 6 holds ε in cr stated
+step 6 holds ε in cc stated
+step 6.2 holds n in cn stated
+step 6.2 holds n in cn0 stated
+step 6.2 holds n in cz stated
+step 6.2 holds n in cq stated
+step 6.2 holds n in cr stated
+step 6.2 holds n in cc stated
+requires line 1 of step 6.2.2 holds N in cn stated
+requires line 1 of step 6.2.2 holds N in cn0 stated
+requires line 1 of step 6.2.2 holds N in cz stated
+requires line 1 of step 6.2.2 holds N in cq stated
+requires line 1 of step 6.2.2 holds N in cr stated
+requires line 1 of step 6.2.2 holds N in cc stated
+requires line 2 of step 6.2.2 holds n in cn stated
+requires line 2 of step 6.2.2 holds n in cn0 stated
+requires line 2 of step 6.2.2 holds n in cz stated
+requires line 2 of step 6.2.2 holds n in cq stated
+requires line 2 of step 6.2.2 holds n in cr stated
+requires line 2 of step 6.2.2 holds n in cc stated
+requires line 1 of step 6.2.3 holds n in cn stated
+requires line 1 of step 6.2.3 holds n in cn0 stated
+requires line 1 of step 6.2.3 holds n in cz stated
+requires line 1 of step 6.2.3 holds n in cq stated
+requires line 1 of step 6.2.3 holds n in cr stated
+requires line 1 of step 6.2.3 holds n in cc stated
+step 6.2.4 holds N in cn stated
+step 6.2.4 holds N in cn0 stated
+step 6.2.4 holds N in cz stated
+step 6.2.4 holds N in cq stated
+step 6.2.4 holds N in cr stated
+step 6.2.4 holds N in cc stated
+step 6.2.6 holds Σ(k = 1 to n) 1 / T(k) in cq beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.6 holds Σ(k = 1 to n) 1 / T(k) in cr beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.6 holds Σ(k = 1 to n) 1 / T(k) in cc beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.9 holds Σ(k = 1 to n) 1 / T(k) in cq beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.9 holds Σ(k = 1 to n) 1 / T(k) in cr beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.9 holds Σ(k = 1 to n) 1 / T(k) in cc beside 2 − 2 / (n + 1) walked Built([Numeral, Built([Numeral, Built([Letter, Numeral])])])
+step 6.2.10 holds Σ(k = 1 to n) 1 / T(k) in cr stated
+step 6.2.10 holds Σ(k = 1 to n) 1 / T(k) in cc stated
+requires line 1 of step 6.2.10 holds Σ(k = 1 to n) 1 / T(k) in cr summed by a line at every index
+requires line 1 of step 6.2.10 holds Σ(k = 1 to n) 1 / T(k) in cc summed by a line at every index
+requires line 1 of step 6.2.10 holds 1 / T(n) in cr stated
+requires line 1 of step 6.2.10 holds 1 / T(n) in cc stated
+requires line 1 of step 7 holds n in cn stated
+requires line 1 of step 7 holds n in cn0 stated
+requires line 1 of step 7 holds n in cz stated
+requires line 1 of step 7 holds n in cq stated
+requires line 1 of step 7 holds n in cr stated
+requires line 1 of step 7 holds n in cc stated
+requires line 1 of step 7 holds Σ(k = 1 to n) 1 / T(k) in cr summed by a line at every index
+requires line 1 of step 7 holds Σ(k = 1 to n) 1 / T(k) in cc summed by a line at every index
+step 8 holds Σ(k = 1 to n) 1 / T(k) in cr summed by a line at every index
+step 8 holds Σ(k = 1 to n) 1 / T(k) in cc summed by a line at every index
+requires line 1 of step 8 holds k in cn stated
+requires line 1 of step 8 holds k in cn0 stated
+requires line 1 of step 8 holds k in cz stated
+requires line 1 of step 8 holds k in cq stated
+requires line 1 of step 8 holds k in cr stated
+requires line 1 of step 8 holds k in cc stated
 step 1.1 writes out T
 step 2.1 writes out T
 read 11: ℕ  as  number-systems:ℕ  a set

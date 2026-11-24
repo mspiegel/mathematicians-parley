@@ -19,6 +19,30 @@ step 1.4 has letters ε at K1 sentence 0, N at 1.3 sentence 0
 step 1.4.1 has letters ε at K1 sentence 0, N at 1.3 sentence 0, n at K2 sentence 0
 step 1.5 has letters ε at K1 sentence 0, N at 1.3 sentence 0
 step 2 has letters 
+step 1 holds ε in cr stated
+step 1 holds ε in cc stated
+step 1.1 holds ε in cr stated
+step 1.1 holds ε in cc stated
+step 1.4 holds n in cn stated
+step 1.4 holds n in cn0 stated
+step 1.4 holds n in cz stated
+step 1.4 holds n in cq stated
+step 1.4 holds n in cr stated
+step 1.4 holds n in cc stated
+step 1.4.1 holds N in cn stated
+step 1.4.1 holds N in cn0 stated
+step 1.4.1 holds N in cz stated
+step 1.4.1 holds N in cq stated
+step 1.4.1 holds N in cr stated
+step 1.4.1 holds N in cc stated
+step 1.4.2 holds a(n) in cr valued [n in cn walked Letter]
+step 1.4.2 holds a(n) in cc valued [n in cn walked Letter]
+step 1.4.3 holds a(n) in cr stated
+step 1.4.3 holds a(n) in cc stated
+step 1.4.4 holds a(n) in cr stated
+step 1.4.4 holds a(n) in cc stated
+step 1.4.5 holds |a(n)| in cr stated
+step 1.4.5 holds |a(n)| in cc stated
 read 6: a(n) → 0 as n → ∞  as  tends-to:→as→∞(application:()(name:a, name:n), numeral:0, name:n)  a statement
 read 11: a : ℕ → ℝ  as  function-type::→(name:a, number-systems:ℕ, number-systems:ℝ)  a statement
 read 12: |a(n)| → 0 as n → ∞  as  tends-to:→as→∞(absolute-value:||(application:()(name:a, name:n)), numeral:0, name:n)  a statement

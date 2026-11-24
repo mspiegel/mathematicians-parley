@@ -13,6 +13,136 @@ a row of step 1.4 links facing straight
 step 1 has letters n at H1 sentence 0
 step 1.2 has letters n at H1 sentence 0, k at K sentence 0
 step 2 has letters n at H1 sentence 0
+step 1 holds k in cn0 stated
+step 1 holds k in cz stated
+step 1 holds k in cq stated
+step 1 holds k in cr stated
+step 1 holds k in cc stated
+step 1 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.1 holds Σ(j = 0 to 0) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+step 1.1 holds Σ(j = 0 to 0) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+step 1.1 holds 2^1 in cn a power [2 in cn walked Numeral; 1 in cn0 walked Numeral]
+step 1.1 holds 2^1 in cn0 a power [2 in cn0 walked Numeral; 1 in cn0 walked Numeral]
+step 1.1 holds 2^1 in cz a power [2 in cz walked Numeral; 1 in cn0 walked Numeral]
+step 1.1 holds 2^1 in cq a power [2 in cq walked Numeral; 1 in cn0 walked Numeral]
+step 1.1 holds 2^1 in cr a power [2 in cr walked Numeral; 1 in cn0 walked Numeral]
+step 1.1 holds 2^1 in cc a power [2 in cc walked Numeral; 1 in cn0 walked Numeral]
+a row of step 1.1 holds Σ(j = 0 to 0) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+a row of step 1.1 holds Σ(j = 0 to 0) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+a row of step 1.1 holds 2^0 in cn a power [2 in cn walked Numeral; 0 in cn0 walked Numeral]
+a row of step 1.1 holds 2^0 in cn0 a power [2 in cn0 walked Numeral; 0 in cn0 walked Numeral]
+a row of step 1.1 holds 2^0 in cz a power [2 in cz walked Numeral; 0 in cn0 walked Numeral]
+a row of step 1.1 holds 2^0 in cq a power [2 in cq walked Numeral; 0 in cn0 walked Numeral]
+a row of step 1.1 holds 2^0 in cr a power [2 in cr walked Numeral; 0 in cn0 walked Numeral]
+a row of step 1.1 holds 2^0 in cc a power [2 in cc walked Numeral; 0 in cn0 walked Numeral]
+step 1.2 holds Σ(j = 0 to k + 1) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+step 1.2 holds Σ(j = 0 to k + 1) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+step 1.2 holds Σ(j = 0 to k) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+step 1.2 holds Σ(j = 0 to k) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+step 1.2 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.2 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.2 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.2 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.2 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.2 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+requires line 1 of step 1.2 holds k in cn0 stated
+requires line 1 of step 1.2 holds k in cz stated
+requires line 1 of step 1.2 holds k in cq stated
+requires line 1 of step 1.2 holds k in cr stated
+requires line 1 of step 1.2 holds k in cc stated
+a row of step 1.2 holds Σ(j = 0 to k + 1) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+a row of step 1.2 holds Σ(j = 0 to k + 1) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+a row of step 1.2 holds Σ(j = 0 to k) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+a row of step 1.2 holds Σ(j = 0 to k) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.2 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cn a power [2 in cn walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cz a power [2 in cz walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cq a power [2 in cq walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cr a power [2 in cr walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1 + 1) in cc a power [2 in cc walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.3 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.3 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds S(k + 1) in cz beside S(k) + 2^(k + 1) walked Built([Stated, Stated]) [S(k) in cz beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral]); 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]]
+step 1.4 holds S(k + 1) in cq beside S(k) + 2^(k + 1) walked Built([Stated, Stated]) [S(k) in cq beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral]); 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]]
+step 1.4 holds S(k + 1) in cr beside S(k) + 2^(k + 1) walked Built([Stated, Stated]) [S(k) in cr beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral]); 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]]
+step 1.4 holds S(k + 1) in cc beside S(k) + 2^(k + 1) walked Built([Stated, Stated]) [S(k) in cc beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral]); 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]]
+step 1.4 holds 2^(k + 1 + 1) in cn a power [2 in cn walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds 2^(k + 1 + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds 2^(k + 1 + 1) in cz a power [2 in cz walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds 2^(k + 1 + 1) in cq a power [2 in cq walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds 2^(k + 1 + 1) in cr a power [2 in cr walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds 2^(k + 1 + 1) in cc a power [2 in cc walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 1.4 holds S(k) in cz beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral])
+step 1.4 holds S(k) in cq beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral])
+step 1.4 holds S(k) in cr beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral])
+step 1.4 holds S(k) in cc beside 2^(k + 1) − 1 walked Built([Built([Numeral]), Numeral])
+step 1.4 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+step 1.4 holds 2^(k + 1) · 2 in cn beside 2^(k + 1 + 1) walked Built([Numeral])
+step 1.4 holds 2^(k + 1) · 2 in cn0 beside 2^(k + 1 + 1) walked Built([Numeral])
+step 1.4 holds 2^(k + 1) · 2 in cz beside 2^(k + 1 + 1) walked Built([Numeral])
+step 1.4 holds 2^(k + 1) · 2 in cq beside 2^(k + 1 + 1) walked Built([Numeral])
+step 1.4 holds 2^(k + 1) · 2 in cr beside 2^(k + 1 + 1) walked Built([Numeral])
+step 1.4 holds 2^(k + 1) · 2 in cc beside 2^(k + 1 + 1) walked Built([Numeral])
+a row of step 1.4 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cn a power [2 in cn walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cz a power [2 in cz walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cq a power [2 in cq walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cr a power [2 in cr walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1) in cc a power [2 in cc walked Numeral; k + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cn a power [2 in cn walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cn0 a power [2 in cn0 walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cz a power [2 in cz walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cq a power [2 in cq walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cr a power [2 in cr walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+a row of step 1.4 holds 2^(k + 1 + 1) in cc a power [2 in cc walked Numeral; k + 1 + 1 in cn0 walked Built([Built([Letter, Numeral]), Numeral])]
+step 2 holds Σ(k = 0 to n) 2^k in cr summed [2^k in cr walked Built([Numeral])]
+step 2 holds Σ(k = 0 to n) 2^k in cc summed [2^k in cc walked Built([Numeral])]
+step 2 holds 2^(n + 1) in cn a power [2 in cn walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds 2^(n + 1) in cn0 a power [2 in cn0 walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds 2^(n + 1) in cz a power [2 in cz walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds 2^(n + 1) in cq a power [2 in cq walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds 2^(n + 1) in cr a power [2 in cr walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds 2^(n + 1) in cc a power [2 in cc walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+step 2 holds Σ(j = 0 to k) 2^j in cr summed [2^j in cr walked Built([Numeral])]
+step 2 holds Σ(j = 0 to k) 2^j in cc summed [2^j in cc walked Built([Numeral])]
+a row of step 2 holds 2^(n + 1) in cn a power [2 in cn walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 2 holds 2^(n + 1) in cn0 a power [2 in cn0 walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 2 holds 2^(n + 1) in cz a power [2 in cz walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 2 holds 2^(n + 1) in cq a power [2 in cq walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 2 holds 2^(n + 1) in cr a power [2 in cr walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
+a row of step 2 holds 2^(n + 1) in cc a power [2 in cc walked Numeral; n + 1 in cn0 walked Built([Letter, Numeral])]
 step 1.1 writes out S
 step 1.2 writes out S
 step 2 writes out S

@@ -71,6 +71,568 @@ step 4.2 has letters M at H1 sentence 0, N at H2 sentence 0, k at K2 sentence 0
 step 5 has letters M at H1 sentence 0, N at H2 sentence 0
 step 5.3 has letters M at H1 sentence 0, N at H2 sentence 0, k at K3 sentence 0
 step 6 has letters M at H1 sentence 0, N at H2 sentence 0
+step 3 holds k in cn0 stated
+step 3 holds k in cz stated
+step 3 holds k in cq stated
+step 3 holds k in cr stated
+step 3 holds k in cc stated
+step 3.1 holds a(0) in cn0 beside M walked Letter
+step 3.1 holds a(0) in cz beside M walked Letter
+step 3.1 holds a(0) in cq beside M walked Letter
+step 3.1 holds a(0) in cr beside M walked Letter
+step 3.1 holds a(0) in cc beside M walked Letter
+step 3.1 holds M in cn0 stated
+step 3.1 holds M in cz stated
+step 3.1 holds M in cq stated
+step 3.1 holds M in cr stated
+step 3.1 holds M in cc stated
+step 3.2 holds b(0) in cn0 beside N walked Letter
+step 3.2 holds b(0) in cz beside N walked Letter
+step 3.2 holds b(0) in cq beside N walked Letter
+step 3.2 holds b(0) in cr beside N walked Letter
+step 3.2 holds b(0) in cc beside N walked Letter
+step 3.2 holds N in cn0 stated
+step 3.2 holds N in cz stated
+step 3.2 holds N in cq stated
+step 3.2 holds N in cr stated
+step 3.2 holds N in cc stated
+step 3.3 holds a(0) in cn0 stated
+step 3.3 holds a(0) in cz stated
+step 3.3 holds a(0) in cq stated
+step 3.3 holds a(0) in cr stated
+step 3.3 holds a(0) in cc stated
+step 3.3 holds b(0) in cn0 stated
+step 3.3 holds b(0) in cz stated
+step 3.3 holds b(0) in cq stated
+step 3.3 holds b(0) in cr stated
+step 3.3 holds b(0) in cc stated
+step 3.5.1 holds b(k) in cn0 beside 0 walked Numeral
+step 3.5.1 holds b(k) in cz beside 0 walked Numeral
+step 3.5.1 holds b(k) in cq beside 0 walked Numeral
+step 3.5.1 holds b(k) in cr beside 0 walked Numeral
+step 3.5.1 holds b(k) in cc beside 0 walked Numeral
+step 3.5.2 holds b(k) in cn0 beside 0 walked Numeral
+step 3.5.2 holds b(k) in cz beside 0 walked Numeral
+step 3.5.2 holds b(k) in cq beside 0 walked Numeral
+step 3.5.2 holds b(k) in cr beside 0 walked Numeral
+step 3.5.2 holds b(k) in cc beside 0 walked Numeral
+step 3.5.3 holds a(k + 1) in cn0 beside a(k) walked Stated [a(k) in cn0 stated]
+step 3.5.3 holds a(k + 1) in cz beside a(k) walked Stated [a(k) in cz stated]
+step 3.5.3 holds a(k + 1) in cq beside a(k) walked Stated [a(k) in cq stated]
+step 3.5.3 holds a(k + 1) in cr beside a(k) walked Stated [a(k) in cr stated]
+step 3.5.3 holds a(k + 1) in cc beside a(k) walked Stated [a(k) in cc stated]
+step 3.5.3 holds a(k) in cn0 stated
+step 3.5.3 holds a(k) in cz stated
+step 3.5.3 holds a(k) in cq stated
+step 3.5.3 holds a(k) in cr stated
+step 3.5.3 holds a(k) in cc stated
+step 3.5.3 holds b(k) in cn0 stated
+step 3.5.3 holds b(k) in cz stated
+step 3.5.3 holds b(k) in cq stated
+step 3.5.3 holds b(k) in cr stated
+step 3.5.3 holds b(k) in cc stated
+step 3.5.4 holds b(k + 1) in cn0 beside 0 walked Numeral
+step 3.5.4 holds b(k + 1) in cz beside 0 walked Numeral
+step 3.5.4 holds b(k + 1) in cq beside 0 walked Numeral
+step 3.5.4 holds b(k + 1) in cr beside 0 walked Numeral
+step 3.5.4 holds b(k + 1) in cc beside 0 walked Numeral
+step 3.5.5 holds a(k + 1) in cn0 stated
+step 3.5.5 holds a(k + 1) in cz stated
+step 3.5.5 holds a(k + 1) in cq stated
+step 3.5.5 holds a(k + 1) in cr stated
+step 3.5.5 holds a(k + 1) in cc stated
+step 3.5.5 holds b(k + 1) in cn0 stated
+step 3.5.5 holds b(k + 1) in cz stated
+step 3.5.5 holds b(k + 1) in cq stated
+step 3.5.5 holds b(k + 1) in cr stated
+step 3.5.5 holds b(k + 1) in cc stated
+step 3.5.8 holds b(k) in cn0 stated
+step 3.5.8 holds b(k) in cz stated
+step 3.5.8 holds b(k) in cq stated
+step 3.5.8 holds b(k) in cr stated
+step 3.5.8 holds b(k) in cc stated
+step 3.5.8 holds a(k) in cn0 stated
+step 3.5.8 holds a(k) in cz stated
+step 3.5.8 holds a(k) in cq stated
+step 3.5.8 holds a(k) in cr stated
+step 3.5.8 holds a(k) in cc stated
+step 3.5.9 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 3.5.9 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 3.5.9 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 3.5.9 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 3.5.9 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 3.5.9 holds a(k) in cz stated
+step 3.5.9 holds a(k) in cq stated
+step 3.5.9 holds a(k) in cr stated
+step 3.5.9 holds a(k) in cc stated
+step 3.5.9 holds b(k) in cn stated
+step 3.5.9 holds b(k) in cn0 stated
+step 3.5.9 holds b(k) in cz stated
+step 3.5.9 holds b(k) in cq stated
+step 3.5.9 holds b(k) in cr stated
+step 3.5.9 holds b(k) in cc stated
+requires line 1 of step 3.5.9 holds a(k) in cn0 stated
+requires line 1 of step 3.5.9 holds a(k) in cz stated
+requires line 1 of step 3.5.9 holds a(k) in cq stated
+requires line 1 of step 3.5.9 holds a(k) in cr stated
+requires line 1 of step 3.5.9 holds a(k) in cc stated
+requires line 1 of step 3.5.9 holds b(k) in cn0 stated
+requires line 1 of step 3.5.9 holds b(k) in cz stated
+requires line 1 of step 3.5.9 holds b(k) in cq stated
+requires line 1 of step 3.5.9 holds b(k) in cr stated
+requires line 1 of step 3.5.9 holds b(k) in cc stated
+step 3.5.10 holds a(k + 1) in cn0 beside b(k) walked Stated [b(k) in cn0 stated]
+step 3.5.10 holds a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]
+step 3.5.10 holds a(k + 1) in cq beside b(k) walked Stated [b(k) in cq stated]
+step 3.5.10 holds a(k + 1) in cr beside b(k) walked Stated [b(k) in cr stated]
+step 3.5.10 holds a(k + 1) in cc beside b(k) walked Stated [b(k) in cc stated]
+step 3.5.10 holds b(k) in cn0 stated
+step 3.5.10 holds b(k) in cz stated
+step 3.5.10 holds b(k) in cq stated
+step 3.5.10 holds b(k) in cr stated
+step 3.5.10 holds b(k) in cc stated
+step 3.5.10 holds a(k) in cn0 stated
+step 3.5.10 holds a(k) in cz stated
+step 3.5.10 holds a(k) in cq stated
+step 3.5.10 holds a(k) in cr stated
+step 3.5.10 holds a(k) in cc stated
+step 3.5.11 holds b(k + 1) in cn0 beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cn0 stated]
+step 3.5.11 holds b(k + 1) in cz beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cz stated]
+step 3.5.11 holds b(k + 1) in cq beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cq stated]
+step 3.5.11 holds b(k + 1) in cr beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cr stated]
+step 3.5.11 holds b(k + 1) in cc beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cc stated]
+step 3.5.11 holds a(k) mod b(k) in cn0 stated
+step 3.5.11 holds a(k) mod b(k) in cz stated
+step 3.5.11 holds a(k) mod b(k) in cq stated
+step 3.5.11 holds a(k) mod b(k) in cr stated
+step 3.5.11 holds a(k) mod b(k) in cc stated
+step 3.5.12 holds a(k + 1) in cn0 stated
+step 3.5.12 holds a(k + 1) in cz stated
+step 3.5.12 holds a(k + 1) in cq stated
+step 3.5.12 holds a(k + 1) in cr stated
+step 3.5.12 holds a(k + 1) in cc stated
+step 3.5.12 holds b(k + 1) in cn0 stated
+step 3.5.12 holds b(k + 1) in cz stated
+step 3.5.12 holds b(k + 1) in cq stated
+step 3.5.12 holds b(k + 1) in cr stated
+step 3.5.12 holds b(k + 1) in cc stated
+step 4 holds k in cn0 stated
+step 4 holds k in cz stated
+step 4 holds k in cq stated
+step 4 holds k in cr stated
+step 4 holds k in cc stated
+step 4 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.1 holds gcd(a(0), b(0)) in cn0 by the cgcd row [a(0) in cz walked Stated [a(0) in cz beside M walked Letter]; b(0) in cz walked Stated [b(0) in cz beside N walked Letter]]
+step 4.1 holds gcd(a(0), b(0)) in cz by the cgcd row [a(0) in cz walked Stated [a(0) in cz beside M walked Letter]; b(0) in cz walked Stated [b(0) in cz beside N walked Letter]]
+step 4.1 holds gcd(a(0), b(0)) in cq by the cgcd row [a(0) in cz walked Stated [a(0) in cz beside M walked Letter]; b(0) in cz walked Stated [b(0) in cz beside N walked Letter]]
+step 4.1 holds gcd(a(0), b(0)) in cr by the cgcd row [a(0) in cz walked Stated [a(0) in cz beside M walked Letter]; b(0) in cz walked Stated [b(0) in cz beside N walked Letter]]
+step 4.1 holds gcd(a(0), b(0)) in cc by the cgcd row [a(0) in cz walked Stated [a(0) in cz beside M walked Letter]; b(0) in cz walked Stated [b(0) in cz beside N walked Letter]]
+step 4.1 holds a(0) in cn0 beside M walked Letter
+step 4.1 holds a(0) in cz beside M walked Letter
+step 4.1 holds a(0) in cq beside M walked Letter
+step 4.1 holds a(0) in cr beside M walked Letter
+step 4.1 holds a(0) in cc beside M walked Letter
+step 4.1 holds b(0) in cn0 beside N walked Letter
+step 4.1 holds b(0) in cz beside N walked Letter
+step 4.1 holds b(0) in cq beside N walked Letter
+step 4.1 holds b(0) in cr beside N walked Letter
+step 4.1 holds b(0) in cc beside N walked Letter
+step 4.1 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.1 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.1 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.1 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.1 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 4.1 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 4.1 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 4.1 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 4.1 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 4.1 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.1 holds b(k) in cn0 beside 0 walked Numeral
+step 4.3.1 holds b(k) in cz beside 0 walked Numeral
+step 4.3.1 holds b(k) in cq beside 0 walked Numeral
+step 4.3.1 holds b(k) in cr beside 0 walked Numeral
+step 4.3.1 holds b(k) in cc beside 0 walked Numeral
+step 4.3.2 holds b(k) in cn0 beside 0 walked Numeral
+step 4.3.2 holds b(k) in cz beside 0 walked Numeral
+step 4.3.2 holds b(k) in cq beside 0 walked Numeral
+step 4.3.2 holds b(k) in cr beside 0 walked Numeral
+step 4.3.2 holds b(k) in cc beside 0 walked Numeral
+step 4.3.3 holds b(k + 1) in cn0 beside 0 walked Numeral
+step 4.3.3 holds b(k + 1) in cz beside 0 walked Numeral
+step 4.3.3 holds b(k + 1) in cq beside 0 walked Numeral
+step 4.3.3 holds b(k + 1) in cr beside 0 walked Numeral
+step 4.3.3 holds b(k + 1) in cc beside 0 walked Numeral
+step 4.3.3 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.3 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.3 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.3 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.3 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.3 holds b(k) in cn0 beside 0 walked Numeral
+step 4.3.3 holds b(k) in cz beside 0 walked Numeral
+step 4.3.3 holds b(k) in cq beside 0 walked Numeral
+step 4.3.3 holds b(k) in cr beside 0 walked Numeral
+step 4.3.3 holds b(k) in cc beside 0 walked Numeral
+step 4.3.3 holds gcd(a(k), b(k)) in cn0 beside gcd(M, N) walked Built([Letter, Letter])
+step 4.3.3 holds gcd(a(k), b(k)) in cz beside gcd(M, N) walked Built([Letter, Letter])
+step 4.3.3 holds gcd(a(k), b(k)) in cq beside gcd(M, N) walked Built([Letter, Letter])
+step 4.3.3 holds gcd(a(k), b(k)) in cr beside gcd(M, N) walked Built([Letter, Letter])
+step 4.3.3 holds gcd(a(k), b(k)) in cc beside gcd(M, N) walked Built([Letter, Letter])
+step 4.3.6 holds b(k) in cn0 stated
+step 4.3.6 holds b(k) in cz stated
+step 4.3.6 holds b(k) in cq stated
+step 4.3.6 holds b(k) in cr stated
+step 4.3.6 holds b(k) in cc stated
+step 4.3.6 holds a(k) in cn0 stated
+step 4.3.6 holds a(k) in cz stated
+step 4.3.6 holds a(k) in cq stated
+step 4.3.6 holds a(k) in cr stated
+step 4.3.6 holds a(k) in cc stated
+step 4.3.7 holds a(k) in cn0 stated
+step 4.3.7 holds a(k) in cz stated
+step 4.3.7 holds a(k) in cq stated
+step 4.3.7 holds a(k) in cr stated
+step 4.3.7 holds a(k) in cc stated
+step 4.3.7 holds b(k) in cn0 stated
+step 4.3.7 holds b(k) in cz stated
+step 4.3.7 holds b(k) in cq stated
+step 4.3.7 holds b(k) in cr stated
+step 4.3.7 holds b(k) in cc stated
+step 4.3.8 holds gcd(b(k), a(k) mod b(k)) in cn0 by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]]
+step 4.3.8 holds gcd(b(k), a(k) mod b(k)) in cz by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]]
+step 4.3.8 holds gcd(b(k), a(k) mod b(k)) in cq by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]]
+step 4.3.8 holds gcd(b(k), a(k) mod b(k)) in cr by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]]
+step 4.3.8 holds gcd(b(k), a(k) mod b(k)) in cc by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]]
+step 4.3.8 holds b(k) in cz stated
+step 4.3.8 holds b(k) in cq stated
+step 4.3.8 holds b(k) in cr stated
+step 4.3.8 holds b(k) in cc stated
+step 4.3.8 holds a(k) mod b(k) in cn0 stated
+step 4.3.8 holds a(k) mod b(k) in cz stated
+step 4.3.8 holds a(k) mod b(k) in cq stated
+step 4.3.8 holds a(k) mod b(k) in cr stated
+step 4.3.8 holds a(k) mod b(k) in cc stated
+step 4.3.8 holds gcd(a(k) mod b(k), b(k)) in cn0 by the cgcd row [a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.8 holds gcd(a(k) mod b(k), b(k)) in cz by the cgcd row [a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.8 holds gcd(a(k) mod b(k), b(k)) in cq by the cgcd row [a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.8 holds gcd(a(k) mod b(k), b(k)) in cr by the cgcd row [a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.8 holds gcd(a(k) mod b(k), b(k)) in cc by the cgcd row [a(k) mod b(k) in cz walked Stated [a(k) mod b(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+requires line 1 of step 4.3.8 holds b(k) in cn0 stated
+requires line 1 of step 4.3.8 holds b(k) in cz stated
+requires line 1 of step 4.3.8 holds b(k) in cq stated
+requires line 1 of step 4.3.8 holds b(k) in cr stated
+requires line 1 of step 4.3.8 holds b(k) in cc stated
+requires line 1 of step 4.3.8 holds a(k) in cn0 stated
+requires line 1 of step 4.3.8 holds a(k) in cz stated
+requires line 1 of step 4.3.8 holds a(k) in cq stated
+requires line 1 of step 4.3.8 holds a(k) in cr stated
+requires line 1 of step 4.3.8 holds a(k) in cc stated
+requires line 2 of step 4.3.8 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+requires line 2 of step 4.3.8 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+requires line 2 of step 4.3.8 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+requires line 2 of step 4.3.8 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+requires line 2 of step 4.3.8 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+requires line 2 of step 4.3.8 holds a(k) in cz stated
+requires line 2 of step 4.3.8 holds a(k) in cq stated
+requires line 2 of step 4.3.8 holds a(k) in cr stated
+requires line 2 of step 4.3.8 holds a(k) in cc stated
+requires line 2 of step 4.3.8 holds b(k) in cn stated
+requires line 2 of step 4.3.8 holds b(k) in cn0 stated
+requires line 2 of step 4.3.8 holds b(k) in cz stated
+requires line 2 of step 4.3.8 holds b(k) in cq stated
+requires line 2 of step 4.3.8 holds b(k) in cr stated
+requires line 2 of step 4.3.8 holds b(k) in cc stated
+step 4.3.9 holds gcd(a(k + 1), b(k + 1)) in cn0 by the cgcd row [a(k + 1) in cz walked Stated [a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]]; b(k + 1) in cz walked Stated [b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]]
+step 4.3.9 holds gcd(a(k + 1), b(k + 1)) in cz by the cgcd row [a(k + 1) in cz walked Stated [a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]]; b(k + 1) in cz walked Stated [b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]]
+step 4.3.9 holds gcd(a(k + 1), b(k + 1)) in cq by the cgcd row [a(k + 1) in cz walked Stated [a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]]; b(k + 1) in cz walked Stated [b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]]
+step 4.3.9 holds gcd(a(k + 1), b(k + 1)) in cr by the cgcd row [a(k + 1) in cz walked Stated [a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]]; b(k + 1) in cz walked Stated [b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]]
+step 4.3.9 holds gcd(a(k + 1), b(k + 1)) in cc by the cgcd row [a(k + 1) in cz walked Stated [a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]]; b(k + 1) in cz walked Stated [b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]]
+step 4.3.9 holds a(k + 1) in cn beside b(k) walked Stated [b(k) in cn stated]
+step 4.3.9 holds a(k + 1) in cn0 beside b(k) walked Stated [b(k) in cn0 stated]
+step 4.3.9 holds a(k + 1) in cz beside b(k) walked Stated [b(k) in cz stated]
+step 4.3.9 holds a(k + 1) in cq beside b(k) walked Stated [b(k) in cq stated]
+step 4.3.9 holds a(k + 1) in cr beside b(k) walked Stated [b(k) in cr stated]
+step 4.3.9 holds a(k + 1) in cc beside b(k) walked Stated [b(k) in cc stated]
+step 4.3.9 holds b(k + 1) in cn0 beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]
+step 4.3.9 holds b(k + 1) in cz beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]
+step 4.3.9 holds b(k + 1) in cq beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]
+step 4.3.9 holds b(k + 1) in cr beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]
+step 4.3.9 holds b(k + 1) in cc beside a(k) mod b(k) walked Built([Stated, Stated]) [a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]
+step 4.3.9 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.9 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.9 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.9 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.9 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 4.3.9 holds b(k) in cn stated
+step 4.3.9 holds b(k) in cn0 stated
+step 4.3.9 holds b(k) in cz stated
+step 4.3.9 holds b(k) in cq stated
+step 4.3.9 holds b(k) in cr stated
+step 4.3.9 holds b(k) in cc stated
+step 4.3.9 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 4.3.9 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 4.3.9 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 4.3.9 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 4.3.9 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 4.3.9 holds a(k) in cz stated
+step 4.3.9 holds a(k) in cq stated
+step 4.3.9 holds a(k) in cr stated
+step 4.3.9 holds a(k) in cc stated
+step 4.3.9 holds gcd(b(k), a(k) mod b(k)) in cn0 by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]
+step 4.3.9 holds gcd(b(k), a(k) mod b(k)) in cz by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]
+step 4.3.9 holds gcd(b(k), a(k) mod b(k)) in cq by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]
+step 4.3.9 holds gcd(b(k), a(k) mod b(k)) in cr by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]
+step 4.3.9 holds gcd(b(k), a(k) mod b(k)) in cc by the cgcd row [b(k) in cz walked Stated [b(k) in cz stated]; a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]]
+step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cn0 by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cz by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cq by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cr by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cc by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k), b(k)) in cn0 by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k), b(k)) in cz by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k), b(k)) in cq by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k), b(k)) in cr by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 4.3.9 holds gcd(a(k), b(k)) in cc by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cn0 by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cz by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cq by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cr by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k) mod b(k), b(k)) in cc by the cgcd row [a(k) mod b(k) in cz walked Built([Stated, Stated]) [a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+a row of step 4.3.9 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+a row of step 4.3.9 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+a row of step 4.3.9 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+a row of step 4.3.9 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+a row of step 4.3.9 holds a(k) in cz stated
+a row of step 4.3.9 holds a(k) in cq stated
+a row of step 4.3.9 holds a(k) in cr stated
+a row of step 4.3.9 holds a(k) in cc stated
+a row of step 4.3.9 holds b(k) in cn stated
+a row of step 4.3.9 holds b(k) in cn0 stated
+a row of step 4.3.9 holds b(k) in cz stated
+a row of step 4.3.9 holds b(k) in cq stated
+a row of step 4.3.9 holds b(k) in cr stated
+a row of step 4.3.9 holds b(k) in cc stated
+a row of step 4.3.9 holds gcd(a(k), b(k)) in cn0 by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k), b(k)) in cz by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k), b(k)) in cq by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k), b(k)) in cr by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+a row of step 4.3.9 holds gcd(a(k), b(k)) in cc by the cgcd row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cz walked Stated [b(k) in cz stated]]
+step 5 holds k in cn0 stated
+step 5 holds k in cz stated
+step 5 holds k in cq stated
+step 5 holds k in cr stated
+step 5 holds k in cc stated
+step 5.1 holds b(0) in cn0 beside N walked Letter
+step 5.1 holds b(0) in cz beside N walked Letter
+step 5.1 holds b(0) in cq beside N walked Letter
+step 5.1 holds b(0) in cr beside N walked Letter
+step 5.1 holds b(0) in cc beside N walked Letter
+step 5.2 holds b(0) in cr stated
+step 5.2 holds b(0) in cc stated
+requires line 1 of step 5.2 holds b(0) in cn0 beside N walked Letter
+requires line 1 of step 5.2 holds b(0) in cz beside N walked Letter
+requires line 1 of step 5.2 holds b(0) in cq beside N walked Letter
+requires line 1 of step 5.2 holds b(0) in cr beside N walked Letter
+requires line 1 of step 5.2 holds b(0) in cc beside N walked Letter
+step 5.4.1 holds b(k) in cn0 beside 0 walked Numeral
+step 5.4.1 holds b(k) in cz beside 0 walked Numeral
+step 5.4.1 holds b(k) in cq beside 0 walked Numeral
+step 5.4.1 holds b(k) in cr beside 0 walked Numeral
+step 5.4.1 holds b(k) in cc beside 0 walked Numeral
+step 5.4.2 holds b(k + 1) in cn0 beside 0 walked Numeral
+step 5.4.2 holds b(k + 1) in cz beside 0 walked Numeral
+step 5.4.2 holds b(k + 1) in cq beside 0 walked Numeral
+step 5.4.2 holds b(k + 1) in cr beside 0 walked Numeral
+step 5.4.2 holds b(k + 1) in cc beside 0 walked Numeral
+step 5.4.4 holds b(k) in cn0 stated
+step 5.4.4 holds b(k) in cz stated
+step 5.4.4 holds b(k) in cq stated
+step 5.4.4 holds b(k) in cr stated
+step 5.4.4 holds b(k) in cc stated
+step 5.4.4 holds a(k) in cn0 stated
+step 5.4.4 holds a(k) in cz stated
+step 5.4.4 holds a(k) in cq stated
+step 5.4.4 holds a(k) in cr stated
+step 5.4.4 holds a(k) in cc stated
+step 5.4.5 holds a(k) in cn0 stated
+step 5.4.5 holds a(k) in cz stated
+step 5.4.5 holds a(k) in cq stated
+step 5.4.5 holds a(k) in cr stated
+step 5.4.5 holds a(k) in cc stated
+step 5.4.5 holds b(k) in cn0 stated
+step 5.4.5 holds b(k) in cz stated
+step 5.4.5 holds b(k) in cq stated
+step 5.4.5 holds b(k) in cr stated
+step 5.4.5 holds b(k) in cc stated
+step 5.4.6 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.6 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.6 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.6 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.6 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.6 holds a(k) in cz stated
+step 5.4.6 holds a(k) in cq stated
+step 5.4.6 holds a(k) in cr stated
+step 5.4.6 holds a(k) in cc stated
+step 5.4.6 holds b(k) in cn stated
+step 5.4.6 holds b(k) in cn0 stated
+step 5.4.6 holds b(k) in cz stated
+step 5.4.6 holds b(k) in cq stated
+step 5.4.6 holds b(k) in cr stated
+step 5.4.6 holds b(k) in cc stated
+step 5.4.7 holds a(k) mod b(k) in cn0 by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.7 holds a(k) mod b(k) in cz by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.7 holds a(k) mod b(k) in cq by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.7 holds a(k) mod b(k) in cr by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.7 holds a(k) mod b(k) in cc by the cmo row [a(k) in cz walked Stated [a(k) in cz stated]; b(k) in cn walked Stated [b(k) in cn stated]]
+step 5.4.7 holds a(k) in cz stated
+step 5.4.7 holds a(k) in cq stated
+step 5.4.7 holds a(k) in cr stated
+step 5.4.7 holds a(k) in cc stated
+step 5.4.7 holds b(k) in cn stated
+step 5.4.7 holds b(k) in cn0 stated
+step 5.4.7 holds b(k) in cz stated
+step 5.4.7 holds b(k) in cq stated
+step 5.4.7 holds b(k) in cr stated
+step 5.4.7 holds b(k) in cc stated
+step 5.4.9 holds b(k + 1) in cn0 beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cn0 stated]
+step 5.4.9 holds b(k + 1) in cz beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cz stated]
+step 5.4.9 holds b(k + 1) in cq beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cq stated]
+step 5.4.9 holds b(k + 1) in cr beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cr stated]
+step 5.4.9 holds b(k + 1) in cc beside a(k) mod b(k) walked Stated [a(k) mod b(k) in cc stated]
+step 5.4.9 holds a(k) mod b(k) in cn0 stated
+step 5.4.9 holds a(k) mod b(k) in cz stated
+step 5.4.9 holds a(k) mod b(k) in cq stated
+step 5.4.9 holds a(k) mod b(k) in cr stated
+step 5.4.9 holds a(k) mod b(k) in cc stated
+step 5.4.10 holds b(k + 1) in cz stated
+step 5.4.10 holds b(k + 1) in cq stated
+step 5.4.10 holds b(k + 1) in cr stated
+step 5.4.10 holds b(k + 1) in cc stated
+step 5.4.10 holds b(k) in cz stated
+step 5.4.10 holds b(k) in cq stated
+step 5.4.10 holds b(k) in cr stated
+step 5.4.10 holds b(k) in cc stated
+requires line 1 of step 5.4.10 holds b(k + 1) in cn0 stated
+requires line 1 of step 5.4.10 holds b(k + 1) in cz stated
+requires line 1 of step 5.4.10 holds b(k + 1) in cq stated
+requires line 1 of step 5.4.10 holds b(k + 1) in cr stated
+requires line 1 of step 5.4.10 holds b(k + 1) in cc stated
+requires line 2 of step 5.4.10 holds b(k) in cn0 stated
+requires line 2 of step 5.4.10 holds b(k) in cz stated
+requires line 2 of step 5.4.10 holds b(k) in cq stated
+requires line 2 of step 5.4.10 holds b(k) in cr stated
+requires line 2 of step 5.4.10 holds b(k) in cc stated
+requires line 2 of step 5.4.10 holds a(k) in cn0 stated
+requires line 2 of step 5.4.10 holds a(k) in cz stated
+requires line 2 of step 5.4.10 holds a(k) in cq stated
+requires line 2 of step 5.4.10 holds a(k) in cr stated
+requires line 2 of step 5.4.10 holds a(k) in cc stated
+requires line 2 of step 5.4.10 holds b(k + 1) in cz stated
+requires line 2 of step 5.4.10 holds b(k + 1) in cq stated
+requires line 2 of step 5.4.10 holds b(k + 1) in cr stated
+requires line 2 of step 5.4.10 holds b(k + 1) in cc stated
+step 5.4.12 holds b(k + 1) in cr stated
+step 5.4.12 holds b(k + 1) in cc stated
+step 5.4.12 holds b(k) in cr stated
+step 5.4.12 holds b(k) in cc stated
+requires line 1 of step 5.4.12 holds b(k + 1) in cn0 stated
+requires line 1 of step 5.4.12 holds b(k + 1) in cz stated
+requires line 1 of step 5.4.12 holds b(k + 1) in cq stated
+requires line 1 of step 5.4.12 holds b(k + 1) in cr stated
+requires line 1 of step 5.4.12 holds b(k + 1) in cc stated
+requires line 2 of step 5.4.12 holds b(k) in cn0 stated
+requires line 2 of step 5.4.12 holds b(k) in cz stated
+requires line 2 of step 5.4.12 holds b(k) in cq stated
+requires line 2 of step 5.4.12 holds b(k) in cr stated
+requires line 2 of step 5.4.12 holds b(k) in cc stated
+requires line 2 of step 5.4.12 holds a(k) in cn0 stated
+requires line 2 of step 5.4.12 holds a(k) in cz stated
+requires line 2 of step 5.4.12 holds a(k) in cq stated
+requires line 2 of step 5.4.12 holds a(k) in cr stated
+requires line 2 of step 5.4.12 holds a(k) in cc stated
+requires line 2 of step 5.4.12 holds b(k + 1) in cr stated
+requires line 2 of step 5.4.12 holds b(k + 1) in cc stated
+step 5.4.13 holds b(k + 1) in cr stated
+step 5.4.13 holds b(k + 1) in cc stated
+step 5.4.13 holds b(k) in cr stated
+step 5.4.13 holds b(k) in cc stated
+requires line 1 of step 5.4.13 holds b(k + 1) in cn0 stated
+requires line 1 of step 5.4.13 holds b(k + 1) in cz stated
+requires line 1 of step 5.4.13 holds b(k + 1) in cq stated
+requires line 1 of step 5.4.13 holds b(k + 1) in cr stated
+requires line 1 of step 5.4.13 holds b(k + 1) in cc stated
+requires line 2 of step 5.4.13 holds b(k) in cn0 stated
+requires line 2 of step 5.4.13 holds b(k) in cz stated
+requires line 2 of step 5.4.13 holds b(k) in cq stated
+requires line 2 of step 5.4.13 holds b(k) in cr stated
+requires line 2 of step 5.4.13 holds b(k) in cc stated
+requires line 2 of step 5.4.13 holds a(k) in cn0 stated
+requires line 2 of step 5.4.13 holds a(k) in cz stated
+requires line 2 of step 5.4.13 holds a(k) in cq stated
+requires line 2 of step 5.4.13 holds a(k) in cr stated
+requires line 2 of step 5.4.13 holds a(k) in cc stated
+requires line 2 of step 5.4.13 holds b(k + 1) in cr stated
+requires line 2 of step 5.4.13 holds b(k + 1) in cc stated
+step 8.2 holds b(N) in cn0 stated
+step 8.2 holds b(N) in cz stated
+step 8.2 holds b(N) in cq stated
+step 8.2 holds b(N) in cr stated
+step 8.2 holds b(N) in cc stated
+step 8.2 holds a(N) in cn0 stated
+step 8.2 holds a(N) in cz stated
+step 8.2 holds a(N) in cq stated
+step 8.2 holds a(N) in cr stated
+step 8.2 holds a(N) in cc stated
+step 8.3 holds b(N) in cn stated
+step 8.3 holds b(N) in cn0 stated
+step 8.3 holds b(N) in cz stated
+step 8.3 holds b(N) in cq stated
+step 8.3 holds b(N) in cr stated
+step 8.3 holds b(N) in cc stated
+step 9 holds a(N) in cn0 stated
+step 9 holds a(N) in cz stated
+step 9 holds a(N) in cq stated
+step 9 holds a(N) in cr stated
+step 9 holds a(N) in cc stated
+step 9 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 9 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 9 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 9 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 9 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+step 9 holds b(N) in cn0 stated
+step 9 holds b(N) in cz stated
+step 9 holds b(N) in cq stated
+step 9 holds b(N) in cr stated
+step 9 holds b(N) in cc stated
+a row of step 9 holds a(N) in cn0 stated
+a row of step 9 holds a(N) in cz stated
+a row of step 9 holds a(N) in cq stated
+a row of step 9 holds a(N) in cr stated
+a row of step 9 holds a(N) in cc stated
+a row of step 9 holds gcd(a(N), 0) in cn0 by the cgcd row [a(N) in cz walked Stated [a(N) in cz stated]; 0 in cz walked Numeral]
+a row of step 9 holds gcd(a(N), 0) in cz by the cgcd row [a(N) in cz walked Stated [a(N) in cz stated]; 0 in cz walked Numeral]
+a row of step 9 holds gcd(a(N), 0) in cq by the cgcd row [a(N) in cz walked Stated [a(N) in cz stated]; 0 in cz walked Numeral]
+a row of step 9 holds gcd(a(N), 0) in cr by the cgcd row [a(N) in cz walked Stated [a(N) in cz stated]; 0 in cz walked Numeral]
+a row of step 9 holds gcd(a(N), 0) in cc by the cgcd row [a(N) in cz walked Stated [a(N) in cz stated]; 0 in cz walked Numeral]
+a row of step 9 holds b(N) in cn0 stated
+a row of step 9 holds b(N) in cz stated
+a row of step 9 holds b(N) in cq stated
+a row of step 9 holds b(N) in cr stated
+a row of step 9 holds b(N) in cc stated
+a row of step 9 holds gcd(M, N) in cn0 by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 9 holds gcd(M, N) in cz by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 9 holds gcd(M, N) in cq by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 9 holds gcd(M, N) in cr by the cgcd row [M in cz walked Letter; N in cz walked Letter]
+a row of step 9 holds gcd(M, N) in cc by the cgcd row [M in cz walked Letter; N in cz walked Letter]
 step 3.5 splits 3.4 sentence 0
 step 4.3 splits 4.2 sentence 0
 step 5.4 splits 5.3 sentence 0

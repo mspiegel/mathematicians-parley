@@ -13,6 +13,16 @@ step 4 divides by B by H3
 a row of step 4 divides by B by H3
 a row of step 4 divides by B by 1
 a row of step 1 divides by B by 1
+step 2 holds ⌊A / B⌋ in cz stated
+step 2 holds ⌊A / B⌋ in cq stated
+step 2 holds ⌊A / B⌋ in cr stated
+step 2 holds ⌊A / B⌋ in cc stated
+step 3 holds ⌊A / B⌋ in cz stated
+step 3 holds ⌊A / B⌋ in cq stated
+step 3 holds ⌊A / B⌋ in cr stated
+step 3 holds ⌊A / B⌋ in cc stated
+step 6 holds A mod B in cr beside A − B · q walked Built([Letter, Built([Letter, Letter])])
+step 6 holds A mod B in cc beside A − B · q walked Built([Letter, Built([Letter, Letter])])
 step 2 writes out q
 step 3 writes out q
 read 8: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement

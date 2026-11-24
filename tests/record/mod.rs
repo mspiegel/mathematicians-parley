@@ -10,8 +10,8 @@ use std::fmt::Write as _;
 use std::slice;
 
 use parley::checker::record::{
-    Cited, DomainSaid, Facing, First, FirstAt, NonzeroBy, OrderFact, OrderPart,
-    Restated, StatedIn, SuppliedBy, Unfolded,
+    Cited, DomainSaid, Facing, First, FirstAt, InDomain, NonzeroBy, OrderFact,
+    OrderPart, Restated, Shown, ShownPart, StatedIn, SuppliedBy, Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -379,6 +379,19 @@ pub fn printed_but(
             .collect();
         writeln!(out, "{} divides by {}", reason_at(*line), parts.join(", ")).unwrap();
     }
+    for (line, held) in &record.held_by_lines {
+        for h in held {
+            writeln!(
+                out,
+                "{} holds {} in {} {}",
+                reason_at(*line),
+                g.print(&h.term),
+                h.system.label(),
+                shown_words(&h.shown, g)
+            )
+            .unwrap();
+        }
+    }
     for (line, names) in &record.defines_read {
         writeln!(out, "{} writes out {}", reason_at(*line), names.join(", ")).unwrap();
     }
@@ -688,6 +701,59 @@ fn unfolded_parts(
         })
         .collect();
     each.join(", ")
+}
+
+/// How the one membership rule derives a membership (`record::Shown`), in
+/// words: by its shape and its terms, never a line's text, which a respelt
+/// line changes and the record's meaning does not.
+fn shown_words(shown: &Shown, g: &Grammar) -> String {
+    let part = |p: &ShownPart| {
+        format!(
+            "{} in {} {}",
+            g.print(&p.term),
+            p.system.label(),
+            shown_words(&p.shown, g)
+        )
+    };
+    let parts = |ps: &[&ShownPart]| {
+        let each: Vec<String> = ps.iter().map(|p| part(p)).collect();
+        format!("[{}]", each.join("; "))
+    };
+    match shown {
+        Shown::Walked { reason, taken } => match taken.as_slice() {
+            [] => format!("walked {reason:?}"),
+            _ => format!(
+                "walked {reason:?} {}",
+                parts(&taken.iter().collect::<Vec<_>>())
+            ),
+        },
+        Shown::Stated { .. } => "stated".to_string(),
+        Shown::Whole { op, parts: whole } => {
+            format!(
+                "by the {op} row {}",
+                parts(&whole.iter().collect::<Vec<_>>())
+            )
+        }
+        Shown::Summed {
+            pointwise: Some(_), ..
+        } => "summed by a line at every index".to_string(),
+        Shown::Summed { body: Some(b), .. } => format!("summed {}", parts(&[b])),
+        Shown::Summed { .. } => "summed".to_string(),
+        Shown::Powered { base, exponent } => {
+            format!("a power {}", parts(&[base, exponent]))
+        }
+        Shown::Valued { at, .. } => match at.as_ref() {
+            InDomain::Within(p) => format!("valued {}", parts(&[p])),
+            InDomain::Ranged => "valued over its range".to_string(),
+            InDomain::Stated { .. } => "valued at a stated point".to_string(),
+        },
+        Shown::Cased { value, otherwise } => {
+            format!("by cases {}", parts(&[value, otherwise]))
+        }
+        Shown::Beside {
+            other, other_shown, ..
+        } => format!("beside {} {}", g.print(other), shown_words(other_shown, g)),
+    }
 }
 
 /// Which way an equation or congruence faces another, in a word.

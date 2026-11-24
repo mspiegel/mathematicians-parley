@@ -39,6 +39,137 @@ step 2.5 has letters M at H1 sentence 0, m at K sentence 0
 step 3 has letters M at H1 sentence 0
 step 4 has letters M at H1 sentence 0, N at 3 sentence 0
 step 1.1 divides by k a positive integer said once
+step 1 holds k in cn stated
+step 1 holds k in cn0 stated
+step 1 holds k in cz stated
+step 1 holds k in cq stated
+step 1 holds k in cr stated
+step 1 holds k in cc stated
+step 2 holds m in cn0 stated
+step 2 holds m in cz stated
+step 2 holds m in cq stated
+step 2 holds m in cr stated
+step 2 holds m in cc stated
+step 2 holds Σ(k = 1 to 2^m) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2 holds Σ(k = 1 to 2^m) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2 holds 2^m in cn a power [2 in cn walked Numeral; m in cn0 walked Letter]
+step 2 holds 2^m in cn0 a power [2 in cn0 walked Numeral; m in cn0 walked Letter]
+step 2 holds 2^m in cz a power [2 in cz walked Numeral; m in cn0 walked Letter]
+step 2 holds 2^m in cq a power [2 in cq walked Numeral; m in cn0 walked Letter]
+step 2 holds 2^m in cr a power [2 in cr walked Numeral; m in cn0 walked Letter]
+step 2 holds 2^m in cc a power [2 in cc walked Numeral; m in cn0 walked Letter]
+step 2.1 holds 2^0 in cn a power [2 in cn walked Numeral; 0 in cn0 walked Numeral]
+step 2.1 holds 2^0 in cn0 a power [2 in cn0 walked Numeral; 0 in cn0 walked Numeral]
+step 2.1 holds 2^0 in cz a power [2 in cz walked Numeral; 0 in cn0 walked Numeral]
+step 2.1 holds 2^0 in cq a power [2 in cq walked Numeral; 0 in cn0 walked Numeral]
+step 2.1 holds 2^0 in cr a power [2 in cr walked Numeral; 0 in cn0 walked Numeral]
+step 2.1 holds 2^0 in cc a power [2 in cc walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds Σ(k = 1 to 2^0) 1 / k in cr summed by a line at every index
+step 2.2 holds Σ(k = 1 to 2^0) 1 / k in cc summed by a line at every index
+step 2.2 holds 2^0 in cn a power [2 in cn walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds 2^0 in cn0 a power [2 in cn0 walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds 2^0 in cz a power [2 in cz walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds 2^0 in cq a power [2 in cq walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds 2^0 in cr a power [2 in cr walked Numeral; 0 in cn0 walked Numeral]
+step 2.2 holds 2^0 in cc a power [2 in cc walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds Σ(k = 1 to 2^0) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+a row of step 2.2 holds Σ(k = 1 to 2^0) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+a row of step 2.2 holds 2^0 in cn a power [2 in cn walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds 2^0 in cn0 a power [2 in cn0 walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds 2^0 in cz a power [2 in cz walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds 2^0 in cq a power [2 in cq walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds 2^0 in cr a power [2 in cr walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds 2^0 in cc a power [2 in cc walked Numeral; 0 in cn0 walked Numeral]
+a row of step 2.2 holds Σ(k = 1 to 1) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+a row of step 2.2 holds Σ(k = 1 to 1) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+a row of step 2.2 holds Σ(k = 1 to 1) 1 / k in cr summed by a line at every index
+a row of step 2.2 holds Σ(k = 1 to 1) 1 / k in cc summed by a line at every index
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cn beside 1 walked Numeral
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cn0 beside 1 walked Numeral
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cz beside 1 walked Numeral
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cq beside 1 walked Numeral
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.4 holds Σ(k = 1 to 2^0) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.4 holds 2^0 in cn a power [2 in cn walked Numeral; 0 in cn0 walked Numeral]
+step 2.4 holds 2^0 in cn0 a power [2 in cn0 walked Numeral; 0 in cn0 walked Numeral]
+step 2.4 holds 2^0 in cz a power [2 in cz walked Numeral; 0 in cn0 walked Numeral]
+step 2.4 holds 2^0 in cq a power [2 in cq walked Numeral; 0 in cn0 walked Numeral]
+step 2.4 holds 2^0 in cr a power [2 in cr walked Numeral; 0 in cn0 walked Numeral]
+step 2.4 holds 2^0 in cc a power [2 in cc walked Numeral; 0 in cn0 walked Numeral]
+step 2.5 holds Σ(k = 1 to 2^m) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.5 holds Σ(k = 1 to 2^m) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.5 holds 2^m in cn a power [2 in cn walked Numeral; m in cn0 walked Letter]
+step 2.5 holds 2^m in cn0 a power [2 in cn0 walked Numeral; m in cn0 walked Letter]
+step 2.5 holds 2^m in cz a power [2 in cz walked Numeral; m in cn0 walked Letter]
+step 2.5 holds 2^m in cq a power [2 in cq walked Numeral; m in cn0 walked Letter]
+step 2.5 holds 2^m in cr a power [2 in cr walked Numeral; m in cn0 walked Letter]
+step 2.5 holds 2^m in cc a power [2 in cc walked Numeral; m in cn0 walked Letter]
+step 2.5 holds Σ(k = 1 to 2^(m + 1)) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.5 holds Σ(k = 1 to 2^(m + 1)) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.5 holds 2^(m + 1) in cn a power [2 in cn walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.5 holds 2^(m + 1) in cn0 a power [2 in cn0 walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.5 holds 2^(m + 1) in cz a power [2 in cz walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.5 holds 2^(m + 1) in cq a power [2 in cq walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.5 holds 2^(m + 1) in cr a power [2 in cr walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.5 holds 2^(m + 1) in cc a power [2 in cc walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.6 holds Σ(k = 1 to 2^m) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.6 holds Σ(k = 1 to 2^m) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.6 holds 2^m in cn a power [2 in cn walked Numeral; m in cn0 walked Letter]
+step 2.6 holds 2^m in cn0 a power [2 in cn0 walked Numeral; m in cn0 walked Letter]
+step 2.6 holds 2^m in cz a power [2 in cz walked Numeral; m in cn0 walked Letter]
+step 2.6 holds 2^m in cq a power [2 in cq walked Numeral; m in cn0 walked Letter]
+step 2.6 holds 2^m in cr a power [2 in cr walked Numeral; m in cn0 walked Letter]
+step 2.6 holds 2^m in cc a power [2 in cc walked Numeral; m in cn0 walked Letter]
+step 2.7 holds Σ(k = 1 to 2^(m + 1)) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.7 holds Σ(k = 1 to 2^(m + 1)) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.7 holds 2^(m + 1) in cn a power [2 in cn walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds 2^(m + 1) in cn0 a power [2 in cn0 walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds 2^(m + 1) in cz a power [2 in cz walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds 2^(m + 1) in cq a power [2 in cq walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds 2^(m + 1) in cr a power [2 in cr walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds 2^(m + 1) in cc a power [2 in cc walked Numeral; m + 1 in cn0 walked Built([Letter, Numeral])]
+step 2.7 holds Σ(k = 1 to 2^m) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 2.7 holds Σ(k = 1 to 2^m) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 2.7 holds 2^m in cn a power [2 in cn walked Numeral; m in cn0 walked Letter]
+step 2.7 holds 2^m in cn0 a power [2 in cn0 walked Numeral; m in cn0 walked Letter]
+step 2.7 holds 2^m in cz a power [2 in cz walked Numeral; m in cn0 walked Letter]
+step 2.7 holds 2^m in cq a power [2 in cq walked Numeral; m in cn0 walked Letter]
+step 2.7 holds 2^m in cr a power [2 in cr walked Numeral; m in cn0 walked Letter]
+step 2.7 holds 2^m in cc a power [2 in cc walked Numeral; m in cn0 walked Letter]
+step 4 holds Σ(k = 1 to 2^N) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 4 holds Σ(k = 1 to 2^N) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 4 holds 2^N in cn a power [2 in cn walked Numeral; N in cn0 walked Letter]
+step 4 holds 2^N in cn0 a power [2 in cn0 walked Numeral; N in cn0 walked Letter]
+step 4 holds 2^N in cz a power [2 in cz walked Numeral; N in cn0 walked Letter]
+step 4 holds 2^N in cq a power [2 in cq walked Numeral; N in cn0 walked Letter]
+step 4 holds 2^N in cr a power [2 in cr walked Numeral; N in cn0 walked Letter]
+step 4 holds 2^N in cc a power [2 in cc walked Numeral; N in cn0 walked Letter]
+step 4 holds Σ(k = 1 to 2^m) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 4 holds Σ(k = 1 to 2^m) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 5 holds N in cn stated
+step 5 holds N in cn0 stated
+step 5 holds N in cz stated
+step 5 holds N in cq stated
+step 5 holds N in cr stated
+step 5 holds N in cc stated
+step 6 holds Σ(k = 1 to 2^N) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 6 holds Σ(k = 1 to 2^N) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 6 holds 2^N in cn a power [2 in cn walked Numeral; N in cn0 walked Letter]
+step 6 holds 2^N in cn0 a power [2 in cn0 walked Numeral; N in cn0 walked Letter]
+step 6 holds 2^N in cz a power [2 in cz walked Numeral; N in cn0 walked Letter]
+step 6 holds 2^N in cq a power [2 in cq walked Numeral; N in cn0 walked Letter]
+step 6 holds 2^N in cr a power [2 in cr walked Numeral; N in cn0 walked Letter]
+step 6 holds 2^N in cc a power [2 in cc walked Numeral; N in cn0 walked Letter]
+step 7 holds Σ(k = 1 to n) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 7 holds Σ(k = 1 to n) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 7 holds Σ(k = 1 to 2^N) 1 / k in cr summed [1 / k in cr walked Built([Numeral, Letter])]
+step 7 holds Σ(k = 1 to 2^N) 1 / k in cc summed [1 / k in cc walked Built([Numeral, Letter])]
+step 7 holds 2^N in cn a power [2 in cn walked Numeral; N in cn0 walked Letter]
+step 7 holds 2^N in cn0 a power [2 in cn0 walked Numeral; N in cn0 walked Letter]
+step 7 holds 2^N in cz a power [2 in cz walked Numeral; N in cn0 walked Letter]
+step 7 holds 2^N in cq a power [2 in cq walked Numeral; N in cn0 walked Letter]
+step 7 holds 2^N in cr a power [2 in cr walked Numeral; N in cn0 walked Letter]
+step 7 holds 2^N in cc a power [2 in cc walked Numeral; N in cn0 walked Letter]
 read 111: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
 read 115: M ∈ ℝ  as  membership:∈(name:M, number-systems:ℝ)  a statement
 read 116: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
