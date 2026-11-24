@@ -1030,29 +1030,27 @@ pub(super) fn said_over_any_set(
     };
     let mut letters = letters.clone();
     letters.shift_remove(at.letter);
-    let value_typed = |t: &Node, s: System| {
-        let (APPLICATION, [f, x]) = (t.notation(), t.children.as_slice()) else {
-            return false;
-        };
-        x.is_name()
-            && x.text == at.letter
-            && typed.iter().any(|ty| {
-                matches!(ty.children.as_slice(), [g, dom, cod]
-                    if g.is_name()
-                        && g.text == f.text
-                        && known.alike(dom, at.domain)
-                        && system_named(cod).is_some_and(|c| c.within(s)))
-            })
-    };
     // The term at the join's own letter: a line speaks of the proof's
-    // letters, not of it, so no fact says a divisor is not zero.
-    citing::within(
-        at.term,
-        system,
-        &letters,
-        &|d| citing::nonzero_said_once(d, &letters),
-        &value_typed,
-    )
+    // letters, not of it, so the one rule reads no line but the letter's
+    // membership of the set, at which a type in scope on that set gives a
+    // function's value (`membership::shown`).
+    let point = at
+        .term
+        .walk()
+        .into_iter()
+        .find(|n| n.is_name() && n.text == at.letter)
+        .and_then(|x| page::made_as(known.env.g, "_ ∈ _", vec![x, at.domain.clone()]));
+    let member: Vec<Node> = point.into_iter().collect();
+    let given = membership::Facts {
+        facts: &member,
+        letters,
+        ranged: IndexMap::new(),
+        typed,
+        in_sums: &[],
+        targets: known.targets,
+        ctx: known.ctx,
+    };
+    membership::holds(at.term, system, &given)
 }
 
 /// Whether the term a function hypothesis `t : D → E` asks at every point

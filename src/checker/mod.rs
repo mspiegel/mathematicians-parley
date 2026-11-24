@@ -11,6 +11,8 @@ use std::collections::BTreeSet;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+
+use crate::methods::terms::Targets;
 use std::thread;
 
 use indexmap::{IndexMap, IndexSet};
@@ -1290,7 +1292,13 @@ impl<'a> Checking<'a> {
             &mut self.store,
         );
         let library = self.library;
-        let k = Known::new(thm, self.env, settled(&reader, &self.store), &library.ctx);
+        let k = Known::new(
+            thm,
+            self.env,
+            settled(&reader, &self.store),
+            &library.ctx,
+            &library.targets,
+        );
         let mut report = Report::default();
         checks(&mut report, self, thm, &k, &reader.clashes);
         report.problems.iter().map(|p| p.to_string()).collect()
@@ -1890,6 +1898,7 @@ fn prepared_in<T>(
         statements.insert(thm.qualified(), reader);
     }
     let ctx = Context::new(&env.g.notations, records);
+    let targets = Targets::of(env.g, records);
     angles::check_record_angles(&mut report, records, env, &record_sorts, &ctx);
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
@@ -1906,7 +1915,7 @@ fn prepared_in<T>(
                 (settled(&reader, &store), reader.clashes)
             }
         };
-        known.push(Known::new(thm, env, sorts, &ctx));
+        known.push(Known::new(thm, env, sorts, &ctx, &targets));
         clashes.push(clashed);
     }
     // A theorem is cited by its statement, which is all a proof citing it

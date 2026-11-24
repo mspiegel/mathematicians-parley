@@ -360,17 +360,20 @@ pub(super) fn member_in(
     step: &Step,
     known: &Known,
 ) -> bool {
+    // What the page says once, which no line is asked for: the one rule
+    // over no lines (`membership::shown`).
+    let given = membership::Facts {
+        facts: &[],
+        letters: letters.clone(),
+        ranged: IndexMap::new(),
+        typed: &[],
+        in_sums: &[],
+        targets: known.targets,
+        ctx: known.ctx,
+    };
     let said_once = set.notation() == NUMBER_SYSTEMS
-        && System::of_sign(&set.text).is_some_and(|system| {
-            citing::within(
-                member,
-                system,
-                letters,
-                // What the page says once, which no line is asked for.
-                &|d| citing::nonzero_said_once(d, letters),
-                &|_, _| false,
-            )
-        });
+        && System::of_sign(&set.text)
+            .is_some_and(|system| membership::holds(member, system, &given));
     if said_once {
         return true;
     }

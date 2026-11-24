@@ -6,6 +6,8 @@ use std::rc::Rc;
 use std::{iter, slice};
 
 use indexmap::IndexMap;
+
+use crate::methods::terms::Targets;
 use rustc_hash::FxHashMap;
 
 use super::citations;
@@ -227,6 +229,10 @@ pub struct Known<'a> {
     /// What the notations are, read once for the corpus: which spelling of a
     /// relation is another turned around (`matching::standard`).
     pub ctx: &'a Context,
+    /// The notations' and library functions' targets, read once for the
+    /// corpus, which say what operation a term applies, as the membership
+    /// rule's closure reads it (`methods::membership::Facts::targets`).
+    pub targets: &'a Targets,
     /// The definitions from outside the theorem a citation may write out.
     outside: OutsideDefines,
     cited: RefCell<FxIndexMap<Vec<String>, Rc<Definitions>>>,
@@ -257,12 +263,14 @@ impl<'a> Known<'a> {
         env: Env<'a>,
         sorts: Sorts,
         ctx: &'a Context,
+        targets: &'a Targets,
     ) -> Known<'a> {
         Known {
             thm,
             env,
             sorts,
             ctx,
+            targets,
             outside: OutsideDefines::of(thm, env),
             cited: RefCell::new(FxIndexMap::default()),
             scopes: RefCell::new(FxIndexMap::default()),
@@ -1513,7 +1521,14 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
     };
     let mut out: Vec<Node> = Vec::new();
     for node in written.iter().flat_map(|n| n.walk()).filter(in_scope) {
-        let said = citing::sum_said_once(&node, System::C, &letters, &typed, known.ctx);
+        let said = citing::sum_said_once(
+            &node,
+            System::C,
+            &letters,
+            &typed,
+            known.targets,
+            known.ctx,
+        );
         if said {
             out.push(node);
         }

@@ -38,9 +38,9 @@ use super::library::Library;
 use super::parts::{Parts, SaidOnceFact};
 use crate::checker::record::{StatedAt, SuppliedBy};
 use crate::formula::page;
-use crate::matching;
 use crate::matching::Context;
 use crate::methods::reals::{trig_value, Trig};
+use crate::methods::terms::Targets;
 use crate::methods::{membership, reals, surds};
 
 /// The number system each letter is introduced in, by the letter as the
@@ -847,104 +847,33 @@ impl OnceAsk for PageOnce<'_> {
 }
 
 /// Whether a sum over a range is a number the page says once (`READERS.md`,
-/// membership said once): its term is one at every index, by what the page
-/// says once and by the function types in scope, `typed`, as `a : {1, …,
-/// n} → ℝ` says a(k) is real where k runs from 1 to n. A term dividing by
-/// something other than a numeral is not, for the divisor may be zero at
-/// some index, nor is a value at a point outside its function's domain: a
-/// line says those.
+/// membership said once): the one rule over no lines (`membership::shown`),
+/// its term one at every index by what the page says once and by the
+/// function types in scope, `typed`, as `a : {1, …, n} → ℝ` says a(k) is
+/// real where k runs from 1 to n. A term dividing by what may be zero at
+/// some index is not, nor is a value at a point outside its function's
+/// domain: a line says those.
 pub fn sum_said_once(
     term: &Node,
     system: System,
     letters: &Introduced,
     typed: &[Node],
+    targets: &Targets,
     ctx: &Context,
 ) -> bool {
-    let (SUM, [index, start, end, body]) = (term.notation(), term.children.as_slice())
-    else {
-        return false;
-    };
-    if !matches!(system, System::R | System::C) || !index.is_name() {
+    if term.notation() != SUM {
         return false;
     }
-    let mut letters = letters.clone();
-    if let Some(inside) = index_system(start) {
-        letters.insert(index.text.to_string(), inside);
-    }
-    let at = SumIndex {
-        index: &index.text,
-        start,
-        end,
-        letters: &letters,
-        typed,
+    let given = membership::Facts {
+        facts: &[],
+        letters: letters.clone(),
+        ranged: IndexMap::new(),
+        typed: &[],
+        in_sums: typed,
+        targets,
         ctx,
     };
-    within(
-        body,
-        system,
-        &letters,
-        // A line speaks of the proof's letters, not of every index.
-        &|d| nonzero_said_once(d, &letters),
-        &|t, s| at.says(t, s),
-    )
-}
-
-/// What a sum's term is read with at each index: the index and its range,
-/// the letters said once there, and the function types in scope.
-struct SumIndex<'a> {
-    index: &'a str,
-    start: &'a Node,
-    end: &'a Node,
-    letters: &'a Introduced,
-    typed: &'a [Node],
-    ctx: &'a Context,
-}
-
-impl SumIndex<'_> {
-    /// Whether a part the walk does not take apart is in `system` at every
-    /// index: a sum inside the term by the same rule, or a function's value
-    /// at a point of its domain, by a type whose codomain is in `system`.
-    fn says(&self, term: &Node, system: System) -> bool {
-        if sum_said_once(term, system, self.letters, self.typed, self.ctx) {
-            return true;
-        }
-        let (APPLICATION, [f, x]) = (term.notation(), term.children.as_slice()) else {
-            return false;
-        };
-        self.typed.iter().any(|t| {
-            let [g, domain, codomain] = t.children.as_slice() else {
-                return false;
-            };
-            g.is_name()
-                && f.is_name()
-                && g.text == f.text
-                && codomain.notation() == NUMBER_SYSTEMS
-                && System::of_sign(&codomain.text).is_some_and(|s| s.within(system))
-                && self.in_domain(x, domain)
-        })
-    }
-
-    /// Whether the point `x` is in a function's `domain` at every index:
-    /// the index where the domain is the sum's own range, or a letter said
-    /// once in a number system the domain holds.
-    fn in_domain(&self, x: &Node, domain: &Node) -> bool {
-        let same = |a: &Node, b: &Node| {
-            matching::alike(a, b, self.ctx, &IndexMap::new(), &IndexMap::new())
-        };
-        if domain.notation() == INTEGER_RANGE {
-            return x.is_name()
-                && x.text == self.index
-                && matches!(domain.children.as_slice(), [a, b]
-                    if same(a, self.start) && same(b, self.end));
-        }
-        domain.notation() == NUMBER_SYSTEMS
-            && x.is_name()
-            && System::of_sign(&domain.text).is_some_and(|d| {
-                self.letters
-                    .get(x.text.as_str())
-                    .is_some_and(|s| s.within(d))
-            })
-    }
+    membership::holds(term, system, &given)
 }
 
 /// The number system a range from `start` puts its members in: ℕ from 1,

@@ -166,14 +166,18 @@ impl DefinedRule {
         let mut letters = letters.clone();
         letters.insert(self.letter.clone(), inside);
         // The rule's value at its own parameter: a line speaks of the
-        // proof's letters, not of it, so no fact says a divisor is not zero.
-        citing::within(
-            &self.rule,
-            into,
-            &letters,
-            &|d| citing::nonzero_said_once(d, &letters),
-            &|_, _| false,
-        )
+        // proof's letters, not of it, so the one rule reads no line
+        // (`membership::shown`).
+        let given = membership::Facts {
+            facts: &[],
+            letters,
+            ranged: IndexMap::new(),
+            typed: &[],
+            in_sums: &[],
+            targets: known.targets,
+            ctx: known.ctx,
+        };
+        membership::holds(&self.rule, into, &given)
     }
 }
 
