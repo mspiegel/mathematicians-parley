@@ -935,10 +935,10 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// One step's proof, with the parts its lines hold as the checker
-    /// recorded them (`reason_held`) for as long as it is built; a reason
-    /// inside it, a requires line's or a row's, holds its own
-    /// (`by_method`).
+    /// One step's proof, with the parts its lines hold and the parts it
+    /// divides by as the checker recorded them (`reason_held`,
+    /// `reason_divided`) for as long as it is built; a reason inside it, a
+    /// requires line's or a row's, holds its own (`by_method`).
     pub(super) fn one_step(
         &mut self,
         step: &Step,
@@ -953,9 +953,17 @@ impl<'a> Elaborator<'a> {
             .get(&step.just.line)
             .cloned()
             .unwrap_or_default();
+        let divided = self
+            .checked
+            .divided_by
+            .get(&step.just.line)
+            .cloned()
+            .unwrap_or_default();
         let kept = self.reason_held.replace(held);
+        let kept_divided = self.reason_divided.replace(divided);
         let made = self.one_step_held(step, number, scope, facts, closers);
         self.reason_held = kept;
+        self.reason_divided = kept_divided;
         made
     }
 

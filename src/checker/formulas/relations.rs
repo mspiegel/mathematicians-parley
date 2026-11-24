@@ -12,6 +12,7 @@ use crate::formula::node::ByShape;
 use crate::matching::Defined;
 use crate::methods::pairs::Coordinate;
 use crate::methods::{field, pairs};
+use crate::notations::DIVIDED;
 use crate::{citing, matching};
 
 /// An `algebra` claim as the method decides it: the claim and its lines
@@ -82,7 +83,7 @@ pub fn divided_by(
     let mut out = IndexMap::new();
     for step in &thm.steps {
         let whole = ClosureClaim::step(step);
-        let parts = match &step.just.head {
+        let mut parts = match &step.just.head {
             h if h.is(Method::Algebra) => {
                 divided_at(Method::Algebra, &whole, known, targets)
             }
@@ -93,6 +94,7 @@ pub fn divided_by(
             h if h.is(Method::Inequalities) => rows_divided(thm, step, known, targets),
             _ => Vec::new(),
         };
+        merge_divisors(&mut parts, walked_divisors(&whole, known, targets), known);
         if !parts.is_empty() {
             out.insert(step.just.line, parts);
         }
@@ -119,16 +121,71 @@ pub fn divided_by(
             let method = [Method::Algebra, Method::Inequalities]
                 .into_iter()
                 .find(|&m| req.is(m));
-            let Some(method) = method else {
-                continue;
+            let mut parts = match method {
+                Some(method) => divided_at(method, &at, known, targets),
+                None => Vec::new(),
             };
-            let parts = divided_at(method, &at, known, targets);
+            merge_divisors(&mut parts, walked_divisors(&at, known, targets), known);
+            if !parts.is_empty() {
+                out.insert(by.line, parts);
+            }
+        }
+    }
+    // The reason under a define that says a kind, read as the requires line
+    // it is checked as, under the step after the define (`held_by_lines`).
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let (Some(after), Some(reason)) = (thm.step_after(d.line), d.reason.as_ref())
+        else {
+            continue;
+        };
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        let Some(req) = under.requires.last() else {
+            continue;
+        };
+        if let Ok(by) = &req.by {
+            let at = ClosureClaim::requires(&under, req);
+            let parts = walked_divisors(&at, known, targets);
             if !parts.is_empty() {
                 out.insert(by.line, parts);
             }
         }
     }
     out
+}
+
+/// The divisor of each quotient in the terms a reason's claim and what it
+/// rests on write, as its check reads them, the step's own requires lines
+/// among them (`MembershipIn::stated`), each taken apart as `nonzero` finds
+/// it not zero: what the said-once walk asks of a quotient's divisor where
+/// it puts a term in a number system (`citing::reason`).
+fn walked_divisors(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Vec<NotZero> {
+    let Some(read) = at.read(known, targets, true) else {
+        return Vec::new();
+    };
+    let held = MembershipIn::of(at, &read, known);
+    let quotients: Vec<Node> = iter::once(&read.claimed)
+        .chain(&read.lines)
+        .chain(&held.stated)
+        .flat_map(|n| n.walk())
+        .filter(|n| n.spelling() == DIVIDED && n.children.len() == 2)
+        .collect();
+    nonzero_in(at, &quotients, known, targets)
+}
+
+/// `parts` with each of `more` not already among them, by its term.
+fn merge_divisors(parts: &mut Vec<NotZero>, more: Vec<NotZero>, known: &Known) {
+    for m in more {
+        if !parts.iter().any(|p| known.alike(&p.term, &m.term)) {
+            parts.push(m);
+        }
+    }
 }
 
 /// `divided_by` of one claim, by `method`, `algebra` or `inequalities`:
@@ -206,6 +263,23 @@ fn nonzero_parts(
     known: &Known,
     targets: &Targets,
 ) -> Vec<NotZero> {
+    let sides: Vec<Node> = relations
+        .iter()
+        .flat_map(relation_sides)
+        .flat_map(|side| coordinates_of(side, targets))
+        .cloned()
+        .collect();
+    nonzero_in(at, &sides, known, targets)
+}
+
+/// Each divisor of the terms `sides`, taken apart as `nonzero` finds it not
+/// zero, with how (`nonzero_parts`).
+fn nonzero_in(
+    at: &ClosureClaim,
+    sides: &[Node],
+    known: &Known,
+    targets: &Targets,
+) -> Vec<NotZero> {
     let Some(mut with_unequal) = at.read(known, targets, true) else {
         return Vec::new();
     };
@@ -213,10 +287,7 @@ fn nonzero_parts(
     let held = MembershipIn::of(at, &with_unequal, known);
     let given = held.given(targets, known);
     let mut out: Vec<NotZero> = Vec::new();
-    for relation in relations {
-        let sides = relation_sides(relation)
-            .into_iter()
-            .flat_map(|side| coordinates_of(side, targets));
+    {
         for side in sides {
             for d in methods_membership::Parts::of(side).divisors {
                 for (term, how) in methods_membership::nonzero_how(&d, &given)

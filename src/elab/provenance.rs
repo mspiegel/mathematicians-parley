@@ -930,9 +930,9 @@ impl<'a> Elaborator<'a> {
     }
 
     /// `side`, with what the line cites in hand, and the parts its lines
-    /// hold as the checker recorded them for the line's own reason
-    /// (`reason_held`), not the step's, which counts the line among its
-    /// facts.
+    /// hold and it divides by as the checker recorded them for the line's
+    /// own reason (`reason_held`, `reason_divided`), not the step's, which
+    /// counts the line among its facts.
     fn by_its_reason(
         &mut self,
         want: &Node,
@@ -950,9 +950,17 @@ impl<'a> Elaborator<'a> {
             .get(&by.line)
             .cloned()
             .unwrap_or_default();
+        let divided = self
+            .checked
+            .divided_by
+            .get(&by.line)
+            .cloned()
+            .unwrap_or_default();
         let kept = self.reason_held.replace(held);
+        let kept_divided = self.reason_divided.replace(divided);
         let made = self.by_its_reason_held(want, req, scope, facts, step);
         self.reason_held = kept;
+        self.reason_divided = kept_divided;
         made
     }
 

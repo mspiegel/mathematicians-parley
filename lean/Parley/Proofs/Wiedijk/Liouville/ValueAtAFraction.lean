@@ -85,7 +85,7 @@ theorem value_at_a_fraction (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomia
   -- 12. mun:divide-le x := 1, y := q^N·|F(p/q)|, c := q^N, from 4, 11
   have s12 : 1 / (q : ℝ) ^ N.toNat ≤ (q : ℝ) ^ N.toNat * ‖F ((p : ℂ) / (q : ℂ))‖ / (q : ℝ) ^ N.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (1 : ℝ)) (y := (q : ℝ) ^ N.toNat * ‖F ((p : ℂ) / (q : ℂ))‖) (c := (q : ℝ) ^ N.toNat) s11 (by exact_mod_cast gt_iff_lt.mp s4))
   -- 13. algebra
-  have s13 : (q : ℝ) ^ N.toNat * ‖F ((p : ℂ) / (q : ℂ))‖ / (q : ℝ) ^ N.toNat = ‖F ((p : ℂ) / (q : ℂ))‖ := by have hz1 : (q : ℝ) ^ N.toNat ≠ 0 := (by positivity); field
+  have s13 : (q : ℝ) ^ N.toNat * ‖F ((p : ℂ) / (q : ℂ))‖ / (q : ℝ) ^ N.toNat = ‖F ((p : ℂ) / (q : ℂ))‖ := by have hz1 : (q : ℝ) ^ N.toNat ≠ 0 := (by positivity); have hz2 : (q : ℝ) ≠ 0 := (by positivity); field
   -- 14. transitivity, from 12, 13
   exact LE.le.trans_eq s12 s13
 

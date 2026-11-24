@@ -11,6 +11,14 @@ step 3.1 chains B · (A / B) = A (1 sentence 0) | A < B (C1 sentence 0)
 step 3.6 chains B · (A / B) = A (1 sentence 0, turned) | B · (A / B) < B (3.5 sentence 0)
 step 1 has letters A at H1 sentence 0, B at H2 sentence 0
 step 1 divides by B a positive integer said once
+step 2 divides by B a positive integer said once
+step 3 divides by B a positive integer said once
+step 3.1 divides by B a positive integer said once
+step 3.2 divides by B a positive integer said once
+step 3.3 divides by B a positive integer said once
+step 3.4 divides by B a positive integer said once
+step 3.5 divides by B a positive integer said once
+step 3.6 divides by B a positive integer said once
 read 5: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
 read 10: A ∈ ℕ₀  as  membership:∈(name:A, number-systems:ℕ₀)  a statement
 read 11: B ∈ ℕ  as  membership:∈(name:B, number-systems:ℕ)  a statement

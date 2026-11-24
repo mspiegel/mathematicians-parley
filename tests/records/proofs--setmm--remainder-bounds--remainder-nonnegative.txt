@@ -7,7 +7,12 @@ step 1 sentence 0 part 0 adds [H3 sentence 0] weakened from Above
 step 5 sentence 0 part 0 adds [4 sentence 0]
 step 1 has letters A at H1 sentence 0, B at H2 sentence 0
 step 2 has letters A at H1 sentence 0, B at H2 sentence 0, q at D1 sentence 0
+step 2 divides by B by 0 < B
+step 3 divides by B by B ≠ 0
+step 4 divides by B by 0 < B
+a row of step 4 divides by B by 0 < B
 a row of step 4 divides by B by B ≠ 0
+a row of step 1 divides by B by B ≠ 0
 read 8: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
 read 10: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
 read 11: B ∈ ℝ  as  membership:∈(name:B, number-systems:ℝ)  a statement

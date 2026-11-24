@@ -201,7 +201,7 @@ theorem liouville (F : ℂ → ℂ) (hH2 : F ∈ LeanBridges.Polynomials.integer
         have s26_3_4_8 : 1 / (q : ℝ) ^ N.toNat / K ≤ K * abs (α - (p : ℝ) / (q : ℝ)) / K := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 1 / (q : ℝ) ^ N.toNat) (y := K * abs (α - (p : ℝ) / (q : ℝ))) (c := K) s26_3_4_7 s16)
         -- 26.3.4.9. algebra
         have r591_1 : K ≠ 0 := ne_of_gt (by linarith only [s16])
-        have s26_3_4_9 : K * abs (α - (p : ℝ) / (q : ℝ)) / K = abs (α - (p : ℝ) / (q : ℝ)) := by have hz1 : K ≠ 0 := r591_1; field
+        have s26_3_4_9 : K * abs (α - (p : ℝ) / (q : ℝ)) / K = abs (α - (p : ℝ) / (q : ℝ)) := by have hz1 : K ≠ 0 := r591_1; have hz2 : (q : ℝ) ≠ 0 := (by positivity); field
         -- 26.3.4.10. mun:divide-le x := c, y := 1/(2K), c := q^N, from 20, 24, 26.2
         have s26_3_4_10 : c / (q : ℝ) ^ N.toNat ≤ 1 / (2 * K) / (q : ℝ) ^ N.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := c) (y := 1 / (2 * K)) (c := (q : ℝ) ^ N.toNat) s24b (by exact_mod_cast gt_iff_lt.mp s26_2))
         -- 26.3.4.11. algebra

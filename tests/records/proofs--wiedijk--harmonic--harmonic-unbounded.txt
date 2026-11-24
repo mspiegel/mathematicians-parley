@@ -38,6 +38,7 @@ step 2 has letters M at H1 sentence 0
 step 2.5 has letters M at H1 sentence 0, m at K sentence 0
 step 3 has letters M at H1 sentence 0
 step 4 has letters M at H1 sentence 0, N at 3 sentence 0
+step 1.1 divides by k a positive integer said once
 read 115: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
 read 119: M ∈ ℝ  as  membership:∈(name:M, number-systems:ℝ)  a statement
 read 120: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
