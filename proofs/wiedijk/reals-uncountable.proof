@@ -76,7 +76,6 @@ theorem digit-step-divides
 
 4.  10 divides (t + 1) − s(t)
     substitute s(t) = (t + 1) mod 10 (line 1) into line 3
-    requires s(t) ∈ ℤ: membership, from D2
 
 theorem digit-step
   note        Changing a digit with s always changes it: if s(t) were t, 10

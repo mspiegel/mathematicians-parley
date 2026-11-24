@@ -469,7 +469,7 @@ pub(super) fn cases() -> Vec<Case> {
         case(
             "cite an item whose import is taken away",
             vec![edit(
-                "proofs/wiedijk/harmonic.proof",
+                "proofs/wiedijk/am-gm.proof",
                 Some("import mundane theorem    stdlib/sums/sum-real\n".to_string()),
                 String::new(),
             )],

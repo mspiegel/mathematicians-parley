@@ -61,8 +61,8 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
   -- 6. proof
   -- what this block shows, Lean's types give
   -- 7. mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 5, 6
-  have r41_1 : (1 : ℤ) ≤ 2 ^ j.toNat + 1 := by linarith only [s2]
-  have s7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_split (t := (fun k : ℤ => 1 / (k : ℚ))) (a := (1 : ℤ)) (b := (2 ^ j.toNat : ℤ)) (c := (2 ^ (j + 1).toNat : ℤ)) r41_1 s5)
+  have r40_1 : (1 : ℤ) ≤ 2 ^ j.toNat + 1 := by linarith only [s2]
+  have s7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_split (t := (fun k : ℤ => 1 / (k : ℚ))) (a := (1 : ℤ)) (b := (2 ^ j.toNat : ℤ)) (c := (2 ^ (j + 1).toNat : ℤ)) r40_1 s5)
   -- 8. inequalities, from 2
   have s8 : (0 : ℤ) < 2 ^ j.toNat + 1 := by linarith only [s2]
   -- 9. proof
@@ -75,9 +75,9 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
     -- 9.2. transitivity, from 8, 9.1
     have s9_2 : k > 0 := by exact lt_of_lt_of_le s8 s9_1a
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
-    have r58_1 : k > 0 := by exact s9_2
-    have r58_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by linarith only [s3]
-    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r58_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r58_2))).mp (by exact_mod_cast s9_1b)
+    have r57_1 : k > 0 := by exact s9_2
+    have r57_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by linarith only [s3]
+    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_2))).mp (by exact_mod_cast s9_1b)
   -- 10. proof
   -- what this block shows, Lean's types give
   -- 11. mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
@@ -87,9 +87,9 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
   -- 13. transitivity, from 12, 1
   have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact LE.le.trans_eq s12 s1.symm
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
-  have r87_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact s13
+  have r86_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact s13
   have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by
-    have hI : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r87_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ)))); push_cast at h ⊢; exact h)
+    have hI : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r86_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ)))); push_cast at h ⊢; exact h)
     exact hI
   -- 15. calculation
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by

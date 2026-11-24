@@ -74,7 +74,6 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_8b : (Int.gcd (a % b) b : ℤ) ∣ a % b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a % b) s6_7 (b := b) hH2)
       have s6_8c : (Int.gcd (a % b) b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a % b) s6_7 (b := b) hH2)
       -- 6.9. substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
-      have r80_1 : 0 < a % b := by exact s6_7
       have s6_9a : 0 < (Int.gcd a b : ℤ) := Eq.subst (motive := (fun t : ℤ => 0 < t)) s1 s6_8a
       have s6_9b : (Int.gcd a b : ℤ) ∣ a % b := Eq.subst (motive := (fun t : ℤ => t ∣ a % b)) s1 s6_8b
       have s6_9c : (Int.gcd a b : ℤ) ∣ b := Eq.subst (motive := (fun t : ℤ => t ∣ b)) s1 s6_8c

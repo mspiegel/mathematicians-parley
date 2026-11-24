@@ -9,12 +9,13 @@
 //! table: an operation `rules::WHOLE` names by its target, and a sum over a
 //! range by its term at every index.
 
+use std::cell::RefCell;
+
 use indexmap::IndexMap;
 
 use super::terms::Targets;
 use crate::citing::{
-    index_system, nonzero_said_once, range_system, sum_said_once, within, Introduced,
-    NonzeroHow,
+    index_system, nonzero_said_once, range_system, Introduced, NonzeroHow, OnceReason,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
@@ -63,32 +64,396 @@ pub struct Range {
 /// saying t = u and u = t end.
 const CARRIED: usize = 3;
 
-/// Whether `term` is in `system` by what `facts` give.
+/// How the page says a term is in a number system (`shown`): the one rule
+/// every context asks a membership by (`READERS.md`, membership said once;
+/// `SYNTAX.md`), as a derivation a backend proves the membership by.
+#[derive(Clone, Debug)]
+pub enum Shown {
+    /// By the said-once walk (`citing::reason`): what the page says once,
+    /// and what +, −, ·, /, powers and the rest build from it. Each part the
+    /// walk took as it stands, a `Stated` or `Sum` leaf of `reason`, is in
+    /// `taken` with how it is shown, in the order the walk took them.
+    Walked {
+        reason: OnceReason,
+        taken: Vec<ShownPart>,
+    },
+    /// A cited line states it, of a system inside the one asked.
+    Stated { line: Node },
+    /// An operation the closure table says gives a whole number
+    /// (`rules::WHOLE`, by the term's target): x mod n in ℕ₀ of x ∈ ℤ and
+    /// n ∈ ℕ, its two parts in the systems the row asks.
+    Whole { op: String, parts: Vec<ShownPart> },
+    /// A sum over a range in ℝ or ℂ: by a cited line saying its term at
+    /// every point of a set holding the range, or by its term at the index,
+    /// the index in the system its range lies in.
+    Summed {
+        pointwise: Option<Node>,
+        body: Option<Box<ShownPart>>,
+    },
+    /// A power a^e, a in the system and e in ℕ₀, where the walk does not
+    /// take the exponent: 2^j ∈ ℤ where a cited line says j ∈ ℕ₀.
+    Powered {
+        base: Box<ShownPart>,
+        exponent: Box<ShownPart>,
+    },
+    /// A function's value f(x), by the cited type `typed`, f : D → E, E in
+    /// the system, and x in D.
+    Valued { typed: Node, at: Box<InDomain> },
+    /// A term by cases, each of its values in the system.
+    Cased {
+        value: Box<ShownPart>,
+        otherwise: Box<ShownPart>,
+    },
+    /// A cited equation puts it beside `other`, which is in the system as
+    /// `other_shown` says; `term_left` where the term is the left side.
+    Beside {
+        equation: Node,
+        other: Node,
+        term_left: bool,
+        other_shown: Box<Shown>,
+    },
+}
+
+/// A term with how the page says it is in `system`.
+#[derive(Clone, Debug)]
+pub struct ShownPart {
+    pub term: Node,
+    pub system: System,
+    pub shown: Shown,
+}
+
+/// How a function's argument is in the domain its type writes
+/// (`Shown::Valued`).
+#[derive(Clone, Debug)]
+pub enum InDomain {
+    /// A domain that is a number system, the argument in it as shown.
+    Within(Box<ShownPart>),
+    /// The argument is a letter running over the range the domain writes:
+    /// a sum's index, or a letter a range introduces.
+    Ranged,
+    /// A cited line says the argument is in the domain.
+    Stated { line: Node },
+}
+
+/// How the page says `term` is in `system` by what `facts` give, the one
+/// rule every context asks a membership by; None where it does not. The
+/// term is read with its identity elements dropped (`SYNTAX.md`, an
+/// identity element goes without saying), so 2^(d·1) is the power to the
+/// letter d.
+///
+/// The said-once walk comes first, with only stated lines for the parts it
+/// takes as they stand, since a line cited only for what is said once does
+/// no work. Otherwise the walk takes each such part by any way the page
+/// shows one (`otherwise`): a stated line, the closure, or an equation.
+pub fn shown(term: &Node, system: System, facts: &Facts) -> Option<Shown> {
+    let term = &matching::bare(term, facts.ctx);
+    shown_at(term, system, facts, CARRIED)
+}
+
+/// `shown`, an equation carrying a term on at most `depth` times.
+fn shown_at(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
+    walked(term, system, facts, depth, Leaves::Stated)
+        .or_else(|| walked(term, system, facts, depth, Leaves::Any))
+}
+
+/// What the walk takes a part it does not take apart by (`walked`).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Leaves {
+    /// A cited line stating it.
+    Stated,
+    /// Any way the page shows a part (`otherwise`).
+    Any,
+}
+
+/// `Shown::Walked` of `term`, each part the walk takes as it stands taken
+/// as `leaves` says; None where the walk does not reach it.
+fn walked(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+    leaves: Leaves,
+) -> Option<Shown> {
+    let taken: RefCell<Vec<ShownPart>> = RefCell::new(Vec::new());
+    let nonzero = |d: &Node| nonzero(d, facts);
+    let said = |t: &Node, s: System| -> Option<OnceReason> {
+        let shown = match leaves {
+            Leaves::Stated => {
+                stated_by(t, s, facts).map(|line| Shown::Stated { line: line.clone() })
+            }
+            Leaves::Any => otherwise(t, s, facts, depth),
+        }?;
+        let reason = match shown {
+            Shown::Summed { .. } => OnceReason::Sum,
+            _ => OnceReason::Stated,
+        };
+        taken.borrow_mut().push(ShownPart {
+            term: t.clone(),
+            system: s,
+            shown,
+        });
+        Some(reason)
+    };
+    let reason = citing::reason_within(term, system, &facts.letters, &nonzero, &said)?;
+    Some(Shown::Walked {
+        reason,
+        taken: taken.into_inner(),
+    })
+}
+
+/// How a part the walk does not take apart is in `system`: a cited line
+/// states it; the closure puts it there, by an operation the closure table
+/// names, a sum, a power, a function's value or a term by cases; or a cited
+/// equation puts it beside a term that is. None where none does.
+fn otherwise(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    if let Some(line) = stated_by(term, system, facts) {
+        return Some(Shown::Stated { line: line.clone() });
+    }
+    closed(term, system, facts, depth).or_else(|| beside(term, system, facts, depth))
+}
+
+/// `term` in `system` by a row of the closure; None where none puts it
+/// there.
+fn closed(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
+    whole_shown(term, system, facts, depth)
+        .or_else(|| summed_shown(term, system, facts, depth))
+        .or_else(|| powered_shown(term, system, facts, depth))
+        .or_else(|| valued_shown(term, system, facts, depth))
+        .or_else(|| cased_shown(term, system, facts, depth))
+}
+
+/// `term` in `system` beside the other side of the first cited equation
+/// whose other side is, carried at most `depth` times.
+fn beside(term: &Node, system: System, facts: &Facts, depth: usize) -> Option<Shown> {
+    let depth = depth.checked_sub(1)?;
+    besides_by(term, facts).into_iter().find_map(|b| {
+        let other_shown = shown_at(b.other, system, facts, depth)?;
+        Some(Shown::Beside {
+            equation: b.equation.clone(),
+            other: b.other.clone(),
+            term_left: b.term_left,
+            other_shown: Box::new(other_shown),
+        })
+    })
+}
+
+/// `term` in `system` as a `ShownPart`; None where it is not.
+fn part_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<ShownPart> {
+    Some(ShownPart {
+        term: term.clone(),
+        system,
+        shown: shown_at(term, system, facts, depth)?,
+    })
+}
+
+/// A term whose operation the closure table says gives a whole number
+/// (`rules::WHOLE`), in a system holding ℕ₀, its parts in what the table
+/// asks. The operation is read off the term's target, a notation's or a
+/// library function's (`Targets::operation`).
+fn whole_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    if !System::N0.within(system) {
+        return None;
+    }
+    let op = facts.targets.operation(term)?;
+    let w = rules::WHOLE.iter().find(|w| w.op == op.label)?;
+    let ([left, right], Some(left_in), Some(right_in)) = (
+        op.parts.as_slice(),
+        System::of_label(w.left.1),
+        System::of_label(w.right.1),
+    ) else {
+        return None;
+    };
+    Some(Shown::Whole {
+        op: w.op.to_string(),
+        parts: vec![
+            part_shown(left, left_in, facts, depth)?,
+            part_shown(right, right_in, facts, depth)?,
+        ],
+    })
+}
+
+/// A term by cases, what a define by cases writes out to, in a system
+/// where each of its values is: s(x) ∈ ℕ₀ where s is 0 or 1.
+fn cased_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    let (BY_CASES, [value, _, otherwise]) = (term.notation(), term.children.as_slice())
+    else {
+        return None;
+    };
+    Some(Shown::Cased {
+        value: Box::new(part_shown(value, system, facts, depth)?),
+        otherwise: Box::new(part_shown(otherwise, system, facts, depth)?),
+    })
+}
+
+/// A power a^e in a system the closure table closes under powers, a in it
+/// and e in ℕ₀: 2^j ∈ ℤ where j ∈ ℕ₀.
+fn powered_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    let (POWER | SUPERSCRIPT, [base, exponent]) =
+        (term.notation(), term.children.as_slice())
+    else {
+        return None;
+    };
+    rules::closed("cexp", system.label())?;
+    Some(Shown::Powered {
+        exponent: Box::new(part_shown(exponent, System::N0, facts, depth)?),
+        base: Box::new(part_shown(base, system, facts, depth)?),
+    })
+}
+
+/// A function's value f(x) in a system holding E, where a cited type says
+/// `f : D → E` and x is in D.
+fn valued_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    let (APPLICATION, [f, at]) = (term.notation(), term.children.as_slice()) else {
+        return None;
+    };
+    facts.typed.iter().find_map(|t| {
+        let [g, domain, codomain] = t.children.as_slice() else {
+            return None;
+        };
+        if !same(g, f, facts.ctx)
+            || !codomain_system(codomain).is_some_and(|s| s.within(system))
+        {
+            return None;
+        }
+        Some(Shown::Valued {
+            typed: t.clone(),
+            at: Box::new(in_domain_shown(at, domain, facts, depth)?),
+        })
+    })
+}
+
+/// How `x` is in the set `domain` a function is typed over: in a number
+/// system as shown, by running over the range the domain writes, or by a
+/// cited line saying so.
+fn in_domain_shown(
+    x: &Node,
+    domain: &Node,
+    facts: &Facts,
+    depth: usize,
+) -> Option<InDomain> {
+    if domain.notation() == NUMBER_SYSTEMS {
+        let s = System::of_sign(&domain.text)?;
+        return Some(InDomain::Within(Box::new(part_shown(x, s, facts, depth)?)));
+    }
+    let runs_over = x.is_name()
+        && facts.ranged.get(x.text.as_str()).is_some_and(|r| {
+            matches!(domain.children.as_slice(), [a, b]
+                if domain.notation() == INTEGER_RANGE
+                    && same(a, &r.start, facts.ctx)
+                    && same(b, &r.end, facts.ctx))
+        });
+    if runs_over {
+        return Some(InDomain::Ranged);
+    }
+    facts
+        .facts
+        .iter()
+        .find(|f| {
+            f.notation() == MEMBERSHIP
+                && matches!(f.children.as_slice(), [y, set]
+                    if same(y, x, facts.ctx) && same(set, domain, facts.ctx))
+        })
+        .map(|line| InDomain::Stated { line: line.clone() })
+}
+
+/// A sum over a range in ℝ or ℂ, its term in that system at every index:
+/// the index is in the system its range lies in (`rules::RANGE_WITHIN`), and
+/// a term dividing by something that holds the index is one a fact says at
+/// every point of a set holding the range (`SYNTAX.md`). The function types
+/// in scope say what a type says of the term at each index.
+fn summed_shown(
+    term: &Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<Shown> {
+    let sum = Summed::of(term)?;
+    if !matches!(system, System::R | System::C) {
+        return None;
+    }
+    // A line saying the term at every index of the sum says the sum is a
+    // number, whatever the term is; a term dividing by the index is so only
+    // by such a line, since nothing else says its divisor is not zero.
+    if let Some(line) = facts
+        .facts
+        .iter()
+        .find(|f| said_pointwise(f, &sum, system, facts.ctx))
+    {
+        return Some(Shown::Summed {
+            pointwise: Some(line.clone()),
+            body: None,
+        });
+    }
+    let mut letters = facts.letters.clone();
+    if let Some(inside) = index_system(sum.start) {
+        letters.insert(sum.index.to_string(), inside);
+    }
+    if divides_by(sum.body, sum.index, &letters) {
+        return None;
+    }
+    let mut ranged = facts.ranged.clone();
+    ranged.insert(
+        sum.index.to_string(),
+        Range {
+            start: sum.start.clone(),
+            end: sum.end.clone(),
+        },
+    );
+    let typed: Vec<Node> = facts.typed.iter().chain(facts.in_sums).cloned().collect();
+    let at = Facts {
+        facts: facts.facts,
+        letters,
+        ranged,
+        typed: &typed,
+        in_sums: facts.in_sums,
+        targets: facts.targets,
+        ctx: facts.ctx,
+    };
+    Some(Shown::Summed {
+        pointwise: None,
+        body: Some(Box::new(part_shown(sum.body, system, &at, depth)?)),
+    })
+}
+
+/// Whether `term` is in `system` by what `facts` give (`shown`).
 pub fn holds(term: &Node, system: System, facts: &Facts) -> bool {
-    member(term, system, facts, CARRIED)
+    shown(term, system, facts).is_some()
 }
 
 /// Whether the page says `term` is in `system`, which a method's atoms ask
-/// of it (`READERS.md`, membership is said once): by the walk, or by a fact
-/// stating the membership of what the walk does not take apart. A power to
-/// an exponent other than a numeral or a letter in ℕ or ℕ₀, a function's
-/// value or a sum is not reached from its parts, as `holds` reaches it; a
-/// line says it. The term is read with
-/// its identity elements dropped (`SYNTAX.md`, an identity element goes
-/// without saying), so 2^(d·1) is the power to the letter d.
+/// of it: the one rule (`shown`).
 pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
-    let term = &matching::bare(term, facts.ctx);
-    let nonzero = |d: &Node| nonzero(d, facts);
-    let stated = |t: &Node, s: System| {
-        sum_said_once(t, s, &facts.letters, facts.in_sums, facts.ctx)
-            || stated_in(t, s, facts)
-    };
-    within(term, system, &facts.letters, &nonzero, &stated)
-}
-
-/// Whether a fact states `term` is in a number system inside `system`.
-fn stated_in(term: &Node, system: System, facts: &Facts) -> bool {
-    stated_by(term, system, facts).is_some()
+    holds(term, system, facts)
 }
 
 /// The fact stating `term` is in a number system inside `system`; None
@@ -252,27 +617,46 @@ pub fn atom_held_by<'f>(
     system: System,
     facts: &'f Facts,
 ) -> Option<Held<'f>> {
-    if said(term, system, facts) {
+    let shown = shown(term, system, facts)?;
+    let Some(other) = beside_other(&shown) else {
         return Some(Held::Said);
-    }
-    besides_by(term, facts)
+    };
+    let b = besides_by(term, facts)
         .into_iter()
-        .find(|b| holds(b.other, system, facts))
-        .map(|b| Held::Beside(with_other_held(term, b, system, facts, CARRIED)))
+        .find(|b| same(b.other, other, facts.ctx))?;
+    Some(Held::Beside(with_other_held(
+        term, b, system, facts, CARRIED,
+    )))
+}
+
+/// The other side of the equation `shown` puts the term itself beside,
+/// whole or as the one part the walk took it as; None where it is shown
+/// otherwise.
+fn beside_other(shown: &Shown) -> Option<&Node> {
+    match shown {
+        Shown::Beside { other, .. } => Some(other),
+        Shown::Walked {
+            reason: OnceReason::Stated,
+            taken,
+        } => match taken.as_slice() {
+            [ShownPart {
+                shown: Shown::Beside { other, .. },
+                ..
+            }] => Some(other),
+            _ => None,
+        },
+        _ => None,
+    }
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts
-/// (`SYNTAX.md`): said, as a method's atoms are, or a function's value at a
-/// point of its domain by a type among them. It builds nothing from parts
-/// beyond what is said once, which is the `membership` method's to do.
+/// (`SYNTAX.md`): the one rule (`shown`).
 pub fn read_off(term: &Node, system: System, facts: &Facts) -> bool {
-    said(term, system, facts) || valued(term, system, facts, 0)
+    holds(term, system, facts)
 }
 
 fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let nonzero = |d: &Node| nonzero(d, facts);
-    let said = |t: &Node, s: System| said_otherwise(t, s, facts, depth);
-    within(term, system, &facts.letters, &nonzero, &said)
+    shown_at(term, system, facts, depth).is_some()
 }
 
 /// Whether two terms are one, each read in its standard spelling as
@@ -393,14 +777,6 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
         .or_else(|| Some(divisor.clone()))
 }
 
-/// Whether a part the walk does not take apart is in `system`: a fact
-/// says so, of a system inside it; a cited equation puts it beside a term
-/// that is; or the closure table puts it there, by its operation, as a sum
-/// over a range, a power, a function's value or a term by cases.
-fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    held_at(term, system, facts, depth).is_some()
-}
-
 /// How a part the walk does not take apart is in its system
 /// (`held_otherwise`), so that a backend proves it the way the check found
 /// it.
@@ -447,42 +823,7 @@ fn held_at<'f>(
             )));
         }
     }
-    let closed = whole(term, system, facts, depth)
-        || summed(term, system, facts, depth)
-        || powered(term, system, facts, depth)
-        || valued(term, system, facts, depth)
-        || cased(term, system, facts, depth);
-    closed.then_some(HeldHow::Closed)
-}
-
-/// A term by cases, what a define by cases writes out to, in a system
-/// where each of its values is: s(x) ∈ ℕ₀ where s is 0 or 1.
-fn cased(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let (BY_CASES, [value, _, otherwise]) = (term.notation(), term.children.as_slice())
-    else {
-        return false;
-    };
-    member(value, system, facts, depth) && member(otherwise, system, facts, depth)
-}
-
-/// A power a^e in a system the closure table closes under powers, a in it
-/// and e in ℕ₀: 2^j ∈ ℤ where j ∈ ℕ₀. A power to a numeral is the walk's.
-fn powered(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let (POWER | SUPERSCRIPT, [base, exponent]) =
-        (term.notation(), term.children.as_slice())
-    else {
-        return false;
-    };
-    rules::closed("cexp", system.label()).is_some()
-        && member(exponent, System::N0, facts, depth)
-        && member(base, system, facts, depth)
-}
-
-/// A function's value f(x) in a system holding E, where a type in scope
-/// says `f : D → E` and x is in D: by a number system D holds, by a range
-/// D x runs over, or by a fact putting x in D.
-fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    typed_by(term, system, facts, depth).is_some()
+    closed(term, system, facts, depth).map(|_| HeldHow::Closed)
 }
 
 /// The type among `facts`, `f : X → Y`, that puts `term`, a function's
@@ -491,15 +832,6 @@ pub fn value_typed_by<'f>(
     term: &Node,
     system: System,
     facts: &'f Facts,
-) -> Option<&'f Node> {
-    typed_by(term, system, facts, 0)
-}
-
-fn typed_by<'f>(
-    term: &Node,
-    system: System,
-    facts: &'f Facts,
-    depth: usize,
 ) -> Option<&'f Node> {
     let (APPLICATION, [f, at]) = (term.notation(), term.children.as_slice()) else {
         return None;
@@ -510,7 +842,7 @@ fn typed_by<'f>(
         };
         same(g, f, facts.ctx)
             && codomain_system(codomain).is_some_and(|s| s.within(system))
-            && in_domain(at, domain, facts, depth)
+            && in_domain_shown(at, domain, facts, 0).is_some()
     })
 }
 
@@ -523,35 +855,6 @@ fn codomain_system(codomain: &Node) -> Option<System> {
         INTEGER_RANGE => range_system(codomain),
         _ => None,
     }
-}
-
-/// Whether `x` is in the set `domain` a function is typed over.
-fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
-    if domain.notation() == NUMBER_SYSTEMS {
-        return System::of_sign(&domain.text)
-            .is_some_and(|s| member(x, s, facts, depth));
-    }
-    let runs_over = x.is_name()
-        && facts.ranged.get(x.text.as_str()).is_some_and(|r| {
-            matches!(domain.children.as_slice(), [a, b]
-                if domain.notation() == INTEGER_RANGE
-                    && same(a, &r.start, facts.ctx)
-                    && same(b, &r.end, facts.ctx))
-        });
-    runs_over
-        || facts.facts.iter().any(|f| {
-            f.notation() == MEMBERSHIP
-                && matches!(f.children.as_slice(), [y, set]
-                    if same(y, x, facts.ctx) && same(set, domain, facts.ctx))
-        })
-}
-
-/// A term whose operation the closure table says gives a whole number
-/// (`rules::WHOLE`), in a system holding ℕ₀, its parts in what the table
-/// asks. The operation is read off the term's target, a notation's or a
-/// library function's (`Targets::operation`).
-fn whole(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    whole_by(term, system, facts, depth).is_some()
 }
 
 /// The row of the closure table that puts `term` in `system`
@@ -583,62 +886,6 @@ fn whole_by<'n>(
         && member(left, left_in, facts, depth)
         && member(right, right_in, facts, depth))
     .then_some((w, [*left, *right]))
-}
-
-/// A sum over a range in ℝ or ℂ, its term in that system at every index:
-/// the index is in the system its range lies in (`rules::RANGE_WITHIN`), and
-/// a term dividing by something that holds the index is one a fact says at
-/// every point of a set holding the range (`SYNTAX.md`).
-fn summed(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let (SUM, [index, start, end, body]) = (term.notation(), term.children.as_slice())
-    else {
-        return false;
-    };
-    if !matches!(system, System::R | System::C) || !index.is_name() {
-        return false;
-    }
-    let mut letters = facts.letters.clone();
-    if let Some(inside) = index_system(start) {
-        letters.insert(index.text.to_string(), inside);
-    }
-    // A line saying the term at every index of the sum says the sum is a
-    // number, whatever the term is; a term dividing by the index is so only
-    // by such a line, since nothing else says its divisor is not zero.
-    let sum = Summed {
-        index: &index.text,
-        body,
-        start,
-        end,
-    };
-    if facts
-        .facts
-        .iter()
-        .any(|f| said_pointwise(f, &sum, system, facts.ctx))
-    {
-        return true;
-    }
-    if divides_by(body, &index.text, &letters) {
-        return false;
-    }
-    let mut ranged = facts.ranged.clone();
-    ranged.insert(
-        index.text.to_string(),
-        Range {
-            start: start.clone(),
-            end: end.clone(),
-        },
-    );
-    let typed: Vec<Node> = facts.typed.iter().chain(facts.in_sums).cloned().collect();
-    let at = Facts {
-        facts: facts.facts,
-        letters,
-        ranged,
-        typed: &typed,
-        in_sums: facts.in_sums,
-        targets: facts.targets,
-        ctx: facts.ctx,
-    };
-    member(body, system, &at, depth)
 }
 
 /// The atoms of a term and the divisors it writes, as `algebra` reads it

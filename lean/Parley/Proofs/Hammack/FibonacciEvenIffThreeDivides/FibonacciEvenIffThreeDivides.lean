@@ -201,7 +201,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.6. instantiate k := q in line 4, from 5.13
       have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.7. instantiate k := 3q + 1 in line 2
-      have r277_1 : 0 ≤ 3 * q + 1 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
+      have r274_1 : 0 ≤ 3 * q + 1 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
       -- 5.14.8. substitute n = 3q + 1 (line 5.14.5) into P1
       have s5_14_8 : Even (F (3 * q + 1)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_14_5 hP1
       -- 5.14.9. mun:not-both n := F(3q + 1), from 5.14.8
@@ -215,7 +215,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.12. instantiate k := q in line 4, from 5.13
       have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.13. instantiate k := 3q + 2 in line 2
-      have r301_1 : 0 ≤ 3 * q + 2 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
+      have r298_1 : 0 ≤ 3 * q + 2 := add_nonneg (mul_nonneg (by norm_num) (le_trans (by norm_num) s5_12)) (by norm_num)
       -- 5.14.14. substitute n = 3q + 2 (line 5.14.11) into P1
       have s5_14_14 : Even (F (3 * q + 2)) := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_14_11 hP1
       -- 5.14.15. mun:not-both n := F(3q + 2), from 5.14.14

@@ -6,7 +6,7 @@ block of 2: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
   part 1 owes (m + 1) / 2 ≤ Σ(k = 1 to 2^(m + 1)) 1 / k
 step 2.5 cites proofs/wiedijk/harmonic/harmonic-block group 0; j := m; concludes 0 AsWritten; from no line; supplied by 1.1 once K sentence 0; letters j cn0 from cn0; facing none; met as written
 step 3 cites stdlib/numbers/archimedean-natural group 0; x := 2 · M; concludes ; obtains sentence 0; from no line; supplied by 1.1 walked Built([Numeral, Letter]); letters x cr from cr; facing ; met 
-requires line on line 139 cites stdlib/sums/sum-single group 0; a := 1, t := property-of(1 / k); concludes 0 AsWritten; from no line; supplied by 1.1 walked Numeral, 2.1 unstated; letters a cz from cn, t none from none; facing straight; met renamed and identities dropped
+requires line on line 135 cites stdlib/sums/sum-single group 0; a := 1, t := property-of(1 / k); concludes 0 AsWritten; from no line; supplied by 1.1 walked Numeral, 2.1 unstated; letters a cz from cn, t none from none; facing straight; met renamed and identities dropped
 step 2.2 says once Σ(k = 1 to 2^0) 1 / k is a number
 step 2.4 says once Σ(k = 1 to 2^0) 1 / k is a number
 step 2.4 says once Σ(k = 1 to 2^0) 1 / k is a number
@@ -39,43 +39,43 @@ step 2.5 has letters M at H1 sentence 0, m at K sentence 0
 step 3 has letters M at H1 sentence 0
 step 4 has letters M at H1 sentence 0, N at 3 sentence 0
 step 1.1 divides by k a positive integer said once
-read 115: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
-read 119: M ∈ ℝ  as  membership:∈(name:M, number-systems:ℝ)  a statement
-read 120: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
-read 122: For all k ∈ ℕ, 1/k ∈ ℝ  as  for-all:forall∈,(name:k, number-systems:ℕ, membership:∈(multiplicative:/(numeral:1, name:k), number-systems:ℝ))  a statement
-read 124: k ∈ ℕ  as  membership:∈(name:k, number-systems:ℕ)  a statement
-read 126: 1/k ∈ ℝ  as  membership:∈(multiplicative:/(numeral:1, name:k), number-systems:ℝ)  a statement
-read 129: For all m ∈ ℕ₀, Σ(k = 1 to 2^m) 1/k ≥ m/2  as  for-all:forall∈,(name:m, number-systems:ℕ₀, order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:m, numeral:2)))  a statement
-read 130: 0  as  numeral:0  a number
-read 133: 2^0 = 1  as  equality:=(power:^(numeral:2, numeral:0), numeral:1)  a statement
-read 136: Σ(k = 1 to 2^0) 1/k = 1  as  equality:=(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), numeral:1)  a statement
-read 138: Σ(k = 1 to 1) 1/k  as  sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k))  a number
-read 138: Σ(k = 1 to 2^0) 1/k  as  sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k))  a number
-read 138: Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k  as  equality:=(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k)))  a statement
-read 139: 1  as  numeral:1  a number
-read 139: Σ(k = 1 to 1) 1/k = 1  as  equality:=(sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k)), numeral:1)  a statement
-read 141: 1 ≥ 0/2  as  order:≥(numeral:1, multiplicative:/(numeral:0, numeral:2))  a statement
-read 144: Σ(k = 1 to 2^0) 1/k ≥ 0/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:0, numeral:2))  a statement
-read 148: m ∈ ℕ₀  as  membership:∈(name:m, number-systems:ℕ₀)  a statement
-read 151: Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, additive:+(name:m, numeral:1)), multiplicative:/(numeral:1, name:k)), additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)))  a statement
-read 152: m  as  name:m  a number
-read 154: Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2  as  order:≥(additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
-read 156: Σ(k = 1 to 2^m) 1/k ≥ m/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:m, numeral:2))  a statement
-read 157: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
-read 157: Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2  as  order:≥(additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
-read 159: Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, additive:+(name:m, numeral:1)), multiplicative:/(numeral:1, name:k)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
-read 162: N > 2M  as  order:>(name:N, multiplicative:·(numeral:2, name:M))  a statement
-read 162: N ∈ ℕ  as  membership:∈(name:N, number-systems:ℕ)  a statement
-read 163: 2M  as  multiplicative:·(numeral:2, name:M)  a number
-read 163: N  as  name:N  a number
-read 165: Σ(k = 1 to 2^N) 1/k ≥ N/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:N), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:N, numeral:2))  a statement
-read 166: N  as  name:N  a number
-read 168: N/2 > M  as  order:>(multiplicative:/(name:N, numeral:2), name:M)  a statement
-read 170: N > 2M  as  order:>(name:N, multiplicative:·(numeral:2, name:M))  a statement
-read 171: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
-read 171: N/2 > M  as  order:>(multiplicative:/(name:N, numeral:2), name:M)  a statement
-read 173: Σ(k = 1 to 2^N) 1/k > M  as  order:>(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:N), multiplicative:/(numeral:1, name:k)), name:M)  a statement
-read 176: There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
+read 111: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
+read 115: M ∈ ℝ  as  membership:∈(name:M, number-systems:ℝ)  a statement
+read 116: there is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
+read 118: For all k ∈ ℕ, 1/k ∈ ℝ  as  for-all:forall∈,(name:k, number-systems:ℕ, membership:∈(multiplicative:/(numeral:1, name:k), number-systems:ℝ))  a statement
+read 120: k ∈ ℕ  as  membership:∈(name:k, number-systems:ℕ)  a statement
+read 122: 1/k ∈ ℝ  as  membership:∈(multiplicative:/(numeral:1, name:k), number-systems:ℝ)  a statement
+read 125: For all m ∈ ℕ₀, Σ(k = 1 to 2^m) 1/k ≥ m/2  as  for-all:forall∈,(name:m, number-systems:ℕ₀, order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:m, numeral:2)))  a statement
+read 126: 0  as  numeral:0  a number
+read 129: 2^0 = 1  as  equality:=(power:^(numeral:2, numeral:0), numeral:1)  a statement
+read 132: Σ(k = 1 to 2^0) 1/k = 1  as  equality:=(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), numeral:1)  a statement
+read 134: Σ(k = 1 to 1) 1/k  as  sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k))  a number
+read 134: Σ(k = 1 to 2^0) 1/k  as  sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k))  a number
+read 134: Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k  as  equality:=(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k)))  a statement
+read 135: 1  as  numeral:1  a number
+read 135: Σ(k = 1 to 1) 1/k = 1  as  equality:=(sum:Σ(=to)(name:k, numeral:1, numeral:1, multiplicative:/(numeral:1, name:k)), numeral:1)  a statement
+read 137: 1 ≥ 0/2  as  order:≥(numeral:1, multiplicative:/(numeral:0, numeral:2))  a statement
+read 140: Σ(k = 1 to 2^0) 1/k ≥ 0/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, numeral:0), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:0, numeral:2))  a statement
+read 144: m ∈ ℕ₀  as  membership:∈(name:m, number-systems:ℕ₀)  a statement
+read 147: Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, additive:+(name:m, numeral:1)), multiplicative:/(numeral:1, name:k)), additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)))  a statement
+read 148: m  as  name:m  a number
+read 150: Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2  as  order:≥(additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
+read 152: Σ(k = 1 to 2^m) 1/k ≥ m/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:m, numeral:2))  a statement
+read 153: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
+read 153: Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2  as  order:≥(additive:+(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:m), multiplicative:/(numeral:1, name:k)), multiplicative:/(numeral:1, numeral:2)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
+read 155: Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, additive:+(name:m, numeral:1)), multiplicative:/(numeral:1, name:k)), multiplicative:/(additive:+(name:m, numeral:1), numeral:2))  a statement
+read 158: N > 2M  as  order:>(name:N, multiplicative:·(numeral:2, name:M))  a statement
+read 158: N ∈ ℕ  as  membership:∈(name:N, number-systems:ℕ)  a statement
+read 159: 2M  as  multiplicative:·(numeral:2, name:M)  a number
+read 159: N  as  name:N  a number
+read 161: Σ(k = 1 to 2^N) 1/k ≥ N/2  as  order:≥(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:N), multiplicative:/(numeral:1, name:k)), multiplicative:/(name:N, numeral:2))  a statement
+read 162: N  as  name:N  a number
+read 164: N/2 > M  as  order:>(multiplicative:/(name:N, numeral:2), name:M)  a statement
+read 166: N > 2M  as  order:>(name:N, multiplicative:·(numeral:2, name:M))  a statement
+read 167: 1/2  as  multiplicative:/(numeral:1, numeral:2)  a number
+read 167: N/2 > M  as  order:>(multiplicative:/(name:N, numeral:2), name:M)  a statement
+read 169: Σ(k = 1 to 2^N) 1/k > M  as  order:>(sum:Σ(=to)(name:k, numeral:1, power:^(numeral:2, name:N), multiplicative:/(numeral:1, name:k)), name:M)  a statement
+read 172: There is n ∈ ℕ with Σ(k = 1 to n) 1/k > M  as  there-is:thereis∈with(name:n, number-systems:ℕ, order:>(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, name:k)), name:M))  a statement
 step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
 step 2.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]
 step 2.7 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [], flips: [], unfolded: [] }]

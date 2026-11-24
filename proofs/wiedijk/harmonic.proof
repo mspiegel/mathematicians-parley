@@ -4,7 +4,6 @@ import mundane theorem    stdlib/sums/sum-split
 import mundane theorem    stdlib/sums/sum-le
 import mundane theorem    stdlib/sums/sum-constant
 import mundane theorem    stdlib/sums/sum-single
-import mundane theorem    stdlib/sums/sum-real
 import mundane theorem    stdlib/sums/range-bounds
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/power-nat
@@ -97,19 +96,16 @@ theorem harmonic-block
 16. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     transitivity, from 15, 14, 11
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
 17. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     inequalities
       1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          16
       Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k   adding Σ(k = 1 to 2^j) 1/k
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
 18. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
     transitivity, from 17, 7
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
-    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
 
 theorem harmonic-unbounded

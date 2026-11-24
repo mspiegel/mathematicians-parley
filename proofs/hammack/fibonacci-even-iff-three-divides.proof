@@ -208,7 +208,6 @@ theorem fibonacci-even-iff-three-divides
 
     5.5.  q·3 = n − n mod 3
           algebra, from 5.4
-          requires n mod 3 ∈ ℝ: from 5.1
 
     5.6.  n ≥ 1
           inequalities, from H1
@@ -218,7 +217,6 @@ theorem fibonacci-even-iff-three-divides
             n mod 3 < 3                5.2
             −(n mod 3) > −3            multiplying by −1
             n − n mod 3 > n − 3        adding n
-          requires n mod 3 ∈ ℝ: from 5.1
 
     5.8.  n − 3 ≥ −2
           inequalities
@@ -227,7 +225,6 @@ theorem fibonacci-even-iff-three-divides
 
     5.9.  q·3 > −2
           transitivity, from 5.5, 5.7, 5.8
-          requires n mod 3 ∈ ℝ: from 5.1
 
     5.10. q > −2/3
           inequalities

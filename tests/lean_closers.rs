@@ -328,7 +328,7 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
         step: "16.21",
-        holds: "have r607_2 : 0 ≤ d n := by exact (hH2 n hK6).1",
+        holds: "have r606_2 : 0 ≤ d n := by exact (hH2 n hK6).1",
         list: false,
         why: "a requires line reasoned from lines alone, a part of a \"for all\" line read at the block's letter (CheckedTheorem::restated)",
     },
@@ -349,14 +349,14 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
         step: "6.4.1",
-        holds: ".mpr ⟨⟨_, rfl⟩, r405_1⟩",
+        holds: ".mpr ⟨⟨_, rfl⟩, r404_1⟩",
         list: false,
         why: "a definition read backwards, its right side's parts each from where the checker found it (Cited::unfolded): k − j an integer, which Lean writes as the integer it is, `⟨_, rfl⟩`, and 0 ≤ k − j, the step's requires line",
     },
     Site {
         file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
         step: "3.16",
-        holds: "(by exact_mod_cast s3_9.1) (by exact_mod_cast gt_iff_lt.mp r256_3)",
+        holds: "(by exact_mod_cast s3_9.1) (by exact_mod_cast gt_iff_lt.mp r255_3)",
         list: false,
         why: "hypotheses supplied by lines in ℤ where the item asks them in ℚ: taken across by exact_mod_cast, which the cast table says moves the order, the line saying > turned to the < Lean asks first",
     },

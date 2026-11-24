@@ -48,7 +48,6 @@ theorem least-combination-divides
 
 4.  c mod d = a·(u − q·x₀) + b·(v − q·y₀)
     algebra, from H9, H10, 3
-    requires c mod d ∈ ℝ: from 1
 
 5.  c mod d = 0
     contradiction
@@ -56,7 +55,7 @@ theorem least-combination-divides
 
     5.1.  c mod d ∈ ℕ
           mun:pos-int-nat m := c mod d
-          requires c mod d ∈ ℤ: from 1
+          requires c mod d ∈ ℤ: membership
           requires 0 < c mod d: inequalities, from S, 1
 
     5.2.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
@@ -70,7 +69,6 @@ theorem least-combination-divides
 
     5.5.  not d ≤ c mod d
           inequalities, from 2, contradicting 5.4
-          requires c mod d ∈ ℝ: from 1
 
 6.  c = d·q
     algebra, from 3, 5

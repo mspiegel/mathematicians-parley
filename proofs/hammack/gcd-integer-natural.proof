@@ -12,7 +12,6 @@ import mundane theorem    stdlib/divisibility/mod-remainder
 import theorem            stdlib/divisibility/gcd-mod
 import mundane theorem    stdlib/numbers/nat0-int
 import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane theorem    stdlib/numbers/nat0-real
 
 theorem gcd-integer-natural
   note        The gcd of an integer and a natural number is the gcd of the
@@ -79,7 +78,6 @@ theorem gcd-integer-natural
 
     6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
           substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
-          requires a mod b ∈ ℕ: from 6.7
 
     6.10. gcd(a, b) divides b·q
           mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.9
@@ -92,7 +90,6 @@ theorem gcd-integer-natural
           substitute
             gcd(a, b) divides b·q + a mod b      6.11
             gcd(a, b) divides a                  algebra, from 4
-          requires a mod b ∈ ℝ: mun:nat0-real m := a mod b, from 2
 
     6.13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
           join 6.9, 6.12

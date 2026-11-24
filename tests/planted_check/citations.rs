@@ -72,8 +72,8 @@ pub(super) fn cases() -> Vec<Case> {
             "a requires line of an inequalities step about a term it never combines",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n\n18.".to_string()),
-                "    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n    requires 3^j ∈ ℝ: membership\n\n18.".to_string(),
+                Some("    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n\n18.".to_string()),
+                "    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n    requires 3^j ∈ ℝ: membership\n\n18.".to_string(),
             )],
             "says 3^j ∈ ℝ, and the step neither uses nor asks for it",
         ),

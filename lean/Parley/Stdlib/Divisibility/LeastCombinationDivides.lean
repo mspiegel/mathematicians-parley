@@ -41,8 +41,8 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
   have s5 : c % d = 0 := by
     by_contra (hS : c % d ≠ 0)
     -- 5.1. mun:pos-int-nat m := c mod d
-    have r57_2 : 0 < c % d := Or.elim (Ne.lt_or_gt hS) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])
-    have s5_1 : 0 < c % d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) r57_2)
+    have r56_2 : 0 < c % d := Or.elim (Ne.lt_or_gt hS) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])
+    have s5_1 : 0 < c % d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) r56_2)
     -- 5.2. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.1
     have s5_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := Eq.subst (motive := (fun t : ℤ => 0 < t)) s4 s5_1
     -- 5.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2

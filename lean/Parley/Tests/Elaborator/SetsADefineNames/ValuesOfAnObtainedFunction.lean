@@ -14,7 +14,6 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
-public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
@@ -27,7 +26,7 @@ public section
 
 namespace Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAnObtainedFunction
 
-theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 0 < m) (hH3 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) (Set.Icc (1 : ℤ) m : Set ℤ) ∧ f 1 = 1) :
+theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 0 < m) (hH3 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) (Set.Icc (1 : ℤ) m : Set ℤ) ∧ f 1 ≤ f n) :
     (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) (Set.Icc (1 : ℤ) m : Set ℤ) ∧ f 1 ≤ f 1) := by
   -- 1. obtain g from H3
   obtain ⟨g, s1a, s1b⟩ := hH3

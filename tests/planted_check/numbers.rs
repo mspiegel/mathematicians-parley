@@ -485,17 +485,17 @@ pub(super) fn cases() -> Vec<Case> {
             "the requires line of step 6.2.10 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A requires line citing a sum's item is read as a step citing it,
-        // on a step citing no item itself: step 16 is a transitivity, and
-        // its line saying the harmonic block's sum is real asks the terms
-        // 1/k, k in a range from 2^j + 1, at every point.
+        // on a step citing no item itself: step 2.8 is a calculation, and
+        // its line saying the sum of (−1)^j/(2j + 1) is real asks that term
+        // at every point, which line 1 says.
         case(
             "a requires line on a method step citing a sum's item whose terms nothing says",
             vec![edit(
-                "proofs/wiedijk/harmonic.proof",
-                Some("    transitivity, from 15, 14, 11\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
-                "    transitivity, from 15, 14, 11\n".to_string(),
+                "proofs/wiedijk/leibniz.proof",
+                Some("          requires Σ(j = 0 to n) (−1)^j/(2j + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1\n".to_string()),
+                "          requires Σ(j = 0 to n) (−1)^j/(2j + 1) ∈ ℝ: mun:sum-real a := 0, b := n\n".to_string(),
             )],
-            "the requires line Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ of step 16 cites mun:sum-real, which asks that every term 1 / k is in ℝ",
+            "of step 2.8 cites mun:sum-real, which asks that every term",
         ),
         // A function the proof defines has its type said by a line the step
         // names, as any function's is: t is defined by D1, and its type is

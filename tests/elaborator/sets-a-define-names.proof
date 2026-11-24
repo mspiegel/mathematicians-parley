@@ -106,10 +106,10 @@ theorem values-of-an-obtained-function
               states and a step cites.
   let n ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)
-  assume there is f : {1, …, n} → {1, …, m} with f(1) = 1             (H3)
+  assume there is f : {1, …, n} → {1, …, m} with f(1) ≤ f(n)          (H3)
   then there is f : {1, …, n} → {1, …, m} with f(1) ≤ f(1)
 
-1.  g : {1, …, n} → {1, …, m}. g(1) = 1.
+1.  g : {1, …, n} → {1, …, m}. g(1) ≤ g(n).
     obtain g from H3
 
 2.  1 ∈ {1, …, n}
