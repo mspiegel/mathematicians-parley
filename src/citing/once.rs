@@ -387,46 +387,45 @@ fn points_in_plane(
         .collect()
 }
 
-/// Whether `term` is a number by what the page says once of the letters in
-/// it: each letter one a fact puts in a number system or one `bound` binds
-/// over one, as a "there is q ∈ ℤ" does its q; a divisor not zero only
-/// where it is a numeral.
-pub fn a_number_said_once(
+/// Whether `term` is a number by the one membership rule
+/// (`membership::shown`) over `facts`: its letters each one a fact puts in a
+/// number system or one `bound` binds over one, as a "there is q ∈ ℤ" does
+/// its q; and a part the walk takes as it stands held by a line stating it,
+/// (x − a)·q(x) where a line says q(x) ∈ ℂ, by the closure, or beside an
+/// equation among `facts`.
+pub fn a_number(
     term: &Node,
     facts: &[Node],
     bound: &Introduced,
-    ctx: &Context,
+    library: &Library,
 ) -> bool {
     let mut letters = bound.clone();
-    // A term a fact puts in a number system is a number there as a letter
-    // is, and what +, − and · build from it is too: (x − a)·q(x) where a
-    // line says q(x) ∈ ℂ.
-    let mut atoms: Vec<(&Node, System)> = Vec::new();
     for f in facts {
-        let [name, set] = f.children.as_slice() else {
+        let (MEMBERSHIP, [name, set]) = (f.notation(), f.children.as_slice()) else {
             continue;
         };
-        if f.notation() != MEMBERSHIP || set.notation() != NUMBER_SYSTEMS {
-            continue;
-        }
-        let Some(system) = System::of_sign(&set.text) else {
-            continue;
-        };
-        if name.is_name() {
+        if let (true, Some(system)) = (
+            name.is_name() && set.notation() == NUMBER_SYSTEMS,
+            System::of_sign(&set.text),
+        ) {
             letters.entry(name.text.to_string()).or_insert(system);
-        } else {
-            atoms.push((name, system));
         }
     }
-    let positive = letters.clone();
-    let nonzero = |d: &Node| nonzero_said(d, &positive, facts, ctx);
-    let said = |t: &Node, system: System| {
-        atoms.iter().any(|(a, s)| {
-            matching::alike(a, t, ctx, &IndexMap::new(), &IndexMap::new())
-                && s.within(system)
-        })
+    let typed: Vec<Node> = facts
+        .iter()
+        .filter(|f| types_a_function(f))
+        .cloned()
+        .collect();
+    let given = membership::Facts {
+        facts,
+        letters,
+        ranged: IndexMap::new(),
+        typed: &typed,
+        in_sums: &[],
+        targets: &library.targets,
+        ctx: &library.ctx,
     };
-    within(term, System::C, &letters, &nonzero, &said)
+    membership::holds(term, System::C, &given)
 }
 
 /// Why the page says once that a term is in a number system (`within`):

@@ -16,7 +16,7 @@ use crate::outcome::{Built, Route};
 
 use super::asked::filled;
 use super::library::{conjuncts, either_way, readings, Cite, Group, Library, Way};
-use super::once::{a_number_said_once, Introduced};
+use super::once::{a_number, Introduced};
 use super::parts::{bound_in, Bound};
 use super::supply::{
     body_reading, search, supplier, supply, unwitnessed, written_alike, Sites,
@@ -290,7 +290,7 @@ pub fn not_numbers(
     dropped
         .into_iter()
         .filter(|left| {
-            !a_number_said_once(left, given, &bound, &ctx)
+            !a_number(left, given, &bound, library.library)
                 && !given.iter().any(|f| {
                     library.members.contains(&f.notation())
                         && matches!(f.children.as_slice(), [term, set]

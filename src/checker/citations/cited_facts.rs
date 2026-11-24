@@ -5,6 +5,7 @@ use std::ptr;
 use super::*;
 use crate::checker::record::{BodyPart, ChainTerms, MetTrees};
 use crate::matching::{Definitions, Meeting};
+use crate::methods::membership;
 use crate::{citing, matching};
 
 /// A requires line whose cited item does not give its fact.
@@ -279,8 +280,14 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         known,
         library,
     );
-    let item_letters =
-        item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
+    let item_letters = item_letters(
+        &groups[taken.group],
+        &taken.binding,
+        step,
+        &parts,
+        known,
+        library,
+    );
     let facings = facings(&groups, taken, &parts, known, library);
     let met = meetings(&groups, taken, &parts, known, library);
     let within = parts_within(&groups, taken, &parts, known, library);
@@ -810,15 +817,16 @@ pub(super) fn parts_within(
 
 /// For each letter of the group a citation takes that the binding gives a
 /// value, the number system the item takes it in, by the group's own
-/// hypothesis `x ∈ S`, and the narrowest the page says its value is in
-/// once (`citing::within`), by its letters' introducing lines and the
-/// memberships the step's facts state (`record::ItemLetter`).
+/// hypothesis `x ∈ S`, and the narrowest the page says its value is in,
+/// by the one membership rule (`membership::shown`) over the step's facts
+/// (`record::ItemLetter`).
 pub(super) fn item_letters(
     group: &Group,
     binding: &Binding,
     step: &Step,
     parts: &Parts,
     known: &Known,
+    library: &Library,
 ) -> Vec<ItemLetter> {
     let letters = super::super::library::introduced(known, step);
     let item_system = |letter: Symbol| {
@@ -835,18 +843,21 @@ pub(super) fn item_letters(
             }
         })
     };
-    let stated = |term: &Node, system: System| {
-        parts
-            .facts
-            .iter()
-            .any(|f| match (f.notation(), f.children.as_slice()) {
-                (MEMBERSHIP, [t, set]) => {
-                    set.notation() == NUMBER_SYSTEMS
-                        && System::of_sign(&set.text) == Some(system)
-                        && known.alike(t, term)
-                }
-                _ => false,
-            })
+    let typed: Vec<Node> = parts
+        .facts
+        .iter()
+        .filter(|f| types_a_function(f))
+        .cloned()
+        .collect();
+    let in_sums = super::super::library::typed_in_scope(known, step);
+    let given = membership::Facts {
+        facts: &parts.facts,
+        letters,
+        ranged: IndexMap::new(),
+        typed: &typed,
+        in_sums: &in_sums,
+        targets: &library.targets,
+        ctx: known.ctx,
     };
     let narrowest = |value: &Node| {
         [
@@ -858,15 +869,7 @@ pub(super) fn item_letters(
             System::C,
         ]
         .into_iter()
-        .find(|s| {
-            citing::within(
-                value,
-                *s,
-                &letters,
-                &|d| citing::nonzero_said(d, &letters, &parts.facts, known.ctx),
-                &stated,
-            )
-        })
+        .find(|s| membership::holds(value, *s, &given))
     };
     binding
         .iter()
@@ -976,8 +979,14 @@ pub fn cited_requires(
         known,
         library,
     );
-    let item_letters =
-        item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
+    let item_letters = item_letters(
+        &groups[taken.group],
+        &taken.binding,
+        step,
+        &parts,
+        known,
+        library,
+    );
     let facings = facings(&groups, &taken, &parts, known, library);
     let met = meetings(&groups, &taken, &parts, known, library);
     let within = parts_within(&groups, &taken, &parts, known, library);
