@@ -87,7 +87,11 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.8. def:prime, from 1.7
       have s1_8 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) s1_7a)).mp s1_7b).1
       -- 1.9. algebra, from D2
-      have s1_9 : m = p * r := by qify at *; have hz1 : (p : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(p : ℚ)) * hD2
+      have s1_9 : m = p * r := by
+        qify at ⊢
+        simp only [hD2] at ⊢
+        push_cast at ⊢
+        have hz1 : (p : ℚ) ≠ 0 := (by positivity); field
       -- 1.10. inequalities, from 1.8
       have s1_10 : p - 1 > 0 := by linarith only [s1_8]
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10

@@ -50,7 +50,11 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) hH1 (d := d) hK)).mp hC
     obtain ⟨e, hD1_pos, hD1⟩ := hD1_kind
     -- 1.1. algebra, from D1
-    have s1_1 : p = d * e := by qify at *; have hz1 : (d : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(d : ℚ)) * hD1
+    have s1_1 : p = d * e := by
+      qify at ⊢
+      simp only [hD1] at ⊢
+      push_cast at ⊢
+      have hz1 : (d : ℚ) ≠ 0 := (by positivity); field
     -- 1.2. mun:not-either P := d = 1, Q := d = p, from S
     have s1_2a : d ≠ 1 := by
       have hI : d ≠ 1 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1)

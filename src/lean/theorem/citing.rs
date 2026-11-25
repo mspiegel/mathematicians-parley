@@ -2083,7 +2083,7 @@ impl<'a> Proof<'a> {
         cited: &Cited,
         sentence: &Sentence,
         (way, instance): (Way, &Instance),
-    ) -> FormComparison {
+    ) -> Route<FormComparison> {
         // An item read as written says what the claim says: where the two
         // write one term in different forms, the build reports it. The
         // sets whose counts differ only in form are converted.
@@ -2132,8 +2132,11 @@ impl<'a> Proof<'a> {
         // narrowed keeps its name, its equation being in the wider type.
         let narrowed: Vec<String> =
             self.narrowings.iter().map(|n| n.function.clone()).collect();
-        let written = self
-            .defines_read(reason.just.line, &reason.just.refs)
+        let defines = match self.defines_read(reason.just.line, &reason.just.refs) {
+            Route::Built(d) => d,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let written = defines
             .iter()
             .filter(|d| {
                 d.param.is_some() && !narrowed.contains(&d.name.text.to_string())
@@ -2257,7 +2260,7 @@ impl<'a> Proof<'a> {
                 });
             }
         }
-        FormComparison {
+        Route::Built(FormComparison {
             counted,
             finite,
             powered,
@@ -2268,7 +2271,7 @@ impl<'a> Proof<'a> {
             turned,
             agrees,
             by_identities,
-        }
+        })
     }
 
     /// Sentence `k` of a claim, by the item its reason cites.
@@ -2307,13 +2310,16 @@ impl<'a> Proof<'a> {
             Route::Built(i) => i,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let comparison = self.compare_forms(
+        let comparison = match self.compare_forms(
             reason,
             (k, node),
             cited,
             sentence,
             (concluded.way, &instance),
-        );
+        ) {
+            Route::Built(c) => c,
+            Route::Declined(d) => return Route::Declined(d),
+        };
         let statement = instance.statement.clone();
         let inst = instance.term;
         let iff = sentence.says.notation() == BICONDITIONAL;

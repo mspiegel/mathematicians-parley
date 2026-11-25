@@ -10,8 +10,8 @@ use std::fmt::Write as _;
 use std::slice;
 
 use parley::checker::record::{
-    Cited, DomainSaid, Facing, First, FirstAt, InDomain, NonzeroBy, OrderFact,
-    OrderPart, Restated, Shown, ShownPart, StatedIn, SuppliedBy, Unfolded,
+    AlgebraMade, Cited, DomainSaid, Facing, First, FirstAt, InDomain, NonzeroBy,
+    OrderFact, OrderPart, Restated, Shown, ShownPart, StatedIn, SuppliedBy, Unfolded,
 };
 use parley::checker::CheckedCorpus;
 use parley::citing::finite::{FiniteBy, Making};
@@ -380,25 +380,7 @@ pub fn printed_but(
         writeln!(out, "{} divides by {}", reason_at(*line), parts.join(", ")).unwrap();
     }
     for (line, made) in &record.combinations {
-        let terms: Vec<String> = made
-            .terms
-            .iter()
-            .map(|t| {
-                format!("{} times {}", order_fact(&t.fact), g.print(&t.multiplier))
-            })
-            .collect();
-        let sum = match terms.is_empty() {
-            true => "nothing".to_string(),
-            false => terms.join(" + "),
-        };
-        let linear = if made.linear { ", its sums linear" } else { "" };
-        writeln!(
-            out,
-            "{} sums {sum}, reading {}{linear}",
-            reason_at(*line),
-            made.reading
-        )
-        .unwrap();
+        writeln!(out, "{} is {}", reason_at(*line), algebra_made(made, g)).unwrap();
     }
     for (line, held) in &record.held_by_lines {
         for h in held {
@@ -822,6 +804,42 @@ fn order_part(part: &OrderPart, flipped: bool) -> String {
         write!(said, " weakened from {w:?}").unwrap();
     }
     said
+}
+
+/// How an `algebra` claim is made of the lines it cites
+/// (`record::AlgebraMade`).
+fn algebra_made(made: &AlgebraMade, g: &Grammar) -> String {
+    match made {
+        AlgebraMade::Sum(sum) => {
+            let terms: Vec<String> = sum
+                .terms
+                .iter()
+                .map(|t| {
+                    format!("{} times {}", order_fact(&t.fact), g.print(&t.multiplier))
+                })
+                .collect();
+            let terms = match terms.is_empty() {
+                true => "nothing".to_string(),
+                false => terms.join(" + "),
+            };
+            let linear = if sum.linear { ", its sums linear" } else { "" };
+            format!("the sum of {terms}, reading {}{linear}", sum.reading)
+        }
+        AlgebraMade::Rescaled(r) => format!(
+            "{} times {}, its equation the claim's times {} at reading {}",
+            order_fact(&r.fact),
+            g.print(&r.by),
+            g.print(&r.back.multiplier),
+            r.back.reading
+        ),
+        AlgebraMade::Pairs(each) => {
+            let each: Vec<String> = each
+                .iter()
+                .map(|(at, one)| format!("at {at:?} {}", algebra_made(one, g)))
+                .collect();
+            format!("by coordinate: {}", each.join("; "))
+        }
+    }
 }
 
 /// Where a fact an order step adds stands (`record::OrderFact`).

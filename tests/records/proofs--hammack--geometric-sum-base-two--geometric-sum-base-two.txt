@@ -13,7 +13,7 @@ a row of step 1.4 links facing straight
 step 1 has letters n at H1 sentence 0
 step 1.2 has letters n at H1 sentence 0, k at K sentence 0
 step 2 has letters n at H1 sentence 0
-a row of step 1.4 sums nothing, reading 0
+a row of step 1.4 is the sum of nothing, reading 0
 step 1 holds k in cn0 stated
 step 1 holds k in cz stated
 step 1 holds k in cq stated

@@ -1027,6 +1027,20 @@ pub(super) fn written_out_as(
     }
     let mut out = Vec::new();
     for (named, locs) in groups {
+        // A define of a name whose value is of a wider type, `(e : ℚ) = p/d`
+        // of an integer e, rewrites places moved to that type first.
+        let wider = named
+            .iter()
+            .filter_map(|&i| value_wider(&defines[i], writer))
+            .max();
+        let moved = match wider {
+            Some(Num::Rat) => Some("qify"),
+            Some(Num::Real) => Some("rify"),
+            _ => None,
+        };
+        if let Some(moved) = moved {
+            out.push(t::call(moved, vec![TacticArg::At(locs.clone())]));
+        }
         let rewrites = named
             .iter()
             .map(|&i| t::forwards(t::hyp(&defines[i].proof)))
@@ -1042,6 +1056,15 @@ pub(super) fn written_out_as(
         out.push(t::push_cast(Some(TacticArg::At(pushed))));
     }
     out
+}
+
+/// The type of a define's value where it is wider than its name's: Lean
+/// holds the name in its own type, and states its equation in the value's.
+fn value_wider(d: &CitedDefine, writer: &Writer) -> Option<Num> {
+    match (writer.carrier(&d.name), writer.carrier(&d.value)) {
+        (Route::Built(name), Route::Built(value)) if value > name => Some(value),
+        _ => None,
+    }
 }
 
 /// `node` with `to` put for each part that is `from`, the two compared as

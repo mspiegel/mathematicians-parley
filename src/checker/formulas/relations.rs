@@ -1,6 +1,8 @@
 //! What an algebra step leaves unsaid, relations and orders.
 
-use super::super::record::{Combination, Combined, NonzeroBy, NotZero};
+use super::super::record::{
+    AlgebraMade, Combination, Combined, NonzeroBy, NotZero, Rescaled, Scaled,
+};
 use super::*;
 use std::{iter, slice};
 
@@ -84,7 +86,7 @@ pub fn combinations(
     thm: &Theorem,
     known: &Known,
     library: &Library,
-) -> IndexMap<usize, Combination> {
+) -> IndexMap<usize, AlgebraMade> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
         if step.just.head.is(Method::Algebra) {
@@ -128,23 +130,21 @@ fn row_reasons(thm: &Theorem, step: &Step) -> Vec<Requires> {
         .collect()
 }
 
-/// The combination `algebra` finds of one equation, each equation it takes
-/// placed where it stands (`order_fact`) and its multiplier written as a
-/// term of the page's (`multiplier_node`); None where the claim is no
-/// equation the cited equations make.
+/// How `algebra` finds one claim is made of the lines it cites
+/// (`MadeReading`), each fact it takes placed where it stands
+/// (`order_fact`) and each multiplier written as a term of the page's
+/// (`multiplier_node`); None where the claim does not hold by algebra.
 fn combination_at(
     thm: &Theorem,
     at: &ClosureClaim,
     known: &Known,
     library: &Library,
-) -> Option<Combination> {
+) -> Option<AlgebraMade> {
     let targets = &library.targets;
     let AlgebraDecided {
         read,
         facts,
-        verdict: algebra::Verdict::Holds {
-            made: Some(made), ..
-        },
+        verdict: algebra::Verdict::Holds { made, .. },
         linear,
         ..
     } = algebra_decided(at, known, targets)?
@@ -166,22 +166,131 @@ fn combination_at(
             atoms.entry(atom).or_insert(part);
         }
     }
-    let mut terms = Vec::new();
-    for t in &made.terms {
-        let written = field::reading_sums(linear, || {
-            multiplier_node(&t.multiplier, &atoms, known.env.g, targets)
-        });
-        let fact = combined_fact(facts.get(t.line)?, t.part, known, targets)?;
-        terms.push(Combined {
-            fact: order_fact(thm, at, *line_of.get(t.line)?, &fact, known, library)?,
-            multiplier: written?,
-        });
-    }
-    Some(Combination {
-        reading: made.reading,
+    let claimed = term_of_node(&matching::bare(&read.claimed, known.ctx), targets);
+    MadeReading {
+        thm,
+        at,
+        known,
+        library,
+        facts: &facts,
+        line_of: &line_of,
+        atoms: &atoms,
         linear,
-        terms,
-    })
+    }
+    .made(&made, &claimed)
+}
+
+/// What `combination_at` reads a combination with: the claim's place, the
+/// facts `decide` was given and the page's line each is of, and the terms
+/// the step writes by their polynomial atoms.
+struct MadeReading<'a> {
+    thm: &'a Theorem,
+    at: &'a ClosureClaim<'a>,
+    known: &'a Known<'a>,
+    library: &'a Library<'a>,
+    facts: &'a [Node],
+    line_of: &'a [usize],
+    atoms: &'a IndexMap<Rpn, Node>,
+    linear: bool,
+}
+
+impl MadeReading<'_> {
+    /// `made`, of the claim `claimed` as `decide` read it, put in the
+    /// record's terms.
+    fn made(&self, made: &algebra::Made, claimed: &Term) -> Option<AlgebraMade> {
+        match made {
+            algebra::Made::Sum(sum) => Some(AlgebraMade::Sum(self.sum(sum)?)),
+            algebra::Made::Rescaled { line, part, by } => {
+                let fact = self.equation(*line, *part)?;
+                let cited = self.read(&fact);
+                let labels = FloatLabels::new(IndexMap::new());
+                // The cited denial's equation as the claim's times a number.
+                let back = field::reading_sums(self.linear, || {
+                    match algebra::decide(
+                        cited.children().first()?,
+                        &[claimed.children().first()?.clone()],
+                        &labels,
+                    ) {
+                        algebra::Verdict::Holds {
+                            made: algebra::Made::Sum(sum),
+                            ..
+                        } => Some(sum),
+                        _ => None,
+                    }
+                });
+                let algebra::Sum { reading, terms } = back?;
+                let [one] = terms.as_slice() else {
+                    return None;
+                };
+                Some(AlgebraMade::Rescaled(Rescaled {
+                    fact: self.placed(*line, &fact)?,
+                    by: self.written(&field::constant(by.clone()))?,
+                    back: Scaled {
+                        reading,
+                        multiplier: self.written(&one.multiplier)?,
+                    },
+                }))
+            }
+            algebra::Made::Pairs(each) => {
+                let pairs = pairs::relation(claimed)?;
+                let mut out = Vec::new();
+                for (c, one) in each {
+                    let coordinate = match pairs.apart {
+                        true => pairs.denial(*c),
+                        false => pairs.equation(*c),
+                    };
+                    out.push((*c, self.made(one, &coordinate)?));
+                }
+                Some(AlgebraMade::Pairs(out))
+            }
+        }
+    }
+
+    fn sum(&self, sum: &algebra::Sum) -> Option<Combination> {
+        let mut terms = Vec::new();
+        for t in &sum.terms {
+            let fact = self.equation(t.line, t.part)?;
+            terms.push(Combined {
+                fact: self.placed(t.line, &fact)?,
+                multiplier: self.written(&t.multiplier)?,
+            });
+        }
+        Some(Combination {
+            reading: sum.reading,
+            linear: self.linear,
+            terms,
+        })
+    }
+
+    /// The relation `decide` took of fact `line`, by its place among
+    /// `algebra::parts` of it (`combined_fact`).
+    fn equation(&self, line: usize, part: usize) -> Option<Node> {
+        combined_fact(
+            self.facts.get(line)?,
+            part,
+            self.known,
+            &self.library.targets,
+        )
+    }
+
+    /// Where `fact`, of fact `line`, stands (`order_fact`).
+    fn placed(&self, line: usize, fact: &Node) -> Option<OrderFact> {
+        let of = *self.line_of.get(line)?;
+        order_fact(self.thm, self.at, of, fact, self.known, self.library)
+    }
+
+    /// A polynomial as a term of the page's (`multiplier_node`), its sums
+    /// read as the step reads them.
+    fn written(&self, p: &Poly) -> Option<Node> {
+        field::reading_sums(self.linear, || {
+            multiplier_node(p, self.atoms, self.known.env.g, &self.library.targets)
+        })
+    }
+
+    /// A fact as `decide` read it, its identity elements dropped.
+    fn read(&self, fact: &Node) -> Term {
+        term_of_node(&matching::bare(fact, self.known.ctx), &self.library.targets)
+    }
 }
 
 /// The equation a combination takes of a fact, by its place among

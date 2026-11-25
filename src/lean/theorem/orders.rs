@@ -1886,7 +1886,6 @@ impl<'a> Proof<'a> {
         let mut out: Vec<CitedDefine> = refs
             .iter()
             .filter(|r| self.thm.defines.iter().any(|d| d.label == **r))
-            .filter(|r| !self.witnessed.contains(*r))
             .flat_map(|r| self.trees.get(r).into_iter().flatten())
             .filter_map(|line| match line.node.children.as_slice() {
                 [name, value] if line.node.notation() == EQUALITY && name.is_name() => {
@@ -1906,20 +1905,36 @@ impl<'a> Proof<'a> {
 
     /// The defines among the lines a reason on `line` cites that the checker
     /// read it with written out (`CheckedTheorem::defines_read`), in the
-    /// order they are written.
+    /// order they are written; declined where Lean has no equation of one.
+    /// A function the header lets is written out by its equation at each
+    /// argument the step applies it to (`header_functions_applied`), and is
+    /// not among them.
     pub(super) fn defines_read(
         &self,
         line: usize,
         refs: &[String],
-    ) -> Vec<CitedDefine> {
+    ) -> Route<Vec<CitedDefine>> {
         let cited = self.cited_defines(refs);
-        self.rec
-            .defines_read
-            .get(&line)
-            .into_iter()
-            .flatten()
-            .filter_map(|name| cited.iter().find(|d| *d.name.text == **name).cloned())
-            .collect()
+        let headers: Vec<String> = refs
+            .iter()
+            .filter(|r| self.header_function_named(r).is_some())
+            .filter_map(|r| self.thm.defines.iter().find(|d| d.label == *r))
+            .filter_map(|d| corpus::define_parts(&d.text).built())
+            .flat_map(|parts| parts.names())
+            .collect();
+        let mut out = Vec::new();
+        for name in self.rec.defines_read.get(&line).into_iter().flatten() {
+            match cited.iter().find(|d| *d.name.text == **name) {
+                Some(d) => out.push(d.clone()),
+                None if headers.contains(name) => {}
+                None => {
+                    return Route::no(format!(
+                        "{name}, a define the checker read written out, which Lean has no equation of"
+                    ))
+                }
+            }
+        }
+        Route::Built(out)
     }
 
     /// A define of a function of one argument `param` on page line `line`,

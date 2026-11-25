@@ -37,6 +37,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -167,7 +168,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
       have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) s4_8_12 s4_8_3a)
       -- 4.8.19. algebra, from 4.3, 4.8.3
-      have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linear_combination 0
+      have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by ring1
       -- 4.8.20. transitivity, from 4.8.17, 4.8.19
       have s4_8_20 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by exact Eq.trans s4_8_17 s4_8_19
       -- 4.8.21. inequalities
@@ -175,7 +176,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.22. transitivity, from 4.8.21, 4.8.20
       have s4_8_22 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (x - c) := by exact LE.le.trans_eq s4_8_21 s4_8_20.symm
       -- 4.8.23. algebra, from 4.3
-      have s4_8_23 : ε * Real.sqrt c = Real.sqrt c * ε := by linear_combination 0
+      have s4_8_23 : ε * Real.sqrt c = Real.sqrt c * ε := by ring1
       -- 4.8.24. transitivity, from 4.8.22, A2, 4.8.23
       have s4_8_24 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by exact LT.lt.trans_eq (lt_of_le_of_lt s4_8_22 hA2) s4_8_23
       -- 4.8.25. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.24

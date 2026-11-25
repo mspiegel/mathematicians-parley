@@ -12,7 +12,9 @@ use std::{iter, slice};
 
 use indexmap::IndexMap;
 
-use super::record::{CheckedTheorem, ShownBy, SuppliedBy, Unfolded};
+use super::record::{
+    AlgebraMade, CheckedTheorem, OrderFact, ShownBy, SuppliedBy, Unfolded,
+};
 use super::CheckedCorpus;
 use crate::citing::finite::{FiniteBy, Making};
 use crate::citing::{finite, number_sets, Group, Introduced, Want};
@@ -180,6 +182,12 @@ pub fn written_out(
     let binding =
         |b: &Binding| -> Binding { b.iter().map(|(k, v)| (*k, out(v))).collect() };
     let mut written = rec.clone();
+    // A define written out here is written out in every line the build is
+    // handed, so no reason is left to read it written out.
+    for names in written.defines_read.values_mut() {
+        names.retain(|name| !rules.contains_key(name));
+    }
+    written.defines_read.retain(|_, names| !names.is_empty());
     written.page = super::record::PageReading::new(
         rec.page
             .entries()
@@ -270,8 +278,14 @@ pub fn written_out(
                 .chain(p.split.iter_mut())
                 .chain(p.restates.as_mut().map(|r| &mut r.by))
         });
+    let mut made_facts = Vec::new();
+    for made in written.combinations.values_mut() {
+        for m in made_parts(made, &mut made_facts) {
+            *m = out(m);
+        }
+    }
     let mut ordered = Vec::new();
-    for fact in order_facts {
+    for fact in order_facts.chain(made_facts) {
         match fact {
             super::record::OrderFact::Line(at) => ordered.push(at),
             super::record::OrderFact::Kind { written, .. }
@@ -467,6 +481,32 @@ pub fn written_out(
 }
 
 /// A tree keyed by its shape, written out.
+/// The multipliers an `algebra` making writes, each to be written out;
+/// the facts it takes are put in `facts`.
+fn made_parts<'m>(
+    made: &'m mut AlgebraMade,
+    facts: &mut Vec<&'m mut OrderFact>,
+) -> Vec<&'m mut Node> {
+    match made {
+        AlgebraMade::Sum(sum) => sum
+            .terms
+            .iter_mut()
+            .map(|t| {
+                facts.push(&mut t.fact);
+                &mut t.multiplier
+            })
+            .collect(),
+        AlgebraMade::Rescaled(r) => {
+            facts.push(&mut r.fact);
+            vec![&mut r.by, &mut r.back.multiplier]
+        }
+        AlgebraMade::Pairs(each) => each
+            .iter_mut()
+            .flat_map(|(_, one)| made_parts(one, facts))
+            .collect(),
+    }
+}
+
 fn written_key(key: &ByShape, out: &impl Fn(&Node) -> Node) -> ByShape {
     ByShape(out(&key.0))
 }

@@ -13,7 +13,7 @@ step 4 divides by B by H3
 a row of step 4 divides by B by H3
 a row of step 4 divides by B by 1
 a row of step 1 divides by B by 1
-a row of step 4 sums nothing, reading 0
+a row of step 4 is the sum of nothing, reading 0
 step 2 holds ⌊A / B⌋ in cz stated
 step 2 holds ⌊A / B⌋ in cq stated
 step 2 holds ⌊A / B⌋ in cr stated

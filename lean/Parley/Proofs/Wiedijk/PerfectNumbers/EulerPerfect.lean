@@ -177,7 +177,11 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   obtain ⟨c, hD3_pos, hD3⟩ := hD3_kind
   -- 20. algebra, from D3
   have r440_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
-  have s20 : m = (2 ^ p.toNat - 1) * c := by qify at *; have hz1 : (2 ^ p.toNat - 1 : ℚ) ≠ 0 := (by exact_mod_cast r440_1); linear_combination (norm := (field)) (-(2 ^ p.toNat) + 1) * hD3
+  have s20 : m = (2 ^ p.toNat - 1) * c := by
+    qify at ⊢
+    simp only [hD3] at ⊢
+    push_cast at ⊢
+    have hz1 : (2 ^ p.toNat - 1 : ℚ) ≠ 0 := (by exact_mod_cast r440_1); field
   -- 21. algebra, from 15, 20
   have s21 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) * (2 ^ p.toNat - 1) = 2 ^ p.toNat * c * (2 ^ p.toNat - 1) := by linear_combination s15 + (2 ^ p.toNat) * s20
   -- 22. calculation

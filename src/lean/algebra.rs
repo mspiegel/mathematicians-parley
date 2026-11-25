@@ -15,7 +15,7 @@
 use std::{iter, slice};
 
 use indexmap::IndexMap;
-use num_traits::{One, Signed};
+use num_traits::{One, Signed, Zero};
 
 use super::doc::forms::casts_dropped;
 use super::doc::{
@@ -24,9 +24,10 @@ use super::doc::{
 use super::expr::{Printed, Writer};
 use super::tactics as t;
 use super::templates::Num;
+use crate::checker::record::Scaled;
 use crate::formula::Node;
 use crate::methods::algebra;
-use crate::methods::algebra::{combination, denominators, readings};
+use crate::methods::algebra::{denominators, readings};
 use crate::methods::field::{self, Poly, Q};
 use crate::methods::terms::{term_of_node, Targets};
 use crate::mm::kernel::FloatLabels;
@@ -410,61 +411,95 @@ fn denied(node: &Node) -> Option<&Node> {
     }
 }
 
-/// A `≠` claim from a cited `≠` line, s − 1 ≠ 0 from s ≠ 1: the claim's
-/// equation supposed, the cited line's follows from it by the same
-/// decision, which the cited line denies. None where the claim is no `≠`
-/// or no cited line is one.
+/// A `≠` claim from the cited `≠` line it rescales, s − 1 ≠ 0 from s ≠ 1:
+/// the claim's equation supposed, the cited line's is the supposed one
+/// times a number (`back`), which the cited line denies.
 fn unequal(
     writer: &Writer,
     targets: &Targets,
     claim: &Node,
-    cited: &[Cited],
+    cited: &Cited,
+    back: &Scaled,
     inside_terms: bool,
-) -> Option<Route<Proof>> {
-    let supposed = denied(claim)?;
-    let mut declined = None;
-    for c in cited {
-        let Some(wanted) = denied(&c.node) else {
-            continue;
-        };
-        let given = Cited {
-            node: supposed.clone(),
-            proof: t::hyp("h"),
-            says: None,
-        };
-        match algebra(
-            writer,
-            targets,
-            wanted,
-            slice::from_ref(&given),
-            AlgebraReading {
-                inside_terms,
-                divisors: &[],
-                worked_in: None,
-                commuted: false,
-            },
-        ) {
-            Route::Built(inner) => {
-                let refuted = Printed {
-                    kind: TermKind::App {
-                        head: Box::new(c.proof.clone()),
-                        args: vec![Arg::Explicit(t::bracket(Printed {
-                            kind: TermKind::By(Box::new(inner)),
-                            ty: None,
-                        }))],
-                        explicit: false,
-                    },
+) -> Route<Proof> {
+    let (Some(supposed), Some(wanted)) = (denied(claim), denied(&cited.node)) else {
+        return Route::no("a rescaled disequality whose claim or line is no `≠`");
+    };
+    let given = Cited {
+        node: supposed.clone(),
+        proof: t::hyp("h"),
+        says: None,
+    };
+    let made = Making::Sum {
+        reading: back.reading,
+        multipliers: vec![back.multiplier.clone()],
+    };
+    let reading = AlgebraReading {
+        inside_terms,
+        divisors: &[],
+        worked_in: None,
+        commuted: false,
+    };
+    algebra(
+        writer,
+        targets,
+        wanted,
+        slice::from_ref(&given),
+        made,
+        reading,
+    )
+    .map(|inner| {
+        let refuted = Printed {
+            kind: TermKind::App {
+                head: Box::new(cited.proof.clone()),
+                args: vec![Arg::Explicit(t::bracket(Printed {
+                    kind: TermKind::By(Box::new(inner)),
                     ty: None,
-                };
-                return Some(Route::Built(Proof::By(Tactic::Seq(vec![
-                    Tactic::Intro(vec!["h".to_string()]),
-                    Tactic::Exact(refuted),
-                ]))));
-            }
-            Route::Declined(d) => declined = Some(Route::Declined(d)),
+                }))],
+                explicit: false,
+            },
+            ty: None,
+        };
+        Proof::By(Tactic::Seq(vec![
+            Tactic::Intro(vec!["h".to_string()]),
+            Tactic::Exact(refuted),
+        ]))
+    })
+}
+
+/// How an `algebra` claim is made of the lines `algebra` is given, as the
+/// checker found it (`record::AlgebraMade`), each multiplier read as the
+/// lines are, with the defines Lean writes out written out.
+pub enum Making {
+    /// An equation: the reading of the claim, by its place among
+    /// `readings`, is the sum of each cited equation times its multiplier,
+    /// in the order of the lines given.
+    Sum {
+        reading: usize,
+        multipliers: Vec<Node>,
+    },
+    /// A disequality, the one line given rescaled: its equation is the
+    /// claim's times a number.
+    Rescaled(Scaled),
+}
+
+impl Making {
+    /// The making with `f` applied to each multiplier.
+    pub fn map_multipliers(self, f: impl Fn(&Node) -> Node) -> Making {
+        match self {
+            Making::Sum {
+                reading,
+                multipliers,
+            } => Making::Sum {
+                reading,
+                multipliers: multipliers.iter().map(&f).collect(),
+            },
+            Making::Rescaled(back) => Making::Rescaled(Scaled {
+                reading: back.reading,
+                multiplier: f(&back.multiplier),
+            }),
         }
     }
-    declined
 }
 
 /// How the checker read an `algebra` step, which says how Lean proves it.
@@ -486,13 +521,15 @@ pub struct AlgebraReading<'a> {
     pub commuted: bool,
 }
 
-/// The Lean proof of an `algebra` claim from the equations cited, as the
-/// checker read the step (`AlgebraReading`).
+/// The Lean proof of an `algebra` claim from the lines cited, made of them
+/// as the checker found (`Making`), the step read as the checker read it
+/// (`AlgebraReading`).
 pub fn algebra(
     writer: &Writer,
     targets: &Targets,
     claim: &Node,
     cited: &[Cited],
+    made: Making,
     reading: AlgebraReading<'_>,
 ) -> Route<Proof> {
     let AlgebraReading {
@@ -501,8 +538,20 @@ pub fn algebra(
         worked_in,
         commuted,
     } = reading;
-    if let Some(proof) = unequal(writer, targets, claim, cited, inside_terms) {
-        return proof;
+    let (taken_at, multipliers) = match made {
+        Making::Rescaled(back) => {
+            let [line] = cited else {
+                return Route::no("a rescaled disequality given other than one line");
+            };
+            return unequal(writer, targets, claim, line, &back, inside_terms);
+        }
+        Making::Sum {
+            reading,
+            multipliers,
+        } => (reading, multipliers),
+    };
+    if multipliers.len() != cited.len() {
+        return Route::no("a combination whose multipliers are not one for each line");
     }
     let labels = FloatLabels::new(IndexMap::new());
     let claimed = term_of_node(claim, targets);
@@ -567,10 +616,8 @@ pub fn algebra(
     let Some(want) = field::equation(&claimed, &labels) else {
         return Route::no("algebra whose claim is no equation");
     };
-    let mut given = Vec::new();
-    let mut unders = Vec::new();
     let mut proofs = Vec::new();
-    // The cited lines `given` reads, in its order.
+    // The cited equations, in the order the combination takes them.
     let mut equations: Vec<&Cited> = Vec::new();
     // Each cited equation's own denominators, and what its reading divided
     // out of it.
@@ -579,38 +626,39 @@ pub fn algebra(
     let mut atoms: IndexMap<Rpn, Node> = IndexMap::new();
     collect_atoms(claim, targets, &labels, &mut atoms);
     let mut divided = divides;
-    for c in cited {
+    let mut how = Vec::new();
+    for (i, (c, multiplier)) in cited.iter().zip(&multipliers).enumerate() {
         let term = term_of_node(&c.node, targets);
         let Some(one) = field::equation(&term, &labels) else {
-            continue;
+            return Route::no(
+                "an equation the combination takes that Lean reads as none",
+            );
         };
         collect_atoms(&c.node, targets, &labels, &mut atoms);
+        collect_atoms(multiplier, targets, &labels, &mut atoms);
         let read = algebra::claim_says(&term, one, &labels);
-        let under = denominators(&term, &labels);
         divided |= divides_by_term(&c.node);
-        unders.push(field::exactly(&under, &read.taken));
-        own_under.push(under);
-        own_taken.push(read.taken.clone());
-        given.push(read.says);
+        own_under.push(denominators(&term, &labels));
+        own_taken.push(read.taken);
         proofs.push(c.proof.clone());
         equations.push(c);
+        // The multiplier as the polynomial it writes, its numbers' quotients
+        // taken as the rationals they are.
+        let times = field::read(&term_of_node(multiplier, targets), &labels);
+        let Some(below) = times.under.constant_value().filter(|b| !b.is_zero()) else {
+            return Route::no("a multiplier that is no polynomial");
+        };
+        how.push(field::Taken::of(
+            i,
+            times.over.scaled(&(field::q(1) / below)),
+        ));
     }
-    // Lines cited for what they say of a divisor, and no equation: the claim
-    // is an identity, cleared of its divisions by what those lines say of
-    // each divisor (`divisors`).
-    if given.is_empty() {
-        return Route::Built(Proof::By(identity()));
-    }
-    let claim_under = denominators(&claimed, &labels);
-    let found = readings(&claimed, want, &labels)
-        .into_iter()
-        .find_map(|says| {
-            combination(&given, &unders, &says, &claim_under)
-                .map(|how| (says.taken, how))
-        });
-    let Some((taken, how)) = found else {
-        return Route::no("no sum of the cited equations is the claim");
+    let Some(says) = readings(&claimed, want, &labels).into_iter().nth(taken_at) else {
+        return Route::no(
+            "a reading of the claim the checker found that Lean does not",
+        );
     };
+    let taken = says.taken;
     // The multipliers are written in the type the step works in: the
     // claim's, or a cited line's where it is wider, as of a closed claim.
     let mut at = own;

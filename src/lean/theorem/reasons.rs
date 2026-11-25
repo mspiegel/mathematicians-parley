@@ -7,7 +7,7 @@ use super::super::doc::{forms, CountForm, LeanType, Location, Op, Quant, TermKin
 use super::super::templates::Num;
 use super::super::{doc, tactics as t};
 use super::*;
-use crate::checker::record::{Inspection, TakenCase};
+use crate::checker::record::{AlgebraMade, Inspection, OrderFact, TakenCase};
 use crate::citing::finite::FiniteBy;
 use crate::citing::{bounds, finite, Implication};
 use crate::corpus::{skeleton, DefineParts, Recursion};
@@ -318,7 +318,7 @@ impl<'a> Proof<'a> {
                 if opened {
                     *self.intros_now.borrow_mut() = intros.clone();
                 }
-                let proof = self.method_proof(reason, *m, k, body, &writer);
+                let proof = self.method_proof(reason, *m, k, body, None, &writer);
                 if opened {
                     self.intros_now.borrow_mut().clear();
                 }
@@ -665,6 +665,51 @@ impl<'a> Proof<'a> {
     /// (congrArg Prod.fst h)`. Each coordinate's claim is proved as the
     /// method proves a claim of numbers. None where the claim is no
     /// relation between two pairs.
+    /// How the `algebra` claim whose reason is on `line` is made of the
+    /// lines it cites, as the checker recorded it
+    /// (`CheckedTheorem::combinations`): of two pairs compared, the claim
+    /// at coordinate `at`.
+    fn algebra_made(&self, line: usize, at: Option<Coordinate>) -> Route<&AlgebraMade> {
+        let Some(made) = self.rec.combinations.get(&line) else {
+            return Route::no("an algebra claim the checker recorded no making of");
+        };
+        match (made, at) {
+            (AlgebraMade::Pairs(each), Some(at)) => {
+                match each.iter().find(|(c, _)| *c == at) {
+                    Some((_, one)) => Route::Built(one),
+                    None => Route::no("a coordinate the checker recorded no making at"),
+                }
+            }
+            (AlgebraMade::Pairs(_), None) => {
+                Route::no("two pairs compared as one claim")
+            }
+            (one, None) => Route::Built(one),
+            (_, Some(_)) => {
+                Route::no("a coordinate of a claim the checker recorded whole")
+            }
+        }
+    }
+
+    /// A line an `algebra` claim is made of, where the checker found it
+    /// (`OrderFact`), as Lean states it: a sentence or part of a line as
+    /// its tree holds it, the defines Lean writes out written out
+    /// (`put_into_line`); any other fact as an order step adds it.
+    fn algebra_fact(
+        &self,
+        fact: &OrderFact,
+        writer: &Writer,
+    ) -> Route<super::super::algebra::Cited> {
+        if let OrderFact::Line(at) = fact {
+            return self.put_into_line(at);
+        }
+        self.order_fact(fact, writer)
+            .map(|f| super::super::algebra::Cited {
+                node: f.node,
+                proof: f.proof,
+                says: Some(f.says),
+            })
+    }
+
     fn pairs_compared(
         &self,
         reason: Reason,
@@ -694,7 +739,7 @@ impl<'a> Proof<'a> {
                 Route::Built(s) => s,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            self.method_proof(reason, m, k, &claim, writer)
+            self.method_proof(reason, m, k, &claim, Some(Coordinate::BOTH[i]), writer)
                 .map(|proof| super::conversions::shown(says, proof))
         };
         if !negated {
@@ -738,29 +783,65 @@ impl<'a> Proof<'a> {
     }
 
     /// The proof of a claim by a method that closes it, with the letters
-    /// `writer` holds.
+    /// `writer` holds: of two pairs compared, the claim at one coordinate,
+    /// `at`.
     pub(super) fn method_proof(
         &self,
         reason: Reason,
         m: Method,
         k: usize,
         node: &Node,
+        at: Option<Coordinate>,
         writer: &Writer,
     ) -> Route<super::super::doc::Proof> {
         let just = reason.just;
-        if matches!(
-            m,
-            Method::Algebra | Method::Arithmetic | Method::RealArithmetic
-        ) {
+        if at.is_none()
+            && matches!(
+                m,
+                Method::Algebra | Method::Arithmetic | Method::RealArithmetic
+            )
+        {
             if let Some(compared) = self.pairs_compared(reason, m, k, node, writer) {
                 return compared;
             }
         }
         Route::Built(match m {
             Method::Algebra => {
+                // The lines the checker found the claim is made of, each
+                // where it found it, and how it is made of them.
+                let made = match self.algebra_made(just.line, at) {
+                    Route::Built(made) => made,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let (facts, making) = match made {
+                    AlgebraMade::Sum(sum) => (
+                        sum.terms.iter().map(|t| &t.fact).collect::<Vec<_>>(),
+                        super::super::algebra::Making::Sum {
+                            reading: sum.reading,
+                            multipliers: sum
+                                .terms
+                                .iter()
+                                .map(|t| t.multiplier.clone())
+                                .collect(),
+                        },
+                    ),
+                    AlgebraMade::Rescaled(r) => (
+                        vec![&r.fact],
+                        super::super::algebra::Making::Rescaled(r.back.clone()),
+                    ),
+                    AlgebraMade::Pairs(_) => {
+                        return Route::no("two pairs compared as one claim");
+                    }
+                };
                 // A cited equation of a narrower type is combined as the
                 // claim's type has it.
-                let mut cited = self.cited_parts(&just.refs);
+                let mut cited = Vec::new();
+                for fact in facts {
+                    match self.algebra_fact(fact, writer) {
+                        Route::Built(c) => cited.push(c),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
                 for c in &mut cited {
                     if let Some(read) = self.at_recorded_letter(c, &node.names()) {
                         *c = read;
@@ -775,7 +856,10 @@ impl<'a> Proof<'a> {
                 // written out. A define is written in terms of those above
                 // it, so each put in once, from the last, leaves none: v
                 // before ω₁ where v's value names ω₁.
-                let defines = self.defines_read(just.line, &just.refs);
+                let defines = match self.defines_read(just.line, &just.refs) {
+                    Route::Built(d) => d,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 // A function the header lets, rewritten by its equation at
                 // each argument the record found (`header_functions_applied`),
                 // under a sum term by term.
@@ -797,9 +881,13 @@ impl<'a> Proof<'a> {
                         )],
                     )],
                 };
-                let mut claim = headers
-                    .iter()
-                    .fold(node.clone(), |n, h| self.put_define(&n, &h.define));
+                let put_headers = |n: &Node| {
+                    headers
+                        .iter()
+                        .fold(n.clone(), |n, h| self.put_define(&n, &h.define))
+                };
+                let mut claim = put_headers(node);
+                let mut making = making.map_multipliers(put_headers);
                 for d in &defines {
                     cited.retain(|c| c.proof != super::super::tactics::hyp(&d.proof));
                 }
@@ -809,6 +897,7 @@ impl<'a> Proof<'a> {
                     for c in &mut cited {
                         c.node = self.put_define(&c.node, d);
                     }
+                    making = making.map_multipliers(|m| self.put_define(m, d));
                 }
                 // A claim whose two sides are one term once the defines are
                 // put in is closed by writing them out in it, which leaves
@@ -856,6 +945,7 @@ impl<'a> Proof<'a> {
                     inside_terms |= print(&bared) != print(&c.node);
                     c.node = bared;
                 }
+                let making = making.map_multipliers(|m| matching::bare(m, ctx));
                 let divisors = match self.divisors_at(just.line, &defines) {
                     Route::Built(d) => d,
                     Route::Declined(d) => return Route::Declined(d),
@@ -865,6 +955,7 @@ impl<'a> Proof<'a> {
                     self.sources.targets,
                     &claim,
                     &cited,
+                    making,
                     super::super::algebra::AlgebraReading {
                         inside_terms,
                         divisors: &divisors,

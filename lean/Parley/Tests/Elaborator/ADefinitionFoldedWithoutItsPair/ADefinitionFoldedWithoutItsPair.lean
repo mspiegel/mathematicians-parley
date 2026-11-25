@@ -37,6 +37,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -167,13 +168,13 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
       have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) s4_8_12 s4_8_3a)
       -- 4.8.19. algebra, from 4.3, 4.8.3
-      have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linear_combination 0
+      have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by ring1
       -- 4.8.20. inequalities
       have s4_8_20 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≥ Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linarith only [s4_8_18]
       -- 4.8.21. transitivity, from 4.8.20, 4.8.19, 4.8.17
       have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (x - c) := by exact LE.le.trans_eq (LE.le.trans_eq s4_8_20 s4_8_19.symm) s4_8_17.symm
       -- 4.8.22. algebra, from 4.3
-      have s4_8_22 : ε * Real.sqrt c = Real.sqrt c * ε := by linear_combination 0
+      have s4_8_22 : ε * Real.sqrt c = Real.sqrt c * ε := by ring1
       -- 4.8.23. transitivity, from 4.8.21, A2, 4.8.22
       have s4_8_23 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by exact LT.lt.trans_eq (lt_of_le_of_lt s4_8_21 hA2) s4_8_22
       -- 4.8.24. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.23

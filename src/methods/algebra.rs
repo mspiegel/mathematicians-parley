@@ -19,11 +19,8 @@ pub enum Verdict {
     /// The claim holds, combining the cited lines named here by their place
     /// among `cited`: what the step's hypotheses are asked of
     /// (`METHODS.md`, an atom is one of the facts the step combines); and,
-    /// for an equation, the combination itself.
-    Holds {
-        combined: Vec<usize>,
-        made: Option<Made>,
-    },
+    /// how the claim is made of them.
+    Holds { combined: Vec<usize>, made: Made },
     /// The claim is neither an equation nor a disequality, which algebra
     /// decides.
     Undecided,
@@ -36,17 +33,31 @@ pub enum Verdict {
     NoRescaling,
 }
 
-/// How an equation `decide` finds holds is made of the equations cited: the
+/// How a claim `decide` finds holds is made of the lines cited.
+#[derive(Clone, Debug)]
+pub enum Made {
+    /// An equation, the sum of cited equations each times its multiplier.
+    Sum(Sum),
+    /// A disequality, a cited one rescaled: the claim's polynomial is the
+    /// cited one's times `by` (`rescales`).
+    Rescaled { line: usize, part: usize, by: Q },
+    /// A relation between two pairs, by coordinate: both coordinates'
+    /// equations, or the difference at the coordinate the pairs are apart
+    /// at.
+    Pairs(Vec<(Coordinate, Made)>),
+}
+
+/// How an equation is the sum of the equations cited (`Made::Sum`): the
 /// reading of the claim that is their sum (`readings`), and each equation
 /// with its multiplier.
 #[derive(Clone, Debug)]
-pub struct Made {
+pub struct Sum {
     /// The reading's place among `readings` of the claim.
     pub reading: usize,
     pub terms: Vec<MadeTerm>,
 }
 
-/// One cited equation of a combination (`Made`): its place among the cited
+/// One cited equation of a combination (`Sum`): its place among the cited
 /// lines' parts as `decide` reads them (`parts`), and its multiplier.
 #[derive(Clone, Debug)]
 pub struct MadeTerm {
@@ -138,7 +149,7 @@ pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
                 .collect();
             Verdict::Holds {
                 combined,
-                made: Some(Made { reading, terms }),
+                made: Made::Sum(Sum { reading, terms }),
             }
         }
         None => Verdict::NoCombination,
@@ -154,15 +165,28 @@ fn pairs_decided(
     labels: &FloatLabels,
 ) -> Verdict {
     if pairs.apart {
-        return match apart_at(pairs, cited, labels) {
-            Some(at) => decide_apart(&pairs.denial(at), cited, labels),
-            None => Verdict::NoRescaling,
+        let Some(at) = apart_at(pairs, cited, labels) else {
+            return Verdict::NoRescaling;
+        };
+        return match decide_apart(&pairs.denial(at), cited, labels) {
+            Verdict::Holds { combined, made } => Verdict::Holds {
+                combined,
+                made: Made::Pairs(vec![(at, made)]),
+            },
+            other => other,
         };
     }
     let mut combined = Vec::new();
+    let mut each_made = Vec::new();
     for at in Coordinate::BOTH {
         match decide(&pairs.equation(at), cited, labels) {
-            Verdict::Holds { combined: each, .. } => combined.extend(each),
+            Verdict::Holds {
+                combined: each,
+                made,
+            } => {
+                combined.extend(each);
+                each_made.push((at, made));
+            }
             other => return other,
         }
     }
@@ -170,7 +194,7 @@ fn pairs_decided(
     combined.dedup();
     Verdict::Holds {
         combined,
-        made: None,
+        made: Made::Pairs(each_made),
     }
 }
 
@@ -197,12 +221,12 @@ fn decide_apart(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict
         return Verdict::Undecided;
     };
     for (i, held) in cited.iter().enumerate() {
-        for said in parts(held) {
+        for (part, said) in parts(held).into_iter().enumerate() {
             let one = field::denied(&said, labels);
-            if one.is_some() && rescales(one.as_ref(), Some(&claim)).is_some() {
+            if let Some(by) = rescales(one.as_ref(), Some(&claim)) {
                 return Verdict::Holds {
                     combined: vec![i],
-                    made: None,
+                    made: Made::Rescaled { line: i, part, by },
                 };
             }
         }

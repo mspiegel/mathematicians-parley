@@ -536,11 +536,11 @@ pub struct CheckedTheorem {
     /// divisions knowing each, `3n − 1` by the line saying `3n − 1 ≠ 0`
     /// and N! as a positive integer.
     pub divided_by: IndexMap<usize, Vec<NotZero>>,
-    /// How an `algebra` equation is the sum of the equations it cites, by
-    /// the line its reason is on, as `divided_by` keys them
-    /// (`formulas::combinations`): the backends write the sum, and do not
-    /// look for it.
-    pub combinations: IndexMap<usize, Combination>,
+    /// How an `algebra` claim is made of the lines it cites, by the line
+    /// its reason is on, as `divided_by` keys them
+    /// (`formulas::combinations`): the backends write what is recorded,
+    /// and do not look for it.
+    pub combinations: IndexMap<usize, AlgebraMade>,
     /// The defined names a reason is read with written out, by the line the
     /// reason is on: a step's, a requires line's, a calculation's or a
     /// substitution's row, or the reason under a define that says a kind
@@ -1297,8 +1297,45 @@ pub struct OrderPart {
     pub weakened: Option<Weakened>,
 }
 
+/// How an `algebra` claim is made of the lines it cites
+/// (`CheckedTheorem::combinations`, `methods::algebra::Made`).
+#[derive(Clone, Debug)]
+pub enum AlgebraMade {
+    /// An equation, the sum of cited equations.
+    Sum(Combination),
+    /// A disequality, a cited one rescaled.
+    Rescaled(Rescaled),
+    /// A relation between two pairs, by coordinate: each coordinate's
+    /// equation, or the disequality at the coordinate the pairs are apart
+    /// at (`CheckedTheorem::pairs_apart`).
+    Pairs(Vec<(Coordinate, AlgebraMade)>),
+}
+
+/// A disequality that is a cited one rescaled (`AlgebraMade::Rescaled`).
+#[derive(Clone, Debug)]
+pub struct Rescaled {
+    /// Where the cited disequality stands.
+    pub fact: OrderFact,
+    /// The number the cited disequality's polynomial is multiplied by to be
+    /// the claim's (`methods::algebra::rescales`), as a term of the page's.
+    pub by: Node,
+    /// The cited disequality's equation as the claim's equation times a
+    /// number: what a backend writes that supposes the claim's equation and
+    /// reaches the cited one's, which the cited line denies.
+    pub back: Scaled,
+}
+
+/// One equation as another times a multiplier (`Rescaled::back`): the
+/// reading of the one made (`methods::algebra::readings`), and the
+/// multiplier as a term of the page's.
+#[derive(Clone, Debug)]
+pub struct Scaled {
+    pub reading: usize,
+    pub multiplier: Node,
+}
+
 /// How an `algebra` equation is made of the equations it cites
-/// (`CheckedTheorem::combinations`, `methods::algebra::Made`): one reading
+/// (`AlgebraMade::Sum`, `methods::algebra::Sum`): one reading
 /// of the claim, with the divisors it writes divided out or not, is the sum
 /// of each cited equation, read with the most divided out, times its
 /// multiplier.
