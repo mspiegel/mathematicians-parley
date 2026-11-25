@@ -413,6 +413,13 @@ nowhere else on the citation's account.
   or a case, where in line N the thing the step opposes stands (`FirstAt`).
   It also gives which of the two says the other negated, and how they meet.
   Lean closes the block on the pair.
+- `rests_on`: what each step, the block each step opens, and each requires
+  line or reason of a chain line or row may rest on (`RestsOn`, `Resting`):
+  the lines a reason cites, the line it contradicts, its requires lines and
+  those above, the defines it reads them with, and for a block its own
+  steps, openers, assumptions, inner defines and what its joins and closing
+  contradiction cite (`ELABORATION.md`, the proof rules). Metamath checks
+  each proof against it, adding the sorts its kernel holds.
 
 ## Facts about terms
 
@@ -465,7 +472,8 @@ nowhere else on the citation's account.
 - `inspected`: for each claim the `inspection` method decides holds, a
   step's or a requires line's, by the line its reason is on, the case that
   decided it (`Inspection`): an "or" of what a term is, read against a
-  cited membership of a range or a listed set, with that line (`OneOf`);
+  cited membership of a range or a listed set, with where in that line the
+  membership stands (`OneOf::at`, a `FirstAt`);
   whether a number is prime; that nothing is in ∅; a membership of a
   listed set, or its denial; the size of a listed set; the size of a set
   taken by a property from a listed set, or that set said equal to the
@@ -479,16 +487,23 @@ nowhere else on the citation's account.
   divides by and why it is not 0: a line the reason rests on says so
   (`Stated`, with what says it, `d ≠ 0`, `0 < d` or another sign, and the
   sentence it is read from, the line itself or a fact implying it, `d ∈ ℕ`
-  of `d > 0`); it is numerals; or it is a positive integer by what the page
-  says once (`Positive`). Lean writes a fact for each and clears the
-  divisions by `field`. Metamath proves each the same way
-  (`divisor_apart`): numerals by their value, `Positive` from what the page
-  says once, and `Stated` from that sentence alone.
+  of `d > 0`); it is numerals; or it is a positive integer, which the one
+  membership rule puts in ℕ (`Positive`, with the derivation, `shown`).
+  Lean writes a fact for each and clears the divisions by `field`: a stated
+  line by its `h.ne'`, a positive integer of letters alone by `positivity`.
+  Metamath proves each the same way: numerals by their value, `Positive`
+  from the derivation (`recorded_positive`, `nnne0d`), and `Stated` from
+  that sentence alone.
 - `held_by_lines`: the parts of the terms each reason writes, and of the
   lines it names, that those lines put in a number system, by the line the
   reason is on: a step's, a requires line's, or the reason under a define
-  that says a kind. Each says how: a line states it, an equation puts it
-  beside a term in the system, or the closure table puts it there. Lean
+  that says a kind. Each carries how, as the one membership rule derives it
+  (`Shown`, `methods::membership::shown`): a stated line, the walk of what
+  the page says once with each part it took as it stands, a closure-table
+  row with its parts, a sum by its term, a power, a function's value by a
+  cited type and the point in its domain, a term by cases, or a cited
+  equation beside a term with that term's own derivation. Metamath proves
+  the tree (`derived_membership`); Lean reads it. Lean
   names a part whole only from such a line, m of m² from `m ∈ ℕ` where the
   step names it, and never from a line the reason does not name.
 - `commuted_by_lines`: for each step, requires line, calculation row and
@@ -527,7 +542,17 @@ nowhere else on the citation's account.
   each with the sentence that says it (`Bound::said_by`). Lean writes a
   square root or a real power of a base at least 0 as a real one, as
   Metamath proves `√x ∈ ℝ` from `0 ≤ x`. Where Lean converts a power, it
-  proves the exponent at least 0 from that sentence.
+  proves the exponent at least 0 from that sentence. Inside a formula, Lean
+  reads its earlier parts by the shared bounds and finiteness rules as it
+  writes it: the parts before an "and" or after an "if", a quantifier's
+  set, a sum's range, a header's member. That is the shared rule
+  (`citing::bounds`, `citing::finite`) run on the page's own words,
+  starting from these recorded facts, and it decides only which Lean type a
+  term is written in.
+- `step_bounds`: for each step, what its own lines bound below besides the
+  lines in scope: its requires lines, the lines it cites, a cited "for all"
+  read at the block's letter, and a membership shown beside an equation.
+  Lean writes a substitution's casts from it.
 - `page_bounds`: what any line of the theorem bounds below. That is the
   statement's hypotheses, the lines in scope at every step and every
   requires line (a step's or a naming `let`'s), each term at the greatest
@@ -541,6 +566,27 @@ nowhere else on the citation's account.
   1 by the step's bounds, which says whether its line is written
   `W.ncard = 2` or `W.encard = m`, and so how a backend proves W finite
   from it.
+- `claim_finite`: for each sentence of each step's claim, the sets the
+  claim's other sentences make finite, and those it vouches for itself by a
+  count at least 1 (`SentenceFinite`). `requires_finite`: for each requires
+  line, the sets the requires lines above it make finite. Both are read of
+  the page as written, with defines written out.
+- `defines_read`: the defined names each reason is read with written out,
+  by the line the reason is on. The written-out record (`written`) leaves
+  off a define it writes out everywhere, so what remains is what a backend
+  writes out at that step. Lean writes out every define listed, by its
+  equation; one whose value is of a wider type than its name, e = p/d for
+  an integer e, first moves its places to that type (`qify`, `rify`). A
+  listed define Lean has no equation of is a gap.
+- `combinations`: how each `algebra` claim is made of the lines it cites,
+  by the line its reason is on (`AlgebraMade`): a sum of cited equations,
+  each with its multiplier written as a page term (`Combination`); a
+  disequality rescaling a cited one by a number, with how its claim is read
+  back (`Rescaled`); or pairs compared coordinate by coordinate (`Pairs`).
+  Both backends write the making recorded and search for none.
+- `interval_ends`: each closed interval a line lets a letter range over,
+  with how its ends are numbers (`IntervalEnds`). Metamath proves a member
+  real from it (`out_of_interval`).
 - `element_systems`: the number system each letter the page puts in sets
   of numbers is in, the widest of them, A of `A ∈ ℝ ∖ ℚ`. Lean gives `let A
   be an element` that type.

@@ -993,6 +993,12 @@ vanish is −1 times what the other does. The polynomials decide that, nothing
 declares it, and the proof is `subeq0` either side of an identity the
 normaliser already builds.
 
+Which cited equations an `algebra` claim is the sum of, and by what
+multipliers, which disequality it rescales, or which pairs it compares, is
+the checker's (`CheckedTheorem::combinations`). The build writes that making
+(`algebra_made`) and searches for no other, and one it cannot write is a
+defect.
+
 **`inequalities` decides linear arithmetic over an ordered field.** What picks
 which cited facts a claim is built from, and in what multiple, is
 `linear.certificate` — a Farkas certificate read off Fourier–Motzkin. A
@@ -1029,11 +1035,11 @@ terms the page wrote, which the facts saying them are found by, and not a
 standard form's respelling, ⌊c·10ⁿ⌋ for ⌊10ⁿ·c⌋, that only the parts' own
 memberships could carry back. That is built from its parts by the
 closure table, each atom's membership from a line the step cites or writes,
-carried by one lemma (`bridged`), or from a cited equation with the atom on
-one side, whose other side is placed the same way and carried across by
-`eqeltrd` (`equated_part`, which every method's side conditions read, and
-which reads no term twice at once, so that x = y and y = x do not send it
-round); and `same` carries it back to the claim as written. A divisor is not
+carried by one lemma (`bridged`), or by the derivation the checker recorded
+for the reason (`CheckedTheorem::held_by_lines`, `derived_membership`): a
+cited equation with the atom on one side, carried across by `eqeltrd`, a
+closure row, a function's value by its type; and `same` carries it back to
+the claim as written. A divisor is not
 zero by the one order below (a divisor's `≠ 0`). A requires line may name it too, and
 is proved the same way from the lines it cites (`member_of`). A claim said of
 every member is proved of one fixed by `widen`, with what its membership says
@@ -1066,8 +1072,8 @@ denominator's atoms, of a quotient a membership is built for, and of what
 `not_zero` is asked.
 
 1. A term of numerals alone whose value is not zero, worked out as
-   `arithmetic` works one out, or a positive integer the page says once
-   (`SYNTAX.md`), which rests on no line.
+   `arithmetic` works one out, or a positive integer the membership rule
+   puts in ℕ (`SYNTAX.md`), which rests on no line.
 2. A line the step may rest on saying so: as `≠`, either way round, as the
    denial of an equation, as the divisor above zero or below it
    (`gt0ne0d`, `lt0ne0d`), or as a membership that says so (`let k ∈ ℕ`).
@@ -1080,7 +1086,8 @@ denominator's atoms, of a quotient a membership is built for, and of what
 
 The divisors of an `algebra` reason are not walked through this order. The
 checker's record says why each is not zero (`CheckedTheorem::divided_by`):
-numerals as in 1, a positive integer from what the page says once, a stated
+numerals as in 1, a positive integer from the derivation recorded
+(`recorded_positive`), a stated
 line from that sentence alone, and anything else by its parts, as in 3.
 
 Where it is asked decides how far the order goes. A quotient a membership is
@@ -1232,7 +1239,9 @@ own line. `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0`, where H2
 lets k ∈ {0, …, N}, is taken by both with nothing cited: a letter introduced
 in a range is an integer said once (`SYNTAX.md`), as one introduced in ℤ is,
 and one introduced in an interval, with or without points taken out, a real
-number, as one introduced in ℝ is.
+number, as one introduced in ℝ is. The interval lemma asks its ends real
+(`geliccre`), and the build proves them by the derivation the checker
+recorded (`CheckedTheorem::interval_ends`).
 
 An item's hypothesis that is an equation whose two sides are one under the
 citation, |X| = m at m := |A|, needs no line (`SYNTAX.md`, "An identity element
@@ -1381,7 +1390,8 @@ of its own (`introduced_membership` in `src/elab/tables/`), and searches
 nothing:
 
 - a term a line the step names puts in a number system is a number there,
-  carried up `rules.WITHIN` (`stated_within`);
+  carried up `rules.WITHIN` (`stated_within`), which proves a term no
+  record names, a sum's term at its index;
 - a numeral is worked out, as `settle` works one out (`numeral_within`);
 - a square root of a rational of at least 0 is in ℝ (`resqrtcld`) and ℂ
   (`sqrtcld`), π by `pire` and `picn`, e by `ere`, a logarithm of a
@@ -1403,9 +1413,10 @@ nothing:
   `distance_within`);
 - a compound is built by the closure table, as `built` builds one, its parts
   by the same walk and its divisor's `≠ 0` from what the step names
-  (`divisor_written`), and only for the operations listed: a remainder, a
-  binomial coefficient, a function's value or a defined name is not
-  walked;
+  (`divisor_written`); where the record names a part of the reason, by the
+  derivation it records (`derived_membership`); a remainder and a binomial
+  coefficient by the table `WHOLE`, and a function's value by its cited
+  type;
 - a sum the checker found said once by its terms (`CheckedTheorem::said_sums`,
   kept for the step as kernel terms by `note_said_sums`) is in ℝ or ℂ by
   `fsumrecl` or `fsumcl`, its terms read from the scope at each index
@@ -2147,9 +2158,12 @@ Three rules follow, each a defect naming the line. R1 and R2 are checked
 where the proof is sealed, and R3 is the checker's. A step's proof, a
 block's, and an obtain's source all pass through
 one `check_step` in `src/elab/provenance.rs`, which applies R1 and then
-seals; what it allows is `named`, the same set `in_hand` narrows the step's
-table to while it is built. A requires line is checked by R2 where it is
-proved (`discharged_by`).
+seals; what it allows is `named`, the step's entry in the checker's record
+of what each step, block and requires line may rest on
+(`CheckedTheorem::rests_on`), with the sorts in scope; `in_hand` narrows the
+step's table to the same set while it is built. A requires line is checked
+by R2 where it is proved (`discharged_by`); what it allows is the requires
+line's entry in the same record (`reason_allows`).
 
 - **R1 — a step rests only on what it names**: the lines it cites, its own
   requires lines, the sorts in scope, and the memberships the page says once

@@ -153,7 +153,7 @@ method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
 gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
-and does not cite that line for it. The same holds of twelve kinds of term,
+and does not cite that line for it. The same holds of thirteen kinds of term,
 and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
@@ -166,7 +166,11 @@ and of nothing else:
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ; a letter introduced in a
   range of integers, {a, …, b}, is an integer, and one introduced in an
-  interval, (a, b), [a, b] or (a, b) ∖ {c}, a real number; one introduced in
+  interval, (a, b), [a, b] or (a, b) ∖ {c}, a real number by the interval's
+  shape; that a closed interval's ends are real numbers is checked once,
+  where the line letting the letter range over it is written: `let x ∈ [0,
+  f(1)]` under `let f : ℝ → ℝ` holds, and `let x ∈ [0, 1/n]` of an integer
+  n is reported at its line; one introduced in
   a number system or a range with points taken out, as ℝ ∖ {0} or ℕ ∖ {1},
   is in that system, since a member of S ∖ {c} is a member of S. A letter a
   "for all" or "there is" binds is read the same way;
@@ -192,6 +196,8 @@ and of nothing else:
 - **a greatest common divisor or least common multiple** of two terms said
   once in ℤ, in ℕ₀ and every system containing it: `gcd(a, b) ∈ ℝ` where
   `let a, b ∈ ℤ`;
+- **a remainder** x mod n of x said once in ℤ and n in ℕ, in ℕ₀ and every
+  system containing it: `x mod n ∈ ℕ₀` where `let x ∈ ℤ` and `let n ∈ ℕ`;
 - **a term built from those** by +, −, ·, a power whose exponent is a term
   said once in ℕ₀ by these rules, `2^(j + 1)` and `5^(2m)` where
   `let j, m ∈ ℕ₀`, and /, in the smallest number
@@ -205,6 +211,16 @@ and of nothing else:
   point the type does not cover, as `Σ(k = 0 to n) a(k)` does, is not said
   once this way.
 
+Every context asks this one rule: a method's atoms, a cited item's
+hypotheses, a notation's places, a divisor's `≠ 0`, an interval's ends and a
+sum's term. Each takes what the page says once, then a line the step names,
+then what the closure table builds from those (a remainder, a power to an
+exponent in ℕ₀, a function's value by a cited type, a term by cases), then a
+cited equation putting the term beside one that is. Where no line can
+speak, at a sum's index, a define's parameter, or the ends of an interval a
+`let` writes, the same rule is asked over no lines, with the function types
+in scope.
+
 This is the move a sort makes (below): the line that says it is in view in
 the scope it opens, and the reader is no more asked to supply something the
 page does not say than they are asked where X came from when `X ∖ {a}` is a
@@ -215,8 +231,8 @@ on one step, and those lines buried the ones that can fail.
 
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
 unless the page says once the divisor is not zero: a term of numerals alone
-whose value is not zero, as 2 and 1 − 3 are, or a positive integer such as
-k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the kinds above do
+whose value is not zero, as 2 and 1 − 3 are, or a positive integer, a term
+the rule puts in ℕ, such as k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the kinds above do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
 function's domain, the size of a set, a power whose exponent is not said

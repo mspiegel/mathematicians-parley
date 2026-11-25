@@ -717,7 +717,12 @@ of
   number system containing that one. What else the range says, a ≤ k and
   k ≤ b, is cited, by the line that says the range;
 - a letter introduced in an interval, `let x ∈ (a, b)` or `let x ∈ [a, b]`,
-  or in one with points taken out, `let x ∈ (a, b) ∖ {c}`: x ∈ ℝ, and x ∈ ℂ, where for [a, b] its ends are numbers said once. What
+  or in one with points taken out, `let x ∈ (a, b) ∖ {c}`: x ∈ ℝ and x ∈ ℂ,
+  by the interval's shape. A closed interval's ends must be real numbers by
+  the membership rule, read where the interval is written with the letters
+  and function types in scope, and the checker reports one whose end is
+  not: "the `let` line lets a letter range over [a, b], and nothing in scope
+  says b ∈ ℝ: an interval's ends are numbers". What
   else the interval says, a < x and x < b, or a ≤ x and x ≤ b, is cited, by
   the line that says the interval;
 - a term built from those by +, −, ·, unary −, a power whose exponent is a
@@ -727,8 +732,9 @@ of
   A quotient's divisor not being zero is the step's to write or cite, unless
   the page says it once: of a term of numerals alone that `arithmetic`
   works out to a value other than zero, `3`, `1 − 2` and `10^0`; of a
-  positive integer, a term these rules put in ℕ, as k, k + 1, j·(j + 1)
-  and 2^n are where k, j ∈ ℕ and n ∈ ℕ₀; or of a product, a quotient, a
+  positive integer, a term the membership rule puts in ℕ, as k, k + 1,
+  j·(j + 1) and 2^n are where k, j ∈ ℕ and n ∈ ℕ₀, and f(k) is where the
+  step cites `f : ℕ → ℕ`; or of a product, a quotient, a
   negation or a power to a numeral, 0 included, whose parts are each not
   zero by this same rule: `x·2`, `−x` and `x⁰` are not zero where a line
   says `x ≠ 0`, or `x > 0`. A sum's term that divides by something holding the
@@ -774,9 +780,9 @@ in a range says its bounds and nothing past them, and that r ∈ {0, …, n − 
 "for all j ∈ {1, …, m}, …" justified as at a member, introduces j as its
 block's `let` would, in ℕ here. Everything else a step needs to be
 a number is written as before: a defined name, a function's value outside a
-sum, a sum the rule above does not reach, a power whose exponent is any
-other term, 2^(j + 1) or 2^k with k ∈ ℤ, |x|,
-n!, a remainder, C(n, k), and anything a library item builds.
+sum, a sum the rule above does not reach, a power whose exponent is not
+said once in ℕ₀, 2^k with k ∈ ℤ, and anything a library item builds beyond
+the kinds `READERS.md` lists.
 
 **A function's type and a point of its domain say the value is in the
 codomain.** `let a : {1, …, n} → ℝ (H2)` and `let k ∈ {1, …, n} (K4)`, cited

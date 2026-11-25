@@ -600,8 +600,9 @@ numeral whose parts are each not zero so: `(x·2 − 1)/(x·2)` asks only for
 `(2^j·2 − 1)/(2^j·2)` with j ∈ ℕ₀ asks nothing (`membership`, the same
 test).
 
-Every atom of the claim and of the cited lines it combines is a real
-number, as for `inequalities`: said once where the atom is a numeral, a
+Every atom of the claim and of the cited lines it combines is a complex
+number, ℝ or ℂ either way, since `algebra` works in a field and needs no
+order (an `inequalities` atom must be real): said once where the atom is a numeral, a
 letter, built from them, or a sum whose term is such a number at every
 index, and otherwise written or given by a cited equation, as `membership`
 decides it: citing `a(0) = 0` says `a(0)` is a number. What the step could
