@@ -766,7 +766,8 @@ pub(super) fn statement_writer<'a>(
     let mut writer = Writer::new(
         &sources.checked.grammar,
         sources.templates,
-        &sources.ctx.conjunctions,
+        sources.ctx,
+        sources.targets,
     );
     writer.function_systems = Rc::new(rec.function_systems.clone());
     writer.things = Rc::new(rec.thing_types.clone());

@@ -18,6 +18,7 @@ use crate::corpus::{Define, DefineParts};
 use crate::formula::node::Sort;
 use crate::formula::page;
 use crate::matching::Binding;
+use crate::methods::membership;
 use crate::notations::{
     ADDITIVE, APPLICATION, AT_LEAST, AT_MOST, CARDINALITY, EQUALS, FOR_ALL,
     FUNCTIONS_FROM, GREATER, INTEGER_RANGE, LESS, MEMBERSHIP, MULTIPLICATIVE, NUMERAL,
@@ -1803,15 +1804,13 @@ impl<'a> Proof<'a> {
             .collect()
     }
 
-    /// The proof that `e` is above 0, `0 < e`, from why the said-once walk
-    /// puts it in ℕ (`citing::reason_within`), as `positive_by` writes it.
-    /// None where the walk does not put e in ℕ, or gives a reason
-    /// `positive_by` writes no proof for.
+    /// The proof that `e` is above 0, `0 < e`, from why the page says once
+    /// that it is in ℕ, the one rule over no lines (`membership::shown`), as
+    /// `positive_by` writes it. None where the rule does not put e in ℕ, or
+    /// gives a reason `positive_by` writes no proof for.
     pub(super) fn positive_proof(&self, e: &Node) -> Option<Printed> {
-        let letters = self.writer.page_systems();
-        let nonzero = |d: &Node| nonzero_said_once(d, &letters);
-        let said = |_: &Node, _: rules::System| None;
-        let reason = reason_within(e, rules::System::N, &letters, &nonzero, &said)?;
+        let given = self.writer.said_once_given();
+        let reason = membership::shown(e, rules::System::N, &given)?.reason();
         let facts = match self.step_now.get() {
             Some(i) => self.step_facts(i),
             None => Vec::new(),
@@ -1824,8 +1823,10 @@ impl<'a> Proof<'a> {
     /// Metamath build proves memberships from. A part the walk does not take
     /// apart is in ℕ₀ where `known` gives it, a hypothesis of a cited item
     /// the checker found supplied, or where a line the step names says so,
-    /// `i − n ∈ ℕ₀` of an `instantiate … from 2.1`. None where the walk does
-    /// not put e in ℕ₀, or gives a reason `nonneg_by` writes no proof for.
+    /// `i − n ∈ ℕ₀` of an `instantiate … from 2.1`; or as the one rule says
+    /// over no lines (`membership::shown`), a row of the closure among them.
+    /// None where neither puts e in ℕ₀, or the reason is one `nonneg_by`
+    /// writes no proof for.
     pub(super) fn nonneg_proof(
         &self,
         e: &Node,
@@ -1837,10 +1838,14 @@ impl<'a> Proof<'a> {
         let known = known.as_slice();
         let letters = self.writer.page_systems();
         let nonzero = |d: &Node| nonzero_said_once(d, &letters);
+        let given = self.writer.said_once_given();
         let said = |t: &Node, s: rules::System| {
-            (rules::System::N0.within(s)
-                && known.iter().any(|k| matching::alike_top(&k.term, t, ctx)))
-            .then_some(OnceReason::Stated)
+            if rules::System::N0.within(s)
+                && known.iter().any(|k| matching::alike_top(&k.term, t, ctx))
+            {
+                return Some(OnceReason::Stated);
+            }
+            membership::shown(t, s, &given).map(|shown| shown.reason())
         };
         let reason = reason_within(e, rules::System::N0, &letters, &nonzero, &said)?;
         self.nonneg_by(e, &reason, known)

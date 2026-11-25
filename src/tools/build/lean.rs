@@ -239,7 +239,7 @@ pub fn make(checked: &CheckedCorpus, table: &ModuleTable) -> Result<Made, Proble
     let targets = Targets::of(&checked.grammar, &checked.corpus.records);
     let ctx = Context::new(&checked.grammar.notations, &checked.corpus.records);
     let mut made = Made::default();
-    let writer = Writer::new(&checked.grammar, &templates, &ctx.conjunctions);
+    let writer = Writer::new(&checked.grammar, &templates, &ctx, &targets);
 
     // The library's items with a lean field, by full name, and each
     // module's declarations.

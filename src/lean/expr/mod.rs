@@ -18,6 +18,9 @@ use super::doc::LeanType;
 use super::templates::{Num, Slot, Template, Templates};
 use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
+use crate::matching::Context;
+use crate::methods::membership;
+use crate::methods::terms::Targets;
 use crate::notations::{
     CARDINALITY, EMPTY_SET, EQUALITY, EQUALS, FOR_ALL, INTEGER_RANGE, LOGICAL_NOT,
     MEMBERSHIP, NAME, NATURALS, NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER,
@@ -329,6 +332,10 @@ pub struct Writer<'a> {
     /// (`matching::Context::conjunctions`), which every question of whether
     /// a tree is an "and" asks (`is_and`).
     pub ands: &'a FxIndexSet<NotationId>,
+    /// The reading's notations and the targets, which the one membership
+    /// rule reads a term by (`membership::shown`, `said_whole`).
+    pub ctx: &'a Context,
+    pub targets: &'a Targets,
     pub letters: Letters,
     /// The letters the page puts in ℕ or ℕ₀, each a Lean integer with its
     /// fact 0 < n or 0 ≤ n beside it, as set.mm's n ∈ ℕ is a fact about a
@@ -608,12 +615,15 @@ impl<'a> Writer<'a> {
     pub fn new(
         grammar: &'a Grammar,
         templates: &'a Templates,
-        ands: &'a FxIndexSet<NotationId>,
+        ctx: &'a Context,
+        targets: &'a Targets,
     ) -> Writer<'a> {
         Writer {
             grammar,
             templates,
-            ands,
+            ands: &ctx.conjunctions,
+            ctx,
+            targets,
             letters: IndexMap::new(),
             wholes: IndexMap::new(),
             general: None,
@@ -638,6 +648,8 @@ impl<'a> Writer<'a> {
             grammar: self.grammar,
             templates: self.templates,
             ands: self.ands,
+            ctx: self.ctx,
+            targets: self.targets,
             letters,
             wholes: self.wholes.clone(),
             general: self.general,
@@ -702,13 +714,12 @@ impl<'a> Writer<'a> {
     pub fn said_whole(&self, node: &Node) -> bool {
         let letters = self.page_systems();
         let nonzero = |d: &Node| citing::nonzero_said_once(d, &letters);
+        let given = self.said_once_given();
         // An integer by its letters and its build that a hypothesis of the
         // theorem says is at least 0, `p − 1` beside `p ≥ 1`, as the check
         // read the hypotheses (`whole_bounds`), is a whole number as surely
         // as one its build makes so, in every step alike.
-        let integer = |t: &Node| {
-            citing::within(t, rules::System::Z, &letters, &nonzero, &|_, _| false)
-        };
+        let integer = |t: &Node| membership::holds(t, rules::System::Z, &given);
         let bounded = |t: &Node, s: rules::System| {
             let least = match s {
                 rules::System::N0 => 0,
@@ -720,7 +731,26 @@ impl<'a> Writer<'a> {
                     b.least >= least && bounds::BoundsAsk::same(self, &b.term, t)
                 })
         };
-        citing::within(node, rules::System::N0, &letters, &nonzero, &bounded)
+        // What the one rule says over no lines, or what such a bound says.
+        let said = |t: &Node, s: rules::System| {
+            membership::holds(t, s, &given) || bounded(t, s)
+        };
+        citing::within(node, rules::System::N0, &letters, &nonzero, &said)
+    }
+
+    /// What the one membership rule reads over no lines (`membership::shown`):
+    /// the letters the page puts in a number system once, as Lean holds
+    /// them (`page_systems`).
+    pub fn said_once_given(&self) -> membership::Facts<'a> {
+        membership::Facts {
+            facts: &[],
+            letters: self.page_systems(),
+            ranged: IndexMap::new(),
+            typed: &[],
+            in_sums: &[],
+            targets: self.targets,
+            ctx: self.ctx,
+        }
     }
 
     /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.

@@ -751,7 +751,12 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             return Route::no("an item group the checker read no facts of");
         };
         for (si, says) in group.gives.iter().enumerate() {
-            let mut w = Writer::new(writer.grammar, writer.templates, writer.ands);
+            let mut w = Writer::new(
+                writer.grammar,
+                writer.templates,
+                writer.ctx,
+                writer.targets,
+            );
             for g in &groups_let {
                 w.letters.insert(g.group.clone(), LetterType::Group);
                 w.letters
