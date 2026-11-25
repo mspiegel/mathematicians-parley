@@ -15,7 +15,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::{Facts, Lines, Written};
-use crate::checker::record::{CheckedTheorem, HeldByLines, NotZero};
+use crate::checker::record::{AlgebraMade, CheckedTheorem, HeldByLines, NotZero};
 use crate::checker::LibraryReading;
 use crate::citing;
 use crate::corpus::{proof, written_text, FileScope, Item, Record, Step, Theorem};
@@ -452,6 +452,11 @@ pub struct Elaborator<'a> {
     /// read it with written out (`CheckedTheorem::defines_read`); None
     /// outside one.
     pub reason_defines: Option<Vec<String>>,
+    /// While a reason is built (`by_method`), how the checker found its
+    /// `algebra` claim made of the lines it cites
+    /// (`CheckedTheorem::combinations`); None outside one, or of a reason
+    /// that is no `algebra`.
+    pub reason_made: Option<AlgebraMade>,
     /// `reason_divided` while a calculator or the normaliser asks a
     /// denominator's `≠ 0` (`not_zero_named`, `Oracle::nonzero`), which
     /// `divisor_apart` proves it by; None otherwise, where a membership
@@ -649,6 +654,7 @@ impl<'a> Elaborator<'a> {
             reason_divided: None,
             reason_held: None,
             reason_defines: None,
+            reason_made: None,
             divided: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),

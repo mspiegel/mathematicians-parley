@@ -173,59 +173,63 @@ impl<'a> Elaborator<'a> {
         sum
     }
 
-    /// A claim the cited equations add up to: each cited equation is a
-    /// difference that is zero, multiplied by what the combination says and
-    /// still zero; the sum of them is zero, and that sum is the claim's own
-    /// difference, which is the normalizer's question.
-    #[allow(clippy::too_many_arguments)]
+    /// A claim the cited equations add up to, as the checker found them to
+    /// (`Combination`): each cited equation is a difference that is zero,
+    /// multiplied by what the combination says and still zero; the sum of
+    /// them is zero, and that sum is the claim's own difference, which is
+    /// the normalizer's question. Each equation and multiplier is read as
+    /// the step's lines are (`read_alike`).
     pub(super) fn summed_from_cited(
         &mut self,
-        step: &Step,
-        left: &Rpn,
-        right: &Rpn,
+        sum: &Combination,
+        out: &WrittenOut,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
         w: &mut Work,
     ) -> Checked<Route<Proof>> {
         let labels = self.b.flabel.clone();
-        let claimed = self.to_term(&t!(left, right, "wceq"));
-        let want = field::equation(&claimed, &labels);
-        let mut given = Vec::new();
-        let mut unders = Vec::new();
+        let lines = &out.lines;
+        let Sides { left, right } = self.equation_sides(&out.term);
+        let (left, right) = (&left, &right);
+        let claimed = self.to_term(&out.term);
+        let Some(want) = field::equation(&claimed, &labels) else {
+            return Ok(Route::no("the claim is no equation"));
+        };
         let mut where_: Vec<(String, Term)> = Vec::new();
         // What each cited equation had divided out of it.
         let mut taken_out: Vec<Poly> = Vec::new();
-        for r in &step.just.refs {
-            for said in self.line_writes(r, lines) {
-                let node = self.to_term(&said);
-                if let Some(one) = field::equation(&node, &labels) {
-                    let read = claim_says(&node, one, &labels);
-                    given.push(read.says);
-                    unders.push(field::exactly(
-                        &denominators(&node, &labels),
-                        &read.taken,
-                    ));
-                    taken_out.push(read.taken);
-                    where_.push((r.clone(), node));
-                }
-            }
+        let mut how: Vec<field::Taken> = Vec::new();
+        for (i, one) in sum.terms.iter().enumerate() {
+            let OrderFact::Line(at) = &one.fact else {
+                return Ok(Route::no(
+                    "an equation of the sum other than a cited line's",
+                ));
+            };
+            let written = self.term(&at.written)?;
+            let node = self.read_alike(&self.to_term(&written), &out.read);
+            let Some(read) = field::equation(&node, &labels) else {
+                return Ok(Route::no("an equation of the sum read as none"));
+            };
+            taken_out.push(claim_says(&node, read, &labels).taken);
+            where_.push((at.line.clone(), node));
+            // The multiplier as the polynomial it writes, its numbers'
+            // quotients taken as the rationals they are.
+            let times = self.term(&one.multiplier)?;
+            let times = self.read_alike(&self.to_term(&times), &out.read);
+            let times = field::read(&times, &labels);
+            let Some(below) = times.under.constant_value().filter(|b| !b.is_zero())
+            else {
+                return Ok(Route::no("a multiplier that is no polynomial"));
+            };
+            how.push(field::Taken::of(i, times.over.scaled(&(q(1) / below))));
         }
-        let Some(want) = want.filter(|_| !given.is_empty()) else {
-            return Ok(Route::no("the step cites no equation"));
-        };
-        // The first reading of the claim the cited equations make, as the
-        // decision found it (`readings`, `combination`).
-        let claim_under = denominators(&claimed, &labels);
-        let found = readings(&claimed, want, &labels)
+        let Some(says) = readings(&claimed, want, &labels)
             .into_iter()
-            .find_map(|says| {
-                combination(&given, &unders, &says, &claim_under)
-                    .filter(|h| !h.is_empty())
-                    .map(|how| (says, how))
-            });
-        let Some((says, how)) = found else {
-            return Ok(Route::no("no sum of the cited equations is the claim"));
+            .nth(sum.reading)
+        else {
+            return Ok(Route::no(
+                "a reading of the claim the checker found that is none",
+            ));
         };
         // The decision reads what the claim says (`claim_says`), and the
         // proof takes each cited equation as written: so each multiplier
@@ -559,90 +563,6 @@ impl<'a> Elaborator<'a> {
             return Ok(found);
         }
         self.within(said, &t!("cc"), scope, facts, 3)
-    }
-
-    /// A claim a cited equation is a whole multiple of: proving each side is
-    /// that multiple is the polynomial case again, and what is left is
-    /// cancelling the multiplier.
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn scaled_from_cited(
-        &mut self,
-        step: &Step,
-        left: &Rpn,
-        right: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-        w: &mut Work,
-    ) -> Checked<Route<Proof>> {
-        let labels = self.b.flabel.clone();
-        let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
-        for r in &step.just.refs {
-            let Some(held) = self.line_written(r, lines) else {
-                continue;
-            };
-            let cited = self.to_term(&held.claim);
-            if cited.variable().is_some() || cited.label() != Some("wceq") {
-                continue;
-            }
-            let times = whole_multiple(
-                field::equation(&cited, &labels).as_ref(),
-                want.as_ref(),
-            );
-            let Some(times) = times else {
-                continue;
-            };
-            let numeral = numerals::spell(times.unsigned_abs());
-            let scaled: Vec<Rpn> = [left, right]
-                .iter()
-                .map(|one| t!(numeral, one, "cmul", "co"))
-                .collect();
-            let was: Vec<Rpn> = cited.children().iter().map(|c| self.rpn(c)).collect();
-            let mut sides = Vec::new();
-            for (x, y) in was.iter().zip(&scaled) {
-                sides.push(self.same_polynomial(w, x, y)?);
-            }
-            if sides.iter().any(|s| s.is_declined()) {
-                continue;
-            }
-            let sides: Vec<Proof> =
-                sides.into_iter().filter_map(|s| s.built()).collect();
-            let given = self.carried(r, facts, lines);
-            return self
-                .cancel_multiple(
-                    w, times, left, right, &scaled, &sides, given, &cited, scope, facts,
-                )
-                .map(Built);
-        }
-        Ok(Route::no("no cited equation is a multiple of the claim"))
-    }
-
-    /// The multiplier taken off both sides, which is `mulcan`.
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn cancel_multiple(
-        &mut self,
-        w: &mut Work,
-        times: i64,
-        left: &Rpn,
-        right: &Rpn,
-        scaled: &[Rpn],
-        sides: &[Proof],
-        given: Proof,
-        cited: &Term,
-        scope: &Rpn,
-        facts: &Facts,
-    ) -> Checked<Proof> {
-        let matched = self.b.ap(
-            "3eqtr3d",
-            &binds! {"ph" => scope, "A" => self.rpn(&cited.children()[0]), "B" => self.rpn(&cited.children()[1]),
-            "C" => &scaled[0], "D" => &scaled[1]},
-            &[&given, &sides[0], &sides[1]],
-        );
-        let Built(both) = self.factors_apart(w, times, &[], scope, facts)? else {
-            unreachable!("a numeral is a number and not 0");
-        };
-        let numeral = numerals::spell(times.unsigned_abs());
-        self.cancelled_by(&numeral, both, left, right, scaled, matched, scope, facts)
     }
 
     /// ( scope -> left = right ) from `matched`, which proves the two sides

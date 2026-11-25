@@ -937,8 +937,9 @@ impl<'a> Elaborator<'a> {
 
     /// `f`, run with what the checker recorded of the reason on `line` held
     /// for as long as it builds (`reason_held`, `reason_divided`,
-    /// `reason_defines`): the parts its lines hold, the parts it divides by
-    /// and the defined names it reads written out.
+    /// `reason_defines`, `reason_made`): the parts its lines hold, the parts
+    /// it divides by, the defined names it reads written out, and how an
+    /// `algebra` claim is made of its lines.
     pub(crate) fn holding_reason<T>(
         &mut self,
         line: usize,
@@ -947,13 +948,16 @@ impl<'a> Elaborator<'a> {
         let held = self.checked.held_by_lines.get(&line).cloned();
         let divided = self.checked.divided_by.get(&line).cloned();
         let defines = self.checked.defines_read.get(&line).cloned();
+        let making = self.checked.combinations.get(&line).cloned();
         let kept_held = self.reason_held.replace(held.unwrap_or_default());
         let kept_divided = self.reason_divided.replace(divided.unwrap_or_default());
         let kept_defines = self.reason_defines.replace(defines.unwrap_or_default());
+        let kept_making = mem::replace(&mut self.reason_made, making);
         let made = f(self);
         self.reason_held = kept_held;
         self.reason_divided = kept_divided;
         self.reason_defines = kept_defines;
+        self.reason_made = kept_making;
         made
     }
 

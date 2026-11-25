@@ -25,13 +25,11 @@ use super::linear::{self, Certificate, How};
 use super::normal::{Emitter, Oracle, Quotiented, Run};
 use super::state::{Elaborator, ProvedClaim, Vars};
 use super::{numerals, Facts, Line, Lines};
+use crate::checker::record::{AlgebraMade, Combination, OrderFact, Rescaled};
 use crate::corpus::proof::{rows, RowReason};
 use crate::corpus::{Item, Method, RecordKind, Step};
 use crate::formula::symbol::Symbol;
-pub use crate::methods::algebra::rescales;
-use crate::methods::algebra::{
-    claim_says, combination, denominators, readings, Factor,
-};
+use crate::methods::algebra::{claim_says, denominators, readings, Factor};
 use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::mm::kernel::Term;
 use crate::mm::spell::{Builder, Proof};
@@ -237,28 +235,6 @@ pub fn order_sides(goal: &Term) -> Option<(Term, Term, &'static str)> {
     Some((kids[0].clone(), kids[1].clone(), how))
 }
 
-/// How many times the claim the cited equation is, if a whole number of 2
-/// or more: both are the polynomial that must vanish, so one being a
-/// multiple of the other is the two saying the same thing at different
-/// scales.
-pub fn whole_multiple(cited: Option<&Poly>, claim: Option<&Poly>) -> Option<i64> {
-    let (cited, claim) = (cited?, claim?);
-    let lead = claim.lead()?;
-    let theirs = cited.terms.get(lead)?;
-    let times = theirs / &claim.terms[lead];
-    if !times.is_integer() {
-        return None;
-    }
-    let whole = times.to_integer().to_i64()?;
-    if whole < 2 {
-        return None;
-    }
-    if *cited != claim.scaled(&times) {
-        return None;
-    }
-    Some(whole)
-}
-
 /// The term a combination multiplies one cited equation by, or None where a
 /// coefficient is not whole: a multiplier is written the short way, `-u q`
 /// rather than the canonical `( -u 1 x. ( q ^ 1 ) )`, its terms in the
@@ -381,6 +357,20 @@ struct WrittenOut {
     term: Rpn,
     facts: Facts,
     lines: Lines,
+    /// How the lines were read, which reads any other term of the step's
+    /// alike (`read_alike`).
+    read: LinesRead,
+}
+
+/// How `names_written_out` and `identities_written_out` read a step's
+/// lines (`WrittenOut::read`).
+#[derive(Clone, Default)]
+struct LinesRead {
+    /// The letter every sum is written over, where a defined name is
+    /// written out (`written_out`).
+    letter: Option<String>,
+    /// Whether identity elements are dropped (`without_identities`).
+    bare: bool,
 }
 
 /// What a sum read as linear is shown at a member, each under the member's

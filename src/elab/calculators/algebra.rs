@@ -5,7 +5,6 @@ use std::mem;
 use super::*;
 use crate::checker::record::{NonzeroBy, NotZero};
 use crate::elab::state::Divided;
-use crate::methods::algebra::apart_at;
 
 /// How a divisor the build asks of is the page's term a record entry names
 /// (`Elaborator::asked_of`).
@@ -21,10 +20,9 @@ impl<'a> Elaborator<'a> {
         Ask { el: self, spec }
     }
 
-    /// Decided by `field`, then proved by `normal`. A step that is not an
-    /// identity of the field is refused rather than assumed; what `normal`
-    /// does not yet write is taken as stated. Each part the reason divides
-    /// by is shown not zero as the checker recorded it (`reason_divided`).
+    /// The claim as the checker found it made of the lines it cites
+    /// (`reason_made`), proved by `normal`. Each part the reason divides by
+    /// is shown not zero as the checker recorded it (`reason_divided`).
     pub fn algebra(
         &mut self,
         step: &Step,
@@ -33,8 +31,29 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
+        let Some(made) = self.reason_made.clone() else {
+            return Ok(Route::no(
+                "an algebra claim the checker recorded no making of",
+            ));
+        };
+        self.algebra_made(step, &made, term, scope, facts, lines)
+    }
+
+    /// `algebra` of a claim made as `made` says.
+    fn algebra_made(
+        &mut self,
+        step: &Step,
+        made: &AlgebraMade,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
         if let Some(pairs) = pairs::relation(&self.to_term(term)) {
-            return self.algebra_pairs(step, &pairs, scope, facts, lines);
+            let AlgebraMade::Pairs(each) = made else {
+                return Ok(Route::no("two pairs the checker recorded as one claim"));
+            };
+            return self.algebra_pairs(step, &pairs, each, scope, facts, lines);
         }
         // A defined name is read as what it names, as `inequalities` reads
         // it: the claim and each cited line are taken with their defined
@@ -52,36 +71,43 @@ impl<'a> Elaborator<'a> {
         // elements are dropped, as the checker reads the step: where the
         // claim or a line it cites has one, the claim and the lines are
         // decided bare, and the proof carried back.
-        let mut found: Route<Proof> = Route::no("nothing to decide bare");
-        if let Built(bare) =
-            self.identities_written_out(&step.just.refs, &out, scope)?
-        {
-            // The cited lines are read from the elaborator's own table as
-            // well as from the ones handed down, a membership of an atom
-            // among them, so the bare lines stand there while they are
-            // decided.
-            let kept = mem::replace(&mut self.lines, bare.lines.clone());
-            let decided = self.field_either_way(
-                step,
-                &bare.term,
-                scope,
-                &bare.facts,
-                &bare.lines,
-            );
-            self.lines = kept;
-            if let Built(p) = decided? {
-                if let Some(back) =
-                    self.tidied(&p, &bare.term, &out.term, scope, &out.facts)?
-                {
-                    found = Built(back);
+        let found = match self.identities_written_out(&step.just.refs, &out, scope)? {
+            Built(bare) => {
+                // The cited lines are read from the elaborator's own table as
+                // well as from the ones handed down, a membership of an atom
+                // among them, so the bare lines stand there while they are
+                // decided.
+                let kept = mem::replace(&mut self.lines, bare.lines.clone());
+                let decided = self.field_made(step, made, &bare, scope);
+                self.lines = kept;
+                match decided? {
+                    Built(p) => {
+                        match self
+                            .tidied(&p, &bare.term, &out.term, scope, &out.facts)?
+                        {
+                            Some(back) => Built(back),
+                            None => {
+                                Route::no("the claim read bare is not carried back")
+                            }
+                        }
+                    }
+                    Declined(d) => Declined(d),
                 }
             }
-        }
-        let found = match found {
-            Built(p) => Built(p),
-            Declined(_) => self
-                .algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?,
+            Declined(_) => self.field_made(step, made, &out, scope)?,
         };
+        if let Declined(d) = &found {
+            // Found but not written is a gap in the method, and nothing is
+            // taken in its place: the build stops here.
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "algebra cannot write the proof the checker found of step {}: {}",
+                    step.number,
+                    self.say(d)
+                ),
+            ));
+        }
         if out.term == *term {
             return Ok(found);
         }
@@ -96,13 +122,14 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Two pairs compared coordinate by coordinate by `algebra`
-    /// (`METHODS.md`, Pairs): both coordinates' equations, or the
-    /// difference at the first coordinate whose difference rescales one
-    /// the step cites (`methods::algebra::apart_at`).
+    /// (`METHODS.md`, Pairs), each coordinate's claim made as the checker
+    /// found (`AlgebraMade::Pairs`): both coordinates' equations, or the
+    /// difference at the coordinate the pairs are apart at.
     pub(super) fn algebra_pairs(
         &mut self,
         step: &Step,
         pairs: &PairRelation,
+        each: &[(Coordinate, AlgebraMade)],
         scope: &Rpn,
         facts: &Facts,
         lines: &Lines,
@@ -110,84 +137,102 @@ impl<'a> Elaborator<'a> {
         if !pairs.apart {
             let mut proved = Vec::new();
             for at in Coordinate::BOTH {
+                let Some((_, made)) = each.iter().find(|(c, _)| *c == at) else {
+                    return Ok(Route::no(
+                        "a coordinate the checker recorded no making at",
+                    ));
+                };
                 let equation = self.rpn(&pairs.equation(at));
-                proved.push(take!(self.algebra(step, &equation, scope, facts, lines)?));
+                proved.push(take!(
+                    self.algebra_made(step, made, &equation, scope, facts, lines)?
+                ));
             }
             return Ok(Built(
                 self.pairs_equal(pairs, scope, &proved[0], &proved[1]),
             ));
         }
-        let cited: Vec<Term> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| self.line_written(r, lines).map(|l| self.to_term(&l.claim)))
-            .collect();
-        let labels = self.b.flabel.clone();
-        let Some(at) = apart_at(pairs, &cited, &labels) else {
-            return Ok(Route::no(
-                "no coordinate's difference is a disequality the step cites, rescaled",
-            ));
+        let [(at, made)] = each else {
+            return Ok(Route::no("pairs apart at other than one coordinate"));
         };
-        let denial = self.rpn(&pairs.denial(at));
-        let apart = take!(self.algebra(step, &denial, scope, facts, lines)?);
+        let denial = self.rpn(&pairs.denial(*at));
+        let apart = take!(self.algebra_made(step, made, &denial, scope, facts, lines)?);
         let members = self.number_members(pairs, scope, facts)?;
-        Ok(Built(self.pairs_apart(pairs, scope, at, &apart, &members)))
+        Ok(Built(self.pairs_apart(pairs, scope, *at, &apart, &members)))
     }
 
-    /// `prove_field` of the claim, or of the claim turned round: an equation
-    /// is one claim either way round, and a route that reaches `b = a`
-    /// reaches the claim `a = b` turned (`turned_claim`).
-    pub(super) fn field_either_way(
+    /// The claim and lines `out` holds, read as `out` read them, proved as
+    /// `made` says the claim is made of the lines: an identity, a sum of
+    /// the cited equations, or a cited disequality rescaled.
+    fn field_made(
         &mut self,
         step: &Step,
-        term: &Rpn,
+        made: &AlgebraMade,
+        out: &WrittenOut,
         scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let found = self.prove_field(Some(step), term, scope, facts, lines)?;
-        if !found.is_declined() {
-            return Ok(found);
-        }
-        if let Some((turned, flip)) = self.turned_claim(term) {
-            if let Built(p) =
-                self.prove_field(Some(step), &turned, scope, facts, lines)?
-            {
-                let Sides { left, right } = self.equation_sides(&turned);
-                return Ok(Built(pf!(self.b; scope, left, right, p, flip)));
+        // Every finite sum the step reads is written over one letter nothing
+        // holds, as `prove_field` writes it.
+        let linear = self.sums_linear(&out.term, Some(step), &out.lines);
+        let letter = match linear {
+            true => {
+                let mut seen: Vec<Term> =
+                    vec![self.to_term(&out.term), self.to_term(scope)];
+                for r in &step.just.refs {
+                    if let Some(line) = self.line_written(r, &out.lines) {
+                        seen.push(self.to_term(&line.claim));
+                    }
+                }
+                let refs: Vec<&Term> = seen.iter().collect();
+                self.unheld(&refs).map(|v| self.rpn(&v).to_string())
             }
-        }
-        Ok(found)
+            false => None,
+        };
+        let kept = mem::replace(&mut self.sum_letter, letter);
+        let proved = field::reading_sums(linear, || {
+            self.field_made_read(step, made, out, scope)
+        });
+        self.sum_letter = kept;
+        proved
     }
 
-    /// `algebra` over a claim and lines whose defined names are written out.
-    pub(super) fn algebra_written_out(
+    /// `field_made`, with the step's sums read as it reads them.
+    fn field_made_read(
         &mut self,
         step: &Step,
-        term: &Rpn,
+        made: &AlgebraMade,
+        out: &WrittenOut,
         scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let found = self.field_either_way(step, term, scope, facts, lines)?;
-        if let Declined(d) = &found {
-            // Decided but not written is a gap in the method, and nothing is
-            // taken in its place: the build stops here.
-            return Err(self.defect(
-                step.line,
-                format!(
-                    "step {} is an identity, and algebra cannot write its proof: {}",
-                    step.number,
-                    self.say(d)
-                ),
-            ));
+        // A `requires` line is where a step says its denominator is not
+        // zero, so what the normalizer is asked is asked of those as well;
+        // and what the step cites is laid over the scope's copies, so that
+        // a fact one of its lines says is taken from that line.
+        let supplied = self.supplied(Some(step), scope, &out.facts)?;
+        let facts = self.with_cited(Some(step), scope, &supplied, None)?;
+        let mut w = Work::new(Spec {
+            scope: scope.clone(),
+            facts: facts.clone(),
+            apart: true,
+            written: Some(facts.clone()),
+            atoms: RefCell::default(),
+            implied: Implied::default(),
+        });
+        let goal = self.to_term(&out.term);
+        match made {
+            AlgebraMade::Sum(sum) if sum.terms.is_empty() => {
+                let Sides { left, right } = self.equation_sides(&out.term);
+                self.same_polynomial(&mut w, &left, &right)
+            }
+            AlgebraMade::Sum(sum) => {
+                self.summed_from_cited(sum, out, scope, &facts, &mut w)
+            }
+            AlgebraMade::Rescaled(r) => {
+                self.apart_from_cited(step, r, &goal, out, scope, &facts, &mut w)
+            }
+            AlgebraMade::Pairs(_) => Ok(Route::no("pairs read as one claim")),
         }
-        Ok(found)
     }
 
-    /// An `algebra` claim, by whichever of the routes reaches it, in the
-    /// order they cost; refused in the words of every route that declined.
     /// Whether a step reads its sums as linear: one of them, in its claim or
     /// a line it cites, is linear in something (`field::says_something_linear`).
     pub fn sums_linear(&self, term: &Rpn, step: Option<&Step>, lines: &Lines) -> bool {
@@ -204,6 +249,8 @@ impl<'a> Elaborator<'a> {
             .any(|t| field::says_something_linear(t, &labels))
     }
 
+    /// An identity of the field (`field_proved`), its sums read as the step
+    /// reads them.
     pub fn prove_field(
         &mut self,
         step: Option<&Step>,
@@ -231,29 +278,25 @@ impl<'a> Elaborator<'a> {
             None
         };
         let kept = mem::replace(&mut self.sum_letter, letter);
-        let out = field::reading_sums(linear, || {
-            self.field_proved(step, term, scope, facts, lines)
-        });
+        let out =
+            field::reading_sums(linear, || self.field_proved(step, term, scope, facts));
         self.sum_letter = kept;
         out
     }
 
+    /// An identity of the field, proved by `normal`, the facts the step
+    /// cites laid over the scope's where a step asks it.
     pub(super) fn field_proved(
         &mut self,
         step: Option<&Step>,
         term: &Rpn,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let goal = self.to_term(term);
-        let apart = goal.variable().is_none()
-            && goal.label() == Some("wn")
-            && goal.children().len() == 1;
-        if !apart
-            && (goal.variable().is_some()
-                || goal.label() != Some("wceq")
-                || goal.children().len() != 2)
+        if goal.variable().is_some()
+            || goal.label() != Some("wceq")
+            || goal.children().len() != 2
         {
             return Ok(Route::no("the claim is not an equation"));
         }
@@ -276,303 +319,122 @@ impl<'a> Elaborator<'a> {
             atoms: RefCell::default(),
             implied: Implied::default(),
         });
-        if apart {
-            return self.apart_from_cited(step, &goal, scope, &facts, lines, &mut w);
-        }
         let left = self.rpn(&goal.children()[0]);
         let right = self.rpn(&goal.children()[1]);
-        // Each route's decline, written out only if every route declines.
-        let mut declines = Vec::new();
-        let found = self.same_polynomial(&mut w, &left, &right)?;
-        match found {
-            Built(p) => return Ok(Built(p)),
-            Declined(d) => declines.push(d),
-        }
-        if let Some(step) = step {
-            for route in 0..3 {
-                let found = match route {
-                    0 => self.scaled_from_cited(
-                        step, &left, &right, scope, &facts, lines, &mut w,
-                    )?,
-                    1 => self.crossed_from_cited(
-                        step, &left, &right, scope, &facts, lines, &mut w,
-                    )?,
-                    _ => self.summed_from_cited(
-                        step, &left, &right, scope, &facts, lines, &mut w,
-                    )?,
-                };
-                match found {
-                    Built(p) => return Ok(Built(p)),
-                    Declined(d) => declines.push(d),
-                }
-            }
-        }
-        let said: Vec<String> = declines.iter().map(|d| self.say(d)).collect();
-        Ok(Route::no(said.join("; ")))
+        self.same_polynomial(&mut w, &left, &right)
     }
 
     /// A disequality that is a cited one rescaled: the cited fact becomes a
     /// difference that is not zero, the two differences are shown to be one
     /// polynomial, and the claim's difference is not zero either, the cited
     /// difference multiplied by any rational other than 0 (`METHODS.md`).
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn apart_from_cited(
         &mut self,
-        step: Option<&Step>,
+        step: &Step,
+        rescaled: &Rescaled,
         goal: &Term,
+        out: &WrittenOut,
         scope: &Rpn,
         facts: &Facts,
-        lines: &Lines,
         w: &mut Work,
     ) -> Checked<Route<Proof>> {
-        let Some(step) = step else {
-            return Ok(Route::no("a disequality needs the step it cites"));
-        };
         let labels = self.b.flabel.clone();
-        let claim = field::denied(goal, &labels);
+        let lines = &out.lines;
         let inner = goal.children()[0].clone();
         let (lhs, rhs) = (
             self.rpn(&inner.children()[0]),
             self.rpn(&inner.children()[1]),
         );
         let whole = t!(lhs, rhs, "cmin", "co");
-        for r in &step.just.refs {
-            for said in self.line_writes(r, lines) {
-                let node = self.to_term(&said);
-                let cited = field::denied(&node, &labels);
-                let Some(numerators) = rescales(cited.as_ref(), claim.as_ref()) else {
-                    continue;
-                };
-                let pair = node.children()[0].clone();
-                let (p, qq) =
-                    (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
-                let mut gap = t!(p, qq, "cmin", "co");
-                // A disequality is read by its numerator, so the two
-                // differences are one a multiple of the other by the scale
-                // of their numerators times the ratio of their denominators,
-                // where both are numbers: k(k + 1)/2 − 0 is 1/2 of k(k + 1) − 0.
-                let below = |t: &Rpn| {
-                    field::read(&self.to_term(t), &labels)
-                        .under
-                        .constant_value()
-                };
-                let scale = match (below(&gap), below(&whole)) {
-                    (Some(theirs), Some(ours)) if !ours.is_zero() => {
-                        numerators * theirs / ours
-                    }
-                    _ => numerators,
-                };
-                let given = take!(self.cited_fact(r, &node, scope, facts, lines)?);
-                let pp = self.membership(&p, "cc", scope, &w.spec.facts)?;
-                let pq = self.membership(&qq, "cc", scope, &w.spec.facts)?;
-                let turned = self.b.ap(
-                    "neqned",
-                    &binds! {"ph" => scope, "A" => &p, "B" => &qq},
-                    &[&given],
-                );
-                let mut apart = self.b.ap(
-                    "subne0d",
-                    &binds! {"ph" => scope, "A" => &p, "B" => &qq},
-                    &[&pp, &pq, &turned],
-                );
-                if scale == q(-1) {
-                    let pg = self.membership(&gap, "cc", scope, &w.spec.facts)?;
-                    apart = self.b.ap(
-                        "negne0d",
-                        &binds! {"ph" => scope, "A" => &gap},
-                        &[&pg, &apart],
-                    );
-                    gap = t!(gap, "cneg");
-                } else if scale != q(1) {
-                    // Any other rational multiple (`METHODS.md`): the scale is
-                    // a closed number other than 0, k(k + 1)/2 ≠ 0 from
-                    // k(k + 1) ≠ 0 at 1/2.
-                    let times = field::spell_rational(&scale);
-                    let what = format!(
-                        "the scale {} of step {}",
-                        self.render(&times),
-                        step.number
-                    );
-                    let apart_from_zero = t!(times, "cc0", "wne");
-                    let nonzero = self.closed_fact(
-                        &apart_from_zero,
-                        scope,
-                        facts,
-                        &what,
-                        Some(step),
-                    )?;
-                    let ps = self.membership(&times, "cc", scope, &w.spec.facts)?;
-                    let pg = self.membership(&gap, "cc", scope, &w.spec.facts)?;
-                    apart = self.b.ap(
-                        "mulne0d",
-                        &binds! {"ph" => scope, "A" => &times, "B" => &gap},
-                        &[&ps, &pg, &nonzero, &apart],
-                    );
-                    gap = t!(times, gap, "cmul", "co");
-                }
-                let alike = take!(self.same_polynomial(w, &gap, &whole)?);
-                let pl = self.membership(&lhs, "cc", scope, &w.spec.facts)?;
-                let pr = self.membership(&rhs, "cc", scope, &w.spec.facts)?;
-                let moved = self.b.ap(
-                    "eqnetrrd",
-                    &binds! {"ph" => scope, "A" => &gap, "B" => &whole, "C" => "cc0"},
-                    &[&alike, &apart],
-                );
-                let differ = self.b.ap(
-                    "subne0ad",
-                    &binds! {"ph" => scope, "A" => &lhs, "B" => &rhs},
-                    &[&pl, &pr, &moved],
-                );
-                return Ok(Built(self.b.ap(
-                    "neneqd",
-                    &binds! {"ph" => scope, "A" => &lhs, "B" => &rhs},
-                    &[&differ],
-                )));
-            }
+        // The cited disequality and the number its polynomial is multiplied
+        // by to be the claim's, as the checker found them.
+        let OrderFact::Line(at) = &rescaled.fact else {
+            return Ok(Route::no(
+                "a rescaled disequality other than a cited line's",
+            ));
+        };
+        let written = self.term(&at.written)?;
+        let node = self.read_alike(&self.to_term(&written), &out.read);
+        let by = self.term(&rescaled.by)?;
+        let Value::Exact(numerators) = take!(field::closed_value(&self.to_term(&by)))
+        else {
+            return Ok(Route::no("a rescaling by no exact number"));
+        };
+        let r = &at.line;
+        let pair = node.children()[0].clone();
+        let (p, qq) = (self.rpn(&pair.children()[0]), self.rpn(&pair.children()[1]));
+        let mut gap = t!(p, qq, "cmin", "co");
+        // A disequality is read by its numerator, so the two
+        // differences are one a multiple of the other by the scale
+        // of their numerators times the ratio of their denominators,
+        // where both are numbers: k(k + 1)/2 − 0 is 1/2 of k(k + 1) − 0.
+        let below = |t: &Rpn| {
+            field::read(&self.to_term(t), &labels)
+                .under
+                .constant_value()
+        };
+        let scale = match (below(&gap), below(&whole)) {
+            (Some(theirs), Some(ours)) if !ours.is_zero() => numerators * theirs / ours,
+            _ => numerators,
+        };
+        let given = take!(self.cited_fact(r, &node, scope, facts, lines)?);
+        let pp = self.membership(&p, "cc", scope, &w.spec.facts)?;
+        let pq = self.membership(&qq, "cc", scope, &w.spec.facts)?;
+        let turned = self.b.ap(
+            "neqned",
+            &binds! {"ph" => scope, "A" => &p, "B" => &qq},
+            &[&given],
+        );
+        let mut apart = self.b.ap(
+            "subne0d",
+            &binds! {"ph" => scope, "A" => &p, "B" => &qq},
+            &[&pp, &pq, &turned],
+        );
+        if scale == q(-1) {
+            let pg = self.membership(&gap, "cc", scope, &w.spec.facts)?;
+            apart = self.b.ap(
+                "negne0d",
+                &binds! {"ph" => scope, "A" => &gap},
+                &[&pg, &apart],
+            );
+            gap = t!(gap, "cneg");
+        } else if scale != q(1) {
+            // Any other rational multiple (`METHODS.md`): the scale is
+            // a closed number other than 0, k(k + 1)/2 ≠ 0 from
+            // k(k + 1) ≠ 0 at 1/2.
+            let times = field::spell_rational(&scale);
+            let what =
+                format!("the scale {} of step {}", self.render(&times), step.number);
+            let apart_from_zero = t!(times, "cc0", "wne");
+            let nonzero =
+                self.closed_fact(&apart_from_zero, scope, facts, &what, Some(step))?;
+            let ps = self.membership(&times, "cc", scope, &w.spec.facts)?;
+            let pg = self.membership(&gap, "cc", scope, &w.spec.facts)?;
+            apart = self.b.ap(
+                "mulne0d",
+                &binds! {"ph" => scope, "A" => &times, "B" => &gap},
+                &[&ps, &pg, &nonzero, &apart],
+            );
+            gap = t!(times, gap, "cmul", "co");
         }
-        Ok(Route::no("no cited disequality is the claim rescaled"))
-    }
-
-    /// A claim the cited equation already is, once its division goes:
-    /// `divmuleq` is the step between them.
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn crossed_from_cited(
-        &mut self,
-        step: &Step,
-        left: &Rpn,
-        right: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-        lines: &Lines,
-        w: &mut Work,
-    ) -> Checked<Route<Proof>> {
-        let labels = self.b.flabel.clone();
-        let want = field::equation(&self.to_term(&t!(left, right, "wceq")), &labels);
-        for r in &step.just.refs {
-            // A line saying several things is read a sentence at a time, as
-            // any line a step cites is.
-            for part in self.line_writes(r, lines) {
-                let cited = self.to_term(&part);
-                if cited.variable().is_some()
-                    || cited.label() != Some("wceq")
-                    || cited.children().len() != 2
-                {
-                    continue;
-                }
-                let mine = field::equation(&cited, &labels);
-                match (&want, &mine) {
-                    (Some(want), Some(mine)) if mine == want => {}
-                    _ => continue,
-                }
-                let Built(given) = self.cited_fact(r, &cited, scope, facts, lines)?
-                else {
-                    continue;
-                };
-                let found = self.cleared(w, &cited, left, right, given)?;
-                if !found.is_declined() {
-                    return Ok(found);
-                }
-            }
-        }
-        Ok(Route::no("no cited equation is the claim divided"))
-    }
-
-    /// The cited equation with its denominators multiplied out.
-    pub(super) fn cleared(
-        &mut self,
-        w: &mut Work,
-        cited: &Term,
-        left: &Rpn,
-        right: &Rpn,
-        given: Proof,
-    ) -> Checked<Route<Proof>> {
-        let labels = self.b.flabel.clone();
-        let was: Vec<Rpn> = cited.children().iter().map(|c| self.rpn(c)).collect();
-        let mut quotients = Vec::new();
-        for (side, said) in cited.children().iter().zip(&was) {
-            let Quotiented { over, under, proof } =
-                take!(w
-                    .e
-                    .normalize_quotient(&mut self.ask(&w.spec), side, &labels)?);
-            quotients.push(w.e.as_quotient(
-                &mut self.ask(&w.spec),
-                over,
-                under,
-                proof,
-                said,
-            )?);
-        }
-        let (below, beneath, second) = quotients.pop().unwrap();
-        let (over, under, first) = quotients.pop().unwrap();
-        let (a, b) = (Emitter::spell_run(&over), Emitter::spell_run(&under));
-        let (c, d) = (Emitter::spell_run(&below), Emitter::spell_run(&beneath));
-        let p1 = w.e.pair_of(&mut self.ask(&w.spec), &under)?;
-        let p2 = w.e.pair_of(&mut self.ask(&w.spec), &beneath)?;
-        let (p1, p2) = (take!(p1), take!(p2));
-        let u = w.spec.scope.clone();
-        let rc1 = w.e.run_cc(&mut self.ask(&w.spec), &over)?;
-        let rc2 = w.e.run_cc(&mut self.ask(&w.spec), &below)?;
-        let quotient = t!(t!(a, b, "cdiv", "co"), t!(c, d, "cdiv", "co"), "wceq");
-        let crossed_eq = t!(t!(a, d, "cmul", "co"), t!(c, b, "cmul", "co"), "wceq");
-        let matched = self.b.ap(
-            "3eqtr3d",
-            &binds! {"ph" => &u, "A" => &was[0], "B" => &was[1], "C" => t!(a, b, "cdiv", "co"), "D" => t!(c, d, "cdiv", "co")},
-            &[&given, &first, &second],
+        let alike = take!(self.same_polynomial(w, &gap, &whole)?);
+        let pl = self.membership(&lhs, "cc", scope, &w.spec.facts)?;
+        let pr = self.membership(&rhs, "cc", scope, &w.spec.facts)?;
+        let moved = self.b.ap(
+            "eqnetrrd",
+            &binds! {"ph" => scope, "A" => &gap, "B" => &whole, "C" => "cc0"},
+            &[&alike, &apart],
         );
-        let tops = self.b.ap("jca", &binds! {"ph" => &u, "ps" => t!(a, "cc", "wcel"), "ch" => t!(c, "cc", "wcel")}, &[&rc1, &rc2]);
-        let pair = |x: &Rpn| t!(t!(x, "cc", "wcel"), t!(x, "cc0", "wne"), "wa");
-        let bottoms = self.b.ap(
-            "jca",
-            &binds! {"ph" => &u, "ps" => pair(&b), "ch" => pair(&d)},
-            &[&p1, &p2],
-        );
-        let law = self.b.ap(
-            "divmuleq",
-            &binds! {"A" => &a, "B" => &c, "C" => &b, "D" => &d},
-            &[],
-        );
-        let turn = self.b.ap(
-            "syl2anc",
-            &binds! {"ph" => &u, "ps" => t!(t!(a, "cc", "wcel"), t!(c, "cc", "wcel"), "wa"),
-            "ch" => t!(pair(&b), pair(&d), "wa"), "th" => t!(quotient, crossed_eq, "wb")},
-            &[&tops, &bottoms, &law],
-        );
-        let crossed = self.b.ap(
-            "mpbid",
-            &binds! {"ph" => &u, "ps" => &quotient, "ch" => &crossed_eq},
-            &[&matched, &turn],
-        );
-        // The claim and the crossed equation are one polynomial, which says
-        // their differences agree and not their sides: (H(b) − H(a))·1 =
-        // 0·(b − a) carries H(b) = H(a) with each side split otherwise.
-        let facts = w.spec.facts.clone();
-        let (p, q) = (t!(a, d, "cmul", "co"), t!(c, b, "cmul", "co"));
-        let p_cc = self.in_cc(&p, &u, &facts)?;
-        let gap = t!(p, q, "cmin", "co");
-        let whole = t!(left, right, "cmin", "co");
-        let alike = self.same_polynomial(w, &gap, &whole)?;
-        let left_cc = self.in_cc(left, &u, &facts)?;
-        let right_cc = self.in_cc(right, &u, &facts)?;
-        let (p_cc, alike, left_cc, right_cc) =
-            (take!(p_cc), take!(alike), take!(left_cc), take!(right_cc));
-        let vanishes = self.b.ap(
-            "subeq0bd",
-            &binds! {"ph" => &u, "A" => &p, "B" => &q},
-            &[&p_cc, &crossed],
-        );
-        let reached = self.b.ap(
-            "eqtr3d",
-            &binds! {"ph" => &u, "A" => &gap, "B" => &whole, "C" => "cc0"},
-            &[&alike, &vanishes],
-        );
-        let turn = self.b.ap(
-            "subeq0ad",
-            &binds! {"ph" => &u, "A" => left, "B" => right},
-            &[&left_cc, &right_cc],
+        let differ = self.b.ap(
+            "subne0ad",
+            &binds! {"ph" => scope, "A" => &lhs, "B" => &rhs},
+            &[&pl, &pr, &moved],
         );
         Ok(Built(self.b.ap(
-            "mpbid",
-            &binds! {"ph" => &u, "ps" => t!(whole, "cc0", "wceq"), "ch" => t!(left, right, "wceq")},
-            &[&reached, &turn],
+            "neneqd",
+            &binds! {"ph" => scope, "A" => &lhs, "B" => &rhs},
+            &[&differ],
         )))
     }
 

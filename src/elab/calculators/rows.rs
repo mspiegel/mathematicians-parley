@@ -191,12 +191,16 @@ impl<'a> Elaborator<'a> {
         let mut seen: Vec<Term> = vec![claim.clone(), self.to_term(scope)];
         seen.extend(cited.iter().map(|l| self.to_term(&l.claim)));
         let refs: Vec<&Term> = seen.iter().collect();
+        let letter = self.unheld(&refs).map(|v| self.rpn(&v).to_string());
         let as_written = WrittenOut {
             term: term.clone(),
             facts: facts.clone(),
             lines: lines.clone(),
+            read: LinesRead {
+                letter: letter.clone(),
+                bare: false,
+            },
         };
-        let letter = self.unheld(&refs).map(|v| self.rpn(&v).to_string());
         // A distance's two points stand in no order, and the methods read a
         // term's atoms as they are spelt: every such pair is put in order.
         let mut said = vec![term.clone()];
@@ -235,6 +239,10 @@ impl<'a> Elaborator<'a> {
             term: term_out,
             facts: facts_out,
             lines: lines_out,
+            read: LinesRead {
+                letter,
+                bare: false,
+            },
         }))
     }
 
@@ -316,7 +324,23 @@ impl<'a> Elaborator<'a> {
             term: term_out,
             facts: facts_out,
             lines: lines_out,
+            read: LinesRead {
+                letter: out.read.letter.clone(),
+                bare: true,
+            },
         }))
+    }
+
+    /// A term of the step read as its lines were (`WrittenOut::read`): its
+    /// defined names written out, and its identity elements dropped where
+    /// theirs are.
+    pub(super) fn read_alike(&mut self, term: &Term, read: &LinesRead) -> Term {
+        let names = self.recorded_defines();
+        let out = self.written_out(term, &names, read.letter.as_deref());
+        match read.bare {
+            true => self.without_identities(&out),
+            false => out,
+        }
     }
 
     /// A term as `names_written_out` reads it: with the defined names
