@@ -66,6 +66,7 @@ mod formulas;
 mod intervals;
 mod library;
 pub mod record;
+mod rests;
 mod structure;
 pub mod written;
 
@@ -961,6 +962,7 @@ fn theorem_record(
     record.divided_by = formulas::divided_by(thm, &c.known[i], &c.library.targets);
     record.combinations = formulas::combinations(thm, &c.known[i], c.library);
     record.interval_ends = intervals::interval_ends(thm, &c.known[i]);
+    record.rests_on = rests::rests_on(thm, &c.known[i], c.library);
     record.defines_read = formulas::defines_read(thm, &c.known[i]);
     record.at_member =
         citations::at_member(thm, c.library, &c.known[i], &record.instantiated);

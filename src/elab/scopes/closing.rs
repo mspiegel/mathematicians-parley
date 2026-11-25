@@ -632,7 +632,7 @@ impl<'a> Elaborator<'a> {
         // Each direction ends on the side it does not assume as the text
         // writes it, which may rename a bound letter: a part ending on a
         // proof block fixing t says the side over the block's own t.
-        let allowed = Some(self.named(step, &number_of(step), true));
+        let allowed = Some(self.named(step, true));
         let forward = self
             .resting_on(allowed.clone(), |me| me.end_met(&block.parts[&0], &right))?;
         let backward =
@@ -1033,7 +1033,7 @@ impl<'a> Elaborator<'a> {
         // rename a bound letter or leave out an identity element (`SYNTAX.md`).
         // What an identity element asks, x ∈ ℂ, is answered from what the
         // induction's own lines name and nothing else in scope.
-        let allowed = Some(self.named(step, &number_of(step), true));
+        let allowed = Some(self.named(step, true));
         let base = self.resting_on(allowed.clone(), |me| {
             let outside = me.in_hand(&outside);
             me.reached(&base, &base_claim, &claimed, &beneath, &outside)

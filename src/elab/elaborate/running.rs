@@ -929,7 +929,7 @@ impl<'a> Elaborator<'a> {
         closers: Vec<Closer>,
     ) -> Checked<(Rpn, Facts, Vec<Closer>)> {
         let number = number_of(step);
-        let named = self.named(step, &number, false);
+        let named = self.named(step, false);
         self.resting_on(Some(named), |me| {
             me.one_step(step, &number, scope, facts, closers)
         })
@@ -991,7 +991,7 @@ impl<'a> Elaborator<'a> {
         self.at = step.line;
         self.step_now = CheckedTheorem::index_of(self.thm, step);
         self.note_said_sums()?;
-        let resting = self.named(step, number, false);
+        let resting = self.named(step, false);
         self.named_first(&step.just.refs, &resting, facts);
         if step.just.head.is(Method::Obtain) {
             return self.obtain(step, number, scope, facts, closers);
@@ -1091,7 +1091,7 @@ impl<'a> Elaborator<'a> {
         let owner = self.requires_owner.replace(step.clone());
         // The line rests on what it names and nothing else the step names
         // (R2), as a requires line does.
-        let allowed = self.reason_allows(step, req);
+        let allowed = self.reason_allows(req);
         let made = self.resting_on(Some(allowed), |me| {
             let named = me.in_hand(facts);
             me.by_method_written(&how, &at, &node, &term, scope, &named, &lines)

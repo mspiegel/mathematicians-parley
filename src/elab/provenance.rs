@@ -13,18 +13,19 @@
 use std::collections::BTreeSet;
 use std::{iter, mem};
 
-use super::state::{number_of, Elaborator};
+use super::state::Elaborator;
 use super::Facts;
-use crate::checker::record::{FirstAt, Restated, SuppliedBy};
-use crate::corpus::proof::{Justification, Requires};
-use crate::corpus::{proof, Head, Item, Method, Step};
+use crate::checker::record::{FirstAt, Restated, Resting, SuppliedBy};
+use crate::checker::CheckedTheorem;
+use crate::corpus::proof::Requires;
+use crate::corpus::{Head, Item, Step};
 use crate::formula::Node;
 use crate::mm::kernel::{same, Term};
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Route};
 use crate::rules::{self, lookup};
-use crate::{pf, sorts, t, take, targets};
+use crate::{pf, t, take, targets};
 
 pub const REQUIRES: &str = "requires@";
 
@@ -57,6 +58,19 @@ pub fn within(facts: &Facts, allowed: &BTreeSet<String>) -> Facts {
 /// number of its own, so it is named by where it stands.
 pub fn requirement(line: usize) -> String {
     format!("{REQUIRES}{line}")
+}
+
+/// The name a proof's origin holds for what the checker recorded a line may
+/// rest on (`Resting`): a line by its number or label, a requires line by
+/// `requirement`, what a block assumes, and an import no label names, held
+/// under a key no line can cite (`outside_label`).
+fn resting_name(resting: &Resting) -> String {
+    match resting {
+        Resting::Named(name) => name.clone(),
+        Resting::Requires(line) => requirement(*line),
+        Resting::Assumes(number) => format!("{number} assumes"),
+        Resting::Unlabelled(name) => format!("the define of {name}"),
+    }
 }
 
 /// Whether a `requires` line made this proof.
@@ -123,141 +137,21 @@ pub fn rests_on_only(proof: &Proof, item: &str) -> bool {
 }
 
 impl<'a> Elaborator<'a> {
-    /// What a step names, which is everything its proof may rest on: the
-    /// lines it cites, its own requires lines, and the sorts in scope. A block
-    /// also rests on its own steps and on what it assumes, and on the lines a
-    /// `join` inside it names.
-    pub fn named(&self, step: &Step, number: &str, block: bool) -> BTreeSet<String> {
-        let mut out: BTreeSet<String> = step.just.refs.iter().cloned().collect();
-        // The line a step contradicts is one it rests on, where it ends a
-        // case that cannot occur.
-        out.extend(step.just.contradicting.iter().cloned());
+    /// What a step names, which is everything its proof may rest on, as the
+    /// checker recorded it (`CheckedTheorem::rests_on`): what the step alone
+    /// may rest on, or with `block`, what the block it opens may; and the
+    /// sorts in scope, which the kernel holds of every line. A step the
+    /// record has no entry for names only the sorts, and a proof resting on
+    /// anything is refused (`rests_on_named`).
+    pub fn named(&self, step: &Step, block: bool) -> BTreeSet<String> {
+        let recorded =
+            CheckedTheorem::index_of(self.thm, step).and_then(|i| match block {
+                true => self.checked.rests_on.blocks.get(i),
+                false => self.checked.rests_on.steps.get(i),
+            });
+        let mut out: BTreeSet<String> =
+            recorded.into_iter().flatten().map(resting_name).collect();
         out.extend(self.sorts.iter().cloned());
-        out.extend(step.requires.iter().map(|r| requirement(r.line)));
-        out.extend(self.read_with(&step.just));
-        // A chain line's or a row's own reason is read as the step's is,
-        // with the defines what it cites is stated over.
-        for reason in proof::chain_reasons(&step.just, &self.thm.path) {
-            if let Ok(by) = &reason.by {
-                out.extend(self.read_with(by));
-            }
-        }
-        if block {
-            // A line inside the block: one numbered under the step, or, for
-            // the theorem proved `by` a method, every numbered step, and no
-            // hypothesis or other line kept by name.
-            let theorem = step.proves_theorem();
-            let prefix = format!("{number}.");
-            let inside = |name: &str| {
-                if theorem {
-                    name.split('.')
-                        .all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit()))
-                } else {
-                    name.starts_with(&prefix)
-                }
-            };
-            out.extend(self.lines.keys().into_iter().filter(|k| inside(k)));
-            // Its steps, whose lines a block a part's `by` line opened gives
-            // back when it closes, as any block does.
-            out.extend(self.thm.steps.iter().map(number_of).filter(|n| inside(n)));
-            // A step's requires lines are the block's as the step is: the
-            // last step of a part says there what the part's end asks, an
-            // identity element's operand a number (`SYNTAX.md`).
-            out.extend(
-                self.thm
-                    .steps
-                    .iter()
-                    .filter(|s| inside(&number_of(s)))
-                    .flat_map(|s| s.requires.iter().map(|r| requirement(r.line))),
-            );
-            out.extend(
-                step.openers
-                    .iter()
-                    .filter(|o| !o.label.is_empty())
-                    .map(|o| o.label.clone()),
-            );
-            out.insert(format!("{number} assumes"));
-            // A define inside the block is the block's own, as its openers
-            // are: it comes after the block's first line and before its last
-            // step.
-            let last = self
-                .thm
-                .steps
-                .iter()
-                .filter(|s| inside(&number_of(s)))
-                .map(|s| s.line)
-                .max();
-            if let Some(last) = last {
-                out.extend(
-                    self.thm
-                        .defines
-                        .iter()
-                        .filter(|d| step.line < d.line && d.line < last)
-                        .map(|d| d.label.clone()),
-                );
-            }
-            // The block's own steps, one level below it: the top level for
-            // the theorem.
-            let depth = if theorem {
-                0
-            } else {
-                number.matches('.').count() + 1
-            };
-            for inner in &self.thm.steps {
-                let name = number_of(inner);
-                if !inside(&name) || name.matches('.').count() != depth {
-                    continue;
-                }
-                if inner.just.head.is(Method::Join)
-                    || inner.just.head.is(Method::Restate)
-                {
-                    out.extend(inner.just.refs.iter().cloned());
-                }
-                // A block closed on a contradiction rests on the line its
-                // last step contradicts, read with the defines that step
-                // cites (`SYNTAX.md`, What a cited line says).
-                if inner.just.contradicting.is_some() {
-                    out.extend(inner.just.contradicting.iter().cloned());
-                    out.extend(
-                        inner
-                            .just
-                            .refs
-                            .iter()
-                            .filter(|r| self.thm.defines.iter().any(|d| &d.label == *r))
-                            .cloned(),
-                    );
-                }
-            }
-        }
-        out
-    }
-
-    /// The defines a reason reads with what it names, and so rests on: a
-    /// step's, or a requires line's, which is justified as a step is.
-    fn read_with(&self, just: &Justification) -> BTreeSet<String> {
-        let mut out = BTreeSet::new();
-        // A hypothesis of the theorem the reason names, in its `from` or as
-        // the line a substitute is put into, is read with the defines whose
-        // names it writes, as the statement reads it
-        // (`hypotheses_by_their_names`).
-        let into = just.into.as_ref().map(|p| p.named().to_string());
-        for r in just.refs.iter().chain(into.as_ref()) {
-            if self.is_hypothesis(r) {
-                out.extend(self.hypothesis_defines(r));
-            }
-        }
-        // A theorem of this file stated over the file's defines is read with
-        // them, and the reason rests on them through it
-        // (`sorts::stated_over`).
-        if let Some(cited) = just.cited_item() {
-            let full = self.thm.names.full(&cited);
-            out.extend(sorts::stated_over(self.thm, self.scopes, &full));
-            // A theorem stated over a sequence by recursion is read with this
-            // proof's define of it, which the reason rests on the same way.
-            if let Some(Item::Theorem(other)) = self.items.get(&full) {
-                out.extend(self.recursions_read(other));
-            }
-        }
         out
     }
 
@@ -287,29 +181,22 @@ impl<'a> Elaborator<'a> {
     /// A requires line's proof, checked against its reason and sealed: it
     /// rests only on the lines its reason cites, the step's requires lines
     /// above it, and the sorts in scope.
-    pub fn discharged_by(
-        &mut self,
-        made: Proof,
-        step: &Step,
-        req: &Requires,
-    ) -> Checked<Proof> {
-        let allowed = self.reason_allows(step, req);
+    pub fn discharged_by(&mut self, made: Proof, req: &Requires) -> Checked<Proof> {
+        let allowed = self.reason_allows(req);
         self.rests_on_named(&made, &allowed, req.line, "the requires line")?;
         Ok(self.seal(made, &requirement(req.line)))
     }
 
-    /// What the requires line `req` may rest on (R2): what its reason
-    /// cites, and the defines it reads with it (`read_with`), the sorts, and
-    /// the requires lines above it; and itself, as a line already proved and
-    /// found again is sealed with its own name.
-    pub fn reason_allows(&self, step: &Step, req: &Requires) -> BTreeSet<String> {
-        let mut out: BTreeSet<String> = req.refs().iter().cloned().collect();
-        if let Ok(by) = &req.by {
-            out.extend(self.read_with(by));
-        }
+    /// What the requires line `req` may rest on (R2), as the checker
+    /// recorded it (`RestsOn::requires`): what its reason cites, the defines
+    /// it reads with, the requires lines above it, and itself, as a line
+    /// already proved and found again is sealed with its own name; and the
+    /// sorts in scope.
+    pub fn reason_allows(&self, req: &Requires) -> BTreeSet<String> {
+        let recorded = self.checked.rests_on.requires.get(&req.line);
+        let mut out: BTreeSet<String> =
+            recorded.into_iter().flatten().map(resting_name).collect();
         out.extend(self.sorts.iter().cloned());
-        out.extend(step.requires_above(req.line).map(|r| requirement(r.line)));
-        out.insert(requirement(req.line));
         out
     }
 
@@ -393,7 +280,7 @@ impl<'a> Elaborator<'a> {
         number: &str,
         block: bool,
     ) -> Checked<Proof> {
-        let allowed = self.named(step, number, block);
+        let allowed = self.named(step, block);
         self.rests_on_named(&proof, &allowed, step.line, &format!("step {number}"))?;
         Ok(self.seal(proof, number))
     }
@@ -486,7 +373,7 @@ impl<'a> Elaborator<'a> {
             }
             let not_above = not_above(step, r);
             let unbelow = |v: &Proof| !v.origin.iter().any(|o| not_above.contains(o));
-            let resting = self.reason_allows(step, r);
+            let resting = self.reason_allows(r);
             // Only what the line may rest on is offered (R2): a claim the
             // scope holds otherwise, as H9's "not (C is on line AB)" is "not
             // (A is on line CB)" with its points reordered, would be found
@@ -500,7 +387,7 @@ impl<'a> Elaborator<'a> {
             self.supplying.shift_remove(&term);
             self.written = written;
             let made = match made? {
-                Built(p) => self.discharged_by(p, step, r)?,
+                Built(p) => self.discharged_by(p, r)?,
                 Declined(d) => panic!(
                     "the requires line at {} declined where it is proved: {}",
                     r.line,
@@ -888,7 +775,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
-        let allowed = step.map(|s| self.reason_allows(s, req));
+        let allowed = step.map(|_| self.reason_allows(req));
         self.resting_on(allowed, |me| {
             let named = me.in_hand(facts);
             me.by_its_reason(want, Some(req), scope, &named, step)
@@ -1123,11 +1010,11 @@ impl<'a> Elaborator<'a> {
                 }
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
-                let resting = self.reason_allows(step, r);
+                let resting = self.reason_allows(r);
                 let named = within(facts, &resting);
                 self.named_first(r.refs(), &resting, &named);
                 return match self.side(&node, r, scope, &named, Some(step))? {
-                    Built(made) => self.discharged_by(made, step, r),
+                    Built(made) => self.discharged_by(made, r),
                     Declined(d) => Err(self.defect(
                         self.at,
                         format!(

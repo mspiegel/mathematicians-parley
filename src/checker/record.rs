@@ -547,6 +547,9 @@ pub struct CheckedTheorem {
     /// interval's shape puts its members in ℝ; a backend proving a member
     /// real from the interval proves the ends as recorded here.
     pub interval_ends: Vec<IntervalEnds>,
+    /// What each step, block and requires line may rest on
+    /// (`checker::rests`).
+    pub rests_on: RestsOn,
     /// The defined names a reason is read with written out, by the line the
     /// reason is on: a step's, a requires line's, a calculation's or a
     /// substitution's row, or the reason under a define that says a kind
@@ -645,6 +648,43 @@ pub struct HeldByLines {
     pub term: Node,
     pub system: System,
     pub shown: Shown,
+}
+
+/// One thing on the page a step, a block or a requires line may rest on
+/// (`CheckedTheorem::rests_on`).
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Resting {
+    /// A line by the number or label the page cites it by: a step, a
+    /// hypothesis, a block's opener, or a define.
+    Named(String),
+    /// A requires line, by the page line it is on.
+    Requires(usize),
+    /// What the block of the step so numbered assumes.
+    Assumes(String),
+    /// A define the page imports without a label, by the name it gives,
+    /// which no line can cite.
+    Unlabelled(String),
+}
+
+/// What each step and requires line may rest on, by the page's rules
+/// (`checker::rests`, `ELABORATION.md` proof rules). A backend that builds
+/// a proof by a search of its own checks the proof against it.
+#[derive(Clone, Debug, Default)]
+pub struct RestsOn {
+    /// Each step alone, by the step's index: the lines its reason cites,
+    /// the line it contradicts, its requires lines, and the defines its
+    /// reason and its chain's reasons read with.
+    pub steps: Vec<BTreeSet<Resting>>,
+    /// Each step closing the block it opens, by the step's index: what the
+    /// step alone may rest on, and the block's own steps and their requires
+    /// lines, its openers, what it assumes, the defines inside it, the lines
+    /// a `join` or `restate` inside it cites, and the line a step closing on
+    /// a contradiction contradicts.
+    pub blocks: Vec<BTreeSet<Resting>>,
+    /// Each requires line, by the page line it is on: the lines its reason
+    /// cites, the defines it reads with, the requires lines above it, and
+    /// itself.
+    pub requires: IndexMap<usize, BTreeSet<Resting>>,
 }
 
 /// A closed interval a line lets a letter range over, its ends each in the

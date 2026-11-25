@@ -635,7 +635,7 @@ impl<'a> Elaborator<'a> {
             .expect("the body just laid down");
         // What carrying the body to the line may rest on: what the step
         // names, and the body it obtains, which stands for the step.
-        let mut allowed = self.named(step, number, false);
+        let mut allowed = self.named(step, false);
         allowed.insert(number.to_string());
         // The line is what the page writes: built from the body as the
         // checker paired its sentences with the body's parts
