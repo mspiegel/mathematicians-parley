@@ -16,7 +16,7 @@ use super::record::{
     AlgebraMade, CheckedTheorem, OrderFact, ShownBy, SuppliedBy, Unfolded,
 };
 use super::CheckedCorpus;
-use crate::citing::finite::{FiniteBy, Making};
+use crate::citing::finite::{FiniteBy, FiniteSets, Making};
 use crate::citing::{finite, number_sets, Group, Introduced, Want};
 use crate::corpus::proof::{Hypothesis, Intro};
 use crate::corpus::{Record, RecordKind, Theorem};
@@ -465,14 +465,14 @@ pub fn written_out(
     written.finite_at = rec
         .finite_at
         .iter()
-        .map(|sets| {
-            sets.iter()
-                .map(|(set, why)| {
-                    (written_key(set, &out), finite_by_written(why, &out))
-                })
-                .collect()
-        })
+        .map(|sets| finite_sets_written(sets, &out))
         .collect();
+    // What a claim's sentences and the requires lines above make finite,
+    // read of the page as written here, as `said_finite` is: deg(A) = 2
+    // counts a set only with deg written out.
+    written.claim_finite = super::claim_finite_of(thm, &written, ctx);
+    written.step_bounds = super::step_bounds_of(thm, &written, ctx);
+    written.requires_finite = super::requires_finite_of(thm, &written, ctx);
     written.finite_under = super::formulas::finite_under(&written.page);
     written.set_systems = super::set_systems_of(&written);
     written.element_systems = super::element_systems_of(&written);
@@ -509,6 +509,13 @@ fn made_parts<'m>(
 
 fn written_key(key: &ByShape, out: &impl Fn(&Node) -> Node) -> ByShape {
     ByShape(out(&key.0))
+}
+
+/// Finite sets with each set and why written out.
+fn finite_sets_written(sets: &FiniteSets, out: &impl Fn(&Node) -> Node) -> FiniteSets {
+    sets.iter()
+        .map(|(set, why)| (written_key(set, out), finite_by_written(why, out)))
+        .collect()
 }
 
 /// Why a set is finite, each line and set it names written out.

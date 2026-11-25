@@ -387,15 +387,21 @@ impl<'a> Proof<'a> {
             return self
                 .substituted_members(rec, letter_ty, put, equation, row, line, claim);
         }
-        // The step's writer knowing what its lines bound, its requires lines
-        // among them, which an equation stated in ℕ may use, φ(p) = (p − 1).toNat
-        // of the requires line p − 1 ∈ ℕ₀.
-        let lines: Vec<Node> = self
+        // The step's writer knowing what its own lines bound, its requires
+        // lines among them, which an equation stated in ℕ may use, φ(p) =
+        // (p − 1).toNat of the requires line p − 1 ∈ ℕ₀, as the checker
+        // recorded it (`CheckedTheorem::step_bounds`).
+        let Some(said) = self
             .step_now
             .get()
-            .map(|i| self.step_facts(i).into_iter().map(|c| c.node).collect())
-            .unwrap_or_default();
-        let knowing = writer.knowing(&lines);
+            .and_then(|i| self.rec.step_bounds.get(i))
+        else {
+            return Route::no(
+                "a substitution in a step the checker recorded no bounds of",
+            );
+        };
+        let mut knowing = writer.with_letters(writer.letters.clone());
+        knowing.bounds = said.clone();
         let PutExponents {
             cast_to_nat,
             natural_exponent,

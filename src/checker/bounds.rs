@@ -108,6 +108,26 @@ pub fn said_by(lines: &[Node], letters: &Introduced, ctx: &Context) -> SaidBound
     out
 }
 
+/// `said`, what the lines in scope bound, with what `lines` beside them bound
+/// below, read with `letters` and `said` (`bounds::from_lines`): a line
+/// bounding a term by one `said` bounds, n ≥ N of an N ≥ 1, bounds it too.
+pub fn said_beside(
+    lines: &[Node],
+    letters: &Introduced,
+    said: &SaidBounds,
+    ctx: &Context,
+) -> SaidBounds {
+    let ask = ScopeAsk {
+        letters: letters.clone(),
+        said: said.clone(),
+        ctx,
+    };
+    let lines: Vec<&Node> = lines.iter().collect();
+    let mut out = said.clone();
+    bounds::from_lines(&ask, &lines, &mut out);
+    out
+}
+
 /// Whether a number is at least 1 by the letters in scope and what the lines
 /// bound (`citing::bounds::least`): 2, n of an n ∈ ℕ, k + 1 of a k ∈ ℕ₀, or
 /// a term a line says is at least 1. What a count given as a number must be

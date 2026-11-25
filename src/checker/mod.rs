@@ -47,7 +47,7 @@ use crate::corpus::{
 use crate::formula::notation_id::NotationId;
 use crate::formula::token::RAISED;
 use crate::formula::{Whole, RAISED_HOLE};
-use crate::matching::{Defined, Definitions};
+use crate::matching::{Binding, Defined, Definitions};
 use crate::notations::{APPLICATION, FOR_ALL, FUNCTION_TYPE, MEMBERSHIP};
 use crate::rules::System;
 /// What the check printed, and the status it exits with.
@@ -560,6 +560,151 @@ pub fn finite_at_lines(
         .collect()
 }
 
+/// What each step's own lines bound below beside the lines in scope
+/// (`CheckedTheorem::step_bounds`): its requires lines and the lines its
+/// reason cites, as the record's page reads them, with the step's letters
+/// and what is in scope.
+pub fn step_bounds_of(
+    thm: &Theorem,
+    record: &CheckedTheorem,
+    ctx: &Context,
+) -> Vec<SaidBounds> {
+    let none = SaidBounds::default();
+    let mut out = Vec::new();
+    for (i, step) in thm.steps.iter().enumerate() {
+        let letters = record.introduced.get(i).cloned().unwrap_or_default();
+        let said = record.bounds.get(i).unwrap_or(&none);
+        let mut sentences: Vec<Sentence> = step
+            .requires
+            .iter()
+            .flat_map(|r| r.fact.sentences())
+            .collect();
+        for cited in step.just.cited_once() {
+            sentences.extend(line_sentences(thm, &cited));
+        }
+        let mut lines: Vec<Node> = sentences
+            .iter()
+            .filter_map(|s| record.page.get(s))
+            .cloned()
+            .collect();
+        // A cited "for all" read at the block's letter (`read_at`), and a
+        // membership the step shows beside an equation (`places_shown`),
+        // as the step's lines hold them.
+        for read in record.read_at.get(i).into_iter().flatten() {
+            if let [letter, _, body] = read.said.children.as_slice() {
+                let put = Binding::from([(letter.text, read.letter.clone())]);
+                lines.push(matching::substitute_apart(body, &put, ctx));
+            }
+        }
+        for shown in record.places_shown.get(i).into_iter().flatten() {
+            if let record::ShownBy::Beside(beside) = &shown.by {
+                if let Some(stated) = &beside.other_stated {
+                    if let [_, set] = stated.children.as_slice() {
+                        lines.push(
+                            stated.with_children(vec![shown.term.clone(), set.clone()]),
+                        );
+                    }
+                }
+            }
+        }
+        out.push(bounds::said_beside(&lines, &letters, said, ctx));
+    }
+    out
+}
+
+/// The sentences of the line the page cites as `cited`: a step's claim,
+/// a hypothesis, or a block's opener; none for any other.
+fn line_sentences(thm: &Theorem, cited: &str) -> Vec<Sentence> {
+    if let Some(step) = thm
+        .steps
+        .iter()
+        .find(|s| s.number.number().is_some_and(|n| n.to_string() == cited))
+    {
+        return step.claim.sentences();
+    }
+    if let Some(h) = thm
+        .hypotheses
+        .iter()
+        .find(|h| h.label.as_deref() == Some(cited))
+    {
+        return h.body(&thm.path).sentences();
+    }
+    thm.steps
+        .iter()
+        .flat_map(|s| &s.openers)
+        .find(|o| o.label == cited)
+        .map(|o| o.body(&thm.path).sentences())
+        .unwrap_or_default()
+}
+
+/// The sets each sentence of each step's claim is written with as finite
+/// (`CheckedTheorem::claim_finite`): those the claim's other sentences make
+/// finite, and those it vouches for itself, a count at least 1 by the
+/// step's letters and the bounds in scope.
+pub fn claim_finite_of(
+    thm: &Theorem,
+    record: &CheckedTheorem,
+    ctx: &Context,
+) -> Vec<Vec<record::SentenceFinite>> {
+    let none = SaidBounds::default();
+    let mut out = Vec::new();
+    for (i, step) in thm.steps.iter().enumerate() {
+        let letters = record.introduced.get(i).cloned().unwrap_or_default();
+        let said = record.bounds.get(i).unwrap_or(&none);
+        let positive = bounds::positive_by(&letters, said, ctx);
+        let sentences: Vec<Option<&Node>> = step
+            .claim
+            .sentences()
+            .iter()
+            .map(|s| record.page.get(s))
+            .collect();
+        let mut each = Vec::new();
+        for (at, node) in sentences.iter().enumerate() {
+            let others = sentences
+                .iter()
+                .enumerate()
+                .filter(|(k, _)| *k != at)
+                .filter_map(|(_, o)| *o);
+            each.push(record::SentenceFinite {
+                by_others: finite::finite_sets(others, &positive),
+                by_itself: finite::finite_sets_vouched(node.iter().copied(), &positive),
+            });
+        }
+        out.push(each);
+    }
+    out
+}
+
+/// The sets each requires line is written with as finite, those the step's
+/// requires lines above it make finite (`CheckedTheorem::requires_finite`),
+/// a count at least 1 by the step's letters and the bounds in scope.
+pub fn requires_finite_of(
+    thm: &Theorem,
+    record: &CheckedTheorem,
+    ctx: &Context,
+) -> IndexMap<usize, FiniteSets> {
+    let none = SaidBounds::default();
+    let mut out = IndexMap::new();
+    for (i, step) in thm.steps.iter().enumerate() {
+        let letters = record.introduced.get(i).cloned().unwrap_or_default();
+        let said = record.bounds.get(i).unwrap_or(&none);
+        let positive = bounds::positive_by(&letters, said, ctx);
+        let mut above: Vec<&Node> = Vec::new();
+        for r in &step.requires {
+            out.insert(
+                r.line,
+                finite::finite_sets(above.iter().copied(), &positive),
+            );
+            if let Some(node) =
+                r.fact.sentences().first().and_then(|s| record.page.get(s))
+            {
+                above.push(node);
+            }
+        }
+    }
+    out
+}
+
 pub fn finite_of(ctx: &Context, thm: &Theorem, record: &CheckedTheorem) -> SaidFinite {
     let defines = finite_defines(thm, record);
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
@@ -1037,6 +1182,9 @@ fn theorem_record(
         at
     };
     record.finite_at = finite_at;
+    record.claim_finite = claim_finite_of(thm, &record, &c.library.ctx);
+    record.step_bounds = step_bounds_of(thm, &record, &c.library.ctx);
+    record.requires_finite = requires_finite_of(thm, &record, &c.library.ctx);
     record.set_systems = set_systems_of(&record);
     record.thing_types = thing_types_of(thm, &record, &c.known[i]);
     record.element_systems = element_systems_of(&record);

@@ -581,6 +581,11 @@ pub struct CheckedTheorem {
     /// writes a square root or a real power of a base at least 0 as a real
     /// one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
     pub bounds: Vec<SaidBounds>,
+    /// What each step's own lines bound below besides, by the step's index:
+    /// `bounds`, with what its requires lines and the facts its reason
+    /// reads bound (`checker::bounds::said_beside`), as `φ(p) = p − 1`
+    /// is written in ℕ where a requires line says p − 1 ∈ ℕ₀.
+    pub step_bounds: Vec<SaidBounds>,
     /// What any line of the theorem bounds below: the statement's
     /// hypotheses, the lines in scope at every step and every requires
     /// line, a step's or a naming `let`'s, together (`statement_bounds`,
@@ -595,6 +600,15 @@ pub struct CheckedTheorem {
     /// count of one is a natural number from there on, as of one
     /// `said_finite` holds.
     pub finite_at: Vec<FiniteSets>,
+    /// Each sentence of each step's claim, by the step's index and the
+    /// sentence's place in the claim, with the sets it is written with as
+    /// finite (`SentenceFinite`), a count at least 1 read by the step's
+    /// letters and `bounds`.
+    pub claim_finite: Vec<Vec<SentenceFinite>>,
+    /// Each requires line, by the page line it is on, with the sets the
+    /// step's requires lines above it make finite, "X is finite" of the set
+    /// this one counts (`Step::requires_above`).
+    pub requires_finite: IndexMap<usize, FiniteSets>,
     /// Of each "if P then Q" on the page, the sets P makes finite within Q,
     /// as `finite_sets` reads P: X of "if |X| = m then |𝒫X| = 2^m", by the
     /// whole sentence as a tree (`formulas::finite_under`). A backend that
@@ -648,6 +662,20 @@ pub struct HeldByLines {
     pub term: Node,
     pub system: System,
     pub shown: Shown,
+}
+
+/// The sets one sentence of a step's claim is written with as finite
+/// (`CheckedTheorem::claim_finite`), beside those the lines in scope make
+/// finite (`finite_at`).
+#[derive(Clone, Debug, Default)]
+pub struct SentenceFinite {
+    /// What the claim's other sentences make finite, W of "W is finite and
+    /// |W| ≥ k" at its second sentence (`citing::finite::finite_sets`).
+    pub by_others: FiniteSets,
+    /// What the sentence says of itself, a count it gives as a number at
+    /// least 1, which vouches for its own set; a count that may be 0 does
+    /// not (`citing::finite::finite_sets_vouched`).
+    pub by_itself: FiniteSets,
 }
 
 /// One thing on the page a step, a block or a requires line may rest on

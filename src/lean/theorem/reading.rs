@@ -8,10 +8,11 @@ use super::super::doc::{LeanType, Location, Op, Quant, Tactic, TacticArg, TermKi
 use super::super::templates::Num;
 use super::super::{doc, expr, tactics as t};
 use super::*;
-use crate::checker::record::{HeldByLines, NonzeroBy, Restated, Shown, ShownBy};
+use crate::checker::record::{
+    HeldByLines, NonzeroBy, Restated, SentenceFinite, Shown, ShownBy,
+};
 use crate::citing::{
-    bounds, finite, reason_within, speaks_of_claim_letter, under_claim_binders,
-    Introduced, OnceReason,
+    reason_within, speaks_of_claim_letter, under_claim_binders, Introduced, OnceReason,
 };
 use crate::corpus::DefineParts;
 use crate::formula::{page, Sort};
@@ -128,6 +129,18 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// The sets sentence `at` of `step`'s claim is written with as finite,
+    /// as the checker recorded them (`CheckedTheorem::claim_finite`); None
+    /// where it recorded none.
+    pub(super) fn sentence_finite(
+        &self,
+        step: &Step,
+        at: usize,
+    ) -> Option<&SentenceFinite> {
+        let i = CheckedTheorem::index_of(self.thm, step)?;
+        self.rec.claim_finite.get(i)?.get(at)
+    }
+
     /// Every sentence of a step's claim with its place and its Lean text,
     /// those Lean's types already give among them, as `True`.
     pub(super) fn claimed_all(
@@ -135,12 +148,6 @@ impl<'a> Proof<'a> {
         step: &Step,
     ) -> Route<Vec<(usize, Node, Printed)>> {
         let mut out = Vec::new();
-        let sentences: Vec<Option<&Node>> = step
-            .claim
-            .sentences()
-            .iter()
-            .map(|s| self.rec.page.get(s))
-            .collect();
         for (at, s) in step.claim.sentences().into_iter().enumerate() {
             let Some(node) = self.rec.page.get(&s) else {
                 return Route::no(format!(
@@ -149,25 +156,18 @@ impl<'a> Proof<'a> {
                 ));
             };
             // A set the claim's other sentences say is finite counts as one
-            // here, W of "W is finite and |W| ≥ k", by the one reading of
-            // what lines make finite (`citing::finite::finite_sets`); and one
-            // the sentence says of itself, a count given as a number at least
-            // 1, by the step's bounds as the checker recorded them
-            // (`CheckedTheorem::bounds`). A count that may be 0 does not
-            // vouch for itself.
-            let others: Vec<&Node> = sentences
-                .iter()
-                .enumerate()
-                .filter(|(i, _)| *i != at)
-                .filter_map(|(_, o)| *o)
-                .collect();
-            let positive =
-                |n: &Node| bounds::least(&self.writer, n).is_some_and(|l| l >= 1);
+            // here, W of "W is finite and |W| ≥ k", and one the sentence
+            // says of itself, a count given as a number at least 1, as the
+            // checker recorded them (`CheckedTheorem::claim_finite`).
+            let Some(finite) = self.sentence_finite(step, at) else {
+                return Route::no(format!(
+                    "{}, a sentence the checker recorded no finite sets of",
+                    s.text()
+                ));
+            };
             let mut writer = self.writer.with_letters(self.writer.letters.clone());
-            let by_others = finite::finite_sets(others, &positive);
-            let by_itself = finite::finite_sets_vouched([node], &positive);
-            for (set, why) in by_others.into_iter().chain(by_itself) {
-                writer.finite.entry(set).or_insert(why);
+            for (set, why) in finite.by_others.iter().chain(&finite.by_itself) {
+                writer.finite.entry(set.clone()).or_insert(why.clone());
             }
             // A claim of numerals alone is written in the type of the lines
             // it is reached from, where any are cited.
@@ -402,7 +402,6 @@ impl<'a> Proof<'a> {
         // A requires line is the step's, and the citation on one reads the
         // step's requires lines above it by the step's names.
         self.step_now.set(Some(i));
-        let mut above: Vec<Node> = Vec::new();
         for (k, r) in step.requires.iter().enumerate() {
             let node = match self.tree(&r.fact) {
                 Route::Built(n) => n,
@@ -410,16 +409,16 @@ impl<'a> Proof<'a> {
             };
             // What the requires lines above make finite, "X is finite" of
             // the set this one counts, it counts as a natural number, as the
-            // check reads them (`Step::requires_above`).
-            let positive =
-                |n: &Node| bounds::least(&self.writer, n).is_some_and(|l| l >= 1);
-            let made: Vec<_> = finite::finite_sets(above.iter(), &positive)
-                .into_iter()
-                .collect();
+            // checker recorded it (`CheckedTheorem::requires_finite`).
+            let Some(made) = self.rec.requires_finite.get(&r.line) else {
+                return Route::no(format!(
+                    "the requires line on line {}, which the checker recorded no finite sets of",
+                    r.line
+                ));
+            };
             for (set, why) in made {
-                self.writer.finite.entry(set).or_insert(why);
+                self.writer.finite.entry(set.clone()).or_insert(why.clone());
             }
-            above.push(node.clone());
             // A requires line of a letter the claim says "for all" of, x²
             // ≥ 0 of every x ∈ [0, 1], is said under the claim's binders and
             // proved with its letters given.
