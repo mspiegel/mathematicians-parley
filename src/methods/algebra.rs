@@ -18,8 +18,12 @@ use super::pairs::{self, Coordinate, PairRelation};
 pub enum Verdict {
     /// The claim holds, combining the cited lines named here by their place
     /// among `cited`: what the step's hypotheses are asked of
-    /// (`METHODS.md`, an atom is one of the facts the step combines).
-    Holds { combined: Vec<usize> },
+    /// (`METHODS.md`, an atom is one of the facts the step combines); and,
+    /// for an equation, the combination itself.
+    Holds {
+        combined: Vec<usize>,
+        made: Option<Made>,
+    },
     /// The claim is neither an equation nor a disequality, which algebra
     /// decides.
     Undecided,
@@ -30,6 +34,27 @@ pub enum Verdict {
     NoCombination,
     /// The claim, a disequality, rescales none the step cites.
     NoRescaling,
+}
+
+/// How an equation `decide` finds holds is made of the equations cited: the
+/// reading of the claim that is their sum (`readings`), and each equation
+/// with its multiplier.
+#[derive(Clone, Debug)]
+pub struct Made {
+    /// The reading's place among `readings` of the claim.
+    pub reading: usize,
+    pub terms: Vec<MadeTerm>,
+}
+
+/// One cited equation of a combination (`Made`): its place among the cited
+/// lines' parts as `decide` reads them (`parts`), and its multiplier.
+#[derive(Clone, Debug)]
+pub struct MadeTerm {
+    /// The line among `cited`.
+    pub line: usize,
+    /// The part of the line among `parts` of it.
+    pub part: usize,
+    pub multiplier: Poly,
 }
 
 /// What a step whose claim `shown` the verdict refuses is told, the step
@@ -81,29 +106,40 @@ pub fn decide(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict {
     let claim_under = denominators(claimed, labels);
     let mut given = Vec::new();
     let mut unders = Vec::new();
-    // The cited line each equation given is a part of.
-    let mut from = Vec::new();
+    // The cited line and its part each equation given is.
+    let mut from: Vec<(usize, usize)> = Vec::new();
     for (i, held) in cited.iter().enumerate() {
-        for node in parts(held) {
+        for (k, node) in parts(held).into_iter().enumerate() {
             if let Some(one) = field::equation(&node, labels) {
                 let read = claim_says(&node, one, labels);
                 let under = field::exactly(&denominators(&node, labels), &read.taken);
                 given.push(read.says);
                 unders.push(under);
-                from.push(i);
+                from.push((i, k));
             }
         }
     }
-    let found = claims
-        .iter()
-        .find_map(|c| combination(&given, &unders, c, &claim_under));
+    let found = claims.iter().enumerate().find_map(|(reading, c)| {
+        combination(&given, &unders, c, &claim_under).map(|taken| (reading, taken))
+    });
     match found {
-        Some(taken) => {
+        Some((reading, taken)) => {
             let mut combined: Vec<usize> =
-                taken.iter().map(|t| from[t.which]).collect();
+                taken.iter().map(|t| from[t.which].0).collect();
             combined.sort();
             combined.dedup();
-            Verdict::Holds { combined }
+            let terms = taken
+                .iter()
+                .map(|t| MadeTerm {
+                    line: from[t.which].0,
+                    part: from[t.which].1,
+                    multiplier: t.multiplier(),
+                })
+                .collect();
+            Verdict::Holds {
+                combined,
+                made: Some(Made { reading, terms }),
+            }
         }
         None => Verdict::NoCombination,
     }
@@ -126,13 +162,16 @@ fn pairs_decided(
     let mut combined = Vec::new();
     for at in Coordinate::BOTH {
         match decide(&pairs.equation(at), cited, labels) {
-            Verdict::Holds { combined: each } => combined.extend(each),
+            Verdict::Holds { combined: each, .. } => combined.extend(each),
             other => return other,
         }
     }
     combined.sort();
     combined.dedup();
-    Verdict::Holds { combined }
+    Verdict::Holds {
+        combined,
+        made: None,
+    }
 }
 
 /// The coordinate an `algebra` step shows two pairs differ at: the first
@@ -161,7 +200,10 @@ fn decide_apart(claimed: &Term, cited: &[Term], labels: &FloatLabels) -> Verdict
         for said in parts(held) {
             let one = field::denied(&said, labels);
             if one.is_some() && rescales(one.as_ref(), Some(&claim)).is_some() {
-                return Verdict::Holds { combined: vec![i] };
+                return Verdict::Holds {
+                    combined: vec![i],
+                    made: None,
+                };
             }
         }
     }

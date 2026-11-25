@@ -536,6 +536,11 @@ pub struct CheckedTheorem {
     /// divisions knowing each, `3n − 1` by the line saying `3n − 1 ≠ 0`
     /// and N! as a positive integer.
     pub divided_by: IndexMap<usize, Vec<NotZero>>,
+    /// How an `algebra` equation is the sum of the equations it cites, by
+    /// the line its reason is on, as `divided_by` keys them
+    /// (`formulas::combinations`): the backends write the sum, and do not
+    /// look for it.
+    pub combinations: IndexMap<usize, Combination>,
     /// The defined names a reason is read with written out, by the line the
     /// reason is on: a step's, a requires line's, a calculation's or a
     /// substitution's row, or the reason under a define that says a kind
@@ -1290,6 +1295,33 @@ pub struct OrderPart {
     /// Where the part is a disequality a `weakening` row or manipulation
     /// makes of an order, which way the order runs.
     pub weakened: Option<Weakened>,
+}
+
+/// How an `algebra` equation is made of the equations it cites
+/// (`CheckedTheorem::combinations`, `methods::algebra::Made`): one reading
+/// of the claim, with the divisors it writes divided out or not, is the sum
+/// of each cited equation, read with the most divided out, times its
+/// multiplier.
+#[derive(Clone, Debug)]
+pub struct Combination {
+    /// The reading of the claim, by its place among
+    /// `methods::algebra::readings` of it.
+    pub reading: usize,
+    /// Whether the step reads its sums as linear
+    /// (`field::says_something_linear`).
+    pub linear: bool,
+    /// Each equation the sum takes, in the order the step cites them.
+    pub terms: Vec<Combined>,
+}
+
+/// One equation of a combination (`Combination`).
+#[derive(Clone, Debug)]
+pub struct Combined {
+    /// Where the equation stands.
+    pub fact: OrderFact,
+    /// What it is multiplied by, as a term of the page's: a number, or a
+    /// polynomial in terms the step writes.
+    pub multiplier: Node,
 }
 
 /// A disequality a fact says (`OrderPart::restates`).

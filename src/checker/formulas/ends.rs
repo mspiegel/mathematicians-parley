@@ -1576,7 +1576,7 @@ pub(super) fn algebra_holds(
         report.say(&thm.path, at.line, at.said(said));
         return true;
     }
-    if let algebra::Verdict::Holds { combined } = &verdict {
+    if let algebra::Verdict::Holds { combined, .. } = &verdict {
         if let Some(said) = algebra_unsaid(at, &read, &facts, combined, known, targets)
         {
             report.say(&thm.path, at.line, at.said(said));

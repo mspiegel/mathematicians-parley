@@ -1,6 +1,6 @@
 //! What an algebra step leaves unsaid, relations and orders.
 
-use super::super::record::{NonzeroBy, NotZero};
+use super::super::record::{Combination, Combined, NonzeroBy, NotZero};
 use super::*;
 use std::{iter, slice};
 
@@ -8,12 +8,17 @@ use crate::checker::record::PageReading;
 use crate::citing::finite::FiniteSets;
 use crate::citing::NonzeroHow;
 use crate::citing::{finite, Implication};
+use crate::formula::grammar::Grammar;
 use crate::formula::node::ByShape;
+use crate::formula::page;
 use crate::matching::Defined;
+use crate::methods::field::{Poly, Q};
 use crate::methods::pairs::Coordinate;
 use crate::methods::{field, pairs};
-use crate::notations::DIVIDED;
+use crate::mm::Rpn;
+use crate::notations::{DIVIDED, MINUS, PLUS, POWER, TIMES, UNARY_MINUS};
 use crate::{citing, matching};
+use num_traits::{One, Signed};
 
 /// An `algebra` claim as the method decides it: the claim and its lines
 /// read, the cited lines fact by fact, and the verdict.
@@ -23,6 +28,9 @@ pub(super) struct AlgebraDecided {
     /// counts among.
     pub(super) facts: Vec<Node>,
     pub(super) verdict: algebra::Verdict,
+    /// Whether the step reads its sums as linear
+    /// (`field::says_something_linear`).
+    pub(super) linear: bool,
     /// Of a claim that two pairs differ, the coordinate a cited difference
     /// shows them apart at (`algebra::apart_at`).
     pub(super) pair_apart: Option<Coordinate>,
@@ -63,8 +71,201 @@ pub(super) fn algebra_decided(
         read,
         facts,
         verdict,
+        linear,
         pair_apart,
     })
+}
+
+/// How each `algebra` equation is the sum of the equations it cites, by
+/// the line its reason is on (`CheckedTheorem::combinations`): a step's, a
+/// requires line's, and a calculation's or a substitution's row, as
+/// `divided_by` keys them.
+pub fn combinations(
+    thm: &Theorem,
+    known: &Known,
+    library: &Library,
+) -> IndexMap<usize, Combination> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Algebra) {
+            let whole = ClosureClaim::step(step);
+            if let Some(made) = combination_at(thm, &whole, known, library) {
+                out.insert(step.just.line, made);
+            }
+        }
+        let rows = row_reasons(thm, step);
+        let claims = step
+            .requires
+            .iter()
+            .map(|req| (req, ClosureClaim::requires(step, req)))
+            .chain(rows.iter().map(|req| (req, ClosureClaim::row(step, req))));
+        for (req, at) in claims {
+            let Ok(by) = &req.by else {
+                continue;
+            };
+            if !req.is(Method::Algebra) {
+                continue;
+            }
+            if let Some(made) = combination_at(thm, &at, known, library) {
+                out.insert(by.line, made);
+            }
+        }
+    }
+    out
+}
+
+/// The reasons of a step's calculation rows and substitution rows, each
+/// read as the requires line it is (`ChainLine::reason`).
+fn row_reasons(thm: &Theorem, step: &Step) -> Vec<Requires> {
+    let substituted: Vec<Requires> = match substitute_rows(&step.just, &thm.path) {
+        Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
+        _ => Vec::new(),
+    };
+    chain_links(&step.just, &thm.path)
+        .into_iter()
+        .filter_map(|link| link.line.reason)
+        .chain(substituted)
+        .collect()
+}
+
+/// The combination `algebra` finds of one equation, each equation it takes
+/// placed where it stands (`order_fact`) and its multiplier written as a
+/// term of the page's (`multiplier_node`); None where the claim is no
+/// equation the cited equations make.
+fn combination_at(
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    library: &Library,
+) -> Option<Combination> {
+    let targets = &library.targets;
+    let AlgebraDecided {
+        read,
+        facts,
+        verdict: algebra::Verdict::Holds {
+            made: Some(made), ..
+        },
+        linear,
+        ..
+    } = algebra_decided(at, known, targets)?
+    else {
+        return None;
+    };
+    // The page's line each fact is of, as `combined_order` counts them.
+    let mut line_of: Vec<usize> = Vec::new();
+    for (said, &line) in read.lines.iter().zip(&read.line_of) {
+        line_of.extend(iter::repeat_n(line, conjuncts(said).len()));
+    }
+    // Each term the step writes, as `decide` read it, by its polynomial
+    // atom: what a multiplier is written in.
+    let labels = FloatLabels::new(IndexMap::new());
+    let mut atoms: IndexMap<Rpn, Node> = IndexMap::new();
+    for n in iter::once(&read.claimed).chain(&facts) {
+        for part in matching::bare(n, known.ctx).walk() {
+            let atom = term_of_node(&part, targets).rpn(&labels);
+            atoms.entry(atom).or_insert(part);
+        }
+    }
+    let mut terms = Vec::new();
+    for t in &made.terms {
+        let written = field::reading_sums(linear, || {
+            multiplier_node(&t.multiplier, &atoms, known.env.g, targets)
+        });
+        let fact = combined_fact(facts.get(t.line)?, t.part, known, targets)?;
+        terms.push(Combined {
+            fact: order_fact(thm, at, *line_of.get(t.line)?, &fact, known, library)?,
+            multiplier: written?,
+        });
+    }
+    Some(Combination {
+        reading: made.reading,
+        linear,
+        terms,
+    })
+}
+
+/// The equation a combination takes of a fact, by its place among
+/// `algebra::parts` of the fact as `decide` reads it: the fact itself, or
+/// one link of a chain the fact writes, y = z of x = y = z.
+fn combined_fact(
+    fact: &Node,
+    part: usize,
+    known: &Known,
+    targets: &Targets,
+) -> Option<Node> {
+    if part == 0 {
+        return Some(fact.clone());
+    }
+    let labels = FloatLabels::new(IndexMap::new());
+    let read = |n: &Node| term_of_node(&matching::bare(n, known.ctx), targets);
+    let wanted = algebra::parts(&read(fact))
+        .into_iter()
+        .nth(part)?
+        .rpn(&labels);
+    page::chain_links(known.env.g, fact)?
+        .into_iter()
+        .find(|link| read(link).rpn(&labels) == wanted)
+}
+
+/// A polynomial as a term of the page's: its terms in the order a
+/// polynomial is written (`field::order`), each a coefficient times
+/// powers of the atoms, an atom as the step writes it (`atoms`). None where
+/// an atom is one the step does not write, or the term does not read back
+/// as the polynomial.
+fn multiplier_node(
+    p: &Poly,
+    atoms: &IndexMap<Rpn, Node>,
+    grammar: &Grammar,
+    targets: &Targets,
+) -> Option<Node> {
+    let mut terms: Vec<_> = p.terms.iter().collect();
+    terms.sort_by_key(|(m, _)| field::order(m));
+    let mut out: Option<Node> = None;
+    for (monomial, weight) in terms {
+        let size = weight.abs();
+        let mut factors: Vec<Node> = Vec::new();
+        if !size.is_one() || monomial.is_empty() {
+            factors.push(rational_node(&size, grammar));
+        }
+        for (atom, k) in monomial {
+            let base = atoms.get(atom)?.clone();
+            factors.push(match k {
+                1 => base,
+                _ => page::made_by_name(
+                    grammar,
+                    POWER,
+                    vec![base, Node::numeral(&k.to_string())],
+                ),
+            });
+        }
+        let term = factors
+            .into_iter()
+            .reduce(|a, b| page::made(grammar, TIMES, vec![a, b]))?;
+        out = Some(match (out, weight.is_negative()) {
+            (None, false) => term,
+            (None, true) => page::made_by_name(grammar, UNARY_MINUS, vec![term]),
+            (Some(sum), false) => page::made(grammar, PLUS, vec![sum, term]),
+            (Some(sum), true) => page::made(grammar, MINUS, vec![sum, term]),
+        });
+    }
+    let node = out?;
+    let labels = FloatLabels::new(IndexMap::new());
+    let read = field::read(&term_of_node(&node, targets), &labels);
+    (read.over == p.times(&read.under)).then_some(node)
+}
+
+/// A positive rational as a term of the page's: a numeral, or the quotient
+/// of two.
+fn rational_node(value: &Q, grammar: &Grammar) -> Node {
+    let top = Node::numeral(&value.numer().to_string());
+    match value.is_integer() {
+        true => top,
+        false => page::made(
+            grammar,
+            DIVIDED,
+            vec![top, Node::numeral(&value.denom().to_string())],
+        ),
+    }
 }
 
 /// The parts each `algebra` and `inequalities` reason divides by, with
@@ -100,15 +301,7 @@ pub fn divided_by(
         }
         // A calculation's rows and a substitution's, each by the line its
         // reason is on.
-        let substituted: Vec<Requires> = match substitute_rows(&step.just, &thm.path) {
-            Some(Ok(rows)) => rows.into_iter().filter_map(|r| r.reason).collect(),
-            _ => Vec::new(),
-        };
-        let rows: Vec<Requires> = chain_links(&step.just, &thm.path)
-            .into_iter()
-            .filter_map(|link| link.line.reason)
-            .chain(substituted)
-            .collect();
+        let rows = row_reasons(thm, step);
         let claims = step
             .requires
             .iter()
@@ -202,7 +395,7 @@ pub(super) fn divided_at(
             let Some(AlgebraDecided {
                 read,
                 facts,
-                verdict: algebra::Verdict::Holds { combined },
+                verdict: algebra::Verdict::Holds { combined, .. },
                 ..
             }) = algebra_decided(at, known, targets)
             else {

@@ -8,6 +8,7 @@ step 1 has letters
 step 1.1 has letters x at K1 sentence 0
 step 2 has letters 
 step 2.1 has letters z at K2 sentence 0
+step 1.1 sums nothing, reading 0
 step 1 holds x in cz stated
 step 1 holds x in cq stated
 step 1 holds x in cr stated

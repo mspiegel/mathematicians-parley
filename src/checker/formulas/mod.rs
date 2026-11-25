@@ -92,8 +92,8 @@ pub(super) use self::relations::define_equation;
 use self::relations::*;
 pub use self::relations::{
     antisymmetries, calculation_meetings, check_calculation_claims, check_define_names,
-    check_substitute_rows, check_transitivity, divided_by, finite_under, order_steps,
-    substitute_row_ends, transitivity_links,
+    check_substitute_rows, check_transitivity, combinations, divided_by, finite_under,
+    order_steps, substitute_row_ends, transitivity_links,
 };
 use self::rows::*;
 pub use self::rows::{

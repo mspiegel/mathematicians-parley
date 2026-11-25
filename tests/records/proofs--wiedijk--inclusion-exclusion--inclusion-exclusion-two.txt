@@ -16,6 +16,7 @@ step 17 cites stdlib/counting/card-disjoint-union group 0; X := A ∩ B, Y := B 
 finite A, by Said("A is finite")
 finite B, by Said("B is finite")
 step 1 has letters 
+step 19 sums 11 sentence 0 times 1 + 18 sentence 0 times −1, reading 0
 step 9 holds |A| in cn0 stated
 step 9 holds |A| in cz stated
 step 9 holds |A| in cq stated

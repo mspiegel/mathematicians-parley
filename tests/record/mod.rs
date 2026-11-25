@@ -379,6 +379,27 @@ pub fn printed_but(
             .collect();
         writeln!(out, "{} divides by {}", reason_at(*line), parts.join(", ")).unwrap();
     }
+    for (line, made) in &record.combinations {
+        let terms: Vec<String> = made
+            .terms
+            .iter()
+            .map(|t| {
+                format!("{} times {}", order_fact(&t.fact), g.print(&t.multiplier))
+            })
+            .collect();
+        let sum = match terms.is_empty() {
+            true => "nothing".to_string(),
+            false => terms.join(" + "),
+        };
+        let linear = if made.linear { ", its sums linear" } else { "" };
+        writeln!(
+            out,
+            "{} sums {sum}, reading {}{linear}",
+            reason_at(*line),
+            made.reading
+        )
+        .unwrap();
+    }
     for (line, held) in &record.held_by_lines {
         for h in held {
             writeln!(
