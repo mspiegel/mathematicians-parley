@@ -1,6 +1,6 @@
 //! Proof methods: a step's reason: defines, methods, closing.
 
-use std::{iter, slice};
+use std::iter;
 
 use super::super::doc::forms::{differences, relation_type, FormDifference};
 use super::super::doc::{forms, CountForm, LeanType, Location, Op, Quant, TermKind};
@@ -1000,11 +1000,9 @@ impl<'a> Proof<'a> {
             return self.taken_things(node, size, kept, &listed, &cited, equations);
         }
         Some(match inspected {
-            Inspection::OneOf { from, range } => {
-                let member = self
-                    .cited_parts(slice::from_ref(from))
-                    .into_iter()
-                    .find(|c| c.node.notation() == MEMBERSHIP)?;
+            Inspection::OneOf { at, range } => {
+                // The membership where the checker found it (`line_says`).
+                let (member, _) = self.line_says(at).built()?;
                 // The set read through the cited equations that name it, then
                 // a range by its bounds, worked out and taken to ℤ where
                 // they are written in a wider type; a listed set by its
@@ -1034,7 +1032,7 @@ impl<'a> Proof<'a> {
                         ]
                     }
                 };
-                doc::Proof::By(t::on_h(&member.proof, steps))
+                doc::Proof::By(t::on_h(&member, steps))
             }
             Inspection::Empty => doc::Proof::Term(Printed::applied(
                 "Set.notMem_empty",

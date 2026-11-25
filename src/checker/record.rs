@@ -699,12 +699,13 @@ pub struct PlaceShown {
 
 /// The case of `inspection` that decided a claim
 /// (`CheckedTheorem::inspected`, `methods::inspection::Case`).
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum Inspection {
     /// A line of "or"s saying what a term is, one equation for each element
-    /// of the set a cited membership puts it in: that membership's line, by
-    /// its reference, and whether the set is a range of integers.
-    OneOf { from: String, range: bool },
+    /// of the set a cited membership puts it in: where that membership
+    /// stands among the cited lines, and whether the set is a range of
+    /// integers.
+    OneOf { at: FirstAt, range: bool },
     /// Whether a number is prime.
     Prime,
     /// That nothing is in ∅.

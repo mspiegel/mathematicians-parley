@@ -1184,22 +1184,35 @@ pub(super) fn inspection_case(
     let defined = known.citing_step(at.step);
     // Each cited sentence beside the reference it is read from.
     let mut cited: Vec<Term> = Vec::new();
-    let mut from: Vec<&String> = Vec::new();
+    let mut from: Vec<(&String, Node)> = Vec::new();
     for r in at.refs {
         let Some(stated) = scope.get(r) else {
             continue;
         };
         for n in known.supplied(stated, &defined) {
             cited.push(term_of_node(&n, targets));
-            from.push(r);
+            from.push((r, n));
         }
     }
     Some(
         match Facts::of(&cited).case(&term_of_node(&claim, targets))? {
-            inspection::Case::OneOf { fact, range } => Inspection::OneOf {
-                from: from.get(fact)?.to_string(),
-                range,
-            },
+            inspection::Case::OneOf { fact, range } => {
+                // Where the membership stands in its line, as a citation's
+                // fact is placed (`citations::placed`).
+                let (r, said) = from.get(fact)?;
+                let stated = scope.get(*r)?;
+                let says = known.says(stated, &defined);
+                let s = says.iter().find(|s| known.alike(&s.cited, said))?;
+                Inspection::OneOf {
+                    at: super::super::citations::placed(
+                        r,
+                        s,
+                        &says,
+                        known.sentence_count(stated),
+                    )?,
+                    range,
+                }
+            }
             inspection::Case::Prime => Inspection::Prime,
             inspection::Case::Empty => Inspection::Empty,
             inspection::Case::Member => Inspection::Member,

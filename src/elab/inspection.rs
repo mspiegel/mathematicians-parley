@@ -18,6 +18,7 @@ use super::field::{self, Verdict};
 use super::pairs::InClass;
 use super::state::Elaborator;
 use super::{numerals, Facts};
+use crate::checker::record::{FirstAt, Inspection};
 use crate::corpus::Step;
 use crate::methods::inspection::{
     disjuncts, integer_value, is_prime, least_factor, range_elements,
@@ -39,17 +40,6 @@ struct Listing {
     elements: Vec<Term>,
     /// ( scope -> set = the union of the elements' singletons ).
     proof: Proof,
-}
-
-/// The sentences a line joins with "and", however it groups them.
-fn conjuncts(line: &Term) -> Vec<Term> {
-    if line.variable().is_some() {
-        return vec![line.clone()];
-    }
-    match line.label() {
-        Some("wa" | "w3a") => line.children().iter().flat_map(conjuncts).collect(),
-        _ => vec![line.clone()],
-    }
 }
 
 /// What the cited lines settle of a property at one element.
@@ -131,13 +121,9 @@ impl Elaborator<'_> {
             self.unpack(&fact, &proof, scope, &known, usize::MAX);
         }
         let claim = self.to_term(term);
-        let lines: Vec<Rpn> = step
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| self.line_written(r, &self.lines).map(|l| l.claim))
-            .collect();
-        let made = self.inspected(&claim, scope, &known, &lines)?;
+        // The case the checker found decides the claim (`inspected`).
+        let recorded = self.checked.inspected.get(&step.just.line).cloned();
+        let made = self.inspected(&claim, scope, &known, recorded.as_ref())?;
         match made {
             Built(p) => Ok(Built(p)),
             Declined(d) => Err(self.defect(
@@ -153,14 +139,14 @@ impl Elaborator<'_> {
 
     /// The claim, a membership or an equation, with each side worked out to
     /// what the cited lines make it (`value`) and the two compared; or a
-    /// line of "or"s read against a membership `lines`, the cited lines,
-    /// say (`one_of`).
+    /// line of "or"s read against the cited membership the checker found
+    /// decides it (`Inspection::OneOf`, `one_of`).
     fn inspected(
         &mut self,
         claim: &Term,
         scope: &Rpn,
         known: &Facts,
-        lines: &[Rpn],
+        recorded: Option<&Inspection>,
     ) -> Checked<Route<Proof>> {
         let kids = claim.children().to_vec();
         // "n is prime", a word whose record names inspection in `decided`.
@@ -222,19 +208,21 @@ impl Elaborator<'_> {
                     .map(Built)
             }
             // A line of equations joined by "or", or one equation alone, is
-            // read against a cited membership in a listed set where there is
-            // one, and an equation is otherwise read as an equation.
-            Some("wceq" | "wo") if claim.variable().is_none() => {
-                match self.listed_membership(claim, scope, known, lines)? {
-                    Some(found) => self.one_of(claim, found, scope, known),
-                    None if claim.label() == Some("wceq") => {
-                        self.equation(&kids[0], &kids[1], scope, known)
-                    }
-                    None => Ok(Route::no(
-                        "nothing cited puts in a listed set the one term every equation of the claim names",
-                    )),
+            // read against the cited membership in a listed set the checker
+            // found decides it, and an equation is otherwise read as an
+            // equation.
+            Some("wceq" | "wo") if claim.variable().is_none() => match recorded {
+                Some(Inspection::OneOf { at, .. }) => {
+                    let found = take!(self.listed_membership(claim, at, scope, known)?);
+                    self.one_of(claim, found, scope, known)
                 }
-            }
+                _ if claim.label() == Some("wceq") => {
+                    self.equation(&kids[0], &kids[1], scope, known)
+                }
+                _ => Ok(Route::no(
+                    "the checker found no cited membership in a listed set deciding it",
+                )),
+            },
             _ => Ok(Route::no(
                 "inspection says what is in a listed set, that two things it \
                  can work out are equal, or which element of a listed set a \
@@ -545,41 +533,39 @@ impl Elaborator<'_> {
     }
 
     /// The cited `t ∈ S` a line of equations joined by "or", or one equation
-    /// alone, is read against, as the checker reads it: the first whose t
-    /// is one side of every equation and whose S comes to a listed set
-    /// (`set_value`). None where nothing cited does.
+    /// alone, is read against: the one the checker found decides it, where
+    /// `at` places it (`Inspection::OneOf`), t one side of every equation
+    /// and S coming to a listed set (`set_value`). A decline where it is not
+    /// so.
     fn listed_membership(
         &mut self,
         claim: &Term,
+        at: &FirstAt,
         scope: &Rpn,
         known: &Facts,
-        lines: &[Rpn],
-    ) -> Checked<Option<Membership>> {
-        let sentences = disjuncts(claim);
-        let cited: Vec<Term> = lines
-            .iter()
-            .flat_map(|l| conjuncts(&self.to_term(l)))
-            .collect();
-        for said in cited {
-            if said.variable().is_some() || said.label() != Some("wcel") {
-                continue;
-            }
-            let element = &said.children()[0];
-            let named: Option<Vec<Named>> =
-                sentences.iter().map(|s| self.says_of(s, element)).collect();
-            let Some(named) = named else {
-                continue;
-            };
-            let set = said.children()[1].clone();
-            if let Built(listing) = self.set_value(&set, scope, known)? {
-                return Ok(Some(Membership {
-                    said,
-                    named,
-                    listing,
-                }));
-            }
+    ) -> Checked<Route<Membership>> {
+        let written = self.term(&at.written)?;
+        let said = self.to_term(&written);
+        if said.variable().is_some() || said.label() != Some("wcel") {
+            return Ok(Route::no("the membership the checker found is none"));
         }
-        Ok(None)
+        let element = &said.children()[0];
+        let named: Option<Vec<Named>> = disjuncts(claim)
+            .iter()
+            .map(|s| self.says_of(s, element))
+            .collect();
+        let Some(named) = named else {
+            return Ok(Route::no(
+                "an equation of the claim does not name the membership's term",
+            ));
+        };
+        let set = said.children()[1].clone();
+        let listing = take!(self.set_value(&set, scope, known)?);
+        Ok(Built(Membership {
+            said,
+            named,
+            listing,
+        }))
     }
 
     /// A line of "or"s, `t = s₁ or … or t = sₙ`, or one equation `t = s`,
