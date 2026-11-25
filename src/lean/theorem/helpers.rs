@@ -1,6 +1,5 @@
 //! What an obtain takes, widening and the proof's small helpers.
 
-use std::collections::BTreeSet;
 use std::slice::Iter;
 
 use super::super::doc::{BoundForm, Brackets, Op, Pattern, Quant, TermKind};
@@ -8,7 +7,6 @@ use super::super::expr::NaturalForm;
 use super::super::{doc, tactics as t};
 use super::*;
 use crate::checker::record::Substituted;
-use crate::corpus::proof;
 use crate::corpus::proof::ChainLine;
 use crate::formula::Grammar;
 use crate::matching;
@@ -1162,33 +1160,4 @@ pub(super) fn cases_pattern(names: &[String]) -> super::super::doc::Pattern {
             Box::new(cases_pattern(rest)),
         ),
     }
-}
-
-/// The lines a step cites anywhere in its reason: its own references, the
-/// line it substitutes into, and those its calculation's rows cite, by a
-/// reason of their own or alone.
-pub(super) fn step_cited_refs(step: &Step, path: &str) -> Vec<String> {
-    let mut out: Vec<String> = step.just.refs.clone();
-    let into = |j: &Justification| j.into.as_ref().map(|p| p.named().to_string());
-    out.extend(into(&step.just));
-    if let Some(Ok(chain)) = proof::chain(&step.just, path) {
-        for line in &chain.lines {
-            match &line.reason {
-                Some(r) => {
-                    if let Ok(by) = &r.by {
-                        out.extend(by.refs.iter().cloned());
-                        out.extend(into(by));
-                    }
-                }
-                None => {
-                    if let Some(cited) = proof::chain_cited(&line.cite) {
-                        out.push(cited);
-                    }
-                }
-            }
-        }
-    }
-    let mut seen = BTreeSet::new();
-    out.retain(|r| seen.insert(r.clone()));
-    out
 }

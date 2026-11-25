@@ -1,5 +1,7 @@
 //! The lines of a proof: introductions, reasons, methods and steps.
 
+use std::collections::BTreeSet;
+
 use super::*;
 use crate::sorts;
 
@@ -1064,6 +1066,18 @@ impl Justification {
             c.at += by;
         }
         self
+    }
+
+    /// Each line and label the justification cites, once, in the order it
+    /// first cites them (`refs`): its own, the line it substitutes into, and
+    /// those its chain's lines and rows cite.
+    pub fn cited_once(&self) -> Vec<String> {
+        let mut seen = BTreeSet::new();
+        self.refs
+            .iter()
+            .filter(|r| seen.insert(r.as_str()))
+            .cloned()
+            .collect()
     }
 
     /// The full name a citation written in this justification's file means.

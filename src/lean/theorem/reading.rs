@@ -510,8 +510,7 @@ impl<'a> Proof<'a> {
                 spot.clone(),
             );
         }
-        let mut named: BTreeSet<String> =
-            step_cited_refs(step, &self.thm.path).into_iter().collect();
+        let mut named: BTreeSet<String> = step.just.refs.iter().cloned().collect();
         named.extend(
             (0..step.requires.len()).map(|k| format!("r{}_{}", step.line, k + 1)),
         );
@@ -930,7 +929,7 @@ impl<'a> Proof<'a> {
         // `¬ ∃ m : ℤ, …`, by the name they stand under, which a
         // restatement of them takes.
         let cited: Vec<CitedWitness> = self
-            .cited_parts(&step_cited_refs(&self.thm.steps[i], &self.thm.path))
+            .cited_parts(&self.thm.steps[i].just.cited_once())
             .into_iter()
             .filter(|c| matches!(c.proof.kind, super::super::doc::TermKind::Letter(_)))
             .filter_map(|c| {
