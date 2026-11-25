@@ -38,7 +38,7 @@ step 2 has letters M at H1 sentence 0
 step 2.5 has letters M at H1 sentence 0, m at K sentence 0
 step 3 has letters M at H1 sentence 0
 step 4 has letters M at H1 sentence 0, N at 3 sentence 0
-step 1.1 divides by k a positive integer said once
+step 1.1 divides by k a positive integer walked Letter
 step 1 holds k in cn stated
 step 1 holds k in cn0 stated
 step 1 holds k in cz stated

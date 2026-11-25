@@ -744,15 +744,29 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
         let said = self.term(term)?;
+        self.derived_membership_as(step, &said, system, shown, scope, facts)
+    }
+
+    /// `derived_membership` of the term `said` as the kernel spells it,
+    /// where the page's term the derivation is of is that term.
+    pub(in crate::elab) fn derived_membership_as(
+        &mut self,
+        step: Option<&Step>,
+        said: &Rpn,
+        system: System,
+        shown: &Shown,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
         // A term already being derived is not derived again inside its own
         // derivation, where finding a line it names works a fact out that
         // asks the term once more.
-        if self.equating.contains(&said) {
+        if self.equating.contains(said) {
             return Ok(None);
         }
         self.equating.insert(said.clone());
-        let made = self.derived_membership_of(step, &said, system, shown, scope, facts);
-        self.equating.shift_remove(&said);
+        let made = self.derived_membership_of(step, said, system, shown, scope, facts);
+        self.equating.shift_remove(said);
         made
     }
 

@@ -900,8 +900,9 @@ pub(super) fn terms_unsaid(
         // line; one holding a sum whose term divides by that sum's index is
         // a number where `membership` would build it, the sum's term said
         // at every point by a line the citation names.
-        let needs_saying = t.needs_saying(&asks.letters);
-        let inner = !t.inner_sums(&asks.letters).is_empty();
+        let given = asks.unlined(known);
+        let needs_saying = t.needs_saying(&given);
+        let inner = !t.inner_sums(&given).is_empty();
         let untyped = applies_untyped(term, thm, &parts.facts, known);
         let unplaced = !said_over_any_set(
             &PointOfASet {

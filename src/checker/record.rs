@@ -675,9 +675,10 @@ pub enum NonzeroBy {
     },
     /// Numerals alone, whose value is not zero.
     Numerals,
-    /// A positive integer by what the page says once: k, j·(j + 1), 2^n
-    /// and (k + 1)! where k, j and n are letters in ℕ.
-    Positive,
+    /// A positive integer: the one membership rule puts it in ℕ, as it
+    /// does k, j·(j + 1), 2^n and (k + 1)! where k, j and n are letters in
+    /// ℕ, and f(k) where f : ℕ → ℕ; `shown` is how.
+    Positive { shown: Shown },
 }
 
 /// Where the page writes a line a reason rests on (`NonzeroBy::Stated`).

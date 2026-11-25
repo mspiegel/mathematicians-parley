@@ -245,8 +245,12 @@ pub(super) struct FamilyAsks {
     /// declares, whose types are not asked for and whose codomains are.
     pub(super) declared_types: Vec<AskedType>,
     /// The number systems the page says once its letters are in at the
-    /// step, which say whether a term's divisor is a positive integer.
+    /// step, which with `in_scope` say whether a term's divisor is a
+    /// positive integer.
     pub(super) letters: Introduced,
+    /// The function types in scope at the step, which say a function's
+    /// value is in its codomain at a point of its domain.
+    pub(super) in_scope: Vec<Node>,
     /// Which notations bind, so that a value is compared up to the letters
     /// it binds.
     pub(super) ctx: Context,
@@ -289,7 +293,7 @@ impl AskedType {
     /// and 1/(k(k + 1)/2) do. A divisor's `≠ 0` is written there
     /// (`SYNTAX.md`), and no line outside the sum can speak of its letter,
     /// so the term is said at every point by a line the citation names.
-    pub(super) fn needs_saying(&self, letters: &Introduced) -> bool {
+    pub(super) fn needs_saying(&self, given: &membership::Facts) -> bool {
         let (Some((letter, term)), Some(domain)) =
             (self.pointwise(), self.asked.children.get(1))
         else {
@@ -300,18 +304,14 @@ impl AskedType {
             NUMBER_SYSTEMS => System::of_sign(&domain.text),
             _ => None,
         };
-        let mut letters = letters.clone();
-        if let Some(inside) = inside {
-            letters.insert(letter.to_string(), inside);
-        }
-        membership::divides_by(term, letter, &letters)
+        membership::divides_by(term, letter, inside, given)
     }
 
     /// The sums inside the term the type asks at every point whose own
-    /// term divides by their index as `needs_saying` reads it, `letters`
-    /// the page's: Σ(k = 1 to n) 1/T(k) inside `x : ℕ → ℝ` at x := n ↦
-    /// Σ(k = 1 to n) 1/T(k).
-    pub(super) fn inner_sums(&self, letters: &Introduced) -> Vec<Node> {
+    /// term divides by their index as `needs_saying` reads it, `given` the
+    /// page's letters and types in scope: Σ(k = 1 to n) 1/T(k) inside
+    /// `x : ℕ → ℝ` at x := n ↦ Σ(k = 1 to n) 1/T(k).
+    pub(super) fn inner_sums(&self, given: &membership::Facts) -> Vec<Node> {
         let Some((_, term)) = self.pointwise() else {
             return Vec::new();
         };
@@ -319,11 +319,12 @@ impl AskedType {
             .into_iter()
             .filter(|part| {
                 crate::methods::membership::Summed::of(part).is_some_and(|s| {
-                    let mut letters = letters.clone();
-                    if let Some(inside) = index_system(s.start) {
-                        letters.insert(s.index.to_string(), inside);
-                    }
-                    membership::divides_by(s.body, s.index, &letters)
+                    membership::divides_by(
+                        s.body,
+                        s.index,
+                        index_system(s.start),
+                        given,
+                    )
                 })
             })
             .collect()
@@ -334,7 +335,7 @@ impl AskedType {
     pub(super) fn says_inner_term(
         &self,
         node: &Node,
-        letters: &Introduced,
+        given: &membership::Facts,
         ctx: &Context,
     ) -> bool {
         let Some(codomain) = self.asked.children.get(2) else {
@@ -343,7 +344,7 @@ impl AskedType {
         let Some(system) = System::of_sign(&codomain.text) else {
             return false;
         };
-        self.inner_sums(letters).iter().any(|sum| {
+        self.inner_sums(given).iter().any(|sum| {
             crate::methods::membership::Summed::of(sum)
                 .is_some_and(|s| membership::said_pointwise(node, &s, system, ctx))
         })
@@ -540,18 +541,33 @@ pub(super) fn family_asks(step: &Step, known: &Known, library: &Library) -> Fami
         types,
         declared_types,
         letters: super::super::library::introduced(known, step),
+        in_scope,
         ctx: library.ctx.clone(),
     }
 }
 
 impl FamilyAsks {
+    /// What the one membership rule reads over no lines at the step
+    /// (`membership::shown`): its letters and the function types in scope.
+    pub(super) fn unlined<'a>(&'a self, known: &'a Known) -> membership::Facts<'a> {
+        membership::Facts {
+            facts: &[],
+            letters: self.letters.clone(),
+            ranged: IndexMap::new(),
+            typed: &self.in_scope,
+            in_sums: &self.in_scope,
+            targets: known.targets,
+            ctx: &self.ctx,
+        }
+    }
+
     /// Whether `node`, a line the citation names, states what a function
     /// hypothesis asks: its type, or a sum's term at every point.
     pub(super) fn states(&self, node: &Node, known: &Known) -> bool {
         self.types.iter().any(|t| {
             t.stated_by(node, known)
                 || t.said_pointwise(node, known, &self.ctx)
-                || t.says_inner_term(node, &self.letters, &self.ctx)
+                || t.says_inner_term(node, &self.unlined(known), &self.ctx)
         })
     }
 

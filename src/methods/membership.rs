@@ -14,9 +14,7 @@ use std::cell::RefCell;
 use indexmap::IndexMap;
 
 use super::terms::Targets;
-use crate::citing::{
-    index_system, nonzero_said_once, range_system, Introduced, NonzeroHow, OnceReason,
-};
+use crate::citing::{index_system, range_system, Introduced, NonzeroHow, OnceReason};
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
 use crate::matching::{alike, standard, substitute_apart, Binding, Context};
@@ -200,7 +198,7 @@ fn walked(
     leaves: Leaves,
 ) -> Option<Shown> {
     let taken: RefCell<Vec<ShownPart>> = RefCell::new(Vec::new());
-    let nonzero = |d: &Node| nonzero(d, facts);
+    let nonzero = |d: &Node| nonzero_at(d, facts, carry);
     let said = |t: &Node, s: System| -> Option<OnceReason> {
         // A letter its introduction puts in the system is said once; a
         // line saying so too does no work, and the walk reads the letter.
@@ -457,9 +455,6 @@ fn summed_shown(
     if let Some(inside) = index_system(sum.start) {
         letters.insert(sum.index.to_string(), inside);
     }
-    if divides_by(sum.body, sum.index, &letters) {
-        return None;
-    }
     let mut ranged = facts.ranged.clone();
     ranged.insert(
         sum.index.to_string(),
@@ -478,6 +473,9 @@ fn summed_shown(
         targets: facts.targets,
         ctx: facts.ctx,
     };
+    if divides_by(sum.body, sum.index, None, &at) {
+        return None;
+    }
     Some(Shown::Summed {
         pointwise: None,
         body: Some(Box::new(part_shown(sum.body, system, &at, carry)?)),
@@ -612,13 +610,20 @@ fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
     )
 }
 
-/// Whether a divisor is not zero: a numeral other than zero or a term the
-/// page says once is a positive integer (`nonzero_said_once`), a fact
+/// Whether a divisor is not zero: numerals alone whose value is not zero,
+/// a positive integer, a term the one rule puts in ℕ (`shown`), a fact
 /// saying it, as `d ≠ 0` either way round or as a sign, `0 < d` or `d < 0`,
 /// or its parts: a product, a quotient, a negation or a power to a numeral
 /// is not zero when its parts are (`ELABORATION.md`, the divisor's order).
 pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
-    citing::nonzero_said(divisor, &facts.letters, facts.facts, facts.ctx)
+    nonzero_at(divisor, facts, &Carry::from(CARRIED))
+}
+
+/// `nonzero`, as far as `carry` lets an equation carry a term on: a
+/// divisor inside a term the walk takes apart is asked under the walk's own
+/// carry, so that an equation carrying a term to one dividing by it ends.
+fn nonzero_at(divisor: &Node, facts: &Facts, carry: &Carry) -> bool {
+    citing::nonzero_by_parts(divisor, &|d| said_nonzero_how(d, facts, carry).is_some())
 }
 
 /// Each part of a divisor `nonzero` reads as not zero, with how: each part
@@ -652,14 +657,30 @@ pub fn nonzero_how<'f>(
         })
         .flatten();
     apart.or_else(|| {
-        said_nonzero_how(divisor, facts).map(|how| vec![(divisor.clone(), how)])
+        said_nonzero_how(divisor, facts, &Carry::from(CARRIED))
+            .map(|how| vec![(divisor.clone(), how)])
     })
 }
 
-/// How the page says a divisor is not zero once, or which fact says it;
-/// None where neither does (`said_nonzero`).
-fn said_nonzero_how<'f>(divisor: &Node, facts: &'f Facts) -> Option<NonzeroHow<'f>> {
-    citing::nonzero_said_how(divisor, &facts.letters, facts.facts, facts.ctx)
+/// How a divisor is not zero (`SYNTAX.md`), in one fixed order: numerals
+/// alone whose value is not zero; a positive integer, which the one rule
+/// puts in ℕ (`shown`), so that a line saying it is not zero does no work;
+/// or one of the facts saying so. None where none does. A divisor of a
+/// term at a bound letter, a sum's index or a rule's parameter, has no
+/// fact of its own, since a line speaks of the proof's letters; such a
+/// test passes no facts.
+fn said_nonzero_how<'f>(
+    divisor: &Node,
+    facts: &'f Facts,
+    carry: &Carry,
+) -> Option<NonzeroHow<'f>> {
+    if citing::closed_nonzero(divisor) {
+        return Some(NonzeroHow::Numerals);
+    }
+    if let Some(shown) = shown_at(divisor, System::N, facts, carry) {
+        return Some(NonzeroHow::Positive(shown));
+    }
+    citing::stated_nonzero(divisor, facts.facts, facts.ctx).map(NonzeroHow::Stated)
 }
 
 /// The first part of `term` nothing in `facts` says is in `system`, as a
@@ -864,17 +885,37 @@ impl Parts {
     }
 }
 
-/// Whether `term` divides by something holding the letter `index` that the
-/// page does not say once is a positive integer, `letters` holding the
-/// index's own system (`citing::nonzero_said_once`). A line saying `b ≠ 0`
-/// speaks of the proof's letters, not of every value of the index, so no
-/// fact is asked.
-pub fn divides_by(term: &Node, index: &str, letters: &Introduced) -> bool {
+/// Whether `term` divides by something holding the letter `index` that is
+/// not zero by the one rule over no lines (`nonzero`): the index in
+/// `inside`, the system its range or set puts it in, and the letters and
+/// function types in scope as `at` holds them; 1/f(k) of `f : ℕ → ℕ` is a
+/// positive integer at every k in ℕ. A line saying `b ≠ 0` speaks of the
+/// proof's letters, not of every value of the index, so no fact is asked.
+pub fn divides_by(
+    term: &Node,
+    index: &str,
+    inside: Option<System>,
+    at: &Facts,
+) -> bool {
+    let mut letters = at.letters.clone();
+    if let Some(inside) = inside {
+        letters.insert(index.to_string(), inside);
+    }
+    let unlined = Facts {
+        facts: &[],
+        letters,
+        ranged: at.ranged.clone(),
+        typed: at.in_sums,
+        in_sums: at.in_sums,
+        targets: at.targets,
+        ctx: at.ctx,
+    };
     term.walk().iter().any(|part| {
         part.spelling() == DIVIDED
-            && part.children.get(1).is_some_and(|d| {
-                d.names().contains(index) && !nonzero_said_once(d, letters)
-            })
+            && part
+                .children
+                .get(1)
+                .is_some_and(|d| d.names().contains(index) && !nonzero(d, &unlined))
     })
 }
 

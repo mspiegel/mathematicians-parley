@@ -629,7 +629,7 @@ fn nonzero_in(
                             }
                         }
                         NonzeroHow::Numerals => NonzeroBy::Numerals,
-                        NonzeroHow::Positive => NonzeroBy::Positive,
+                        NonzeroHow::Positive(shown) => NonzeroBy::Positive { shown },
                     };
                     out.push(NotZero { term, by });
                 }

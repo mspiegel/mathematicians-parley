@@ -713,8 +713,8 @@ impl<'a> Writer<'a> {
     /// number as `(t).toNat`, and a power to it is a natural power.
     pub fn said_whole(&self, node: &Node) -> bool {
         let letters = self.page_systems();
-        let nonzero = |d: &Node| citing::nonzero_said_once(d, &letters);
         let given = self.said_once_given();
+        let nonzero = |d: &Node| membership::nonzero(d, &given);
         // An integer by its letters and its build that a hypothesis of the
         // theorem says is at least 0, `p − 1` beside `p ≥ 1`, as the check
         // read the hypotheses (`whole_bounds`), is a whole number as surely

@@ -10,15 +10,15 @@ step 3.5 cites stdlib/numbers/less-scaled group 0; c := B, x := A / B, y := 1; c
 step 3.1 chains B · (A / B) = A (1 sentence 0) | A < B (C1 sentence 0)
 step 3.6 chains B · (A / B) = A (1 sentence 0, turned) | B · (A / B) < B (3.5 sentence 0)
 step 1 has letters A at H1 sentence 0, B at H2 sentence 0
-step 1 divides by B a positive integer said once
-step 2 divides by B a positive integer said once
-step 3 divides by B a positive integer said once
-step 3.1 divides by B a positive integer said once
-step 3.2 divides by B a positive integer said once
-step 3.3 divides by B a positive integer said once
-step 3.4 divides by B a positive integer said once
-step 3.5 divides by B a positive integer said once
-step 3.6 divides by B a positive integer said once
+step 1 divides by B a positive integer walked Letter
+step 2 divides by B a positive integer walked Letter
+step 3 divides by B a positive integer walked Letter
+step 3.1 divides by B a positive integer walked Letter
+step 3.2 divides by B a positive integer walked Letter
+step 3.3 divides by B a positive integer walked Letter
+step 3.4 divides by B a positive integer walked Letter
+step 3.5 divides by B a positive integer walked Letter
+step 3.6 divides by B a positive integer walked Letter
 step 1 is the sum of nothing, reading 0
 step 2 holds A in cn0 stated
 step 2 holds A in cz stated

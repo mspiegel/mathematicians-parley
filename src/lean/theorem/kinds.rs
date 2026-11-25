@@ -11,9 +11,7 @@ use super::*;
 use crate::checker::record::Besides;
 use crate::citing::bounds::Bound;
 use crate::citing::finite::{FiniteBy, Making};
-use crate::citing::{
-    claimed_member, finite, nonzero_said_once, reason_within, OnceReason, SaidOnceFact,
-};
+use crate::citing::{claimed_member, finite, reason_within, OnceReason, SaidOnceFact};
 use crate::corpus::{Define, DefineParts};
 use crate::formula::node::Sort;
 use crate::formula::page;
@@ -1837,8 +1835,8 @@ impl<'a> Proof<'a> {
         known.extend(self.wholes_in_scope());
         let known = known.as_slice();
         let letters = self.writer.page_systems();
-        let nonzero = |d: &Node| nonzero_said_once(d, &letters);
         let given = self.writer.said_once_given();
+        let nonzero = |d: &Node| membership::nonzero(d, &given);
         let said = |t: &Node, s: rules::System| {
             if rules::System::N0.within(s)
                 && known.iter().any(|k| matching::alike_top(&k.term, t, ctx))

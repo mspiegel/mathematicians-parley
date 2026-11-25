@@ -925,11 +925,10 @@ pub fn closed_nonzero(divisor: &Node) -> bool {
     value(divisor).is_some_and(|v| !v.is_zero())
 }
 
-/// Whether a divisor goes without its `≠ 0` (`SYNTAX.md`): a term of
-/// numerals alone whose value is not zero, or a term the page says once is
-/// in ℕ by `letters`, a positive integer, as k, j·(j + 1), 2^n and (k + 1)!
-/// are where k, j and n are letters in ℕ.
-pub fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
+/// Whether an interval's end that is a divisor goes without its `≠ 0`: a
+/// term of numerals alone whose value is not zero, or a term in ℕ by
+/// `letters`.
+fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
     closed_nonzero(divisor)
         || within(divisor, System::N, letters, &closed_nonzero, &|_, _| false)
 }
@@ -942,30 +941,20 @@ pub enum NonzeroHow<'f> {
     Stated(&'f Node),
     /// Numerals alone, whose value is not zero: 3, 2 − 5.
     Numerals,
-    /// A positive integer by what the page says once: k, j·(j + 1), 2^n and
-    /// (k + 1)! where k, j and n are letters in ℕ (`nonzero_said_once`).
-    Positive,
+    /// A positive integer: the one membership rule puts it in ℕ
+    /// (`membership::shown`), as it does k, j·(j + 1), 2^n and (k + 1)!
+    /// where k, j and n are letters in ℕ. How it does is `shown`.
+    Positive(membership::Shown),
 }
 
-/// How the page says a divisor is not zero (`SYNTAX.md`): numerals alone
-/// whose value is not zero; a term it says once is a positive integer by
-/// `letters` (`nonzero_said_once`); or one of `facts`, the lines the step
-/// cites and the facts read off them, saying so. None where none does. A
-/// divisor of a term at a bound letter, a sum's index or a rule's
-/// parameter, has no fact of its own, since a line speaks of the proof's
-/// letters; such a test passes no facts.
-pub fn nonzero_said_how<'f>(
+/// The one of `facts`, the lines the step cites and the facts read off
+/// them, that says a divisor is not zero: `d ≠ 0` either way round, or a
+/// sign, `0 < d`, `d > 0`, `d < 0` or `0 > d`. None where none does.
+pub fn stated_nonzero<'f>(
     divisor: &Node,
-    letters: &Introduced,
     facts: &'f [Node],
     ctx: &Context,
-) -> Option<NonzeroHow<'f>> {
-    if closed_nonzero(divisor) {
-        return Some(NonzeroHow::Numerals);
-    }
-    if nonzero_said_once(divisor, letters) {
-        return Some(NonzeroHow::Positive);
-    }
+) -> Option<&'f Node> {
     let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
     let none = IndexMap::new();
     let is = |n: &Node| {
@@ -977,35 +966,19 @@ pub fn nonzero_said_how<'f>(
             &none,
         )
     };
-    facts
-        .iter()
-        .find(
-            |f| match (f.spelling(), f.notation(), f.children.as_slice()) {
-                (_, LOGICAL_NOT, [inner]) => {
-                    match (inner.notation(), inner.children.as_slice()) {
-                        (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-                        _ => false,
-                    }
+    facts.iter().find(
+        |f| match (f.spelling(), f.notation(), f.children.as_slice()) {
+            (_, LOGICAL_NOT, [inner]) => {
+                match (inner.notation(), inner.children.as_slice()) {
+                    (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+                    _ => false,
                 }
-                (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
-                (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-                _ => false,
-            },
-        )
-        .map(NonzeroHow::Stated)
-}
-
-/// Whether a divisor goes without its `≠ 0`: the page says it of the whole
-/// (`nonzero_said_how`), or of each of its parts (`nonzero_by_parts`).
-pub fn nonzero_said(
-    divisor: &Node,
-    letters: &Introduced,
-    facts: &[Node],
-    ctx: &Context,
-) -> bool {
-    nonzero_by_parts(divisor, &|d| {
-        nonzero_said_how(d, letters, facts, ctx).is_some()
-    })
+            }
+            (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
+            (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+            _ => false,
+        },
+    )
 }
 
 /// The value of a term built from numerals alone, worked out exactly; None

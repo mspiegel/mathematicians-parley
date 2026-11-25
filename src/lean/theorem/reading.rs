@@ -10,11 +10,12 @@ use super::super::{doc, expr, tactics as t};
 use super::*;
 use crate::checker::record::{HeldByLines, NonzeroBy, Restated, Shown, ShownBy};
 use crate::citing::{
-    bounds, finite, nonzero_said_once, reason_within, speaks_of_claim_letter,
-    under_claim_binders, Introduced, OnceReason,
+    bounds, finite, reason_within, speaks_of_claim_letter, under_claim_binders,
+    Introduced, OnceReason,
 };
 use crate::corpus::DefineParts;
 use crate::formula::{page, Sort};
+use crate::methods::membership;
 use crate::notations::{
     CARDINALITY, DISJUNCTION, FUNCTION_TYPE, LOGICAL_NOT, MEMBERSHIP, PI, POWER,
     SQUARE_ROOT, SUBSET,
@@ -1550,7 +1551,8 @@ impl<'a> Proof<'a> {
             _ => rules::System::Z,
         };
         let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, facts);
-        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let given = self.writer.said_once_given();
+        let nonzero = |d: &Node| membership::nonzero(d, &given);
         let Some(reason) = reason_within(term, system, letters, &nonzero, &said) else {
             return Route::no(format!(
                 "{}, put where a whole number is asked, is one by no line the step names",
@@ -1572,18 +1574,16 @@ impl<'a> Proof<'a> {
 
     /// The parts the reason on `line` divides by, with how Lean is shown
     /// each is not zero (`CheckedTheorem::divided_by`). Of a part a line
-    /// says is not zero, the line it is read from, among those the step
-    /// names, with the step's `defines` written out in it as the checker
-    /// reads it, turned to say `d ≠ 0` by what its Lean statement says
-    /// (`nonzero_turned`): `d ∈ ℕ` is `0 < d` in Lean, so `h.ne'`.
-    /// Numerals are left to `field_simp`, which works them out.
+    /// says is not zero, or says is in ℕ, the line it is read from, among
+    /// those the step names, with the step's `defines` written out in it
+    /// as the checker reads it (`line_nonzero`). A positive integer of
+    /// letters and numerals alone is `positivity`'s, and numerals are left
+    /// to `field_simp`, which works them out.
     pub(super) fn divisors_at(
         &self,
         line: usize,
         defines: &[CitedDefine],
     ) -> Route<Vec<super::super::algebra::NotZero>> {
-        let ctx = self.sources.ctx;
-        let standard = |n: &Node| matching::standard(n, ctx);
         let named: Vec<String> =
             self.named_now.borrow().iter().flatten().cloned().collect();
         let mut facts = self.cited_parts(&named);
@@ -1596,44 +1596,29 @@ impl<'a> Proof<'a> {
         for part in self.rec.divided_by.get(&line).into_iter().flatten() {
             let by = match &part.by {
                 NonzeroBy::Numerals => continue,
-                NonzeroBy::Positive => NotZeroBy::Positive,
-                NonzeroBy::Stated { from, .. } => {
-                    let from = standard(from);
-                    let said = facts
-                        .iter()
-                        .find(|f| matching::alike_top(&standard(&f.node), &from, ctx))
-                        .and_then(|f| {
-                            let says = f
-                                .says
-                                .clone()
-                                .or_else(|| self.writer.formula(&f.node).built())?;
-                            Some((f, says))
-                        });
-                    let Some((fact, says)) = said else {
+                NonzeroBy::Positive { shown } => match shown.as_held() {
+                    // A line says it is in ℕ, which Lean states as 0 < d.
+                    Shown::Stated { line } => match self.line_nonzero(line, &facts) {
+                        Route::Built(by) => by,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                    // The walk over letters and numerals alone, whose
+                    // bounds Lean holds as hypotheses.
+                    Shown::Walked { taken, .. } if taken.is_empty() => {
+                        NotZeroBy::Positive
+                    }
+                    _ => {
                         return Route::no(format!(
-                            "a divisor's ≠ 0 the checker read from {}, which no line the step names says in Lean",
-                            self.writer.grammar.print(&from)
-                        ));
-                    };
-                    let witnessed = || {
-                        natural_witnessed(&fact.node, &self.writer)
-                            .then(|| unwitnessed_nonzero(&fact.proof))
-                    };
-                    let Some(proof) =
-                        nonzero_turned(&fact.proof, &says).or_else(witnessed)
-                    else {
-                        return Route::no(format!(
-                            "a divisor's ≠ 0 read from {}, which Lean states as {}, no sign or ≠ 0",
-                            self.writer.grammar.print(&from),
-                            says.text()
-                        ));
-                    };
-                    let stated = match super::super::doc::forms::relation_type(&says) {
-                        Some(super::super::doc::LeanType::Num(n)) => Some(n),
-                        _ => None,
-                    };
-                    NotZeroBy::Line { proof, stated }
-                }
+                        "{}, a positive integer by a derivation Lean writes no ≠ 0 of",
+                        self.writer.grammar.print(&part.term)
+                    ))
+                    }
+                },
+                NonzeroBy::Stated { from, .. } => match self.line_nonzero(from, &facts)
+                {
+                    Route::Built(by) => by,
+                    Route::Declined(d) => return Route::Declined(d),
+                },
             };
             out.push(NotZero {
                 term: part.term.clone(),
@@ -1641,6 +1626,52 @@ impl<'a> Proof<'a> {
             });
         }
         Route::Built(out)
+    }
+
+    /// How Lean is shown a divisor is not zero by the line `from` the
+    /// checker read it from, among `facts`, those the step names, turned to
+    /// say `d ≠ 0` by what its Lean statement says (`nonzero_turned`):
+    /// `d ∈ ℕ` is `0 < d` in Lean, so `h.ne'`.
+    fn line_nonzero(
+        &self,
+        from: &Node,
+        facts: &[super::super::algebra::Cited],
+    ) -> Route<NotZeroBy> {
+        let ctx = self.sources.ctx;
+        let standard = |n: &Node| matching::standard(n, ctx);
+        let from = standard(from);
+        let said = facts
+            .iter()
+            .find(|f| matching::alike_top(&standard(&f.node), &from, ctx))
+            .and_then(|f| {
+                let says = f
+                    .says
+                    .clone()
+                    .or_else(|| self.writer.formula(&f.node).built())?;
+                Some((f, says))
+            });
+        let Some((fact, says)) = said else {
+            return Route::no(format!(
+                "a divisor's ≠ 0 the checker read from {}, which no line the step names says in Lean",
+                self.writer.grammar.print(&from)
+            ));
+        };
+        let witnessed = || {
+            natural_witnessed(&fact.node, &self.writer)
+                .then(|| unwitnessed_nonzero(&fact.proof))
+        };
+        let Some(proof) = nonzero_turned(&fact.proof, &says).or_else(witnessed) else {
+            return Route::no(format!(
+                "a divisor's ≠ 0 read from {}, which Lean states as {}, no sign or ≠ 0",
+                self.writer.grammar.print(&from),
+                says.text()
+            ));
+        };
+        let stated = match super::super::doc::forms::relation_type(&says) {
+            Some(super::super::doc::LeanType::Num(n)) => Some(n),
+            _ => None,
+        };
+        Route::Built(NotZeroBy::Line { proof, stated })
     }
 
     /// The record's parts held by the lines of the reason on `line`
@@ -1709,7 +1740,8 @@ impl<'a> Proof<'a> {
             return None;
         }
         let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, facts);
-        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let given = self.writer.said_once_given();
+        let nonzero = |d: &Node| membership::nonzero(d, &given);
         let mut parts = Vec::new();
         for (part, within) in op.parts.iter().zip([left_in, right_in]) {
             parts.push(reason_within(part, within, letters, &nonzero, &said)?);
@@ -2104,7 +2136,8 @@ impl<'a> Proof<'a> {
         let mut facts = self.step_facts(i);
         facts.extend(self.cited_parts(refs));
         let said = |t: &Node, s: rules::System| self.held_reason(t, s, letters, &facts);
-        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let given = self.writer.said_once_given();
+        let nonzero = |d: &Node| membership::nonzero(d, &given);
         let reason = reason_within(term, system, letters, &nonzero, &said);
         let reason = reason?;
         match system {

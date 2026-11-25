@@ -372,7 +372,9 @@ pub fn printed_but(
                         StatedIn::Member => "by its member".to_string(),
                     },
                     NonzeroBy::Numerals => "by its numerals".to_string(),
-                    NonzeroBy::Positive => "a positive integer said once".to_string(),
+                    NonzeroBy::Positive { shown } => {
+                        format!("a positive integer {}", shown_words(shown, g))
+                    }
                 };
                 format!("{} {by}", g.print(&p.term))
             })

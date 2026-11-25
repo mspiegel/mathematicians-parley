@@ -5,6 +5,8 @@ use std::mem;
 use super::*;
 use crate::checker::record::{NonzeroBy, NotZero};
 use crate::elab::state::Divided;
+use crate::methods::membership::Shown;
+use crate::rules::System;
 
 /// How a divisor the build asks of is the page's term a record entry names
 /// (`Elaborator::asked_of`).
@@ -594,7 +596,9 @@ impl<'a> Elaborator<'a> {
             let given = match &entry.by {
                 // Proved above, where its value is not zero.
                 NonzeroBy::Numerals => None,
-                NonzeroBy::Positive => self.positive_divisor(&shown, scope, facts)?,
+                NonzeroBy::Positive { shown: derived } => {
+                    self.recorded_positive(&shown, derived, scope, facts)?
+                }
                 // The line the record names, held among the facts a membership
                 // is answered from and the lines the page writes alike.
                 NonzeroBy::Stated { from, .. } => {
@@ -651,6 +655,28 @@ impl<'a> Elaborator<'a> {
             });
         }
         self.parts_apart(divisor, scope, facts, implied)
+    }
+
+    /// ( scope -> divisor =/= 0 ) of a positive integer, the divisor in ℕ
+    /// by the derivation the checker recorded (`NonzeroBy::Positive`) and
+    /// so not zero (`nnne0d`). None where the derivation is not reached.
+    fn recorded_positive(
+        &mut self,
+        divisor: &Rpn,
+        shown: &Shown,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let Some(member) =
+            self.derived_membership_as(None, divisor, System::N, shown, scope, facts)?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(self.b.ap(
+            "nnne0d",
+            &binds! {"ph" => scope, "A" => divisor},
+            &[&member],
+        )))
     }
 
     /// How a divisor asked is the page's term `named` the record names, or
@@ -791,7 +817,7 @@ impl<'a> Elaborator<'a> {
             let mut positive = false;
             for entry in recorded {
                 let natural = match &entry.by {
-                    NonzeroBy::Positive => true,
+                    NonzeroBy::Positive { .. } => true,
                     NonzeroBy::Stated { from, .. } => {
                         let from = self.term(from)?;
                         let from = self.to_term(&from);

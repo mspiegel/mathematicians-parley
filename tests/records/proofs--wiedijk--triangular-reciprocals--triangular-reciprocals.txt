@@ -55,23 +55,23 @@ step 6.2 has letters ε at K6 sentence 0, N at 6.1 sentence 0
 step 6.2.1 has letters ε at K6 sentence 0, N at 6.1 sentence 0, n at K7 sentence 0
 step 6.3 has letters ε at K6 sentence 0, N at 6.1 sentence 0
 step 7 has letters 
-step 1.1 divides by k a positive integer said once, k + 1 a positive integer said once, 2 by its numerals
-a row of step 1.1 divides by k a positive integer said once, k + 1 a positive integer said once, 2 by its numerals
-step 2.1 divides by k a positive integer said once, k + 1 a positive integer said once, 2 by its numerals
-step 3.1 divides by k a positive integer said once
-step 4.1 divides by k a positive integer said once, k + 1 a positive integer said once
-step 5.1 divides by n + 1 a positive integer said once, n a positive integer said once
-a row of step 5.1 divides by n a positive integer said once, n + 1 a positive integer said once
-a row of step 5.1 divides by n + 1 a positive integer said once, n a positive integer said once
-step 6.2.2 divides by n + 1 a positive integer said once, N a positive integer said once
-requires line 1 of step 6.2.2 divides by N a positive integer said once
-step 6.2.3 divides by n + 1 a positive integer said once
-step 6.2.4 divides by n + 1 a positive integer said once, N a positive integer said once
-step 6.2.5 divides by n + 1 a positive integer said once
-step 6.2.6 divides by n + 1 a positive integer said once
-step 6.2.7 divides by n + 1 a positive integer said once
-step 6.2.8 divides by n + 1 a positive integer said once
-step 6.2.9 divides by n + 1 a positive integer said once
+step 1.1 divides by k a positive integer walked Letter, k + 1 a positive integer walked Built([Letter, Numeral]), 2 by its numerals
+a row of step 1.1 divides by k a positive integer walked Letter, k + 1 a positive integer walked Built([Letter, Numeral]), 2 by its numerals
+step 2.1 divides by k a positive integer walked Letter, k + 1 a positive integer walked Built([Letter, Numeral]), 2 by its numerals
+step 3.1 divides by k a positive integer walked Letter
+step 4.1 divides by k a positive integer walked Letter, k + 1 a positive integer walked Built([Letter, Numeral])
+step 5.1 divides by n + 1 a positive integer walked Built([Letter, Numeral]), n a positive integer walked Letter
+a row of step 5.1 divides by n a positive integer walked Letter, n + 1 a positive integer walked Built([Letter, Numeral])
+a row of step 5.1 divides by n + 1 a positive integer walked Built([Letter, Numeral]), n a positive integer walked Letter
+step 6.2.2 divides by n + 1 a positive integer walked Built([Letter, Numeral]), N a positive integer walked Letter
+requires line 1 of step 6.2.2 divides by N a positive integer walked Letter
+step 6.2.3 divides by n + 1 a positive integer walked Built([Letter, Numeral])
+step 6.2.4 divides by n + 1 a positive integer walked Built([Letter, Numeral]), N a positive integer walked Letter
+step 6.2.5 divides by n + 1 a positive integer walked Built([Letter, Numeral])
+step 6.2.6 divides by n + 1 a positive integer walked Built([Letter, Numeral])
+step 6.2.7 divides by n + 1 a positive integer walked Built([Letter, Numeral])
+step 6.2.8 divides by n + 1 a positive integer walked Built([Letter, Numeral])
+step 6.2.9 divides by n + 1 a positive integer walked Built([Letter, Numeral])
 a row of step 1.1 is the sum of nothing, reading 0
 step 1 holds k in cn stated
 step 1 holds k in cn0 stated
