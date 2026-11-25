@@ -651,7 +651,7 @@ fn group_facts(
         .iter()
         .map(|says| {
             let said: Vec<&Node> = wants.iter().chain(iter::once(says)).collect();
-            number_sets::set_letter_systems(&said, &none)
+            number_sets::set_letter_systems(&said)
         })
         .collect();
     // A count is at least 1 by the number systems the item's own hypotheses
@@ -659,7 +659,7 @@ fn group_facts(
     // what they bound.
     let mut letters = Introduced::new();
     for want in &wants {
-        if let Some((letter, system)) = citing::introduction(want, &letters) {
+        if let Some((letter, system)) = citing::introduction(want) {
             letters.insert(letter, system);
         }
     }
@@ -667,8 +667,7 @@ fn group_facts(
     let positive = super::bounds::positive_by(&letters, &bounds, ctx);
     let finite = finite::said_finite(&wants, &[], &[], &positive);
     let lines: Vec<&Node> = typed.iter().chain(&wants).collect();
-    let function_systems =
-        number_sets::function_systems(&lines, &letters, &IndexMap::new());
+    let function_systems = number_sets::function_systems(&lines, &IndexMap::new());
     super::record::GroupFacts {
         bounds,
         finite,

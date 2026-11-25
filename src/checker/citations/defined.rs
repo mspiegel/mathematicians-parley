@@ -304,19 +304,11 @@ pub fn applied_domains(
             continue;
         };
         let parts = known.read_out_parts(step, library);
-        let letters = super::super::library::introduced(known, step);
         // An argument that is the index of a sum or a sequence's limit in
         // `formula` whose range lies inside the domain.
         let index_said = |formula: &Node, arg: &Node, domain: &Node| {
             let formulas = slice::from_ref(formula);
-            let within = index_range_within(
-                formulas,
-                arg,
-                domain,
-                &letters,
-                known,
-                &library.ctx,
-            );
+            let within = index_range_within(formulas, arg, domain, known, &library.ctx);
             (within == Some(true)).then(|| match limit_index(formulas, arg) {
                 true => DomainSaid::LimitIndex,
                 false => DomainSaid::SumRange,
@@ -845,7 +837,6 @@ fn indices_outside(
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new();
     };
-    let letters = super::super::library::introduced(known, step);
     let in_claim = evaluated(step, &used, known, library)
         .into_iter()
         .map(|asked| (asked, claim.clone()));
@@ -857,7 +848,6 @@ fn indices_outside(
                 slice::from_ref(&formula),
                 &asked.arg,
                 &domain,
-                &letters,
                 known,
                 &library.ctx,
             );
@@ -876,7 +866,6 @@ pub(super) fn index_range_within(
     formulas: &[Node],
     arg: &Node,
     domain: &Node,
-    letters: &Introduced,
     known: &Known,
     ctx: &Context,
 ) -> Option<bool> {
@@ -886,7 +875,7 @@ pub(super) fn index_range_within(
     // A sequence's index, n of S(n) → K as n → ∞, runs over ℕ (the
     // notation's own reading).
     if limit_index(formulas, arg) {
-        let inside = citing::set_system(domain, letters)?;
+        let inside = citing::set_system(domain)?;
         return Some(System::N.within(inside));
     }
     let sum = formulas.iter().flat_map(|f| f.walk()).find(|n| {
@@ -904,7 +893,7 @@ pub(super) fn index_range_within(
     )
     .ok()?;
     let runs = citing::range_system(&range)?;
-    let inside = citing::set_system(domain, letters)?;
+    let inside = citing::set_system(domain)?;
     Some(runs.within(inside))
 }
 

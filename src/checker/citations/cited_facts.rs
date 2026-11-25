@@ -157,8 +157,7 @@ pub(super) fn requires_parts(
     if step.openers.is_empty() {
         if let [claim] = read_all(&step.claim).as_slice() {
             if let Some((member, _)) = claimed_member(claim, library.env.g) {
-                if let Some((letter, system)) = citing::introduction(&member, &in_scope)
-                {
+                if let Some((letter, system)) = citing::introduction(&member) {
                     in_scope.insert(letter, system);
                 }
                 read.push(member);

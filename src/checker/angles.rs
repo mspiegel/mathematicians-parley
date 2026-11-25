@@ -325,7 +325,7 @@ fn walk(
 
 /// Each sentence of a written part, read as the page writes it; one that
 /// does not read is `check_formulas`'s to report.
-fn sentences(known: &Known, written: &Written) -> Vec<Node> {
+pub(super) fn sentences(known: &Known, written: &Written) -> Vec<Node> {
     written
         .sentences()
         .iter()
@@ -336,7 +336,7 @@ fn sentences(known: &Known, written: &Written) -> Vec<Node> {
 /// The step whose scope a part stands in: the last step whose claim is on
 /// or above the part's line. None for the statement and what stands above
 /// the first step.
-fn governing<'t>(thm: &'t Theorem, part: &FormulaPart) -> Option<&'t Step> {
+pub(super) fn governing<'t>(thm: &'t Theorem, part: &FormulaPart) -> Option<&'t Step> {
     if thm.hypotheses.iter().any(|h| h.line == part.line) || part.line == thm.line {
         return None;
     }

@@ -177,8 +177,8 @@ pub(super) fn cases() -> Vec<Case> {
             )],
             "step 1 cites H3, and mun:square-nonneg asks for nothing it says",
         ),
-        // [a, b] lies in ℝ only where its ends are real, so its member is a
-        // real number said once only where they are numbers said once.
+        // [a, b] is written only where its ends are real numbers, which the
+        // line letting a letter range over it is told.
         case(
             "a closed interval member whose end is not said real",
             vec![edit(
@@ -186,7 +186,7 @@ pub(super) fn cases() -> Vec<Case> {
                 Some("  let b ∈ ℝ    (H2)\n  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n".to_string()),
                 "  let b ∈ ℂ    (H2)\n  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n".to_string(),
             )],
-            "step 1 cites mun:square-nonneg, which asks for x ∈ ℝ, and what it cites does not supply it",
+            "the `let` line lets a letter range over [a, b], and nothing in scope says b ∈ ℝ: an interval's ends are numbers",
         ),
         // The item's domain is a's, {1, …, n}, though the step cites a's type:
         // k ∈ ℤ, said once, does not put k in it.

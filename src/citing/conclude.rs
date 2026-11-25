@@ -281,7 +281,7 @@ pub fn not_numbers(
             let binds = library.exists.contains(&node.notation())
                 || library.every.contains(&node.notation());
             if binds && name.is_name() {
-                if let Some(system) = super::once::set_system(set, &bound) {
+                if let Some(system) = super::once::set_system(set) {
                     bound.insert(name.text.to_string(), system);
                 }
             }

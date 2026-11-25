@@ -39,7 +39,7 @@ use crate::citing::bounds::SaidBounds;
 use crate::citing::finite::{FiniteSets, Named, SaidFinite};
 use crate::citing::number_sets::Between;
 use crate::citing::things::ThingTypes;
-use crate::citing::{finite, number_sets, Introduced};
+use crate::citing::{finite, number_sets};
 use crate::corpus::proof::CHAIN_RELATIONS;
 use crate::corpus::{
     phrases, proof, DefineLine, DefineParts, Justification, Requires, RuleText,
@@ -63,6 +63,7 @@ mod bounds;
 mod citations;
 mod database;
 mod formulas;
+mod intervals;
 mod library;
 pub mod record;
 mod structure;
@@ -569,18 +570,12 @@ pub fn finite_of(ctx: &Context, thm: &Theorem, record: &CheckedTheorem) -> SaidF
 }
 
 /// The number system each set letter of numbers holds, read from the
-/// record's page with the letters its steps introduce
-/// (`citing::number_sets::set_letter_systems`). A backend that writes the
-/// page otherwise reads it again of the page it writes, as `finite_of`.
+/// record's page (`citing::number_sets::set_letter_systems`). A backend
+/// that writes the page otherwise reads it again of the page it writes, as
+/// `finite_of`.
 pub fn set_systems_of(record: &CheckedTheorem) -> IndexMap<String, System> {
-    let mut letters = Introduced::new();
-    for step in &record.introduced {
-        for (name, system) in step {
-            letters.entry(name.clone()).or_insert(*system);
-        }
-    }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    let mut out = number_sets::set_letter_systems(&lines, &letters);
+    let mut out = number_sets::set_letter_systems(&lines);
     // A set of numbers no line places among narrower ones, `let A be a set`
     // with 3 ∈ A, holds complex numbers, set.mm's numbers: the page says no
     // narrower system of it.
@@ -632,28 +627,16 @@ pub fn thing_types_of(
 /// is in, the widest of them, A of `A ∈ ℝ ∖ ℚ` (`CheckedTheorem::
 /// element_systems`), read from the record's page as `set_systems_of`.
 pub fn element_systems_of(record: &CheckedTheorem) -> IndexMap<String, System> {
-    let mut letters = Introduced::new();
-    for step in &record.introduced {
-        for (name, system) in step {
-            letters.entry(name.clone()).or_insert(*system);
-        }
-    }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    number_sets::element_systems(&lines, &letters, &record.set_systems)
+    number_sets::element_systems(&lines, &record.set_systems)
 }
 
 /// The function letters the page's lines give a type between sets of
 /// numbers, with their systems (`CheckedTheorem::function_systems`), read
 /// from the record's page as `set_systems_of`.
 pub fn function_systems_of(record: &CheckedTheorem) -> IndexMap<String, Between> {
-    let mut letters = Introduced::new();
-    for step in &record.introduced {
-        for (name, system) in step {
-            letters.entry(name.clone()).or_insert(*system);
-        }
-    }
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
-    number_sets::function_systems(&lines, &letters, &record.set_systems)
+    number_sets::function_systems(&lines, &record.set_systems)
 }
 
 /// The steps that say which numbers each of the theorem's defines gives
@@ -675,14 +658,13 @@ pub fn define_values_of(
         .collect();
     let mut out: IndexMap<String, Vec<record::ValuesSaid>> = IndexMap::new();
     for (i, step) in thm.steps.iter().enumerate() {
-        let letters = record.introduced.get(i).cloned().unwrap_or_default();
         let lines: Vec<&Node> = step
             .claim
             .sentences()
             .iter()
             .filter_map(|s| record.page.get(s))
             .collect();
-        let system_of = |set: &Node| match citing::set_system(set, &letters) {
+        let system_of = |set: &Node| match citing::set_system(set) {
             Some(s) => Some(s),
             None if set.is_name() => record.set_systems.get(&*set.text).copied(),
             None => None,
@@ -694,7 +676,7 @@ pub fn define_values_of(
                 said.push((name, system, typed));
             }
         }
-        let sets = number_sets::set_letter_systems(&lines, &letters);
+        let sets = number_sets::set_letter_systems(&lines);
         said.extend(sets.into_iter().map(|(name, system)| (name, system, false)));
         for (name, system, typed) in said {
             if !names.contains(&name) {
@@ -978,6 +960,7 @@ fn theorem_record(
         formulas::commuted_by_lines(thm, &c.known[i], &c.library.targets);
     record.divided_by = formulas::divided_by(thm, &c.known[i], &c.library.targets);
     record.combinations = formulas::combinations(thm, &c.known[i], c.library);
+    record.interval_ends = intervals::interval_ends(thm, &c.known[i]);
     record.defines_read = formulas::defines_read(thm, &c.known[i]);
     record.at_member =
         citations::at_member(thm, c.library, &c.known[i], &record.instantiated);
@@ -2439,6 +2422,7 @@ fn check_passes(
     formulas::check_inspection_holds(report, thm, k, targets);
     formulas::check_membership_claims(report, thm, k);
     angles::check_angle_points(report, thm, k);
+    intervals::check_interval_ends(report, thm, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);
     citations::check_recursions_cited(report, thm, library, k);

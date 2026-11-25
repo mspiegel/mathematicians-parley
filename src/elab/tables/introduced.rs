@@ -1,8 +1,9 @@
 //! Introduced memberships, intervals and function values.
 
 use super::*;
-use crate::checker::record::{HeldByLines, Shown};
+use crate::checker::record::{HeldByLines, IntervalEnds, Shown};
 use crate::citing;
+use crate::rules::System;
 
 /// What the checker recorded of a page letter in scope
 /// (`Elaborator::recorded_letter`).
@@ -862,16 +863,54 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("{set} has no two ends")));
         };
         let (low, high) = (self.rpn(low), self.rpn(high));
-        let ends_in = t!(ends);
-        let low_in = take!(self.introduced_membership(&low, &ends_in, scope, facts)?);
-        let high_in = take!(self.introduced_membership(&high, &ends_in, scope, facts)?);
+        let Some(recorded) = self.recorded_ends(set)? else {
+            return Err(self.defect(
+                self.thm.line,
+                format!("the checker recorded no ends of the interval {set}"),
+            ));
+        };
+        let Some(system) = System::of_label(ends) else {
+            return Ok(Route::no(format!("{ends} is no number system")));
+        };
+        let [low_term, high_term] = recorded.interval.children.as_slice() else {
+            return Ok(Route::no(format!("{set} has no two ends")));
+        };
+        let mut proved = Vec::new();
+        for (term, shown) in [(low_term, &recorded.low), (high_term, &recorded.high)] {
+            let Some(proof) =
+                self.derived_membership(None, term, system, shown, scope, facts)?
+            else {
+                return Err(self.defect(
+                    self.thm.line,
+                    format!(
+                        "the build does not reach the end of {set} as the checker recorded it in {ends}"
+                    ),
+                ));
+            };
+            proved.push(proof);
+        }
+        let [low_in, high_in] = proved.as_slice() else {
+            return Ok(Route::no(format!("{set} has no two ends")));
+        };
         let law = self.b.ap(interval.lemma, &self.spelt(&binding), &[]);
         Ok(Built(self.b.ap(
             "syl3anc",
             &binds! {"ph" => scope, "ps" => t!(low, ends, "wcel"),
             "ch" => t!(high, ends, "wcel"), "th" => &claim, "ta" => &gives},
-            &[&low_in, &high_in, &held, &law],
+            &[low_in, high_in, &held, &law],
         )))
+    }
+
+    /// How the checker recorded the ends of the closed interval `set`
+    /// numbers (`CheckedTheorem::interval_ends`); None where it recorded
+    /// none of that interval.
+    fn recorded_ends(&mut self, set: &Rpn) -> Checked<Option<IntervalEnds>> {
+        for entry in self.checked.interval_ends.clone() {
+            if self.term(&entry.interval)? == *set {
+                return Ok(Some(entry));
+            }
+        }
+        Ok(None)
     }
 
     /// ( scope -> said e. system ) from ( scope -> said e. set ), along the

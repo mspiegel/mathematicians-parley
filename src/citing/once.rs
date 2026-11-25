@@ -47,57 +47,62 @@ use crate::methods::{membership, reals, surds};
 /// page writes it.
 pub type Introduced = IndexMap<String, System>;
 
-/// The letter and number system a sentence `x ∈ ℝ` introduces, `letters`
-/// being those introduced before it; None for any other sentence, a term in
-/// place of the letter included.
-pub fn introduction(said: &Node, letters: &Introduced) -> Option<(String, System)> {
+/// The letter and number system a sentence `x ∈ ℝ` introduces; None for
+/// any other sentence, a term in place of the letter included.
+pub fn introduction(said: &Node) -> Option<(String, System)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
     if said.spelling() != IN || !letter.is_name() {
         return None;
     }
-    Some((letter.text.to_string(), set_system(set, letters)?))
+    Some((letter.text.to_string(), set_system(set)?))
 }
 
 /// The number system a member of `set` is in: a number system's own, a
 /// range's (`range_system`) or an interval's (`interval_system`), and the
 /// same for each with points taken out, since a member of S ∖ {c} is a
 /// member of S: x ∈ ℝ ∖ {0} is in ℝ. None for a set none of these is.
-pub fn set_system(set: &Node, letters: &Introduced) -> Option<System> {
+pub fn set_system(set: &Node) -> Option<System> {
     if let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) {
-        return set_system(from, letters);
+        return set_system(from);
     }
     match set.notation() {
         NUMBER_SYSTEMS => System::of_sign(&set.text),
         INTEGER_RANGE => range_system(set),
-        _ => interval_system(set, letters),
+        _ => interval_system(set),
     }
 }
 
-/// The number system the declared table puts an interval in, ℝ for (a, b)
-/// and for [a, b] whose ends are numbers said once by `letters`
-/// (`rules::INTERVAL_WITHIN`, which the elaborator reads as well), and for
-/// an interval with points taken out, (a, b) ∖ {c}, whose members are its
-/// members; None for a set that is no interval, or a closed one whose ends
-/// are not said once.
-pub fn interval_system(set: &Node, letters: &Introduced) -> Option<System> {
+/// The number system the declared table puts an interval's members in, ℝ
+/// for (a, b) and [a, b] (`rules::INTERVAL_WITHIN`, which the elaborator
+/// reads as well), and for an interval with points taken out, (a, b) ∖
+/// {c}, whose members are its members; None for a set that is no interval.
+/// It is the interval's shape that says so: that a closed interval's ends
+/// are numbers is checked where the interval is written
+/// (`closed_interval`).
+pub fn interval_system(set: &Node) -> Option<System> {
     if let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) {
-        return interval_system(from, letters);
+        return interval_system(from);
     }
     let interval = rules::INTERVAL_WITHIN
         .iter()
         .find(|i| NotationId::of(i.notation) == set.notation())?;
-    if let Some(ends) = interval.ends {
-        let ends = System::of_label(ends)?;
-        // What the page says once of the ends, which no line is asked for.
-        let nonzero = |d: &Node| nonzero_said_once(d, letters);
-        let said = |end: &Node| within(end, ends, letters, &nonzero, &|_, _| false);
-        if !set.children.iter().all(said) {
-            return None;
-        }
-    }
     System::of_label(interval.system)
+}
+
+/// An interval whose ends the declared table asks are in a number system,
+/// [a, b] in ℝ, with points taken out or not: the interval itself, its
+/// points not taken out, and the system its ends are in. None for any
+/// other set.
+pub fn closed_interval(set: &Node) -> Option<(&Node, System)> {
+    if let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) {
+        return closed_interval(from);
+    }
+    let interval = rules::INTERVAL_WITHIN
+        .iter()
+        .find(|i| NotationId::of(i.notation) == set.notation())?;
+    Some((set, System::of_label(interval.ends?)?))
 }
 
 /// The least number system the declared table puts a range {a, …, b} in:
@@ -923,14 +928,6 @@ pub fn nonzero_by_parts(divisor: &Node, said: &dyn Fn(&Node) -> bool) -> bool {
 /// `arithmetic` works it out, is not zero: 3, 2 − 5 and 10^0.
 pub fn closed_nonzero(divisor: &Node) -> bool {
     value(divisor).is_some_and(|v| !v.is_zero())
-}
-
-/// Whether an interval's end that is a divisor goes without its `≠ 0`: a
-/// term of numerals alone whose value is not zero, or a term in ℕ by
-/// `letters`.
-fn nonzero_said_once(divisor: &Node, letters: &Introduced) -> bool {
-    closed_nonzero(divisor)
-        || within(divisor, System::N, letters, &closed_nonzero, &|_, _| false)
 }
 
 /// How a divisor, or a part of one, goes without its `≠ 0` (`SYNTAX.md`),

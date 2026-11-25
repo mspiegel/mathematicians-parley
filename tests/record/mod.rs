@@ -384,6 +384,16 @@ pub fn printed_but(
     for (line, made) in &record.combinations {
         writeln!(out, "{} is {}", reason_at(*line), algebra_made(made, g)).unwrap();
     }
+    for ends in &record.interval_ends {
+        writeln!(
+            out,
+            "{} has ends {}, {}",
+            g.print(&ends.interval),
+            shown_words(&ends.low, g),
+            shown_words(&ends.high, g)
+        )
+        .unwrap();
+    }
     for (line, held) in &record.held_by_lines {
         for h in held {
             writeln!(

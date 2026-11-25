@@ -408,6 +408,48 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// A theorem letting x range over [0, `end`], under the line `typed`.
+fn interval_page(end: &str, typed: &str) -> String {
+    format!(
+        "theorem interval-end\n  {typed}\n  let x ∈ [0, {end}]                                                  (H2)\n  then x + 0 = x\n\n1.  x + 0 = x\n    algebra\n"
+    )
+}
+
+/// A closed interval's ends are numbers by the one membership rule where a
+/// line lets a letter range over it: f(1) is real by f's type, and 1/n,
+/// whose divisor may be zero, is not a number the page says.
+#[test]
+fn an_intervals_ends_are_numbers_by_the_one_rule() {
+    let clean = clean();
+    let typed = interval_page(
+        "f(1)",
+        "let f : ℝ → ℝ                                                       (H1)",
+    );
+    let valued = case(
+        "an interval's end a function's value",
+        vec![edit("proofs/wiedijk/interval-end.proof", None, typed)],
+        "",
+    );
+    let tree = plant(&valued, &clean).unwrap();
+    let out = checked_planted(&valued, &tree);
+    assert!(out.contains("\n0 problem(s)\n"), "{out}");
+    let divided = interval_page(
+        "1/n",
+        "let n ∈ ℤ                                                           (H1)",
+    );
+    let quotient = case(
+        "an interval's end dividing by what may be zero",
+        vec![edit("proofs/wiedijk/interval-end.proof", None, divided)],
+        "",
+    );
+    let tree = plant(&quotient, &clean).unwrap();
+    let out = checked_planted(&quotient, &tree);
+    assert!(
+        out.contains("nothing in scope says 1 / n ∈ ℝ: an interval's ends are numbers"),
+        "{out}"
+    );
+}
+
 /// An item's function letter that the page names alike is found by
 /// matching where the citation gives it no value. The map a match may bind
 /// it to names the page's letter of the same name, E ↦ (s ↦ E(s)) or

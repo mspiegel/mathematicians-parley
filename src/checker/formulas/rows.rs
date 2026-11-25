@@ -1716,7 +1716,7 @@ pub(super) fn member_of(
     let system = match set.notation() {
         NUMBER_SYSTEMS => System::of_sign(&set.text),
         INTEGER_RANGE => citing::range_system(set),
-        _ => match citing::interval_system(set, letters) {
+        _ => match citing::interval_system(set) {
             Some(system) => Some(system),
             None => return true,
         },

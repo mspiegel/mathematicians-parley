@@ -90,6 +90,7 @@ step 16.6 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0,
 step 16.27 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.5 sentence 0
 step 16.29 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0, δ at 16.28 sentence 0
 step 17 has letters a at H1 sentence 0, b at H2 sentence 0, c at 8 sentence 0
+[a, b] has ends walked Letter, walked Letter
 step 9 holds c in cr stated
 step 9 holds c in cc stated
 step 14 holds f(c) in cr valued at a stated point

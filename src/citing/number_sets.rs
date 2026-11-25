@@ -14,7 +14,7 @@ use indexmap::IndexMap;
 use crate::formula::{Node, Whole};
 use crate::rules::System;
 
-use super::once::{set_system, Introduced};
+use super::once::set_system;
 use crate::notations::{APPLICATION, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP};
 
 /// The number system each letter is in by the lines putting it in sets of
@@ -23,7 +23,6 @@ use crate::notations::{APPLICATION, FUNCTION_TYPE, INTEGER_RANGE, MEMBERSHIP};
 /// a set is not among them.
 pub fn element_systems(
     lines: &[&Node],
-    letters: &Introduced,
     sets: &IndexMap<String, System>,
 ) -> IndexMap<String, System> {
     let mut out: IndexMap<String, System> = IndexMap::new();
@@ -34,7 +33,7 @@ pub fn element_systems(
         if node.notation() != MEMBERSHIP || !x.is_name() {
             continue;
         }
-        let system = match set_system(set, letters) {
+        let system = match set_system(set) {
             Some(s) => s,
             None if set.is_name() => match sets.get(&*set.text) {
                 Some(s) => *s,
@@ -59,10 +58,9 @@ pub fn element_systems(
 /// letter's by `sets`.
 pub fn function_systems(
     lines: &[&Node],
-    letters: &Introduced,
     sets: &IndexMap<String, System>,
 ) -> IndexMap<String, Between> {
-    let system = |set: &Node| match set_system(set, letters) {
+    let system = |set: &Node| match set_system(set) {
         Some(s) => Some(s),
         None if set.is_name() => sets.get(&*set.text).copied(),
         None => None,
@@ -93,19 +91,15 @@ pub struct Between {
 /// The number system each set letter of numbers holds, by the first line
 /// that says it, in the order the lines are walked: a subset or member of
 /// 𝒫 of a set of numbers, or a letter joined by ∪, ∩ or ∖ with one.
-/// `letters` are the number letters, for an interval's ends.
-pub fn set_letter_systems(
-    lines: &[&Node],
-    letters: &Introduced,
-) -> IndexMap<String, System> {
+pub fn set_letter_systems(lines: &[&Node]) -> IndexMap<String, System> {
     let mut found: IndexMap<String, System> = IndexMap::new();
     // A letter found makes a set of numbers of a line read earlier: until
     // no more are.
     loop {
         let before = found.len();
         for node in lines.iter().flat_map(|l| l.walk()) {
-            let said = subset_system(&node, &found, letters)
-                .or_else(|| joined_system(&node, &found, letters));
+            let said =
+                subset_system(&node, &found).or_else(|| joined_system(&node, &found));
             if let Some((letter, system)) = said {
                 found.entry(letter).or_insert(system);
             }
@@ -120,22 +114,18 @@ pub fn set_letter_systems(
 /// or an interval's (`set_system`), a set letter's found already, and what
 /// a set made from one of those by ∪, ∩, ∖ or {x ∈ A : …} holds. None for
 /// any other set.
-pub fn members_system(
-    set: &Node,
-    found: &IndexMap<String, System>,
-    letters: &Introduced,
-) -> Option<System> {
+pub fn members_system(set: &Node, found: &IndexMap<String, System>) -> Option<System> {
     if set.is_name() {
         return found.get(&*set.text).copied();
     }
-    if let Some(system) = set_system(set, letters) {
+    if let Some(system) = set_system(set) {
         return Some(system);
     }
     match (&*set.notation_name(), set.children.as_slice()) {
-        ("closed-interval" | "open-interval", _) => Some(System::R),
-        ("set-operations", [a, b]) => members_system(a, found, letters)
-            .or_else(|| members_system(b, found, letters)),
-        ("set-builder", [_, a, _]) => members_system(a, found, letters),
+        ("set-operations", [a, b]) => {
+            members_system(a, found).or_else(|| members_system(b, found))
+        }
+        ("set-builder", [_, a, _]) => members_system(a, found),
         _ => None,
     }
 }
@@ -145,7 +135,6 @@ pub fn members_system(
 fn subset_system(
     node: &Node,
     found: &IndexMap<String, System>,
-    letters: &Introduced,
 ) -> Option<(String, System)> {
     let [d, whole] = node.children.as_slice() else {
         return None;
@@ -164,7 +153,7 @@ fn subset_system(
     if !d.is_name() {
         return None;
     }
-    Some((d.text.to_string(), members_system(whole, found, letters)?))
+    Some((d.text.to_string(), members_system(whole, found)?))
 }
 
 /// A set letter of numbers not found yet that ∪, ∩ or ∖ joins with a set of
@@ -173,7 +162,6 @@ fn subset_system(
 fn joined_system(
     node: &Node,
     found: &IndexMap<String, System>,
-    letters: &Introduced,
 ) -> Option<(String, System)> {
     if &*node.notation_name() != "set-operations" {
         return None;
@@ -192,10 +180,7 @@ fn joined_system(
     if !of_numbers {
         return None;
     }
-    Some((
-        letter.text.to_string(),
-        members_system(other, found, letters)?,
-    ))
+    Some((letter.text.to_string(), members_system(other, found)?))
 }
 
 /// Whether the set of that name is the one a function maps from, `t : X →

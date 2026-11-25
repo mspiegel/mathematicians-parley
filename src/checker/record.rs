@@ -541,6 +541,12 @@ pub struct CheckedTheorem {
     /// (`formulas::combinations`): the backends write what is recorded,
     /// and do not look for it.
     pub combinations: IndexMap<usize, AlgebraMade>,
+    /// Each closed interval the page lets a letter range over, by a `let`,
+    /// an `obtain`, a "for all" or a "there is", with how its ends are
+    /// numbers (`intervals::interval_ends`), once for each interval. The
+    /// interval's shape puts its members in ℝ; a backend proving a member
+    /// real from the interval proves the ends as recorded here.
+    pub interval_ends: Vec<IntervalEnds>,
     /// The defined names a reason is read with written out, by the line the
     /// reason is on: a step's, a requires line's, a calculation's or a
     /// substitution's row, or the reason under a define that says a kind
@@ -639,6 +645,17 @@ pub struct HeldByLines {
     pub term: Node,
     pub system: System,
     pub shown: Shown,
+}
+
+/// A closed interval a line lets a letter range over, its ends each in the
+/// system the interval asks, ℝ for [a, b], as the one membership rule
+/// shows it over no lines (`CheckedTheorem::interval_ends`).
+#[derive(Clone, Debug)]
+pub struct IntervalEnds {
+    /// The interval, without any points the line takes out of it.
+    pub interval: Node,
+    pub low: Shown,
+    pub high: Shown,
 }
 
 /// A part a reason divides by, and why it is not zero

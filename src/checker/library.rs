@@ -1335,7 +1335,7 @@ fn citation_parts(
             // A step said of every member introduces the member as the same
             // step's block would by its `let`: j of "for all j ∈ {1, …, m}"
             // is in ℕ, the system the range is in (`SYNTAX.md`).
-            if let Some((letter, system)) = citing::introduction(&member, &letters) {
+            if let Some((letter, system)) = citing::introduction(&member) {
                 letters.insert(letter, system);
             }
             let mut facts = facts;
@@ -1375,7 +1375,7 @@ fn introduced_by(known: &Known, introducing: &[IntroducingLine]) -> Introduced {
     let mut out = Introduced::new();
     for line in introducing {
         for node in known.said_parts(&line.stated, None).into_iter().flatten() {
-            if let Some((letter, system)) = introduction(&node, &out) {
+            if let Some((letter, system)) = introduction(&node) {
                 out.insert(letter, system);
             }
         }
@@ -1400,16 +1400,14 @@ fn places_by(
     known: &Known,
     introducing: &[IntroducingLine],
 ) -> IndexMap<String, FirstAt> {
-    let mut letters = Introduced::new();
     let mut out = IndexMap::new();
     for line in introducing {
         let says = known.says_written(&line.stated);
         let own = known.sentence_count(&line.stated);
         for node in known.said_parts(&line.stated, None).into_iter().flatten() {
-            let Some((letter, system)) = introduction(&node, &letters) else {
+            let Some((letter, _)) = introduction(&node) else {
                 continue;
             };
-            letters.insert(letter.clone(), system);
             // The line's reading of the membership, as a citation reads it; a
             // line with no label has no place to name.
             let place = line.label.as_deref().and_then(|label| {
@@ -1666,13 +1664,10 @@ pub struct IntroducingLine {
     pub stated: Stated,
 }
 
-/// The lines introducing what is in scope at `step`, in the order they are
-/// written: a `let` of the theorem or of a block around the step, an
-/// `obtain` above it in a block around it, and a naming `let` of a kind.
-fn introducing(known: &Known, step: &Step) -> Vec<IntroducingLine> {
+/// The theorem's own `let` lines, each by the line it is on.
+fn theorem_lets(known: &Known) -> Vec<(usize, IntroducingLine)> {
     let path = &known.thm.path;
-    // What each introducing line says, by the line it is on.
-    let mut said: Vec<(usize, IntroducingLine)> = known
+    known
         .thm
         .hypotheses
         .iter()
@@ -1682,7 +1677,27 @@ fn introducing(known: &Known, step: &Step) -> Vec<IntroducingLine> {
             let label = h.label.clone();
             (h.line, IntroducingLine { label, stated })
         })
+        .collect()
+}
+
+/// What is in scope at the theorem's statement: the letters its `let`
+/// lines introduce and the function types they give, as `introduced` and
+/// `typed_in_scope` read them at a step.
+pub fn statement_scope(known: &Known) -> (Introduced, Vec<Node>) {
+    let lines: Vec<IntroducingLine> = theorem_lets(known)
+        .into_iter()
+        .map(|(_, line)| line)
         .collect();
+    (introduced_by(known, &lines), typed_by(known, &lines))
+}
+
+/// The lines introducing what is in scope at `step`, in the order they are
+/// written: a `let` of the theorem or of a block around the step, an
+/// `obtain` above it in a block around it, and a naming `let` of a kind.
+fn introducing(known: &Known, step: &Step) -> Vec<IntroducingLine> {
+    let path = &known.thm.path;
+    // What each introducing line says, by the line it is on.
+    let mut said = theorem_lets(known);
     let visible = labels_in_scope(known.thm, known.shape(), step, known.env.scopes);
     for other in &known.thm.steps {
         for o in &other.openers {
